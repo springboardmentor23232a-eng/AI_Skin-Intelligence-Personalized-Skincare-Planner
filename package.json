@@ -1,0 +1,19 @@
+{
+  "name": "ai-skin-intelligence-dashboard",
+  "version": "1.0.0",
+  "description": "AI Skin Intelligence & Personalized Skincare Planner - Role-Based Dashboards",
+  "type": "module",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve . -p 3000",
+    "test": "node test/dashboard.test.js"
+  },
+  "keywords": [
+    "skincare",
+    "ai",
+    "dashboard",
+    "vanilla-js"
+  ],
+  "author": "Infosys Springboard Team",
+  "license": "MIT"
+}
