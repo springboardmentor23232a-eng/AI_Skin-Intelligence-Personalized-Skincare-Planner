@@ -53,6 +53,7 @@ body {
   display: flex;
   flex-direction: column;
   line-height: 1.55;
+  overflow-x: hidden;
 }
 
 /* Editorial Header Navbar */
@@ -196,7 +197,7 @@ body {
   max-width: 1360px;
   width: 100%;
   margin: 0 auto;
-  padding: 3rem 2rem;
+  padding: 3rem 2rem 0;
 }
 
 /* Editorial Hero Section */
@@ -774,16 +775,24 @@ body {
   display: block;
 }
 
-/* Editorial Footer */
+/* Editorial Footer (Full Bleed Edge-to-Edge Converged Footer) */
 .editorial-footer {
   margin-top: 6rem;
   background: #14221F;
   color: #E2ECE9;
-  padding: 4.5rem 3rem 2rem;
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: 4.5rem 5rem 2.5rem;
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  border-radius: 0;
 }
 
 .footer-grid {
+  max-width: 1360px;
+  margin: 0 auto;
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr;
   gap: 3.5rem;
@@ -840,6 +849,8 @@ body {
 }
 
 .footer-bottom-bar {
+  max-width: 1360px;
+  margin: 0 auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
