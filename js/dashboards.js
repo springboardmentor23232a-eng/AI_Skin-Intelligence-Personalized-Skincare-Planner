@@ -26,7 +26,7 @@ export function renderLandingPage() {
         </div>
 
         <div class="hero-visual-col">
-          <div class="skin-scan-viewport">
+          <div class="skin-scan-viewport" style="background-image: url('assets/hero_skin_scan.png'); background-size: cover; background-position: center;">
             <div class="scan-target-overlay">
               <div class="scan-line"></div>
             </div>
@@ -110,7 +110,7 @@ export function renderLandingPage() {
         </div>
 
         <div class="explain-graphic-col">
-          <div class="iris-scanner-graphic">
+          <div class="iris-scanner-graphic" style="background-image: url('assets/explain_skin_texture.png'); background-size: cover; background-position: center; border-radius: 50%; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
             <div class="radar-circle outer"></div>
             <div class="radar-circle middle"></div>
             <div class="radar-circle inner"></div>
@@ -129,9 +129,9 @@ export function renderLandingPage() {
             </p>
             <button class="btn btn-primary" onclick="window.app.openModal('assessment-modal')">TRY THE SCAN</button>
           </div>
-          <div class="dark-banner-badge-box">
-            <div style="font-size: 0.75rem; letter-spacing: 0.1em; color: var(--gold-primary); font-weight: 700; margin-bottom: 0.5rem;">📷 OPTICAL SCANNER ACTIVE</div>
-            <div style="font-size: 0.85rem; color: var(--text-muted);">Real-Time Skin Surface Biomarker Detection</div>
+          <div class="dark-banner-portrait-box">
+            <img src="assets/dark_banner_portrait.png" alt="Skin Optical Scan Portrait" class="dark-banner-img">
+            <div class="portrait-overlay-tag">📷 OPTICAL SCANNER ACTIVE</div>
           </div>
         </div>
       </section>
@@ -168,7 +168,7 @@ export function renderLandingPage() {
             </div>
             <div class="doctor-info">
               <h3>Dr. Michael Chen</h3>
-              <span class="doctor-spec">EYE & SKIN SPECIALIST</span>
+              <span class="doctor-spec">SKIN & LASER SPECIALIST</span>
               <p class="doctor-exp">15 years experience</p>
               <button class="btn-link" onclick="alert('Connecting with Dr. Michael Chen...')">CONSULT NOW &gt;</button>
             </div>
@@ -181,7 +181,7 @@ export function renderLandingPage() {
             </div>
             <div class="doctor-info">
               <h3>Dr. Emily Roberts</h3>
-              <span class="doctor-spec">OPTOMETRIST / DERM</span>
+              <span class="doctor-spec">COSMETIC DERMATOLOGIST</span>
               <p class="doctor-exp">12 years experience</p>
               <button class="btn-link" onclick="alert('Connecting with Dr. Emily Roberts...')">CONSULT NOW &gt;</button>
             </div>
