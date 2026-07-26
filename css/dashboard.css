@@ -1,0 +1,79 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    display:flex;
+    background:#eef2f7;
+}
+
+/* Sidebar */
+
+.sidebar{
+    width:250px;
+    height:100vh;
+    background:#0d6efd;
+    color:white;
+    padding:20px;
+}
+
+.sidebar h2{
+    text-align:center;
+    margin-bottom:30px;
+}
+
+.sidebar a{
+    display:block;
+    color:white;
+    text-decoration:none;
+    padding:15px;
+    margin:10px 0;
+    border-radius:8px;
+}
+
+.sidebar a:hover{
+    background:white;
+    color:#0d6efd;
+}
+
+/* Main Content */
+
+.content{
+    flex:1;
+    padding:30px;
+}
+
+.content h1{
+    color:#0d6efd;
+    margin-bottom:30px;
+}
+
+/* Dashboard Cards */
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:25px;
+}
+
+.card{
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    text-align:center;
+    box-shadow:0 5px 15px rgba(0,0,0,.15);
+}
+
+.card h2{
+    color:#0d6efd;
+    font-size:35px;
+    margin-bottom:10px;
+}
+
+.card p{
+    color:#666;
+    font-size:18px;
+}
