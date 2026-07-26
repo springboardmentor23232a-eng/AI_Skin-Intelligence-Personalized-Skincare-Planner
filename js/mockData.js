@@ -1,5 +1,5 @@
 /**
- * Mock Data Store for AI Skin Intelligence & Personalized Skincare Planner
+ * Mock Data Store for PanaceaAI Platform
  */
 
 export const MOCK_ROLES = {
@@ -47,16 +47,17 @@ export const MOCK_USER_DATA = {
     allergies: ['Fragrance (Parfum)', 'High-Concentration Essential Oils'],
     sensitivities: ['Alcohol Denat', 'L-Ascorbic Acid > 15%']
   },
+  hydrationMl: 1750,
   skinScore: {
     overall: 78,
     grade: 'Good (Improving)',
     changeThisWeek: '+4 pts',
     breakdown: [
-      { name: 'Skin Condition Assessment', weight: '35%', score: 75, status: 'Moderate', color: '#6366f1' },
-      { name: 'Lifestyle Habits', weight: '20%', score: 80, status: 'Optimal', color: '#10b981' },
-      { name: 'Sleep Quality', weight: '15%', score: 70, status: 'Needs Attention', color: '#f59e0b' },
-      { name: 'Routine Consistency', weight: '20%', score: 85, status: 'Excellent', color: '#ec4899' },
-      { name: 'Hydration Level', weight: '10%', score: 80, status: 'Optimal', color: '#3b82f6' }
+      { name: 'Skin Condition Assessment', weight: '35%', score: 75, status: 'Moderate', color: '#C59B27' },
+      { name: 'Lifestyle Habits', weight: '20%', score: 80, status: 'Optimal', color: '#2E7D32' },
+      { name: 'Sleep Quality', weight: '15%', score: 70, status: 'Needs Attention', color: '#D97706' },
+      { name: 'Routine Consistency', weight: '20%', score: 85, status: 'Excellent', color: '#E899A5' },
+      { name: 'Hydration Level', weight: '10%', score: 80, status: 'Optimal', color: '#8E24AA' }
     ]
   },
   routine: {
@@ -103,12 +104,6 @@ export const MOCK_USER_DATA = {
       price: '$34.00',
       badge: 'Derm Favorite'
     }
-  ],
-  progressHistory: [
-    { week: 'Week 1', score: 68 },
-    { week: 'Week 2', score: 71 },
-    { week: 'Week 3', score: 74 },
-    { week: 'Week 4', score: 78 }
   ]
 };
 

@@ -1,5 +1,5 @@
 /**
- * Automated Test Suite for AI Skin Intelligence Dashboard
+ * Automated Test Suite for PanaceaAI Dashboard
  * Uses Node.js native test runner (node:test)
  */
 
@@ -28,14 +28,12 @@ test('1. MOCK_ROLES Integrity Test', () => {
 test('2. Weighted Skin Health Score Formula Verification', () => {
   const breakdown = MOCK_USER_DATA.skinScore.breakdown;
   
-  // Extract individual score components
   const conditionScore = breakdown.find(b => b.name.includes('Condition')).score;
   const lifestyleScore = breakdown.find(b => b.name.includes('Lifestyle')).score;
   const sleepScore = breakdown.find(b => b.name.includes('Sleep')).score;
   const consistencyScore = breakdown.find(b => b.name.includes('Consistency')).score;
   const hydrationScore = breakdown.find(b => b.name.includes('Hydration')).score;
 
-  // Apply project formula: (0.35 * Condition) + (0.20 * Lifestyle) + (0.15 * Sleep) + (0.20 * Consistency) + (0.10 * Hydration)
   const computedScore = Math.round(
     (0.35 * conditionScore) +
     (0.20 * lifestyleScore) +
@@ -50,7 +48,7 @@ test('2. Weighted Skin Health Score Formula Verification', () => {
 
 test('3. Landing Page View Renderer Test', () => {
   const html = renderLandingPage();
-  assert.ok(html.includes('Personalized Skincare Intelligence'), 'Must contain hero title');
+  assert.ok(html.includes('PanaceaAI Skincare Intelligence'), 'Must contain PanaceaAI hero title');
   assert.ok(html.includes('DermaCare User'), 'Must list User role card');
   assert.ok(html.includes('Skincare Consultant'), 'Must list Consultant role card');
   assert.ok(html.includes('Dermatologist'), 'Must list Dermatologist role card');
@@ -63,6 +61,7 @@ test('4. User Dashboard View Renderer Test', () => {
   assert.ok(html.includes('Weighted Skin Health Score'), 'Must include skin health score widget');
   assert.ok(html.includes('Today\'s Skincare Checklist'), 'Must include AM/PM routine checklist');
   assert.ok(html.includes('AI Matched Skincare Products'), 'Must include recommended products grid');
+  assert.ok(html.includes('Daily Hydration Tracker'), 'Must include hydration tracker');
 });
 
 test('5. Consultant Dashboard View Renderer Test', () => {

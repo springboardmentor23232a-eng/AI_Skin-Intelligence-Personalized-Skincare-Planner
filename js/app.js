@@ -1,5 +1,5 @@
 /**
- * Main Application Orchestrator for AI Skin Intelligence Dashboard
+ * Main Application Orchestrator for PanaceaAI Dashboard
  */
 
 import { auth } from './auth.js';
@@ -26,10 +26,10 @@ class App {
     this.authBtn = document.getElementById('auth-btn');
     this.loginModal = document.getElementById('login-modal');
 
-    // Subscribe to authentication changes
+    // Subscribe to auth state changes
     auth.subscribe(() => this.render());
 
-    // Bind event listeners
+    // Bind brand logo click to logout / home
     document.getElementById('brand-home').addEventListener('click', () => {
       auth.logout();
     });
@@ -41,7 +41,7 @@ class App {
     const currentRole = auth.getCurrentRole();
     const roleInfo = auth.getCurrentRoleInfo();
 
-    // Update Navbar state
+    // Navbar role status
     if (currentRole && roleInfo) {
       this.navRoleBadge.classList.remove('hidden');
       this.navRoleBadge.innerHTML = `
@@ -59,7 +59,7 @@ class App {
       this.authBtn.onclick = () => this.openLoginModal();
     }
 
-    // Render corresponding View
+    // View render dispatch
     if (!currentRole) {
       this.mainContent.innerHTML = renderLandingPage();
     } else if (currentRole === 'user') {
@@ -79,6 +79,16 @@ class App {
 
   closeLoginModal() {
     this.loginModal.classList.remove('active');
+  }
+
+  openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.classList.add('active');
+  }
+
+  closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.classList.remove('active');
   }
 
   selectRole(roleId) {
@@ -113,6 +123,96 @@ class App {
     if (step) {
       step.completed = !step.completed;
       this.render();
+    }
+  }
+
+  // Dynamic Hydration Counter
+  addHydration(ml) {
+    MOCK_USER_DATA.hydrationMl += ml;
+    
+    // Dynamically calculate hydration score component (goal: 2500ml = 100%)
+    const hydrRatio = Math.min(1.0, MOCK_USER_DATA.hydrationMl / 2500);
+    const newHydrScore = Math.round(hydrRatio * 100);
+
+    const hydrItem = MOCK_USER_DATA.skinScore.breakdown.find(b => b.name.includes('Hydration'));
+    if (hydrItem) hydrItem.score = newHydrScore;
+
+    this.recalculateWeightedScore();
+    this.render();
+  }
+
+  // Dynamic Skin Survey Form Submission
+  handleSurveySubmit(e) {
+    e.preventDefault();
+    const skinType = document.getElementById('survey-skin-type').value;
+    const concern = document.getElementById('survey-concern').value;
+    const condScore = parseInt(document.getElementById('survey-condition').value, 10);
+    const lifeScore = parseInt(document.getElementById('survey-lifestyle').value, 10);
+    const sleepScore = parseInt(document.getElementById('survey-sleep').value, 10);
+
+    MOCK_USER_DATA.profile.skinType = skinType;
+    if (!MOCK_USER_DATA.profile.primaryConcerns.includes(concern)) {
+      MOCK_USER_DATA.profile.primaryConcerns.unshift(concern);
+    }
+
+    const bd = MOCK_USER_DATA.skinScore.breakdown;
+    bd.find(b => b.name.includes('Condition')).score = condScore;
+    bd.find(b => b.name.includes('Lifestyle')).score = lifeScore;
+    bd.find(b => b.name.includes('Sleep')).score = sleepScore;
+
+    this.recalculateWeightedScore();
+    this.closeModal('assessment-modal');
+    this.render();
+  }
+
+  // Recalculate Weighted Skin Score Formula
+  recalculateWeightedScore() {
+    const bd = MOCK_USER_DATA.skinScore.breakdown;
+    const cond = bd.find(b => b.name.includes('Condition')).score;
+    const life = bd.find(b => b.name.includes('Lifestyle')).score;
+    const sleep = bd.find(b => b.name.includes('Sleep')).score;
+    const cons = bd.find(b => b.name.includes('Consistency')).score;
+    const hydr = bd.find(b => b.name.includes('Hydration')).score;
+
+    const computed = Math.round((0.35 * cond) + (0.20 * life) + (0.15 * sleep) + (0.20 * cons) + (0.10 * hydr));
+    MOCK_USER_DATA.skinScore.overall = computed;
+    MOCK_USER_DATA.skinScore.grade = computed >= 80 ? 'Optimal (Glowing)' : computed >= 70 ? 'Good (Improving)' : 'Fair (Requires Care)';
+  }
+
+  // Dynamic Product Add to Routine
+  addProductToRoutine(name, category) {
+    const newStep = {
+      id: 'm_' + Date.now(),
+      step: category,
+      title: name,
+      time: '8:20 AM',
+      completed: false,
+      icon: '✨'
+    };
+    MOCK_USER_DATA.routine.morning.push(newStep);
+    alert(`Added "${name}" to your Morning Routine checklist!`);
+    this.render();
+  }
+
+  // Interactive Ingredient Safety Checker
+  checkIngredients() {
+    const ing1 = document.getElementById('ing-1').value;
+    const ing2 = document.getElementById('ing-2').value;
+    const resultBox = document.getElementById('ingredient-result');
+
+    resultBox.style.display = 'block';
+    if ((ing1.includes('Vitamin C') && ing2.includes('Retinol')) || (ing2.includes('Vitamin C') && ing1.includes('Retinol'))) {
+      resultBox.style.borderColor = 'var(--accent-rose)';
+      resultBox.innerHTML = `
+        <h4 style="color: var(--accent-rose); font-weight: 700;">⚠️ Interaction Warning: Use in Separate Routines</h4>
+        <p style="font-size: 0.85rem; margin-top: 0.3rem;">Vitamin C and Retinol can cause skin barrier irritation and pH destabilization when layered together. Use Vitamin C in the <strong>Morning (AM)</strong> and Retinol in the <strong>Evening (PM)</strong>.</p>
+      `;
+    } else {
+      resultBox.style.borderColor = 'var(--accent-emerald)';
+      resultBox.innerHTML = `
+        <h4 style="color: var(--accent-emerald); font-weight: 700;">✅ Compatible & Safe Combination</h4>
+        <p style="font-size: 0.85rem; margin-top: 0.3rem;">${ing1} and ${ing2} complement each other and can be safely layered in your routine.</p>
+      `;
     }
   }
 }

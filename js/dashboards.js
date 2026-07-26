@@ -1,5 +1,5 @@
 /**
- * Dashboard View Renderers for AI Skin Intelligence Platform
+ * Dashboard View Renderers for PanaceaAI Platform
  */
 
 import { MOCK_USER_DATA, MOCK_CONSULTANT_DATA, MOCK_DERMATOLOGIST_DATA, MOCK_ADMIN_DATA, MOCK_ROLES } from './mockData.js';
@@ -8,14 +8,15 @@ export function renderLandingPage() {
   return `
     <div class="landing-container">
       <section class="hero-section">
-        <div class="hero-badge">✨ AI-Powered Skincare Intelligence</div>
-        <h1 class="hero-title">Personalized Skincare Intelligence & Routine Planner</h1>
+        <img src="assets/logo.png" alt="PanaceaAI Emblem Logo" class="hero-logo-large">
+        <div class="hero-badge">✨ AI-Powered Skin Intelligence</div>
+        <h1 class="hero-title">PanaceaAI Skincare Intelligence & Routine Planner</h1>
         <p class="hero-subtitle">
           An advanced platform analyzing skin profiles, lifestyle habits, sleep patterns, and environmental exposures to deliver clinical-grade skincare routines and ingredient intelligence.
         </p>
         <div class="hero-actions">
           <button class="btn btn-primary" onclick="window.app.openLoginModal()">🚀 Launch Role Demo</button>
-          <a href="#features" class="btn btn-outline">Learn Platform Capabilities</a>
+          <button class="btn btn-pink" onclick="window.app.openModal('ingredient-modal')">🧪 Check Ingredient Safety</button>
         </div>
       </section>
 
@@ -28,7 +29,7 @@ export function renderLandingPage() {
             <div class="role-icon">👤</div>
             <h3>DermaCare User</h3>
             <span class="badge badge-user">Consumer Role</span>
-            <p>Track weighted skin health score, manage AM/PM routines, check off daily habits, and discover matched products.</p>
+            <p>Take live skin surveys, track weighted health score, log daily hydration/sleep, and manage AM/PM routines.</p>
             <button class="btn btn-sm btn-secondary">Enter User Portal →</button>
           </div>
 
@@ -60,26 +61,21 @@ export function renderLandingPage() {
 
       <section id="features" class="features-section">
         <h2 class="section-title">Core Intelligence Modules</h2>
-        <div class="features-grid">
-          <div class="feature-card">
-            <div class="feature-icon">📊</div>
-            <h4>Weighted Skin Health Engine</h4>
-            <p>Computes holistic scores based on Condition (35%), Lifestyle (20%), Sleep (15%), Consistency (20%), and Hydration (10%).</p>
+        <div class="products-grid" style="margin-top: 1.5rem;">
+          <div class="glass-card">
+            <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">📊</div>
+            <h4 style="font-family: 'Playfair Display', serif; font-size: 1.2rem; margin-bottom: 0.4rem;">Weighted Skin Health Engine</h4>
+            <p class="text-muted" style="font-size: 0.85rem;">Calculates dynamic scores based on Condition (35%), Lifestyle (20%), Sleep (15%), Consistency (20%), and Hydration (10%).</p>
           </div>
-          <div class="feature-card">
-            <div class="feature-icon">🧪</div>
-            <h4>Ingredient Safety & Interaction</h4>
-            <p>Detects allergens, contraindications, and active component conflicts (e.g. Vitamin C vs Retinol timings).</p>
+          <div class="glass-card">
+            <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">🧪</div>
+            <h4 style="font-family: 'Playfair Display', serif; font-size: 1.2rem; margin-bottom: 0.4rem;">Ingredient Safety & Interaction Matrix</h4>
+            <p class="text-muted" style="font-size: 0.85rem;">Detects contraindications, active component conflicts, and allergen risks before products are saved to routines.</p>
           </div>
-          <div class="feature-card">
-            <div class="feature-icon">🧴</div>
-            <h4>Personalized Routine Planner</h4>
-            <p>Generates adaptive Morning, Evening, and Weekly treatment plans tailored to climate and skin sensitivity.</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">🤖</div>
-            <h4>Vector Product Matching</h4>
-            <p>Matches products via FAISS embeddings based on suitability scoring and price budget optimization.</p>
+          <div class="glass-card">
+            <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">🧴</div>
+            <h4 style="font-family: 'Playfair Display', serif; font-size: 1.2rem; margin-bottom: 0.4rem;">Personalized Routine Planner</h4>
+            <p class="text-muted" style="font-size: 0.85rem;">Generates adaptive Morning, Evening, and Weekly treatment plans tailored to climate and skin sensitivity.</p>
           </div>
         </div>
       </section>
@@ -89,6 +85,12 @@ export function renderLandingPage() {
 
 export function renderUserDashboard() {
   const data = MOCK_USER_DATA;
+  
+  // Calculate completed routine steps count
+  const totalSteps = data.routine.morning.length + data.routine.evening.length;
+  const completedSteps = data.routine.morning.filter(s => s.completed).length + data.routine.evening.filter(s => s.completed).length;
+  const routinePct = Math.round((completedSteps / totalSteps) * 100);
+
   return `
     <div class="dashboard-wrapper">
       <div class="dashboard-header">
@@ -96,8 +98,9 @@ export function renderUserDashboard() {
           <h2>Welcome back, ${data.profile.name} 👋</h2>
           <p class="text-muted">Skin Profile: <strong>${data.profile.skinType}</strong> | Age: ${data.profile.ageGroup}</p>
         </div>
-        <div class="header-badge">
-          <span class="pulse-dot"></span> Active Routine Sync Enabled
+        <div style="display: flex; gap: 0.75rem;">
+          <button class="btn btn-primary btn-sm" onclick="window.app.openModal('assessment-modal')">✨ Take AI Assessment Survey</button>
+          <button class="btn btn-pink btn-sm" onclick="window.app.openModal('ingredient-modal')">🧪 Ingredient Checker</button>
         </div>
       </div>
 
@@ -110,13 +113,13 @@ export function renderUserDashboard() {
           </div>
           
           <div class="score-display-container">
-            <div class="score-circle">
+            <div class="score-circle" style="--score-pct: ${data.skinScore.overall}%;">
               <div class="score-number">${data.skinScore.overall}</div>
               <div class="score-label">out of 100</div>
             </div>
             <div class="score-info">
               <h4 class="score-grade">${data.skinScore.grade}</h4>
-              <p class="score-desc">Calculated across 5 holistic health metrics.</p>
+              <p class="score-desc">Recalculated live across 5 health factors.</p>
             </div>
           </div>
 
@@ -128,10 +131,25 @@ export function renderUserDashboard() {
                   <span>${item.score}/100</span>
                 </div>
                 <div class="progress-bar-bg">
-                  <div class="progress-bar-fill" style="width: ${item.score}%; background-color: ${item.color};"></div>
+                  <div class="progress-bar-fill" style="width: ${item.score}%; background: var(--gold-gradient);"></div>
                 </div>
               </div>
             `).join('')}
+          </div>
+
+          <!-- Interactive Trackers -->
+          <div class="tracker-row">
+            <div class="tracker-box">
+              <small style="color: var(--text-muted); font-weight: 700;">💧 Daily Hydration Tracker</small>
+              <div class="tracker-val">${data.hydrationMl} <small style="font-size: 0.9rem;">ml</small></div>
+              <button class="btn btn-sm btn-pink" style="width: 100%; font-size: 0.75rem;" onclick="window.app.addHydration(250)">+250ml Water 💧</button>
+            </div>
+
+            <div class="tracker-box">
+              <small style="color: var(--text-muted); font-weight: 700;">🌙 Routine Progress Ring</small>
+              <div class="tracker-val" style="color: var(--pink-blush);">${routinePct}%</div>
+              <small class="text-muted">${completedSteps} of ${totalSteps} steps completed today</small>
+            </div>
           </div>
         </div>
 
@@ -149,7 +167,7 @@ export function renderUserDashboard() {
             ${data.routine.morning.map(item => `
               <div class="step-item ${item.completed ? 'completed' : ''}" onclick="window.app.toggleStep('morning', '${item.id}')">
                 <div class="step-checkbox">${item.completed ? '✓' : ''}</div>
-                <div class="step-icon">${item.icon}</div>
+                <div class="step-icon" style="font-size: 1.2rem;">${item.icon}</div>
                 <div class="step-details">
                   <span class="step-type">${item.step}</span>
                   <h4 class="step-title">${item.title}</h4>
@@ -163,7 +181,7 @@ export function renderUserDashboard() {
             ${data.routine.evening.map(item => `
               <div class="step-item ${item.completed ? 'completed' : ''}" onclick="window.app.toggleStep('evening', '${item.id}')">
                 <div class="step-checkbox">${item.completed ? '✓' : ''}</div>
-                <div class="step-icon">${item.icon}</div>
+                <div class="step-icon" style="font-size: 1.2rem;">${item.icon}</div>
                 <div class="step-details">
                   <span class="step-type">${item.step}</span>
                   <h4 class="step-title">${item.title}</h4>
@@ -179,24 +197,27 @@ export function renderUserDashboard() {
       <div class="glass-card section-margin">
         <div class="card-header">
           <h3>AI Matched Skincare Products</h3>
-          <button class="btn btn-sm btn-outline" onclick="alert('Vector similarity search re-calculated using FAISS!')">🔄 Refresh Matches</button>
+          <button class="btn btn-sm btn-outline" onclick="alert('FAISS Vector embeddings updated dynamically!')">🔄 Refresh Matches</button>
         </div>
         <div class="products-grid">
           ${data.recommendedProducts.map(p => `
             <div class="product-card">
-              <div class="product-header">
-                <span class="badge badge-accent">${p.badge}</span>
-                <span class="match-score">${p.matchScore} Match</span>
-              </div>
-              <h4 class="product-name">${p.name}</h4>
-              <p class="product-cat">${p.category} • <strong>${p.price}</strong></p>
-              <div class="product-ingredients">
-                <small>Key Active Ingredients:</small>
-                <div class="tag-cloud">
-                  ${p.keyIngredients.map(ing => `<span class="tag">${ing}</span>`).join('')}
+              <div>
+                <div class="product-header">
+                  <span class="badge badge-accent">${p.badge}</span>
+                  <span class="match-score">${p.matchScore} Match</span>
                 </div>
+                <h4 class="product-name">${p.name}</h4>
+                <p class="product-cat">${p.category} • <strong>${p.price}</strong></p>
+                <div class="product-ingredients">
+                  <small style="color: var(--text-muted);">Key Active Ingredients:</small>
+                  <div class="tag-cloud">
+                    ${p.keyIngredients.map(ing => `<span class="tag">${ing}</span>`).join('')}
+                  </div>
+                </div>
+                <p class="product-reason">💡 ${p.reason}</p>
               </div>
-              <p class="product-reason">💡 ${p.reason}</p>
+              <button class="btn btn-sm btn-secondary" style="width: 100%; margin-top: 0.75rem;" onclick="window.app.addProductToRoutine('${p.name}', '${p.category}')">+ Add to Morning Routine</button>
             </div>
           `).join('')}
         </div>
@@ -214,7 +235,7 @@ export function renderConsultantDashboard() {
           <h2>Consultant Workspace — ${MOCK_ROLES.CONSULTANT.name}</h2>
           <p class="text-muted">Manage clients, evaluate assessments & build personalized regimens</p>
         </div>
-        <button class="btn btn-primary" onclick="alert('Creating new client assessment workflow...')">+ New Client Assessment</button>
+        <button class="btn btn-primary" onclick="alert('Opening client assessment review drawer...')">+ New Client Review</button>
       </div>
 
       <div class="metrics-row">
@@ -235,7 +256,6 @@ export function renderConsultantDashboard() {
       <div class="glass-card section-margin">
         <div class="card-header">
           <h3>Active Client Roster & Assessment Queue</h3>
-          <input type="text" class="input-search" placeholder="Search clients by name or skin type..." oninput="console.log('Searching...')">
         </div>
         <div class="table-responsive">
           <table class="data-table">
@@ -258,10 +278,10 @@ export function renderConsultantDashboard() {
                   <td>${c.lastAssessment}</td>
                   <td><span class="score-pill">${c.score}/100</span></td>
                   <td><span class="badge ${c.status.includes('Needs') ? 'badge-warning' : 'badge-success'}">${c.status}</span></td>
-                  <td><span class="priority-${c.priority.toLowerCase()}">${c.priority}</span></td>
+                  <td><span style="font-weight: 700; color: ${c.priority === 'High' ? 'var(--accent-rose)' : 'var(--text-muted)'}">${c.priority}</span></td>
                   <td>
-                    <button class="btn btn-sm btn-outline" onclick="alert('Opening assessment report for ${c.name}')">View Assessment</button>
-                    <button class="btn btn-sm btn-secondary" onclick="alert('Opening routine editor for ${c.name}')">Edit Routine</button>
+                    <button class="btn btn-sm btn-outline" onclick="alert('Viewing detailed assessment report for ${c.name}')">View Assessment</button>
+                    <button class="btn btn-sm btn-pink" onclick="alert('Assigning new routine template for ${c.name}')">Assign Routine</button>
                   </td>
                 </tr>
               `).join('')}
@@ -282,7 +302,7 @@ export function renderDermatologistDashboard() {
           <h2>Clinical Skincare Portal — ${MOCK_ROLES.DERMATOLOGIST.name}</h2>
           <p class="text-muted">Medical skin diagnosis, prescription oversight, and clinical safety compliance</p>
         </div>
-        <span class="badge badge-dermatologist">Clinical Access Granted</span>
+        <span class="badge badge-dermatologist">Board-Certified Access</span>
       </div>
 
       <div class="metrics-row">
@@ -302,15 +322,15 @@ export function renderDermatologistDashboard() {
 
       <div class="glass-card section-margin">
         <div class="card-header">
-          <h3>Patient Clinical Diagnoses & Active Prescriptions</h3>
+          <h3>Patient Clinical Diagnoses & Medical Prescriptions</h3>
         </div>
         <div class="table-responsive">
           <table class="data-table">
             <thead>
               <tr>
-                <th>Patient</th>
+                <th>Patient Name</th>
                 <th>Diagnosed Clinical Condition</th>
-                <th>Last Visit</th>
+                <th>Last Clinical Visit</th>
                 <th>Active Medical Prescription</th>
                 <th>Clinical Status</th>
                 <th>Action</th>
@@ -320,12 +340,12 @@ export function renderDermatologistDashboard() {
               ${data.patients.map(p => `
                 <tr>
                   <td><strong>${p.name}</strong><br><small class="text-muted">ID: ${p.id}</small></td>
-                  <td><span class="condition-tag">${p.condition}</span></td>
+                  <td><span class="badge badge-accent">${p.condition}</span></td>
                   <td>${p.lastVisit}</td>
-                  <td><code>${p.prescription}</code></td>
+                  <td><code style="color: var(--gold-primary); font-weight: 700;">${p.prescription}</code></td>
                   <td><span class="badge badge-success">${p.status}</span></td>
                   <td>
-                    <button class="btn btn-sm btn-primary" onclick="alert('Opening clinical chart for ${p.name}')">Update Chart</button>
+                    <button class="btn btn-sm btn-primary" onclick="alert('Updating clinical prescription for ${p.name}')">Modify Rx</button>
                   </td>
                 </tr>
               `).join('')}
@@ -344,9 +364,9 @@ export function renderAdminDashboard() {
       <div class="dashboard-header">
         <div>
           <h2>System Control Center & Architecture Dashboard</h2>
-          <p class="text-muted">Real-time status of 12 microservices, platform metrics, and security logs</p>
+          <p class="text-muted">Real-time monitoring of all 12 microservices, platform analytics, and audit traces</p>
         </div>
-        <span class="badge badge-admin">Superadmin Mode</span>
+        <span class="badge badge-admin">Superadmin Access</span>
       </div>
 
       <div class="metrics-row">
@@ -370,8 +390,8 @@ export function renderAdminDashboard() {
 
       <div class="glass-card section-margin">
         <div class="card-header">
-          <h3>⚡ Microservices Layer Monitor (12 Services Active)</h3>
-          <button class="btn btn-sm btn-outline" onclick="alert('Ping sent to FastAPI Gateway load balancer!')">Ping All Endpoints</button>
+          <h3>⚡ Microservices Layer Monitor (12 Services Operational)</h3>
+          <button class="btn btn-sm btn-outline" onclick="alert('FastAPI Gateway ping check executed on 12 microservice endpoints!')">Ping All Endpoints</button>
         </div>
         <div class="microservices-grid">
           ${data.microservices.map(m => `
@@ -381,7 +401,7 @@ export function renderAdminDashboard() {
                 <span class="badge badge-success">● ${m.status}</span>
               </div>
               <div class="service-details">
-                <small>Endpoint: <code>${m.endpoint}</code></small>
+                <small class="text-muted">Endpoint: <code>${m.endpoint}</code></small>
                 <div class="service-metrics">
                   <span>Port: <strong>${m.port}</strong></span>
                   <span>Latency: <strong>${m.latency}</strong></span>
@@ -395,14 +415,13 @@ export function renderAdminDashboard() {
 
       <div class="glass-card section-margin">
         <div class="card-header">
-          <h3>📋 Audit Logs & Security Traces</h3>
+          <h3>📋 System Security Logs & Audit Trail</h3>
         </div>
         <div class="audit-list">
           ${data.recentAuditLogs.map(log => `
-            <div class="audit-item">
-              <span class="audit-time">${log.time}</span>
-              <span class="audit-user"><strong>${log.user}</strong></span>
-              <span class="audit-event">${log.event}</span>
+            <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border-light); font-size: 0.85rem;">
+              <span><strong style="color: var(--gold-primary);">${log.time}</strong> • ${log.user}</span>
+              <span>${log.event}</span>
               <span class="badge badge-success">${log.status}</span>
             </div>
           `).join('')}
