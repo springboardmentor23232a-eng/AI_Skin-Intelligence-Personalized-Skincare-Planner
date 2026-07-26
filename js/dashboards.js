@@ -11,13 +11,13 @@ export function renderLandingPage() {
       <!-- HERO SECTION -->
       <section class="hero-split-section">
         <div class="hero-bg-blur"></div>
-        <div class="hero-text-col">
+        <div class="hero-text-col reveal">
           <div class="section-tag-pill">• AI SKIN HEALTH SCAN</div>
           <h1 class="editorial-hero-title">Check Your Skin Health in Seconds</h1>
           <p class="editorial-hero-subtitle">
             Upload a photo of your skin, our AI detects early signs, scores barrier health, and recommends the right personalized routine.
           </p>
-          <div class="hero-actions-row">
+          <div class="hero-actions-row reveal delay-2">
             <button class="btn btn-primary" onclick="window.app.openModal('assessment-modal')">START SKIN SCAN</button>
             <a href="#how-it-works" class="btn btn-outline">HOW IT WORKS</a>
           </div>
@@ -26,7 +26,7 @@ export function renderLandingPage() {
           </div>
         </div>
 
-        <div class="hero-visual-col">
+        <div class="hero-visual-col reveal-right delay-1">
           <div class="skin-scan-viewport" style="background-image: url('assets/hero_skin_scan.png'); background-size: cover; background-position: center;">
             <div class="scan-pulse-badge">
               <span class="pulse-dot"></span> SCANNING OPTICAL BIOMARKERS
@@ -59,24 +59,24 @@ export function renderLandingPage() {
 
       <!-- 3-CARD SIMPLE FEATURE HIGHLIGHTS -->
       <section id="features" class="simple-features-section section-margin-lg">
-        <div class="section-tag-pill">• WHY PANACEAAI</div>
-        <h2 class="editorial-section-title">Precision Skin Intelligence Made Simple</h2>
-        <p class="editorial-section-subtitle" style="margin-bottom: 2.5rem;">Advanced computer vision combined with clinical dermatology protocols.</p>
+        <div class="section-tag-pill reveal">• WHY PANACEAAI</div>
+        <h2 class="editorial-section-title reveal delay-1">Precision Skin Intelligence Made Simple</h2>
+        <p class="editorial-section-subtitle reveal delay-2" style="margin-bottom: 2.5rem;">Advanced computer vision combined with clinical dermatology protocols.</p>
         
         <div class="role-grid">
-          <div class="role-card" style="text-align: center; cursor: default;">
+          <div class="role-card reveal delay-1" style="text-align: center; cursor: default;">
             <div class="role-icon" style="font-size: 2.2rem; margin-bottom: 0.75rem;">🔬</div>
             <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem; margin-bottom: 0.35rem;">99.4% Scan Accuracy</h3>
             <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 0;">Trained on 150,000+ clinical dermatological skin profiles & optical biomarkers.</p>
           </div>
 
-          <div class="role-card" style="text-align: center; cursor: default;">
+          <div class="role-card reveal delay-2" style="text-align: center; cursor: default;">
             <div class="role-icon" style="font-size: 2.2rem; margin-bottom: 0.75rem;">⚡</div>
             <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem; margin-bottom: 0.35rem;">3-Second Analysis</h3>
             <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 0;">Instant calculation of barrier health scores, hydration %, and UV sensitivity.</p>
           </div>
 
-          <div class="role-card" style="text-align: center; cursor: default;">
+          <div class="role-card reveal delay-3" style="text-align: center; cursor: default;">
             <div class="role-icon" style="font-size: 2.2rem; margin-bottom: 0.75rem;">🔒</div>
             <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem; margin-bottom: 0.35rem;">100% Private & Encrypted</h3>
             <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 0;">Your photos are processed safely and never shared without explicit consent.</p>
@@ -86,7 +86,7 @@ export function renderLandingPage() {
 
       <!-- SECTION 2: YOUR SKIN HEALTH CLEARLY EXPLAINED -->
       <section id="how-it-works" class="split-explain-section section-margin-lg">
-        <div class="explain-text-col">
+        <div class="explain-text-col reveal-left">
           <div class="section-tag-pill">• HOW IT WORKS</div>
           <h2 class="editorial-section-title">Your Skin Health, Clearly Explained</h2>
           <p class="editorial-section-subtitle" style="margin-bottom: 1.5rem;">
@@ -101,7 +101,7 @@ export function renderLandingPage() {
           </div>
         </div>
 
-        <div class="explain-graphic-col">
+        <div class="explain-graphic-col reveal-right">
           <div class="iris-scanner-graphic" style="background-image: url('assets/explain_skin_texture.png'); background-size: cover; background-position: center; border-radius: 50%; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
             <div class="radar-circle outer"></div>
             <div class="radar-circle middle"></div>
@@ -112,7 +112,7 @@ export function renderLandingPage() {
       </section>
 
       <!-- SECTION 3: GET YOUR SKIN HEALTH INSIGHTS -->
-      <section class="dark-banner-card section-margin-lg">
+      <section class="dark-banner-card section-margin-lg reveal-scale">
         <div class="dark-banner-content">
           <div>
             <h2 class="dark-banner-title">Get Your Skin Health Insights in Seconds</h2>
@@ -130,8 +130,8 @@ export function renderLandingPage() {
 
       <!-- SECTION 4: CONSULT A CERTIFIED DERMATOLOGIST -->
       <section id="consult-doctors" class="doctors-section section-margin-lg">
-        <div class="section-tag-pill">• DOCTOR</div>
-        <div class="doctors-header-row">
+        <div class="section-tag-pill reveal">• DOCTOR</div>
+        <div class="doctors-header-row reveal delay-1">
           <div>
             <h2 class="editorial-section-title">Consult a Certified Dermatologist</h2>
             <p class="editorial-section-subtitle">When you need a professional opinion, connect directly with licensed dermatologists.</p>
@@ -140,7 +140,7 @@ export function renderLandingPage() {
         </div>
 
         <div class="doctors-grid">
-          <div class="doctor-card">
+          <div class="doctor-card reveal delay-1">
             <div class="doctor-img-box">
               <img src="assets/doctor_sarah.png" alt="Dr. Sarah Johnson" class="doctor-img">
               <span class="badge badge-success status-tag">🟢 Available</span>
@@ -153,7 +153,7 @@ export function renderLandingPage() {
             </div>
           </div>
 
-          <div class="doctor-card">
+          <div class="doctor-card reveal delay-2">
             <div class="doctor-img-box">
               <img src="assets/doctor_michael.png" alt="Dr. Michael Chen" class="doctor-img">
               <span class="badge badge-success status-tag">🟢 Available</span>
@@ -166,7 +166,7 @@ export function renderLandingPage() {
             </div>
           </div>
 
-          <div class="doctor-card">
+          <div class="doctor-card reveal delay-3">
             <div class="doctor-img-box">
               <img src="assets/doctor_emily.png" alt="Dr. Emily Roberts" class="doctor-img">
               <span class="badge badge-success status-tag">🟢 Available</span>
@@ -187,28 +187,28 @@ export function renderLandingPage() {
           <div class="section-tag-pill">• CONSULTATIONS</div>
           <h2 class="editorial-section-title" style="margin-bottom: 2rem;">Consultation Benefits</h2>
           
-          <div class="benefit-item">
+          <div class="benefit-item reveal delay-1">
             <h4>FAST RESPONSE</h4>
             <p>Get matched with a doctor quickly so you can receive guidance without long waiting times.</p>
           </div>
 
-          <div class="benefit-item">
+          <div class="benefit-item reveal delay-2">
             <h4>VIDEO OR CHAT CONSULTATION</h4>
             <p>Choose flexible video calls or asynchronous messaging for convenient care.</p>
           </div>
 
-          <div class="benefit-item">
+          <div class="benefit-item reveal delay-3">
             <h4>FOLLOW-UP MESSAGES INCLUDED</h4>
             <p>Ask clarifying questions after your appointment at no extra cost.</p>
           </div>
 
-          <div class="benefit-item">
+          <div class="benefit-item reveal delay-4">
             <h4>PRESCRIPTION-READY (IF NEEDED)</h4>
             <p>Receive digital prescriptions directly into your PanaceaAI patient dashboard.</p>
           </div>
         </div>
 
-        <div class="pricing-card-col">
+        <div class="pricing-card-col reveal-right delay-2">
           <div class="pricing-box">
             <small style="text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.1em; color: var(--text-muted); font-weight: 700;">• CONSULTATIONS</small>
             <div class="price-val">Starting at <span>$3</span></div>
@@ -222,12 +222,12 @@ export function renderLandingPage() {
 
       <!-- NEW SECTION 6: FREQUENTLY ASKED QUESTIONS (FAQ ACCORDION) -->
       <section id="faq" class="faq-section section-margin-lg">
-        <div class="section-tag-pill">• SUPPORT & FAQ</div>
-        <h2 class="editorial-section-title">Frequently Asked Questions</h2>
-        <p class="editorial-section-subtitle" style="margin-bottom: 2.5rem;">Everything you need to know about our AI scanner, privacy, and clinical consultations.</p>
+        <div class="section-tag-pill reveal">• SUPPORT & FAQ</div>
+        <h2 class="editorial-section-title reveal delay-1">Frequently Asked Questions</h2>
+        <p class="editorial-section-subtitle reveal delay-2" style="margin-bottom: 2.5rem;">Everything you need to know about our AI scanner, privacy, and clinical consultations.</p>
 
         <div class="faq-accordion-list">
-          <div class="faq-item active" onclick="window.app.toggleFaq(this)">
+          <div class="faq-item active reveal delay-1" onclick="window.app.toggleFaq(this)">
             <div class="faq-question">
               <span>How accurate is the PanaceaAI skin health scanner?</span>
               <span class="faq-icon">−</span>
@@ -237,7 +237,7 @@ export function renderLandingPage() {
             </div>
           </div>
 
-          <div class="faq-item" onclick="window.app.toggleFaq(this)">
+          <div class="faq-item reveal delay-2" onclick="window.app.toggleFaq(this)">
             <div class="faq-question">
               <span>Is my uploaded skin photo and medical data kept private?</span>
               <span class="faq-icon">+</span>
@@ -247,7 +247,7 @@ export function renderLandingPage() {
             </div>
           </div>
 
-          <div class="faq-item" onclick="window.app.toggleFaq(this)">
+          <div class="faq-item reveal delay-3" onclick="window.app.toggleFaq(this)">
             <div class="faq-question">
               <span>Can I consult a licensed dermatologist directly through the platform?</span>
               <span class="faq-icon">+</span>
@@ -257,7 +257,7 @@ export function renderLandingPage() {
             </div>
           </div>
 
-          <div class="faq-item" onclick="window.app.toggleFaq(this)">
+          <div class="faq-item reveal delay-4" onclick="window.app.toggleFaq(this)">
             <div class="faq-question">
               <span>How does the weighted skin health score formula work?</span>
               <span class="faq-icon">+</span>
@@ -267,7 +267,7 @@ export function renderLandingPage() {
             </div>
           </div>
 
-          <div class="faq-item" onclick="window.app.toggleFaq(this)">
+          <div class="faq-item reveal delay-5" onclick="window.app.toggleFaq(this)">
             <div class="faq-question">
               <span>How does the Ingredient Safety & Interaction Checker work?</span>
               <span class="faq-icon">+</span>
@@ -285,7 +285,7 @@ export function renderLandingPage() {
 
           <!-- Top Row: Brand + Link Columns -->
           <div class="footer-top-row">
-            <div class="footer-brand-col">
+            <div class="footer-brand-col reveal delay-1">
               <div class="footer-logo-group">
                 <img src="assets/logo.png" alt="PanaceaAI" class="footer-logo-img">
                 <span class="footer-brand-name">PanaceaAI</span>
@@ -302,7 +302,7 @@ export function renderLandingPage() {
               </div>
             </div>
 
-            <div class="footer-links-col">
+            <div class="footer-links-col reveal delay-2">
               <h4>Platform</h4>
               <ul>
                 <li><a href="javascript:void(0)" onclick="window.app.selectRole('user')">User Dashboard</a></li>
@@ -312,7 +312,7 @@ export function renderLandingPage() {
               </ul>
             </div>
 
-            <div class="footer-links-col">
+            <div class="footer-links-col reveal delay-3">
               <h4>Technology</h4>
               <ul>
                 <li><a href="#how-it-works">Optical Biomarkers</a></li>
@@ -322,7 +322,7 @@ export function renderLandingPage() {
               </ul>
             </div>
 
-            <div class="footer-links-col">
+            <div class="footer-links-col reveal delay-4">
               <h4>Company</h4>
               <ul>
                 <li><a href="#how-it-works">About PanaceaAI</a></li>

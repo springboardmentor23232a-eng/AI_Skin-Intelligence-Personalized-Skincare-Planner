@@ -39,6 +39,10 @@
   --shadow-warm: 0 10px 30px rgba(20, 18, 17, 0.06);
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -59,15 +63,20 @@ body {
 /* Editorial Header Navbar */
 .navbar {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 1.1rem 3rem;
-  background: rgba(249, 248, 246, 0.95);
-  backdrop-filter: blur(16px);
+  justify-content: space-between;
+  padding: 1rem 2.5rem;
+  background: rgba(249, 248, 246, 0.92);
+  backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-light);
   position: sticky;
   top: 0;
   z-index: 100;
+  transition: box-shadow 0.3s ease;
+}
+
+.navbar.scrolled {
+  box-shadow: 0 4px 24px rgba(20, 18, 17, 0.08);
 }
 
 .brand {
@@ -147,6 +156,7 @@ body {
 .btn-primary:hover {
   background: #332F2C;
   transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(20, 18, 17, 0.18);
 }
 
 .btn-pink {
@@ -1057,3 +1067,70 @@ body {
 
 .section-margin-lg { margin-top: 5rem; }
 .hidden { display: none !important; }
+
+/* ═══════════════════════════════════════════════
+   SCROLL-REVEAL ANIMATION SYSTEM
+   Lightweight IntersectionObserver-driven reveals
+   ═══════════════════════════════════════════════ */
+
+/* Base: hidden state */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+/* Directional variants */
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-50px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(50px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.92);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+/* Visible state — applied by IntersectionObserver */
+.reveal.visible,
+.reveal-left.visible,
+.reveal-right.visible,
+.reveal-scale.visible {
+  opacity: 1;
+  transform: translateY(0) translateX(0) scale(1);
+}
+
+/* Stagger delays for card grids */
+.delay-1 { transition-delay: 0.1s; }
+.delay-2 { transition-delay: 0.2s; }
+.delay-3 { transition-delay: 0.3s; }
+.delay-4 { transition-delay: 0.4s; }
+.delay-5 { transition-delay: 0.5s; }
+
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal-left,
+  .reveal-right,
+  .reveal-scale {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

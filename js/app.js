@@ -34,6 +34,14 @@ class App {
       auth.logout();
     });
 
+    // Navbar scroll shadow
+    window.addEventListener('scroll', () => {
+      const navbar = document.querySelector('.navbar');
+      if (navbar) {
+        navbar.classList.toggle('scrolled', window.scrollY > 60);
+      }
+    });
+
     this.render();
   }
 
@@ -71,6 +79,34 @@ class App {
     } else if (currentRole === 'admin') {
       this.mainContent.innerHTML = renderAdminDashboard();
     }
+
+    // Initialize scroll reveal animations
+    this.initScrollReveal();
+  }
+
+  // IntersectionObserver scroll-reveal system
+  initScrollReveal() {
+    // Disconnect previous observer if exists
+    if (this._revealObserver) {
+      this._revealObserver.disconnect();
+    }
+
+    const revealElements = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale');
+    if (!revealElements.length) return;
+
+    this._revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          this._revealObserver.unobserve(entry.target); // fire once
+        }
+      });
+    }, {
+      threshold: 0.15,
+      rootMargin: '0px 0px -40px 0px'
+    });
+
+    revealElements.forEach(el => this._revealObserver.observe(el));
   }
 
   openLoginModal() {
