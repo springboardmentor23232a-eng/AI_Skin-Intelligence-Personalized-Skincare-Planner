@@ -57,43 +57,48 @@ export function renderLandingPage() {
         </div>
       </section>
 
-      <!-- ROLE SELECTOR CARDS -->
-      <section class="role-selector-section section-margin-lg">
-        <div class="section-tag-pill">• PLATFORM PORTALS</div>
-        <h2 class="editorial-section-title">Explore Dashboard Roles</h2>
-        <p class="editorial-section-subtitle">Tailored interfaces for every stakeholder in the skincare ecosystem.</p>
+      <!-- REPLACED SECTION: INGREDIENT INTELLIGENCE & CLINICAL METRICS MATRIX -->
+      <section id="features" class="ingredients-matrix-section section-margin-lg">
+        <div class="section-tag-pill">• INGREDIENT INTELLIGENCE</div>
+        <div class="doctors-header-row">
+          <div>
+            <h2 class="editorial-section-title">Clinical Ingredient & Safety Matrix</h2>
+            <p class="editorial-section-subtitle">Real-time allergen detection, active component compatibility, and bio-suitability scoring.</p>
+          </div>
+          <button class="btn btn-pink" onclick="window.app.openModal('ingredient-modal')">🧪 Check Interactions</button>
+        </div>
         
-        <div class="role-grid">
-          <div class="role-card" onclick="window.app.selectRole('user')">
-            <div class="role-icon">👤</div>
-            <h3>DermaCare User</h3>
-            <span class="badge badge-user">Consumer Portal</span>
-            <p>Take live skin surveys, track weighted health score, log hydration & AM/PM routines.</p>
-            <button class="btn btn-sm btn-secondary">Enter User Portal →</button>
+        <div class="products-grid">
+          <div class="glass-card">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🧬</div>
+            <span class="badge badge-accent" style="margin-bottom: 0.5rem;">BARRIER REPAIR</span>
+            <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem; margin-bottom: 0.35rem;">Ceramides NP / AP</h3>
+            <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 0.75rem;">Restores lipid barrier hydration and protects sensitive skin against environmental stressors.</p>
+            <small style="color: var(--gold-primary); font-weight: 700;">Safe for: Sensitive, Combination, Dry Skin</small>
           </div>
 
-          <div class="role-card" onclick="window.app.selectRole('consultant')">
-            <div class="role-icon">💼</div>
-            <h3>Skincare Consultant</h3>
-            <span class="badge badge-consultant">Consultant Workspace</span>
-            <p>Evaluate client reports, review ingredient safety, and construct custom routines.</p>
-            <button class="btn btn-sm btn-secondary">Enter Consultant Workspace →</button>
+          <div class="glass-card">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">💧</div>
+            <span class="badge badge-success" style="margin-bottom: 0.5rem;">HYDRATION BOOST</span>
+            <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem; margin-bottom: 0.35rem;">Multi-Molecular Hyaluronic Acid</h3>
+            <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 0.75rem;">Penetrates multiple epidermal layers to bind up to 1000x its weight in moisture.</p>
+            <small style="color: var(--gold-primary); font-weight: 700;">Safe for: All Skin Types</small>
           </div>
 
-          <div class="role-card" onclick="window.app.selectRole('dermatologist')">
-            <div class="role-icon">🩺</div>
-            <h3>Dermatologist</h3>
-            <span class="badge badge-dermatologist">Clinical Portal</span>
-            <p>Diagnose clinical conditions, manage medical prescriptions, and track patient progress.</p>
-            <button class="btn btn-sm btn-secondary">Enter Clinical Portal →</button>
+          <div class="glass-card">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🧪</div>
+            <span class="badge badge-user" style="margin-bottom: 0.5rem;">PORE CLARIFYING</span>
+            <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem; margin-bottom: 0.35rem;">2% Salicylic Acid (BHA)</h3>
+            <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 0.75rem;">Lipophilic acid that exfoliates inside pore walls to clear congestion and blackheads.</p>
+            <small style="color: var(--gold-primary); font-weight: 700;">Best for: Oily & Acne-Prone Skin</small>
           </div>
 
-          <div class="role-card" onclick="window.app.selectRole('admin')">
-            <div class="role-icon">🛡️</div>
-            <h3>Platform Admin</h3>
-            <span class="badge badge-admin">System Control</span>
-            <p>Monitor 12 microservices, inspect API latency, manage roles, and review audit logs.</p>
-            <button class="btn btn-sm btn-secondary">Enter Admin Center →</button>
+          <div class="glass-card">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">✨</div>
+            <span class="badge badge-dermatologist" style="margin-bottom: 0.5rem;">BRIGHTENING & TONE</span>
+            <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem; margin-bottom: 0.35rem;">10% Niacinamide (Vitamin B3)</h3>
+            <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 0.75rem;">Fades post-inflammatory hyperpigmentation, reduces redness, and balances sebum production.</p>
+            <small style="color: var(--gold-primary); font-weight: 700;">Safe for: Redness & Hyperpigmentation</small>
           </div>
         </div>
       </section>
