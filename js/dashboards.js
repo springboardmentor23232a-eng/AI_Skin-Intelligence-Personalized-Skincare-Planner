@@ -1,82 +1,229 @@
 /**
- * Dashboard View Renderers for PanaceaAI Platform
+ * Editorial Dashboard View Renderers for PanaceaAI Platform
+ * Inspired by Dribbble Eyehealth AI Editorial Design System
  */
 
 import { MOCK_USER_DATA, MOCK_CONSULTANT_DATA, MOCK_DERMATOLOGIST_DATA, MOCK_ADMIN_DATA, MOCK_ROLES } from './mockData.js';
 
 export function renderLandingPage() {
   return `
-    <div class="landing-container">
-      <section class="hero-section">
-        <div class="hero-logo-wrapper">
-          <img src="assets/logo.png" alt="PanaceaAI Emblem Logo" class="hero-logo-large">
+    <div class="editorial-container">
+      <!-- HERO SECTION -->
+      <section class="hero-split-section">
+        <div class="hero-text-col">
+          <div class="section-tag-pill">• AI SKIN HEALTH SCAN</div>
+          <h1 class="editorial-hero-title">Check Your Skin Health in Seconds</h1>
+          <p class="editorial-hero-subtitle">
+            Upload a photo of your skin, our AI detects early signs, scores barrier health, and recommends the right personalized routine.
+          </p>
+          <div class="hero-actions-row">
+            <button class="btn btn-primary" onclick="window.app.openModal('assessment-modal')">START SKIN SCAN</button>
+            <a href="#how-it-works" class="btn btn-outline">HOW IT WORKS</a>
+          </div>
+          <div class="security-foot-note">
+            🔒 Your photos and skin data stay 100% private & protected.
+          </div>
         </div>
-        <h1 class="hero-title">PanaceaAI Skincare Intelligence & Routine Planner</h1>
-        <p class="hero-subtitle">
-          An advanced platform analyzing skin profiles, lifestyle habits, sleep patterns, and environmental exposures to deliver clinical-grade skincare routines and ingredient intelligence.
-        </p>
-        <div class="hero-actions">
-          <button class="btn btn-primary" onclick="window.app.openLoginModal()">🚀 Launch Role Demo</button>
-          <button class="btn btn-pink" onclick="window.app.openModal('ingredient-modal')">🧪 Check Ingredient Safety</button>
+
+        <div class="hero-visual-col">
+          <div class="skin-scan-viewport">
+            <div class="scan-target-overlay">
+              <div class="scan-line"></div>
+            </div>
+            <!-- Telemetry HUD Box -->
+            <div class="telemetry-hud-box">
+              <div class="hud-item"><small>LAST SCAN</small> <strong>24 NOVEMBER 2025</strong></div>
+              <div class="hud-divider"></div>
+              <div class="hud-metric-row">
+                <span>HYDRATION</span>
+                <strong>72%</strong>
+              </div>
+              <div class="hud-metric-row">
+                <span>BARRIER SCORE</span>
+                <strong>85%</strong>
+              </div>
+              <div class="hud-metric-row">
+                <span>UV EXPOSURE</span>
+                <strong>MODERATE</strong>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section class="role-selector-section">
-        <h2 class="section-title">Select a Role to Explore the Dashboard</h2>
-        <p class="section-subtitle">Experience custom-tailored interfaces for every stakeholder in the skincare ecosystem.</p>
+      <!-- ROLE SELECTOR CARDS -->
+      <section class="role-selector-section section-margin-lg">
+        <div class="section-tag-pill">• PLATFORM PORTALS</div>
+        <h2 class="editorial-section-title">Explore Dashboard Roles</h2>
+        <p class="editorial-section-subtitle">Tailored interfaces for every stakeholder in the skincare ecosystem.</p>
         
         <div class="role-grid">
           <div class="role-card" onclick="window.app.selectRole('user')">
             <div class="role-icon">👤</div>
             <h3>DermaCare User</h3>
-            <span class="badge badge-user">Consumer Role</span>
-            <p>Take live skin surveys, track weighted health score, log daily hydration/sleep, and manage AM/PM routines.</p>
+            <span class="badge badge-user">Consumer Portal</span>
+            <p>Take live skin surveys, track weighted health score, log hydration & AM/PM routines.</p>
             <button class="btn btn-sm btn-secondary">Enter User Portal →</button>
           </div>
 
           <div class="role-card" onclick="window.app.selectRole('consultant')">
             <div class="role-icon">💼</div>
             <h3>Skincare Consultant</h3>
-            <span class="badge badge-consultant">Consultant Role</span>
-            <p>Review client assessment reports, evaluate ingredient safety, and construct custom skincare routines.</p>
-            <button class="btn btn-sm btn-secondary">Enter Consultant Portal →</button>
+            <span class="badge badge-consultant">Consultant Workspace</span>
+            <p>Evaluate client reports, review ingredient safety, and construct custom routines.</p>
+            <button class="btn btn-sm btn-secondary">Enter Consultant Workspace →</button>
           </div>
 
           <div class="role-card" onclick="window.app.selectRole('dermatologist')">
             <div class="role-icon">🩺</div>
             <h3>Dermatologist</h3>
-            <span class="badge badge-dermatologist">Clinical Role</span>
-            <p>Diagnose severe skin conditions, manage medical prescriptions, and analyze clinical treatment progress.</p>
+            <span class="badge badge-dermatologist">Clinical Portal</span>
+            <p>Diagnose clinical conditions, manage medical prescriptions, and track patient progress.</p>
             <button class="btn btn-sm btn-secondary">Enter Clinical Portal →</button>
           </div>
 
           <div class="role-card" onclick="window.app.selectRole('admin')">
             <div class="role-icon">🛡️</div>
             <h3>Platform Admin</h3>
-            <span class="badge badge-admin">System Role</span>
-            <p>Monitor 12 microservices in real-time, view system latency, manage user roles, and inspect audit logs.</p>
+            <span class="badge badge-admin">System Control</span>
+            <p>Monitor 12 microservices, inspect API latency, manage roles, and review audit logs.</p>
             <button class="btn btn-sm btn-secondary">Enter Admin Center →</button>
           </div>
         </div>
       </section>
 
-      <section id="features" class="features-section">
-        <h2 class="section-title">Core Intelligence Modules</h2>
-        <div class="products-grid" style="margin-top: 1.5rem;">
-          <div class="glass-card">
-            <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">📊</div>
-            <h4 style="font-family: 'Playfair Display', serif; font-size: 1.2rem; margin-bottom: 0.4rem;">Weighted Skin Health Engine</h4>
-            <p class="text-muted" style="font-size: 0.85rem;">Calculates dynamic scores based on Condition (35%), Lifestyle (20%), Sleep (15%), Consistency (20%), and Hydration (10%).</p>
+      <!-- SECTION 2: YOUR SKIN HEALTH CLEARLY EXPLAINED -->
+      <section id="how-it-works" class="split-explain-section section-margin-lg">
+        <div class="explain-text-col">
+          <div class="section-tag-pill">• HOW IT WORKS</div>
+          <h2 class="editorial-section-title">Your Skin Health, Clearly Explained</h2>
+          <p class="editorial-section-subtitle" style="margin-bottom: 1.5rem;">
+            Take a photo or upload an image to receive instant diagnostic insights and ingredient recommendations.
+          </p>
+
+          <div class="upload-dropzone-card" onclick="window.app.triggerUploadSimulation()">
+            <div class="upload-icon">📤</div>
+            <div class="upload-title">UPLOAD YOUR SKIN PHOTO</div>
+            <p class="upload-desc">Take a close-up photo or select one from your gallery.</p>
+            <button class="btn btn-sm btn-outline" style="margin-top: 0.85rem;">Select File</button>
           </div>
-          <div class="glass-card">
-            <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">🧪</div>
-            <h4 style="font-family: 'Playfair Display', serif; font-size: 1.2rem; margin-bottom: 0.4rem;">Ingredient Safety & Interaction Matrix</h4>
-            <p class="text-muted" style="font-size: 0.85rem;">Detects contraindications, active component conflicts, and allergen risks before products are saved to routines.</p>
+        </div>
+
+        <div class="explain-graphic-col">
+          <div class="iris-scanner-graphic">
+            <div class="radar-circle outer"></div>
+            <div class="radar-circle middle"></div>
+            <div class="radar-circle inner"></div>
+            <div class="radar-center-dot"></div>
           </div>
-          <div class="glass-card">
-            <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">🧴</div>
-            <h4 style="font-family: 'Playfair Display', serif; font-size: 1.2rem; margin-bottom: 0.4rem;">Personalized Routine Planner</h4>
-            <p class="text-muted" style="font-size: 0.85rem;">Generates adaptive Morning, Evening, and Weekly treatment plans tailored to climate and skin sensitivity.</p>
+        </div>
+      </section>
+
+      <!-- SECTION 3: GET YOUR SKIN HEALTH INSIGHTS -->
+      <section class="dark-banner-card section-margin-lg">
+        <div class="dark-banner-content">
+          <div>
+            <h2 class="dark-banner-title">Get Your Skin Health Insights in Seconds</h2>
+            <p class="dark-banner-desc">
+              Our scanner uses advanced optical biomarkers to give you a clear snapshot of your skin health. No appointments, no waiting rooms, just instant, helpful insights you can trust.
+            </p>
+            <button class="btn btn-primary" onclick="window.app.openModal('assessment-modal')">TRY THE SCAN</button>
+          </div>
+          <div class="dark-banner-badge-box">
+            <div style="font-size: 0.75rem; letter-spacing: 0.1em; color: var(--gold-primary); font-weight: 700; margin-bottom: 0.5rem;">📷 OPTICAL SCANNER ACTIVE</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Real-Time Skin Surface Biomarker Detection</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 4: CONSULT A CERTIFIED DERMATOLOGIST -->
+      <section id="consult-doctors" class="doctors-section section-margin-lg">
+        <div class="section-tag-pill">• DOCTOR</div>
+        <div class="doctors-header-row">
+          <div>
+            <h2 class="editorial-section-title">Consult a Certified Dermatologist</h2>
+            <p class="editorial-section-subtitle">When you need a professional opinion, connect directly with licensed dermatologists.</p>
+          </div>
+          <button class="btn btn-outline" onclick="window.app.selectRole('dermatologist')">Clinical Portal →</button>
+        </div>
+
+        <div class="doctors-grid">
+          <div class="doctor-card">
+            <div class="doctor-img-box">
+              <img src="assets/doctor_sarah.png" alt="Dr. Sarah Johnson" class="doctor-img">
+              <span class="badge badge-success status-tag">🟢 Available</span>
+            </div>
+            <div class="doctor-info">
+              <h3>Dr. Sarah Johnson</h3>
+              <span class="doctor-spec">DERMATOLOGIST</span>
+              <p class="doctor-exp">4 years experience</p>
+              <button class="btn-link" onclick="alert('Connecting with Dr. Sarah Johnson...')">CONSULT NOW &gt;</button>
+            </div>
+          </div>
+
+          <div class="doctor-card">
+            <div class="doctor-img-box">
+              <img src="assets/doctor_michael.png" alt="Dr. Michael Chen" class="doctor-img">
+              <span class="badge badge-success status-tag">🟢 Available</span>
+            </div>
+            <div class="doctor-info">
+              <h3>Dr. Michael Chen</h3>
+              <span class="doctor-spec">EYE & SKIN SPECIALIST</span>
+              <p class="doctor-exp">15 years experience</p>
+              <button class="btn-link" onclick="alert('Connecting with Dr. Michael Chen...')">CONSULT NOW &gt;</button>
+            </div>
+          </div>
+
+          <div class="doctor-card">
+            <div class="doctor-img-box">
+              <img src="assets/doctor_emily.png" alt="Dr. Emily Roberts" class="doctor-img">
+              <span class="badge badge-success status-tag">🟢 Available</span>
+            </div>
+            <div class="doctor-info">
+              <h3>Dr. Emily Roberts</h3>
+              <span class="doctor-spec">OPTOMETRIST / DERM</span>
+              <p class="doctor-exp">12 years experience</p>
+              <button class="btn-link" onclick="alert('Connecting with Dr. Emily Roberts...')">CONSULT NOW &gt;</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 5: CONSULTATION BENEFITS & PRICING -->
+      <section class="benefits-pricing-section section-margin-lg">
+        <div class="benefits-col">
+          <div class="section-tag-pill">• CONSULTATIONS</div>
+          <h2 class="editorial-section-title" style="margin-bottom: 2rem;">Consultation Benefits</h2>
+          
+          <div class="benefit-item">
+            <h4>FAST RESPONSE</h4>
+            <p>Get matched with a doctor quickly so you can receive guidance without long waiting times.</p>
+          </div>
+
+          <div class="benefit-item">
+            <h4>VIDEO OR CHAT CONSULTATION</h4>
+            <p>Choose flexible video calls or asynchronous messaging for convenient care.</p>
+          </div>
+
+          <div class="benefit-item">
+            <h4>FOLLOW-UP MESSAGES INCLUDED</h4>
+            <p>Ask clarifying questions after your appointment at no extra cost.</p>
+          </div>
+
+          <div class="benefit-item">
+            <h4>PRESCRIPTION-READY (IF NEEDED)</h4>
+            <p>Receive digital prescriptions directly into your PanaceaAI patient dashboard.</p>
+          </div>
+        </div>
+
+        <div class="pricing-card-col">
+          <div class="pricing-box">
+            <small style="text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.1em; color: var(--text-muted); font-weight: 700;">• CONSULTATIONS</small>
+            <div class="price-val">Starting at <span>$3</span></div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">per session. Get expert skincare guidance at an affordable price.</p>
+
+            <button class="btn btn-primary" style="width: 100%; margin-bottom: 0.75rem;" onclick="window.app.selectRole('dermatologist')">CONSULT A DOCTOR</button>
+            <button class="btn btn-outline" style="width: 100%;" onclick="alert('Displaying 14 available dermatologists on duty.')">VIEW MORE DOCTORS &gt;</button>
           </div>
         </div>
       </section>

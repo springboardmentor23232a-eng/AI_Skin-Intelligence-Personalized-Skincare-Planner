@@ -48,11 +48,12 @@ test('2. Weighted Skin Health Score Formula Verification', () => {
 
 test('3. Landing Page View Renderer Test', () => {
   const html = renderLandingPage();
-  assert.ok(html.includes('PanaceaAI Skincare Intelligence'), 'Must contain PanaceaAI hero title');
+  assert.ok(html.includes('Check Your Skin Health in Seconds'), 'Must contain editorial hero headline');
   assert.ok(html.includes('DermaCare User'), 'Must list User role card');
   assert.ok(html.includes('Skincare Consultant'), 'Must list Consultant role card');
   assert.ok(html.includes('Dermatologist'), 'Must list Dermatologist role card');
   assert.ok(html.includes('Platform Admin'), 'Must list Admin role card');
+  assert.ok(html.includes('Dr. Sarah Johnson'), 'Must render doctor specialist card');
 });
 
 test('4. User Dashboard View Renderer Test', () => {

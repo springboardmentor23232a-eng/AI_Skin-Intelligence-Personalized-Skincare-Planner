@@ -54,7 +54,7 @@ class App {
       this.authBtn.onclick = () => auth.logout();
     } else {
       this.navRoleBadge.classList.add('hidden');
-      this.authBtn.innerText = 'Demo Login / Select Role';
+      this.authBtn.innerText = 'START SKIN SCAN';
       this.authBtn.className = 'btn btn-primary btn-sm';
       this.authBtn.onclick = () => this.openLoginModal();
     }
@@ -126,11 +126,25 @@ class App {
     }
   }
 
+  // Dynamic Photo Upload Simulation
+  triggerUploadSimulation() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+      if (e.target.files && e.target.files[0]) {
+        const fileName = e.target.files[0].name;
+        alert(`Skin photo "${fileName}" uploaded successfully! Analyzing optical biomarkers...`);
+        this.openModal('assessment-modal');
+      }
+    };
+    input.click();
+  }
+
   // Dynamic Hydration Counter
   addHydration(ml) {
     MOCK_USER_DATA.hydrationMl += ml;
     
-    // Dynamically calculate hydration score component (goal: 2500ml = 100%)
     const hydrRatio = Math.min(1.0, MOCK_USER_DATA.hydrationMl / 2500);
     const newHydrScore = Math.round(hydrRatio * 100);
 

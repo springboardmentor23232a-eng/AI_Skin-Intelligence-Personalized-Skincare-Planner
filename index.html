@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PanaceaAI - Skin Intelligence & Personalized Skincare Planner</title>
+  <title>PanaceaAI - AI Skin Health & Personalized Skincare Planner</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -14,12 +14,19 @@
       <span>PanaceaAI</span>
     </div>
 
+    <nav class="center-nav-links">
+      <a href="#main-content" class="nav-link">AI Scan</a>
+      <a href="#consult-doctors" class="nav-link">Consult a Doctor</a>
+      <a href="#how-it-works" class="nav-link">Ingredients</a>
+      <a href="#features" class="nav-link">Contact</a>
+    </nav>
+
     <div class="nav-controls">
       <div id="nav-role-badge" class="role-badge-active hidden">
         <!-- Injected dynamically by app.js -->
       </div>
       <button id="auth-btn" class="btn btn-primary btn-sm">
-        Demo Login / Select Role
+        START SKIN SCAN
       </button>
     </div>
   </header>
@@ -30,12 +37,12 @@
   </main>
 
   <!-- Footer -->
-  <footer style="text-align: center; padding: 2.2rem 1rem; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--border-gold);">
-    <div style="display: flex; justify-content: center; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem;">
-      <img src="assets/logo.png" alt="PanaceaAI Logo" style="height: 28px;">
-      <strong style="font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--text-primary);">PanaceaAI Platform</strong>
+  <footer style="background: #141211; color: #FFFFFF; text-align: center; padding: 3rem 1rem; margin-top: 5rem; border-top: 1px solid rgba(255,255,255,0.1);">
+    <div style="display: flex; justify-content: center; align-items: center; gap: 0.8rem; margin-bottom: 0.75rem;">
+      <img src="assets/logo.png" alt="PanaceaAI Logo" style="height: 32px; filter: brightness(0) invert(1);">
+      <strong style="font-family: 'Playfair Display', serif; font-size: 1.25rem;">PanaceaAI Platform</strong>
     </div>
-    <p>AI Skin Intelligence & Personalized Skincare Planner • Infosys Springboard Project</p>
+    <p style="color: rgba(255,255,255,0.6); font-size: 0.85rem;">AI Skin Intelligence & Personalized Skincare Planner • Infosys Springboard Project</p>
   </footer>
 
   <!-- Interactive Dummy Login Modal -->
@@ -173,7 +180,7 @@
 
       <button class="btn btn-pink" style="width: 100%;" onclick="window.app.checkIngredients()">Analyze Interactions</button>
 
-      <div id="ingredient-result" style="margin-top: 1.25rem; display: none; padding: 1rem; border-radius: var(--radius-sm); background: #FAF4EE; border: 1px solid var(--border-pink);">
+      <div id="ingredient-result" style="margin-top: 1.25rem; display: none; padding: 1rem; border-radius: var(--radius-sm); background: #FAF8F5; border: 1px solid var(--border-light);">
         <!-- Injected dynamically -->
       </div>
     </div>
