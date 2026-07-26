@@ -145,6 +145,29 @@ export function renderLandingPage() {
         </div>
       </section>
 
+      <!-- SCROLLING QUOTES TICKER -->
+      <div class="quotes-ticker">
+        <div class="ticker-track">
+          <span class="ticker-item">★ You are beautiful</span>
+          <span class="ticker-item">★ Glow every day</span>
+          <span class="ticker-item">★ Love the skin you're in</span>
+          <span class="ticker-item">★ Radiance is a state of mind</span>
+          <span class="ticker-item">★ Your skin deserves the best</span>
+          <span class="ticker-item">★ Confidence looks good on you</span>
+          <span class="ticker-item">★ Embrace your natural glow</span>
+          <span class="ticker-item">★ Be kind to your skin</span>
+          <!-- Duplicate for seamless loop -->
+          <span class="ticker-item">★ You are beautiful</span>
+          <span class="ticker-item">★ Glow every day</span>
+          <span class="ticker-item">★ Love the skin you're in</span>
+          <span class="ticker-item">★ Radiance is a state of mind</span>
+          <span class="ticker-item">★ Your skin deserves the best</span>
+          <span class="ticker-item">★ Confidence looks good on you</span>
+          <span class="ticker-item">★ Embrace your natural glow</span>
+          <span class="ticker-item">★ Be kind to your skin</span>
+        </div>
+      </div>
+
       <!-- SECTION 4: CONSULT A CERTIFIED DERMATOLOGIST -->
       <section id="consult-doctors" class="doctors-section section-margin-lg">
         <div class="section-tag-pill reveal">• DOCTOR</div>

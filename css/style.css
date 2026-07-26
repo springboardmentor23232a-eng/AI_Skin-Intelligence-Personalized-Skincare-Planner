@@ -1137,6 +1137,48 @@ body {
 }
 
 /* ═══════════════════════════════════════════════
+   SCROLLING QUOTES TICKER (Infinite Marquee)
+   ═══════════════════════════════════════════════ */
+
+.quotes-ticker {
+  margin-top: 4rem;
+  overflow: hidden;
+  background: var(--bg-dark-skin);
+  padding: 1.1rem 0;
+  white-space: nowrap;
+}
+
+.ticker-track {
+  display: inline-flex;
+  gap: 0;
+  animation: ticker-scroll 30s linear infinite;
+}
+
+.ticker-track:hover {
+  animation-play-state: paused;
+}
+
+.ticker-item {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.75);
+  letter-spacing: 0.04em;
+  padding: 0 2.5rem;
+  flex-shrink: 0;
+  transition: color 0.3s ease;
+}
+
+.ticker-item:hover {
+  color: var(--gold-primary);
+}
+
+@keyframes ticker-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ═══════════════════════════════════════════════
    SCROLL-REVEAL ANIMATION SYSTEM
    Lightweight IntersectionObserver-driven reveals
    ═══════════════════════════════════════════════ */
