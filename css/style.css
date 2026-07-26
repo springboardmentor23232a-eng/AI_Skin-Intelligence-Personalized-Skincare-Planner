@@ -210,15 +210,22 @@ body {
   grid-template-columns: 1fr 1fr;
   gap: 3.5rem;
   align-items: center;
-  padding: 2rem 0 4rem;
+  padding: 3.5rem 3rem;
   position: relative;
   z-index: 1;
+  background-image: url('../assets/hero_section_bg.png');
+  background-size: cover;
+  background-position: center;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-warm);
 }
 
 @media (max-width: 960px) {
   .hero-split-section {
     grid-template-columns: 1fr;
     gap: 2.5rem;
+    padding: 2rem 1.5rem;
   }
 }
 

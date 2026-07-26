@@ -54,7 +54,7 @@ class App {
       this.authBtn.onclick = () => auth.logout();
     } else {
       this.navRoleBadge.classList.add('hidden');
-      this.authBtn.innerText = 'START SKIN SCAN';
+      this.authBtn.innerText = 'DEMO LOGIN';
       this.authBtn.className = 'btn btn-primary btn-sm';
       this.authBtn.onclick = () => this.openLoginModal();
     }
