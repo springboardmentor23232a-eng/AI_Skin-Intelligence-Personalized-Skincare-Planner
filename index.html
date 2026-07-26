@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Skin Intelligence & Personalized Skincare Planner</title>
+  <title>PanaceaAI - Skin Intelligence & Personalized Skincare Planner</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <!-- Navigation Header -->
   <header class="navbar">
     <div class="brand" id="brand-home">
-      <div class="brand-icon">✨</div>
-      <span>SkinIntel<small style="font-weight: 400; font-size: 0.8rem; color: var(--text-muted);"> AI Platform</small></span>
+      <img src="assets/logo.png" alt="PanaceaAI Logo" class="brand-logo-img">
+      <span>PanaceaAI <small style="font-family: sans-serif; font-size: 0.78rem; font-weight: 600; color: var(--gold-primary);">Skin Intelligence</small></span>
     </div>
 
     <div class="nav-controls">
@@ -30,9 +30,12 @@
   </main>
 
   <!-- Footer -->
-  <footer style="text-align: center; padding: 2rem 1rem; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--border-color);">
+  <footer style="text-align: center; padding: 2.2rem 1rem; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--border-gold);">
+    <div style="display: flex; justify-content: center; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem;">
+      <img src="assets/logo.png" alt="PanaceaAI Logo" style="height: 28px;">
+      <strong style="font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--text-primary);">PanaceaAI Platform</strong>
+    </div>
     <p>AI Skin Intelligence & Personalized Skincare Planner • Infosys Springboard Project</p>
-    <p><small>Built with Vanilla HTML5, CSS3 Glassmorphism, and ES Modules Architecture</small></p>
   </footer>
 
   <!-- Interactive Dummy Login Modal -->
@@ -41,43 +44,137 @@
       <div class="modal-header">
         <div>
           <h3>Select Demo Role to Authenticate</h3>
-          <p class="text-muted" style="font-size: 0.85rem;">Simulate role-based access control & navigation</p>
+          <p class="text-muted" style="font-size: 0.85rem;">Experience custom dashboards for all 4 roles</p>
         </div>
         <button class="close-btn" onclick="window.app.closeLoginModal()">×</button>
       </div>
 
       <div class="role-options-list">
         <button class="role-option-btn" onclick="window.app.selectRole('user')">
-          <span style="font-size: 1.8rem;">👤</span>
+          <span style="font-size: 2rem;">👤</span>
           <div>
             <strong>DermaCare User (Consumer)</strong>
-            <p class="text-muted" style="font-size: 0.75rem;">View skin health score, AM/PM checklist & recommendations</p>
+            <p class="text-muted" style="font-size: 0.78rem;">Dynamic skin health score, AM/PM checklists, hydration counter & survey</p>
           </div>
         </button>
 
         <button class="role-option-btn" onclick="window.app.selectRole('consultant')">
-          <span style="font-size: 1.8rem;">💼</span>
+          <span style="font-size: 2rem;">💼</span>
           <div>
             <strong>Skincare Consultant</strong>
-            <p class="text-muted" style="font-size: 0.75rem;">Manage client queue, review reports & build routines</p>
+            <p class="text-muted" style="font-size: 0.78rem;">Manage client queue, review reports & build client routines</p>
           </div>
         </button>
 
         <button class="role-option-btn" onclick="window.app.selectRole('dermatologist')">
-          <span style="font-size: 1.8rem;">🩺</span>
+          <span style="font-size: 2rem;">🩺</span>
           <div>
             <strong>Board-Certified Dermatologist</strong>
-            <p class="text-muted" style="font-size: 0.75rem;">Clinical patient diagnoses, prescriptions & medical trends</p>
+            <p class="text-muted" style="font-size: 0.78rem;">Clinical diagnostics, prescriptions & medical skin trends</p>
           </div>
         </button>
 
         <button class="role-option-btn" onclick="window.app.selectRole('admin')">
-          <span style="font-size: 1.8rem;">🛡️</span>
+          <span style="font-size: 2rem;">🛡️</span>
           <div>
             <strong>Platform Administrator</strong>
-            <p class="text-muted" style="font-size: 0.75rem;">Monitor 12 microservices, system latency & audit logs</p>
+            <p class="text-muted" style="font-size: 0.78rem;">Monitor 12 microservices, latency simulation & audit logs</p>
           </div>
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Skin Assessment Survey Modal -->
+  <div id="assessment-modal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h3>✨ Take AI Skin Assessment Survey</h3>
+          <p class="text-muted" style="font-size: 0.85rem;">Calculates live score using weighted health algorithm</p>
+        </div>
+        <button class="close-btn" onclick="window.app.closeModal('assessment-modal')">×</button>
+      </div>
+
+      <form id="survey-form" onsubmit="window.app.handleSurveySubmit(event)">
+        <div class="form-group">
+          <label>Skin Type Profile</label>
+          <select id="survey-skin-type" class="form-control">
+            <option value="Combination / Sensitive">Combination / Sensitive</option>
+            <option value="Oily / Acne-Prone">Oily / Acne-Prone</option>
+            <option value="Dry / Dehydrated">Dry / Dehydrated</option>
+            <option value="Normal / Balanced">Normal / Balanced</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Primary Skin Concern</label>
+          <select id="survey-concern" class="form-control">
+            <option value="Acne & Breakouts">Acne & Breakouts</option>
+            <option value="Hyperpigmentation">Hyperpigmentation</option>
+            <option value="Redness & Sensitivity">Redness & Sensitivity</option>
+            <option value="Fine Lines & Aging">Fine Lines & Aging</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Skin Barrier & Condition Self-Rating (35% Weight)</label>
+          <input type="range" id="survey-condition" min="50" max="100" value="75" class="form-control" oninput="document.getElementById('cond-val').innerText = this.value">
+          <small>Selected Rating: <strong id="cond-val" style="color: var(--gold-primary);">75</strong>/100</small>
+        </div>
+
+        <div class="form-group">
+          <label>Lifestyle & Diet Habits Rating (20% Weight)</label>
+          <input type="range" id="survey-lifestyle" min="50" max="100" value="80" class="form-control" oninput="document.getElementById('life-val').innerText = this.value">
+          <small>Selected Rating: <strong id="life-val" style="color: var(--gold-primary);">80</strong>/100</small>
+        </div>
+
+        <div class="form-group">
+          <label>Sleep Quality Rating (15% Weight)</label>
+          <input type="range" id="survey-sleep" min="40" max="100" value="70" class="form-control" oninput="document.getElementById('sleep-val').innerText = this.value">
+          <small>Selected Rating: <strong id="sleep-val" style="color: var(--gold-primary);">70</strong>/100</small>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Recalculate AI Skin Health Score 🚀</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Interactive Ingredient Safety Checker Modal -->
+  <div id="ingredient-modal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h3>🧪 Ingredient Safety & Contraindication Checker</h3>
+          <p class="text-muted" style="font-size: 0.85rem;">Check interaction safety between active ingredients</p>
+        </div>
+        <button class="close-btn" onclick="window.app.closeModal('ingredient-modal')">×</button>
+      </div>
+
+      <div class="form-group">
+        <label>Select Active Ingredient 1</label>
+        <select id="ing-1" class="form-control">
+          <option value="Vitamin C (L-Ascorbic Acid)">Vitamin C (L-Ascorbic Acid)</option>
+          <option value="Retinol (Vitamin A)">Retinol (Vitamin A)</option>
+          <option value="Niacinamide (Vitamin B3)">Niacinamide (Vitamin B3)</option>
+          <option value="Salicylic Acid (BHA)">Salicylic Acid (BHA)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Select Active Ingredient 2</label>
+        <select id="ing-2" class="form-control">
+          <option value="Retinol (Vitamin A)">Retinol (Vitamin A)</option>
+          <option value="Vitamin C (L-Ascorbic Acid)">Vitamin C (L-Ascorbic Acid)</option>
+          <option value="Niacinamide (Vitamin B3)">Niacinamide (Vitamin B3)</option>
+          <option value="Glycolic Acid (AHA)">Glycolic Acid (AHA)</option>
+        </select>
+      </div>
+
+      <button class="btn btn-pink" style="width: 100%;" onclick="window.app.checkIngredients()">Analyze Interactions</button>
+
+      <div id="ingredient-result" style="margin-top: 1.25rem; display: none; padding: 1rem; border-radius: var(--radius-sm); background: #FAF4EE; border: 1px solid var(--border-pink);">
+        <!-- Injected dynamically -->
       </div>
     </div>
   </div>
