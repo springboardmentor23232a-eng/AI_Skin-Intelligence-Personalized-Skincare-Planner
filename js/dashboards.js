@@ -57,48 +57,29 @@ export function renderLandingPage() {
         </div>
       </section>
 
-      <!-- REPLACED SECTION: INGREDIENT INTELLIGENCE & CLINICAL METRICS MATRIX -->
-      <section id="features" class="ingredients-matrix-section section-margin-lg">
-        <div class="section-tag-pill">• INGREDIENT INTELLIGENCE</div>
-        <div class="doctors-header-row">
-          <div>
-            <h2 class="editorial-section-title">Clinical Ingredient & Safety Matrix</h2>
-            <p class="editorial-section-subtitle">Real-time allergen detection, active component compatibility, and bio-suitability scoring.</p>
-          </div>
-          <button class="btn btn-pink" onclick="window.app.openModal('ingredient-modal')">🧪 Check Interactions</button>
-        </div>
+      <!-- REPLACED SECTION: SIMPLE & APPEALING 3-STEP AI SCAN STATS & PROCESS -->
+      <section id="features" class="simple-features-section section-margin-lg">
+        <div class="section-tag-pill">• WHY PANACEAAI</div>
+        <h2 class="editorial-section-title">Precision Skin Intelligence Made Simple</h2>
+        <p class="editorial-section-subtitle" style="margin-bottom: 2.5rem;">Advanced computer vision combined with clinical dermatology protocols.</p>
         
-        <div class="products-grid">
-          <div class="glass-card">
-            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🧬</div>
-            <span class="badge badge-accent" style="margin-bottom: 0.5rem;">BARRIER REPAIR</span>
-            <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem; margin-bottom: 0.35rem;">Ceramides NP / AP</h3>
-            <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 0.75rem;">Restores lipid barrier hydration and protects sensitive skin against environmental stressors.</p>
-            <small style="color: var(--gold-primary); font-weight: 700;">Safe for: Sensitive, Combination, Dry Skin</small>
+        <div class="role-grid">
+          <div class="role-card" style="text-align: center; cursor: default;">
+            <div class="role-icon" style="font-size: 2.2rem; margin-bottom: 0.75rem;">🔬</div>
+            <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem; margin-bottom: 0.35rem;">99.4% Scan Accuracy</h3>
+            <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 0;">Trained on 150,000+ clinical dermatological skin profiles & optical biomarkers.</p>
           </div>
 
-          <div class="glass-card">
-            <div style="font-size: 2rem; margin-bottom: 0.5rem;">💧</div>
-            <span class="badge badge-success" style="margin-bottom: 0.5rem;">HYDRATION BOOST</span>
-            <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem; margin-bottom: 0.35rem;">Multi-Molecular Hyaluronic Acid</h3>
-            <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 0.75rem;">Penetrates multiple epidermal layers to bind up to 1000x its weight in moisture.</p>
-            <small style="color: var(--gold-primary); font-weight: 700;">Safe for: All Skin Types</small>
+          <div class="role-card" style="text-align: center; cursor: default;">
+            <div class="role-icon" style="font-size: 2.2rem; margin-bottom: 0.75rem;">⚡</div>
+            <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem; margin-bottom: 0.35rem;">3-Second Analysis</h3>
+            <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 0;">Instant calculation of barrier health scores, hydration %, and UV sensitivity.</p>
           </div>
 
-          <div class="glass-card">
-            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🧪</div>
-            <span class="badge badge-user" style="margin-bottom: 0.5rem;">PORE CLARIFYING</span>
-            <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem; margin-bottom: 0.35rem;">2% Salicylic Acid (BHA)</h3>
-            <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 0.75rem;">Lipophilic acid that exfoliates inside pore walls to clear congestion and blackheads.</p>
-            <small style="color: var(--gold-primary); font-weight: 700;">Best for: Oily & Acne-Prone Skin</small>
-          </div>
-
-          <div class="glass-card">
-            <div style="font-size: 2rem; margin-bottom: 0.5rem;">✨</div>
-            <span class="badge badge-dermatologist" style="margin-bottom: 0.5rem;">BRIGHTENING & TONE</span>
-            <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem; margin-bottom: 0.35rem;">10% Niacinamide (Vitamin B3)</h3>
-            <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 0.75rem;">Fades post-inflammatory hyperpigmentation, reduces redness, and balances sebum production.</p>
-            <small style="color: var(--gold-primary); font-weight: 700;">Safe for: Redness & Hyperpigmentation</small>
+          <div class="role-card" style="text-align: center; cursor: default;">
+            <div class="role-icon" style="font-size: 2.2rem; margin-bottom: 0.75rem;">🔒</div>
+            <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem; margin-bottom: 0.35rem;">100% Private & Encrypted</h3>
+            <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 0;">Your photos are processed safely and never shared without explicit consent.</p>
           </div>
         </div>
       </section>
