@@ -1069,6 +1069,74 @@ body {
 .hidden { display: none !important; }
 
 /* ═══════════════════════════════════════════════
+   INSPIRATIONAL QUOTES ROTATOR
+   ═══════════════════════════════════════════════ */
+
+.quotes-marquee-section {
+  margin-top: 4rem;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  border-top: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light);
+  background: linear-gradient(135deg, #FDF8F5 0%, #F5F0EC 100%);
+}
+
+.quotes-inner {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.quotes-deco {
+  color: var(--gold-primary);
+  font-size: 1.1rem;
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+.quotes-rotator {
+  position: relative;
+  min-height: 2.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quote-line {
+  position: absolute;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+  font-style: italic;
+  font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: 0.01em;
+  line-height: 1.6;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+  white-space: nowrap;
+}
+
+.quote-line.active {
+  position: relative;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 700px) {
+  .quote-line {
+    font-size: 0.95rem;
+    white-space: normal;
+  }
+  .quotes-inner {
+    gap: 1rem;
+  }
+}
+
+/* ═══════════════════════════════════════════════
    SCROLL-REVEAL ANIMATION SYSTEM
    Lightweight IntersectionObserver-driven reveals
    ═══════════════════════════════════════════════ */

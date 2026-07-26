@@ -82,6 +82,9 @@ class App {
 
     // Initialize scroll reveal animations
     this.initScrollReveal();
+
+    // Start quotes rotator
+    this.initQuotesRotator();
   }
 
   // IntersectionObserver scroll-reveal system
@@ -107,6 +110,23 @@ class App {
     });
 
     revealElements.forEach(el => this._revealObserver.observe(el));
+  }
+
+  // Inspirational quotes auto-rotator
+  initQuotesRotator() {
+    // Clear previous interval
+    if (this._quotesInterval) clearInterval(this._quotesInterval);
+
+    const quotes = document.querySelectorAll('.quote-line');
+    if (!quotes.length) return;
+
+    let currentIndex = 0;
+
+    this._quotesInterval = setInterval(() => {
+      quotes[currentIndex].classList.remove('active');
+      currentIndex = (currentIndex + 1) % quotes.length;
+      quotes[currentIndex].classList.add('active');
+    }, 4000);
   }
 
   openLoginModal() {

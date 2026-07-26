@@ -57,6 +57,23 @@ export function renderLandingPage() {
         </div>
       </section>
 
+      <!-- INSPIRATIONAL QUOTES MARQUEE -->
+      <section class="quotes-marquee-section reveal-scale">
+        <div class="quotes-inner">
+          <span class="quotes-deco">✦</span>
+          <div class="quotes-rotator" id="quotes-rotator">
+            <p class="quote-line active">"You are beautiful — and your skin tells your unique story."</p>
+            <p class="quote-line">"Healthy skin is a reflection of overall wellness."</p>
+            <p class="quote-line">"Glow from within — confidence starts with self-care."</p>
+            <p class="quote-line">"Your skin is your superpower. Nurture it."</p>
+            <p class="quote-line">"Beauty begins the moment you decide to be yourself." — Coco Chanel</p>
+            <p class="quote-line">"Invest in your skin. It's going to represent you for a long time."</p>
+            <p class="quote-line">"Self-care is not selfish. You cannot serve from an empty vessel."</p>
+          </div>
+          <span class="quotes-deco">✦</span>
+        </div>
+      </section>
+
       <!-- 3-CARD SIMPLE FEATURE HIGHLIGHTS -->
       <section id="features" class="simple-features-section section-margin-lg">
         <div class="section-tag-pill reveal">• WHY PANACEAAI</div>
