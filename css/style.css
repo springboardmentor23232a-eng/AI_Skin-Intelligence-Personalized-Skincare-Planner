@@ -220,23 +220,21 @@ body {
   padding: 2.5rem 0;
 }
 
-.hero-logo-large {
-  max-width: 180px;
-  height: auto;
-  margin-bottom: 1.5rem;
-  filter: drop-shadow(0 6px 18px rgba(212, 175, 55, 0.35));
+.hero-logo-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto 1.8rem auto;
+  width: 100%;
 }
 
-.hero-badge {
-  display: inline-block;
-  padding: 0.45rem 1.2rem;
-  border-radius: 30px;
-  background: rgba(232, 153, 165, 0.2);
-  border: 1px solid var(--pink-blush);
-  color: #A34857;
-  font-weight: 700;
-  font-size: 0.85rem;
-  margin-bottom: 1.25rem;
+.hero-logo-large {
+  max-width: 230px;
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  filter: drop-shadow(0 8px 24px rgba(212, 175, 55, 0.35));
 }
 
 .hero-title {

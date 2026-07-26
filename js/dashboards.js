@@ -8,8 +8,9 @@ export function renderLandingPage() {
   return `
     <div class="landing-container">
       <section class="hero-section">
-        <img src="assets/logo.png" alt="PanaceaAI Emblem Logo" class="hero-logo-large">
-        <div class="hero-badge">✨ AI-Powered Skin Intelligence</div>
+        <div class="hero-logo-wrapper">
+          <img src="assets/logo.png" alt="PanaceaAI Emblem Logo" class="hero-logo-large">
+        </div>
         <h1 class="hero-title">PanaceaAI Skincare Intelligence & Routine Planner</h1>
         <p class="hero-subtitle">
           An advanced platform analyzing skin profiles, lifestyle habits, sleep patterns, and environmental exposures to deliver clinical-grade skincare routines and ingredient intelligence.
@@ -86,7 +87,6 @@ export function renderLandingPage() {
 export function renderUserDashboard() {
   const data = MOCK_USER_DATA;
   
-  // Calculate completed routine steps count
   const totalSteps = data.routine.morning.length + data.routine.evening.length;
   const completedSteps = data.routine.morning.filter(s => s.completed).length + data.routine.evening.filter(s => s.completed).length;
   const routinePct = Math.round((completedSteps / totalSteps) * 100);
