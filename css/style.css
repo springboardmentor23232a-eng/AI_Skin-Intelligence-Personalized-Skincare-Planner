@@ -777,10 +777,9 @@ body {
 
 /* Editorial Footer (Full Bleed Edge-to-Edge Converged Footer) */
 .editorial-footer {
-  margin-top: 6rem;
-  background: #14221F;
-  color: #E2ECE9;
-  padding: 4.5rem 5rem 2.5rem;
+  margin-top: 5rem;
+  background: #111a18;
+  color: #d2ddd9;
   width: 100vw;
   position: relative;
   left: 50%;
@@ -790,87 +789,164 @@ body {
   border-radius: 0;
 }
 
-.footer-grid {
-  max-width: 1360px;
+.footer-inner {
+  max-width: 1200px;
   margin: 0 auto;
+  padding: 4rem 2.5rem 2rem;
+}
+
+/* ── Top Row: Brand + 3 Link Columns ── */
+.footer-top-row {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
-  gap: 3.5rem;
-  padding-bottom: 3.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  gap: 3rem;
+  align-items: start;
 }
 
 @media (max-width: 900px) {
-  .footer-grid {
+  .footer-top-row {
     grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .footer-top-row {
+    grid-template-columns: 1fr;
     gap: 2.5rem;
   }
 }
 
-.footer-desc {
+/* Brand Column */
+.footer-logo-group {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.footer-logo-img {
+  height: 34px;
+  width: 34px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+.footer-brand-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.02em;
+}
+
+.footer-tagline {
   font-size: 0.88rem;
-  color: #A0B4B0;
-  margin-bottom: 1.5rem;
-  max-width: 320px;
-  line-height: 1.6;
+  color: #8fa8a2;
+  line-height: 1.65;
+  margin-bottom: 1.4rem;
 }
 
-.footer-address {
+/* Social Icons */
+.footer-socials {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.footer-social-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8fa8a2;
   font-size: 0.82rem;
-  color: #CBDCD8;
-  line-height: 1.6;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  background: rgba(255, 255, 255, 0.04);
 }
 
+.footer-social-icon:hover {
+  background: var(--gold-primary);
+  color: #111a18;
+  border-color: var(--gold-primary);
+  transform: translateY(-2px);
+}
+
+/* Link Columns */
 .footer-links-col h4 {
-  font-size: 0.9rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #FFFFFF;
-  margin-bottom: 1.25rem;
+  color: #ffffff;
+  margin-bottom: 1.1rem;
 }
 
 .footer-links-col ul {
   list-style: none;
+  padding: 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.65rem;
 }
 
-.footer-links-col a {
-  color: #A0B4B0;
+.footer-links-col li a {
+  color: #8fa8a2;
   text-decoration: none;
   font-size: 0.88rem;
-  transition: var(--transition);
+  transition: color 0.2s ease, padding-left 0.2s ease;
 }
 
-.footer-links-col a:hover {
+.footer-links-col li a:hover {
   color: var(--gold-primary);
+  padding-left: 4px;
 }
 
+/* ── Divider ── */
+.footer-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1) 20%, rgba(255, 255, 255, 0.1) 80%, transparent);
+  margin: 2.5rem 0 1.5rem;
+}
+
+/* ── Bottom Bar ── */
 .footer-bottom-bar {
-  max-width: 1360px;
-  margin: 0 auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 2rem;
-  font-size: 0.8rem;
-  color: #7D9490;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
-.footer-bottom-links {
+.footer-copyright {
+  font-size: 0.78rem;
+  color: #5e7672;
+}
+
+.footer-legal-links {
   display: flex;
-  gap: 1.5rem;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.footer-bottom-links a {
-  color: #7D9490;
+.footer-legal-links a {
+  color: #5e7672;
   text-decoration: none;
+  font-size: 0.78rem;
+  transition: color 0.2s ease;
 }
 
-.footer-bottom-links a:hover {
-  color: #FFFFFF;
+.footer-legal-links a:hover {
+  color: #ffffff;
+}
+
+.footer-dot {
+  color: #3e524e;
+  font-size: 0.8rem;
 }
 
 /* Dashboard Inner Components */

@@ -279,63 +279,75 @@ export function renderLandingPage() {
         </div>
       </section>
 
-      <!-- NEW SECTION 7: EDITORIAL FOOTER -->
+      <!-- EDITORIAL FOOTER -->
       <footer class="editorial-footer">
-        <div class="footer-grid">
-          <div class="footer-brand-col">
-            <div class="brand" style="margin-bottom: 1rem; color: #FFFFFF;">
-              <img src="assets/logo.png" alt="PanaceaAI Logo" class="brand-logo-img">
-              <span>PanaceaAI</span>
+        <div class="footer-inner">
+
+          <!-- Top Row: Brand + Link Columns -->
+          <div class="footer-top-row">
+            <div class="footer-brand-col">
+              <div class="footer-logo-group">
+                <img src="assets/logo.png" alt="PanaceaAI" class="footer-logo-img">
+                <span class="footer-brand-name">PanaceaAI</span>
+              </div>
+              <p class="footer-tagline">
+                AI-powered dermatology intelligence.<br>
+                Scan. Diagnose. Glow.
+              </p>
+              <div class="footer-socials">
+                <a href="javascript:void(0)" title="Twitter / X" class="footer-social-icon">𝕏</a>
+                <a href="javascript:void(0)" title="LinkedIn" class="footer-social-icon">in</a>
+                <a href="javascript:void(0)" title="Instagram" class="footer-social-icon">📷</a>
+                <a href="javascript:void(0)" title="GitHub" class="footer-social-icon">⌨</a>
+              </div>
             </div>
-            <p class="footer-desc">
-              AI-powered skin health intelligence, biomarker scanning, and personalized skincare routine planning platform.
-            </p>
-            <div class="footer-address">
-              📍 <strong>Address:</strong><br>
-              PanaceaAI HealthTech Labs, Springboard Tech Park,<br>
-              Bengaluru, KA 560103, India<br><br>
-              📞 <strong>Support Line:</strong> +91 80 4912 8800
+
+            <div class="footer-links-col">
+              <h4>Platform</h4>
+              <ul>
+                <li><a href="javascript:void(0)" onclick="window.app.selectRole('user')">User Dashboard</a></li>
+                <li><a href="javascript:void(0)" onclick="window.app.selectRole('consultant')">Consultant Portal</a></li>
+                <li><a href="javascript:void(0)" onclick="window.app.selectRole('dermatologist')">Dermatologist View</a></li>
+                <li><a href="javascript:void(0)" onclick="window.app.selectRole('admin')">Admin Panel</a></li>
+              </ul>
+            </div>
+
+            <div class="footer-links-col">
+              <h4>Technology</h4>
+              <ul>
+                <li><a href="#how-it-works">Optical Biomarkers</a></li>
+                <li><a href="javascript:void(0)" onclick="window.app.openModal('ingredient-modal')">Ingredient Checker</a></li>
+                <li><a href="javascript:void(0)" onclick="window.app.openModal('assessment-modal')">AI Skin Assessment</a></li>
+                <li><a href="#features">Microservices API</a></li>
+              </ul>
+            </div>
+
+            <div class="footer-links-col">
+              <h4>Company</h4>
+              <ul>
+                <li><a href="#how-it-works">About PanaceaAI</a></li>
+                <li><a href="#consult-doctors">Our Doctors</a></li>
+                <li><a href="#faq">Help & FAQ</a></li>
+                <li><a href="javascript:void(0)" onclick="alert('HIPAA & GDPR Compliant')">Privacy & Security</a></li>
+              </ul>
             </div>
           </div>
 
-          <div class="footer-links-col">
-            <h4>Portals</h4>
-            <ul>
-              <li><a href="javascript:void(0)" onclick="window.app.selectRole('user')">User Portal</a></li>
-              <li><a href="javascript:void(0)" onclick="window.app.selectRole('consultant')">Consultant Workspace</a></li>
-              <li><a href="javascript:void(0)" onclick="window.app.selectRole('dermatologist')">Clinical Portal</a></li>
-              <li><a href="javascript:void(0)" onclick="window.app.selectRole('admin')">Platform Admin</a></li>
-            </ul>
+          <!-- Divider -->
+          <div class="footer-divider"></div>
+
+          <!-- Bottom Bar -->
+          <div class="footer-bottom-bar">
+            <span class="footer-copyright">© 2026 PanaceaAI HealthTech Pvt. Ltd. All rights reserved.</span>
+            <div class="footer-legal-links">
+              <a href="javascript:void(0)" onclick="alert('Privacy Policy')">Privacy</a>
+              <span class="footer-dot">·</span>
+              <a href="javascript:void(0)" onclick="alert('Terms of Service')">Terms</a>
+              <span class="footer-dot">·</span>
+              <a href="javascript:void(0)" onclick="alert('Security Audit')">Security</a>
+            </div>
           </div>
 
-          <div class="footer-links-col">
-            <h4>Science & Tech</h4>
-            <ul>
-              <li><a href="#how-it-works">Optical Biomarkers</a></li>
-              <li><a href="javascript:void(0)" onclick="window.app.openModal('ingredient-modal')">Ingredient Safety</a></li>
-              <li><a href="javascript:void(0)" onclick="window.app.openModal('assessment-modal')">AI Assessment</a></li>
-              <li><a href="#features">12 Microservices API</a></li>
-            </ul>
-          </div>
-
-          <div class="footer-links-col">
-            <h4>Company</h4>
-            <ul>
-              <li><a href="#how-it-works">About Us</a></li>
-              <li><a href="#consult-doctors">Certified Doctors</a></li>
-              <li><a href="#faq">FAQ & Support</a></li>
-              <li><a href="javascript:void(0)" onclick="alert('PanaceaAI Privacy Policy: 100% HIPAA and GDPR Compliant.')">Privacy Policy</a></li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="footer-bottom-bar">
-          <div>© 2026 PanaceaAI HealthTech Private Limited. All rights reserved.</div>
-          <div class="footer-bottom-links">
-            <a href="javascript:void(0)" onclick="alert('Privacy Policy loaded')">Privacy Policy</a>
-            <a href="javascript:void(0)" onclick="alert('Terms of Service loaded')">Terms of Use</a>
-            <a href="javascript:void(0)" onclick="alert('Security Policy loaded')">Security Audit</a>
-          </div>
         </div>
       </footer>
     </div>
