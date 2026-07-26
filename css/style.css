@@ -211,6 +211,8 @@ body {
   gap: 3.5rem;
   align-items: center;
   padding: 2rem 0 4rem;
+  position: relative;
+  z-index: 1;
 }
 
 @media (max-width: 960px) {
@@ -218,6 +220,21 @@ body {
     grid-template-columns: 1fr;
     gap: 2.5rem;
   }
+}
+
+.hero-bg-blur {
+  position: absolute;
+  top: -10%;
+  right: -5%;
+  width: 650px;
+  height: 650px;
+  background-image: url('../assets/hero_skin_scan.png');
+  background-size: cover;
+  background-position: center;
+  filter: blur(70px) opacity(0.28);
+  border-radius: 50%;
+  z-index: -1;
+  pointer-events: none;
 }
 
 .section-tag-pill {
@@ -264,12 +281,46 @@ body {
 
 .skin-scan-viewport {
   width: 100%;
-  height: 480px;
+  height: 500px;
   border-radius: var(--radius-lg);
   position: relative;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+  border: 2px solid rgba(212, 175, 55, 0.5);
+}
+
+.scan-pulse-badge {
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  background: rgba(20, 18, 17, 0.88);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(212, 175, 55, 0.5);
+  padding: 0.45rem 1rem;
+  border-radius: 30px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--gold-primary);
+  letter-spacing: 0.08em;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  z-index: 10;
+}
+
+.pulse-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #FFD700;
+  box-shadow: 0 0 12px #FFD700;
+  animation: blink 1.2s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.8); }
 }
 
 .scan-target-overlay {
@@ -277,19 +328,21 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 240px;
-  height: 240px;
-  border: 2px dashed rgba(212, 175, 55, 0.8);
+  width: 280px;
+  height: 280px;
+  border: 3px dashed #FFD700;
   border-radius: 50%;
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.5), inset 0 0 30px rgba(255, 215, 0, 0.25);
 }
 
 .scan-line {
   width: 100%;
-  height: 2px;
-  background: var(--gold-gradient);
+  height: 4px;
+  background: linear-gradient(90deg, transparent 0%, #FFD700 30%, #FFFFFF 50%, #FFD700 70%, transparent 100%);
+  box-shadow: 0 0 20px #FFD700, 0 0 40px #FFD700, 0 0 60px #FFD700;
   position: absolute;
   top: 0;
-  animation: scanAnim 3s infinite linear;
+  animation: scanAnim 2.2s infinite ease-in-out;
 }
 
 @keyframes scanAnim {
@@ -302,13 +355,14 @@ body {
   position: absolute;
   bottom: 2rem;
   right: 2rem;
-  background: rgba(20, 18, 17, 0.82);
+  background: rgba(20, 18, 17, 0.88);
   backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: var(--radius-sm);
   padding: 1.1rem 1.4rem;
   color: #FFFFFF;
   min-width: 240px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
 .hud-item small {

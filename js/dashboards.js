@@ -10,6 +10,7 @@ export function renderLandingPage() {
     <div class="editorial-container">
       <!-- HERO SECTION -->
       <section class="hero-split-section">
+        <div class="hero-bg-blur"></div>
         <div class="hero-text-col">
           <div class="section-tag-pill">• AI SKIN HEALTH SCAN</div>
           <h1 class="editorial-hero-title">Check Your Skin Health in Seconds</h1>
@@ -27,9 +28,14 @@ export function renderLandingPage() {
 
         <div class="hero-visual-col">
           <div class="skin-scan-viewport" style="background-image: url('assets/hero_skin_scan.png'); background-size: cover; background-position: center;">
+            <div class="scan-pulse-badge">
+              <span class="pulse-dot"></span> SCANNING OPTICAL BIOMARKERS
+            </div>
+            
             <div class="scan-target-overlay">
               <div class="scan-line"></div>
             </div>
+
             <!-- Telemetry HUD Box -->
             <div class="telemetry-hud-box">
               <div class="hud-item"><small>LAST SCAN</small> <strong>24 NOVEMBER 2025</strong></div>
