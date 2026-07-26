@@ -57,7 +57,7 @@ export function renderLandingPage() {
         </div>
       </section>
 
-      <!-- REPLACED SECTION: SIMPLE & APPEALING 3-STEP AI SCAN STATS & PROCESS -->
+      <!-- 3-CARD SIMPLE FEATURE HIGHLIGHTS -->
       <section id="features" class="simple-features-section section-margin-lg">
         <div class="section-tag-pill">• WHY PANACEAAI</div>
         <h2 class="editorial-section-title">Precision Skin Intelligence Made Simple</h2>
@@ -219,6 +219,125 @@ export function renderLandingPage() {
           </div>
         </div>
       </section>
+
+      <!-- NEW SECTION 6: FREQUENTLY ASKED QUESTIONS (FAQ ACCORDION) -->
+      <section id="faq" class="faq-section section-margin-lg">
+        <div class="section-tag-pill">• SUPPORT & FAQ</div>
+        <h2 class="editorial-section-title">Frequently Asked Questions</h2>
+        <p class="editorial-section-subtitle" style="margin-bottom: 2.5rem;">Everything you need to know about our AI scanner, privacy, and clinical consultations.</p>
+
+        <div class="faq-accordion-list">
+          <div class="faq-item active" onclick="window.app.toggleFaq(this)">
+            <div class="faq-question">
+              <span>How accurate is the PanaceaAI skin health scanner?</span>
+              <span class="faq-icon">−</span>
+            </div>
+            <div class="faq-answer">
+              Our computer vision models evaluate optical biomarkers trained on 150,000+ clinical dermatological skin scans, achieving 99.4% accuracy in barrier score calculation, hydration level detection, and early skin issue risk assessment.
+            </div>
+          </div>
+
+          <div class="faq-item" onclick="window.app.toggleFaq(this)">
+            <div class="faq-question">
+              <span>Is my uploaded skin photo and medical data kept private?</span>
+              <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer">
+              Yes. All skin photos and diagnostic data are encrypted end-to-end and stored securely. We adhere to strict HIPAA and GDPR privacy guidelines and never sell or share your data with third parties.
+            </div>
+          </div>
+
+          <div class="faq-item" onclick="window.app.toggleFaq(this)">
+            <div class="faq-question">
+              <span>Can I consult a licensed dermatologist directly through the platform?</span>
+              <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer">
+              Yes! PanaceaAI connects you directly with certified dermatologists for live video calls or chat consultations. Doctors can review your AI scan telemetry, issue digital prescriptions, and create custom regimens.
+            </div>
+          </div>
+
+          <div class="faq-item" onclick="window.app.toggleFaq(this)">
+            <div class="faq-question">
+              <span>How does the weighted skin health score formula work?</span>
+              <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer">
+              Your overall score (0–100) is calculated dynamically across 5 key clinical factors: Condition Severity (35%), Routine Consistency (20%), Hydration Level (10%), Lifestyle Factors (20%), and Sleep Quality (15%).
+            </div>
+          </div>
+
+          <div class="faq-item" onclick="window.app.toggleFaq(this)">
+            <div class="faq-question">
+              <span>How does the Ingredient Safety & Interaction Checker work?</span>
+              <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer">
+              Our ingredient database cross-references active chemical compounds to flag incompatible pairs (such as Vitamin C and Retinol) and recommends optimal morning (AM) vs evening (PM) layering to prevent skin barrier damage.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- NEW SECTION 7: EDITORIAL FOOTER -->
+      <footer class="editorial-footer">
+        <div class="footer-grid">
+          <div class="footer-brand-col">
+            <div class="brand" style="margin-bottom: 1rem; color: #FFFFFF;">
+              <img src="assets/logo.png" alt="PanaceaAI Logo" class="brand-logo-img">
+              <span>PanaceaAI</span>
+            </div>
+            <p class="footer-desc">
+              AI-powered skin health intelligence, biomarker scanning, and personalized skincare routine planning platform.
+            </p>
+            <div class="footer-address">
+              📍 <strong>Address:</strong><br>
+              PanaceaAI HealthTech Labs, Springboard Tech Park,<br>
+              Bengaluru, KA 560103, India<br><br>
+              📞 <strong>Support Line:</strong> +91 80 4912 8800
+            </div>
+          </div>
+
+          <div class="footer-links-col">
+            <h4>Portals</h4>
+            <ul>
+              <li><a href="javascript:void(0)" onclick="window.app.selectRole('user')">User Portal</a></li>
+              <li><a href="javascript:void(0)" onclick="window.app.selectRole('consultant')">Consultant Workspace</a></li>
+              <li><a href="javascript:void(0)" onclick="window.app.selectRole('dermatologist')">Clinical Portal</a></li>
+              <li><a href="javascript:void(0)" onclick="window.app.selectRole('admin')">Platform Admin</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-links-col">
+            <h4>Science & Tech</h4>
+            <ul>
+              <li><a href="#how-it-works">Optical Biomarkers</a></li>
+              <li><a href="javascript:void(0)" onclick="window.app.openModal('ingredient-modal')">Ingredient Safety</a></li>
+              <li><a href="javascript:void(0)" onclick="window.app.openModal('assessment-modal')">AI Assessment</a></li>
+              <li><a href="#features">12 Microservices API</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-links-col">
+            <h4>Company</h4>
+            <ul>
+              <li><a href="#how-it-works">About Us</a></li>
+              <li><a href="#consult-doctors">Certified Doctors</a></li>
+              <li><a href="#faq">FAQ & Support</a></li>
+              <li><a href="javascript:void(0)" onclick="alert('PanaceaAI Privacy Policy: 100% HIPAA and GDPR Compliant.')">Privacy Policy</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-bottom-bar">
+          <div>© 2026 PanaceaAI HealthTech Private Limited. All rights reserved.</div>
+          <div class="footer-bottom-links">
+            <a href="javascript:void(0)" onclick="alert('Privacy Policy loaded')">Privacy Policy</a>
+            <a href="javascript:void(0)" onclick="alert('Terms of Service loaded')">Terms of Use</a>
+            <a href="javascript:void(0)" onclick="alert('Security Policy loaded')">Security Audit</a>
+          </div>
+        </div>
+      </footer>
     </div>
   `;
 }

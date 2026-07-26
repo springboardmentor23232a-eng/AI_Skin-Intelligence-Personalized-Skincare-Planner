@@ -96,6 +96,21 @@ class App {
     this.closeLoginModal();
   }
 
+  // Interactive FAQ Accordion Toggle
+  toggleFaq(element) {
+    const isActive = element.classList.contains('active');
+    document.querySelectorAll('.faq-item').forEach(item => {
+      item.classList.remove('active');
+      const icon = item.querySelector('.faq-icon');
+      if (icon) icon.innerText = '+';
+    });
+    if (!isActive) {
+      element.classList.add('active');
+      const icon = element.querySelector('.faq-icon');
+      if (icon) icon.innerText = '−';
+    }
+  }
+
   switchRoutineTab(tab) {
     const tabAm = document.getElementById('tab-am');
     const tabPm = document.getElementById('tab-pm');
