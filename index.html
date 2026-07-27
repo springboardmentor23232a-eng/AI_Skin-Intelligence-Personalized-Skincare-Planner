@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DermaAI - Skin Intelligence</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f172a; }
+        .hero-gradient { background: radial-gradient(circle at 50% -20%, #115e59 0%, #0f172a 70%); }
+    </style>
+</head>
+<body class="text-slate-100 antialiased flex flex-col min-h-screen">
+
+    <!-- Navigation Header -->
+    <header class="fixed top-0 left-0 right-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-teal-500 text-slate-900 p-2.5 rounded-2xl font-bold shadow-lg shadow-teal-500/20">
+                    <i data-lucide="sparkles" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <span class="font-extrabold text-xl tracking-tight text-white">DermaAI</span>
+                    <span class="text-[10px] font-bold text-teal-400 block tracking-wider uppercase">Skin Intelligence</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-gradient pt-36 pb-20 px-6 flex-1 flex flex-col justify-center relative overflow-hidden">
+        <div class="max-w-4xl mx-auto text-center space-y-8 relative z-10">
+            <h1 class="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-tight">
+                Personalized Skincare Routine Driven by <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-cyan-400">Real-Time Data</span>
+            </h1>
+            <p class="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto font-normal leading-relaxed">
+                Transform your skincare health using AI models that evaluate skin profiles, lifestyle factors, and ingredient synergy.
+            </p>
+
+            <button onclick="openModal()" class="bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold px-8 py-3.5 rounded-xl text-sm transition shadow-lg shadow-teal-500/20 cursor-pointer">
+                Sign In
+            </button>
+        </div>
+    </section>
+
+
+    <!-- Footer -->
+    <footer class="py-8 bg-slate-950 border-t border-slate-800 text-xs text-slate-500 mt-auto">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+                <div class="bg-teal-500 text-slate-950 p-1.5 rounded-lg font-bold">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i>
+                </div>
+                <span class="text-slate-300 font-bold text-sm">DermaAI Intelligence Platform</span>
+            </div>
+            <p>© 2026 DermaAI Platform. All rights reserved.</p>
+        </div>
+    </footer>
+    <!-- Login Modal -->
+    <div id="login-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 space-y-5 relative shadow-2xl">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white cursor-pointer">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <div class="text-center space-y-1">
+                <h2 class="text-xl font-bold text-white">Sign In to DermaAI</h2>
+                <p class="text-xs text-slate-400">Choose a role and enter registered credentials</p>
+            </div>
+
+            <div id="error-msg" class="hidden p-2.5 bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs rounded-xl text-center font-medium"></div>
+
+            <!-- Form -->
+            <form id="login-form" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Select Role</label>
+                    <select id="roleSelect" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-teal-500">
+                        <option value="user">User</option>
+                        <option value="consultant">Consultant</option>
+                        <option value="dermatologist">Dermatologist</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Email Address</label>
+                    <input type="email" id="email" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-teal-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Password</label>
+                    <input type="password" id="password" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-teal-500">
+                </div>
+
+                <button type="submit" class="w-full bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition mt-2 cursor-pointer">
+                    Sign In
+                </button>
+            </form>
+
+            <div class="my-3 flex items-center justify-between text-[10px] text-slate-500 font-bold uppercase">
+                <hr class="w-full border-slate-800">
+                <span class="px-2">OR</span>
+                <hr class="w-full border-slate-800">
+            </div>
+
+            <!-- OAuth Buttons -->
+            <div class="space-y-2">
+                <button onclick="mockOAuth('Google')" class="w-full border border-slate-700 bg-slate-800/50 hover:bg-slate-800 text-slate-200 p-2.5 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition cursor-pointer">
+                    <i data-lucide="chrome" class="w-4 h-4 text-teal-400"></i> Log in with Google
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // Preset credential lookup
+        const validCredentials = {
+            user: {
+                email: "user@example.com",
+                password: "user123"
+            },
+            consultant: {
+                email: "consultant@example.com",
+                password: "consultant123"
+            },
+            dermatologist:{
+                email:"dermatologist@example.com",
+                password:"dermatologist123"
+            }
+        };
+
+        function openModal() {
+            document.getElementById('login-modal').classList.remove('hidden');
+            updateFormDefaults();
+        }
+
+        function closeModal() {
+            document.getElementById('login-modal').classList.add('hidden');
+            hideError();
+        }
+
+        function showError(msg) {
+            const errDiv = document.getElementById('error-msg');
+            errDiv.innerText = msg;
+            errDiv.classList.remove('hidden');
+        }
+
+        function hideError() {
+            document.getElementById('error-msg').classList.add('hidden');
+        }
+
+        // Strict Credential & Role Validation
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const role = document.getElementById('roleSelect').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const expected = validCredentials[role];
+
+            // Verify credentials match role requirements
+            if (email === expected.email && password === expected.password) {
+                const mockPayload = { sub: email, role: role, exp: Date.now() + 3600000 };
+                const mockToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9." + btoa(JSON.stringify(mockPayload)) + ".mock_signature";
+                loginSuccess(mockToken, email, role);
+            } else {
+                showError(`Invalid credentials for ${role === 'user' ? 'User': role === 'consultant' ? 'Consultant': 'Dermatologist'} role!`);
+            }
+        });
+
+        // Mock OAuth
+        function mockOAuth(provider) {
+            const role = document.getElementById('roleSelect').value;
+            const mockName = `${provider} (${role === 'user' ? 'User': role === 'consultant' ? 'Consultant': 'Dermatologist'})`;
+            const mockPayload = { sub: `${provider.toLowerCase()}_${role}`, name: mockName, role: role, exp: Date.now() + 3600000 };
+            const mockToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9." + btoa(JSON.stringify(mockPayload)) + ".mock_oauth_signature";
+
+            loginSuccess(mockToken, mockName, role);
+        }
+
+        function loginSuccess(token, identity, role) {
+            localStorage.setItem('auth_token', token);
+            localStorage.setItem('user_identity', identity);
+            localStorage.setItem('user_role', role);
+
+            if (role === 'user') {
+                window.location.href = 'user_dashboard.html';
+            } else if (role === 'consultant')  {
+                window.location.href = 'consultant_dashboard.html';
+            } else {
+                window.location.href = 'dermatologist_dashboard.html';
+            }
+            
+        }
+    </script>
+</body>
+</html>
