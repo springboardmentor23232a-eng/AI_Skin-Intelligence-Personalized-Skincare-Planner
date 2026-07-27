@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Dashboard | GlowSense AI</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <!-- Dashboard CSS -->
+    <link rel="stylesheet" href="css/dashboard.css">
+
+</head>
+
+<body>
+
+    <!-- Navbar -->
+
+    <nav class="navbar navbar-dark bg-success">
+
+        <div class="container">
+
+            <a class="navbar-brand fw-bold">
+                GlowSense AI - Admin Portal
+            </a>
+
+            <button class="btn btn-light" onclick="logout()">
+                Logout
+            </button>
+
+        </div>
+
+    </nav>
+
+    <!-- Main -->
+
+    <div class="container mt-5">
+
+        <h2>
+            Welcome, Admin 🛠️
+        </h2>
+
+        <p class="text-muted">
+            Monitor platform activity and manage users.
+        </p>
+
+        <span class="badge bg-secondary mb-4">
+            Frontend Prototype • Backend Integration Pending
+        </span>
+
+        <!-- Dashboard Cards -->
+
+        <div class="row mt-4">
+
+            <div class="col-md-4 mb-3">
+
+                <div class="card shadow text-center">
+
+                    <div class="card-body">
+
+                        <i class="bi bi-people-fill display-5 text-success"></i>
+
+                        <h5 class="mt-3">
+                            Total Users
+                        </h5>
+
+                        <h2 class="text-success">
+                            150
+                        </h2>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4 mb-3">
+
+                <div class="card shadow text-center">
+
+                    <div class="card-body">
+
+                        <i class="bi bi-person-badge display-5 text-primary"></i>
+
+                        <h5 class="mt-3">
+                            Consultants
+                        </h5>
+
+                        <h2 class="text-primary">
+                            18
+                        </h2>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4 mb-3">
+
+                <div class="card shadow text-center">
+
+                    <div class="card-body">
+
+                        <i class="bi bi-hospital display-5 text-warning"></i>
+
+                        <h5 class="mt-3">
+                            Dermatologists
+                        </h5>
+
+                        <h2 class="text-warning">
+                            12
+                        </h2>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Platform Analytics -->
+
+        <div class="card shadow mt-5">
+
+            <div class="card-body">
+
+                <h4>
+                    📊 Platform Analytics
+                </h4>
+
+                <div class="alert alert-success mt-3">
+
+                    Platform Status : Online ✅
+
+                </div>
+
+                <ul>
+
+                    <li>Total Skin Analyses : 1,240</li>
+
+                    <li>Completed Consultations : 860</li>
+
+                    <li>Active Users Today : 92</li>
+
+                </ul>
+
+            </div>
+
+        </div>
+
+        <!-- User Management -->
+
+        <div class="card shadow mt-4">
+
+            <div class="card-body">
+
+                <h4>
+                    👥 User Management
+                </h4>
+
+                <div class="alert alert-info mt-3">
+
+                    Manage registered users and healthcare professionals.
+
+                </div>
+
+                <button class="btn btn-success">
+                    View Users
+                </button>
+
+            </div>
+
+        </div>
+
+        <!-- System Status -->
+
+        <div class="card shadow mt-4">
+
+            <div class="card-body">
+
+                <h4>
+                    ⚙️ System Status
+                </h4>
+
+                <div class="alert alert-secondary mt-3">
+
+                    No system alerts.
+
+                </div>
+
+                <p>
+
+                    System monitoring, logs and maintenance notifications
+                    will appear here.
+
+                </p>
+
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+
+        <footer class="text-center mt-5 mb-3 text-muted">
+
+            <hr>
+
+            <p>© 2026 GlowSense AI</p>
+
+            <p>AI Skin Intelligence & Personalized Skincare Planner</p>
+
+        </footer>
+
+    </div>
+
+    <script src="js/dashboard.js"></script>
+
+</body>
+
+</html>

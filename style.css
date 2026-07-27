@@ -1,0 +1,170 @@
+/* ==========================
+   Google Font
+========================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+/* ==========================
+   Body
+========================== */
+
+body {
+    background: #f8fafc;
+    color: #333;
+}
+
+/* ==========================
+   Navbar
+========================== */
+
+.navbar-brand {
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.nav-link {
+    font-weight: 500;
+    margin-left: 20px;
+    transition: 0.3s;
+}
+
+.nav-link:hover {
+    color: #2E8B57 !important;
+}
+
+.btn-success {
+    background: #2E8B57;
+    border: none;
+    border-radius: 30px;
+    transition: 0.3s;
+}
+
+.btn-success:hover {
+    background: #256d46;
+    transform: translateY(-2px);
+}
+
+/* ==========================
+   Hero Section
+========================== */
+
+.hero {
+    padding: 90px 0;
+    background: linear-gradient(to right, #f8fafc, #e6fff2);
+}
+
+.hero h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #222;
+}
+
+.hero p {
+    color: #555;
+    font-size: 1.1rem;
+    line-height: 1.8;
+}
+
+.hero img {
+    max-width: 100%;
+    animation: float 3s ease-in-out infinite;
+}
+
+/* Floating Image Animation */
+
+@keyframes float {
+
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-12px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+
+}
+
+/* ==========================
+   Features
+========================== */
+
+#features {
+    padding: 80px 0;
+}
+
+.card {
+    border-radius: 20px;
+    transition: 0.4s;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0px 15px 35px rgba(0,0,0,0.12);
+}
+
+.card i {
+    font-size: 50px;
+}
+
+/* ==========================
+   About
+========================== */
+
+#about {
+    padding: 80px 0;
+}
+
+#about p {
+    max-width: 850px;
+    margin: auto;
+    line-height: 1.9;
+    color: #555;
+}
+
+/* ==========================
+   Footer
+========================== */
+
+footer {
+    background: #222;
+}
+
+footer p {
+    margin: 0;
+}
+
+/* ==========================
+   Responsive
+========================== */
+
+@media (max-width:992px) {
+
+.hero {
+
+    text-align:center;
+    padding:60px 0;
+
+}
+
+.hero img{
+
+    margin-top:40px;
+
+}
+
+.hero h1{
+
+    font-size:2.3rem;
+
+}
+
+}

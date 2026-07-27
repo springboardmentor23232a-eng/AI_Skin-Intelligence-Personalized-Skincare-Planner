@@ -1,0 +1,134 @@
+/* ===========================
+   Global Styles
+=========================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+
+    background:linear-gradient(135deg,#e8f5e9,#f8fafc);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+
+}
+
+/* ===========================
+   Login Card
+=========================== */
+
+.login-container{
+
+    width:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+}
+
+.login-card{
+
+    background:#fff;
+    width:420px;
+    padding:40px;
+    border-radius:20px;
+    box-shadow:0 15px 35px rgba(0,0,0,0.15);
+
+}
+
+.login-card h2{
+
+    color:#2E8B57;
+    text-align:center;
+    font-weight:700;
+
+}
+
+.login-card p{
+
+    text-align:center;
+    color:#666;
+    margin-bottom:25px;
+
+}
+
+/* ===========================
+   Form
+=========================== */
+
+label{
+
+    font-weight:500;
+    margin-bottom:8px;
+
+}
+
+.form-control,
+.form-select{
+
+    border-radius:10px;
+    height:48px;
+
+}
+
+.form-control:focus,
+.form-select:focus{
+
+    border-color:#2E8B57;
+    box-shadow:0 0 5px rgba(46,139,87,.4);
+
+}
+
+/* ===========================
+   Buttons
+=========================== */
+
+.btn-success{
+
+    background:#2E8B57;
+    border:none;
+    height:48px;
+    border-radius:10px;
+    font-weight:600;
+    transition:.3s;
+
+}
+
+.btn-success:hover{
+
+    background:#256d46;
+    transform:translateY(-2px);
+
+}
+
+.btn-outline-danger{
+
+    height:48px;
+    border-radius:10px;
+    font-weight:500;
+
+}
+
+/* ===========================
+   Links
+=========================== */
+
+a{
+
+    text-decoration:none;
+    color:#2E8B57;
+    font-weight:500;
+
+}
+
+a:hover{
+
+    color:#256d46;
+
+}
