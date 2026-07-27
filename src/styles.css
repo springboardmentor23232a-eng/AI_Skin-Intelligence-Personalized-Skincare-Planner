@@ -1,0 +1,413 @@
+:root {
+    --bg-color: #FAF7F2;      /* Cream */
+    --card-bg: #EADBC8;       /* Soft Beige */
+    --primary: #8FAF9D;       /* Sage */
+    --text-main: #2D3748;     /* Charcoal */
+    --accent: #C8A96A;        /* Gold Accent */
+    --text-muted: rgba(45, 55, 72, 0.7);
+    --white: #FFFFFF;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    min-height: 100vh;
+}
+
+/* SPLASH SCREEN STYLES (index.html) */
+.splash-screen {
+    height: 100vh;
+    background-color: var(--card-bg);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.splash-logo {
+    position: absolute;
+    top: 40px;
+    left: 60px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-main);
+}
+
+.splash-card {
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 24px;
+    padding: 30px;
+    text-align: center;
+    max-width: 350px;
+    width: 100%;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+}
+
+.splash-card h1 {
+    font-size: 2.5rem;
+    margin-bottom: 30px;
+    line-height: 1.2;
+}
+
+.splash-button {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--white);
+    color: var(--text-main);
+    padding: 20px 30px;
+    border-radius: 40px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+}
+
+.splash-button:hover {
+    transform: translateY(-3px);
+}
+
+.splash-button .arrow {
+    background-color: var(--accent);
+    color: var(--white);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* DESKTOP DASHBOARD LAYOUT (user_dashboard.html) */
+.desktop-layout {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background-color: var(--white);
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    box-shadow: 2px 0 15px rgba(0,0,0,0.03);
+    z-index: 10;
+}
+
+.sidebar .brand {
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+    padding: 0 15px;
+    color: var(--text-main);
+}
+
+.nav-item {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    text-decoration: none;
+    padding: 15px;
+    border-radius: 12px;
+    transition: all 0.2s;
+}
+
+.nav-item:hover, .nav-item.active {
+    background-color: var(--accent);
+    color: var(--white);
+}
+
+/* Main Content */
+.dashboard-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 40px 60px;
+}
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: var(--primary);
+}
+
+.welcome-text h2 {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.welcome-text h3 {
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+.header-right {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.search-container {
+    display: flex;
+    gap: 10px;
+}
+
+.search-input {
+    width: 300px;
+    background-color: var(--white);
+    border: none;
+    padding: 15px 25px;
+    border-radius: 30px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+}
+
+.icon-btn {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background-color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-main);
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+}
+
+/* Banner */
+.banner {
+    background-color: var(--white);
+    border-radius: 24px;
+    padding: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+}
+
+.banner-text h3 {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    line-height: 1.3;
+}
+
+.banner-text p {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+
+.banner-img-placeholder {
+    width: 150px;
+    height: 150px;
+    background-color: var(--card-bg);
+    border-radius: 16px;
+}
+
+/* Best Seller Section */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.section-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.section-header a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.categories {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.category-pill {
+    background-color: var(--white);
+    padding: 10px 25px;
+    border-radius: 25px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.2s;
+    font-weight: 500;
+}
+
+.category-pill:hover {
+    background-color: rgba(255,255,255,0.7);
+}
+
+.category-pill.active {
+    background-color: var(--accent);
+    color: var(--white);
+}
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 25px;
+}
+
+.product-card {
+    background-color: var(--white);
+    border-radius: 20px;
+    padding: 20px;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    transition: transform 0.2s;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+}
+
+.product-img {
+    height: 180px;
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    margin-bottom: 15px;
+}
+
+.heart-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: var(--white);
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.product-card h4 {
+    margin: 0 0 10px 0;
+    font-size: 1.1rem;
+}
+
+.product-card .price {
+    font-weight: bold;
+    margin: 0 0 5px 0;
+    font-size: 1.1rem;
+}
+
+.product-card .rating {
+    color: var(--accent);
+    font-size: 0.9rem;
+}
+
+/* Form Styles */
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-main);
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+input, select {
+    width: 100%;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid rgba(45, 55, 72, 0.2);
+    background: rgba(255, 255, 255, 0.6);
+    color: var(--text-main);
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(200, 169, 106, 0.2);
+    background: var(--white);
+}
+
+button[type="submit"] {
+    width: 100%;
+    padding: 15px;
+    border-radius: 40px;
+    border: none;
+    background-color: var(--text-main);
+    color: var(--bg-color);
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.2s;
+    margin-top: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+button[type="submit"]:hover, button[type="button"]:hover {
+    transform: translateY(-2px);
+    background-color: #1a202c;
+}
+
+/* Stats Cards for Consultant Dashboard */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.stat-card {
+    background-color: var(--white);
+    padding: 25px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    transition: transform 0.2s;
+    border: 1px solid rgba(45, 55, 72, 0.05);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--accent);
+    margin-bottom: 10px;
+}

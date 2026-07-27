@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Skin Intelligence - Dashboard</title>
+    <link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+
+    <div class="desktop-layout">
+        
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="brand">AI Skin Intelligence</div>
+            <a href="#" class="nav-item active">🏠 Home</a>
+            <a href="#" class="nav-item">🔍 Skin Scan</a>
+            <a href="#" class="nav-item">📅 Calendar</a>
+            <a href="#" class="nav-item">📊 Analysis</a>
+            <a href="#" class="nav-item">👤 Profile</a>
+            
+            <div style="flex:1"></div>
+            
+            <a href="login.html" class="nav-item" style="margin-top: auto; color: #e53e3e;">🚪 Logout</a>
+        </div>
+
+        <!-- Main Dashboard Area -->
+        <div class="dashboard-content">
+            
+            <!-- Top Header -->
+            <div class="header">
+                <div class="header-left">
+                    <div class="avatar"></div>
+                    <div class="welcome-text">
+                        <h2>WELCOME</h2>
+                        <h3>Your Skin's Dashboard</h3>
+                    </div>
+                </div>
+                
+                <div class="header-right">
+                    <div class="search-container">
+                        <input type="text" class="search-input" placeholder="🔍 Search products or concerns...">
+                        <button class="icon-btn" style="background-color: var(--accent); color: white;">⚙</button>
+                    </div>
+                    <button class="icon-btn">🔔</button>
+                </div>
+            </div>
+
+            <!-- Promotional Banner -->
+            <div class="banner">
+                <div class="banner-text">
+                    <h3>Beauty collections<br>deals of the day<br>up to 40%</h3>
+                    <p>Discover personalized picks curated just for you.</p>
+                </div>
+                <div class="banner-img-placeholder"></div>
+            </div>
+
+            <!-- Categories and Products -->
+            <div class="section-header">
+                <h3>Best Seller</h3>
+                <a href="#">View more &gt;</a>
+            </div>
+
+            <div class="categories">
+                <div class="category-pill active">Face</div>
+                <div class="category-pill">Make up</div>
+                <div class="category-pill">Body</div>
+                <div class="category-pill">Sun</div>
+            </div>
+
+            <div class="products-grid">
+                <div class="product-card">
+                    <div class="heart-btn">♡</div>
+                    <div class="product-img"></div>
+                    <h4>Skin Natural cosmetics</h4>
+                    <p class="price">RP319.400</p>
+                    <p class="rating">★★★★★ 4.7</p>
+                </div>
+                <div class="product-card">
+                    <div class="heart-btn">♡</div>
+                    <div class="product-img"></div>
+                    <h4>BB Skin hydrating</h4>
+                    <p class="price">RP215.000</p>
+                    <p class="rating">★★★★☆ 3.6</p>
+                </div>
+                <div class="product-card">
+                    <div class="heart-btn">♡</div>
+                    <div class="product-img"></div>
+                    <h4>Vitamin C Serum</h4>
+                    <p class="price">RP185.000</p>
+                    <p class="rating">★★★★★ 4.9</p>
+                </div>
+                <div class="product-card">
+                    <div class="heart-btn">♡</div>
+                    <div class="product-img"></div>
+                    <h4>Gentle Foaming Cleanser</h4>
+                    <p class="price">RP120.000</p>
+                    <p class="rating">★★★★☆ 4.2</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

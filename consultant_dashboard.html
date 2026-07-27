@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultant Dashboard - AI Skin Intelligence</title>
+    <link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+
+    <div class="desktop-layout">
+        
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="brand">AI Skin Intelligence</div>
+            <a href="#" class="nav-item">🏠 Dashboard</a>
+            <a href="#" class="nav-item active">👥 Clients</a>
+            <a href="#" class="nav-item">📅 Appointments</a>
+            <a href="#" class="nav-item">📊 Reports</a>
+            <a href="#" class="nav-item">👤 Profile</a>
+            
+            <div style="flex:1"></div>
+            
+            <a href="login.html" class="nav-item" style="margin-top: auto; color: #e53e3e;">🚪 Logout</a>
+        </div>
+
+        <!-- Main Dashboard Area -->
+        <div class="dashboard-content">
+            
+            <!-- Top Header -->
+            <div class="header">
+                <div class="header-left">
+                    <div class="avatar" style="background-color: var(--accent);"></div>
+                    <div class="welcome-text">
+                        <h2>CONSULTANT PORTAL</h2>
+                        <h3>Client Overview</h3>
+                    </div>
+                </div>
+            </div>
+            
+            <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 30px;">Manage your clients and review their skin assessment reports.</p>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">24</div>
+                    <div style="color: var(--text-muted); font-weight: bold;">Active Clients</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">5</div>
+                    <div style="color: var(--text-muted); font-weight: bold;">New Assessments</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">12</div>
+                    <div style="color: var(--text-muted); font-weight: bold;">Routines to Review</div>
+                </div>
+            </div>
+
+            <div class="section-header" style="margin-top: 50px;">
+                <h3>Recent Client Reports</h3>
+            </div>
+
+            <div class="stat-card" style="text-align: left; margin-bottom: 25px;">
+                <p style="font-size: 1.2rem; margin-bottom: 10px;"><strong>Client:</strong> Jane Doe</p>
+                <p style="margin-bottom: 10px;"><strong>Primary Concern:</strong> Hyperpigmentation</p>
+                <p style="margin-bottom: 20px;"><strong>Status:</strong> <span style="color: #b45309; font-weight: bold;">Routine Adjusted - Awaiting Feedback</span></p>
+                <button type="button" style="width: auto; padding: 12px 25px; border-radius: 30px;">View Report</button>
+            </div>
+
+            <div class="stat-card" style="text-align: left;">
+                <p style="font-size: 1.2rem; margin-bottom: 10px;"><strong>Client:</strong> John Smith</p>
+                <p style="margin-bottom: 10px;"><strong>Primary Concern:</strong> Acne</p>
+                <p style="margin-bottom: 20px;"><strong>Status:</strong> <span style="color: #15803d; font-weight: bold;">New Assessment Received</span></p>
+                <button type="button" style="width: auto; padding: 12px 25px; border-radius: 30px;">Review Assessment</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="src/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Skin Intelligence - Login</title>
+    <link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+
+    <div class="splash-screen">
+        <div class="splash-logo">
+            AI Skin Intelligence
+        </div>
+
+        <div class="splash-card">
+            <h1 style="font-size: 2rem; margin-bottom: 30px;">Welcome Back</h1>
+            
+            <form id="loginForm" style="text-align: left;">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" required placeholder="name@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required placeholder="••••••••">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 30px;">
+                    <label for="role">Select Role (Demo)</label>
+                    <select id="role">
+                        <option value="user">User</option>
+                        <option value="consultant">Consultant</option>
+                    </select>
+                </div>
+
+                <button type="submit" style="border-radius: 40px; padding: 15px;">Sign In to Dashboard</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="src/script.js"></script>
+</body>
+</html>
