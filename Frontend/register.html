@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Your Account</title>
+  <link rel="stylesheet" href="register.css">
+</head>
+<body>
+  <header class="header">
+    <div class="head">
+      <strong class="title">AI Skin Intelligence</strong>
+      <h2 class="subtitle">Personalized Skincare Planner</h2>
+
+    </div>
+    </header>
+    <main class="main">
+
+  <section class="register">
+
+    <div class="register-container">
+
+      <h2 class="register-title">Create Your Account</h2>
+
+      <p class="register-subtitle">
+        Join AI Skin Intelligence and get personalized skincare recommendations.
+      </p>
+
+      <form class="register-form" action="#" method="POST">
+
+        <div class="form-group">
+          <label>Register As</label>
+          <select name="role" required>
+            <option value="" selected disabled>Select Role</option>
+            <option value="user">User</option>
+            <option value="consultant">Consultant</option>
+            <option value="dermatologist">Dermatologist</option>
+            <option value="admin">Administrator</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" name="firstname" placeholder="John" required>
+          </div>
+
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" name="lastname" placeholder="Doe" required>
+          </div>
+
+        </div>
+
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" name="email" placeholder="example@email.com" required>
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" name="password" placeholder="Create Password" required>
+        </div>
+
+        <div class="form-group">
+          <label>Confirm Password</label>
+          <input type="password" name="confirm-password" placeholder="Confirm Password" required>
+        </div>
+
+        <div class="form-row">
+
+          <div class="form-group">
+            <label>Age</label>
+            <input type="number" min="10" max="100" placeholder="Age">
+          </div>
+
+          <div class="form-group">
+            <label>Skin Type</label>
+            <select>
+              <option selected disabled>Select Skin Type</option>
+              <option>Normal</option>
+              <option>Dry</option>
+              <option>Oily</option>
+              <option>Combination</option>
+              <option>Sensitive</option>
+            </select>
+          </div>
+
+        </div>
+
+        <div class="form-group">
+          <label>Primary Skin Concern</label>
+          <select>
+            <option selected disabled>Select Concern</option>
+            <option>Acne</option>
+            <option>Dark Spots</option>
+            <option>Hyperpigmentation</option>
+            <option>Dry Skin</option>
+            <option>Oily Skin</option>
+            <option>Fine Lines</option>
+            <option>Wrinkles</option>
+            <option>Redness</option>
+          </select>
+        </div>
+
+        <div class="checkbox">
+
+          <input type="checkbox" id="terms" required>
+
+          <label for="terms">
+            I agree to the Terms & Conditions
+          </label>
+
+        </div>
+
+        <button type="submit" class="register-btn">
+          Create Account
+        </button>
+
+      </form>
+
+      <p class="login-link">
+        Already have an account?
+        <a href="login.html">Login here</a>
+      </p>
+
+    </div>
+
+  </section>
+
+</main>
+
+
+
+
+
+
+
+
+
+      <footer class="footer">
+    <div class="footer">
+    <p class="footer-text">&copy; 2026 AI Skin Intelligence. All rights reserved.</p>
+    </div>
+      
+</footer>  
+</body>
+<script src="js/register.js"></script>
+</html>
