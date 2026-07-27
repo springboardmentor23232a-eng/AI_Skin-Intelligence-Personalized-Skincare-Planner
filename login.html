@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | AI Skin Intelligence</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-page="auth">
+  <header class="site-header">
+    <div class="container nav-shell">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">AI</span>
+        <span>
+          <strong>Skin Intelligence</strong>
+          <small>Personalized Skincare Planner</small>
+        </span>
+      </a>
+      <nav class="site-nav" id="siteNav">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="login.html" class="nav-link active">Login</a>
+        <a href="register.html" class="nav-link nav-link-accent">Register</a>
+      </nav>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false"><span></span></button>
+    </div>
+  </header>
+
+  <main class="auth-shell section">
+    <div class="container auth-grid">
+      <section class="auth-hero glass-card">
+        <span class="eyebrow">Welcome back</span>
+        <h1>Sign in to your role-based skincare workspace.</h1>
+        <p>
+          Access your personalized dashboard, keep your routine in sync, and continue where you left off.
+        </p>
+        <div class="auth-badges">
+          <span>Personalized routing</span>
+          <span>Secure local session</span>
+          <span>Responsive dashboard</span>
+        </div>
+        <div class="glass-card" id="demoHint" style="padding:18px 20px; margin-top:8px;">
+          <p style="font-family:var(--font-mono); font-size:0.72rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-faint); margin-bottom:10px;">Try a demo account</p>
+          <div id="demoAccountList" style="display:flex; flex-direction:column; gap:6px; font-size:0.86rem;"></div>
+        </div>
+      </section>
+
+      <section class="auth-card glass-card">
+        <div class="panel-header">
+          <span class="status-dot"></span>
+          Login
+        </div>
+        <form id="loginForm" class="form-grid">
+          <label>
+            Email
+            <input type="email" name="email" placeholder="name@example.com" required />
+          </label>
+          <label>
+            Password
+            <input type="password" name="password" placeholder="Enter password" required />
+          </label>
+          <label>
+            Role
+            <select name="role" required>
+              <option value="user">User</option>
+              <option value="consultant">Consultant</option>
+              <option value="dermatologist">Dermatologist</option>
+              <option value="admin">Admin</option>
+            </select>
+          </label>
+          <p class="form-message" id="formMessage"></p>
+          <button class="btn btn-primary btn-block" type="submit">Sign In</button>
+          <p class="form-footnote">
+            New here? <a href="register.html">Create an account</a>
+          </p>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
