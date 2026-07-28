@@ -82,9 +82,6 @@ class App {
 
     // Initialize scroll reveal animations
     this.initScrollReveal();
-
-    // Start quotes rotator
-    this.initQuotesRotator();
   }
 
   // IntersectionObserver scroll-reveal system
@@ -112,21 +109,74 @@ class App {
     revealElements.forEach(el => this._revealObserver.observe(el));
   }
 
-  // Inspirational quotes auto-rotator
-  initQuotesRotator() {
-    // Clear previous interval
-    if (this._quotesInterval) clearInterval(this._quotesInterval);
+    // Current Quote Index
+    this.currentQuoteIndex = 0;
+    this.quotesList = [
+      {
+        text: '"You are beautiful — your skin is a living canvas reflecting your daily health, confidence, and self-care."',
+        author: 'PanaceaAI Philosophy',
+        role: 'Clinical Self-Love & Barrier Care'
+      },
+      {
+        text: '"Invest in your skin. It is going to represent you for a very long time."',
+        author: 'Linden Tyler',
+        role: 'Skincare Author & Aesthetician'
+      },
+      {
+        text: '"Beauty begins the moment you decide to be yourself."',
+        author: 'Coco Chanel',
+        role: 'Fashion & Beauty Icon'
+      },
+      {
+        text: '"Healthy skin is not about perfection; it’s about balance, protection, and self-appreciation."',
+        author: 'Dr. Sarah Johnson',
+        role: 'Clinical Dermatologist & Researcher'
+      },
+      {
+        text: '"Your skin barrier is your shield. Honor it with gentleness and daily hydration."',
+        author: 'PanaceaAI Intelligence Lab',
+        role: 'Optical Biomarker Studies'
+      }
+    ];
+  }
 
-    const quotes = document.querySelectorAll('.quote-line');
-    if (!quotes.length) return;
+  // Quote Spotlight Controls
+  nextQuote() {
+    this.currentQuoteIndex = (this.currentQuoteIndex + 1) % this.quotesList.length;
+    this.updateQuoteDisplay();
+  }
 
-    let currentIndex = 0;
+  prevQuote() {
+    this.currentQuoteIndex = (this.currentQuoteIndex - 1 + this.quotesList.length) % this.quotesList.length;
+    this.updateQuoteDisplay();
+  }
 
-    this._quotesInterval = setInterval(() => {
-      quotes[currentIndex].classList.remove('active');
-      currentIndex = (currentIndex + 1) % quotes.length;
-      quotes[currentIndex].classList.add('active');
-    }, 4000);
+  shuffleQuote() {
+    let nextIdx = Math.floor(Math.random() * this.quotesList.length);
+    if (nextIdx === this.currentQuoteIndex) {
+      nextIdx = (nextIdx + 1) % this.quotesList.length;
+    }
+    this.currentQuoteIndex = nextIdx;
+    this.updateQuoteDisplay();
+  }
+
+  updateQuoteDisplay() {
+    const textEl = document.getElementById('quote-display-text');
+    const authorEl = document.getElementById('quote-display-author');
+    const roleEl = document.getElementById('quote-display-role');
+
+    if (!textEl || !authorEl || !roleEl) return;
+
+    const item = this.quotesList[this.currentQuoteIndex];
+
+    textEl.classList.add('fading');
+
+    setTimeout(() => {
+      textEl.innerText = item.text;
+      authorEl.innerText = item.author;
+      roleEl.innerText = item.role;
+      textEl.classList.remove('fading');
+    }, 200);
   }
 
   openLoginModal() {

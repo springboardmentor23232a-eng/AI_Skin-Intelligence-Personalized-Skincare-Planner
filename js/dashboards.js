@@ -57,23 +57,6 @@ export function renderLandingPage() {
         </div>
       </section>
 
-      <!-- INSPIRATIONAL QUOTES MARQUEE -->
-      <section class="quotes-marquee-section reveal-scale">
-        <div class="quotes-inner">
-          <span class="quotes-deco">✦</span>
-          <div class="quotes-rotator" id="quotes-rotator">
-            <p class="quote-line active">"You are beautiful — and your skin tells your unique story."</p>
-            <p class="quote-line">"Healthy skin is a reflection of overall wellness."</p>
-            <p class="quote-line">"Glow from within — confidence starts with self-care."</p>
-            <p class="quote-line">"Your skin is your superpower. Nurture it."</p>
-            <p class="quote-line">"Beauty begins the moment you decide to be yourself." — Coco Chanel</p>
-            <p class="quote-line">"Invest in your skin. It's going to represent you for a long time."</p>
-            <p class="quote-line">"Self-care is not selfish. You cannot serve from an empty vessel."</p>
-          </div>
-          <span class="quotes-deco">✦</span>
-        </div>
-      </section>
-
       <!-- 3-CARD SIMPLE FEATURE HIGHLIGHTS -->
       <section id="features" class="simple-features-section section-margin-lg">
         <div class="section-tag-pill reveal">• WHY PANACEAAI</div>
@@ -145,28 +128,27 @@ export function renderLandingPage() {
         </div>
       </section>
 
-      <!-- SCROLLING QUOTES TICKER -->
-      <div class="quotes-ticker">
-        <div class="ticker-track">
-          <span class="ticker-item">★ You are beautiful</span>
-          <span class="ticker-item">★ Glow every day</span>
-          <span class="ticker-item">★ Love the skin you're in</span>
-          <span class="ticker-item">★ Radiance is a state of mind</span>
-          <span class="ticker-item">★ Your skin deserves the best</span>
-          <span class="ticker-item">★ Confidence looks good on you</span>
-          <span class="ticker-item">★ Embrace your natural glow</span>
-          <span class="ticker-item">★ Be kind to your skin</span>
-          <!-- Duplicate for seamless loop -->
-          <span class="ticker-item">★ You are beautiful</span>
-          <span class="ticker-item">★ Glow every day</span>
-          <span class="ticker-item">★ Love the skin you're in</span>
-          <span class="ticker-item">★ Radiance is a state of mind</span>
-          <span class="ticker-item">★ Your skin deserves the best</span>
-          <span class="ticker-item">★ Confidence looks good on you</span>
-          <span class="ticker-item">★ Embrace your natural glow</span>
-          <span class="ticker-item">★ Be kind to your skin</span>
+      <!-- EDITORIAL SKIN PHILOSOPHY & AFFIRMATION SPOTLIGHT -->
+      <section class="quote-spotlight-card section-margin-lg reveal-scale">
+        <div class="quote-spotlight-inner">
+          <div class="quote-watermark">“</div>
+          <div class="section-tag-pill">• SKIN PHILOSOPHY & AFFIRMATION</div>
+          <blockquote class="quote-text" id="quote-display-text">
+            "You are beautiful — your skin is a living canvas reflecting your daily health, confidence, and self-care."
+          </blockquote>
+          <div class="quote-author-row">
+            <div class="quote-author-info">
+              <strong id="quote-display-author">PanaceaAI Philosophy</strong>
+              <span id="quote-display-role">Clinical Self-Love & Barrier Care</span>
+            </div>
+            <div class="quote-controls">
+              <button class="quote-nav-btn" onclick="window.app.prevQuote()" title="Previous Quote">‹</button>
+              <button class="quote-shuffle-btn" onclick="window.app.shuffleQuote()">✨ Next Affirmation</button>
+              <button class="quote-nav-btn" onclick="window.app.nextQuote()" title="Next Quote">›</button>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
 
       <!-- SECTION 4: CONSULT A CERTIFIED DERMATOLOGIST -->
       <section id="consult-doctors" class="doctors-section section-margin-lg">
