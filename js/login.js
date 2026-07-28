@@ -1,26 +1,41 @@
- function login() {
+function login(){
 
-    let role = document.getElementById("role").value;
+let role=document.getElementById("role").value;
 
-    if(role===""){
-        alert("Please select a role");
-        return;
-    }
+if(role==""){
 
-    if(role==="user"){
-        window.location.href="../dashboards/user.html";
-    }
+alert("Please select a role");
 
-    if(role==="doctor"){
-        window.location.href="../dashboards/doctor.html";
-    }
+return;
 
-    if(role==="consultant"){
-        window.location.href="../dashboards/consultant.html";
-    }
+}
 
-    if(role==="admin"){
-        window.location.href="../dashboards/admin.html";
-    }
+switch(role){
+
+case "user":
+
+window.location.href="dashboards/user.html";
+
+break;
+
+case "doctor":
+
+window.location.href="dashboards/doctor.html";
+
+break;
+
+case "consultant":
+
+window.location.href="dashboards/consultant.html";
+
+break;
+
+case "admin":
+
+window.location.href="dashboards/admin.html";
+
+break;
+
+}
 
 }
