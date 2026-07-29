@@ -47,49 +47,54 @@
     <div class="modal-card">
       <div class="modal-header">
         <div>
-          <h3>Select Demo Role to Authenticate</h3>
-          <p class="text-muted" style="font-size: 0.85rem;">Experience custom dashboards for all 4 roles</p>
+          <h3>PanaceaAI Portal Login</h3>
+          <p class="text-muted" style="font-size: 0.85rem;">Enter credentials or choose a demo account from dropdown</p>
         </div>
         <button class="close-btn" onclick="window.app.closeLoginModal()">×</button>
       </div>
 
-      <div class="role-options-list">
-        <button class="role-option-btn" onclick="window.app.selectRole('user')">
-          <span style="font-size: 2rem;">👤</span>
-          <div>
-            <strong>DermaCare User (Consumer)</strong>
-            <p class="text-muted" style="font-size: 0.78rem;">Dynamic skin health score, AM/PM checklists, hydration
-              counter & survey</p>
-          </div>
-        </button>
+      <form id="modal-login-form" onsubmit="window.app.handleModalLoginSubmit(event)" novalidate style="margin-bottom: 1rem;">
+        <!-- Demo Account Quick Dropdown -->
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label style="font-weight: 600; font-size: 0.85rem; color: var(--gold-primary);">
+            <span>Select Demo Account (Quick Fill Dropdown)</span>
+          </label>
+          <select id="modal-demo-dropdown" class="form-control demo-select-dropdown" onchange="window.app.handleModalDemoDropdownChange(this.value)">
+            <option value="">-- Select Demo Account to Fill Credentials --</option>
+            <option value="user">DermaCare User (Alex Rivera) — [user / user123]</option>
+            <option value="consultant">Skincare Consultant (Sarah Jenkins) — [consultant / consultant123]</option>
+            <option value="dermatologist">Board Dermatologist (Dr. Elena Rostova) — [doctor / doctor123]</option>
+            <option value="admin">Platform Administrator — [admin / admin123]</option>
+          </select>
+        </div>
 
-        <button class="role-option-btn" onclick="window.app.selectRole('consultant')">
-          <span style="font-size: 2rem;">💼</span>
-          <div>
-            <strong>Skincare Consultant</strong>
-            <p class="text-muted" style="font-size: 0.78rem;">Manage client queue, review reports & build client
-              routines</p>
+        <div class="form-group">
+          <label for="modal-login-username">Username or Email</label>
+          <div class="input-with-icon">
+            <span class="input-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            </span>
+            <input type="text" id="modal-login-username" class="form-control" placeholder="Enter username (e.g. user, doctor, admin)">
           </div>
-        </button>
+        </div>
 
-        <button class="role-option-btn" onclick="window.app.selectRole('dermatologist')">
-          <span style="font-size: 2rem;">🩺</span>
-          <div>
-            <strong>Board-Certified Dermatologist</strong>
-            <p class="text-muted" style="font-size: 0.78rem;">Clinical diagnostics, prescriptions & medical skin trends
-            </p>
+        <div class="form-group">
+          <label for="modal-login-password">Password</label>
+          <div class="input-with-icon">
+            <span class="input-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            </span>
+            <input type="password" id="modal-login-password" class="form-control" placeholder="Enter password (e.g. user123)">
+            <button type="button" class="password-toggle-btn" title="Toggle Password Visibility" onclick="window.app.togglePasswordVisibility('modal-login-password', this)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
           </div>
-        </button>
+        </div>
 
-        <button class="role-option-btn" onclick="window.app.selectRole('admin')">
-          <span style="font-size: 2rem;">🛡️</span>
-          <div>
-            <strong>Platform Administrator</strong>
-            <p class="text-muted" style="font-size: 0.78rem;">Monitor 12 microservices, latency simulation & audit logs
-            </p>
-          </div>
-        </button>
-      </div>
+        <div id="modal-login-alert" class="login-alert-box hidden" style="margin-bottom: 1rem;"></div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem;">Log In to Portal</button>
+      </form>
     </div>
   </div>
 

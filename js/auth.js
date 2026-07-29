@@ -29,6 +29,39 @@ class AuthController {
     return false;
   }
 
+  loginWithCredentials(username, password) {
+    if (!username || !password || !username.trim() || !password.trim()) {
+      return { success: false, message: 'Please enter both username and password.' };
+    }
+
+    const cleanUser = username.trim().toLowerCase();
+    const cleanPass = password.trim();
+
+    let targetRole = 'user';
+
+    if (cleanUser.includes('admin') || cleanUser === 'admin') {
+      targetRole = 'admin';
+    } else if (cleanUser.includes('doctor') || cleanUser.includes('dermatologist') || cleanUser === 'doctor') {
+      targetRole = 'dermatologist';
+    } else if (cleanUser.includes('consultant') || cleanUser.includes('sarah') || cleanUser === 'consultant') {
+      targetRole = 'consultant';
+    } else if (cleanUser === 'user' || cleanUser.includes('alex')) {
+      targetRole = 'user';
+    } else {
+      // Fallback dummy login for any non-empty custom username/password
+      targetRole = 'user';
+    }
+
+    const success = this.login(targetRole);
+    const roleObj = MOCK_ROLES[targetRole.toUpperCase()];
+    return {
+      success,
+      role: targetRole,
+      userName: roleObj?.name || 'User',
+      message: `Welcome back! Logged in as ${roleObj?.name || targetRole} (${roleObj?.title || 'Account'}).`
+    };
+  }
+
   logout() {
     this.currentRole = null;
     this.notify();

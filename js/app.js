@@ -6,6 +6,7 @@ import { auth } from './auth.js';
 import { MOCK_USER_DATA, MOCK_ROLES } from './mockData.js';
 import {
   renderLandingPage,
+  renderLoginPage,
   renderUserDashboard,
   renderConsultantDashboard,
   renderDermatologistDashboard,
@@ -18,6 +19,37 @@ class App {
     this.navRoleBadge = null;
     this.authBtn = null;
     this.loginModal = null;
+    this.currentView = 'home'; // 'home' or 'login'
+
+    // Current Quote Index & Data List
+    this.currentQuoteIndex = 0;
+    this.quotesList = [
+      {
+        text: '"You are beautiful — your skin is a living canvas reflecting your daily health, confidence, and self-care."',
+        author: 'PanaceaAI Philosophy',
+        role: 'Clinical Self-Love & Barrier Care'
+      },
+      {
+        text: '"Invest in your skin. It is going to represent you for a very long time."',
+        author: 'Linden Tyler',
+        role: 'Skincare Author & Aesthetician'
+      },
+      {
+        text: '"Beauty begins the moment you decide to be yourself."',
+        author: 'Coco Chanel',
+        role: 'Fashion & Beauty Icon'
+      },
+      {
+        text: '"Healthy skin is not about perfection; it’s about balance, protection, and self-appreciation."',
+        author: 'Dr. Sarah Johnson',
+        role: 'Clinical Dermatologist & Researcher'
+      },
+      {
+        text: '"Your skin barrier is your shield. Honor it with gentleness and daily hydration."',
+        author: 'PanaceaAI Intelligence Lab',
+        role: 'Optical Biomarker Studies'
+      }
+    ];
   }
 
   init() {
@@ -31,6 +63,7 @@ class App {
 
     // Bind brand logo click to logout / home
     document.getElementById('brand-home').addEventListener('click', () => {
+      this.currentView = 'home';
       auth.logout();
     });
 
@@ -59,7 +92,10 @@ class App {
       `;
       this.authBtn.innerText = 'Exit / Logout';
       this.authBtn.className = 'btn btn-outline btn-sm';
-      this.authBtn.onclick = () => auth.logout();
+      this.authBtn.onclick = () => {
+        this.currentView = 'home';
+        auth.logout();
+      };
     } else {
       this.navRoleBadge.classList.add('hidden');
       this.authBtn.innerText = 'DEMO LOGIN';
@@ -69,7 +105,11 @@ class App {
 
     // View render dispatch
     if (!currentRole) {
-      this.mainContent.innerHTML = renderLandingPage();
+      if (this.currentView === 'login') {
+        this.mainContent.innerHTML = renderLoginPage();
+      } else {
+        this.mainContent.innerHTML = renderLandingPage();
+      }
     } else if (currentRole === 'user') {
       this.mainContent.innerHTML = renderUserDashboard();
     } else if (currentRole === 'consultant') {
@@ -107,37 +147,6 @@ class App {
     });
 
     revealElements.forEach(el => this._revealObserver.observe(el));
-  }
-
-    // Current Quote Index
-    this.currentQuoteIndex = 0;
-    this.quotesList = [
-      {
-        text: '"You are beautiful — your skin is a living canvas reflecting your daily health, confidence, and self-care."',
-        author: 'PanaceaAI Philosophy',
-        role: 'Clinical Self-Love & Barrier Care'
-      },
-      {
-        text: '"Invest in your skin. It is going to represent you for a very long time."',
-        author: 'Linden Tyler',
-        role: 'Skincare Author & Aesthetician'
-      },
-      {
-        text: '"Beauty begins the moment you decide to be yourself."',
-        author: 'Coco Chanel',
-        role: 'Fashion & Beauty Icon'
-      },
-      {
-        text: '"Healthy skin is not about perfection; it’s about balance, protection, and self-appreciation."',
-        author: 'Dr. Sarah Johnson',
-        role: 'Clinical Dermatologist & Researcher'
-      },
-      {
-        text: '"Your skin barrier is your shield. Honor it with gentleness and daily hydration."',
-        author: 'PanaceaAI Intelligence Lab',
-        role: 'Optical Biomarker Studies'
-      }
-    ];
   }
 
   // Quote Spotlight Controls
@@ -200,6 +209,141 @@ class App {
   selectRole(roleId) {
     auth.login(roleId);
     this.closeLoginModal();
+    this.currentView = 'home';
+  }
+
+  showLoginPage(event) {
+    if (event) event.preventDefault();
+    this.currentView = 'login';
+    if (auth.getCurrentRole()) {
+      auth.logout();
+    }
+    this.render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  getCredentialsForRole(roleId) {
+    const creds = {
+      user: { username: 'user', password: 'user123' },
+      consultant: { username: 'consultant', password: 'consultant123' },
+      dermatologist: { username: 'doctor', password: 'doctor123' },
+      admin: { username: 'admin', password: 'admin123' }
+    };
+    return creds[roleId] || { username: '', password: '' };
+  }
+
+  handleDemoDropdownChange(roleId) {
+    const userInput = document.getElementById('page-login-username');
+    const passInput = document.getElementById('page-login-password');
+    if (!userInput || !passInput) return;
+
+    if (!roleId) {
+      userInput.value = '';
+      passInput.value = '';
+      return;
+    }
+
+    const { username, password } = this.getCredentialsForRole(roleId);
+    userInput.value = username;
+    passInput.value = password;
+  }
+
+  handleModalDemoDropdownChange(roleId) {
+    const userInput = document.getElementById('modal-login-username');
+    const passInput = document.getElementById('modal-login-password');
+    if (!userInput || !passInput) return;
+
+    if (!roleId) {
+      userInput.value = '';
+      passInput.value = '';
+      return;
+    }
+
+    const { username, password } = this.getCredentialsForRole(roleId);
+    userInput.value = username;
+    passInput.value = password;
+  }
+
+  handleLoginPageSubmit(event) {
+    event.preventDefault();
+    const userInput = document.getElementById('page-login-username');
+    const passInput = document.getElementById('page-login-password');
+    const alertBox = document.getElementById('page-login-alert');
+
+    const username = userInput ? userInput.value : '';
+    const password = passInput ? passInput.value : '';
+
+    const res = auth.loginWithCredentials(username, password);
+
+    if (!res.success) {
+      if (alertBox) {
+        alertBox.className = 'login-alert-box alert-error';
+        alertBox.innerText = res.message;
+        alertBox.classList.remove('hidden');
+      }
+    } else {
+      if (alertBox) {
+        alertBox.className = 'login-alert-box alert-success';
+        alertBox.innerText = res.message;
+        alertBox.classList.remove('hidden');
+      }
+      this.currentView = 'home';
+    }
+  }
+
+  handleModalLoginSubmit(event) {
+    event.preventDefault();
+    const userInput = document.getElementById('modal-login-username');
+    const passInput = document.getElementById('modal-login-password');
+    const alertBox = document.getElementById('modal-login-alert');
+
+    const username = userInput ? userInput.value : '';
+    const password = passInput ? passInput.value : '';
+
+    const res = auth.loginWithCredentials(username, password);
+
+    if (!res.success) {
+      if (alertBox) {
+        alertBox.className = 'login-alert-box alert-error';
+        alertBox.innerText = res.message;
+        alertBox.classList.remove('hidden');
+      }
+    } else {
+      this.closeLoginModal();
+      this.currentView = 'home';
+    }
+  }
+
+  fillAndLogin(roleId) {
+    const { username, password } = this.getCredentialsForRole(roleId);
+    const userInput = document.getElementById('page-login-username');
+    const passInput = document.getElementById('page-login-password');
+
+    if (userInput) userInput.value = username;
+    if (passInput) passInput.value = password;
+
+    auth.login(roleId);
+    this.currentView = 'home';
+  }
+
+  togglePasswordVisibility(inputId, btnEl) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+
+    const eyeOpenSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+    const eyeOffSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+
+    if (input.type === 'password') {
+      input.type = 'text';
+      if (btnEl) btnEl.innerHTML = eyeOffSvg;
+    } else {
+      input.type = 'password';
+      if (btnEl) btnEl.innerHTML = eyeOpenSvg;
+    }
+  }
+
+  showForgotPasswordNotice() {
+    alert('Password Reset Notice:\\nIn this dummy environment, select any role from the Demo Dropdown (e.g. DermaCare User: user/user123, Doctor: doctor/doctor123) or enter any non-empty username & password.');
   }
 
   // Interactive FAQ Accordion Toggle

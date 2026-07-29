@@ -10,6 +10,7 @@ import { MOCK_ROLES, MOCK_USER_DATA, MOCK_ADMIN_DATA } from '../js/mockData.js';
 import { auth } from '../js/auth.js';
 import {
   renderLandingPage,
+  renderLoginPage,
   renderUserDashboard,
   renderConsultantDashboard,
   renderDermatologistDashboard,
@@ -98,3 +99,43 @@ test('8. Auth Controller State Transitions Test', () => {
   auth.logout();
   assert.equal(auth.getCurrentRole(), null, 'Current role should be null after logout');
 });
+
+test('9. Login Page Renderer Test', () => {
+  const html = renderLoginPage();
+  assert.ok(html.includes('Sign In to PanaceaAI'), 'Must render login page heading');
+  assert.ok(html.includes('login-demo-dropdown'), 'Must include demo account quick-fill dropdown');
+  assert.ok(html.includes('page-login-username'), 'Must include username input field');
+  assert.ok(html.includes('page-login-password'), 'Must include password input field');
+  assert.ok(html.includes('password-toggle-btn'), 'Must include password visibility toggle');
+});
+
+test('10. Credential Login & Role Determination Test', () => {
+  auth.logout();
+
+  // Test empty validation
+  const emptyRes = auth.loginWithCredentials('', '');
+  assert.equal(emptyRes.success, false, 'Should fail when inputs are empty');
+
+  // Test admin credential
+  const adminRes = auth.loginWithCredentials('admin', 'admin123');
+  assert.equal(adminRes.success, true, 'Admin credential should succeed');
+  assert.equal(auth.getCurrentRole(), 'admin', 'Role should be admin');
+
+  // Test doctor credential
+  const docRes = auth.loginWithCredentials('doctor', 'doctor123');
+  assert.equal(docRes.success, true, 'Doctor credential should succeed');
+  assert.equal(auth.getCurrentRole(), 'dermatologist', 'Role should be dermatologist');
+
+  // Test consultant credential
+  const consRes = auth.loginWithCredentials('consultant', 'consultant123');
+  assert.equal(consRes.success, true, 'Consultant credential should succeed');
+  assert.equal(auth.getCurrentRole(), 'consultant', 'Role should be consultant');
+
+  // Test user credential
+  const userRes = auth.loginWithCredentials('user', 'user123');
+  assert.equal(userRes.success, true, 'User credential should succeed');
+  assert.equal(auth.getCurrentRole(), 'user', 'Role should be user');
+
+  auth.logout();
+});
+

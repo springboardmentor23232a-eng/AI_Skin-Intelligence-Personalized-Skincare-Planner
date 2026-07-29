@@ -143,7 +143,7 @@ export function renderLandingPage() {
             </div>
             <div class="quote-controls">
               <button class="quote-nav-btn" onclick="window.app.prevQuote()" title="Previous Quote">‹</button>
-              <button class="quote-shuffle-btn" onclick="window.app.shuffleQuote()">✨ Next Affirmation</button>
+              <button class="quote-shuffle-btn" onclick="window.app.shuffleQuote()">Next Affirmation</button>
               <button class="quote-nav-btn" onclick="window.app.nextQuote()" title="Next Quote">›</button>
             </div>
           </div>
@@ -391,7 +391,7 @@ export function renderUserDashboard() {
           <p class="text-muted">Skin Profile: <strong>${data.profile.skinType}</strong> | Age: ${data.profile.ageGroup}</p>
         </div>
         <div style="display: flex; gap: 0.75rem;">
-          <button class="btn btn-primary btn-sm" onclick="window.app.openModal('assessment-modal')">✨ Take AI Assessment Survey</button>
+          <button class="btn btn-primary btn-sm" onclick="window.app.openModal('assessment-modal')">Take AI Assessment Survey</button>
           <button class="btn btn-pink btn-sm" onclick="window.app.openModal('ingredient-modal')">🧪 Ingredient Checker</button>
         </div>
       </div>
@@ -722,3 +722,106 @@ export function renderAdminDashboard() {
     </div>
   `;
 }
+
+/**
+ * Render Interactive Dummy Login Page
+ */
+export function renderLoginPage() {
+  return `
+    <div class="editorial-container section-margin">
+      <div class="login-page-wrapper reveal">
+        <div class="login-card-glass">
+          <div class="login-header text-center">
+            <div class="login-logo-circle">
+              <img src="assets/logo.png" alt="PanaceaAI Logo" class="login-logo-img">
+            </div>
+            <h2 class="editorial-section-title" style="font-size: 1.8rem; margin-top: 0.75rem; margin-bottom: 0.35rem;">
+              Sign In to PanaceaAI
+            </h2>
+            <p class="text-muted" style="font-size: 0.88rem; margin-bottom: 1.5rem;">
+              Enter your dummy credentials or choose a pre-configured demo account from the dropdown.
+            </p>
+          </div>
+
+          <form id="login-page-form" onsubmit="window.app.handleLoginPageSubmit(event)" novalidate>
+            <!-- Demo Account Quick Select Dropdown -->
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+              <label for="login-demo-dropdown" style="font-weight: 600; color: var(--gold-primary);">
+                <span>Select Demo Account (Quick-Fill)</span>
+              </label>
+              <select id="login-demo-dropdown" class="form-control demo-select-dropdown" onchange="window.app.handleDemoDropdownChange(this.value)">
+                <option value="">-- Select a Demo Account to Fill Credentials --</option>
+                <option value="user">DermaCare User (Alex Rivera) — [user / user123]</option>
+                <option value="consultant">Skincare Consultant (Sarah Jenkins) — [consultant / consultant123]</option>
+                <option value="dermatologist">Board Dermatologist (Dr. Elena Rostova) — [doctor / doctor123]</option>
+                <option value="admin">Platform Administrator — [admin / admin123]</option>
+              </select>
+            </div>
+
+            <!-- Username Field -->
+            <div class="form-group">
+              <label for="page-login-username">Username or Email</label>
+              <div class="input-with-icon">
+                <span class="input-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </span>
+                <input 
+                  type="text" 
+                  id="page-login-username" 
+                  class="form-control" 
+                  placeholder="e.g. user, consultant, doctor, or admin" 
+                  required
+                >
+              </div>
+            </div>
+
+            <!-- Password Field -->
+            <div class="form-group">
+              <label for="page-login-password">Password</label>
+              <div class="input-with-icon">
+                <span class="input-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                </span>
+                <input 
+                  type="password" 
+                  id="page-login-password" 
+                  class="form-control" 
+                  placeholder="e.g. user123, doctor123" 
+                  required
+                >
+                <button 
+                  type="button" 
+                  class="password-toggle-btn" 
+                  title="Toggle Password Visibility"
+                  onclick="window.app.togglePasswordVisibility('page-login-password', this)"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Options Row -->
+            <div class="login-options-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; font-size: 0.85rem;">
+              <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; color: var(--text-dark);">
+                <input type="checkbox" id="page-login-remember" checked style="accent-color: var(--gold-primary);">
+                <span>Remember me</span>
+              </label>
+              <a href="javascript:void(0)" onclick="window.app.showForgotPasswordNotice()" style="color: var(--gold-primary); text-decoration: none; font-weight: 500;">
+                Forgot password?
+              </a>
+            </div>
+
+            <!-- Dynamic Alert Message Box -->
+            <div id="page-login-alert" class="login-alert-box hidden" style="margin-bottom: 1.25rem;"></div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.85rem; font-size: 1rem; letter-spacing: 0.5px;">
+              Log In to Portal
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
