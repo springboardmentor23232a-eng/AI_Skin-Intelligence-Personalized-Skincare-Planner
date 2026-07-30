@@ -2,98 +2,92 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { useAuth } from "../context/AuthContext";
+import { Sparkles, LayoutDashboard, Stethoscope, Shield, ArrowRight } from "lucide-react";
 
 export default function Home() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const handleQuickLogin = (role) => {
+  const handleQuickLogin = async (role) => {
     if (role === "user") {
-      login("user", "akash@example.com", "Akash Prajapati");
+      await login("john@gmail.com", "Password@123");
       navigate("/user");
     } else if (role === "consultant") {
-      login("consultant", "dr.smith@example.com", "Dr. Smith");
+      await login("coach@wellness.com", "Password@123");
       navigate("/consultant");
     } else {
-      login("admin", "admin@example.com", "System Admin");
+      await login("admin@wellness.com", "Password@123");
       navigate("/admin");
     }
   };
 
   return (
-    <div className="bg-light min-vh-100 d-flex flex-column">
+    <div className="dashboard-layout">
       <Navbar />
 
-      <div className="container py-5">
-        <div className="text-center py-4 mb-4">
-          <h1 className="fw-bold text-dark mb-3">
-            AI_Skin-Intelligence-Personalized-Skincare-Planner
+      <div className="main-viewport" style={{ maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
+        <div className="glass-card text-center" style={{ padding: '3.5rem 2rem', marginBottom: '2rem' }}>
+          <div className="auth-logo-badge" style={{ margin: '0 auto 1rem', padding: '1rem' }}>
+            <Sparkles size={36} />
+          </div>
+          <h1 style={{ fontSize: '2.4rem', fontWeight: 800, marginBottom: '1rem', color: 'var(--text-primary)' }}>
+            AI Skin Intelligence &amp; Personalized Skincare Planner
           </h1>
-          <p className="lead text-secondary max-w-700 mx-auto">
-            An intuitive web application for managing skincare routines, requesting consultations, and controlling user access with role-based dashboards.
+          <p style={{ maxWidth: '720px', margin: '0 auto 1.5rem', color: 'var(--text-secondary)', fontSize: '1.1rem' }}>
+            Next-generation AI Optical Skin Analysis, Image &amp; Camera Scan, Disease Detection, Hydration Tracking, and Certified Dermatologist Product Recommendations.
           </p>
-          <div className="d-flex justify-content-center gap-3 mt-4">
-            <button className="btn btn-primary btn-lg" onClick={() => navigate("/login")}>
-              Go to Login Page
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '1.5rem' }}>
+            <button className="btn btn-primary" onClick={() => navigate("/login")}>
+              <span>Get Started</span> <ArrowRight size={18} />
+            </button>
+            <button className="btn btn-outline" onClick={() => navigate("/register")}>
+              <span>Register Account</span>
             </button>
           </div>
         </div>
 
-        <div className="row g-4 mb-5">
-          <div className="col-md-4">
-            <div className="card h-100 border-0 shadow-sm p-4 text-center">
-              <h5 className="fw-bold text-primary mb-2">User Dashboard</h5>
-              <p className="text-muted small">
-                Track daily morning and evening skincare routines, view skin profile summary, and check product recommendations.
-              </p>
-              <button
-                className="btn btn-outline-primary btn-sm mt-auto"
-                onClick={() => handleQuickLogin("user")}
-              >
-                Explore User View
-              </button>
-            </div>
+        <div className="grid-layout grid-3-col" style={{ marginBottom: '2rem' }}>
+          <div className="glass-card text-center">
+            <LayoutDashboard size={32} style={{ color: 'var(--primary)', marginBottom: '0.75rem' }} />
+            <h3 style={{ fontSize: '1.15rem', marginBottom: '0.5rem' }}>User Skincare Hub</h3>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
+              Track daily skincare routines, skin type summary, hydration targets, and AI product recommendations.
+            </p>
+            <button
+              className="btn btn-outline btn-block"
+              onClick={() => handleQuickLogin("user")}
+            >
+              Explore User View
+            </button>
           </div>
 
-          <div className="col-md-4">
-            <div className="card h-100 border-0 shadow-sm p-4 text-center">
-              <h5 className="fw-bold text-success mb-2">Consultant Dashboard</h5>
-              <p className="text-muted small">
-                Dermatologist portal to view patient consultation requests, review skin concerns, and update status.
-              </p>
-              <button
-                className="btn btn-outline-success btn-sm mt-auto"
-                onClick={() => handleQuickLogin("consultant")}
-              >
-                Explore Consultant View
-              </button>
-            </div>
+          <div className="glass-card text-center">
+            <Stethoscope size={32} style={{ color: 'var(--secondary)', marginBottom: '0.75rem' }} />
+            <h3 style={{ fontSize: '1.15rem', marginBottom: '0.5rem' }}>Clinical Specialist Portal</h3>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
+              Dermatologist &amp; Coach portal to review patient consultation requests, review skin concerns, and issue advice.
+            </p>
+            <button
+              className="btn btn-outline btn-block"
+              onClick={() => handleQuickLogin("consultant")}
+            >
+              Explore Specialist View
+            </button>
           </div>
 
-          <div className="col-md-4">
-            <div className="card h-100 border-0 shadow-sm p-4 text-center">
-              <h5 className="fw-bold text-dark mb-2">Admin Dashboard</h5>
-              <p className="text-muted small">
-                System administration panel to manage registered users, update roles, and monitor system metrics.
-              </p>
-              <button
-                className="btn btn-outline-dark btn-sm mt-auto"
-                onClick={() => handleQuickLogin("admin")}
-              >
-                Explore Admin View
-              </button>
-            </div>
+          <div className="glass-card text-center">
+            <Shield size={32} style={{ color: 'var(--accent)', marginBottom: '0.75rem' }} />
+            <h3 style={{ fontSize: '1.15rem', marginBottom: '0.5rem' }}>Admin Command Center</h3>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
+              System administration panel to manage registered users, update roles, and monitor system metrics.
+            </p>
+            <button
+              className="btn btn-outline btn-block"
+              onClick={() => handleQuickLogin("admin")}
+            >
+              Explore Admin View
+            </button>
           </div>
-        </div>
-
-        <div className="card border-0 shadow-sm p-4 bg-white">
-          <h5 className="fw-bold text-dark mb-2">Key Application Features:</h5>
-          <ul className="text-secondary small mb-0">
-            <li>Landing page with quick platform overview and role navigation.</li>
-            <li>Authentication portal supporting user, consultant, and admin login.</li>
-            <li>Role-Based Access Control (RBAC) protecting user dashboards.</li>
-            <li>Interactive JWT token inspector on authentication page.</li>
-          </ul>
         </div>
       </div>
     </div>

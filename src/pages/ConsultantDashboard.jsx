@@ -1,105 +1,167 @@
 import React, { useState } from "react";
+import { useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import Sidebar from "../components/Sidebar";
 import JwtInspector from "../components/JwtInspector";
-import { useAuth } from "../context/AuthContext";
+import { Award, Users, CheckCircle, Clock, HeartPulse, Send, MessageSquare, Sparkles, Stethoscope, ShieldCheck } from "lucide-react";
 
-export default function ConsultantDashboard() {
-  const { user } = useAuth();
+const ConsultantDashboard = () => {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const roleMode = searchParams.get("role") || "dermatologist";
 
-  const [appointments, setAppointments] = useState([
-    { id: 1, patient: "Akash Prajapati", skinConcern: "Dryness & Mild Redness", date: "Today, 2:00 PM", status: "Pending" },
-    { id: 2, patient: "Rahul Sharma", skinConcern: "Acne Breakouts", date: "Today, 3:30 PM", status: "Pending" },
-    { id: 3, patient: "Priya Patel", skinConcern: "Hyperpigmentation", date: "Tomorrow, 11:00 AM", status: "Approved" }
+  // Dynamic Content according to clicked sidebar role
+  let roleTitle = "Dermatologist Clinical Dashboard";
+  let roleSubtitle = "Review high-resolution optical skin scans, diagnose pathologies, and prescribe clinical skincare regimens.";
+  let roleIcon = <Stethoscope className="icon-title" style={{ color: 'var(--accent)' }} />;
+  let roleBadge = "DERMATOLOGIST Authorized";
+  let roleBadgeClass = "role-dermatologist";
+
+  if (roleMode === "consultant") {
+    roleTitle = "Skincare Consultant Portal";
+    roleSubtitle = "Analyze client skin type profiles, review hydration scores, and build personalized product recommendations.";
+    roleIcon = <Sparkles className="icon-title" style={{ color: 'var(--secondary)' }} />;
+    roleBadge = "SKINCARE_CONSULTANT Authorized";
+    roleBadgeClass = "role-skincare_consultant";
+  } else if (roleMode === "coach") {
+    roleTitle = "Wellness & Skin Coach Dashboard";
+    roleSubtitle = "Track daily client wellness habits, sleep recovery turnover, and issue holistic lifestyle coaching guidance.";
+    roleIcon = <Award className="icon-title" style={{ color: 'var(--warning)' }} />;
+    roleBadge = "WELLNESS_COACH Authorized";
+    roleBadgeClass = "role-wellness_coach";
+  }
+
+  const [clients, setClients] = useState([
+    { id: 101, name: "John Doe", email: "john@gmail.com", skill: "Barrier Repair & Hydration", score: 88, status: "Active Plan" },
+    { id: 102, name: "Emily Watson", email: "emily@dev.io", skill: "Retinol & Evening Skincare Routine", score: 74, status: "Review Pending" },
+    { id: 103, name: "Michael Chen", email: "michael@tech.com", skill: "Mineral Sunscreen & UV Protection", score: 89, status: "Active Plan" }
   ]);
 
-  const toggleStatus = (id) => {
-    setAppointments((prev) =>
-      prev.map((app) => (app.id === id ? { ...app, status: app.status === "Pending" ? "Approved" : "Pending" } : app))
-    );
+  const [selectedClient, setSelectedClient] = useState(clients[0]);
+  const [adviceNote, setAdviceNote] = useState("");
+  const [msgSent, setMsgSent] = useState(false);
+
+  const handleSendAdvice = (e) => {
+    e.preventDefault();
+    if (!adviceNote) return;
+    setMsgSent(true);
+    setTimeout(() => {
+      setMsgSent(false);
+      setAdviceNote("");
+    }, 3000);
   };
 
   return (
-    <div className="bg-light min-vh-100 d-flex flex-column">
+    <div className="dashboard-layout">
       <Navbar />
 
-      <div className="container py-4">
-        <div className="d-flex justify-content-between align-items-center bg-white p-4 rounded-3 shadow-sm mb-4">
-          <div>
-            <h3 className="fw-bold mb-1">Consultant Dashboard</h3>
-            <p className="text-muted mb-0">Logged in as: <strong>{user?.name}</strong> (Dermatologist)</p>
-          </div>
-          <span className="badge bg-success fs-6">Role: Consultant</span>
-        </div>
+      <div className="dashboard-content">
+        <Sidebar />
 
-        {/* Stats Row */}
-        <div className="row g-3 mb-4">
-          <div className="col-md-4">
-            <div className="card border-0 shadow-sm p-3 bg-white">
-              <small className="text-muted fw-bold">Total Consultations</small>
-              <h4 className="fw-bold text-dark mt-1">12 Appointments</h4>
-            </div>
-          </div>
-          <div className="col-md-4">
-            <div className="card border-0 shadow-sm p-3 bg-white">
-              <small className="text-muted fw-bold">Pending Approval</small>
-              <h4 className="fw-bold text-warning mt-1">
-                {appointments.filter((a) => a.status === "Pending").length} Cases
-              </h4>
-            </div>
-          </div>
-          <div className="col-md-4">
-            <div className="card border-0 shadow-sm p-3 bg-white">
-              <small className="text-muted fw-bold">Approved Today</small>
-              <h4 className="fw-bold text-success mt-1">
-                {appointments.filter((a) => a.status === "Approved").length} Cases
-              </h4>
-            </div>
-          </div>
-        </div>
+        <main className="main-viewport">
+          <JwtInspector />
 
-        {/* Appointments Table */}
-        <div className="card border-0 shadow-sm p-4 bg-white mb-4">
-          <h5 className="fw-bold mb-3">Patient Appointment Requests</h5>
-          <div className="table-responsive">
-            <table className="table table-hover align-middle">
-              <thead className="table-light">
-                <tr>
-                  <th>Patient Name</th>
-                  <th>Skin Concern</th>
-                  <th>Appointment Time</th>
-                  <th>Status</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {appointments.map((item) => (
-                  <tr key={item.id}>
-                    <td className="fw-semibold">{item.patient}</td>
-                    <td>{item.skinConcern}</td>
-                    <td className="text-muted small">{item.date}</td>
-                    <td>
-                      <span className={`badge ${item.status === "Approved" ? "bg-success" : "bg-warning text-dark"}`}>
-                        {item.status}
-                      </span>
-                    </td>
-                    <td>
-                      <button
-                        className="btn btn-sm btn-outline-primary"
-                        onClick={() => toggleStatus(item.id)}
-                      >
-                        Toggle Approval
-                      </button>
-                    </td>
-                  </tr>
+          <div className="section-header">
+            <div>
+              <h2>{roleIcon} {roleTitle}</h2>
+              <p>{roleSubtitle}</p>
+            </div>
+            <span className={`role-badge ${roleBadgeClass}`} style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
+              {roleBadge}
+            </span>
+          </div>
+
+          <div className="grid-layout grid-3-col">
+            {/* Client List */}
+            <div className="glass-card span-1">
+              <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                <h3>Assigned Clients</h3>
+                <Users size={18} />
+              </div>
+
+              <div className="client-list">
+                {clients.map((c) => (
+                  <div
+                    key={c.id}
+                    className={`client-item-card ${selectedClient.id === c.id ? "active" : ""}`}
+                    onClick={() => setSelectedClient(c)}
+                    style={{
+                      background: selectedClient.id === c.id ? 'var(--primary-light)' : 'var(--input-bg)',
+                      border: '1px solid var(--border-color)',
+                      padding: '0.85rem',
+                      borderRadius: 'var(--radius-sm)',
+                      marginBottom: '0.75rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      justify: 'space-between',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <div className="client-info">
+                      <h4 style={{ fontSize: '0.9rem', marginBottom: '0.2rem' }}>{c.name}</h4>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{c.email}</p>
+                      <small style={{ fontSize: '0.75rem', color: 'var(--primary)' }}>Focus: {c.skill}</small>
+                    </div>
+                    <span className="jwt-status-chip">{c.score} Score</span>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+              </div>
+            </div>
 
-        {/* Live Token Inspector */}
-        <JwtInspector />
+            {/* Client Detail & Guidance Publisher */}
+            <div className="glass-card span-2">
+              <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                <h3>Client Profile &amp; AI Optical Scan Evaluation</h3>
+                <ShieldCheck size={20} style={{ color: 'var(--primary)' }} />
+              </div>
+
+              <div className="client-detail-view">
+                <div className="client-detail-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                  <div>
+                    <h3 style={{ fontSize: '1.25rem' }}>{selectedClient.name}</h3>
+                    <p style={{ color: 'var(--text-secondary)' }}>{selectedClient.email} • Focus: <strong>{selectedClient.skill}</strong></p>
+                  </div>
+                  <div className="score-badge-circle" style={{
+                    background: 'var(--primary-light)',
+                    color: 'var(--primary)',
+                    padding: '0.75rem 1rem',
+                    borderRadius: '50%',
+                    textAlign: 'center'
+                  }}>
+                    <span style={{ fontSize: '1.25rem', fontWeight: 700 }}>{selectedClient.score}</span>
+                    <small style={{ display: 'block', fontSize: '0.65rem' }}>Skin Index</small>
+                  </div>
+                </div>
+
+                <div className="coach-advice-box">
+                  <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                    <MessageSquare size={18} /> Issue Custom {roleMode === "dermatologist" ? "Clinical Prescription" : roleMode === "consultant" ? "Product Recommendations" : "Coach Guidance"}
+                  </h4>
+                  {msgSent && <div className="alert alert-success">Recommendations successfully transmitted to {selectedClient.name}'s client dashboard!</div>}
+
+                  <form onSubmit={handleSendAdvice} className="form-container">
+                    <div className="form-group">
+                      <label>Professional Guidance Notes &amp; Action Plan</label>
+                      <textarea
+                        rows="4"
+                        value={adviceNote}
+                        onChange={(e) => setAdviceNote(e.target.value)}
+                        placeholder={`Write professional advice for ${selectedClient.name} regarding their ${selectedClient.skill} routine...`}
+                        required
+                      />
+                    </div>
+                    <button type="submit" className="btn btn-primary">
+                      <Send size={16} /> <span>Transmit Recommendation</span>
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
     </div>
   );
-}
+};
+
+export default ConsultantDashboard;
