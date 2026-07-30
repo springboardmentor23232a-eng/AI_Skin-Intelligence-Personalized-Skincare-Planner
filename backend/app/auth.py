@@ -19,9 +19,12 @@ def register_user(user: schemas.UserCreate, db: Session):
     # Hash the password
     hashed_password = pwd_context.hash(user.password)
 
+    # Determine full_name from full_name or name
+    display_name = user.full_name or user.name or user.email.split('@')[0]
+
     # Create new user
     new_user = models.User(
-        full_name=user.full_name,
+        full_name=display_name,
         email=user.email,
         password=hashed_password
     )

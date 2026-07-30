@@ -1,33 +1,74 @@
-import React, { createContext, useContext, useState } from 'react';
-import { USER_ROLES } from '@/lib/constants';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { USER_ROLES } from "@/lib/constants";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState({
-    id: 'usr_101',
-    name: 'Dr. Elena Rostova',
-    email: 'elena.rostova@skintelligence.ai',
-    role: USER_ROLES.CONSUMER, // Default role
-    skinType: 'Combination',
-    ageGroup: '25-34',
-    concerns: ['Hyperpigmentation', 'Uneven Skin Tone', 'Fine Lines'],
-    allergies: ['Fragrance', 'Parabens'],
+    email: "",
+    role: USER_ROLES.CONSUMER,
   });
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
 
-  // Switch role dynamically for testing all 4 dashboards in document
+    if (token) {
+  setIsAuthenticated(true);
+
+  setUser((prev) => ({
+    ...prev,
+  }));
+}
+  }, []);
+
+  const login = async (email, password, role) => {
+    try {
+      const formData = new URLSearchParams();
+
+      formData.append("username", email);
+      formData.append("password", password);
+
+      const response = await fetch("http://127.0.0.1:8000/token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Invalid credentials");
+      }
+
+      const data = await response.json();
+
+      localStorage.setItem("token", data.access_token);
+
+      setIsAuthenticated(true);
+
+      setUser({
+        email,
+        role,
+      });
+
+      return true;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
+  };
+
+
   const switchRole = (newRole) => {
-    setUser((prev) => ({ ...prev, role: newRole }));
+    setUser((prev) => ({
+      ...prev,
+      role: newRole,
+    }));
   };
-
-  const login = (role = USER_ROLES.CONSUMER) => {
-    setIsAuthenticated(true);
-    setUser((prev) => ({ ...prev, role }));
-  };
-
   const logout = () => {
+    localStorage.removeItem("token");
+    setUser(null);
     setIsAuthenticated(false);
   };
 
@@ -36,9 +77,9 @@ export function AuthProvider({ children }) {
       value={{
         user,
         isAuthenticated,
-        switchRole,
         login,
         logout,
+        switchRole,
       }}
     >
       {children}
@@ -47,9 +88,5 @@ export function AuthProvider({ children }) {
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+  return useContext(AuthContext);
 }

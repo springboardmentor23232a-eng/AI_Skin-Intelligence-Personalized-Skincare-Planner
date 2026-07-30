@@ -10,35 +10,41 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const [email, setEmail] = useState('demo.user@skintelligence.ai');
-  const [password, setPassword] = useState('••••••••••••');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [selectedRole, setSelectedRole] = useState(USER_ROLES.CONSUMER);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setIsLoading(true);
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsLoading(true);
 
-    setTimeout(() => {
-      login(selectedRole);
-      setIsLoading(false);
+  const success = await login(email, password, selectedRole);
 
-      switch (selectedRole) {
-        case USER_ROLES.CONSULTANT:
-          navigate('/dashboard/consultant');
-          break;
-        case USER_ROLES.DERMATOLOGIST:
-          navigate('/dashboard/dermatologist');
-          break;
-        case USER_ROLES.ADMIN:
-          navigate('/dashboard/admin');
-          break;
-        default:
-          navigate('/dashboard/user');
-          break;
-      }
-    }, 400);
-  };
+  setIsLoading(false);
+
+  if (!success) {
+    alert("Invalid email or password");
+    return;
+  }
+
+  switch (selectedRole) {
+    case USER_ROLES.CONSULTANT:
+      navigate("/dashboard/consultant");
+      break;
+
+    case USER_ROLES.DERMATOLOGIST:
+      navigate("/dashboard/dermatologist");
+      break;
+
+    case USER_ROLES.ADMIN:
+      navigate("/dashboard/admin");
+      break;
+
+    default:
+      navigate("/dashboard/user");
+  }
+};
 
   const roleOptions = [
     {
