@@ -3,6 +3,7 @@
  */
 
 import { auth } from './auth.js';
+import { api } from './api.js';
 import { MOCK_USER_DATA, MOCK_ROLES } from './mockData.js';
 import {
   renderLandingPage,
@@ -52,7 +53,7 @@ class App {
     ];
   }
 
-  init() {
+  async init() {
     this.mainContent = document.getElementById('main-content');
     this.navRoleBadge = document.getElementById('nav-role-badge');
     this.authBtn = document.getElementById('auth-btn');
@@ -61,10 +62,27 @@ class App {
     // Subscribe to auth state changes
     auth.subscribe(() => this.render());
 
-    // Bind brand logo click to logout / home
-    document.getElementById('brand-home').addEventListener('click', () => {
-      this.currentView = 'home';
+    // BUG 11 FIX: Auto-logout on 401 session expiry — opens portal modal dialog box
+    api.onSessionExpired((msg) => {
       auth.logout();
+      this.currentView = 'home';
+      this.render();
+      this.openLoginModal();
+      setTimeout(() => {
+        const alertBox = document.getElementById('modal-login-alert');
+        if (alertBox) {
+          alertBox.className = 'login-alert-box alert-error';
+          alertBox.innerText = msg;
+          alertBox.classList.remove('hidden');
+        }
+      }, 100);
+    });
+
+    // Bind brand logo click to navigate to landing page (preserves logged in session)
+    document.getElementById('brand-home').addEventListener('click', () => {
+      this.currentView = 'landing';
+      this.render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
     // Navbar scroll shadow
@@ -75,41 +93,72 @@ class App {
       }
     });
 
-    this.render();
+    // Close user dropdown when clicking outside
+    document.addEventListener('click', (event) => {
+      const menuWrapper = document.getElementById('nav-user-menu-wrapper');
+      const dropdown = document.getElementById('user-profile-dropdown');
+      if (menuWrapper && dropdown && !menuWrapper.contains(event.target)) {
+        dropdown.classList.add('hidden');
+      }
+    });
+
+    // BUG 1 FIX: Restore session from existing JWT token on page load
+    const restored = await auth.restoreSession();
+    if (!restored) {
+      this.render();
+    }
   }
 
   render() {
     const currentRole = auth.getCurrentRole();
     const roleInfo = auth.getCurrentRoleInfo();
+    const menuWrapper = document.getElementById('nav-user-menu-wrapper');
+    const dropdown = document.getElementById('user-profile-dropdown');
 
-    // Navbar role status
+    // Navbar role status & DP Dropdown (Profile Avatar at right top)
     if (currentRole && roleInfo) {
-      this.navRoleBadge.classList.remove('hidden');
+      const user = auth.getCurrentUser();
+      const avatarUrl = user?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${user?.username || 'default'}`;
+      const displayName = user?.username || roleInfo.name;
+      const displayEmail = user?.email || `${displayName.toLowerCase()}@panacea.ai`;
+
+      if (menuWrapper) menuWrapper.classList.remove('hidden');
+      if (this.authBtn) this.authBtn.classList.add('hidden');
+
+      // Update navbar DP badge
       this.navRoleBadge.innerHTML = `
-        <span>${roleInfo.icon}</span>
-        <span>${roleInfo.name}</span>
+        <img src="${avatarUrl}" alt="${displayName}" class="nav-user-avatar">
+        <span class="nav-user-name">${displayName}</span>
         <span class="badge ${roleInfo.badgeClass}">${roleInfo.title}</span>
       `;
-      this.authBtn.innerText = 'Exit / Logout';
-      this.authBtn.className = 'btn btn-outline btn-sm';
-      this.authBtn.onclick = () => {
-        this.currentView = 'home';
-        auth.logout();
-      };
+
+      // Update dropdown header info
+      const dropdownAvatar = document.getElementById('dropdown-user-avatar');
+      const dropdownName = document.getElementById('dropdown-user-name');
+      const dropdownEmail = document.getElementById('dropdown-user-email');
+      const dropdownBadge = document.getElementById('dropdown-user-role-badge');
+
+      if (dropdownAvatar) dropdownAvatar.src = avatarUrl;
+      if (dropdownName) dropdownName.innerText = displayName;
+      if (dropdownEmail) dropdownEmail.innerText = displayEmail;
+      if (dropdownBadge) {
+        dropdownBadge.innerText = roleInfo.title;
+        dropdownBadge.className = `badge ${roleInfo.badgeClass}`;
+      }
     } else {
-      this.navRoleBadge.classList.add('hidden');
-      this.authBtn.innerText = 'DEMO LOGIN';
-      this.authBtn.className = 'btn btn-primary btn-sm';
-      this.authBtn.onclick = () => this.openLoginModal();
+      if (menuWrapper) menuWrapper.classList.add('hidden');
+      if (dropdown) dropdown.classList.add('hidden');
+      if (this.authBtn) {
+        this.authBtn.classList.remove('hidden');
+        this.authBtn.innerText = 'SIGN IN';
+        this.authBtn.className = 'btn btn-primary btn-sm';
+        this.authBtn.onclick = () => this.openLoginModal();
+      }
     }
 
-    // View render dispatch
-    if (!currentRole) {
-      if (this.currentView === 'login') {
-        this.mainContent.innerHTML = renderLoginPage();
-      } else {
-        this.mainContent.innerHTML = renderLandingPage();
-      }
+    // View render dispatch: landing page view vs active role dashboard
+    if (this.currentView === 'landing' || !currentRole) {
+      this.mainContent.innerHTML = renderLandingPage();
     } else if (currentRole === 'user') {
       this.mainContent.innerHTML = renderUserDashboard();
     } else if (currentRole === 'consultant') {
@@ -118,10 +167,60 @@ class App {
       this.mainContent.innerHTML = renderDermatologistDashboard();
     } else if (currentRole === 'admin') {
       this.mainContent.innerHTML = renderAdminDashboard();
+      // Asynchronously fetch live users from database and update roster table
+      api.getAdminUsers().then(res => {
+        if (res && res.success && res.users) {
+          const container = document.getElementById('main-content');
+          if (container && auth.getCurrentRole() === 'admin' && this.currentView !== 'landing') {
+            container.innerHTML = renderAdminDashboard(res.users);
+          }
+        }
+      });
     }
 
     // Initialize scroll reveal animations
     this.initScrollReveal();
+  }
+
+  toggleAdminAddUserForm() {
+    const card = document.getElementById('admin-add-user-card');
+    if (card) card.classList.toggle('hidden');
+  }
+
+  async handleAdminAddUserSubmit(event) {
+    event.preventDefault();
+    const username = document.getElementById('admin-new-username')?.value;
+    const email = document.getElementById('admin-new-email')?.value;
+    const password = document.getElementById('admin-new-password')?.value;
+    const role = document.getElementById('admin-new-role')?.value || 'user';
+    const alertBox = document.getElementById('admin-add-user-alert');
+
+    const res = await api.createAdminUser({ username, email, password, role });
+
+    if (!res.success) {
+      if (alertBox) {
+        alertBox.className = 'login-alert-box alert-error';
+        alertBox.innerText = res.message;
+        alertBox.classList.remove('hidden');
+      }
+    } else {
+      alert(`User account "${username}" (${role}) created successfully!`);
+      this.render();
+    }
+  }
+
+  async handleAdminDeleteUser(userId, username) {
+    if (!confirm(`Are you sure you want to delete user "${username}" (#${userId})?`)) {
+      return;
+    }
+
+    const res = await api.deleteAdminUser(userId);
+    if (!res.success) {
+      alert(res.message || 'Failed to delete user account.');
+    } else {
+      alert(`User "${username}" deleted successfully.`);
+      this.render();
+    }
   }
 
   // IntersectionObserver scroll-reveal system
@@ -188,7 +287,78 @@ class App {
     }, 200);
   }
 
-  openLoginModal() {
+  toggleUserDropdown(event) {
+    if (event) event.stopPropagation();
+    const dropdown = document.getElementById('user-profile-dropdown');
+    if (dropdown) {
+      dropdown.classList.toggle('hidden');
+    }
+  }
+
+  closeUserDropdown() {
+    const dropdown = document.getElementById('user-profile-dropdown');
+    if (dropdown) {
+      dropdown.classList.add('hidden');
+    }
+  }
+
+  navigateToView(viewName) {
+    this.closeUserDropdown();
+    this.currentView = viewName;
+    this.render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  openUserSettingsModal() {
+    this.closeUserDropdown();
+    const user = auth.getCurrentUser();
+    const roleInfo = auth.getCurrentRoleInfo();
+    const avatarUrl = user?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${user?.username || 'default'}`;
+    const displayName = user?.username || roleInfo?.name || 'User';
+    const displayEmail = user?.email || `${displayName.toLowerCase()}@panacea.ai`;
+
+    const avatarImg = document.getElementById('settings-avatar-img');
+    const nameEl = document.getElementById('settings-user-name');
+    const roleEl = document.getElementById('settings-user-role');
+    const emailInput = document.getElementById('settings-user-email');
+
+    if (avatarImg) avatarImg.src = avatarUrl;
+    if (nameEl) nameEl.innerText = displayName;
+    if (roleEl && roleInfo) {
+      roleEl.innerText = roleInfo.title;
+      roleEl.className = `badge ${roleInfo.badgeClass}`;
+    }
+    if (emailInput) emailInput.value = displayEmail;
+
+    this.openModal('user-settings-modal');
+  }
+
+  saveUserSettings() {
+    this.closeModal('user-settings-modal');
+    alert('Account preferences and notification settings saved successfully! ✨');
+  }
+
+  handleUserLogout() {
+    this.closeUserDropdown();
+    this.currentView = 'landing';
+    auth.logout();
+  }
+
+  openLoginModal(defaultRole = null) {
+    const userInput = document.getElementById('modal-login-username');
+    const passInput = document.getElementById('modal-login-password');
+    const roleSelect = document.getElementById('modal-login-role');
+    const alertBox = document.getElementById('modal-login-alert');
+
+    // Reset login form fields — fields are ALWAYS clear and never pre-filled
+    if (userInput) userInput.value = '';
+    if (passInput) passInput.value = '';
+    if (roleSelect && defaultRole) roleSelect.value = defaultRole;
+    if (alertBox) {
+      alertBox.innerText = '';
+      alertBox.classList.add('hidden');
+    }
+
     this.loginModal.classList.add('active');
   }
 
@@ -207,73 +377,28 @@ class App {
   }
 
   selectRole(roleId) {
-    auth.login(roleId);
-    this.closeLoginModal();
-    this.currentView = 'home';
+    this.openLoginModal(roleId);
   }
 
   showLoginPage(event) {
     if (event) event.preventDefault();
-    this.currentView = 'login';
-    if (auth.getCurrentRole()) {
-      auth.logout();
-    }
-    this.render();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    this.openLoginModal();
   }
 
-  getCredentialsForRole(roleId) {
-    const creds = {
-      user: { username: 'user', password: 'user123' },
-      consultant: { username: 'consultant', password: 'consultant123' },
-      dermatologist: { username: 'doctor', password: 'doctor123' },
-      admin: { username: 'admin', password: 'admin123' }
-    };
-    return creds[roleId] || { username: '', password: '' };
-  }
-
-  handleDemoDropdownChange(roleId) {
-    const userInput = document.getElementById('page-login-username');
-    const passInput = document.getElementById('page-login-password');
-    if (!userInput || !passInput) return;
-
-    if (!roleId) {
-      userInput.value = '';
-      passInput.value = '';
-      return;
-    }
-
-    const { username, password } = this.getCredentialsForRole(roleId);
-    userInput.value = username;
-    passInput.value = password;
-  }
-
-  handleModalDemoDropdownChange(roleId) {
-    const userInput = document.getElementById('modal-login-username');
-    const passInput = document.getElementById('modal-login-password');
-    if (!userInput || !passInput) return;
-
-    if (!roleId) {
-      userInput.value = '';
-      passInput.value = '';
-      return;
-    }
-
-    const { username, password } = this.getCredentialsForRole(roleId);
-    userInput.value = username;
-    passInput.value = password;
-  }
-
-  handleLoginPageSubmit(event) {
+  async handleLoginPageSubmit(event) {
     event.preventDefault();
     const userInput = document.getElementById('page-login-username');
     const passInput = document.getElementById('page-login-password');
+    const roleInput = document.getElementById('page-login-role');
+    const rememberInput = document.getElementById('page-login-remember');
     const alertBox = document.getElementById('page-login-alert');
 
     const username = userInput ? userInput.value : '';
     const password = passInput ? passInput.value : '';
+    const role = roleInput ? roleInput.value : 'user';
+    const rememberMe = rememberInput ? rememberInput.checked : false;
 
-    const res = auth.loginWithCredentials(username, password);
+    const res = await auth.loginWithCredentials(username, password, role, rememberMe);
 
     if (!res.success) {
       if (alertBox) {
@@ -291,16 +416,20 @@ class App {
     }
   }
 
-  handleModalLoginSubmit(event) {
+  async handleModalLoginSubmit(event) {
     event.preventDefault();
     const userInput = document.getElementById('modal-login-username');
     const passInput = document.getElementById('modal-login-password');
+    const roleInput = document.getElementById('modal-login-role');
+    const rememberInput = document.getElementById('modal-login-remember');
     const alertBox = document.getElementById('modal-login-alert');
 
     const username = userInput ? userInput.value : '';
     const password = passInput ? passInput.value : '';
+    const role = roleInput ? roleInput.value : 'user';
+    const rememberMe = rememberInput ? rememberInput.checked : false;
 
-    const res = auth.loginWithCredentials(username, password);
+    const res = await auth.loginWithCredentials(username, password, role, rememberMe);
 
     if (!res.success) {
       if (alertBox) {
@@ -314,6 +443,111 @@ class App {
     }
   }
 
+  toggleModalAuthMode(event) {
+    if (event) event.preventDefault();
+    const loginForm = document.getElementById('modal-login-form');
+    const regForm = document.getElementById('modal-register-form');
+    const toggleLink = document.getElementById('modal-toggle-auth-link');
+
+    if (loginForm.classList.contains('hidden')) {
+      loginForm.classList.remove('hidden');
+      regForm.classList.add('hidden');
+      if (toggleLink) toggleLink.innerText = 'Need a new account? Register here';
+    } else {
+      loginForm.classList.add('hidden');
+      regForm.classList.remove('hidden');
+      if (toggleLink) toggleLink.innerText = 'Already have an account? Log in here';
+    }
+  }
+
+  async handleModalRegisterSubmit(event) {
+    event.preventDefault();
+    const username = document.getElementById('modal-reg-username')?.value;
+    const email = document.getElementById('modal-reg-email')?.value;
+    const password = document.getElementById('modal-reg-password')?.value;
+    const role = document.getElementById('modal-reg-role')?.value || 'user';
+    const alertBox = document.getElementById('modal-reg-alert');
+
+    const res = await auth.registerUser(username, email, password, role);
+
+    if (!res.success) {
+      if (alertBox) {
+        alertBox.className = 'login-alert-box alert-error';
+        alertBox.innerText = res.message;
+        alertBox.classList.remove('hidden');
+      }
+    } else {
+      if (alertBox) {
+        alertBox.className = 'login-alert-box alert-success';
+        alertBox.innerText = res.message;
+        alertBox.classList.remove('hidden');
+      }
+      alert(`Registration submitted for "${username}"! Your account is pending Administrator verification before you can sign in.`);
+    }
+  }
+
+  async handleGoogleOAuthLogin() {
+    const alertBox = document.getElementById('modal-login-alert');
+    const roleSelect = document.getElementById('modal-oauth-role');
+    const selectedRole = roleSelect ? roleSelect.value : 'user';
+
+    const GOOGLE_CLIENT_ID = '435046043372-n2nmis20orleg8q57rh6o0muo7qpi0c3.apps.googleusercontent.com';
+
+    // BUG 9 FIX: Only allow real Google GIS token — no mock/demo fallback
+    if (window.google && window.google.accounts && window.google.accounts.id) {
+      try {
+        window.google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: async (response) => {
+            if (response.credential) {
+              const res = await auth.loginWithGoogle(response.credential, selectedRole);
+              if (res.success) {
+                this.closeLoginModal();
+                this.currentView = 'home';
+              } else if (alertBox) {
+                alertBox.className = 'login-alert-box alert-error';
+                alertBox.innerText = res.message;
+                alertBox.classList.remove('hidden');
+              }
+            }
+          }
+        });
+
+        window.google.accounts.id.prompt((notification) => {
+          if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+            console.warn('[Google OAuth Info] Prompt not displayed:', notification.getNotDisplayedReason?.() || 'unknown reason');
+            if (alertBox) {
+              alertBox.className = 'login-alert-box alert-error';
+              alertBox.innerText = 'Google Sign-In popup was blocked or unavailable. Please allow popups or try username/password login.';
+              alertBox.classList.remove('hidden');
+            }
+          }
+        });
+        return;
+      } catch (err) {
+        console.warn('[Google OAuth Error]', err.message);
+      }
+    }
+
+    // Google GIS library not loaded — show error instead of mock fallback
+    if (alertBox) {
+      alertBox.className = 'login-alert-box alert-error';
+      alertBox.innerText = 'Google Sign-In is unavailable. The Google Identity Services library could not be loaded. Please use username/password login instead.';
+      alertBox.classList.remove('hidden');
+    }
+  }
+
+  async handleAdminApproveUser(userId, username) {
+    if (!confirm(`Are you sure you want to approve and activate user "${username}" (#${userId})?`)) return;
+    const res = await api.approveAdminUser(userId);
+    if (res.success) {
+      alert(res.message);
+      this.render();
+    } else {
+      alert(res.message || 'Failed to approve user account.');
+    }
+  }
+
   fillAndLogin(roleId) {
     const { username, password } = this.getCredentialsForRole(roleId);
     const userInput = document.getElementById('page-login-username');
@@ -322,8 +556,15 @@ class App {
     if (userInput) userInput.value = username;
     if (passInput) passInput.value = password;
 
-    auth.login(roleId);
-    this.currentView = 'home';
+    // Use server auth with demo credentials
+    auth.loginWithCredentials(username, password, roleId).then(res => {
+      if (res.success) {
+        this.currentView = 'home';
+      } else {
+        auth.login(roleId);
+        this.currentView = 'home';
+      }
+    });
   }
 
   togglePasswordVisibility(inputId, btnEl) {

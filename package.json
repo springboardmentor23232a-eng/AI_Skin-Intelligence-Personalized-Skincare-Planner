@@ -3,16 +3,33 @@
   "version": "1.0.0",
   "description": "AI Skin Intelligence & Personalized Skincare Planner - Role-Based Dashboards",
   "type": "module",
-  "main": "index.html",
+  "main": "server/index.js",
   "scripts": {
-    "start": "npx serve . -p 3000",
-    "test": "node test/dashboard.test.js"
+    "start": "node server/index.js",
+    "server": "node server/index.js",
+    "db:seed": "node server/db/seed.js",
+    "test": "node test/dashboard.test.js",
+    "test:server": "node test/server.test.js",
+    "test:all": "node test/dashboard.test.js && node test/server.test.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^8.6.1",
+    "google-auth-library": "^9.11.0",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.12.0"
   },
   "keywords": [
     "skincare",
     "ai",
     "dashboard",
-    "vanilla-js"
+    "vanilla-js",
+    "jwt",
+    "postgresql",
+    "oauth"
   ],
   "author": "Infosys Springboard Team",
   "license": "MIT"

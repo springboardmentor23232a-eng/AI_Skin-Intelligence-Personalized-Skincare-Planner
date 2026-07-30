@@ -1,0 +1,51 @@
+-- Schema for PanaceaAI Skin Intelligence Platform
+
+CREATE TABLE IF NOT EXISTS users (
+  id SERIAL PRIMARY KEY,
+  username VARCHAR(100) UNIQUE NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  role VARCHAR(50) NOT NULL DEFAULT 'user',
+  status VARCHAR(50) NOT NULL DEFAULT 'active',
+  google_id VARCHAR(255) UNIQUE,
+  avatar_url TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS skin_scores (
+  id SERIAL PRIMARY KEY,
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  overall_score INT NOT NULL,
+  breakdown JSONB NOT NULL,
+  scan_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS consultations (
+  id SERIAL PRIMARY KEY,
+  user_id INT REFERENCES users(id) ON DELETE SET NULL,
+  patient_name VARCHAR(255) NOT NULL,
+  condition VARCHAR(255) NOT NULL,
+  status VARCHAR(100) NOT NULL DEFAULT 'Pending',
+  dermatologist VARCHAR(255),
+  prescription TEXT,
+  date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS products (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  brand VARCHAR(255) NOT NULL,
+  category VARCHAR(100) NOT NULL,
+  key_ingredients TEXT[],
+  score_match INT DEFAULT 90,
+  image_url TEXT
+);
+
+CREATE TABLE IF NOT EXISTS microservices_status (
+  id SERIAL PRIMARY KEY,
+  service_name VARCHAR(255) UNIQUE NOT NULL,
+  status VARCHAR(50) NOT NULL DEFAULT 'Healthy',
+  uptime_percentage NUMERIC(5,2) DEFAULT 99.9,
+  latency_ms INT DEFAULT 45
+);

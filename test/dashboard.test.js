@@ -93,8 +93,8 @@ test('8. Auth Controller State Transitions Test', () => {
   auth.login('user');
   assert.equal(auth.getCurrentRole(), 'user', 'Current role should be user after user login');
 
-  auth.switchRole('dermatologist');
-  assert.equal(auth.getCurrentRole(), 'dermatologist', 'Current role should be dermatologist after role switch');
+  auth.login('dermatologist');
+  assert.equal(auth.getCurrentRole(), 'dermatologist', 'Current role should be dermatologist after role change');
 
   auth.logout();
   assert.equal(auth.getCurrentRole(), null, 'Current role should be null after logout');
@@ -103,38 +103,27 @@ test('8. Auth Controller State Transitions Test', () => {
 test('9. Login Page Renderer Test', () => {
   const html = renderLoginPage();
   assert.ok(html.includes('Sign In to PanaceaAI'), 'Must render login page heading');
-  assert.ok(html.includes('login-demo-dropdown'), 'Must include demo account quick-fill dropdown');
   assert.ok(html.includes('page-login-username'), 'Must include username input field');
   assert.ok(html.includes('page-login-password'), 'Must include password input field');
   assert.ok(html.includes('password-toggle-btn'), 'Must include password visibility toggle');
 });
 
-test('10. Credential Login & Role Determination Test', () => {
+test('10. Credential Login & Server Auth Verification Test', async () => {
   auth.logout();
 
   // Test empty validation
-  const emptyRes = auth.loginWithCredentials('', '');
+  const emptyRes = await auth.loginWithCredentials('', '');
   assert.equal(emptyRes.success, false, 'Should fail when inputs are empty');
 
-  // Test admin credential
-  const adminRes = auth.loginWithCredentials('admin', 'admin123');
-  assert.equal(adminRes.success, true, 'Admin credential should succeed');
-  assert.equal(auth.getCurrentRole(), 'admin', 'Role should be admin');
+  // Test whitespace-only validation
+  const spaceRes = await auth.loginWithCredentials('   ', '   ');
+  assert.equal(spaceRes.success, false, 'Should fail when inputs are whitespace-only');
 
-  // Test doctor credential
-  const docRes = auth.loginWithCredentials('doctor', 'doctor123');
-  assert.equal(docRes.success, true, 'Doctor credential should succeed');
-  assert.equal(auth.getCurrentRole(), 'dermatologist', 'Role should be dermatologist');
-
-  // Test consultant credential
-  const consRes = auth.loginWithCredentials('consultant', 'consultant123');
-  assert.equal(consRes.success, true, 'Consultant credential should succeed');
-  assert.equal(auth.getCurrentRole(), 'consultant', 'Role should be consultant');
-
-  // Test user credential
-  const userRes = auth.loginWithCredentials('user', 'user123');
-  assert.equal(userRes.success, true, 'User credential should succeed');
-  assert.equal(auth.getCurrentRole(), 'user', 'Role should be user');
+  // Test server-based login (offline mode returns failure, not demo fallback)
+  const offlineRes = await auth.loginWithCredentials('someuser', 'somepass123', 'user');
+  // With server offline, login should FAIL (no demo fallback — BUG 5 FIX)
+  assert.equal(offlineRes.success, false, 'Should fail when server is offline — no demo credential fallback');
+  assert.ok(offlineRes.message, 'Error response must include a message');
 
   auth.logout();
 });

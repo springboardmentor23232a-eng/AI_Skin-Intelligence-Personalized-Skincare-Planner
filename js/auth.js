@@ -1,12 +1,17 @@
 /**
  * Authentication & Role Management Controller
+ * Integrates JWT Tokens, Google OAuth 2.0, and Role State Management
+ * Session Persistence, Avatar Display, and Security Hardening
  */
 
 import { MOCK_ROLES } from './mockData.js';
+import { api } from './api.js';
 
 class AuthController {
   constructor() {
     this.currentRole = null; // null represents Landing Page / Logged Out state
+    this.currentUser = null;
+    this.jwtToken = null;
     this.listeners = [];
   }
 
@@ -14,9 +19,43 @@ class AuthController {
     return this.currentRole;
   }
 
+  getCurrentUser() {
+    return this.currentUser;
+  }
+
   getCurrentRoleInfo() {
     if (!this.currentRole) return null;
     return MOCK_ROLES[this.currentRole.toUpperCase()] || null;
+  }
+
+  /**
+   * BUG 1 FIX: Restore session from stored JWT token on page load.
+   * Calls /api/auth/me to rehydrate user state from the server.
+   */
+  async restoreSession() {
+    const existingToken = api.getToken();
+    if (!existingToken) return false;
+
+    try {
+      const res = await api.getAuthenticatedUser();
+      if (res && res.success && res.user) {
+        this.currentUser = res.user;
+        this.jwtToken = existingToken;
+        const role = (res.user.role || 'user').toLowerCase();
+        this.currentRole = role;
+        this.notify();
+        return true;
+      }
+    } catch (e) {
+      console.warn('[Session Restore] Failed to verify stored token:', e.message);
+    }
+
+    // Token is invalid/expired — clear it
+    api.clearToken();
+    this.currentRole = null;
+    this.currentUser = null;
+    this.jwtToken = null;
+    return false;
   }
 
   login(roleId) {
@@ -29,7 +68,7 @@ class AuthController {
     return false;
   }
 
-  loginWithCredentials(username, password) {
+  async loginWithCredentials(username, password, role, rememberMe = false) {
     if (!username || !password || !username.trim() || !password.trim()) {
       return { success: false, message: 'Please enter both username and password.' };
     }
@@ -37,38 +76,82 @@ class AuthController {
     const cleanUser = username.trim().toLowerCase();
     const cleanPass = password.trim();
 
-    let targetRole = 'user';
-
-    if (cleanUser.includes('admin') || cleanUser === 'admin') {
-      targetRole = 'admin';
-    } else if (cleanUser.includes('doctor') || cleanUser.includes('dermatologist') || cleanUser === 'doctor') {
-      targetRole = 'dermatologist';
-    } else if (cleanUser.includes('consultant') || cleanUser.includes('sarah') || cleanUser === 'consultant') {
-      targetRole = 'consultant';
-    } else if (cleanUser === 'user' || cleanUser.includes('alex')) {
-      targetRole = 'user';
-    } else {
-      // Fallback dummy login for any non-empty custom username/password
-      targetRole = 'user';
+    let targetRole = role ? role.toLowerCase() : null;
+    if (!targetRole) {
+      if (cleanUser.includes('admin')) targetRole = 'admin';
+      else if (cleanUser.includes('doctor') || cleanUser.includes('dermatologist')) targetRole = 'dermatologist';
+      else if (cleanUser.includes('consultant')) targetRole = 'consultant';
+      else targetRole = 'user';
     }
 
-    const success = this.login(targetRole);
-    const roleObj = MOCK_ROLES[targetRole.toUpperCase()];
+    // Call Express API for JWT token & PostgreSQL verification
+    const apiRes = await api.login(cleanUser, cleanPass, targetRole, rememberMe);
+
+    if (apiRes && apiRes.success && apiRes.user) {
+      const userRole = apiRes.user.role.toLowerCase();
+      this.currentUser = apiRes.user;
+      this.jwtToken = apiRes.token;
+      this.login(userRole);
+
+      return {
+        success: true,
+        role: userRole,
+        userName: apiRes.user.username,
+        token: this.jwtToken,
+        message: apiRes.message || `Welcome back! Logged in as ${apiRes.user.username}.`
+      };
+    }
+
+    // BUG 5 FIX: No offline demo fallback — return the server's error directly
     return {
-      success,
-      role: targetRole,
-      userName: roleObj?.name || 'User',
-      message: `Welcome back! Logged in as ${roleObj?.name || targetRole} (${roleObj?.title || 'Account'}).`
+      success: false,
+      pendingApproval: apiRes?.pendingApproval || false,
+      message: apiRes?.message || 'Login failed. Server may be offline — please try again later.'
+    };
+  }
+
+  async loginWithGoogle(credential, role = 'user') {
+    const apiRes = await api.loginWithGoogle(credential, role);
+    if (apiRes && apiRes.success && apiRes.token) {
+      this.currentUser = apiRes.user;
+      this.jwtToken = apiRes.token;
+      const userRole = apiRes.user.role || role;
+      this.login(userRole);
+      return {
+        success: true,
+        user: apiRes.user,
+        message: apiRes.message
+      };
+    }
+    return {
+      success: false,
+      pendingApproval: apiRes?.pendingApproval || false,
+      message: apiRes?.message || 'Google OAuth login failed.'
+    };
+  }
+
+  async registerUser(username, email, password, role = 'user') {
+    const apiRes = await api.register(username, email, password, role);
+    if (apiRes && apiRes.success) {
+      return {
+        success: true,
+        pendingApproval: apiRes.pendingApproval || false,
+        user: apiRes.user,
+        message: apiRes.message || 'Registration submitted successfully!'
+      };
+    }
+    return {
+      success: false,
+      message: apiRes?.message || 'Registration failed.'
     };
   }
 
   logout() {
     this.currentRole = null;
+    this.currentUser = null;
+    this.jwtToken = null;
+    api.clearToken();
     this.notify();
-  }
-
-  switchRole(roleId) {
-    return this.login(roleId);
   }
 
   subscribe(callback) {

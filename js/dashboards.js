@@ -649,22 +649,31 @@ export function renderDermatologistDashboard() {
   `;
 }
 
-export function renderAdminDashboard() {
+export function renderAdminDashboard(liveUsers = null) {
   const data = MOCK_ADMIN_DATA;
+  const users = liveUsers || [
+    { id: 1, username: 'user', email: 'user@panacea.ai', role: 'user', created_at: new Date().toISOString() },
+    { id: 2, username: 'consultant', email: 'consultant@panacea.ai', role: 'consultant', created_at: new Date().toISOString() },
+    { id: 3, username: 'doctor', email: 'doctor@panacea.ai', role: 'dermatologist', created_at: new Date().toISOString() },
+    { id: 4, username: 'admin', email: 'admin@panacea.ai', role: 'admin', created_at: new Date().toISOString() }
+  ];
+
+  const totalUserCount = users.length;
+
   return `
     <div class="dashboard-wrapper">
       <div class="dashboard-header">
         <div>
-          <h2>System Control Center & Architecture Dashboard</h2>
-          <p class="text-muted">Real-time monitoring of all 12 microservices, platform analytics, and audit traces</p>
+          <h2>System Control Center & User Management Dashboard</h2>
+          <p class="text-muted">Manage active users, user roles, microservices telemetry, and platform security</p>
         </div>
         <span class="badge badge-admin">Superadmin Access</span>
       </div>
 
       <div class="metrics-row">
         <div class="metric-card">
-          <div class="metric-value">${data.metrics.totalUsers}</div>
-          <div class="metric-label">Total Platform Users</div>
+          <div class="metric-value">${totalUserCount}</div>
+          <div class="metric-label">Active Platform Users</div>
         </div>
         <div class="metric-card">
           <div class="metric-value">${data.metrics.assessmentsCompleted}</div>
@@ -680,6 +689,117 @@ export function renderAdminDashboard() {
         </div>
       </div>
 
+      <!-- SECTION 1: USER MANAGEMENT PANEL -->
+      <div class="glass-card section-margin">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+          <div>
+            <h3>👥 Active Users Roster & RBAC Management</h3>
+            <p class="text-muted" style="font-size: 0.85rem; margin-top: 0.2rem;">View all registered platform accounts stored in PostgreSQL database</p>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="window.app.toggleAdminAddUserForm()">
+            ➕ Add New User Account
+          </button>
+        </div>
+
+        <!-- ADD NEW USER FORM (TOGGLEABLE) -->
+        <div id="admin-add-user-card" class="hidden" style="background: rgba(255, 255, 255, 0.03); border: 1px dashed var(--gold-primary); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
+          <h4 style="color: var(--gold-primary); margin-bottom: 1rem;">➕ Register New User Account</h4>
+          <form id="admin-add-user-form" onsubmit="window.app.handleAdminAddUserSubmit(event)" novalidate>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+              <div class="form-group">
+                <label style="font-size: 0.8rem;">Username</label>
+                <input type="text" id="admin-new-username" class="form-control" placeholder="e.g. master" required>
+              </div>
+              <div class="form-group">
+                <label style="font-size: 0.8rem;">Email Address</label>
+                <input type="email" id="admin-new-email" class="form-control" placeholder="e.g. master@panacea.ai" required>
+              </div>
+              <div class="form-group">
+                <label style="font-size: 0.8rem;">Password</label>
+                <input type="password" id="admin-new-password" class="form-control" placeholder="e.g. Manish" required>
+              </div>
+              <div class="form-group">
+                <label style="font-size: 0.8rem;">User Role</label>
+                <select id="admin-new-role" class="form-control">
+                  <option value="user">User / Patient</option>
+                  <option value="consultant">Skincare Consultant</option>
+                  <option value="dermatologist">Dermatologist Doctor</option>
+                  <option value="admin">Platform Admin</option>
+                </select>
+              </div>
+            </div>
+            <div id="admin-add-user-alert" class="login-alert-box hidden" style="margin-bottom: 1rem;"></div>
+            <div style="display: flex; gap: 0.75rem;">
+              <button type="submit" class="btn btn-primary btn-sm">Create User Account</button>
+              <button type="button" class="btn btn-outline btn-sm" onclick="window.app.toggleAdminAddUserForm()">Cancel</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- ACTIVE USERS TABLE -->
+        <div style="overflow-x: auto;">
+          <table class="roster-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+            <thead>
+              <tr style="border-bottom: 1px solid var(--border-light); color: var(--gold-primary); font-size: 0.8rem; text-transform: uppercase;">
+                <th style="padding: 0.75rem;">ID</th>
+                <th style="padding: 0.75rem;">Username</th>
+                <th style="padding: 0.75rem;">Email Address</th>
+                <th style="padding: 0.75rem;">Role</th>
+                <th style="padding: 0.75rem;">Verification Status</th>
+                <th style="padding: 0.75rem;">Registration Date</th>
+                <th style="padding: 0.75rem; text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${users.map(u => {
+                let badgeClass = 'badge-primary';
+                if (u.role === 'admin') badgeClass = 'badge-admin';
+                else if (u.role === 'dermatologist') badgeClass = 'badge-danger';
+                else if (u.role === 'consultant') badgeClass = 'badge-warning';
+
+                const isPending = (u.status === 'pending_approval');
+                const statusBadge = isPending
+                  ? `<span class="badge badge-warning" style="background: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.3);">⏳ Pending Approval</span>`
+                  : `<span class="badge badge-success" style="background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3);">🟢 Active / Approved</span>`;
+
+                const regDate = u.created_at ? new Date(u.created_at).toLocaleDateString() : 'Active';
+
+                return `
+                  <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                    <td style="padding: 0.75rem; font-weight: 600; color: var(--text-muted);">#${u.id}</td>
+                    <td style="padding: 0.75rem; font-weight: 600; color: #fff;">
+                      <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <img src="${u.avatar_url || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + u.username}" style="width: 24px; height: 24px; border-radius: 50%;" alt="avatar">
+                        <span>${u.username}</span>
+                      </div>
+                    </td>
+                    <td style="padding: 0.75rem; color: #94a3b8;">${u.email}</td>
+                    <td style="padding: 0.75rem;">
+                      <span class="badge ${badgeClass}" style="text-transform: uppercase; font-size: 0.7rem;">${u.role}</span>
+                    </td>
+                    <td style="padding: 0.75rem;">
+                      ${statusBadge}
+                    </td>
+                    <td style="padding: 0.75rem; color: #94a3b8; font-size: 0.8rem;">${regDate}</td>
+                    <td style="padding: 0.75rem; text-align: right; display: flex; gap: 0.5rem; justify-content: flex-end;">
+                      ${isPending ? `
+                        <button class="btn btn-primary btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; background: #22c55e;" onclick="window.app.handleAdminApproveUser(${u.id}, '${u.username}')">
+                          ✅ Approve User
+                        </button>
+                      ` : ''}
+                      <button class="btn btn-outline btn-sm" style="color: var(--accent-rose); border-color: rgba(244, 63, 94, 0.3); padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="window.app.handleAdminDeleteUser(${u.id}, '${u.username}')">
+                        🗑️ Delete
+                      </button>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SECTION 2: MICROSERVICES MONITOR -->
       <div class="glass-card section-margin">
         <div class="card-header">
           <h3>⚡ Microservices Layer Monitor (12 Services Operational)</h3>
@@ -705,6 +825,7 @@ export function renderAdminDashboard() {
         </div>
       </div>
 
+      <!-- SECTION 3: SYSTEM AUDIT LOGS -->
       <div class="glass-card section-margin">
         <div class="card-header">
           <h3>📋 System Security Logs & Audit Trail</h3>
@@ -739,22 +860,19 @@ export function renderLoginPage() {
               Sign In to PanaceaAI
             </h2>
             <p class="text-muted" style="font-size: 0.88rem; margin-bottom: 1.5rem;">
-              Enter your dummy credentials or choose a pre-configured demo account from the dropdown.
+              Sign in with your registered credentials or continue with Google OAuth 2.0.
             </p>
           </div>
 
           <form id="login-page-form" onsubmit="window.app.handleLoginPageSubmit(event)" novalidate>
-            <!-- Demo Account Quick Select Dropdown -->
+            <!-- Select Role Dropdown -->
             <div class="form-group" style="margin-bottom: 1.25rem;">
-              <label for="login-demo-dropdown" style="font-weight: 600; color: var(--gold-primary);">
-                <span>Select Demo Account (Quick-Fill)</span>
-              </label>
-              <select id="login-demo-dropdown" class="form-control demo-select-dropdown" onchange="window.app.handleDemoDropdownChange(this.value)">
-                <option value="">-- Select a Demo Account to Fill Credentials --</option>
-                <option value="user">DermaCare User (Alex Rivera) — [user / user123]</option>
-                <option value="consultant">Skincare Consultant (Sarah Jenkins) — [consultant / consultant123]</option>
-                <option value="dermatologist">Board Dermatologist (Dr. Elena Rostova) — [doctor / doctor123]</option>
-                <option value="admin">Platform Administrator — [admin / admin123]</option>
+              <label for="page-login-role" style="font-weight: 600; color: var(--gold-primary);">Select Portal Role</label>
+              <select id="page-login-role" class="form-control">
+                <option value="user">User / Patient</option>
+                <option value="consultant">Skincare Consultant</option>
+                <option value="dermatologist">Dermatologist Doctor</option>
+                <option value="admin">Platform Administrator</option>
               </select>
             </div>
 
@@ -769,7 +887,7 @@ export function renderLoginPage() {
                   type="text" 
                   id="page-login-username" 
                   class="form-control" 
-                  placeholder="e.g. user, consultant, doctor, or admin" 
+                  placeholder="Enter your username or email" 
                   required
                 >
               </div>
@@ -786,7 +904,7 @@ export function renderLoginPage() {
                   type="password" 
                   id="page-login-password" 
                   class="form-control" 
-                  placeholder="e.g. user123, doctor123" 
+                  placeholder="Enter your password" 
                   required
                 >
                 <button 
