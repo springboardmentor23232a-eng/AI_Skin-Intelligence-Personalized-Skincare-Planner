@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { LayoutDashboard, Sparkles, History, User, Shield, Stethoscope, Award, Droplets, ShoppingBag, Target, Users, BookOpen, Settings, Crown, Moon, Sun } from "lucide-react";
+import { LayoutDashboard, Sparkles, History, User, Shield, Stethoscope, Award, Droplets, ShoppingBag, Target, Users, BookOpen, Settings, Crown, Moon, Sun, LogOut } from "lucide-react";
 
 const Sidebar = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Dark Mode State inside Sidebar
   const [theme, setTheme] = useState(() => localStorage.getItem("app_theme") || "light");
@@ -17,6 +18,11 @@ const Sidebar = () => {
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === "light" ? "dark" : "light"));
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
   };
 
   const isActive = (path) => location.pathname === path;
@@ -175,25 +181,47 @@ const Sidebar = () => {
         </div>
       </div>
 
-      {/* Bottom Light / Dark Mode Toggle Switch */}
+      {/* Bottom Controls: Theme Toggle & Logout Button */}
       <div style={{
         display: 'flex',
-        alignItems: 'center',
-        justify: 'space-between',
-        padding: '0.75rem 0.5rem',
-        borderTop: '1px solid var(--border-color)',
-        fontSize: '0.85rem',
-        fontWeight: 600
+        flexDirection: 'column',
+        gap: '0.75rem',
+        paddingTop: '0.85rem',
+        borderTop: '1px solid var(--border-color)'
       }}>
-        <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-primary)' }}>
-          {theme === "light" ? <Sun size={16} style={{ color: 'var(--warning)' }} /> : <Moon size={16} style={{ color: 'var(--primary)' }} />}
-          {theme === "light" ? "Light Mode" : "Dark Mode"}
-        </span>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          fontSize: '0.85rem',
+          fontWeight: 600
+        }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-primary)' }}>
+            {theme === "light" ? <Sun size={16} style={{ color: 'var(--warning)' }} /> : <Moon size={16} style={{ color: 'var(--primary)' }} />}
+            {theme === "light" ? "Light Mode" : "Dark Mode"}
+          </span>
 
-        <label className="ios-toggle">
-          <input type="checkbox" checked={theme === "dark"} onChange={toggleTheme} />
-          <span className="ios-slider"></span>
-        </label>
+          <label className="ios-toggle">
+            <input type="checkbox" checked={theme === "dark"} onChange={toggleTheme} />
+            <span className="ios-slider"></span>
+          </label>
+        </div>
+
+        {/* Dedicated Log Out Button */}
+        <button
+          onClick={handleLogout}
+          className="btn btn-outline btn-block"
+          style={{
+            color: 'var(--danger)',
+            borderColor: 'rgba(239, 68, 68, 0.3)',
+            padding: '0.5rem',
+            fontSize: '0.85rem',
+            background: 'rgba(239, 68, 68, 0.06)'
+          }}
+        >
+          <LogOut size={16} />
+          <span>Log Out</span>
+        </button>
       </div>
     </aside>
   );
