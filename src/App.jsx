@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -18,10 +18,11 @@ function App() {
   return (
     <AuthProvider>
       <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<Home />} />
+        {/* Default Route starts directly on Login Page */}
+        <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/home" element={<Home />} />
 
         {/* Protected App Routes - Open Access to All Dashboards for Authenticated Users */}
         <Route
