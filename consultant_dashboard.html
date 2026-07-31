@@ -3,79 +3,545 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consultant Dashboard - AI Skin Intelligence</title>
+    <title>Skincare Consultant Dashboard - AI Skin Intelligence</title>
     <link rel="stylesheet" href="src/styles.css">
+    <style>
+        body {
+            color: #2D3748;
+        }
+        
+        .enhanced-sidebar {
+            background: linear-gradient(180deg, var(--white) 0%, rgba(234, 219, 200, 0.3) 100%);
+            border-right: 1px solid rgba(45, 55, 72, 0.1);
+        }
+        
+        .enhanced-brand {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            padding: 0 15px;
+            color: #1a202c;
+            background: linear-gradient(135deg, #1a202c, #2D3748);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .enhanced-nav-item {
+            color: #2D3748;
+            font-size: 1rem;
+            text-decoration: none;
+            padding: 14px 18px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 4px;
+        }
+        
+        .enhanced-nav-item:hover, .enhanced-nav-item.active {
+            background: linear-gradient(135deg, rgba(143, 175, 157, 0.15), rgba(200, 169, 106, 0.15));
+            color: #1a202c;
+            transform: translateX(4px);
+        }
+        
+        .enhanced-nav-item.active {
+            border-left: 3px solid var(--accent);
+        }
+        
+        .consultant-section {
+            padding: 20px 15px;
+            border-top: 1px solid rgba(45, 55, 72, 0.1);
+            margin-top: auto;
+        }
+        
+        .consultant-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .consultant-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--white);
+        }
+        
+        .consultant-info {
+            flex: 1;
+        }
+        
+        .consultant-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #2D3748;
+        }
+        
+        .consultant-role {
+            font-size: 0.75rem;
+            color: #4a5568;
+        }
+        
+        .consultant-welcome {
+            background: linear-gradient(135deg, #8FAF9D, #C8A96A);
+            border-radius: 20px;
+            padding: 32px;
+            margin-bottom: 28px;
+            color: #ffffff;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .consultant-welcome::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        }
+        
+        .consultant-welcome h2 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            position: relative;
+            color: #ffffff;
+        }
+        
+        .consultant-welcome p {
+            opacity: 0.9;
+            font-size: 1rem;
+            position: relative;
+            color: #ffffff;
+        }
+        
+        .enhanced-stat-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+        
+        .enhanced-stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            opacity: 0.1;
+        }
+        
+        .enhanced-stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        }
+        
+        .stat-card.clients::before { background: var(--primary); }
+        .stat-card.assessments::before { background: var(--accent); }
+        .stat-card.routines::before { background: var(--accent2); }
+        
+        .stat-icon {
+            font-size: 1.8rem;
+            margin-bottom: 12px;
+        }
+        
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+        
+        .stat-value.clients { color: var(--primary); }
+        .stat-value.assessments { color: var(--accent); }
+        .stat-value.routines { color: var(--accent2); }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: #4a5568;
+            font-weight: 500;
+        }
+        
+        .stat-trend {
+            font-size: 0.75rem;
+            margin-top: 8px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        
+        .trend-up {
+            background: rgba(143, 175, 157, 0.15);
+            color: var(--primary);
+        }
+        
+        .trend-neutral {
+            background: rgba(200, 169, 106, 0.15);
+            color: var(--accent2);
+        }
+        
+        .enhanced-client-card {
+            background: var(--white);
+            border-radius: 18px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--accent);
+        }
+        
+        .enhanced-client-card:hover {
+            transform: translateX(4px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        }
+        
+        .enhanced-client-card.urgent {
+            border-left-color: var(--accent2);
+        }
+        
+        .client-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .client-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1a202c;
+        }
+        
+        .client-id {
+            font-size: 0.8rem;
+            color: #4a5568;
+            font-family: monospace;
+        }
+        
+        .client-concern {
+            display: inline-block;
+            background: rgba(200, 169, 106, 0.15);
+            color: var(--accent2);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .client-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .client-detail {
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+        
+        .client-detail strong {
+            color: #1a202c;
+        }
+        
+        .client-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .client-action-btn {
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+        
+        .client-action-btn:hover {
+            background: var(--accent);
+            transform: translateY(-2px);
+        }
+        
+        .client-action-btn.secondary {
+            background: rgba(143, 175, 157, 0.15);
+            color: var(--primary);
+        }
+        
+        .client-action-btn.secondary:hover {
+            background: rgba(143, 175, 157, 0.25);
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        
+        .quick-action-btn {
+            background: var(--white);
+            border: 2px solid rgba(143, 175, 157, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #2D3748;
+        }
+        
+        .quick-action-btn:hover {
+            background: linear-gradient(135deg, rgba(143, 175, 157, 0.1), rgba(200, 169, 106, 0.1));
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .quick-action-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+        
+        .quick-action-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #2D3748;
+        }
+        
+        .priority-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .priority-high {
+            background: rgba(240, 82, 82, 0.15);
+            color: #f05252;
+        }
+        
+        .priority-medium {
+            background: rgba(200, 169, 106, 0.15);
+            color: var(--accent2);
+        }
+        
+        .priority-low {
+            background: rgba(143, 175, 157, 0.15);
+            color: var(--primary);
+        }
+    </style>
 </head>
 <body>
 
     <div class="desktop-layout">
         
-        <!-- Sidebar Navigation -->
-        <div class="sidebar">
-            <div class="brand">AI Skin Intelligence</div>
-            <a href="#" class="nav-item">🏠 Dashboard</a>
-            <a href="#" class="nav-item active">👥 Clients</a>
-            <a href="#" class="nav-item">📅 Appointments</a>
-            <a href="#" class="nav-item">📊 Reports</a>
-            <a href="#" class="nav-item">👤 Profile</a>
+        <!-- Enhanced Sidebar Navigation -->
+        <div class="sidebar enhanced-sidebar">
+            <div class="enhanced-brand">✨ AI Skin Intelligence</div>
             
-            <div style="flex:1"></div>
+            <a href="#" class="enhanced-nav-item">
+                <span>🏠</span> Dashboard
+            </a>
+            <a href="#" class="enhanced-nav-item active">
+                <span>👥</span> Clients
+            </a>
+            <a href="#" class="enhanced-nav-item">
+                <span>📅</span> Appointments
+            </a>
+            <a href="#" class="enhanced-nav-item">
+                <span>📊</span> Reports
+            </a>
+            <a href="#" class="enhanced-nav-item">
+                <span>👤</span> Profile
+            </a>
             
-            <a href="login.html" class="nav-item" style="margin-top: auto; color: #e53e3e;">🚪 Logout</a>
+            <div class="consultant-section">
+                <div class="consultant-profile">
+                    <div class="consultant-avatar" id="consultantAvatar">AU</div>
+                    <div class="consultant-info">
+                        <div class="consultant-name" id="consultantName">Admin User</div>
+                        <div class="consultant-role" id="consultantRole">Skincare Consultant</div>
+                    </div>
+                </div>
+                <a href="login.html" class="enhanced-nav-item" style="color: #e53e3e;">
+                    <span>🚪</span> Logout
+                </a>
+            </div>
         </div>
 
         <!-- Main Dashboard Area -->
-        <div class="dashboard-content">
+        <div class="dashboard-content" style="color: #2D3748;">
             
-            <!-- Top Header -->
-            <div class="header">
-                <div class="header-left">
-                    <div class="avatar" style="background-color: var(--accent);"></div>
-                    <div class="welcome-text">
-                        <h2>CONSULTANT PORTAL</h2>
-                        <h3>Client Overview</h3>
-                    </div>
-                </div>
+            <!-- Skincare Consultant Welcome Banner -->
+            <div class="consultant-welcome">
+                <h2>Good Morning, Admin! 👋</h2>
+                <p>You have 5 new assessments and 12 routines awaiting your review today.</p>
             </div>
-            
-            <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 30px;">Manage your clients and review their skin assessment reports.</p>
 
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <a href="#" class="quick-action-btn">
+                    <div class="quick-action-icon">➕</div>
+                    <div class="quick-action-label">Add Client</div>
+                </a>
+                <a href="#" class="quick-action-btn">
+                    <div class="quick-action-icon">📋</div>
+                    <div class="quick-action-label">Review Queue</div>
+                </a>
+                <a href="#" class="quick-action-btn">
+                    <div class="quick-action-icon">📊</div>
+                    <div class="quick-action-label">Analytics</div>
+                </a>
+                <a href="skin_profile.html" class="quick-action-btn">
+                    <div class="quick-action-icon">🧴</div>
+                    <div class="quick-action-label">Skin Assessment</div>
+                </a>
+            </div>
+
+            <!-- Enhanced Stats -->
             <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value">24</div>
-                    <div style="color: var(--text-muted); font-weight: bold;">Active Clients</div>
+                <div class="enhanced-stat-card clients">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-value clients">24</div>
+                    <div class="stat-label">Active Clients</div>
+                    <div class="stat-trend trend-up">↑ 3 new this week</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-value">5</div>
-                    <div style="color: var(--text-muted); font-weight: bold;">New Assessments</div>
+                <div class="enhanced-stat-card assessments">
+                    <div class="stat-icon">📋</div>
+                    <div class="stat-value assessments">5</div>
+                    <div class="stat-label">New Assessments</div>
+                    <div class="stat-trend trend-up">↑ Requires attention</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-value">12</div>
-                    <div style="color: var(--text-muted); font-weight: bold;">Routines to Review</div>
+                <div class="enhanced-stat-card routines">
+                    <div class="stat-icon">⏰</div>
+                    <div class="stat-value routines">12</div>
+                    <div class="stat-label">Routines to Review</div>
+                    <div class="stat-trend trend-neutral">→ 4 pending > 24h</div>
                 </div>
             </div>
 
-            <div class="section-header" style="margin-top: 50px;">
-                <h3>Recent Client Reports</h3>
+            <div class="section-header" style="margin-top: 40px; margin-bottom: 20px;">
+                <h3 style="color: #1a202c;">📋 Recent Client Reports</h3>
             </div>
 
-            <div class="stat-card" style="text-align: left; margin-bottom: 25px;">
-                <p style="font-size: 1.2rem; margin-bottom: 10px;"><strong>Client:</strong> Jane Doe</p>
-                <p style="margin-bottom: 10px;"><strong>Primary Concern:</strong> Hyperpigmentation</p>
-                <p style="margin-bottom: 20px;"><strong>Status:</strong> <span style="color: #b45309; font-weight: bold;">Routine Adjusted - Awaiting Feedback</span></p>
-                <button type="button" style="width: auto; padding: 12px 25px; border-radius: 30px;">View Report</button>
+            <!-- Enhanced Client Card 1 -->
+            <div class="enhanced-client-card urgent">
+                <div class="client-header">
+                    <div>
+                        <div class="client-name">Jane Doe</div>
+                        <div class="client-id">ID: #CLI-2024-0892</div>
+                    </div>
+                    <span class="priority-badge priority-high">High Priority</span>
+                </div>
+                
+                <div class="client-concern">Hyperpigmentation</div>
+                
+                <div class="client-details">
+                    <div class="client-detail"><strong>Last Visit:</strong> 2 days ago</div>
+                    <div class="client-detail"><strong>Skin Type:</strong> Combination</div>
+                    <div class="client-detail"><strong>Routine Age:</strong> 5 days old</div>
+                    <div class="client-detail"><strong>Progress:</strong> +15% improvement</div>
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <span class="status-badge pending">Routine Adjusted - Awaiting Feedback</span>
+                </div>
+                
+                <div class="client-actions">
+                    <button class="client-action-btn">View Full Report</button>
+                    <button class="client-action-btn secondary">Send Reminder</button>
+                </div>
             </div>
 
-            <div class="stat-card" style="text-align: left;">
-                <p style="font-size: 1.2rem; margin-bottom: 10px;"><strong>Client:</strong> John Smith</p>
-                <p style="margin-bottom: 10px;"><strong>Primary Concern:</strong> Acne</p>
-                <p style="margin-bottom: 20px;"><strong>Status:</strong> <span style="color: #15803d; font-weight: bold;">New Assessment Received</span></p>
-                <button type="button" style="width: auto; padding: 12px 25px; border-radius: 30px;">Review Assessment</button>
+            <!-- Enhanced Client Card 2 -->
+            <div class="enhanced-client-card">
+                <div class="client-header">
+                    <div>
+                        <div class="client-name">John Smith</div>
+                        <div class="client-id">ID: #CLI-2024-0895</div>
+                    </div>
+                    <span class="priority-badge priority-medium">Medium Priority</span>
+                </div>
+                
+                <div class="client-concern">Acne Treatment</div>
+                
+                <div class="client-details">
+                    <div class="client-detail"><strong>Last Visit:</strong> Today</div>
+                    <div class="client-detail"><strong>Skin Type:</strong> Oily</div>
+                    <div class="client-detail"><strong>Routine Age:</strong> New assessment</div>
+                    <div class="client-detail"><strong>Progress:</strong> First consultation</div>
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <span class="status-badge new">New Assessment Received</span>
+                </div>
+                
+                <div class="client-actions">
+                    <button class="client-action-btn">Review Assessment</button>
+                    <button class="client-action-btn secondary">Schedule Follow-up</button>
+                </div>
             </div>
 
         </div>
     </div>
 
     <script src="src/script.js"></script>
+    <script>
+        // Display skincare consultant name dynamically
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (user && user.name) {
+                // Update welcome banner
+                const welcomeHeading = document.querySelector('.consultant-welcome h2');
+                if (welcomeHeading) {
+                    const firstName = user.name.split(' ')[0];
+                    welcomeHeading.textContent = `Good Morning, ${firstName}! 👋`;
+                }
+                
+                // Update sidebar consultant info
+                const consultantNameEl = document.getElementById('consultantName');
+                if (consultantNameEl) {
+                    consultantNameEl.textContent = user.name;
+                }
+                
+                const consultantRoleEl = document.getElementById('consultantRole');
+                if (consultantRoleEl) {
+                    consultantRoleEl.textContent = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+                }
+                
+                // Update avatar initials
+                const avatarEl = document.getElementById('consultantAvatar');
+                if (avatarEl) {
+                    const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+                    avatarEl.textContent = initials;
+                }
+            }
+        });
+    </script>
 </body>
 </html>

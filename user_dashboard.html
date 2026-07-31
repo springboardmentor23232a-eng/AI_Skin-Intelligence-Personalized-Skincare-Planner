@@ -3,104 +3,998 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Skin Intelligence - Dashboard</title>
+    <title>AI Skin Intelligence - User Dashboard</title>
     <link rel="stylesheet" href="src/styles.css">
+    <style>
+        .enhanced-sidebar {
+            background: linear-gradient(180deg, var(--white) 0%, rgba(234, 219, 200, 0.3) 100%);
+            border-right: 1px solid rgba(45, 55, 72, 0.1);
+        }
+        
+        .enhanced-brand {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            padding: 0 15px;
+            color: var(--text-main);
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .enhanced-nav-item {
+            color: var(--text-muted);
+            font-size: 1rem;
+            text-decoration: none;
+            padding: 14px 18px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 4px;
+        }
+        
+        .enhanced-nav-item:hover, .enhanced-nav-item.active {
+            background: linear-gradient(135deg, rgba(143, 175, 157, 0.15), rgba(200, 169, 106, 0.15));
+            color: var(--text-main);
+            transform: translateX(4px);
+        }
+        
+        .enhanced-nav-item.active {
+            border-left: 3px solid var(--accent);
+        }
+        
+        .user-section {
+            padding: 20px 15px;
+            border-top: 1px solid rgba(45, 55, 72, 0.1);
+            margin-top: auto;
+        }
+        
+        .user-mini-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .user-mini-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--white);
+        }
+        
+        .user-mini-info {
+            flex: 1;
+        }
+        
+        .user-mini-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+        
+        .user-mini-role {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .welcome-banner {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 20px;
+            padding: 32px;
+            margin-bottom: 28px;
+            color: var(--white);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        }
+        
+        .welcome-banner h2 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            position: relative;
+        }
+        
+        .welcome-banner p {
+            opacity: 0.9;
+            font-size: 1rem;
+            position: relative;
+        }
+        
+        .enhanced-score-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .enhanced-score-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            opacity: 0.1;
+        }
+        
+        .enhanced-score-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        }
+        
+        .score-card.health::before { background: var(--primary); }
+        .score-card.hydration::before { background: #4facfe; }
+        .score-card.acne::before { background: var(--accent2); }
+        
+        .score-icon {
+            font-size: 1.8rem;
+            margin-bottom: 12px;
+        }
+        
+        .score-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+        
+        .score-value.health { color: var(--primary); }
+        .score-value.hydration { color: #4facfe; }
+        .score-value.acne { color: var(--accent2); }
+        
+        .score-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        
+        .score-trend {
+            font-size: 0.75rem;
+            margin-top: 8px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        
+        .trend-up {
+            background: rgba(143, 175, 157, 0.15);
+            color: var(--primary);
+        }
+        
+        .trend-down {
+            background: rgba(200, 169, 106, 0.15);
+            color: var(--accent2);
+        }
+        
+        .enhanced-care-notes {
+            background: var(--white);
+            border-radius: 18px;
+            padding: 28px;
+            margin-bottom: 28px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+        }
+        
+        .care-note-card {
+            background: rgba(234, 219, 200, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-left: 4px solid var(--accent);
+        }
+        
+        .care-note-card:last-child {
+            margin-bottom: 0;
+        }
+        
+        .care-note-text {
+            font-size: 0.95rem;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        
+        .care-note-author {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+        
+        .enhanced-dashboard-panel {
+            background: var(--white);
+            border-radius: 18px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+        }
+        
+        .routine-checkbox {
+            width: 18px;
+            height: 18px;
+            margin: 0;
+            padding: 0;
+            border: 2px solid var(--primary);
+            border-radius: 4px;
+            box-shadow: none;
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .routine-checkbox:checked {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .routine-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-main);
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        
+        .routine-item:hover {
+            background: rgba(143, 175, 157, 0.1);
+        }
+        
+        .routine-item.completed {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+        
+        .product-match-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: rgba(234, 219, 200, 0.2);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: all 0.2s;
+        }
+        
+        .product-match-item:hover {
+            background: rgba(234, 219, 200, 0.4);
+            transform: translateX(4px);
+        }
+        
+        .product-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+        
+        .enhanced-progress-card {
+            background: var(--white);
+            border-radius: 18px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+        }
+        
+        .progress-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(45, 55, 72, 0.08);
+        }
+        
+        .progress-item:last-child {
+            border-bottom: none;
+        }
+        
+        .progress-label {
+            font-size: 0.9rem;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+        
+        .progress-value {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .progress-value.improvement {
+            color: var(--primary);
+        }
+        
+        .progress-value.reduction {
+            color: var(--accent2);
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        
+        .quick-action-btn {
+            background: var(--white);
+            border: 2px solid rgba(143, 175, 157, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+        
+        .quick-action-btn:hover {
+            background: linear-gradient(135deg, rgba(143, 175, 157, 0.1), rgba(200, 169, 106, 0.1));
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .quick-action-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+        
+        .quick-action-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        /* Tracking Modal Styles */
+        .tracking-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tracking-modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            font-size: 1.5rem;
+            color: var(--text-main);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .tracking-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .tracking-tab {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            color: var(--text-muted);
+            border-bottom: 3px solid transparent;
+        }
+
+        .tracking-tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .tracking-tab-content {
+            display: none;
+        }
+
+        .tracking-tab-content.active {
+            display: block;
+        }
+
+        .tracking-form-group {
+            margin-bottom: 15px;
+        }
+
+        .tracking-form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .tracking-form-group input,
+        .tracking-form-group select,
+        .tracking-form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .tracking-form-group input:focus,
+        .tracking-form-group select:focus,
+        .tracking-form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .tracking-btn {
+            background: var(--accent);
+            color: var(--white);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .tracking-btn:hover {
+            background: var(--primary);
+        }
+    </style>
 </head>
 <body>
 
     <div class="desktop-layout">
         
-        <!-- Sidebar Navigation -->
-        <div class="sidebar">
-            <div class="brand">AI Skin Intelligence</div>
-            <a href="#" class="nav-item active">🏠 Home</a>
-            <a href="#" class="nav-item">🔍 Skin Scan</a>
-            <a href="#" class="nav-item">📅 Calendar</a>
-            <a href="#" class="nav-item">📊 Analysis</a>
-            <a href="#" class="nav-item">👤 Profile</a>
+        <!-- Enhanced Sidebar Navigation -->
+        <div class="sidebar enhanced-sidebar">
+            <div class="enhanced-brand">✨ AI Skin Intelligence</div>
             
-            <div style="flex:1"></div>
+            <a href="#" class="enhanced-nav-item active">
+                <span>🏠</span> Home
+            </a>
+            <a href="skin_profile.html" class="enhanced-nav-item">
+                <span>🧴</span> Skin Profile
+            </a>
+            <a href="#" class="enhanced-nav-item">
+                <span>🔍</span> Skin Scan
+            </a>
+            <a href="#" class="enhanced-nav-item">
+                <span>📅</span> Calendar
+            </a>
+            <a href="#" class="enhanced-nav-item">
+                <span>📊</span> Analysis
+            </a>
+            <a href="#" class="enhanced-nav-item">
+                <span>👤</span> Profile
+            </a>
             
-            <a href="login.html" class="nav-item" style="margin-top: auto; color: #e53e3e;">🚪 Logout</a>
+            <div class="user-section">
+                <div class="user-mini-profile">
+                    <div class="user-mini-avatar" id="userAvatar">JD</div>
+                    <div class="user-mini-info">
+                        <div class="user-mini-name" id="userName">Jane Doe</div>
+                        <div class="user-mini-role" id="userRole">Premium User</div>
+                    </div>
+                </div>
+                <a href="login.html" class="enhanced-nav-item" style="color: #e53e3e;">
+                    <span>🚪</span> Logout
+                </a>
+            </div>
         </div>
 
         <!-- Main Dashboard Area -->
         <div class="dashboard-content">
             
-            <!-- Top Header -->
-            <div class="header">
-                <div class="header-left">
-                    <div class="avatar"></div>
-                    <div class="welcome-text">
-                        <h2>WELCOME</h2>
-                        <h3>Your Skin's Dashboard</h3>
+            <!-- Welcome Banner -->
+            <div class="welcome-banner">
+                <h2>Good Morning, Jane! ☀️</h2>
+                <p>Your skin health is improving beautifully. Keep up the great work!</p>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <a href="skin_profile.html" class="quick-action-btn">
+                    <div class="quick-action-icon">📸</div>
+                    <div class="quick-action-label">Skin Assessment</div>
+                </a>
+                <a href="#" class="quick-action-btn">
+                    <div class="quick-action-icon">💬</div>
+                    <div class="quick-action-label">Message Skincare Consultant</div>
+                </a>
+                <a href="#" class="quick-action-btn" onclick="openTrackingModal()">
+                    <div class="quick-action-icon">📊</div>
+                    <div class="quick-action-label">Daily Tracking</div>
+                </a>
+            </div>
+
+            <!-- Enhanced Score Cards -->
+            <div class="score-grid">
+                <div class="enhanced-score-card health">
+                    <div class="score-icon">🌟</div>
+                    <div class="score-value health">84.6</div>
+                    <div class="score-label">Skin Health Score</div>
+                    <div class="score-trend trend-up">↑ 2.3% this week</div>
+                </div>
+                <div class="enhanced-score-card hydration">
+                    <div class="score-icon">💧</div>
+                    <div class="score-value hydration">76</div>
+                    <div class="score-label">Hydration Score</div>
+                    <div class="score-trend trend-up">↑ 5% improvement</div>
+                </div>
+                <div class="enhanced-score-card acne">
+                    <div class="score-icon">🎯</div>
+                    <div class="score-value acne">28</div>
+                    <div class="score-label">Acne Risk Score</div>
+                    <div class="score-trend trend-down">↓ Low risk</div>
+                </div>
+            </div>
+
+            <!-- Enhanced Care Notes -->
+            <div class="enhanced-care-notes">
+                <h3>📝 Notes From Your Care Team</h3>
+                <div class="care-note-card">
+                    <p class="care-note-text">Great progress this week. Continue SPF re-application every 3 hours outdoors.</p>
+                    <span class="care-note-author">— Dr. Mani (Dermatologist), 7/27/2026</span>
+                </div>
+                <div class="care-note-card">
+                    <p class="care-note-text">Reduce exfoliation to 2 nights/week and increase evening moisturizer quantity.</p>
+                    <span class="care-note-author">— Admin User (Skincare Consultant), 7/27/2026</span>
+                </div>
+            </div>
+
+            <div class="dashboard-panels">
+                <!-- Enhanced Today's Routine -->
+                <div class="enhanced-dashboard-panel">
+                    <h3>✅ Today's Routine</h3>
+                    <label class="routine-item completed">
+                        <input type="checkbox" checked class="routine-checkbox"> Gentle cleanser (morning)
+                    </label>
+                    <label class="routine-item completed">
+                        <input type="checkbox" checked class="routine-checkbox"> Vitamin C serum (morning)
+                    </label>
+                    <label class="routine-item">
+                        <input type="checkbox" class="routine-checkbox"> Moisturizer + SPF 50 (morning)
+                    </label>
+                    <label class="routine-item">
+                        <input type="checkbox" class="routine-checkbox"> Niacinamide serum (evening)
+                    </label>
+                    <label class="routine-item">
+                        <input type="checkbox" class="routine-checkbox"> Barrier repair moisturizer (evening)
+                    </label>
+                </div>
+
+                <!-- Enhanced Product Matches -->
+                <div class="enhanced-dashboard-panel">
+                    <h3>🎯 Top Product Matches</h3>
+                    <div class="product-match-item">
+                        <span class="product-name">Vitamin C Brightening Serum</span>
+                        <span class="match-badge">92% match</span>
+                    </div>
+                    <div class="product-match-item">
+                        <span class="product-name">Ceramide Barrier Moisturizer</span>
+                        <span class="match-badge">88% match</span>
+                    </div>
+                    <div class="product-match-item">
+                        <span class="product-name">Gentle Foaming Cleanser</span>
+                        <span class="match-badge">84% match</span>
+                    </div>
+                    <div class="product-match-item">
+                        <span class="product-name">Mineral Sunscreen SPF 50</span>
+                        <span class="match-badge">81% match</span>
                     </div>
                 </div>
-                
-                <div class="header-right">
-                    <div class="search-container">
-                        <input type="text" class="search-input" placeholder="🔍 Search products or concerns...">
-                        <button class="icon-btn" style="background-color: var(--accent); color: white;">⚙</button>
-                    </div>
-                    <button class="icon-btn">🔔</button>
-                </div>
             </div>
 
-            <!-- Promotional Banner -->
-            <div class="banner">
-                <div class="banner-text">
-                    <h3>Beauty collections<br>deals of the day<br>up to 40%</h3>
-                    <p>Discover personalized picks curated just for you.</p>
+            <!-- Enhanced Progress Card -->
+            <div class="enhanced-progress-card">
+                <h3>📈 7-Day Progress Snapshot</h3>
+                <div class="progress-item">
+                    <span class="progress-label">Oiliness</span>
+                    <span class="progress-value improvement">Improved by 18%</span>
                 </div>
-                <div class="banner-img-placeholder"></div>
-            </div>
-
-            <!-- Categories and Products -->
-            <div class="section-header">
-                <h3>Best Seller</h3>
-                <a href="#">View more &gt;</a>
-            </div>
-
-            <div class="categories">
-                <div class="category-pill active">Face</div>
-                <div class="category-pill">Make up</div>
-                <div class="category-pill">Body</div>
-                <div class="category-pill">Sun</div>
-            </div>
-
-            <div class="products-grid">
-                <div class="product-card">
-                    <div class="heart-btn">♡</div>
-                    <div class="product-img"></div>
-                    <h4>Skin Natural cosmetics</h4>
-                    <p class="price">RP319.400</p>
-                    <p class="rating">★★★★★ 4.7</p>
+                <div class="progress-item">
+                    <span class="progress-label">Dry Patches</span>
+                    <span class="progress-value improvement">Reduced by 24%</span>
                 </div>
-                <div class="product-card">
-                    <div class="heart-btn">♡</div>
-                    <div class="product-img"></div>
-                    <h4>BB Skin hydrating</h4>
-                    <p class="price">RP215.000</p>
-                    <p class="rating">★★★★☆ 3.6</p>
+                <div class="progress-item">
+                    <span class="progress-label">Active Breakouts</span>
+                    <span class="progress-value improvement">Down from 6 to 3</span>
                 </div>
-                <div class="product-card">
-                    <div class="heart-btn">♡</div>
-                    <div class="product-img"></div>
-                    <h4>Vitamin C Serum</h4>
-                    <p class="price">RP185.000</p>
-                    <p class="rating">★★★★★ 4.9</p>
-                </div>
-                <div class="product-card">
-                    <div class="heart-btn">♡</div>
-                    <div class="product-img"></div>
-                    <h4>Gentle Foaming Cleanser</h4>
-                    <p class="price">RP120.000</p>
-                    <p class="rating">★★★★☆ 4.2</p>
+                <div class="progress-item">
+                    <span class="progress-label">Sleep Consistency</span>
+                    <span class="progress-value">6.9h average</span>
                 </div>
             </div>
 
         </div>
     </div>
 
+    <!-- Daily Tracking Modal -->
+    <div class="tracking-modal" id="trackingModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📊 Daily Tracking</h3>
+                <button class="close-btn" onclick="closeTrackingModal()">&times;</button>
+            </div>
+            
+            <div class="tracking-tabs">
+                <button class="tracking-tab active" onclick="switchTab('lifestyle')">Lifestyle</button>
+                <button class="tracking-tab" onclick="switchTab('sleep')">Sleep</button>
+                <button class="tracking-tab" onclick="switchTab('hydration')">Hydration</button>
+                <button class="tracking-tab" onclick="switchTab('environmental')">Environmental</button>
+            </div>
+
+            <!-- Lifestyle Tab -->
+            <div class="tracking-tab-content active" id="lifestyleTab">
+                <form id="lifestyleForm">
+                    <div class="tracking-form-group">
+                        <label>Diet Type</label>
+                        <select name="diet_type">
+                            <option value="">Select...</option>
+                            <option value="balanced">Balanced</option>
+                            <option value="vegetarian">Vegetarian</option>
+                            <option value="vegan">Vegan</option>
+                            <option value="keto">Keto</option>
+                            <option value="mediterranean">Mediterranean</option>
+                        </select>
+                    </div>
+                    <div class="tracking-form-group">
+                        <label>Water Intake (ml)</label>
+                        <input type="number" name="water_intake_daily" placeholder="e.g., 2000">
+                    </div>
+                    <div class="tracking-form-group">
+                        <label>Exercise Frequency</label>
+                        <select name="exercise_frequency">
+                            <option value="">Select...</option>
+                            <option value="sedentary">Sedentary</option>
+                            <option value="light">Light</option>
+                            <option value="moderate">Moderate</option>
+                            <option value="active">Active</option>
+                            <option value="very_active">Very Active</option>
+                        </select>
+                    </div>
+                    <div class="tracking-form-group">
+                        <label>Stress Level</label>
+                        <select name="stress_level">
+                            <option value="">Select...</option>
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <div class="tracking-form-group">
+                        <label>Smoking Status</label>
+                        <select name="smoking_status">
+                            <option value="">Select...</option>
+                            <option value="false">Non-smoker</option>
+                            <option value="true">Smoker</option>
+                        </select>
+                    </div>
+                    <div class="tracking-form-group">
+                        <label>Alcohol Consumption</label>
+                        <select name="alcohol_consumption">
+                            <option value="">Select...</option>
+                            <option value="none">None</option>
+                            <option value="occasional">Occasional</option>
+                            <option value="regular">Regular</option>
+                            <option value="heavy">Heavy</option>
+                        </select>
+                    </div>
+                    <div class="tracking-form-group">
+                        <label>Notes</label>
+                        <textarea name="notes" rows="2"></textarea>
+                    </div>
+                    <button type="submit" class="tracking-btn">Save Lifestyle Data</button>
+                </form>
+            </div>
+
+            <!-- Sleep Tab -->
+            <div class="tracking-tab-content" id="sleepTab">
+                <form id="sleepForm">
+                    <div class="tracking-form-group">
+                        <label>Sleep Date</label>
+                        <input type="date" name="sleep_date" required>
+                    </div>
+                    <div class="tracking-form-group">
+                        <label>Bedtime</label>
+                        <input type="time" name="bedtime">
+                    </div>
+                    <div class="tracking-form-group">
+                        <label>Wake Time</label>
+                        <input type="time" name="wake_time">
+                    </div>
+                    <div class="tracking-form-group">
+                        <label>Sleep Duration (hours)</label>
+                        <input type="number" name="sleep_duration" step="0.5" placeholder="e.g., 7.5">
+                    </div>
+                    <div class="tracking-form-group">
+                        <label>Sleep Quality</label>
+                        <select name="sleep_quality">
+                            <option value="">Select...</option>
+                            <option value="poor">Poor</option>
+                            <option value="fair">Fair</option>
+                            <option value="good">Good</option>
+                            <option value="excellent">Excellent</option>
+                        </select>
+                    </div>
+                    <div class="tracking-form-group">
+                        <label>Disturbances (comma-separated)</label>
+                        <input type="text" name="disturbances" placeholder="e.g., waking up frequently, trouble falling asleep">
+                    </div>
+                    <div class="tracking-form-group">
+                        <label>Notes</label>
+                        <textarea name="notes" rows="2"></textarea>
+                    </div>
+                    <button type="submit" class="tracking-btn">Save Sleep Data</button>
+                </form>
+            </div>
+
+            <!-- Hydration Tab -->
+            <div class="tracking-tab-content" id="hydrationTab">
+                <form id="hydrationForm">
+                    <div class="tracking-form-group">
+                        <label>Tracking Date</label>
+                        <input type="date" name="tracking_date" required>
+                    </div>
+                    <div class="tracking-form-group">
+                        <label>Daily Target (ml)</label>
+                        <input type="number" name="target_intake" placeholder="e.g., 2000">
+                    </div>
+                    <div class="tracking-form-group">
+                        <label>Current Intake (ml)</label>
+                        <input type="number" name="current_intake" placeholder="e.g., 1500">
+                    </div>
+                    <div class="tracking-form-group">
+                        <label>Notes</label>
+                        <textarea name="notes" rows="2"></textarea>
+                    </div>
+                    <button type="submit" class="tracking-btn">Save Hydration Data</button>
+                </form>
+            </div>
+
+            <!-- Environmental Tab -->
+            <div class="tracking-tab-content" id="environmentalTab">
+                <form id="environmentalForm">
+                    <div class="tracking-form-group">
+                        <label>Exposure Date</label>
+                        <input type="date" name="exposure_date" required>
+                    </div>
+                    <div class="tracking-form-group">
+                        <label>UV Index</label>
+                        <input type="number" name="uv_index" step="0.1" placeholder="e.g., 5.0">
+                    </div>
+                    <div class="tracking-form-group">
+                        <label>Sun Exposure Hours</label>
+                        <input type="number" name="sun_exposure_hours" step="0.5" placeholder="e.g., 2.5">
+                    </div>
+                    <div class="tracking-form-group">
+                        <label>Pollution Level</label>
+                        <select name="pollution_level">
+                            <option value="">Select...</option>
+                            <option value="low">Low</option>
+                            <option value="moderate">Moderate</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <div class="tracking-form-group">
+                        <label>Humidity Level</label>
+                        <select name="humidity_level">
+                            <option value="">Select...</option>
+                            <option value="low">Low</option>
+                            <option value="moderate">Moderate</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <div class="tracking-form-group">
+                        <label>Average Temperature (°C)</label>
+                        <input type="number" name="temperature_avg" step="0.1" placeholder="e.g., 22.5">
+                    </div>
+                    <div class="tracking-form-group">
+                        <label>Sunscreen Applied</label>
+                        <select name="sunscreen_applied">
+                            <option value="">Select...</option>
+                            <option value="true">Yes</option>
+                            <option value="false">No</option>
+                        </select>
+                    </div>
+                    <div class="tracking-form-group">
+                        <label>Sunscreen SPF</label>
+                        <input type="number" name="sunscreen_spf" placeholder="e.g., 30">
+                    </div>
+                    <div class="tracking-form-group">
+                        <label>Notes</label>
+                        <textarea name="notes" rows="2"></textarea>
+                    </div>
+                    <button type="submit" class="tracking-btn">Save Environmental Data</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="src/script.js"></script>
+    <script>
+        // Display user name dynamically
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (user && user.name) {
+                // Update welcome banner
+                const welcomeHeading = document.querySelector('.welcome-banner h2');
+                if (welcomeHeading) {
+                    const firstName = user.name.split(' ')[0];
+                    welcomeHeading.textContent = `Good Morning, ${firstName}! ☀️`;
+                }
+                
+                // Update sidebar user info
+                const userNameEl = document.getElementById('userName');
+                if (userNameEl) {
+                    userNameEl.textContent = user.name;
+                }
+                
+                const userRoleEl = document.getElementById('userRole');
+                if (userRoleEl) {
+                    userRoleEl.textContent = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+                }
+                
+                // Update avatar initials
+                const avatarEl = document.getElementById('userAvatar');
+                if (avatarEl) {
+                    const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+                    avatarEl.textContent = initials;
+                }
+            }
+
+            // Set default date for tracking forms
+            const today = new Date().toISOString().split('T')[0];
+            const sleepDateInput = document.querySelector('#sleepForm input[name="sleep_date"]');
+            const hydrationDateInput = document.querySelector('#hydrationForm input[name="tracking_date"]');
+            const envDateInput = document.querySelector('#environmentalForm input[name="exposure_date"]');
+            
+            if (sleepDateInput) sleepDateInput.value = today;
+            if (hydrationDateInput) hydrationDateInput.value = today;
+            if (envDateInput) envDateInput.value = today;
+        });
+
+        // Tracking Modal Functions
+        function openTrackingModal() {
+            document.getElementById('trackingModal').classList.add('show');
+        }
+
+        function closeTrackingModal() {
+            document.getElementById('trackingModal').classList.remove('show');
+        }
+
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tracking-tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tracking-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Form submission handlers
+        document.getElementById('lifestyleForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            await submitTrackingData('lifestyle', this);
+        });
+
+        document.getElementById('sleepForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            await submitTrackingData('sleep', this);
+        });
+
+        document.getElementById('hydrationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            await submitTrackingData('hydration', this);
+        });
+
+        document.getElementById('environmentalForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            await submitTrackingData('environmental', this);
+        });
+
+        async function submitTrackingData(type, form) {
+            const formData = new FormData(form);
+            const data = {};
+            
+            formData.forEach((value, key) => {
+                if (value) {
+                    // Convert boolean strings
+                    if (value === 'true') data[key] = true;
+                    else if (value === 'false') data[key] = false;
+                    else data[key] = value;
+                }
+            });
+
+            // Handle arrays
+            if (data.disturbances) {
+                data.disturbances = data.disturbances.split(',').map(d => d.trim());
+            }
+
+            try {
+                const token = localStorage.getItem('accessToken');
+                const res = await fetch(`http://localhost:3000/api/skin-profile/${type}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await res.json();
+
+                if (!res.ok || !result.success) {
+                    alert(result.message || 'Failed to save data');
+                    return;
+                }
+
+                alert(`${type.charAt(0).toUpperCase() + type.slice(1)} data saved successfully!`);
+                form.reset();
+                
+                // Reset date to today
+                const today = new Date().toISOString().split('T')[0];
+                const dateInput = form.querySelector('input[type="date"]');
+                if (dateInput) dateInput.value = today;
+
+            } catch (err) {
+                alert('Cannot connect to server. Please try again.');
+            }
+        }
+    </script>
 </body>
 </html>
