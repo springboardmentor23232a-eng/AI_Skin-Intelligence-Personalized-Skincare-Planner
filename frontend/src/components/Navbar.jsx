@@ -13,21 +13,29 @@ export default function Navbar() {
 
   if (!user) return null
 
-  const links = [
-    ['/dashboard', 'Dashboard'],
-    ['/profile', 'Skin Profile'],
-    ['/assessment', 'Assessment'],
-    ['/routine', 'Routine'],
-    ['/products', 'Products'],
-    ['/progress', 'Progress'],
-  ]
-  if (['consultant', 'dermatologist', 'admin'].includes(user.role)) links.push(['/clients', 'Clients'])
+  const isSelfServiceUser = user.role === 'user'
+  const isProvider = ['consultant', 'dermatologist'].includes(user.role)
+
+  const links = []
+  if (isSelfServiceUser) {
+    links.push(
+      ['/dashboard', 'Dashboard'],
+      ['/profile', 'Skin Profile'],
+      ['/assessment', 'Assessment'],
+      ['/routine', 'Routine'],
+      ['/products', 'Products'],
+      ['/progress', 'Progress'],
+    )
+  }
+  if (isProvider) links.push(['/clients', 'Clients'])
   if (user.role === 'admin') links.push(['/admin', 'Admin'])
+
+  const homeLink = user.role === 'admin' ? '/admin' : isProvider ? '/clients' : '/dashboard'
 
   return (
     <nav className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-10">
       <div className="flex items-center gap-6">
-        <span className="font-bold text-primary-600 text-lg">SkinIQ</span>
+        <Link to={homeLink} className="font-bold text-primary-600 text-lg">SkinIQ</Link>
         {links.map(([to, label]) => (
           <Link key={to} to={to} className="text-sm text-gray-600 hover:text-primary-600">
             {label}

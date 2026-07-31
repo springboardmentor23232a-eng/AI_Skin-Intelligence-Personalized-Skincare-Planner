@@ -13,6 +13,7 @@ import Progress from './pages/Progress'
 import Admin from './pages/Admin'
 import Consultant from './pages/Consultant'
 import ClientDetail from './pages/ClientDetail'
+import OAuthCallback from './pages/OAuthCallback'
 
 export default function App() {
   return (
@@ -21,12 +22,13 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/profile" element={<ProtectedRoute><SkinProfile /></ProtectedRoute>} />
-        <Route path="/assessment" element={<ProtectedRoute><Assessment /></ProtectedRoute>} />
-        <Route path="/routine" element={<ProtectedRoute><Routine /></ProtectedRoute>} />
-        <Route path="/products" element={<ProtectedRoute><Products /></ProtectedRoute>} />
-        <Route path="/progress" element={<ProtectedRoute><Progress /></ProtectedRoute>} />
+        <Route path="/oauth-callback" element={<OAuthCallback />} />
+        <Route path="/dashboard" element={<ProtectedRoute roles={['user']}><Dashboard /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute roles={['user']}><SkinProfile /></ProtectedRoute>} />
+        <Route path="/assessment" element={<ProtectedRoute roles={['user']}><Assessment /></ProtectedRoute>} />
+        <Route path="/routine" element={<ProtectedRoute roles={['user']}><Routine /></ProtectedRoute>} />
+        <Route path="/products" element={<ProtectedRoute roles={['user']}><Products /></ProtectedRoute>} />
+        <Route path="/progress" element={<ProtectedRoute roles={['user']}><Progress /></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute roles={['admin']}><Admin /></ProtectedRoute>} />
         <Route path="/clients" element={<ProtectedRoute roles={['consultant', 'dermatologist', 'admin']}><Consultant /></ProtectedRoute>} />
 <Route path="/clients/:id" element={<ProtectedRoute roles={['consultant', 'dermatologist', 'admin']}><ClientDetail /></ProtectedRoute>} />

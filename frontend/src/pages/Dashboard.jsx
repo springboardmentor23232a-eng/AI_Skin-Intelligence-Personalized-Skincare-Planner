@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import client from '../api/client'
 import { useAuth } from '../context/AuthContext'
 
@@ -23,6 +23,9 @@ export default function Dashboard() {
     await client.post('/checklist/toggle', { step_key })
     loadChecklist()
   }
+
+  if (user && user.role === 'admin') return <Navigate to="/admin" replace />
+  if (user && ['consultant', 'dermatologist'].includes(user.role)) return <Navigate to="/clients" replace />
 
   return (
     <div className="max-w-4xl mx-auto p-6">

@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
 
+from app.core.config import settings
 from app.database import Base, engine
 from app.models import user, skin_profile, assessment, routine, ingredient, product, progress, notification, recommendation, checklist  # noqa: F401
 
@@ -20,6 +22,7 @@ from app.routers import (
     clients,
     recommendations,
     checklist as checklist_router,
+    oauth as oauth_router,
 )
 
 app = FastAPI(
@@ -35,6 +38,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Required by Authlib to store OAuth state/nonce between the login redirect and callback
+app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
 
 # Create tables on startup (use Alembic migrations for production)
 Base.metadata.create_all(bind=engine)
@@ -54,6 +60,8 @@ app.include_router(admin.router)
 app.include_router(clients.router)
 app.include_router(recommendations.router)
 app.include_router(checklist_router.router)
+app.include_router(oauth_router.router)
+
 
 @app.get("/")
 def root():

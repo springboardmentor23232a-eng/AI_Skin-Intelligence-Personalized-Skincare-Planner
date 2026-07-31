@@ -39,6 +39,12 @@ export function AuthProvider({ children }) {
     setUser(res.data.user)
     return res.data.user
   }
+  const loginWithToken = async (token) => {
+    localStorage.setItem('access_token', token)
+    const res = await client.get('/users/me')
+    setUser(res.data)
+    return res.data
+  }
 
   const register = async (payload) => {
     await client.post('/auth/register', payload)
@@ -51,7 +57,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, loginWithToken, register, logout }}>
       {children}
     </AuthContext.Provider>
   )

@@ -91,4 +91,43 @@ def admin_dashboard(db: Session = Depends(get_db)):
 @router.get("/consultant", dependencies=[Depends(require_roles(UserRole.consultant, UserRole.dermatologist, UserRole.admin))])
 def consultant_dashboard(db: Session = Depends(get_db)):
     users = db.query(User).filter(User.role == UserRole.user).all()
-    return {"client_count": len(users), "clients": [{"id": u.id, "name": u.full_name, "email": u.email} for u in users]}
+
+    clients = []
+    scores_for_avg = []
+    needs_attention_count = 0
+
+    for u in users:
+        logs = (
+            db.query(ProgressLog)
+            .filter(ProgressLog.user_id == u.id)
+            .order_by(ProgressLog.log_date.desc())
+            .limit(10)
+            .all()
+        )
+        chronological_scores = [l.skin_health_score for l in reversed(logs)]
+        needs_attention = detect_declining_trend(chronological_scores)
+        latest_score = logs[0].skin_health_score if logs else None
+        last_active = logs[0].log_date if logs else None
+
+        if latest_score is not None:
+            scores_for_avg.append(latest_score)
+        if needs_attention:
+            needs_attention_count += 1
+
+        clients.append({
+            "id": str(u.id),
+            "name": u.full_name,
+            "email": u.email,
+            "last_active": last_active,
+            "latest_score": latest_score,
+            "needs_attention": needs_attention,
+        })
+
+    average_score = round(sum(scores_for_avg) / len(scores_for_avg), 2) if scores_for_avg else None
+
+    return {
+        "client_count": len(users),
+        "average_score": average_score,
+        "needs_attention_count": needs_attention_count,
+        "clients": clients,
+    }
