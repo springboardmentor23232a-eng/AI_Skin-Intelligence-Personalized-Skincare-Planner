@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skin Profile — SkinSight</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div>
+      <div class="brand"><svg class="ring-mark" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="#B4574B" stroke-width="10"/><circle cx="50" cy="50" r="28" fill="none" stroke="#2E7D6B" stroke-width="8"/></svg> SkinSight</div>
+      <nav>
+        <a href="user.html">Dashboard</a><a href="profile.html">Profile</a><a href="skin-profile.html" class="active">Skin Profile</a><a href="lifestyle.html">Lifestyle</a><a href="sleep-tracking.html">Sleep</a><a href="hydration.html">Hydration</a><a href="environment.html">Environment</a>
+        <a href="#" data-logout>Log out</a>
+      </nav>
+    </div>
+    <div class="sidebar-foot">
+      Signed in as<br><span class="mono" data-user-name>—</span>
+      <div class="role-badge">User</div>
+    </div>
+  </aside>
+  <main class="main">
+    
+<div class="topbar">
+  <div>
+    <span class="eyebrow">Baseline</span>
+    <h1>Skin profile</h1>
+  </div>
+  <div class="user-chip" data-user-chip>
+    <div class="avatar">U</div>
+    <span data-user-name class="mono" style="font-size:0.85rem;">—</span>
+  </div>
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <h3>Skin information</h3>
+    <form class="stack" id="skinProfileForm">
+      <div class="field">
+        <label for="skinType">Skin Type</label>
+        <select id="skinType" name="skinType">
+          <option>Oily</option>
+          <option selected>Combination</option>
+          <option>Dry</option>
+          <option>Normal</option>
+          <option>Sensitive</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="ageGroup">Age Group</label>
+        <select id="ageGroup" name="ageGroup">
+          <option>Under 18</option>
+          <option selected>18–24</option>
+          <option>25–34</option>
+          <option>35–44</option>
+          <option>45–54</option>
+          <option>55+</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Skin Concerns</label>
+        <div class="row" style="flex-wrap:wrap; gap:8px;">
+          <span class="tag tag-clay">Post-acne marks</span>
+          <span class="tag tag-clay">Enlarged pores</span>
+          <span class="tag tag-amber">Uneven tone</span>
+        </div>
+        <div class="hint">Tap Save and this list becomes editable once the backend is wired in.</div>
+      </div>
+      <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3>Allergies & sensitivities</h3>
+    <form class="stack">
+      <div class="field">
+        <label for="allergies">Allergies</label>
+        <textarea id="allergies" name="allergies" rows="3" placeholder="e.g. fragrance, benzoyl peroxide">Fragrance-based products</textarea>
+      </div>
+      <div class="field">
+        <label for="sensitivities">Sensitivities</label>
+        <textarea id="sensitivities" name="sensitivities" rows="3" placeholder="e.g. retinoids, harsh exfoliants, extreme heat">Reacts to strong exfoliants and prolonged sun exposure</textarea>
+      </div>
+      <div class="field">
+        <label for="routine">Current routine</label>
+        <textarea id="routine" name="routine" rows="3" placeholder="Cleanser, moisturiser, SPF...">Gentle cleanser AM/PM, niacinamide serum, SPF 50 daily</textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+  </div>
+</div>
+
+  </main>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

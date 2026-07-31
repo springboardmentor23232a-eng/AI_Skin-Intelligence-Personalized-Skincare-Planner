@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — SkinSight</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div>
+      <div class="brand"><svg class="ring-mark" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="#B4574B" stroke-width="10"/><circle cx="50" cy="50" r="28" fill="none" stroke="#2E7D6B" stroke-width="8"/></svg> SkinSight</div>
+      <nav>
+        <a href="admin.html" class="active">Dashboard</a><a href="profile.html">Profile</a>
+        <a href="#" data-logout>Log out</a>
+      </nav>
+    </div>
+    <div class="sidebar-foot">
+      Signed in as<br><span class="mono" data-user-name>—</span>
+      <div class="role-badge">Admin</div>
+    </div>
+  </aside>
+  <main class="main">
+    
+<div class="topbar">
+  <div>
+    <span class="eyebrow">Administration</span>
+    <h1>User & role management</h1>
+  </div>
+  <div class="user-chip" data-user-chip>
+    <div class="avatar">A</div>
+    <span data-user-name class="mono" style="font-size:0.85rem;">—</span>
+  </div>
+</div>
+
+<div class="grid grid-3">
+  <div class="card"><span class="card-label">Total users</span><div class="mono" style="font-size:1.8rem;">1,204</div></div>
+  <div class="card"><span class="card-label">Dermatologists</span><div class="mono" style="font-size:1.8rem;">18</div></div>
+  <div class="card"><span class="card-label">Pending approvals</span><div class="mono" style="font-size:1.8rem;">3</div></div>
+</div>
+
+<div class="card mt-32">
+  <div class="row between">
+    <h3>Recent accounts</h3>
+    <button class="btn btn-secondary" type="button">+ Invite user</button>
+  </div>
+  <table class="data-table">
+    <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Priya Sharma</td><td>priya@example.com</td><td><span class="tag tag-clay">Patient</span></td><td><span class="tag tag-teal">Active</span></td></tr>
+      <tr><td>Dr. Aravind Rao</td><td>rao.derm@example.com</td><td><span class="tag tag-amber">Dermatologist</span></td><td><span class="tag tag-teal">Active</span></td></tr>
+      <tr><td>Meera Krishnan</td><td>meera.consult@example.com</td><td><span class="tag tag-amber">Consultant</span></td><td><span class="tag tag-clay">Pending</span></td></tr>
+      <tr><td>Karthik R</td><td>karthik@example.com</td><td><span class="tag tag-clay">Patient</span></td><td><span class="tag tag-teal">Active</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+  </main>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

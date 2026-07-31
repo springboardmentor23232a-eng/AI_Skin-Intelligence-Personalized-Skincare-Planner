@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lifestyle — SkinSight</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div>
+      <div class="brand"><svg class="ring-mark" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="#B4574B" stroke-width="10"/><circle cx="50" cy="50" r="28" fill="none" stroke="#2E7D6B" stroke-width="8"/></svg> SkinSight</div>
+      <nav>
+        <a href="user.html">Dashboard</a><a href="profile.html">Profile</a><a href="skin-profile.html">Skin Profile</a><a href="lifestyle.html" class="active">Lifestyle</a><a href="sleep-tracking.html">Sleep</a><a href="hydration.html">Hydration</a><a href="environment.html">Environment</a>
+        <a href="#" data-logout>Log out</a>
+      </nav>
+    </div>
+    <div class="sidebar-foot">
+      Signed in as<br><span class="mono" data-user-name>—</span>
+      <div class="role-badge">User</div>
+    </div>
+  </aside>
+  <main class="main">
+    
+<div class="topbar">
+  <div>
+    <span class="eyebrow">Weekly signal</span>
+    <h1>Lifestyle tracking</h1>
+  </div>
+  <div class="user-chip" data-user-chip>
+    <div class="avatar">U</div>
+    <span data-user-name class="mono" style="font-size:0.85rem;">—</span>
+  </div>
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <h3>Log today</h3>
+    <form class="stack" id="lifestyleForm">
+      <div class="field">
+        <label for="diet">Diet quality</label>
+        <select id="diet" name="diet">
+          <option>Poor</option>
+          <option selected>Average</option>
+          <option>Good</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="stress">Stress level (1–10)</label>
+        <input type="range" id="stress" name="stress" min="1" max="10" value="5">
+      </div>
+      <div class="field">
+        <label for="activity">Physical activity (minutes)</label>
+        <input type="number" id="activity" name="activity" placeholder="30">
+      </div>
+      <div class="field">
+        <label for="smoking">Smoking / alcohol today</label>
+        <select id="smoking" name="smoking">
+          <option selected>None</option>
+          <option>Alcohol only</option>
+          <option>Smoking only</option>
+          <option>Both</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Save entry</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3>This week</h3>
+    <table class="data-table">
+      <thead><tr><th>Day</th><th>Diet</th><th>Stress</th><th>Activity</th></tr></thead>
+      <tbody>
+        <tr><td>Mon</td><td>Good</td><td>4</td><td>40 min</td></tr>
+        <tr><td>Tue</td><td>Average</td><td>6</td><td>0 min</td></tr>
+        <tr><td>Wed</td><td>Good</td><td>3</td><td>35 min</td></tr>
+        <tr><td>Thu</td><td>Average</td><td>7</td><td>20 min</td></tr>
+        <tr><td>Fri</td><td>Poor</td><td>8</td><td>0 min</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+  </main>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skincare Consultant — SkinSight</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div>
+      <div class="brand"><svg class="ring-mark" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="#B4574B" stroke-width="10"/><circle cx="50" cy="50" r="28" fill="none" stroke="#2E7D6B" stroke-width="8"/></svg> SkinSight</div>
+      <nav>
+        <a href="skincare-consultant.html" class="active">Dashboard</a><a href="profile.html">Profile</a>
+        <a href="#" data-logout>Log out</a>
+      </nav>
+    </div>
+    <div class="sidebar-foot">
+      Signed in as<br><span class="mono" data-user-name>—</span>
+      <div class="role-badge">Consultant</div>
+    </div>
+  </aside>
+  <main class="main">
+    
+<div class="topbar">
+  <div>
+    <span class="eyebrow">Advisory</span>
+    <h1>Client trends</h1>
+  </div>
+  <div class="user-chip" data-user-chip>
+    <div class="avatar">C</div>
+    <span data-user-name class="mono" style="font-size:0.85rem;">—</span>
+  </div>
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <h3>Your clients</h3>
+    <table class="data-table">
+      <thead><tr><th>Client</th><th>Focus</th><th>Streak</th></tr></thead>
+      <tbody>
+        <tr><td>Priya Sharma</td><td>Hydration consistency</td><td>5 days</td></tr>
+        <tr><td>Karthik R</td><td>Sleep routine</td><td>2 days</td></tr>
+        <tr><td>Sana Iyer</td><td>Sun protection habit</td><td>9 days</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card">
+    <h3>Priya Sharma — trend snapshot</h3>
+    <div class="grid grid-3 mt-32">
+      <div class="ring-widget" style="flex-direction:column; align-items:flex-start; gap:6px;">
+        <svg class="ring-svg" width="64" height="64" data-ring data-value="80" data-color="teal"></svg>
+        <span class="label">Sleep 7.2h</span>
+      </div>
+      <div class="ring-widget" style="flex-direction:column; align-items:flex-start; gap:6px;">
+        <svg class="ring-svg" width="64" height="64" data-ring data-value="60" data-color="teal"></svg>
+        <span class="label">Hydration 1.8L</span>
+      </div>
+      <div class="ring-widget" style="flex-direction:column; align-items:flex-start; gap:6px;">
+        <svg class="ring-svg" width="64" height="64" data-ring data-value="68" data-color="clay"></svg>
+        <span class="label">Exposure 68</span>
+      </div>
+    </div>
+    <div class="divider">recommendation</div>
+    <textarea rows="4" placeholder="Suggest a routine or lifestyle adjustment...">Increase evening hydration target to 3.2L given current outdoor exposure levels.</textarea>
+    <button class="btn btn-primary mt-32" type="button">Send recommendation</button>
+  </div>
+</div>
+
+  </main>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

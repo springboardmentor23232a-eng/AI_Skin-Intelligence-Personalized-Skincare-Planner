@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Signing you in — SkinSight</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div style="min-height:100vh; display:flex; align-items:center; justify-content:center;">
+  <div class="card" style="max-width:360px; text-align:center;">
+    <h3>Signing you in…</h3>
+    <p id="statusMsg">Finishing your Google sign-in.</p>
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+  (async function(){
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    const error = params.get('error');
+    const statusMsg = document.getElementById('statusMsg');
+
+    if(error || !token){
+      statusMsg.textContent = 'Google sign-in failed. Redirecting to login…';
+      setTimeout(() => window.location.href = 'login.html', 1500);
+      return;
+    }
+
+    try{
+      localStorage.setItem('skinsight_token', token);
+      const res = await apiFetch('/auth/me');
+      setSession(token, res.user);
+      window.location.href = roleHome(res.user.role);
+    }catch(err){
+      statusMsg.textContent = 'Something went wrong. Redirecting to login…';
+      setTimeout(() => window.location.href = 'login.html', 1500);
+    }
+  })();
+</script>
+</body>
+</html>

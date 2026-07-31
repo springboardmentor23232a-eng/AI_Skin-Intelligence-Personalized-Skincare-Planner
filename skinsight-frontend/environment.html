@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Environmental Tracking — SkinSight</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div>
+      <div class="brand"><svg class="ring-mark" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="#B4574B" stroke-width="10"/><circle cx="50" cy="50" r="28" fill="none" stroke="#2E7D6B" stroke-width="8"/></svg> SkinSight</div>
+      <nav>
+        <a href="user.html">Dashboard</a><a href="profile.html">Profile</a><a href="skin-profile.html">Skin Profile</a><a href="lifestyle.html">Lifestyle</a><a href="sleep-tracking.html">Sleep</a><a href="hydration.html">Hydration</a><a href="environment.html" class="active">Environment</a>
+        <a href="#" data-logout>Log out</a>
+      </nav>
+    </div>
+    <div class="sidebar-foot">
+      Signed in as<br><span class="mono" data-user-name>—</span>
+      <div class="role-badge">User</div>
+    </div>
+  </aside>
+  <main class="main">
+    
+<div class="topbar">
+  <div>
+    <span class="eyebrow">Exposure</span>
+    <h1>Environmental tracking</h1>
+  </div>
+  <div class="user-chip" data-user-chip>
+    <div class="avatar">U</div>
+    <span data-user-name class="mono" style="font-size:0.85rem;">—</span>
+  </div>
+</div>
+
+<div class="grid grid-3">
+  <div class="card">
+    <span class="card-label">UV index</span>
+    <div class="ring-widget mt-32">
+      <svg class="ring-svg" width="88" height="88" data-ring data-value="75" data-color="clay"></svg>
+      <div class="ring-stat"><div class="num mono">7.5</div><div class="label">High</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <span class="card-label">Pollution (AQI)</span>
+    <div class="ring-widget mt-32">
+      <svg class="ring-svg" width="88" height="88" data-ring data-value="58" data-color="amber"></svg>
+      <div class="ring-stat"><div class="num mono">142</div><div class="label">Moderate</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <span class="card-label">Humidity</span>
+    <div class="ring-widget mt-32">
+      <svg class="ring-svg" width="88" height="88" data-ring data-value="45" data-color="teal"></svg>
+      <div class="ring-stat"><div class="num mono">45%</div><div class="label">Low</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="card mt-32">
+  <h3>Log time outdoors</h3>
+  <form class="stack" id="envForm">
+    <div class="grid grid-2">
+      <div class="field">
+        <label for="location">Location</label>
+        <input type="text" id="location" name="location" placeholder="Coimbatore, Tamil Nadu">
+      </div>
+      <div class="field">
+        <label for="duration">Time outdoors (minutes)</label>
+        <input type="number" id="duration" name="duration" placeholder="45">
+      </div>
+      <div class="field">
+        <label for="spf">SPF applied?</label>
+        <select id="spf" name="spf">
+          <option selected>Yes</option>
+          <option>No</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="timeOfDay">Time of day</label>
+        <select id="timeOfDay" name="timeOfDay">
+          <option>Morning</option>
+          <option selected>Midday</option>
+          <option>Afternoon</option>
+          <option>Evening</option>
+        </select>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Save entry</button>
+  </form>
+</div>
+
+  </main>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

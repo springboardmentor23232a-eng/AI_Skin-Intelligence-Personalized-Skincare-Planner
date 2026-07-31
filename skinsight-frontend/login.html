@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Log in — SkinSight</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="auth-shell">
+
+  <div class="auth-visual">
+    <div class="brand"><svg width="22" height="22" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="#E7CAC4" stroke-width="10"/><circle cx="50" cy="50" r="28" fill="none" stroke="#CFE6DF" stroke-width="8"/></svg> SkinSight</div>
+    <div>
+      <h1 style="color:#fff; max-width:14ch;">Welcome back to your skin's daily record.</h1>
+      <p style="color:#C9C0BA;">Sleep, hydration, and exposure — logged, trended, and shared with your care team.</p>
+    </div>
+    <svg class="rings" width="220" height="220" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="42" fill="none" stroke="#B4574B" stroke-width="7" opacity="0.5"/>
+      <circle cx="50" cy="50" r="30" fill="none" stroke="#2E7D6B" stroke-width="7" opacity="0.6"/>
+      <circle cx="50" cy="50" r="18" fill="none" stroke="#C08A2E" stroke-width="7" opacity="0.7"/>
+    </svg>
+  </div>
+
+  <div class="auth-form-side">
+    <div class="auth-card">
+      <div class="brand">Log in</div>
+      <p>New to SkinSight? <a href="register.html">Create a profile</a></p>
+
+      <button class="btn btn-oauth btn-block" id="googleBtn" type="button">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.4 29.3 35 24 35c-6.1 0-11-4.9-11-11s4.9-11 11-11c2.8 0 5.3 1 7.3 2.7l6-6C33.7 6.5 29.1 4.5 24 4.5 12.9 4.5 4 13.4 4 24.5S12.9 44.5 24 44.5 44 35.6 44 24.5c0-1.4-.1-2.7-.4-4z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c2.8 0 5.3 1 7.3 2.7l6-6C33.7 6.5 29.1 4.5 24 4.5c-7.8 0-14.4 4.4-17.7 10.2z"/><path fill="#4CAF50" d="M24 44.5c5 0 9.6-1.9 13-5.1l-6-4.9C29 36.4 26.6 37.2 24 37.2c-5.3 0-9.7-3.3-11.3-8.1l-6.6 5.1C9.5 40 16.2 44.5 24 44.5z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4.1 5.4l6 4.9C40.9 35.5 44 30.4 44 24.5c0-1.4-.1-2.7-.4-4z"/></svg>
+        Continue with Google
+      </button>
+      <div class="divider">or with email</div>
+
+      <form id="loginForm">
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="you@example.com" required>
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="••••••••" required>
+        </div>
+        <div class="form-error"></div>
+        <button type="submit" class="btn btn-primary btn-block">Log in</button>
+        <p class="form-note"><a href="#">Forgot password?</a></p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+  attachAuthForm(document.getElementById('loginForm'), {mode: 'login'});
+  attachOAuthButton(document.getElementById('googleBtn'));
+</script>
+</body>
+</html>

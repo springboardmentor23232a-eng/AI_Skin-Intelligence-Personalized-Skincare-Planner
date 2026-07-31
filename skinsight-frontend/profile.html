@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile — SkinSight</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div>
+      <div class="brand"><svg class="ring-mark" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="#B4574B" stroke-width="10"/><circle cx="50" cy="50" r="28" fill="none" stroke="#2E7D6B" stroke-width="8"/></svg> SkinSight</div>
+      <nav>
+        <a href="user.html">Dashboard</a><a href="profile.html" class="active">Profile</a><a href="skin-profile.html">Skin Profile</a><a href="lifestyle.html">Lifestyle</a><a href="sleep-tracking.html">Sleep</a><a href="hydration.html">Hydration</a><a href="environment.html">Environment</a>
+        <a href="#" data-logout>Log out</a>
+      </nav>
+    </div>
+    <div class="sidebar-foot">
+      Signed in as<br><span class="mono" data-user-name>—</span>
+      <div class="role-badge">User</div>
+    </div>
+  </aside>
+  <main class="main">
+    
+<div class="topbar">
+  <div>
+    <span class="eyebrow">Account</span>
+    <h1>Profile</h1>
+  </div>
+  <div class="user-chip" data-user-chip>
+    <div class="avatar">U</div>
+    <span data-user-name class="mono" style="font-size:0.85rem;">—</span>
+  </div>
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <h3>Personal details</h3>
+    <form id="profileForm" class="stack">
+      <div class="field">
+        <label for="fullName">Full name</label>
+        <input type="text" id="fullName" name="fullName" placeholder="Priya Sharma">
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="you@example.com">
+      </div>
+      <div class="field">
+        <label for="phone">Phone</label>
+        <input type="tel" id="phone" name="phone" placeholder="+91 90000 00000">
+      </div>
+      <div class="field">
+        <label for="dob">Date of birth</label>
+        <input type="date" id="dob" name="dob">
+      </div>
+      <button type="submit" class="btn btn-primary">Save changes</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3>Security</h3>
+    <p>Update your password. You'll stay signed in on this device.</p>
+    <form class="stack">
+      <div class="field">
+        <label for="currentPw">Current password</label>
+        <input type="password" id="currentPw" name="currentPw">
+      </div>
+      <div class="field">
+        <label for="newPw">New password</label>
+        <input type="password" id="newPw" name="newPw" minlength="8">
+      </div>
+      <button type="submit" class="btn btn-secondary">Update password</button>
+    </form>
+    <div class="divider">linked account</div>
+    <div class="row between">
+      <span>Google</span>
+      <span class="tag tag-teal">Connected</span>
+    </div>
+  </div>
+</div>
+
+  </main>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

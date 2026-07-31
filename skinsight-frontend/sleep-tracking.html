@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sleep Tracking — SkinSight</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div>
+      <div class="brand"><svg class="ring-mark" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="#B4574B" stroke-width="10"/><circle cx="50" cy="50" r="28" fill="none" stroke="#2E7D6B" stroke-width="8"/></svg> SkinSight</div>
+      <nav>
+        <a href="user.html">Dashboard</a><a href="profile.html">Profile</a><a href="skin-profile.html">Skin Profile</a><a href="lifestyle.html">Lifestyle</a><a href="sleep-tracking.html" class="active">Sleep</a><a href="hydration.html">Hydration</a><a href="environment.html">Environment</a>
+        <a href="#" data-logout>Log out</a>
+      </nav>
+    </div>
+    <div class="sidebar-foot">
+      Signed in as<br><span class="mono" data-user-name>—</span>
+      <div class="role-badge">User</div>
+    </div>
+  </aside>
+  <main class="main">
+    
+<div class="topbar">
+  <div>
+    <span class="eyebrow">Recovery window</span>
+    <h1>Sleep tracking</h1>
+  </div>
+  <div class="user-chip" data-user-chip>
+    <div class="avatar">U</div>
+    <span data-user-name class="mono" style="font-size:0.85rem;">—</span>
+  </div>
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <h3>Log last night</h3>
+    <form class="stack" id="sleepForm">
+      <div class="field">
+        <label for="bedtime">Bedtime</label>
+        <input type="time" id="bedtime" name="bedtime" value="23:00">
+      </div>
+      <div class="field">
+        <label for="waketime">Wake time</label>
+        <input type="time" id="waketime" name="waketime" value="06:15">
+      </div>
+      <div class="field">
+        <label for="quality">Sleep quality</label>
+        <select id="quality" name="quality">
+          <option>Poor</option>
+          <option selected>Fair</option>
+          <option>Good</option>
+          <option>Excellent</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Save entry</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <span class="card-label">Last night</span>
+    <div class="ring-widget mt-32">
+      <svg class="ring-svg" width="110" height="110" data-ring data-value="80" data-color="teal"></svg>
+      <div class="ring-stat">
+        <div class="num mono">7.2<span class="unit"> hrs</span></div>
+        <div class="label">Fair quality · target 8 hrs</div>
+      </div>
+    </div>
+    <div class="divider">7-day average</div>
+    <table class="data-table">
+      <thead><tr><th>Day</th><th>Duration</th><th>Quality</th></tr></thead>
+      <tbody>
+        <tr><td>Mon</td><td>7.5 hrs</td><td>Good</td></tr>
+        <tr><td>Tue</td><td>6.8 hrs</td><td>Fair</td></tr>
+        <tr><td>Wed</td><td>7.9 hrs</td><td>Good</td></tr>
+        <tr><td>Thu</td><td>6.2 hrs</td><td>Poor</td></tr>
+        <tr><td>Fri</td><td>7.2 hrs</td><td>Fair</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+  </main>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

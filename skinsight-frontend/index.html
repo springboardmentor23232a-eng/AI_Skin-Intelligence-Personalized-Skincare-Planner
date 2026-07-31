@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkinSight — Skin & Lifestyle Health Tracker</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="nav-public">
+  <div class="brand">
+    <svg width="24" height="24" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="#B4574B" stroke-width="10"/><circle cx="50" cy="50" r="28" fill="none" stroke="#2E7D6B" stroke-width="8"/></svg>
+    SkinSight
+  </div>
+  <div class="links">
+    <a href="#features">Features</a>
+    <a href="#roles">Who it's for</a>
+    <a href="login.html" class="btn btn-ghost">Log in</a>
+    <a href="register.html" class="btn btn-primary">Get started</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div>
+    <span class="eyebrow">Skin health, tracked properly</span>
+    <h1>Your skin doesn't lie. Neither should your data.</h1>
+    <p class="lede">SkinSight connects your skin profile to the everyday factors that actually shape it — sleep, hydration, and environmental exposure — so you and your dermatologist see the same picture.</p>
+    <div class="hero-cta">
+      <a href="register.html" class="btn btn-primary">Create your profile</a>
+      <a href="login.html" class="btn btn-secondary">I already have an account</a>
+    </div>
+  </div>
+  <div class="card" style="padding:30px;">
+    <span class="card-label">Today's exposure ring</span>
+    <div class="ring-widget mt-32">
+      <svg class="ring-svg" width="120" height="120" data-ring data-value="68" data-color="clay"></svg>
+      <div class="ring-stat">
+        <div class="num mono">68<span class="unit">/100</span></div>
+        <div class="label">UV + pollution load</div>
+      </div>
+    </div>
+    <div class="grid grid-2 mt-32">
+      <div>
+        <span class="card-label">Sleep</span>
+        <div class="mono" style="font-size:1.3rem;">7.2 hrs</div>
+      </div>
+      <div>
+        <span class="card-label">Hydration</span>
+        <div class="mono" style="font-size:1.3rem;">1.8 L</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="features">
+  <div class="section-head">
+    <span class="eyebrow">What it tracks</span>
+    <h2>One profile, four daily signals</h2>
+    <p>Everything that touches your skin, logged in under a minute a day.</p>
+  </div>
+  <div class="grid grid-3">
+    <div class="card">
+      <span class="tag tag-clay">Skin Profile</span>
+      <h3 class="mt-32">Your baseline</h3>
+      <p>Skin type, concerns, allergies, and current routine — the reference point every reading is measured against.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-teal">Sleep</span>
+      <h3 class="mt-32">Recovery window</h3>
+      <p>Duration and quality logging, because barrier repair happens overnight.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-teal">Hydration</span>
+      <h3 class="mt-32">Daily intake</h3>
+      <p>Simple glass-by-glass logging against a target built from your profile.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-amber">Environment</span>
+      <h3 class="mt-32">UV, humidity, pollution</h3>
+      <p>Exposure logged against location and time outdoors, flagged when it crosses your skin's threshold.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-clay">Lifestyle</span>
+      <h3 class="mt-32">Diet, stress, activity</h3>
+      <p>The slower-moving factors that shift your skin's baseline over weeks, not days.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-teal">Care team</span>
+      <h3 class="mt-32">Shared with your dermatologist</h3>
+      <p>Read-only access for the professionals on your account — no separate spreadsheet required.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="roles">
+  <div class="section-head">
+    <span class="eyebrow">Built for three roles</span>
+    <h2>Everyone sees exactly what they need</h2>
+  </div>
+  <div class="grid grid-3">
+    <div class="card">
+      <h3>Patient / User</h3>
+      <p>Logs daily data, views trends, manages their own skin profile.</p>
+    </div>
+    <div class="card">
+      <h3>Dermatologist</h3>
+      <p>Reviews linked patients' history and adds clinical notes.</p>
+    </div>
+    <div class="card">
+      <h3>Skincare Consultant</h3>
+      <p>Advises on routine and lifestyle changes based on logged trends.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <span>© 2026 SkinSight — academic project</span>
+  <span>PostgreSQL · JWT · OAuth2 · Role-based access</span>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
