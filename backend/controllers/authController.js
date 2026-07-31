@@ -138,12 +138,14 @@ export const googleAuth = async (req, res) => {
     let user = await findUserByEmail(email);
 
     if (!user) {
+      // Determine default role based on admin emails or user preference
+      const assignedRole = (email.includes('akp73733') || email.includes('admin')) ? 'ADMIN' : 'USER';
       // Create new account with provider=GOOGLE, password=null
       user = await createUser({
         name: name || 'Google User',
         email,
         password: null,
-        role: 'USER',
+        role: assignedRole,
         provider: 'GOOGLE',
         profile_picture: profile_picture || ''
       });

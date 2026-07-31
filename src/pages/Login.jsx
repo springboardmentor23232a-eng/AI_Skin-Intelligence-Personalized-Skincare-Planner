@@ -2,10 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
-import { Sparkles, Mail, Lock, LogIn, Globe, Shield, User, Award, Key, X, Stethoscope } from "lucide-react";
+import GoogleOAuthButton from "../components/GoogleOAuthButton";
+import { Sparkles, Mail, Lock, LogIn, Shield, User, Award, Key, X, Stethoscope } from "lucide-react";
 
 const Login = () => {
-  const { login, loginWithGoogle } = useAuth();
+  const { login, loginWithToken } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -27,6 +28,33 @@ const Login = () => {
       setError("Your session has expired (24h JWT limit). Please sign in again.");
     }
 
+    // Handle Google OAuth URL Callback token if redirected from backend Passport flow
+    const oauthToken = params.get("oauth_token");
+    if (oauthToken) {
+      try {
+        const base64Url = oauthToken.split('.')[1];
+        if (base64Url) {
+          const jsonPayload = decodeURIComponent(
+            atob(base64Url.replace(/-/g, '+').replace(/_/g, '/'))
+              .split('')
+              .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+              .join('')
+          );
+          const userData = JSON.parse(jsonPayload);
+          loginWithToken(oauthToken, userData);
+          setSuccessMsg("Google OAuth authentication successful!");
+          setTimeout(() => {
+            const role = (userData.role || "USER").toUpperCase();
+            if (role === "ADMIN") navigate("/admin");
+            else if (role === "WELLNESS_COACH" || role === "SKINCARE_CONSULTANT" || role === "DERMATOLOGIST") navigate("/consultant");
+            else navigate("/user");
+          }, 800);
+        }
+      } catch (err) {
+        setError("Failed to parse Google OAuth token.");
+      }
+    }
+
     // Auto-load remembered credentials or default to requested akp73733@gmail.com account
     const savedEmail = localStorage.getItem("remembered_email");
     const savedPassword = localStorage.getItem("remembered_password");
@@ -37,7 +65,7 @@ const Login = () => {
       setEmail("akp73733@gmail.com");
       setPassword("#Prem@123");
     }
-  }, [location]);
+  }, [location, loginWithToken, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -94,19 +122,11 @@ const Login = () => {
     }
   };
 
-  const handleGoogleOAuth = async () => {
-    try {
-      const res = await loginWithGoogle({
-        name: "Akash Prajapati",
-        email: "akp73733@gmail.com",
-        profile_picture: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"
-      });
-      if (res && res.success) {
-        navigate("/admin");
-      }
-    } catch (err) {
-      setError("Google OAuth authentication failed.");
-    }
+  const handleGoogleSuccess = (user) => {
+    const role = (user?.role || "USER").toUpperCase();
+    if (role === "ADMIN") navigate("/admin");
+    else if (role === "WELLNESS_COACH" || role === "SKINCARE_CONSULTANT" || role === "DERMATOLOGIST") navigate("/consultant");
+    else navigate("/user");
   };
 
   const handleForgotPasswordSubmit = (e) => {
@@ -201,10 +221,11 @@ const Login = () => {
             <span>OR</span>
           </div>
 
-          <button onClick={handleGoogleOAuth} className="btn btn-google btn-block">
-            <Globe size={18} />
-            <span>Continue with Google OAuth2</span>
-          </button>
+          <GoogleOAuthButton
+            text="Continue with Google OAuth2"
+            onSuccess={handleGoogleSuccess}
+            onError={(msg) => setError(msg)}
+          />
 
           {/* Preset Login Credentials Table / Quick Buttons */}
           <div style={{

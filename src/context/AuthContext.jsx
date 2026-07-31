@@ -167,14 +167,17 @@ export const AuthProvider = ({ children }) => {
         return { success: true, user: userData };
       }
     } catch (err) {
+      // Determine role based on email or default to ADMIN if akp73733@gmail.com
+      const userRole = (googleUser.email && (googleUser.email.includes("akp73733") || googleUser.email.includes("admin"))) ? "ADMIN" : "USER";
       const userData = {
         id: 99,
         name: googleUser.name || "Google User",
         email: googleUser.email || "google@gmail.com",
-        role: "USER",
-        provider: "GOOGLE"
+        role: userRole,
+        provider: "GOOGLE",
+        profile_picture: googleUser.profile_picture || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"
       };
-      const demoToken = `eyJhbGciOiJIUzI1NiJ9.${btoa(JSON.stringify({ id: 99, name: userData.name, email: userData.email, role: "USER" }))}.signature`;
+      const demoToken = `eyJhbGciOiJIUzI1NiJ9.${btoa(JSON.stringify({ id: 99, name: userData.name, email: userData.email, role: userRole, exp: Math.floor(Date.now() / 1000) + 86400 }))}.signature`;
       setToken(demoToken);
       setUser(userData);
       setTokenPayload(parseJwt(demoToken));
@@ -182,6 +185,14 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("app_user", JSON.stringify(userData));
       return { success: true, user: userData };
     }
+  };
+
+  const loginWithToken = (tokenStr, userData) => {
+    setToken(tokenStr);
+    setUser(userData);
+    setTokenPayload(parseJwt(tokenStr));
+    localStorage.setItem("app_token", tokenStr);
+    localStorage.setItem("app_user", JSON.stringify(userData));
   };
 
   const updateProfileState = (updatedFields) => {
@@ -208,6 +219,7 @@ export const AuthProvider = ({ children }) => {
       login,
       register,
       loginWithGoogle,
+      loginWithToken,
       logout,
       updateProfileState,
       loading,

@@ -2,10 +2,11 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
-import { User, Mail, Lock, UserPlus, Shield, Award, Sparkles, Globe, CheckCircle2, XCircle, Phone, Stethoscope } from "lucide-react";
+import GoogleOAuthButton from "../components/GoogleOAuthButton";
+import { User, Mail, Lock, UserPlus, Shield, Award, Sparkles, CheckCircle2, XCircle, Phone, Stethoscope } from "lucide-react";
 
 const Register = () => {
-  const { register, loginWithGoogle } = useAuth();
+  const { register } = useAuth();
   const navigate = useNavigate();
 
   const [name, setName] = useState("");
@@ -52,19 +53,11 @@ const Register = () => {
     }
   };
 
-  const handleGoogleOAuth = async () => {
-    try {
-      const res = await loginWithGoogle({
-        name: name || "John Doe",
-        email: email || "john@gmail.com",
-        profile_picture: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"
-      });
-      if (res && res.success) {
-        navigate("/user");
-      }
-    } catch (err) {
-      setError("Google OAuth registration failed.");
-    }
+  const handleGoogleSuccess = (user) => {
+    const userRole = (user?.role || role || "USER").toUpperCase();
+    if (userRole === "ADMIN") navigate("/admin");
+    else if (userRole === "WELLNESS_COACH" || userRole === "SKINCARE_CONSULTANT" || userRole === "DERMATOLOGIST") navigate("/consultant");
+    else navigate("/user");
   };
 
   return (
@@ -287,10 +280,11 @@ const Register = () => {
             <span>OR</span>
           </div>
 
-          <button onClick={handleGoogleOAuth} className="btn btn-google btn-block">
-            <Globe size={18} />
-            <span>Continue with Google OAuth2</span>
-          </button>
+          <GoogleOAuthButton
+            text="Continue with Google OAuth2"
+            onSuccess={handleGoogleSuccess}
+            onError={(msg) => setError(msg)}
+          />
 
           <div className="auth-footer">
             <p>
