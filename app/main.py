@@ -29,9 +29,9 @@ except Exception as e:
     print(f"Warning: Could not automatically create PostgreSQL tables: {e}")
 
 
-SECRET_KEY = "[ENCRYPTION_KEY]"
+SECRET_KEY = os.getenv("SECRET_KEY","fallback-insecure-key-for-development")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 FRONTEND_DIR = BASE_DIR / "Frontend"
