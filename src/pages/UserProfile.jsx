@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import JwtInspector from "../components/JwtInspector";
+import CameraModal from "../components/CameraModal";
 import { useAuth } from "../context/AuthContext";
 import { apiService } from "../services/api";
-import { User, Shield, Lock, Save, Mail, Award, Phone } from "lucide-react";
+import { User, Shield, Lock, Save, Mail, Award, Phone, Camera } from "lucide-react";
 
 const UserProfile = () => {
   const { user, updateProfileState } = useAuth();
@@ -18,6 +19,7 @@ const UserProfile = () => {
   const [profileMsg, setProfileMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -162,14 +164,33 @@ const UserProfile = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Profile Picture URL</label>
-                  <input
-                    type="text"
-                    value={avatarUrl}
-                    onChange={(e) => setAvatarUrl(e.target.value)}
-                    placeholder="https://images.unsplash.com/..."
-                  />
+                  <label>Profile Picture</label>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <input
+                      type="text"
+                      value={avatarUrl}
+                      onChange={(e) => setAvatarUrl(e.target.value)}
+                      placeholder="https://images.unsplash.com/..."
+                      style={{ flex: 1 }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setIsCameraOpen(true)}
+                      className="btn btn-outline"
+                      title="Click Photo with Camera"
+                      style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', whiteSpace: 'nowrap' }}
+                    >
+                      <Camera size={16} /> Click Photo
+                    </button>
+                  </div>
                 </div>
+
+                <CameraModal
+                  isOpen={isCameraOpen}
+                  onClose={() => setIsCameraOpen(false)}
+                  onCapture={(photoDataUrl) => setAvatarUrl(photoDataUrl)}
+                  title="Capture Profile Photo"
+                />
 
                 <div className="form-group">
                   <label>Skin Type &amp; Goals Bio</label>

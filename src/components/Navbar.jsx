@@ -71,8 +71,8 @@ const Navbar = () => {
                 <span>Admin Command</span>
               </Link>
 
-              <div className="user-profile-menu" style={{ flexShrink: 0, whiteSpace: 'nowrap' }}>
-                <Link to="/profile" className="profile-chip" title="View Profile" style={{ whiteSpace: 'nowrap' }}>
+              <div className="user-profile-menu" style={{ flexShrink: 0, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <Link to="/profile" className="profile-chip" title="View Profile Settings" style={{ whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '0.4rem', textDecoration: 'none' }}>
                   <User size={16} />
                   <span>{getDisplayName()}</span>
                   <span className={`role-badge role-${user?.role?.toLowerCase()}`}>
@@ -80,8 +80,28 @@ const Navbar = () => {
                   </span>
                 </Link>
 
-                <button onClick={handleLogout} className="logout-btn" title="Sign Out">
-                  <LogOut size={16} />
+                <button 
+                  onClick={handleLogout} 
+                  className="navbar-logout-btn" 
+                  title="Sign Out / Logout"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.4rem',
+                    padding: '0.35rem 0.75rem',
+                    borderRadius: '20px',
+                    background: 'rgba(239, 68, 68, 0.12)',
+                    color: '#ef4444',
+                    border: '1px solid rgba(239, 68, 68, 0.35)',
+                    fontWeight: 700,
+                    fontSize: '0.82rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  <LogOut size={15} />
+                  <span>Logout</span>
                 </button>
               </div>
             </div>

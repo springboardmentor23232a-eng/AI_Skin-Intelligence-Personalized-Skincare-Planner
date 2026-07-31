@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import JwtInspector from "../components/JwtInspector";
+import CameraModal from "../components/CameraModal";
 import { apiService } from "../services/api";
 import { Sparkles, Camera, Upload, ShieldCheck, CheckCircle2, ArrowRight, ExternalLink, Star, Heart, RefreshCw, Globe, ShoppingCart } from "lucide-react";
 
@@ -148,9 +149,9 @@ const SkillAssessment = () => {
   const [sunExposure, setSunExposure] = useState("MODERATE");
   const [waterIntake, setWaterIntake] = useState(2500);
 
-  // Image Upload / Camera Simulation States
+  // Image Upload & Real-Time Camera States
   const [selectedImage, setSelectedImage] = useState(null);
-  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [isCameraModalOpen, setIsCameraModalOpen] = useState(false);
 
   const [assessmentResult, setAssessmentResult] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -167,11 +168,11 @@ const SkillAssessment = () => {
   };
 
   const triggerCameraCapture = () => {
-    setIsCameraActive(true);
-    setTimeout(() => {
-      setSelectedImage("https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=500");
-      setIsCameraActive(false);
-    }, 1500);
+    setIsCameraModalOpen(true);
+  };
+
+  const handleCameraCapture = (capturedDataUrl) => {
+    setSelectedImage(capturedDataUrl);
   };
 
   const handleAnalyze = async (e) => {
@@ -274,13 +275,20 @@ const SkillAssessment = () => {
                         <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
                       </label>
 
-                      <button type="button" onClick={triggerCameraCapture} className="btn btn-primary" disabled={isCameraActive}>
-                        <Camera size={16} /> <span>{isCameraActive ? "Scanning..." : "Camera Capture"}</span>
+                      <button type="button" onClick={triggerCameraCapture} className="btn btn-primary">
+                        <Camera size={16} /> <span>Camera Capture</span>
                       </button>
                     </div>
                   </div>
                 )}
               </div>
+
+              <CameraModal
+                isOpen={isCameraModalOpen}
+                onClose={() => setIsCameraModalOpen(false)}
+                onCapture={handleCameraCapture}
+                title="Facial Optical Skin Scanner"
+              />
 
               <form onSubmit={handleAnalyze} className="form-container">
                 <div className="grid-2-col">

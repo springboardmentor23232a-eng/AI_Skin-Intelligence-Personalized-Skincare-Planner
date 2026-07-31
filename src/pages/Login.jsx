@@ -124,7 +124,7 @@ const Login = () => {
       <Navbar />
 
       <div className="auth-container">
-        <div className="auth-card" style={{ maxWidth: '500px' }}>
+        <div className="auth-card" style={{ maxWidth: '500px', margin: '0 auto' }}>
           <div className="auth-header">
             <div className="auth-logo-badge">
               <Sparkles size={28} />

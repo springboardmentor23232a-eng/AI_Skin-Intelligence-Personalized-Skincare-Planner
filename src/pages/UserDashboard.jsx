@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import JwtInspector from "../components/JwtInspector";
 import { useAuth } from "../context/AuthContext";
+import { getTimeBasedGreeting } from "../utils/greeting";
 import { Sparkles, Sun, Droplets, Moon, Flame, Search, Bell, Star, Heart, CheckCircle, TrendingUp, Filter, Check, X } from "lucide-react";
 
 const INITIAL_GOALS = [
@@ -180,7 +181,9 @@ const UserDashboard = () => {
           {/* Header Row */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.75rem', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
-              <h2 style={{ fontSize: '1.6rem', fontWeight: 800 }}>Good Morning, {getDisplayName()} 👋</h2>
+              <h2 style={{ fontSize: '1.6rem', fontWeight: 800 }}>
+                {getTimeBasedGreeting().greeting}, {getDisplayName()} {getTimeBasedGreeting().emoji}
+              </h2>
               <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Here's your personalized skincare overview</p>
             </div>
 

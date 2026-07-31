@@ -72,7 +72,7 @@ const Register = () => {
       <Navbar />
 
       <div className="auth-container">
-        <div className="auth-card" style={{ maxWidth: '560px' }}>
+        <div className="auth-card" style={{ maxWidth: '560px', margin: '0 auto' }}>
           <div className="auth-header">
             <div className="auth-logo-badge">
               <Sparkles size={28} />
