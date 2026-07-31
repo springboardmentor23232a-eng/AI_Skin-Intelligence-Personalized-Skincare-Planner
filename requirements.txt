@@ -1,0 +1,9 @@
+fastapi>=0.115.5
+uvicorn>=0.32.1
+python-jose[cryptography]>=3.3.0
+passlib>=1.7.4
+email-validator>=2.2.0
+python-dotenv>=1.0.0
+sqlalchemy>=2.0.35
+psycopg2-binary>=2.9.9
+google-auth>=2.0.0

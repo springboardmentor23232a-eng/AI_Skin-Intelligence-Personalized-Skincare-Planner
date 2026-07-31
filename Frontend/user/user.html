@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Dashboard | Skincare Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="user.css?v=2" />
+  </head>
+  <body class="user-body">
+
+    <!-- Approval status overlay (shown when pending or rejected) -->
+    <div id="statusOverlay" class="status-overlay hidden">
+      <div class="status-overlay-card">
+        <div id="statusIcon" class="status-icon pending-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <h1 id="statusTitle" class="status-title">Waiting for Admin Approval</h1>
+        <p id="statusMessage" class="status-message">
+          Your account has been registered and is currently under review.
+          You will be able to access your dashboard once an admin approves your account.
+        </p>
+        <p id="statusEmail" class="status-email"></p>
+        <button id="statusLogout" class="status-logout-btn">Logout</button>
+      </div>
+    </div>
+    <header class="user-header">
+      <div class="brand">
+        <a href="user.html" class="brand-link">AI Skin Intelligence & Personalized Skincare Planner</a>
+      </div>
+      <nav class="user-nav">
+        <a href="#score">Score</a>
+        <a href="#routine">Routine</a>
+        <a href="#recommendations">Products</a>
+        <a href="#progress">Progress</a>
+        <a href="#checklist">Checklist</a>
+      </nav>
+      <a href="../index.html" class="logout-btn">Logout</a>
+    </header>
+
+    <main class="user-main">
+      <section id="score" class="panel score-panel">
+        <div>
+          <p class="section-label">Skin Health Score</p>
+          <h1 class="panel-title">85 / 100</h1>
+          <p class="panel-copy">Your current skin health is strong. Keep up the routine for hydration and glow.</p>
+        </div>
+        <div class="score-ring">
+          <span class="score-value">85%</span>
+        </div>
+      </section>
+
+      <section id="routine" class="panel routine-panel">
+        <div class="section-header">
+          <p class="section-label">Personalized Routine</p>
+          <h2 class="panel-heading">Today’s suggested steps</h2>
+        </div>
+        <ol class="routine-list">
+          <li>
+            <span class="step-number">1</span>
+            <div>
+              <h3>Cleansing</h3>
+              <p>Gently cleanse with a hydrating gel to remove impurities.</p>
+            </div>
+          </li>
+          <li>
+            <span class="step-number">2</span>
+            <div>
+              <h3>Toning</h3>
+              <p>Apply a balancing toner to restore pH and calm skin.</p>
+            </div>
+          </li>
+          <li>
+            <span class="step-number">3</span>
+            <div>
+              <h3>Serum</h3>
+              <p>Use a vitamin C serum to brighten and protect the skin barrier.</p>
+            </div>
+          </li>
+          <li>
+            <span class="step-number">4</span>
+            <div>
+              <h3>Moisturizer</h3>
+              <p>Seal in moisture with a lightweight, non-greasy cream.</p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <section id="recommendations" class="panel recommendations-panel">
+        <div class="section-header">
+          <p class="section-label">Product Recommendations</p>
+          <h2 class="panel-heading">Suggested products for you</h2>
+        </div>
+        <div class="product-grid">
+          <article class="product-card">
+            <h3>Hydration Serum</h3>
+            <p>Boost moisture and smooth fine lines with hyaluronic acid.</p>
+            <button class="product-btn">View details</button>
+          </article>
+          <article class="product-card">
+            <h3>Gentle Cleanser</h3>
+            <p>Maintain your skin barrier with a soothing daily cleanser.</p>
+            <button class="product-btn">View details</button>
+          </article>
+          <article class="product-card">
+            <h3>Broad-Spectrum SPF</h3>
+            <p>Protect against UV damage with lightweight daily sunscreen.</p>
+            <button class="product-btn">View details</button>
+          </article>
+        </div>
+      </section>
+
+      <section id="progress" class="panel progress-panel">
+        <div class="section-header">
+          <p class="section-label">Progress Tracking</p>
+          <h2 class="panel-heading">Skin goals you’re working toward</h2>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>Hydration</h3>
+            <div class="progress-bar"><span style="width: 80%"></span></div>
+            <p>80% complete</p>
+          </div>
+          <div class="progress-card">
+            <h3>Glow</h3>
+            <div class="progress-bar"><span style="width: 70%"></span></div>
+            <p>70% complete</p>
+          </div>
+          <div class="progress-card">
+            <h3>Even tone</h3>
+            <div class="progress-bar"><span style="width: 65%"></span></div>
+            <p>65% complete</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="checklist" class="panel checklist-panel">
+        <div class="section-header">
+          <p class="section-label">Daily Skincare Checklist</p>
+          <h2 class="panel-heading">Complete your daily care</h2>
+        </div>
+        <form id="checklistForm" class="checklist-form">
+          <label class="check-item">
+            <input type="checkbox" name="cleanse" /> Cleanse skin
+          </label>
+          <label class="check-item">
+            <input type="checkbox" name="tone" /> Apply toner
+          </label>
+          <label class="check-item">
+            <input type="checkbox" name="serum" /> Apply serum
+          </label>
+          <label class="check-item">
+            <input type="checkbox" name="moisturize" /> Moisturize
+          </label>
+          <label class="check-item">
+            <input type="checkbox" name="sunscreen" /> Apply SPF
+          </label>
+          <div class="check-actions">
+            <button type="button" id="clearChecklist" class="secondary-btn">Clear</button>
+            <button type="submit" class="primary-btn">Save progress</button>
+          </div>
+          <p id="checklistStatus" class="check-status">0 of 5 tasks complete</p>
+        </form>
+      </section>
+    </main>
+
+    <script src="user.js"></script>
+  </body>
+</html>
