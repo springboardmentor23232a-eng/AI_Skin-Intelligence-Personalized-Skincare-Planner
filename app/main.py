@@ -28,22 +28,6 @@ try:
 except Exception as e:
     print(f"Warning: Could not automatically create PostgreSQL tables: {e}")
 
-# Migrate existing tables: add `name` column if missing
-try:
-    with engine.connect() as conn:
-        conn.execute(
-            __import__('sqlalchemy').text(
-                "ALTER TABLE users ADD COLUMN IF NOT EXISTS name VARCHAR(255) NOT NULL DEFAULT ''"
-            )
-        )
-        conn.execute(
-            __import__('sqlalchemy').text(
-                "ALTER TABLE consultants ADD COLUMN IF NOT EXISTS name VARCHAR(255) NOT NULL DEFAULT ''"
-            )
-        )
-        conn.commit()
-except Exception as e:
-    print(f"Warning: Could not migrate name column: {e}")
 
 SECRET_KEY = "[ENCRYPTION_KEY]"
 ALGORITHM = "HS256"
