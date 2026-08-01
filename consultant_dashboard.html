@@ -29,19 +29,19 @@
             </div>
 
             <nav class="p-4 space-y-1 text-sm font-medium">
-                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-teal-700 bg-teal-50 font-bold border-r-4 border-teal-600">
+                <a href="/consultant_dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-teal-700 bg-teal-50 font-bold border-r-4 border-teal-600">
                     <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
                 </a>
-                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                <a href="/consultant_dashboard/client_profiles.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
                     <i data-lucide="users" class="w-4 h-4"></i> Client Profiles
                 </a>
-                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                <a href="/consultant_dashboard/skin_reports.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
                     <i data-lucide="file-text" class="w-4 h-4"></i> Skin Reports
                 </a>
-                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                <a href="/consultant_dashboard/progress_monitoring.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
                     <i data-lucide="loader" class="w-4 h-4"></i> Progress
                 </a>
-                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                <a href="/consultant_dashboard/recommendations.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
                     <i data-lucide="sliders" class="w-4 h-4"></i> Recommendations
                 </a>
             </nav>
@@ -66,48 +66,42 @@
     <main class="flex-1 overflow-y-auto p-8 space-y-6">
         <div class="flex justify-between items-center">
             <div>
-                <h1 class="text-2xl font-bold text-slate-900">Consultant Portal</h1>
-                <p id="welcome-msg" class="text-sm text-slate-500"></p>
+                <h1 class="text-2xl font-bold text-slate-900">Consultant Portal Overview</h1>
+                <p id="welcome-msg" class="text-sm text-slate-500">Live Database Overview</p>
             </div>
         </div>
 
-        <!-- 1. Client Profiles -->
+        <!-- 1. Client Profiles Overview -->
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
-            <span class="text-xs font-bold text-slate-400 uppercase">1. Client Profiles</span>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                <div class="p-3 bg-slate-50 rounded-xl flex justify-between items-center">
-                    <div>
-                        <p class="font-bold text-slate-800">Elena Rostova</p>
-                        <p class="text-[10px] text-slate-500">Combination Skin • Age: 26</p>
-                    </div>
-                    <span class="bg-teal-100 text-teal-800 text-[10px] font-bold px-2 py-0.5 rounded">Active Client</span>
-                </div>
-                <div class="p-3 bg-slate-50 rounded-xl flex justify-between items-center">
-                    <div>
-                        <p class="font-bold text-slate-800">Marcus Vance</p>
-                        <p class="text-[10px] text-slate-500">Oily Skin • Age: 31</p>
-                    </div>
-                    <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded">Pending Assessment</span>
-                </div>
+            <div class="flex justify-between items-center">
+                <span class="text-xs font-bold text-slate-400 uppercase">1. Client Profiles</span>
+                <a href="/consultant_dashboard/client_profiles.html" class="text-xs text-teal-600 font-bold hover:underline">View All →</a>
+            </div>
+            <div id="client-profiles-list" class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                <p class="text-slate-400 text-xs italic">Loading clients from database...</p>
             </div>
         </div>
 
         <!-- 2. Skin Assessment Reports & Progress Monitoring -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                <span class="text-xs font-bold text-slate-400 uppercase">2. Skin Assessment Reports</span>
-                <div class="p-3 border border-slate-100 rounded-xl bg-slate-50/50 space-y-1 text-xs">
-                    <p class="font-bold text-slate-800">Latest Report: Elena Rostova</p>
-                    <p class="text-slate-500">Primary Concern: Mild Hyperpigmentation</p>
-                    <p class="text-slate-500">Hydration Score: 78/100</p>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-slate-400 uppercase">2. Skin Assessment Reports</span>
+                    <a href="/consultant_dashboard/skin_reports.html" class="text-xs text-teal-600 font-bold hover:underline">Details →</a>
+                </div>
+                <div id="latest-report-box" class="p-3 border border-slate-100 rounded-xl bg-slate-50/50 space-y-1 text-xs">
+                    <p class="text-slate-400 text-xs italic">Loading latest database report...</p>
                 </div>
             </div>
 
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                <span class="text-xs font-bold text-slate-400 uppercase">3. Progress Monitoring</span>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-slate-400 uppercase">3. Progress Monitoring</span>
+                    <a href="/consultant_dashboard/progress_monitoring.html" class="text-xs text-teal-600 font-bold hover:underline">Details →</a>
+                </div>
                 <div class="p-3 border border-slate-100 rounded-xl bg-slate-50/50 space-y-2 text-xs">
                     <div class="flex justify-between font-bold text-slate-700">
-                        <span>Adherence Rate:</span>
+                        <span>Average Client Adherence Rate:</span>
                         <span class="text-teal-600">88%</span>
                     </div>
                     <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
@@ -119,11 +113,14 @@
 
         <!-- 3. Recommendation Management -->
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-            <span class="text-xs font-bold text-slate-400 uppercase">4. Recommendation Management</span>
+            <div class="flex justify-between items-center">
+                <span class="text-xs font-bold text-slate-400 uppercase">4. Recommendation Management</span>
+                <a href="/consultant_dashboard/recommendations.html" class="text-xs text-teal-600 font-bold hover:underline">Manage →</a>
+            </div>
             <div class="space-y-2 text-xs">
                 <div class="p-3 bg-slate-50 rounded-xl flex justify-between items-center">
-                    <span>Adjusted Retinol application from daily to twice weekly</span>
-                    <button class="bg-teal-600 hover:bg-teal-700 text-white font-bold px-3 py-1 rounded-lg cursor-pointer">Approve</button>
+                    <span>Curate, edit, and push routine adjustments directly to clients</span>
+                    <a href="/consultant_dashboard/recommendations.html" class="bg-teal-600 hover:bg-teal-700 text-white font-bold px-3 py-1 rounded-lg transition cursor-pointer">Open Hub</a>
                 </div>
             </div>
         </div>
@@ -132,26 +129,82 @@
     <script>
         lucide.createIcons();
 
-        // Evaluates localized token to restrict or grant access layout
-        document.addEventListener('DOMContentLoaded', checkAuthState);
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuthState();
+            loadDashboardData();
+        });
 
         function checkAuthState() {
             const token = localStorage.getItem('auth_token');
             const identity = localStorage.getItem('user_identity');
             const role = localStorage.getItem('user_role');
-            if (!token || role!='consultant') {
-                window.location.href = 'index.html';
+            if (!token || role !== 'consultant') {
+                window.location.href = '/index.html';
             } else {
-                document.getElementById('user-display-name').innerText = identity;
+                document.getElementById('user-display-name').innerText = identity || 'Consultant';
             }
         }
 
-        // Clears store data to revert back to login state
+        async function loadDashboardData() {
+            try {
+                // Fetch Clients
+                const clientRes = await fetch('/api/consultant/clients');
+                if (clientRes.ok) {
+                    const clients = await clientRes.json();
+                    renderClients(clients);
+                }
+
+                // Fetch Reports
+                const reportRes = await fetch('/api/consultant/reports');
+                if (reportRes.ok) {
+                    const reports = await reportRes.json();
+                    renderLatestReport(reports);
+                }
+            } catch (e) {
+                console.error("Error loading consultant data:", e);
+            }
+        }
+
+        function renderClients(clients) {
+            const container = document.getElementById('client-profiles-list');
+            if (!clients || clients.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-400">No client profiles found in database.</p>';
+                return;
+            }
+
+            container.innerHTML = clients.slice(0, 2).map(c => `
+                <div class="p-3 bg-slate-50 rounded-xl flex justify-between items-center">
+                    <div>
+                        <p class="font-bold text-slate-800">${c.name || c.email}</p>
+                        <p class="text-[10px] text-slate-500">${c.skin_type || 'Unspecified'} Skin • Age: ${c.age_group || 'N/A'}</p>
+                    </div>
+                    <span class="bg-${c.score ? 'teal' : 'amber'}-100 text-${c.score ? 'teal' : 'amber'}-800 text-[10px] font-bold px-2 py-0.5 rounded">
+                        ${c.score ? 'Active Client' : 'Pending Assessment'}
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        function renderLatestReport(reports) {
+            const container = document.getElementById('latest-report-box');
+            if (!reports || reports.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-400">No skin reports available in database.</p>';
+                return;
+            }
+
+            const latest = reports[0];
+            const concerns = Array.isArray(latest.concerns) ? latest.concerns.join(', ') : (latest.concerns || 'None');
+
+            container.innerHTML = `
+                <p class="font-bold text-slate-800">Latest Report: ${latest.client_name}</p>
+                <p class="text-slate-500">Primary Concerns: ${concerns}</p>
+                <p class="text-slate-500">Hydration Score: ${latest.score || 'N/A'}/100</p>
+            `;
+        }
+
         function logout() {
-            localStorage.removeItem('auth_token');
-            localStorage.removeItem('user_identity');
-            localStorage.removeItem('user_role');
-            window.location.href = 'index.html';
+            localStorage.clear();
+            window.location.href = '/index.html';
         }
     </script>
 </body>
