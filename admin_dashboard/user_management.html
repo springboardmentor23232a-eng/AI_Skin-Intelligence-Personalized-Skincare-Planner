@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between hidden md:flex shrink-0">
+        <div>
+            <div class="p-6 flex items-center gap-3 border-b border-slate-800">
+                <div class="bg-teal-500 text-slate-950 p-2.5 rounded-2xl font-bold">
+                    <i data-lucide="shield-check" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-white leading-tight">DermaAI</h1>
+                    <p class="text-[10px] font-bold text-teal-400 uppercase">Admin Portal</p>
+                </div>
+            </div>
+            <nav class="p-4 space-y-1 text-sm font-medium">
+                <a href="/admin.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/40">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Overview
+                </a>
+                <a href="/admin_dashboard/account_approvals.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/40">
+                    <i data-lucide="user-check" class="w-4 h-4"></i> Account Approvals
+                </a>
+                <a href="/admin_dashboard/user_management.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-teal-400 bg-slate-800/60 font-bold border-r-4 border-teal-500">
+                    <i data-lucide="users" class="w-4 h-4"></i> User Management
+                </a>
+                <a href="/admin_dashboard/system_reports.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/40">
+                    <i data-lucide="activity" class="w-4 h-4"></i> System Reports
+                </a>
+                <a href="/admin_dashboard/platform_settings.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/40">
+                    <i data-lucide="settings" class="w-4 h-4"></i> Platform Settings
+                </a>
+                <a href="/admin_dashboard/recommendation_monitoring.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/40">
+                    <i data-lucide="sliders" class="w-4 h-4"></i> Recommendation Monitoring
+                </a>
+            </nav>
+        </div>
+    </aside>
+
+    <main class="flex-1 overflow-y-auto p-8 space-y-6">
+        <h1 class="text-2xl font-bold text-slate-900">User Management Directory</h1>
+        <p class="text-xs text-slate-500">Search, suspend, or manage permission tiers</p>
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <input type="text" id="user-search" oninput="filterUsers()" placeholder="Search user by name or email..." class="w-full p-2.5 border rounded-xl text-xs bg-slate-50">
+
+            <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 text-slate-600 uppercase font-bold border-b">
+                    <tr>
+                        <th class="p-3">ID</th>
+                        <th class="p-3">Name</th>
+                        <th class="p-3">Email</th>
+                        <th class="p-3">Role</th>
+                        <th class="p-3">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="user-management-table" class="divide-y divide-slate-100">
+                    <tr><td colspan="5" class="p-4 text-center text-slate-400">Loading directory...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+        let allUsers = [];
+
+        async function fetchUsers() {
+            const res = await fetch('/api/admin/users');
+            allUsers = await res.json();
+            renderUsers(allUsers);
+        }
+
+        function renderUsers(list) {
+            const table = document.getElementById('user-management-table');
+            if (list.length === 0) {
+                table.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">No users found.</td></tr>`;
+                return;
+            }
+            table.innerHTML = list.map(u => `
+                <tr>
+                    <td class="p-3 font-bold">${u.id}</td>
+                    <td class="p-3 font-semibold">${u.fullname || u.email.split('@')[0]}</td>
+                    <td class="p-3">${u.email}</td>
+                    <td class="p-3 uppercase font-bold text-[10px] text-slate-500">${u.role}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.status === 'approved' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${u.status.toUpperCase()}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        function filterUsers() {
+            const q = document.getElementById('user-search').value.toLowerCase();
+            const filtered = allUsers.filter(u => u.email.toLowerCase().includes(q) || (u.fullname && u.fullname.toLowerCase().includes(q)));
+            renderUsers(filtered);
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchUsers);
+    </script>
+</body>
+</html>
