@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Insights - DermaAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex shrink-0">
+        <div>
+            <div class="p-6 flex items-center gap-3 border-b border-slate-100">
+                <div class="bg-teal-600 text-white p-2.5 rounded-2xl">
+                    <i data-lucide="sparkles" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-slate-900 leading-tight">DermaAI</h1>
+                    <p class="text-xs text-slate-400">Dermatologist Portal</p>
+                </div>
+            </div>
+
+            <nav class="p-4 space-y-1 text-sm font-medium">
+                <a href="/dermatologist_dashboard" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+                </a>
+                <a href="/dermatologist_dashboard/patient_insights.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-teal-700 bg-teal-50 font-bold border-r-4 border-teal-600">
+                    <i data-lucide="users" class="w-4 h-4"></i> Patient Insights
+                </a>
+                <a href="/dermatologist_dashboard/skin_condition_report.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="file-text" class="w-4 h-4"></i> Skin Condition Reports
+                </a>
+                <a href="/dermatologist_dashboard/progress.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="loader" class="w-4 h-4"></i> Progress
+                </a>
+                <a href="/dermatologist_dashboard/treatment_recommendations.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="sliders" class="w-4 h-4"></i> Treatment Recommendations
+                </a>
+            </nav>
+        </div>
+
+        <div class="p-4 border-t border-slate-100 bg-slate-50/50">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="min-w-0">
+                        <p id="user-display-name" class="text-xs font-bold text-slate-800 truncate">Loading...</p>
+                        <p class="text-[10px] text-slate-500 font-medium truncate">Role: Dermatologist</p>
+                    </div>
+                </div>
+                <button onclick="logout()" title="Logout" class="text-slate-400 hover:text-rose-600 p-1 rounded-lg transition cursor-pointer">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-8 space-y-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900">Patient Insights</h1>
+                <p class="text-sm text-slate-500">Deep analytical overviews, medical histories, and allergen flags.</p>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex gap-4 items-center">
+            <div class="relative flex-1">
+                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input type="text" id="patientSearch" placeholder="Search by patient name or email..." onkeyup="filterPatients()" class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-teal-500">
+            </div>
+        </div>
+
+        <!-- Patients List -->
+        <div id="patients-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <p class="text-slate-400 text-xs italic col-span-2">Loading patient insights from database...</p>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+        let allPatients = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuthState();
+            fetchPatients();
+        });
+
+        function checkAuthState() {
+            const token = localStorage.getItem('auth_token');
+            const identity = localStorage.getItem('user_identity');
+            const role = localStorage.getItem('user_role');
+            if (!token || role !== 'dermatologist') {
+                window.location.href = '/index.html';
+            } else {
+                document.getElementById('user-display-name').innerText = identity || 'Dermatologist';
+            }
+        }
+
+        async function fetchPatients() {
+            const container = document.getElementById('patients-container');
+            try {
+                const res = await fetch('/api/dermatologist/patients');
+                if (res.ok) {
+                    allPatients = await res.json();
+                    renderPatients(allPatients);
+                } else {
+                    container.innerHTML = '<p class="text-xs text-rose-500 col-span-2">Failed to load patient records.</p>';
+                }
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = '<p class="text-xs text-rose-500 col-span-2">Error connecting to server database.</p>';
+            }
+        }
+
+        function renderPatients(patients) {
+            const container = document.getElementById('patients-container');
+            if (!patients || patients.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-400 col-span-2">No patient insights found in database.</p>';
+                return;
+            }
+
+            container.innerHTML = patients.map(p => `
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-base">${p.name || 'Unnamed Patient'}</h3>
+                            <p class="text-xs text-slate-400">${p.email}</p>
+                        </div>
+                        <span class="bg-teal-50 text-teal-700 text-xs font-bold px-2.5 py-1 rounded-full border border-teal-100">
+                            ${p.skin_type || 'General Evaluation'}
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        <p><span class="font-semibold text-slate-700">Age Group:</span> ${p.age_group || 'N/A'}</p>
+                        <p><span class="font-semibold text-slate-700">Risk Assessment:</span> <span class="text-rose-600 font-bold">${p.risk_level || 'Low/Normal'}</span></p>
+                    </div>
+
+                    <div class="space-y-2 text-xs">
+                        <div class="p-2.5 bg-rose-50 border border-rose-100 rounded-xl">
+                            <p class="font-bold text-rose-800 mb-0.5">Allergen Flags & Sensitivities</p>
+                            <p class="text-rose-700">Allergies: ${p.allergies || 'None Reported'}</p>
+                            <p class="text-rose-700">Sensitivities: ${p.sensitivities || 'None Reported'}</p>
+                        </div>
+
+                        <div class="p-2.5 bg-slate-50 border border-slate-100 rounded-xl">
+                            <p class="font-bold text-slate-700 mb-0.5">Medical History / Notes</p>
+                            <p class="text-slate-600">${Array.isArray(p.concerns) ? p.concerns.join(', ') : (p.concerns || 'No medical conditions flagged.')}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterPatients() {
+            const query = document.getElementById('patientSearch').value.toLowerCase();
+            const filtered = allPatients.filter(p => 
+                (p.name && p.name.toLowerCase().includes(query)) || 
+                (p.email && p.email.toLowerCase().includes(query))
+            );
+            renderPatients(filtered);
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/index.html';
+        }
+    </script>
+</body>
+</html>
