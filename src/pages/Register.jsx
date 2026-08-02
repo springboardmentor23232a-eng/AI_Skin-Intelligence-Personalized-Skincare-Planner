@@ -4,12 +4,14 @@ import { GoogleLogin } from "@react-oauth/google";
 import Navbar from "../components/Navbar";
 import { useAuth } from "../context/AuthContext";
 
-function Login() {
+function Register() {
   const navigate = useNavigate();
-  const { login, googleLogin } = useAuth();
+  const { register, googleLogin } = useAuth();
 
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("USER");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -25,16 +27,16 @@ function Login() {
     }
   };
 
-  const handleLogin = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
     setSubmitting(true);
 
     try {
-      const user = await login(email, password);
+      const user = await register(fullName, email, password, role);
       redirectToDashboard(user.role);
     } catch (err) {
-      setError(err.message || "Invalid email or password");
+      setError(err.message || "Registration failed. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -43,7 +45,6 @@ function Login() {
   const handleGoogleSuccess = async (credentialResponse) => {
     setError("");
     setSubmitting(true);
-
     try {
       if (!credentialResponse || !credentialResponse.credential) {
         throw new Error("No credential returned from Google");
@@ -51,7 +52,7 @@ function Login() {
       const user = await googleLogin(credentialResponse.credential);
       redirectToDashboard(user.role);
     } catch (err) {
-      setError(err.message || "Google Sign-In failed");
+      setError(err.message || "Google registration failed");
     } finally {
       setSubmitting(false);
     }
@@ -66,17 +67,17 @@ function Login() {
       <Navbar />
 
       <main className="flex-1 d-flex align-items-center justify-content-center py-5">
-        <div className="container" style={{ maxWidth: "460px" }}>
+        <div className="container" style={{ maxWidth: "480px" }}>
           <div className="saas-card shadow-lg p-4 p-md-5">
             <div className="text-center mb-4">
               <div
                 className="rounded-circle mx-auto d-flex align-items-center justify-content-center text-white mb-3"
                 style={{ width: "48px", height: "48px", background: "var(--accent-gradient)" }}
               >
-                🔐
+                ✨
               </div>
-              <h2 className="fw-bold mb-1" style={{ color: "var(--text-primary)" }}>Welcome Back</h2>
-              <p className="text-secondary small">Access your AI Skin Intelligence workspace</p>
+              <h2 className="fw-bold mb-1" style={{ color: "var(--text-primary)" }}>Create Account</h2>
+              <p className="text-secondary small">Join AI Skin Intelligence Platform</p>
             </div>
 
             {error && (
@@ -85,7 +86,19 @@ function Login() {
               </div>
             )}
 
-            <form onSubmit={handleLogin}>
+            <form onSubmit={handleRegister}>
+              <div className="mb-3">
+                <label className="form-label-saas">Full Name</label>
+                <input
+                  type="text"
+                  className="form-control-saas"
+                  placeholder="Jane Doe"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required
+                />
+              </div>
+
               <div className="mb-3">
                 <label className="form-label-saas">Email Address</label>
                 <input
@@ -98,7 +111,7 @@ function Login() {
                 />
               </div>
 
-              <div className="mb-4">
+              <div className="mb-3">
                 <label className="form-label-saas">Password</label>
                 <input
                   type="password"
@@ -110,12 +123,26 @@ function Login() {
                 />
               </div>
 
+              <div className="mb-4">
+                <label className="form-label-saas">Select Account Role</label>
+                <select
+                  className="form-control-saas"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                >
+                  <option value="USER">User (Standard)</option>
+                  <option value="SKINCARE_CONSULTANT">Skincare Consultant</option>
+                  <option value="DERMATOLOGIST">Dermatologist</option>
+                  <option value="ADMIN">System Administrator</option>
+                </select>
+              </div>
+
               <button
                 type="submit"
                 className="btn btn-saas w-100 mb-3"
                 disabled={submitting}
               >
-                {submitting ? "Signing in..." : "Sign In to Dashboard"}
+                {submitting ? "Creating Account..." : "Create Free Account"}
               </button>
             </form>
 
@@ -129,14 +156,14 @@ function Login() {
                 theme="outline"
                 shape="pill"
                 size="large"
-                text="continue_with"
+                text="signup_with"
               />
             </div>
 
             <div className="text-center small text-secondary">
-              <span>Don't have an account? </span>
-              <Link to="/register" className="fw-semibold" style={{ color: "var(--accent-primary)" }}>
-                Create Account
+              <span>Already have an account? </span>
+              <Link to="/login" className="fw-semibold" style={{ color: "var(--accent-primary)" }}>
+                Sign In
               </Link>
             </div>
           </div>
@@ -146,4 +173,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default Register;
