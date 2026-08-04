@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | AI Skin Intelligence</title>
+
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+
+<div class="login-container">
+
+    <div class="login-box">
+
+        <h2>Welcome Back</h2>
+        <p>Login to continue</p>
+
+        <form id="loginForm">
+
+            <div class="input-group">
+                <label>Email</label>
+                <input type="email" id="email" placeholder="Enter your email" required>
+            </div>
+
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="Enter your password" required>
+            </div>
+
+            <div class="input-group">
+                <label>Select Role</label>
+
+                <select id="role" required>
+                    <option value="">Choose Role</option>
+                    <option value="user">User</option>
+                    <option value="consultant">Consultant</option>
+                </select>
+            </div>
+
+            <button type="submit">Login</button>
+
+        </form>
+
+        <a href="index.html" class="back-home">← Back to Home</a>
+
+    </div>
+
+</div>
+
+<script src="js/login.js"></script>
+
+</body>
+</html>

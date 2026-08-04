@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultant Dashboard</title>
+
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+
+        <h2>AI Skin</h2>
+
+        <ul>
+            <li><a href="#">🏠 Dashboard</a></li>
+            <li><a href="#">👥 Patients</a></li>
+            <li><a href="#">📄 Reports</a></li>
+            <li><a href="#">💬 Messages</a></li>
+            <li><a href="index.html">🚪 Logout</a></li>
+        </ul>
+
+    </div>
+
+    <!-- Main Content -->
+    <div class="main">
+
+        <h1>Welcome Consultant 👨‍⚕️</h1>
+
+        <div class="cards">
+
+            <div class="card">
+                <h3>Total Patients</h3>
+                <p>120</p>
+            </div>
+
+            <div class="card">
+                <h3>Pending Reviews</h3>
+                <p>18</p>
+            </div>
+
+            <div class="card">
+                <h3>Completed Reports</h3>
+                <p>102</p>
+            </div>
+
+        </div>
+
+        <div class="recommendation">
+
+            <h2>Patient List</h2>
+
+            <table class="patient-table">
+
+                <tr>
+                    <th>Name</th>
+                    <th>Skin Type</th>
+                    <th>Status</th>
+                </tr>
+
+                <tr>
+                    <td>Rahul</td>
+                    <td>Oily</td>
+                    <td>Reviewed</td>
+                </tr>
+
+                <tr>
+                    <td>Priya</td>
+                    <td>Dry</td>
+                    <td>Pending</td>
+                </tr>
+
+                <tr>
+                    <td>Madhu</td>
+                    <td>Combination</td>
+                    <td>Reviewed</td>
+                </tr>
+
+            </table>
+
+            <button id="reviewBtn">View Consultant Tips</button>
+
+            <p id="reviewTips"></p>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="js/consultant.js"></script>
+
+</body>
+</html>
