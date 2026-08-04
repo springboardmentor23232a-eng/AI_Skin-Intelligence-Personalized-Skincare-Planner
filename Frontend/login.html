@@ -26,11 +26,18 @@
           <option value="user">User</option>
           <option value="admin">Admin</option>
           <option value="dermatologist">Dermatologist</option>
-          <option value="Consultant">Consultant</option>
+          <option value="consultant">Consultant</option>
         </select>
-        <input type="text" name="username" placeholder="Username" required>
+        <input type="email" name="email" placeholder="Email" required>
         <input type="password" name="password" placeholder="Password" required>
         <button type="submit">Login</button>
+        <a href="http://localhost:5000/api/auth/google">
+<hr>
+
+<button type="button" id="googleLogin">
+    Continue with Google
+</button>
+</a>
       </form>
       <p class="register-link">Don't have an account? <a href="register.html">Register here</a></p>
     </div>

@@ -1,25 +1,32 @@
+document.addEventListener("DOMContentLoaded", function () {
+    const links = document.querySelectorAll(".sidebar-menu a");
 
-document.addEventListener("DOMContentLoaded", () => {
+    links.forEach(function (link) {
+        link.addEventListener("click", function (e) {
+            const target = this.getAttribute("href");
 
-    
-    const cards = document.querySelectorAll(".glass-card");
+            // Logout button
+            if (target === "login.html") {
+                alert("Logged out successfully.");
+                return;
+            }
 
-    
-    cards.forEach(card => {
+            // Scroll to section
+            if (target.startsWith("#")) {
+                e.preventDefault();
+                const section = document.querySelector(target);
+                if (section) {
+                    section.scrollIntoView({
+                        behavior: "smooth"
+                    });
+                }
 
-        card.addEventListener("click", () => {
-
-            
-            cards.forEach(item => item.classList.remove("active-card"));
-
-            
-            card.classList.add("active-card");
-
+                // Highlight the clicked link, clear the rest
+                links.forEach(function (l) {
+                    l.classList.remove("active");
+                });
+                this.classList.add("active");
+            }
         });
-
     });
-
-    
-    console.log("Dermatologist Dashboard Loaded Successfully.");
-
 });
