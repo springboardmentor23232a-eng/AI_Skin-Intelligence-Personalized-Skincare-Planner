@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Consultant Dashboard | Skincare Planner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="consultant.css?v=4" />
+  </head>
+  <body class="consultant-body">
+
+    <!-- Approval status overlay (shown when pending or rejected) -->
+    <div id="statusOverlay" class="status-overlay hidden">
+      <div class="status-overlay-card">
+        <div id="statusIcon" class="status-icon pending-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <h1 id="statusTitle" class="status-title">Waiting for Admin Approval</h1>
+        <p id="statusMessage" class="status-message">
+          Your consultant account has been registered and is currently under review.
+          You will be able to access your dashboard once an admin approves your account.
+        </p>
+        <p id="statusEmail" class="status-email"></p>
+        <button id="statusLogout" class="status-logout-btn">Logout</button>
+      </div>
+    </div>
+
+    <!-- Profile detail modal -->
+    <div id="profileModal" class="profile-modal hidden">
+      <div class="profile-modal-backdrop"></div>
+      <div class="profile-modal-card">
+        <button id="closeProfileModal" class="profile-modal-close">&times;</button>
+        <h2 id="modalClientName" class="profile-modal-name">Client Profile</h2>
+        <p id="modalClientEmail" class="profile-modal-email"></p>
+        <div class="profile-modal-grid" id="modalProfileGrid">
+          <!-- filled dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <header class="consultant-header">
+      <div class="brand">
+        <a href="consultant.html" class="brand-link">AI Skin Intelligence & Personalized Skincare Planner</a>
+      </div>
+      <nav class="consultant-nav">
+        <a href="#clients">Clients</a>
+        <a href="#reports">Reports</a>
+        <a href="#progress">Progress</a>
+        <a href="#recommendations">Recommendations</a>
+      </nav>
+      <a href="../index.html" class="logout-btn" id="headerLogout">Logout</a>
+    </header>
+
+    <main class="consultant-main">
+      <div class="consultant-welcome-banner">
+        <h1 id="welcomeGreeting" class="consultant-welcome-title">Welcome</h1>
+        <p class="consultant-welcome-sub">Manage your client consultations and skin care recommendations.</p>
+      </div>
+
+      <section id="clients" class="panel clients-panel">
+        <div class="panel-heading-group">
+          <p class="panel-label">Client Profiles</p>
+          <h1 class="panel-title">Your assigned clients</h1>
+        </div>
+        <div class="client-search-row">
+          <input id="clientSearch" type="search" class="client-search" placeholder="Search clients" />
+          <button type="button" class="search-btn" id="clientSearchBtn">Search</button>
+        </div>
+        <div id="assignedClientsGrid" class="client-grid">
+          <p class="empty-clients-msg">Loading clients…</p>
+        </div>
+      </section>
+
+      <section id="reports" class="panel reports-panel">
+        <div class="panel-heading-group">
+          <p class="panel-label">Skin Assessment Reports</p>
+          <h2 class="panel-title">Recent client assessments</h2>
+        </div>
+        <div id="reportList" class="report-list">
+          <p class="empty-clients-msg">Assign clients to see their reports.</p>
+        </div>
+      </section>
+
+      <section id="progress" class="panel progress-panel">
+        <div class="panel-heading-group">
+          <p class="panel-label">Progress Monitoring</p>
+          <h2 class="panel-title">Track client improvements</h2>
+        </div>
+        <div class="progress-summary">
+          <div class="progress-item">
+            <h3>Average improvement</h3>
+            <p class="progress-value">72%</p>
+          </div>
+          <div class="progress-item">
+            <h3>Weekly consultations</h3>
+            <p class="progress-value">3</p>
+          </div>
+          <div class="progress-item">
+            <h3>Follow-up tasks</h3>
+            <p class="progress-value">6</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="recommendations" class="panel recommendations-panel">
+        <div class="panel-heading-group">
+          <p class="panel-label">Recommendation Management</p>
+          <h2 class="panel-title">Assigned routines and products</h2>
+        </div>
+        <div class="recommendation-grid">
+          <article class="recommendation-card">
+            <h3>Renewal Serum</h3>
+            <p>Assign to clients with dry or aging skin.</p>
+            <button class="assign-btn">Assign</button>
+          </article>
+          <article class="recommendation-card">
+            <h3>Balance Cleanser</h3>
+            <p>Good for oil control and sensitive skin.</p>
+            <button class="assign-btn">Assign</button>
+          </article>
+          <article class="recommendation-card">
+            <h3>Barrier Cream</h3>
+            <p>Recommended after assessments of compromised skin.</p>
+            <button class="assign-btn">Assign</button>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <script src="consultant.js?v=4"></script>
+  </body>
+</html>

@@ -1,0 +1,274 @@
+:root {
+  color-scheme: dark light;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+html {
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.page-main {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1rem;
+}
+
+.page-card {
+  width: 100%;
+  max-width: 80rem;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  border-radius: 1.5rem;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+}
+
+.grid-layout {
+  display: grid;
+  gap: 10px;
+}
+
+@media (min-width: 768px) {
+  .grid-layout {
+    grid-template-columns: 1.05fr 0.95fr;
+  }
+}
+
+.hero-panel {
+  padding: 2rem;
+  color: #ffffff;
+  background: #0f172a;
+}
+
+@media (min-width: 768px) {
+  .hero-panel {
+    padding: 2.5rem;
+  }
+}
+
+.eyebrow {
+  margin-bottom: 0.75rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: #cbd5e1;
+}
+
+.hero-title {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1.1;
+  font-weight: 600;
+}
+
+.hero-copy {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #cbd5e1;
+}
+
+.form-panel {
+  padding: 2rem;
+}
+
+@media (min-width: 768px) {
+  .form-panel {
+    padding: 2.5rem;
+  }
+}
+
+.heading-group {
+  margin-bottom: 1.5rem;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.section-subtitle {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.role-selector {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.role-btn {
+  cursor: pointer;
+  border-radius: 9999px;
+  border: 1.5px solid #cbd5e1;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+  background-color: #ffffff;
+  transition: all 150ms ease;
+  outline: none;
+  text-align: center;
+}
+
+.role-btn:hover {
+  border-color: #0f172a;
+  background-color: #f8fafc;
+}
+
+.role-btn.active {
+  background-color: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+  box-shadow: 0 2px 5px rgba(15, 23, 42, 0.15);
+}
+
+.form-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.text-input {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.875rem;
+  outline: none;
+  transition: all 150ms ease;
+}
+
+.text-input:focus {
+  border-color: #0f172a;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1);
+}
+
+.submit-btn {
+  width: 100%;
+  border-radius: 0.75rem;
+  background: #0f172a;
+  color: #ffffff;
+  padding: 0.7rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 150ms ease;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+}
+
+.submit-btn:hover {
+  background: #334155;
+  box-shadow: 0 3px 6px rgba(15, 23, 42, 0.15);
+}
+
+.switch-prompt {
+  margin-top: 1.25rem;
+  font-size: 0.875rem;
+  color: #64748b;
+  text-align: center;
+}
+
+.link-btn {
+  color: #0f172a;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.link-btn:hover {
+  color: #334155;
+}
+
+.feedback-msg {
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.75rem;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.feedback-msg.error {
+  background-color: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.feedback-msg.success {
+  background-color: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.feedback-msg.hidden {
+  display: none;
+}
+
+/* ── Divider ── */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+  color: #94a3b8;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e2e8f0;
+}
+
+.action {
+  display: grid;
+  gap: 0.5rem;
+  align-items: stretch;
+  min-width: 0;
+}
+
+.action button,
+.regis button {
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background: transparent;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.action button {
+  width: 100%;
+}
+
+.action button:hover,
+.regis button:hover,
+.action button:focus-visible,
+.regis button:focus-visible {
+  background: #f8fafc;
+}
