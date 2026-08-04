@@ -192,5 +192,5 @@ export const getAllUsers = async () => {
       console.error('PostgreSQL Query Error (getAllUsers):', err.message);
     }
   }
-  return fallbackUsers.map(({ password, ...u }) => u);
+  return fallbackUsers.map(({ password: _password, ...u }) => u);
 };

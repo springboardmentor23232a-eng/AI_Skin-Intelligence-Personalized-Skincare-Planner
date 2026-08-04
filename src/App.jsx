@@ -1,5 +1,4 @@
-import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -11,6 +10,7 @@ import SkillAssessment from "./pages/SkillAssessment";
 import WellnessDashboard from "./pages/WellnessDashboard";
 import UserProfile from "./pages/UserProfile";
 import ConsultantDashboard from "./pages/ConsultantDashboard";
+import DoctorDashboard from "./pages/DoctorDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
@@ -18,17 +18,17 @@ function App() {
   return (
     <AuthProvider>
       <Routes>
-        {/* Default Route starts directly on Login Page */}
+        {/* Public Auth Routes */}
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/home" element={<Home />} />
 
-        {/* Protected App Routes - Open Access to All Dashboards for Authenticated Users */}
+        {/* Role-Based Protected Dashboard Routes */}
         <Route
           path="/user"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={['USER', 'ADMIN']}>
               <UserDashboard />
             </ProtectedRoute>
           }
@@ -36,40 +36,48 @@ function App() {
         <Route
           path="/assessment"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={['USER', 'ADMIN']}>
               <SkillAssessment />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/wellness"
-          element={
-            <ProtectedRoute>
-              <WellnessDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <UserProfile />
             </ProtectedRoute>
           }
         />
         <Route
           path="/consultant"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={['SKINCARE_CONSULTANT', 'CONSULTANT', 'ADMIN']}>
               <ConsultantDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/doctor"
+          element={
+            <ProtectedRoute allowedRoles={['DERMATOLOGIST', 'ADMIN']}>
+              <DoctorDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/wellness"
+          element={
+            <ProtectedRoute allowedRoles={['WELLNESS_COACH', 'ADMIN']}>
+              <WellnessDashboard />
             </ProtectedRoute>
           }
         />
         <Route
           path="/admin"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={['ADMIN']}>
               <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute allowedRoles={['USER', 'SKINCARE_CONSULTANT', 'CONSULTANT', 'DERMATOLOGIST', 'WELLNESS_COACH', 'ADMIN']}>
+              <UserProfile />
             </ProtectedRoute>
           }
         />

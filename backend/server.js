@@ -67,33 +67,89 @@ initDb();
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
 
+// Module 3: Forward /api/assessment requests to Python FastAPI Skin Assessment Engine (port 8000)
+import fetch from 'node-fetch'; // or built-in fetch in Node v18+
+
+app.all(['/api/assessment', '/api/assessment/*'], async (req, res) => {
+  const fastApiBase = process.env.FASTAPI_URL || 'http://localhost:8000';
+  const subPath = req.originalUrl.replace('/api/assessment', '/assessment');
+  const targetUrl = `${fastApiBase}${subPath}`;
+
+  try {
+    const headers = { ...req.headers };
+    delete headers.host;
+
+    const fetchOptions = {
+      method: req.method,
+      headers: headers
+    };
+
+    if (['POST', 'PUT', 'PATCH'].includes(req.method) && Object.keys(req.body || {}).length > 0) {
+      fetchOptions.body = JSON.stringify(req.body);
+      headers['content-type'] = 'application/json';
+    }
+
+    const fastApiResponse = await fetch(targetUrl, fetchOptions);
+    const data = await fastApiResponse.json().catch(() => ({}));
+    res.status(fastApiResponse.status).json(data);
+  } catch (err) {
+    console.warn(`[Proxy Warning] Failed to reach Python FastAPI on port 8000: ${err.message}`);
+    res.status(503).json({
+      success: false,
+      message: 'FastAPI Skin Assessment Engine service is starting or unavailable on port 8000. Please verify Python service status.',
+      error: err.message
+    });
+  }
+});
+
+
 // Role-Based Protected Routes
-// USER Permissions: User Dashboard, Profile, Skin Analysis
+// USER Permissions: User Dashboard, Profile, Skin Analysis, Routine, Appointments
 app.get('/api/user/dashboard', authenticateJWT, authorizeRoles('USER', 'ADMIN'), (req, res) => {
   res.json({
     success: true,
     message: 'Welcome to User Dashboard',
-    permissions: ['USER_DASHBOARD', 'PROFILE', 'SKIN_ANALYSIS', 'HISTORY', 'APPOINTMENT_BOOKING'],
+    permissions: ['USER_DASHBOARD', 'PROFILE', 'SKIN_ANALYSIS', 'ROUTINE', 'APPOINTMENT_BOOKING', 'CHAT', 'NOTIFICATIONS'],
     user: req.user
   });
 });
 
-// WELLNESS_COACH Permissions: Coach Dashboard, View Assigned Users, Consultation Requests
-app.get('/api/coach/dashboard', authenticateJWT, authorizeRoles('WELLNESS_COACH', 'ADMIN'), (req, res) => {
+// SKINCARE CONSULTANT Permissions: Assigned Users, Review AI Reports, Skincare Plans
+app.get('/api/consultant/dashboard', authenticateJWT, authorizeRoles('SKINCARE_CONSULTANT', 'CONSULTANT', 'ADMIN'), (req, res) => {
+  res.json({
+    success: true,
+    message: 'Welcome to Skincare Consultant Dashboard',
+    permissions: ['CONSULTANT_DASHBOARD', 'ASSIGNED_USERS', 'REVIEW_AI_REPORTS', 'CREATE_SKINCARE_PLANS', 'RECOMMEND_PRODUCTS', 'CHAT_WITH_USERS'],
+    user: req.user
+  });
+});
+
+// DERMATOLOGIST Permissions: Patient List, Appointment Schedule, Diagnosis, Prescriptions
+app.get('/api/doctor/dashboard', authenticateJWT, authorizeRoles('DERMATOLOGIST', 'ADMIN'), (req, res) => {
+  res.json({
+    success: true,
+    message: 'Welcome to Dermatologist Clinical Dashboard',
+    permissions: ['DOCTOR_DASHBOARD', 'PATIENT_LIST', 'APPOINTMENT_SCHEDULE', 'MEDICAL_HISTORY', 'DIAGNOSIS', 'PRESCRIPTIONS', 'TREATMENT_PLANS'],
+    user: req.user
+  });
+});
+
+// WELLNESS_COACH Permissions: Coach Dashboard, Assigned Clients, Diet & Lifestyle Plans
+app.get('/api/wellness/dashboard', authenticateJWT, authorizeRoles('WELLNESS_COACH', 'ADMIN'), (req, res) => {
   res.json({
     success: true,
     message: 'Welcome to Wellness Coach Dashboard',
-    permissions: ['COACH_DASHBOARD', 'VIEW_ASSIGNED_USERS', 'CONSULTATION_REQUESTS'],
+    permissions: ['COACH_DASHBOARD', 'ASSIGNED_CLIENTS', 'DIET_PLANS', 'LIFESTYLE_GUIDANCE', 'WATER_SLEEP_TRACKING', 'EXERCISE_RECOMMENDATIONS'],
     user: req.user
   });
 });
 
-// ADMIN Permissions: Admin Dashboard, Manage Users, Manage Coaches, Analytics
+// ADMIN Permissions: System Dashboard, Full System Access
 app.get('/api/admin/dashboard', authenticateJWT, authorizeRoles('ADMIN'), (req, res) => {
   res.json({
     success: true,
     message: 'Welcome to System Admin Dashboard',
-    permissions: ['ADMIN_DASHBOARD', 'MANAGE_USERS', 'MANAGE_COACHES', 'ANALYTICS'],
+    permissions: ['ADMIN_DASHBOARD', 'MANAGE_USERS', 'ROLE_MANAGEMENT', 'ANALYTICS', 'AUDIT_LOGS', 'SYSTEM_SETTINGS', 'BACKUP_RESTORE'],
     user: req.user
   });
 });
@@ -102,10 +158,11 @@ app.get('/api/admin/users', authenticateJWT, authorizeRoles('ADMIN'), async (req
   try {
     const users = await getAllUsers();
     res.json({ success: true, users });
-  } catch (err) {
+  } catch (_err) {
     res.status(500).json({ success: false, message: 'Failed to fetch users' });
   }
 });
+
 
 // API Root & Information Index Route (Fixes 404 on /api)
 app.get(['/', '/api', '/api/'], (req, res) => {
@@ -137,7 +194,7 @@ app.use((req, res) => {
 });
 
 // Global Error Handler
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
   console.error('[Global Error]', err.stack);
   res.status(500).json({ success: false, message: '500 Internal Server Error: ' + err.message });
 });

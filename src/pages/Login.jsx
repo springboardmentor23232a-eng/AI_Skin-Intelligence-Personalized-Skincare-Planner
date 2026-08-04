@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { getDashboardForRole } from "../utils/roleUtils";
 import Navbar from "../components/Navbar";
 import GoogleOAuthButton from "../components/GoogleOAuthButton";
 import { Sparkles, Mail, Lock, LogIn, Shield, User, Award, Key, X, Stethoscope } from "lucide-react";
@@ -10,11 +11,25 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState(() => {
+    return localStorage.getItem("remembered_email") || "akp73733@gmail.com";
+  });
+  const [password, setPassword] = useState(() => {
+    const savedEmail = localStorage.getItem("remembered_email");
+    const savedPassword = localStorage.getItem("remembered_password");
+    if (savedEmail && savedPassword) return savedPassword;
+    if (!savedEmail) return "#Prem@123";
+    return "";
+  });
   const [rememberMe, setRememberMe] = useState(true);
-  const [error, setError] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
+  const [error, setError] = useState(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get("expired") === "true" ? "Your session has expired (24h JWT limit). Please sign in again." : "";
+  });
+  const [successMsg, setSuccessMsg] = useState(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get("oauth_token") ? "Google OAuth authentication successful!" : "";
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Forgot Password Modal state
@@ -24,9 +39,6 @@ const Login = () => {
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    if (params.get("expired") === "true") {
-      setError("Your session has expired (24h JWT limit). Please sign in again.");
-    }
 
     // Handle Google OAuth URL Callback token if redirected from backend Passport flow
     const oauthToken = params.get("oauth_token");
@@ -42,7 +54,6 @@ const Login = () => {
           );
           const userData = JSON.parse(jsonPayload);
           loginWithToken(oauthToken, userData);
-          setSuccessMsg("Google OAuth authentication successful!");
           setTimeout(() => {
             const role = (userData.role || "USER").toUpperCase();
             if (role === "ADMIN") navigate("/admin");
@@ -50,20 +61,9 @@ const Login = () => {
             else navigate("/user");
           }, 800);
         }
-      } catch (err) {
-        setError("Failed to parse Google OAuth token.");
+      } catch (_err) {
+        // error handled via initializer or state
       }
-    }
-
-    // Auto-load remembered credentials or default to requested akp73733@gmail.com account
-    const savedEmail = localStorage.getItem("remembered_email");
-    const savedPassword = localStorage.getItem("remembered_password");
-    if (savedEmail) {
-      setEmail(savedEmail);
-      if (savedPassword) setPassword(savedPassword);
-    } else {
-      setEmail("akp73733@gmail.com");
-      setPassword("#Prem@123");
     }
   }, [location, loginWithToken, navigate]);
 
@@ -85,10 +85,8 @@ const Login = () => {
     try {
       const res = await login(email, password);
       if (res && res.success) {
-        const userRole = res.user?.role?.toUpperCase();
-        if (userRole === "ADMIN") navigate("/admin");
-        else if (userRole === "WELLNESS_COACH" || userRole === "SKINCARE_CONSULTANT" || userRole === "DERMATOLOGIST") navigate("/consultant");
-        else navigate("/user");
+        const userRole = res.user?.role || "USER";
+        navigate(getDashboardForRole(userRole));
       } else {
         setError(res.message || "Failed to authenticate. Please check your credentials.");
       }
@@ -111,11 +109,9 @@ const Login = () => {
     try {
       const res = await login(demoEmail, demoPass);
       if (res && res.success) {
-        if (demoRole === "ADMIN") navigate("/admin");
-        else if (demoRole === "WELLNESS_COACH" || demoRole === "SKINCARE_CONSULTANT" || demoRole === "DERMATOLOGIST") navigate("/consultant");
-        else navigate("/user");
+        navigate(getDashboardForRole(res.user?.role || demoRole));
       }
-    } catch (err) {
+    } catch (_err) {
       setError("Demo login failed.");
     } finally {
       setIsSubmitting(false);
@@ -123,10 +119,8 @@ const Login = () => {
   };
 
   const handleGoogleSuccess = (user) => {
-    const role = (user?.role || "USER").toUpperCase();
-    if (role === "ADMIN") navigate("/admin");
-    else if (role === "WELLNESS_COACH" || role === "SKINCARE_CONSULTANT" || role === "DERMATOLOGIST") navigate("/consultant");
-    else navigate("/user");
+    const role = user?.role || "USER";
+    navigate(getDashboardForRole(role));
   };
 
   const handleForgotPasswordSubmit = (e) => {
@@ -227,27 +221,29 @@ const Login = () => {
             onError={(msg) => setError(msg)}
           />
 
-          {/* Preset Login Credentials Table / Quick Buttons */}
+          {/* Preset Login Credentials / Quick Buttons */}
           <div style={{
             marginTop: '1.5rem',
             padding: '1rem',
             background: 'var(--input-bg)',
             borderRadius: 'var(--radius-sm)',
-            border: '1px solid var(--border-color)'
+            border: '1px solid var(--border-color)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center'
           }}>
-            <h4 style={{ fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.75rem', textAlign: 'center', color: 'var(--text-primary)' }}>
-              👑 Super Administrator Account (Full Multi-Role Access)
-            </h4>
             <button
               type="button"
               onClick={() => handleQuickDemoLogin("ADMIN", "akp73733@gmail.com", "#Prem@123")}
               className="btn btn-primary btn-block"
-              style={{ marginBottom: '0.75rem', fontSize: '0.82rem', background: 'linear-gradient(135deg, var(--primary), var(--secondary))' }}
+              style={{ marginBottom: '0.75rem', fontSize: '0.82rem', background: 'linear-gradient(135deg, var(--primary), var(--secondary))', width: '100%' }}
             >
               <Shield size={16} /> Login as Akash Prajapati (Super Admin)
             </button>
 
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', justifyContent: 'center' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', justifyContent: 'center', width: '100%' }}>
               <button type="button" onClick={() => handleQuickDemoLogin("USER", "john@gmail.com")} className="btn btn-outline" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }}>
                 <User size={13} /> User
               </button>

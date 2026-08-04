@@ -1,132 +1,63 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import JwtInspector from "../components/JwtInspector";
-import { apiService } from "../services/api";
-import { History, Activity, Plus, Trash2, CheckCircle, Target, Sparkles, Smile, Lightbulb, Droplets, Moon, Sun, Wind } from "lucide-react";
+import { Award, Users, Droplets, Moon, MessageSquare, Send, CheckCircle, Bell, Heart } from "lucide-react";
+
+const INITIAL_CLIENTS = [
+  { id: 301, name: "John Doe", email: "john@gmail.com", water: "2.4L / 3.0L", sleep: "7.5 hrs", exercise: "30 mins", diet: "Antioxidant Rich", status: "Good Habit Tracking" },
+  { id: 302, name: "Emily Watson", email: "emily@dev.io", water: "1.8L / 3.0L", sleep: "6.0 hrs", exercise: "15 mins", diet: "Low Sugar Skincare Diet", status: "Needs Improvement" },
+  { id: 303, name: "Michael Chen", email: "michael@tech.com", water: "3.0L / 3.0L", sleep: "8.0 hrs", exercise: "45 mins", diet: "Omega-3 & Hydration", status: "Peak Wellness" }
+];
 
 const WellnessDashboard = () => {
-  const [goals, setGoals] = useState([]);
-  const [activities, setActivities] = useState([]);
-  const [tips, setTips] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [clients] = useState(INITIAL_CLIENTS);
+  const [selectedClient, setSelectedClient] = useState(clients[0]);
 
-  // Environmental Tracking State
-  const [uvIndex, setUvIndex] = useState(6.2); // Moderate UV
-  const [airQuality, setAirQuality] = useState("Good (AQI 42)");
-  const [humidity, setHumidity] = useState("58%");
+  // Lifestyle & Wellness Plan Form
+  const [dietPlan, setDietPlan] = useState("Increase green leafy vegetables, walnuts, and berries. Avoid refined sugar & processed oils.");
+  const [exercisePlan, setExercisePlan] = useState("30 mins brisk walking or yoga 5x weekly to boost blood micro-circulation.");
+  const [lifestyleGuidance, setLifestyleGuidance] = useState("Maintain 3.0L water intake and stick to a strict 10:30 PM bedtime routine.");
+  const [chatMessage, setChatMessage] = useState("");
 
-  // Hydration & Sleep Log State
-  const [waterLog, setWaterLog] = useState(2400); // ml
-  const [sleepHours, setSleepHours] = useState(7.5); // hours
+  const [toastMsg, setToastMsg] = useState("");
 
-  // New Goal Form Modal State
-  const [showGoalForm, setShowGoalForm] = useState(false);
-  const [goalTitle, setGoalTitle] = useState("");
-  const [goalCategory, setGoalCategory] = useState("HYDRATION");
-  const [targetMetric, setTargetMetric] = useState("Water Intake");
-  const [targetValue, setTargetValue] = useState(3000);
-  const [unit, setUnit] = useState("ml");
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const [goalsRes, activitiesRes, tipsRes] = await Promise.allSettled([
-        apiService.getGoals(),
-        apiService.getActivities(),
-        apiService.getHealthTips(),
-      ]);
-
-      if (goalsRes.status === "fulfilled" && goalsRes.value.data) {
-        setGoals(goalsRes.value.data);
-      } else {
-        setGoals([
-          { id: 1, title: "Daily Hydration Target", category: "HYDRATION", targetMetric: "Hydration", currentProgress: 2400, targetValue: 3000, unit: "ml", status: "IN_PROGRESS" },
-          { id: 2, title: "Deep Recovery Sleep Target", category: "SLEEP", targetMetric: "Sleep Hours", currentProgress: 7.5, targetValue: 8, unit: "hours/night", status: "IN_PROGRESS" },
-          { id: 3, title: "Broad Spectrum Sunscreen SPF 50", category: "PROTECTION", targetMetric: "Reapplication", currentProgress: 2, targetValue: 3, unit: "times/day", status: "IN_PROGRESS" }
-        ]);
-      }
-
-      if (activitiesRes.status === "fulfilled" && activitiesRes.value.data) {
-        setActivities(activitiesRes.value.data);
-      } else {
-        setActivities([
-          { id: 1, activityName: "Morning Double Cleanse & Mineral Sunscreen", durationMinutes: 10, caloriesBurned: 0, moodScore: 9, activityDate: new Date().toISOString().split('T')[0], notes: "UV index was high (6.2) — SPF 50 applied." },
-          { id: 2, activityName: "Night Hyaluronic Acid & Ceramide Cream", durationMinutes: 15, caloriesBurned: 0, moodScore: 9, activityDate: new Date().toISOString().split('T')[0], notes: "Slept 7.5 hours. Skin barrier restored." }
-        ]);
-      }
-
-      if (tipsRes.status === "fulfilled" && tipsRes.value.data) {
-        setTips(tipsRes.value.data);
-      } else {
-        setTips([
-          { id: 1, title: "Broad-Spectrum Mineral SPF 30+ Daily", content: "Daily sunscreen prevents photo-aging, dark spots, and moisture loss.", category: "PROTECTION" },
-          { id: 2, title: "Layer Serums from Thinnest to Thickest", content: "Apply watery hyaluronic serums first, followed by creams to lock in epidermal hydration.", category: "SKINCARE" },
-          { id: 3, title: "Hydration & Sleep Turnover", content: "Drinking 3L water daily supports cellular turnover during 8h sleep recovery.", category: "HYDRATION" }
-        ]);
-      }
-    } catch (e) {
-      console.warn("Using offline skincare dataset");
-    } finally {
-      setLoading(false);
-    }
+  const showToast = (msg) => {
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(""), 3500);
   };
 
-  const handleAddWater = (amount) => {
-    setWaterLog((prev) => Math.min(4000, prev + amount));
-  };
-
-  const handleCreateGoal = async (e) => {
+  const handlePublishPlan = (e) => {
     e.preventDefault();
-    const newGoal = {
-      title: goalTitle,
-      category: goalCategory,
-      targetMetric,
-      targetValue: parseInt(targetValue),
-      unit,
-      currentProgress: 0,
-      status: "IN_PROGRESS"
-    };
-
-    try {
-      const res = await apiService.createGoal(newGoal);
-      if (res.data) setGoals((prev) => [...prev, res.data]);
-    } catch (err) {
-      setGoals((prev) => [...prev, { id: Date.now(), ...newGoal }]);
-    } finally {
-      setShowGoalForm(false);
-      setGoalTitle("");
-    }
-  };
-
-  const handleUpdateProgress = async (id, currentVal, targetVal) => {
-    const nextVal = Math.min(targetVal, currentVal + Math.round(targetVal * 0.1));
-    try {
-      await apiService.updateGoalProgress(id, nextVal);
-    } catch (e) {
-      // offline state update
-    }
-    setGoals((prev) =>
-      prev.map((g) => (g.id === id ? { ...g, currentProgress: nextVal, status: nextVal >= targetVal ? "COMPLETED" : "IN_PROGRESS" } : g))
-    );
-  };
-
-  const handleDeleteGoal = async (id) => {
-    try {
-      await apiService.deleteGoal(id);
-    } catch (e) {
-      // offline fallback
-    }
-    setGoals((prev) => prev.filter((g) => g.id !== id));
+    showToast(`✔ Holistic Wellness & Lifestyle Plan transmitted to ${selectedClient.name}'s dashboard!`);
   };
 
   return (
     <div className="dashboard-layout">
       <Navbar />
+
+      {/* Floating Toast Notification */}
+      {toastMsg && (
+        <div style={{
+          position: 'fixed',
+          bottom: '24px',
+          right: '24px',
+          background: 'var(--primary)',
+          color: '#ffffff',
+          padding: '0.85rem 1.25rem',
+          borderRadius: 'var(--radius-md)',
+          boxShadow: 'var(--shadow-lg)',
+          fontSize: '0.88rem',
+          fontWeight: 700,
+          zIndex: 9999,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.6rem',
+          animation: 'fadeIn 0.3s ease-out'
+        }}>
+          <CheckCircle size={18} /> <span>{toastMsg}</span>
+        </div>
+      )}
 
       <div className="dashboard-content">
         <Sidebar />
@@ -134,165 +65,161 @@ const WellnessDashboard = () => {
         <main className="main-viewport">
           <JwtInspector />
 
+          {/* Section Header */}
           <div className="section-header">
             <div>
-              <h2><History className="icon-title" style={{ color: 'var(--primary)' }} /> Skin History &amp; Environmental Wellness Tracking</h2>
-              <p>Monitor daily hydration levels, nocturnal sleep turnover, and real-time environmental exposure metrics.</p>
+              <h2>
+                <Award className="icon-title" style={{ color: 'var(--warning)' }} /> Wellness &amp; Lifestyle Coach Dashboard
+              </h2>
+              <p>Monitor assigned client habits, water intake, nocturnal sleep turnover, exercise routines, and publish diet &amp; lifestyle plans.</p>
             </div>
-            <div className="header-actions">
-              <button onClick={() => setShowGoalForm(!showGoalForm)} className="btn btn-primary">
-                <Plus size={16} /> <span>New Goal</span>
-              </button>
+            <span className="role-badge role-wellness_coach" style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
+              <Award size={14} /> WELLNESS_COACH Authorized
+            </span>
+          </div>
+
+          {/* Metric Cards */}
+          <div className="grid-layout grid-4-col" style={{ marginBottom: '1.75rem' }}>
+            <div className="glass-card" style={{ padding: '1.25rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)' }}>ASSIGNED CLIENTS</span>
+                <Users size={18} style={{ color: 'var(--primary)' }} />
+              </div>
+              <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>15 Clients</div>
+              <small style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Active wellness tracking</small>
+            </div>
+
+            <div className="glass-card" style={{ padding: '1.25rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)' }}>AVG HYDRATION</span>
+                <Droplets size={18} style={{ color: '#3B82F6' }} />
+              </div>
+              <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>2.4 Liters</div>
+              <small style={{ fontSize: '0.75rem', color: '#3B82F6', fontWeight: 600 }}>80% Daily Goal</small>
+            </div>
+
+            <div className="glass-card" style={{ padding: '1.25rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)' }}>AVG SLEEP RECOVERY</span>
+                <Moon size={18} style={{ color: 'var(--accent)' }} />
+              </div>
+              <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>7.2 Hours</div>
+              <small style={{ fontSize: '0.75rem', color: 'var(--success)', fontWeight: 600 }}>Good REM Turnover</small>
+            </div>
+
+            <div className="glass-card" style={{ padding: '1.25rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)' }}>WELLNESS NOTIFICATIONS</span>
+                <Bell size={18} style={{ color: 'var(--warning)' }} />
+              </div>
+              <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>3 Pending</div>
+              <small style={{ fontSize: '0.75rem', color: 'var(--warning)', fontWeight: 600 }}>Follow-ups scheduled</small>
             </div>
           </div>
 
-          {/* Environmental Exposure Tracker Banner */}
-          <div className="grid-layout grid-3-col" style={{ marginBottom: '1.75rem' }}>
-            <div className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <div style={{ padding: '0.85rem', background: 'rgba(245, 158, 11, 0.12)', color: 'var(--warning)', borderRadius: '50%' }}>
-                <Sun size={24} />
-              </div>
-              <div>
-                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)' }}>UV EXPOSURE INDEX</span>
-                <h3 style={{ fontSize: '1.25rem' }}>{uvIndex} (Moderate)</h3>
-                <small style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>SPF 30+ Recommended</small>
-              </div>
-            </div>
-
-            <div className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <div style={{ padding: '0.85rem', background: 'rgba(34, 197, 94, 0.12)', color: 'var(--success)', borderRadius: '50%' }}>
-                <Wind size={24} />
-              </div>
-              <div>
-                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)' }}>AIR QUALITY INDEX</span>
-                <h3 style={{ fontSize: '1.25rem' }}>{airQuality}</h3>
-                <small style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Low Pollutant Exposure</small>
-              </div>
-            </div>
-
-            <div className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <div style={{ padding: '0.85rem', background: 'rgba(20, 184, 166, 0.12)', color: 'var(--secondary)', borderRadius: '50%' }}>
-                <Droplets size={24} />
-              </div>
-              <div>
-                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)' }}>AMBIENT HUMIDITY</span>
-                <h3 style={{ fontSize: '1.25rem' }}>{humidity}</h3>
-                <small style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Optimal Epidermal Hydration</small>
-              </div>
-            </div>
-          </div>
-
-          {/* Hydration & Sleep Tracker Row */}
-          <div className="grid-layout grid-2-col" style={{ marginBottom: '1.75rem' }}>
-            {/* Hydration Interactive Tracker */}
-            <div className="glass-card">
-              <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                <h3>Hydration Tracker</h3>
-                <Droplets size={20} style={{ color: 'var(--secondary)' }} />
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                <div>
-                  <h4 style={{ fontSize: '1.4rem', fontWeight: 800 }}>{waterLog} <small style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>/ 3000 ml</small></h4>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Daily target: 3000 ml for cell turnover</p>
-                </div>
-                <div className="jwt-status-chip">{Math.round((waterLog / 3000) * 100)}% Reached</div>
-              </div>
-
-              <div className="progress-bar-bg" style={{ height: '10px', borderRadius: '5px', background: 'var(--input-bg)', overflow: 'hidden', marginBottom: '1rem' }}>
-                <div className="progress-bar-fill" style={{ width: `${Math.min(100, Math.round((waterLog / 3000) * 100))}%`, height: '100%', background: 'linear-gradient(90deg, var(--secondary), var(--primary))' }}></div>
-              </div>
-
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <button onClick={() => handleAddWater(250)} className="btn btn-outline" style={{ flex: 1, padding: '0.4rem', fontSize: '0.8rem' }}>+ 250 ml Glass</button>
-                <button onClick={() => handleAddWater(500)} className="btn btn-outline" style={{ flex: 1, padding: '0.4rem', fontSize: '0.8rem' }}>+ 500 ml Bottle</button>
-              </div>
-            </div>
-
-            {/* Sleep Interactive Tracker */}
-            <div className="glass-card">
-              <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                <h3>Sleep &amp; Recovery Turnover</h3>
-                <Moon size={20} style={{ color: 'var(--accent)' }} />
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                <div>
-                  <h4 style={{ fontSize: '1.4rem', fontWeight: 800 }}>{sleepHours} <small style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>/ 8.0 Hours</small></h4>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Deep REM rest promotes collagen synthesis</p>
-                </div>
-                <div className="jwt-status-chip">{Math.round((sleepHours / 8.0) * 100)}% Sleep Target</div>
-              </div>
-
-              <div className="progress-bar-bg" style={{ height: '10px', borderRadius: '5px', background: 'var(--input-bg)', overflow: 'hidden', marginBottom: '1rem' }}>
-                <div className="progress-bar-fill" style={{ width: `${Math.min(100, Math.round((sleepHours / 8.0) * 100))}%`, height: '100%', background: 'linear-gradient(90deg, var(--accent), var(--primary))' }}></div>
-              </div>
-
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <button onClick={() => setSleepHours((prev) => Math.min(12, prev + 0.5))} className="btn btn-outline" style={{ flex: 1, padding: '0.4rem', fontSize: '0.8rem' }}>+ 0.5 Hrs Rest</button>
-                <button onClick={() => setSleepHours(8.0)} className="btn btn-outline" style={{ flex: 1, padding: '0.4rem', fontSize: '0.8rem' }}>Set 8.0 Hrs Ideal</button>
-              </div>
-            </div>
-          </div>
-
-          {/* Active Goals & Tips Grid */}
+          {/* 2-Column Content Section */}
           <div className="grid-layout grid-3-col">
-            <div className="glass-card span-2">
+            
+            {/* Left Column: Assigned Clients List */}
+            <div className="glass-card span-1">
               <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                <h3>Skincare Habit Goals</h3>
-                <Target size={20} className="text-primary" />
+                <h3>Assigned Clients</h3>
+                <Users size={18} />
               </div>
 
-              <div className="goals-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                {goals.map((g) => {
-                  const pct = Math.min(100, Math.round((g.currentProgress / g.targetValue) * 100));
-                  return (
-                    <div key={g.id} className="goal-card-item" style={{
-                      background: 'var(--input-bg)',
-                      padding: '1rem',
+              <div className="client-list">
+                {clients.map((c) => (
+                  <div
+                    key={c.id}
+                    onClick={() => setSelectedClient(c)}
+                    style={{
+                      background: selectedClient.id === c.id ? 'var(--primary-light)' : 'var(--input-bg)',
+                      border: '1px solid var(--border-color)',
+                      padding: '0.85rem',
                       borderRadius: 'var(--radius-sm)',
-                      border: '1px solid var(--border-color)'
-                    }}>
-                      <div className="goal-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                        <span className="role-badge role-user">{g.category}</span>
-                        <button onClick={() => handleDeleteGoal(g.id)} className="logout-btn"><Trash2 size={14} /></button>
-                      </div>
-                      <h4 style={{ fontSize: '0.95rem', marginBottom: '0.25rem' }}>{g.title}</h4>
-                      <div className="goal-progress-info" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginBottom: '0.5rem' }}>
-                        <span>{g.currentProgress} / {g.targetValue} {g.unit}</span>
-                        <span className="goal-pct" style={{ fontWeight: 700 }}>{pct}%</span>
-                      </div>
-                      <div className="progress-bar-bg" style={{ height: '6px', borderRadius: '3px', background: 'var(--border-color)', overflow: 'hidden' }}>
-                        <div className="progress-bar-fill" style={{ width: `${pct}%`, height: '100%', background: 'var(--primary)' }}></div>
-                      </div>
+                      marginBottom: '0.75rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <div>
+                      <h4 style={{ fontSize: '0.9rem', marginBottom: '0.2rem', fontWeight: 700 }}>{c.name}</h4>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{c.email}</p>
+                      <small style={{ fontSize: '0.72rem', color: 'var(--warning)', fontWeight: 600 }}>
+                        Water: {c.water} • Sleep: {c.sleep}
+                      </small>
                     </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Daily Skincare Tips Feed */}
-            <div className="glass-card">
-              <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                <h3>Dermatology Tips</h3>
-                <Lightbulb size={20} style={{ color: 'var(--warning)' }} />
-              </div>
-
-              <div className="tips-feed">
-                {tips.map((t, i) => (
-                  <div key={i} className="tip-item-card" style={{
-                    background: 'var(--input-bg)',
-                    padding: '0.85rem',
-                    borderRadius: 'var(--radius-sm)',
-                    marginBottom: '0.75rem',
-                    border: '1px solid var(--border-color)'
-                  }}>
-                    <span className="role-badge role-wellness_coach" style={{ fontSize: '0.65rem', marginBottom: '0.35rem', display: 'inline-block' }}>{t.category}</span>
-                    <h4 style={{ fontSize: '0.88rem', marginBottom: '0.25rem' }}>{t.title}</h4>
-                    <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>{t.content}</p>
+                    <span className="jwt-status-chip">{c.status}</span>
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* Right Column: Lifestyle Guidance & Habit Plan Builder */}
+            <div className="glass-card span-2">
+              <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+                <div>
+                  <h3 style={{ fontSize: '1.15rem' }}>Holistic Diet, Habit &amp; Lifestyle Plan</h3>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0 }}>
+                    Selected Client: <strong>{selectedClient.name}</strong> • Current Water: <strong>{selectedClient.water}</strong> • Sleep: <strong>{selectedClient.sleep}</strong>
+                  </p>
+                </div>
+                <Heart size={20} style={{ color: 'var(--warning)' }} />
+              </div>
+
+              <form onSubmit={handlePublishPlan} className="form-container">
+                <div className="form-group">
+                  <label style={{ fontWeight: 700, fontSize: '0.88rem' }}>Dietary &amp; Nutrition Guidelines for Skin Health</label>
+                  <textarea
+                    rows="3"
+                    value={dietPlan}
+                    onChange={(e) => setDietPlan(e.target.value)}
+                    placeholder="Provide dietary guidelines to improve skin clarity..."
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label style={{ fontWeight: 700, fontSize: '0.88rem' }}>Exercise &amp; Physical Activity Recommendations</label>
+                  <textarea
+                    rows="2"
+                    value={exercisePlan}
+                    onChange={(e) => setExercisePlan(e.target.value)}
+                    placeholder="Specify exercise routines to boost micro-circulation..."
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label style={{ fontWeight: 700, fontSize: '0.88rem' }}>Water Intake, Sleep &amp; Habit Guidance</label>
+                  <textarea
+                    rows="2"
+                    value={lifestyleGuidance}
+                    onChange={(e) => setLifestyleGuidance(e.target.value)}
+                    placeholder="Specify daily habit tracking goals..."
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label style={{ fontWeight: 700, fontSize: '0.88rem' }}>Direct Chat Message to Client</label>
+                  <div className="input-with-icon">
+                    <MessageSquare className="input-icon" size={16} />
+                    <input
+                      type="text"
+                      value={chatMessage}
+                      onChange={(e) => setChatMessage(e.target.value)}
+                      placeholder={`Send a encouraging message to ${selectedClient.name}...`}
+                    />
+                  </div>
+                </div>
+
+                <button type="submit" className="btn btn-primary btn-block" style={{ marginTop: '1rem', padding: '0.6rem' }}>
+                  <Send size={16} /> <span>Publish Holistic Wellness Guidance</span>
+                </button>
+              </form>
             </div>
           </div>
         </main>

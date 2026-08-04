@@ -17,7 +17,7 @@ const parseJwt = (token) => {
         .join('')
     );
     return JSON.parse(jsonPayload);
-  } catch (e) {
+  } catch (_e) {
     return null;
   }
 };
@@ -27,6 +27,14 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem("app_token") || null);
   const [tokenPayload, setTokenPayload] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const logout = () => {
+    setUser(null);
+    setToken(null);
+    setTokenPayload(null);
+    localStorage.removeItem("app_user");
+    localStorage.removeItem("app_token");
+  };
 
   // Initialize auth state from local storage and backend API
   useEffect(() => {
@@ -56,7 +64,7 @@ export const AuthProvider = ({ children }) => {
           } else if (savedUser) {
             setUser(JSON.parse(savedUser));
           }
-        } catch (err) {
+        } catch (_err) {
           if (savedUser) {
             setUser(JSON.parse(savedUser));
           }
@@ -166,7 +174,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem("app_user", JSON.stringify(userData));
         return { success: true, user: userData };
       }
-    } catch (err) {
+    } catch (_err) {
       // Determine role based on email or default to ADMIN if akp73733@gmail.com
       const userRole = (googleUser.email && (googleUser.email.includes("akp73733") || googleUser.email.includes("admin"))) ? "ADMIN" : "USER";
       const userData = {
@@ -203,14 +211,6 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
-  const logout = () => {
-    setUser(null);
-    setToken(null);
-    setTokenPayload(null);
-    localStorage.removeItem("app_user");
-    localStorage.removeItem("app_token");
-  };
-
   return (
     <AuthContext.Provider value={{
       user,
@@ -230,4 +230,5 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => useContext(AuthContext);

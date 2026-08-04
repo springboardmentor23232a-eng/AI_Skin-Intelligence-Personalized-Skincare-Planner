@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently \"vite\" \"node backend/server.js\"",
+    "fastapi": "cd fastapi_app && .\\venv\\Scripts\\python.exe main.py",
+    "start:all": "concurrently \"vite\" \"node backend/server.js\" \"cd fastapi_app && .\\venv\\Scripts\\python.exe main.py\"",
     "client": "vite",
     "server": "node backend/server.js",
     "build": "vite build",

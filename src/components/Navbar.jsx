@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { User, LogOut, Shield, Award, Sparkles, HeartPulse, Sun, Moon, LayoutDashboard, History, ShoppingBag } from "lucide-react";
+import { User, LogOut, Sparkles, Sun, Moon, LayoutDashboard } from "lucide-react";
+
+import { getDashboardForRole } from "../utils/roleUtils";
 
 const Navbar = () => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -32,10 +34,12 @@ const Navbar = () => {
     return user.name;
   };
 
+  const dashboardPath = getDashboardForRole(user?.role);
+
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        <Link to="/" className="navbar-brand" style={{ flexShrink: 0, whiteSpace: 'nowrap' }}>
+        <Link to={isAuthenticated ? dashboardPath : "/"} className="navbar-brand" style={{ flexShrink: 0, whiteSpace: 'nowrap' }}>
           <Sparkles className="brand-icon" size={24} />
           <span className="brand-title" style={{ fontSize: '1.05rem', fontWeight: 800, whiteSpace: 'nowrap' }}>
             AI Skin Intelligence &amp; Skincare Planner
@@ -46,29 +50,9 @@ const Navbar = () => {
         <div className="navbar-right-group" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '0.75rem', flexWrap: 'nowrap' }}>
           {isAuthenticated && (
             <div className="navbar-links" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '0.4rem', flexWrap: 'nowrap' }}>
-              <Link to="/user" className="nav-link" style={{ whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center' }}>
+              <Link to={dashboardPath} className="nav-link" style={{ whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center' }}>
                 <LayoutDashboard size={16} />
-                <span>User Dashboard</span>
-              </Link>
-
-              <Link to="/assessment" className="nav-link" style={{ whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center' }}>
-                <Sparkles size={16} />
-                <span>Skin Analysis</span>
-              </Link>
-
-              <Link to="/wellness" className="nav-link" style={{ whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center' }}>
-                <History size={16} />
-                <span>Skin History</span>
-              </Link>
-
-              <Link to="/consultant" className="nav-link coach-link" style={{ whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center' }}>
-                <Award size={16} />
-                <span>Specialist Portal</span>
-              </Link>
-
-              <Link to="/admin" className="nav-link admin-link" style={{ whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center' }}>
-                <Shield size={16} />
-                <span>Admin Command</span>
+                <span>My Dashboard</span>
               </Link>
 
               <div className="user-profile-menu" style={{ flexShrink: 0, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>

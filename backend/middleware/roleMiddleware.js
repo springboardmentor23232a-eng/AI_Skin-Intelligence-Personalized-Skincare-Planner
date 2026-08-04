@@ -10,13 +10,19 @@ export const authorizeRoles = (...allowedRoles) => {
     const userRole = req.user.role.toUpperCase();
     const normalizedAllowed = allowedRoles.map(r => r.toUpperCase());
 
-    if (!normalizedAllowed.includes(userRole)) {
+    let isAllowed = normalizedAllowed.includes(userRole);
+    if (!isAllowed && (userRole === 'CONSULTANT' || userRole === 'SKINCARE_CONSULTANT')) {
+      isAllowed = normalizedAllowed.includes('CONSULTANT') || normalizedAllowed.includes('SKINCARE_CONSULTANT');
+    }
+
+    if (!isAllowed) {
       return res.status(403).json({
         success: false,
-        message: `403 Forbidden: Role '${req.user.role}' lacks permission to access this endpoint`
+        message: `403 Access Denied: Role '${req.user.role}' is not authorized to access this resource.`
       });
     }
 
     next();
   };
 };
+

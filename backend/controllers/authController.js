@@ -202,7 +202,7 @@ export const getCurrentUser = async (req, res) => {
         phone: user.phone || ''
       }
     });
-  } catch (err) {
+  } catch (_err) {
     return res.status(500).json({ success: false, message: 'Failed to fetch user' });
   }
 };

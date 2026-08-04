@@ -750,7 +750,7 @@ input:checked + .ios-slider:before {
   margin-bottom: 1.25rem;
 }
 
-.form-group label {
+.form-group label, label {
   display: block;
   font-size: 0.88rem;
   font-weight: 700;
@@ -774,10 +774,10 @@ input:checked + .ios-slider:before {
   padding-left: 2.7rem;
 }
 
-input, select, textarea {
+.form-control, input, select, textarea {
   width: 100%;
   padding: 0.8rem 1.1rem;
-  background: var(--input-bg);
+  background-color: var(--input-bg) !important;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   color: var(--text-primary) !important;
@@ -785,14 +785,21 @@ input, select, textarea {
   transition: all 0.25s ease;
 }
 
+select option {
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  padding: 0.5rem;
+}
+
 input::placeholder, textarea::placeholder {
   color: var(--text-muted);
 }
 
-input:focus, select:focus, textarea:focus {
+.form-control:focus, input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: var(--primary);
-  background: var(--bg-surface);
+  border-color: var(--primary) !important;
+  background-color: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
   box-shadow: 0 0 0 3px var(--primary-light);
 }
 

@@ -34,3 +34,44 @@ VALUES
 ('Sarah Coach', 'coach@wellness.com', '$2a$10$E.yT5gG.T7N2q7K7z3V5ue/yF8z.yWnE/9K.3S8G.S9V0uK2H.5uO', 'WELLNESS_COACH', 'LOCAL', 'Certified Skincare & Personal Wellness Consultant.', '+1 555-0193'),
 ('System Admin', 'admin@wellness.com', '$2a$10$E.yT5gG.T7N2q7K7z3V5ue/yF8z.yWnE/9K.3S8G.S9V0uK2H.5uO', 'ADMIN', 'LOCAL', 'AI Skincare Platform Administrator.', '+1 555-0194')
 ON CONFLICT (email) DO NOTHING;
+
+-- ====================================================
+-- MODULE 3: SKIN ASSESSMENT ENGINE SCHEMA
+-- ====================================================
+
+-- 1. SkinAssessment Table
+CREATE TABLE IF NOT EXISTS skin_assessments (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    assessment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    skin_health_score INT NOT NULL CHECK (skin_health_score BETWEEN 0 AND 100),
+    overall_condition VARCHAR(50) NOT NULL,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_skin_assessments_user_id ON skin_assessments(user_id);
+
+-- 2. SkinConcern Table
+CREATE TABLE IF NOT EXISTS skin_concerns (
+    id SERIAL PRIMARY KEY,
+    assessment_id INT NOT NULL REFERENCES skin_assessments(id) ON DELETE CASCADE,
+    concern_name VARCHAR(100) NOT NULL,
+    severity VARCHAR(30) NOT NULL,
+    priority VARCHAR(30) NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_skin_concerns_assessment_id ON skin_concerns(assessment_id);
+
+-- 3. RiskFactor Table
+CREATE TABLE IF NOT EXISTS risk_factors (
+    id SERIAL PRIMARY KEY,
+    assessment_id INT NOT NULL REFERENCES skin_assessments(id) ON DELETE CASCADE,
+    risk_name VARCHAR(100) NOT NULL,
+    description TEXT,
+    risk_level VARCHAR(30) NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_risk_factors_assessment_id ON risk_factors(assessment_id);
+

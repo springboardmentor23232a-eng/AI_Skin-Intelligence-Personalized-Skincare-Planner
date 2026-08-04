@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # 1. PostgreSQL Database Service
+  postgres_db:
+    image: postgres:15-alpine
+    container_name: ai_skincare_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME:-ai_skincare}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-asdfghjkl}
+    ports:
+      - "${DB_PORT:-7410}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./database.sql:/docker-entrypoint-initdb.d/database.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 2. Python FastAPI Skin Assessment Engine Service (Module 3)
+  fastapi_engine:
+    build:
+      context: ./fastapi_app
+      dockerfile: Dockerfile
+    container_name: ai_skincare_fastapi_engine
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST=postgres_db
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME:-ai_skincare}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-asdfghjkl}
+      - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-asdfghjkl}@postgres_db:5432/${DB_NAME:-ai_skincare}
+      - JWT_SECRET=${JWT_SECRET:-ai_skincare_super_secret_jwt_key_2026_module1}
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+
+  # 3. Node.js Express Backend Service
+  node_backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: ai_skincare_node_backend
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - DB_HOST=postgres_db
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME:-ai_skincare}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-asdfghjkl}
+      - JWT_SECRET=${JWT_SECRET:-ai_skincare_super_secret_jwt_key_2026_module1}
+      - FASTAPI_URL=http://fastapi_engine:8000
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+      fastapi_engine:
+        condition: service_started
+
+volumes:
+  pgdata:

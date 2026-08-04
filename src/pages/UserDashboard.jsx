@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import JwtInspector from "../components/JwtInspector";
 import { useAuth } from "../context/AuthContext";
 import { getTimeBasedGreeting } from "../utils/greeting";
-import { Sparkles, Sun, Droplets, Moon, Flame, Search, Bell, Star, Heart, CheckCircle, TrendingUp, Filter, Check, X } from "lucide-react";
+import CameraModal from "../components/CameraModal";
+import SkinAssessmentModule from "../components/SkinAssessmentModule";
+import { Sparkles, Sun, Droplets, Moon, Flame, Search, Bell, Star, Heart, CheckCircle, TrendingUp, Camera } from "lucide-react";
 
 const INITIAL_GOALS = [
   { id: "g1", title: "Drink Water", sub: "2.5 – 3 Liters daily", icon: <Droplets size={18} style={{ color: '#3B82F6' }} />, active: true, doneDays: 5, totalDays: 7, pct: 71, color: '#3B82F6' },
@@ -87,6 +88,9 @@ const UserDashboard = () => {
   const [selectedBrand, setSelectedBrand] = useState("ALL");
   const [streakDays, setStreakDays] = useState(12);
 
+  // Camera Modal State
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+
   // Toast Notification State
   const [toastMsg, setToastMsg] = useState("");
 
@@ -95,6 +99,12 @@ const UserDashboard = () => {
     setTimeout(() => {
       setToastMsg("");
     }, 3000);
+  };
+
+  const handleCapturePhoto = (imageData) => {
+    if (imageData) {
+      showToast("📷 Skin photo captured! Optical scan analysis updated.");
+    }
   };
 
   const handleToggleGoal = (id) => {
@@ -172,6 +182,14 @@ const UserDashboard = () => {
         </div>
       )}
 
+      {/* Real-time WebCam Facial Scan Modal */}
+      <CameraModal
+        isOpen={isCameraOpen}
+        onClose={() => setIsCameraOpen(false)}
+        onCapture={handleCapturePhoto}
+        title="Facial Scan & Optical Analysis"
+      />
+
       <div className="dashboard-content">
         <Sidebar />
 
@@ -187,10 +205,19 @@ const UserDashboard = () => {
               <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Here's your personalized skincare overview</p>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <div className="input-with-icon" style={{ width: '240px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <button
+                onClick={() => setIsCameraOpen(true)}
+                className="btn btn-primary"
+                style={{ padding: '0.45rem 0.85rem', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '0.4rem', borderRadius: '20px' }}
+                title="Click to take a real-time facial optical skin photo"
+              >
+                <Camera size={16} /> <span>Click Skin Photo</span>
+              </button>
+
+              <div className="input-with-icon" style={{ width: '200px' }}>
                 <Search className="input-icon" size={16} />
-                <input type="text" placeholder="Search anything..." style={{ padding: '0.5rem 0.75rem 0.5rem 2.2rem', fontSize: '0.85rem', borderRadius: '20px' }} />
+                <input type="text" placeholder="Search..." style={{ padding: '0.5rem 0.75rem 0.5rem 2.2rem', fontSize: '0.85rem', borderRadius: '20px' }} />
               </div>
 
               <div style={{ position: 'relative', cursor: 'pointer' }}>
@@ -400,6 +427,9 @@ const UserDashboard = () => {
             </div>
 
           </div>
+
+          {/* Module 3: Skin Assessment Engine Section */}
+          <SkinAssessmentModule onToast={showToast} />
 
           {/* Bottom Recommended For You Carousel */}
           <div className="glass-card">

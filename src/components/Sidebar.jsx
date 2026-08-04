@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { LayoutDashboard, Sparkles, History, User, Shield, Stethoscope, Award, Droplets, ShoppingBag, Target, Users, BookOpen, Settings, Crown, Moon, Sun, LogOut } from "lucide-react";
+import { LayoutDashboard, Sparkles, History, User, Shield, Stethoscope, Award, BookOpen, Settings, Crown, Moon, Sun, LogOut } from "lucide-react";
+
+import { getDashboardForRole, normalizeRole } from "../utils/roleUtils";
 
 const Sidebar = () => {
   const { user, logout } = useAuth();
@@ -26,99 +28,112 @@ const Sidebar = () => {
   };
 
   const isActive = (path) => location.pathname === path;
-
-  const isExactActive = (path, roleQuery) => {
-    if (location.pathname !== path) return false;
-    if (!roleQuery) return !location.search || location.search.includes("role=dermatologist") || !location.search.includes("role=");
-    return location.search.includes(roleQuery);
-  };
+  const userRole = normalizeRole(user?.role);
+  const activeDashboard = getDashboardForRole(user?.role);
 
   return (
     <aside className="sidebar">
       <div>
-        {/* All 5 Parallel Role Dashboards Section */}
+        {/* Active Role Portal Badge Banner */}
         <div className="sidebar-section">
-          <h4 className="sidebar-title">ROLE DASHBOARDS</h4>
-          <ul className="sidebar-menu">
-            <li>
-              <Link to="/user" className={`sidebar-item ${isExactActive("/user") ? "active" : ""}`}>
-                <User size={18} style={{ color: 'var(--primary)' }} />
-                <span>User Dashboard</span>
-              </Link>
-            </li>
-            <li>
-              <Link to="/consultant?role=consultant" className={`sidebar-item ${isExactActive("/consultant", "role=consultant") ? "active" : ""}`}>
-                <Sparkles size={18} style={{ color: 'var(--secondary)' }} />
-                <span>Skincare Consultant</span>
-              </Link>
-            </li>
-            <li>
-              <Link to="/consultant?role=dermatologist" className={`sidebar-item ${isExactActive("/consultant", "role=dermatologist") ? "active" : ""}`}>
-                <Stethoscope size={18} style={{ color: 'var(--accent)' }} />
-                <span>Dermatologist</span>
-              </Link>
-            </li>
-            <li>
-              <Link to="/consultant?role=coach" className={`sidebar-item ${isExactActive("/consultant", "role=coach") ? "active" : ""}`}>
-                <Award size={18} style={{ color: 'var(--warning)' }} />
-                <span>Wellness Coach</span>
-              </Link>
-            </li>
-            <li>
-              <Link to="/admin" className={`sidebar-item ${isExactActive("/admin") ? "active" : ""}`}>
-                <Shield size={18} style={{ color: 'var(--danger)' }} />
-                <span>Administrator</span>
-              </Link>
-            </li>
-          </ul>
+          <div style={{
+            padding: '0.75rem 1rem',
+            background: 'var(--input-bg)',
+            borderRadius: 'var(--radius-sm)',
+            border: '1px solid var(--border-color)',
+            marginBottom: '0.75rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}>
+            <LayoutDashboard size={18} style={{ color: 'var(--primary)' }} />
+            <div>
+              <span style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase' }}>
+                ACTIVE DASHBOARD
+              </span>
+              <strong style={{ fontSize: '0.85rem', color: 'var(--text-primary)' }}>
+                {userRole === 'ADMIN' && 'System Administrator'}
+                {userRole === 'DERMATOLOGIST' && 'Dermatologist Portal'}
+                {userRole === 'SKINCARE_CONSULTANT' && 'Consultant Portal'}
+                {userRole === 'WELLNESS_COACH' && 'Wellness Coach Portal'}
+                {userRole === 'USER' && 'User Dashboard'}
+              </strong>
+            </div>
+          </div>
         </div>
 
-        {/* Main Section */}
+        {/* Dynamic Navigation according to Role */}
         <div className="sidebar-section">
-          <h4 className="sidebar-title">MAIN</h4>
+          <h4 className="sidebar-title">NAVIGATION</h4>
           <ul className="sidebar-menu">
             <li>
-              <Link to="/user" className={`sidebar-item ${isActive("/user") ? "active" : ""}`}>
+              <Link to={activeDashboard} className={`sidebar-item ${isActive(activeDashboard) ? "active" : ""}`}>
                 <LayoutDashboard size={18} />
-                <span>Dashboard</span>
+                <span>Overview</span>
               </Link>
             </li>
-            <li>
-              <Link to="/profile" className={`sidebar-item ${isActive("/profile") ? "active" : ""}`}>
-                <User size={18} />
-                <span>Skin Profile</span>
-              </Link>
-            </li>
-            <li>
-              <Link to="/assessment" className={`sidebar-item ${isActive("/assessment") ? "active" : ""}`}>
-                <Sparkles size={18} />
-                <span>AI Skin Analysis</span>
-              </Link>
-            </li>
-            <li>
-              <Link to="/wellness" className={`sidebar-item ${isActive("/wellness") ? "active" : ""}`}>
-                <History size={18} />
-                <span>Analysis History</span>
-              </Link>
-            </li>
-            <li>
-              <Link to="/assessment" className="sidebar-item">
-                <ShoppingBag size={18} />
-                <span>Product Recommendations</span>
-              </Link>
-            </li>
-            <li>
-              <Link to="/user" className="sidebar-item">
-                <Target size={18} />
-                <span>Skincare Goals</span>
-              </Link>
-            </li>
-            <li>
-              <Link to="/wellness" className="sidebar-item">
-                <Droplets size={18} />
-                <span>Wellness Tracking</span>
-              </Link>
-            </li>
+
+            {/* Role Specific Navigation Items */}
+            {userRole === 'USER' && (
+              <>
+                <li>
+                  <Link to="/assessment" className={`sidebar-item ${isActive("/assessment") ? "active" : ""}`}>
+                    <Sparkles size={18} />
+                    <span>AI Skin Analysis</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/wellness" className={`sidebar-item ${isActive("/wellness") ? "active" : ""}`}>
+                    <History size={18} />
+                    <span>Skin History & Goals</span>
+                  </Link>
+                </li>
+              </>
+            )}
+
+            {userRole === 'SKINCARE_CONSULTANT' && (
+              <>
+                <li>
+                  <Link to="/consultant" className={`sidebar-item ${isActive("/consultant") ? "active" : ""}`}>
+                    <Sparkles size={18} />
+                    <span>Assigned Clients</span>
+                  </Link>
+                </li>
+              </>
+            )}
+
+            {userRole === 'DERMATOLOGIST' && (
+              <>
+                <li>
+                  <Link to="/doctor" className={`sidebar-item ${isActive("/doctor") ? "active" : ""}`}>
+                    <Stethoscope size={18} />
+                    <span>Patient Consultations</span>
+                  </Link>
+                </li>
+              </>
+            )}
+
+            {userRole === 'WELLNESS_COACH' && (
+              <>
+                <li>
+                  <Link to="/wellness" className={`sidebar-item ${isActive("/wellness") ? "active" : ""}`}>
+                    <Award size={18} />
+                    <span>Lifestyle & Habits</span>
+                  </Link>
+                </li>
+              </>
+            )}
+
+            {userRole === 'ADMIN' && (
+              <>
+                <li>
+                  <Link to="/admin" className={`sidebar-item ${isActive("/admin") ? "active" : ""}`}>
+                    <Shield size={18} />
+                    <span>System Command</span>
+                  </Link>
+                </li>
+              </>
+            )}
           </ul>
         </div>
 

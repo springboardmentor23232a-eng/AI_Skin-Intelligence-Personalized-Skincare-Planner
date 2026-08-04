@@ -10,26 +10,14 @@ const CameraModal = ({ isOpen, onClose, onCapture, title = "Facial Scan & Photo 
   const [capturedImage, setCapturedImage] = useState(null);
   const [facingMode, setFacingMode] = useState("user");
 
-  useEffect(() => {
-    if (!isOpen) {
-      stopCamera();
-      setCapturedImage(null);
-      setError(null);
-      return;
+  const stopCamera = () => {
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+      setStream(null);
     }
-
-    startCamera();
-
-    return () => {
-      stopCamera();
-    };
-  }, [isOpen, facingMode]);
+  };
 
   const startCamera = async () => {
-    setIsInitializing(true);
-    setError(null);
-
-    // Stop any existing stream
     if (stream) {
       stream.getTracks().forEach((track) => track.stop());
     }
@@ -66,12 +54,19 @@ const CameraModal = ({ isOpen, onClose, onCapture, title = "Facial Scan & Photo 
     }
   };
 
-  const stopCamera = () => {
-    if (stream) {
-      stream.getTracks().forEach((track) => track.stop());
-      setStream(null);
+  useEffect(() => {
+    if (isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      startCamera();
+    } else {
+      stopCamera();
     }
-  };
+
+    return () => {
+      stopCamera();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, facingMode]);
 
   const handleTakeSnapshot = () => {
     if (!videoRef.current || !canvasRef.current) return;

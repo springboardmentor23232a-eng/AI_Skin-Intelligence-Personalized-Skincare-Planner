@@ -27,3 +27,13 @@ dist-ssr
 target/
 .mvn/
 
+# Python virtual environment & cache
+venv/
+.venv/
+fastapi_app/venv/
+fastapi_app/.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env

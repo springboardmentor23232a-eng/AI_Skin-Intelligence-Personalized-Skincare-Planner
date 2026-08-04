@@ -33,12 +33,12 @@ const UserProfile = () => {
           setPhone(res.user.phone || "");
           updateProfileState(res.user);
         }
-      } catch (err) {
-        console.warn("Could not fetch live profile from backend:", err.message);
+      } catch (_err) {
+        console.warn("Could not fetch live profile from backend:", _err.message);
       }
     };
     fetchProfile();
-  }, []);
+  }, [updateProfileState]);
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
@@ -59,7 +59,7 @@ const UserProfile = () => {
         updateProfileState(res.user);
         setProfileMsg("Profile updated successfully in PostgreSQL database!");
       }
-    } catch (err) {
+    } catch (_err) {
       updateProfileState({ name, email, profile_picture: avatarUrl, bio, phone });
       setProfileMsg("Profile updated and saved locally!");
     } finally {

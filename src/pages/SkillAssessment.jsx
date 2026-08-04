@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import JwtInspector from "../components/JwtInspector";
 import CameraModal from "../components/CameraModal";
-import { apiService } from "../services/api";
-import { Sparkles, Camera, Upload, ShieldCheck, CheckCircle2, ArrowRight, ExternalLink, Star, Heart, RefreshCw, Globe, ShoppingCart } from "lucide-react";
+import { Sparkles, Camera, Upload, ShieldCheck, Star, Globe, ShoppingCart } from "lucide-react";
 
 // Product Recommendations Dataset for CeraVe, Cetaphil, La Roche-Posay, Neutrogena, The Ordinary, Minimalist, Dot & Key
 const BRAND_PRODUCTS = [

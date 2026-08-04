@@ -16,7 +16,7 @@ const parseJwt = (token) => {
         .join('')
     );
     return JSON.parse(jsonPayload);
-  } catch (e) {
+  } catch (_e) {
     return null;
   }
 };
@@ -25,39 +25,7 @@ const GoogleOAuthButton = ({ text = "Continue with Google", onSuccess, onError }
   const { loginWithGoogle } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [customEmail, setCustomEmail] = useState("");
-  const [customName, setCustomName] = useState("");
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    // Initialize Google Identity Services if client ID is configured
-    const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    if (window.google?.accounts?.id && googleClientId) {
-      try {
-        window.google.accounts.id.initialize({
-          client_id: googleClientId,
-          callback: handleGoogleCredentialResponse,
-          auto_select: false,
-        });
-      } catch (e) {
-        console.warn("Google GSI initialization notice:", e);
-      }
-    }
-  }, []);
-
-  const handleGoogleCredentialResponse = async (response) => {
-    if (response.credential) {
-      const payload = parseJwt(response.credential);
-      if (payload) {
-        await executeGoogleLogin({
-          name: payload.name || payload.given_name || "Google User",
-          email: payload.email,
-          profile_picture: payload.picture || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
-          sub: payload.sub,
-          idToken: response.credential
-        });
-      }
-    }
-  };
 
   const executeGoogleLogin = async (googleUser) => {
     setLoading(true);
@@ -75,6 +43,38 @@ const GoogleOAuthButton = ({ text = "Continue with Google", onSuccess, onError }
       setLoading(false);
     }
   };
+
+  const handleGoogleCredentialResponse = async (response) => {
+    if (response.credential) {
+      const payload = parseJwt(response.credential);
+      if (payload) {
+        await executeGoogleLogin({
+          name: payload.name || payload.given_name || "Google User",
+          email: payload.email,
+          profile_picture: payload.picture || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
+          sub: payload.sub,
+          idToken: response.credential
+        });
+      }
+    }
+  };
+
+  useEffect(() => {
+    // Initialize Google Identity Services if client ID is configured
+    const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    if (window.google?.accounts?.id && googleClientId) {
+      try {
+        window.google.accounts.id.initialize({
+          client_id: googleClientId,
+          callback: handleGoogleCredentialResponse,
+          auto_select: false,
+        });
+      } catch (e) {
+        console.warn("Google GSI initialization notice:", e);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleGoogleClick = () => {
     // Check if real Google GIS is available and client ID is configured
@@ -103,7 +103,7 @@ const GoogleOAuthButton = ({ text = "Continue with Google", onSuccess, onError }
     e.preventDefault();
     if (!customEmail) return;
     executeGoogleLogin({
-      name: customName || customEmail.split("@")[0],
+      name: customEmail.split("@")[0],
       email: customEmail,
       profile_picture: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
       sub: "custom_google_" + Date.now()

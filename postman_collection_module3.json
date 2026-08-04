@@ -1,0 +1,204 @@
+{
+  "info": {
+    "_postman_id": "module3-skin-assessment-engine",
+    "name": "Module 3: Skin Assessment Engine API",
+    "description": "Complete Postman Collection for Module 3 Skin Assessment Engine (FastAPI & PostgreSQL backend).\n\nIncludes endpoints for:\n- POST /assessment (Create Assessment & Run AI Engine)\n- GET /assessment (Get All Assessments)\n- GET /assessment/{id} (Get Assessment by ID)\n- PUT /assessment/{id} (Update Assessment Notes & Recommendations)\n- DELETE /assessment/{id} (Delete Assessment)\n- GET /assessment/history (User Assessment History)\n- GET /assessment/score (Latest Skin Health Score 0-100)\n- GET /assessment/risks (Latest Risk Analysis)\n- GET /assessment/stats (Global Analytics)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "YOUR_JWT_BEARER_TOKEN_HERE",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Create Skin Assessment (POST /assessment)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"skin_type\": \"Combination\",\n  \"oiliness\": \"High\",\n  \"dryness\": \"Low\",\n  \"acne\": \"Moderate\",\n  \"pigmentation\": \"Mild\",\n  \"redness\": \"None\",\n  \"wrinkles\": \"None\",\n  \"dark_spots\": \"Mild\",\n  \"sun_exposure\": \"High\",\n  \"water_intake\": 1.4,\n  \"sleep_hours\": 5.5,\n  \"stress_level\": \"High\",\n  \"smoking\": false,\n  \"alcohol\": \"Occasional\",\n  \"age\": 26,\n  \"notes\": \"Experiencing T-zone oiliness and afternoon fatigue.\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/assessment",
+          "host": ["{{baseUrl}}"],
+          "path": ["assessment"]
+        },
+        "description": "Creates a new skin assessment by executing the rule-based assessment engine."
+      }
+    },
+    {
+      "name": "2. Get Assessment History (GET /assessment/history)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/assessment/history",
+          "host": ["{{baseUrl}}"],
+          "path": ["assessment", "history"]
+        },
+        "description": "Returns chronological skin assessment history for the authenticated user."
+      }
+    },
+    {
+      "name": "3. Get Latest Health Score (GET /assessment/score)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/assessment/score",
+          "host": ["{{baseUrl}}"],
+          "path": ["assessment", "score"]
+        },
+        "description": "Returns the latest skin health score (0-100) and overall condition rating."
+      }
+    },
+    {
+      "name": "4. Get Latest Risk Analysis (GET /assessment/risks)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/assessment/risks",
+          "host": ["{{baseUrl}}"],
+          "path": ["assessment", "risks"]
+        },
+        "description": "Returns the latest risk factor analysis breakdown."
+      }
+    },
+    {
+      "name": "5. Get All Assessments (GET /assessment)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/assessment?skip=0&limit=100",
+          "host": ["{{baseUrl}}"],
+          "path": ["assessment"],
+          "query": [
+            { "key": "skip", "value": "0" },
+            { "key": "limit", "value": "100" }
+          ]
+        },
+        "description": "Get all assessments (filtered according to user role permissions)."
+      }
+    },
+    {
+      "name": "6. Get Assessment By ID (GET /assessment/{id})",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/assessment/1",
+          "host": ["{{baseUrl}}"],
+          "path": ["assessment", "1"]
+        },
+        "description": "Retrieves detailed assessment report by assessment ID."
+      }
+    },
+    {
+      "name": "7. Update Assessment (PUT /assessment/{id})",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"notes\": \"[CONSULTANT NOTE]: Recommend 2% Salicylic Acid Cleanser and SPF 50 sunscreen daily.\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/assessment/1",
+          "host": ["{{baseUrl}}"],
+          "path": ["assessment", "1"]
+        },
+        "description": "Updates assessment notes, clinical diagnosis, or recommendations."
+      }
+    },
+    {
+      "name": "8. Delete Assessment (DELETE /assessment/{id})",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/assessment/1",
+          "host": ["{{baseUrl}}"],
+          "path": ["assessment", "1"]
+        },
+        "description": "Deletes skin assessment by ID (Admin or owner authorized)."
+      }
+    },
+    {
+      "name": "9. Get Global Assessment Stats (GET /assessment/stats)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/assessment/stats",
+          "host": ["{{baseUrl}}"],
+          "path": ["assessment", "stats"]
+        },
+        "description": "Returns system-wide assessment count, average score, and condition distributions."
+      }
+    }
+  ]
+}

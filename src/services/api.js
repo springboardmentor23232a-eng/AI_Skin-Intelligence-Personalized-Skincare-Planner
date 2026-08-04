@@ -95,5 +95,88 @@ export const apiService = {
   getUserDashboard: () => axiosInstance.get('/user/dashboard'),
   getCoachDashboard: () => axiosInstance.get('/coach/dashboard'),
   getAdminDashboard: () => axiosInstance.get('/admin/dashboard'),
-  getAllUsers: () => axiosInstance.get('/admin/users')
+  getAllUsers: () => axiosInstance.get('/admin/users'),
+
+  // Module 3: Skin Assessment Engine APIs
+  createAssessment: async (assessmentData) => {
+    try {
+      const res = await axiosInstance.post('/assessment', assessmentData);
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  getAssessments: async () => {
+    try {
+      const res = await axiosInstance.get('/assessment');
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  getAssessmentById: async (id) => {
+    try {
+      const res = await axiosInstance.get(`/assessment/${id}`);
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  updateAssessment: async (id, updateData) => {
+    try {
+      const res = await axiosInstance.put(`/assessment/${id}`, updateData);
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  deleteAssessment: async (id) => {
+    try {
+      const res = await axiosInstance.delete(`/assessment/${id}`);
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  getAssessmentHistory: async () => {
+    try {
+      const res = await axiosInstance.get('/assessment/history');
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  getLatestScore: async () => {
+    try {
+      const res = await axiosInstance.get('/assessment/score');
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  getLatestRisks: async () => {
+    try {
+      const res = await axiosInstance.get('/assessment/risks');
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  getAssessmentStats: async () => {
+    try {
+      const res = await axiosInstance.get('/assessment/stats');
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  }
 };
+
