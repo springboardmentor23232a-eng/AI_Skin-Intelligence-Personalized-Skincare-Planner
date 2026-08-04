@@ -1,10 +1,10 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
 
     const registerForm = document.querySelector(".register-form");
 
-    registerForm.addEventListener("submit", function (event) {
+    registerForm.addEventListener("submit", async (e) => {
 
-        event.preventDefault();
+        e.preventDefault();
 
         const firstName = document.querySelector("input[name='firstname']").value.trim();
         const lastName = document.querySelector("input[name='lastname']").value.trim();
@@ -14,14 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const role = document.querySelector("select[name='role']").value;
         const terms = document.getElementById("terms");
 
-        if (
-            firstName === "" ||
-            lastName === "" ||
-            email === "" ||
-            password === "" ||
-            confirmPassword === "" ||
-            role === ""
-        ) {
+        if (!firstName || !lastName || !email || !password || !confirmPassword || !role) {
             alert("Please fill in all required fields.");
             return;
         }
@@ -36,9 +29,39 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        alert("Registration Successful!");
+        const full_name = `${firstName} ${lastName}`;
 
-        window.location.href = "/Frontend/login.html";
+        try {
+
+            const response = await fetch("http://localhost:5000/api/auth/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    full_name,
+                    email,
+                    password,
+                    role
+                })
+            });
+
+            const data = await response.json();
+
+            console.log("Status:", response.status);
+            console.log("Response:", data);
+
+            if (response.ok) {
+                alert(data.message);
+                window.location.href = "login.html";
+            } else {
+                alert(data.message);
+            }
+
+        } catch (error) {
+            console.error(error);
+            alert("Cannot connect to backend.");
+        }
 
     });
 
