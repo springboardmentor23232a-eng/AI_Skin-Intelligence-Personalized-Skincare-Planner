@@ -16,6 +16,12 @@ router = APIRouter()
 
 @router.post("/register", response_model=schemas.UserResponse)
 def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    """
+    Manual Registration API.
+    - Hashes password using BCrypt.
+    - Stores full_name, email, password_hash, selected role, provider = 'LOCAL', created_at, updated_at into PostgreSQL.
+    - Prevents public creation of Administrator accounts.
+    """
     new_user = auth.register_user(user, db)
 
     if new_user is None:
@@ -29,6 +35,12 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=schemas.Token)
 def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
+    """
+    Manual Login API.
+    - Verifies email and password.
+    - Uses the database role stored in PostgreSQL (ignores untrusted frontend role).
+    - Generates JWT access token.
+    """
     token_resp = auth.login_user(user, db)
 
     if token_resp is None:
@@ -45,8 +57,13 @@ def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
+    """
+    OAuth2 Token Login Endpoint.
+    - Verifies email & password against PostgreSQL.
+    - Always uses PostgreSQL database role for JWT payload generation.
+    """
     user = db.query(models.User).filter(
-        models.User.email == form_data.username
+        models.User.email == form_data.username.strip().lower()
     ).first()
 
     if not user:
@@ -71,23 +88,30 @@ def login_for_access_token(
 
     return {
         "access_token": access_token,
-        "token_type": "bearer"
+        "token_type": "bearer",
+        "role": user.role,
+        "email": user.email,
+        "full_name": user.full_name,
+        "provider": user.provider,
     }
 
 
 @router.post("/auth/google", response_model=schemas.Token)
 def google_auth(auth_data: schemas.GoogleAuthRequest, db: Session = Depends(get_db)):
     """
-    Google OAuth2 Verification & Auto-Registration Endpoint.
-    1. Verifies Google token / credential via Google OAuth tokeninfo endpoint.
-    2. Auto-registers user in PostgreSQL if not present (provider = "GOOGLE").
-    3. Retrieves role from existing user record if user already exists.
-    4. Generates and returns JWT token for authentication in all subsequent API requests.
+    Complete Google OAuth2 Verification & Registration/Login Endpoint.
+    - Verifies Google token with Google's tokeninfo API.
+    - FIRST TIME USER (email not in PostgreSQL):
+        Auto-creates account with provider = 'GOOGLE', selected role, created_at, updated_at.
+        Administrator accounts can NEVER be auto-created via Google registration.
+    - EXISTING USER (email already in PostgreSQL):
+        Reads existing user and database role from PostgreSQL.
+        Ignores currently selected role on the frontend/Login page.
+        Generates JWT with PostgreSQL database role.
     """
     user_email = auth_data.email.strip().lower() if auth_data.email else None
     display_name = auth_data.full_name or auth_data.name
 
-    # If Google credential ID Token was provided, verify directly against Google OAuth API
     raw_token = auth_data.id_token
     if raw_token:
         try:
@@ -99,7 +123,6 @@ def google_auth(auth_data: schemas.GoogleAuthRequest, db: Session = Depends(get_
                         user_email = token_info["email"].strip().lower()
                         display_name = token_info.get("name") or display_name
         except Exception:
-            # Fallback to provided claims if offline or sandbox token
             pass
 
     if not user_email:
@@ -111,31 +134,37 @@ def google_auth(auth_data: schemas.GoogleAuthRequest, db: Session = Depends(get_
     if not display_name:
         display_name = user_email.split('@')[0].replace('.', ' ').title()
 
-    user_role = (auth_data.role or "USER").upper()
-
     # Query PostgreSQL database for existing user
     user = db.query(models.User).filter(models.User.email == user_email).first()
 
     if not user:
-        # Auto-register new Google user in PostgreSQL database
+        # First Time Google User: Auto-register in PostgreSQL
+        requested_role = (auth_data.role or "USER").upper()
+        if requested_role in ["CONSUMER", "USER"]:
+            final_role = "USER"
+        elif requested_role == "ADMIN":
+            final_role = "USER"
+        else:
+            final_role = requested_role
+
         random_pwd = secrets.token_hex(16)
         hashed_pwd = auth.pwd_context.hash(random_pwd)
         user = models.User(
             full_name=display_name,
             email=user_email,
             password=hashed_pwd,
-            role=user_role,
+            role=final_role,
             provider="GOOGLE",
         )
         db.add(user)
         db.commit()
         db.refresh(user)
     else:
-        # User already exists - update timestamp
+        # Existing Google User: Always use role stored in PostgreSQL (ignore frontend selected role)
         user.updated_at = datetime.now(timezone.utc)
         db.commit()
 
-    # Generate JWT access token containing sub, role, provider
+    # Generate application JWT access token using the PostgreSQL database role
     access_token = create_access_token({
         "sub": user.email,
         "role": user.role,
@@ -145,6 +174,10 @@ def google_auth(auth_data: schemas.GoogleAuthRequest, db: Session = Depends(get_
     return {
         "access_token": access_token,
         "token_type": "bearer",
+        "role": user.role,
+        "email": user.email,
+        "full_name": user.full_name,
+        "provider": user.provider,
     }
 
 

@@ -9,7 +9,7 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str
     role: Optional[str] = "USER"
-    provider: Optional[str] = "local"
+    provider: Optional[str] = "LOCAL"
 
 class UserLogin(BaseModel):
     email: EmailStr
@@ -21,14 +21,14 @@ class GoogleAuthRequest(BaseModel):
     name: Optional[str] = "Google User"
     full_name: Optional[str] = None
     role: Optional[str] = "USER"
-    provider: Optional[str] = "google"
+    provider: Optional[str] = "GOOGLE"
 
 class UserResponse(BaseModel):
     id: int
     full_name: Optional[str] = None
     email: EmailStr
     role: Optional[str] = "USER"
-    provider: Optional[str] = "local"
+    provider: Optional[str] = "LOCAL"
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
@@ -38,3 +38,7 @@ class UserResponse(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+    role: Optional[str] = "USER"
+    email: Optional[str] = None
+    full_name: Optional[str] = None
+    provider: Optional[str] = "LOCAL"

@@ -16,21 +16,27 @@ def register_user(user: schemas.UserCreate, db: Session):
     if existing_user:
         return None
 
-    # Hash the password
+    # Hash the password using BCrypt
     hashed_password = pwd_context.hash(user.password)
 
-    # Determine full_name from full_name or name
     display_name = user.full_name or user.name or user.email.split('@')[0]
-    user_role = (user.role or "USER").upper()
-    user_provider = user.provider or "local"
+    
+    # Store standard user role as "USER" (not "CONSUMER")
+    requested_role = (user.role or "USER").upper()
+    if requested_role in ["CONSUMER", "USER"]:
+        user_role = "USER"
+    elif requested_role == "ADMIN":
+        user_role = "USER"
+    else:
+        user_role = requested_role
 
-    # Create new user
+    # Create new user in PostgreSQL with provider = "LOCAL" and role = "USER"
     new_user = models.User(
         full_name=display_name,
         email=user.email,
         password=hashed_password,
         role=user_role,
-        provider=user_provider,
+        provider="LOCAL",
     )
 
     db.add(new_user)
@@ -51,6 +57,7 @@ def login_user(user: schemas.UserLogin, db: Session):
     if not pwd_context.verify(user.password, existing_user.password):
         return None
 
+    # Always use the PostgreSQL database role for JWT generation & routing
     token = create_access_token(
         {
             "sub": existing_user.email,
@@ -61,5 +68,9 @@ def login_user(user: schemas.UserLogin, db: Session):
 
     return {
         "access_token": token,
-        "token_type": "bearer"
+        "token_type": "bearer",
+        "role": existing_user.role,
+        "email": existing_user.email,
+        "full_name": existing_user.full_name,
+        "provider": existing_user.provider,
     }

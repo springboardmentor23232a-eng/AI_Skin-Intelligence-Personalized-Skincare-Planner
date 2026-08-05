@@ -2,29 +2,69 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { USER_ROLES } from '@/lib/constants';
-import { Sparkles, SlidersHorizontal, User, UserCheck, Stethoscope, Shield, Menu, X, LogIn, LogOut } from 'lucide-react';
+import { Sparkles, User, UserCheck, Stethoscope, Shield, Menu, X, LogIn, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, switchRole, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const activeRole = user?.role || USER_ROLES.CONSUMER;
+  const rawRole = (user?.role || USER_ROLES.CONSUMER).toLowerCase().replace('wellness_coach', 'consultant');
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
-  const mainNavItems = [
-    { label: 'Home', href: '/' },
-    { label: 'User Dashboard', href: '/dashboard/user' },
-    { label: 'Consultant Dashboard', href: '/dashboard/consultant' },
-    { label: 'Dermatologist Dashboard', href: '/dashboard/dermatologist' },
-    { label: 'Admin Dashboard', href: '/dashboard/admin' },
-  ];
+  // Build navigation items filtered strictly according to user role
+  const getNavItems = () => {
+    const items = [{ label: 'Home', href: '/' }];
+
+    if (!isAuthenticated) {
+      return items;
+    }
+
+    if (rawRole === 'admin') {
+      // Administrator has complete platform access to all dashboards
+      return [
+        { label: 'Home', href: '/' },
+        { label: 'User Dashboard', href: '/dashboard/user' },
+        { label: 'Consultant Dashboard', href: '/dashboard/consultant' },
+        { label: 'Dermatologist Dashboard', href: '/dashboard/dermatologist' },
+        { label: 'Admin Console', href: '/dashboard/admin' },
+      ];
+    }
+
+    if (rawRole === 'consultant') {
+      items.push({ label: 'Consultant Workspace', href: '/dashboard/consultant' });
+    } else if (rawRole === 'dermatologist') {
+      items.push({ label: 'Dermatologist Portal', href: '/dashboard/dermatologist' });
+    } else {
+      items.push({ label: 'User Dashboard', href: '/dashboard/user' });
+    }
+
+    return items;
+  };
+
+  const navItems = getNavItems();
+
+  const getRoleBadge = () => {
+    switch (rawRole) {
+      case 'admin':
+        return { label: 'Admin', color: 'bg-violet-500/20 text-violet-300 border-violet-500/40', icon: Shield };
+      case 'consultant':
+        return { label: 'Consultant', color: 'bg-teal-500/20 text-teal-300 border-teal-500/40', icon: UserCheck };
+      case 'dermatologist':
+        return { label: 'Dermatologist', color: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40', icon: Stethoscope };
+      default:
+        return { label: 'User', color: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40', icon: User };
+    }
+  };
+
+  const roleBadge = getRoleBadge();
+  const BadgeIcon = roleBadge.icon;
 
   return (
     <header className="sticky top-0 z-50 w-full backdrop-blur-2xl bg-slate-950/85 border-b border-slate-800/80 transition-all">
@@ -42,14 +82,14 @@ export function Navbar() {
                 </span>
               </div>
               <span className="text-[10px] block font-semibold text-slate-400 uppercase tracking-widest">
-                Dashboard Platform
+                AI Skincare Platform
               </span>
             </div>
           </Link>
 
-          {/* Desktop Main Routes */}
+          {/* Desktop Role-Based Navigation Items */}
           <nav className="hidden lg:flex items-center gap-1 bg-slate-900/80 border border-slate-800/80 rounded-2xl p-1.5 shadow-inner">
-            {mainNavItems.map((item) => {
+            {navItems.map((item) => {
               const isActive = location.pathname === item.href;
               return (
                 <Link
@@ -68,73 +108,38 @@ export function Navbar() {
             })}
           </nav>
 
-          {/* Role Switcher Pill & Login/Logout Action */}
+          {/* User Status Badge & Auth Actions */}
           <div className="flex items-center gap-3">
-            {/* Role Switcher Pill */}
-            <div className="hidden sm:flex items-center gap-1 bg-slate-900/90 border border-slate-800/90 rounded-2xl p-1 text-xs shadow-lg">
-              <span className="px-2.5 text-[10px] uppercase font-bold text-slate-400 flex items-center gap-1.5">
-                <SlidersHorizontal className="w-3.5 h-3.5 text-emerald-400" /> Role:
-              </span>
-              <button
-                onClick={() => switchRole(USER_ROLES.CONSUMER)}
-                className={cn(
-                  'px-2.5 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1',
-                  activeRole === USER_ROLES.CONSUMER
-                    ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-                    : 'text-slate-400 hover:text-white'
-                )}
-              >
-                <User className="w-3 h-3" /> User
-              </button>
-              <button
-                onClick={() => switchRole(USER_ROLES.CONSULTANT)}
-                className={cn(
-                  'px-2.5 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1',
-                  activeRole === USER_ROLES.CONSULTANT
-                    ? 'bg-teal-500 text-slate-950 shadow-md shadow-teal-500/20'
-                    : 'text-slate-400 hover:text-white'
-                )}
-              >
-                <UserCheck className="w-3 h-3" /> Consultant
-              </button>
-              <button
-                onClick={() => switchRole(USER_ROLES.DERMATOLOGIST)}
-                className={cn(
-                  'px-2.5 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1',
-                  activeRole === USER_ROLES.DERMATOLOGIST
-                    ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20'
-                    : 'text-slate-400 hover:text-white'
-                )}
-              >
-                <Stethoscope className="w-3 h-3" /> Derm
-              </button>
-              <button
-                onClick={() => switchRole(USER_ROLES.ADMIN)}
-                className={cn(
-                  'px-2.5 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1',
-                  activeRole === USER_ROLES.ADMIN
-                    ? 'bg-violet-500 text-slate-950 shadow-md shadow-violet-500/20'
-                    : 'text-slate-400 hover:text-white'
-                )}
-              >
-                <Shield className="w-3 h-3" /> Admin
-              </button>
-            </div>
-
             {isAuthenticated ? (
-              <button
-                onClick={handleLogout}
-                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-500/10 border border-rose-500/30 text-rose-300 hover:bg-rose-500/20 transition-all"
-              >
-                <LogOut className="w-3.5 h-3.5 text-rose-400" /> Logout
-              </button>
+              <div className="hidden sm:flex items-center gap-2">
+                {/* Role Badge */}
+                <div className={cn('flex items-center gap-1.5 px-3 py-1 rounded-xl border text-xs font-bold shadow-sm', roleBadge.color)}>
+                  <BadgeIcon className="w-3.5 h-3.5" />
+                  <span>{roleBadge.label}</span>
+                </div>
+
+                <button
+                  onClick={handleLogout}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-500/10 border border-rose-500/30 text-rose-300 hover:bg-rose-500/20 transition-all"
+                >
+                  <LogOut className="w-3.5 h-3.5 text-rose-400" /> Logout
+                </button>
+              </div>
             ) : (
-              <Link
-                to="/login"
-                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 border border-slate-800 text-slate-200 hover:text-white hover:border-slate-700 transition-all"
-              >
-                <LogIn className="w-3.5 h-3.5 text-emerald-400" /> Login
-              </Link>
+              <div className="hidden sm:flex items-center gap-2">
+                <Link
+                  to="/login"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-900 border border-slate-800 text-slate-200 hover:text-white hover:border-slate-700 transition-all"
+                >
+                  <LogIn className="w-3.5 h-3.5 text-emerald-400" /> Sign In
+                </Link>
+                <Link
+                  to="/register"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 text-slate-950 hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20"
+                >
+                  Create Account
+                </Link>
+              </div>
             )}
 
             {/* Mobile Menu Toggle */}
@@ -150,35 +155,17 @@ export function Navbar() {
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
           <div className="lg:hidden py-4 border-t border-slate-800/80 space-y-3">
-            <div className="flex flex-wrap gap-1 p-2 bg-slate-900/90 rounded-xl border border-slate-800">
-              <button
-                onClick={() => { switchRole(USER_ROLES.CONSUMER); setMobileMenuOpen(false); }}
-                className={cn('flex-1 py-1.5 rounded-lg text-xs font-bold', activeRole === USER_ROLES.CONSUMER ? 'bg-emerald-500 text-slate-950' : 'text-slate-400')}
-              >
-                User
-              </button>
-              <button
-                onClick={() => { switchRole(USER_ROLES.CONSULTANT); setMobileMenuOpen(false); }}
-                className={cn('flex-1 py-1.5 rounded-lg text-xs font-bold', activeRole === USER_ROLES.CONSULTANT ? 'bg-teal-500 text-slate-950' : 'text-slate-400')}
-              >
-                Consultant
-              </button>
-              <button
-                onClick={() => { switchRole(USER_ROLES.DERMATOLOGIST); setMobileMenuOpen(false); }}
-                className={cn('flex-1 py-1.5 rounded-lg text-xs font-bold', activeRole === USER_ROLES.DERMATOLOGIST ? 'bg-cyan-500 text-slate-950' : 'text-slate-400')}
-              >
-                Derm
-              </button>
-              <button
-                onClick={() => { switchRole(USER_ROLES.ADMIN); setMobileMenuOpen(false); }}
-                className={cn('flex-1 py-1.5 rounded-lg text-xs font-bold', activeRole === USER_ROLES.ADMIN ? 'bg-violet-500 text-slate-950' : 'text-slate-400')}
-              >
-                Admin
-              </button>
-            </div>
+            {isAuthenticated && (
+              <div className="flex items-center justify-between p-3 bg-slate-900/90 rounded-xl border border-slate-800 text-xs">
+                <span className="text-slate-400 font-semibold">{user?.email}</span>
+                <div className={cn('flex items-center gap-1 px-2.5 py-0.5 rounded-lg border text-[11px] font-bold', roleBadge.color)}>
+                  <BadgeIcon className="w-3 h-3" /> {roleBadge.label}
+                </div>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 gap-2 text-xs">
-              {mainNavItems.map((item) => (
+              {navItems.map((item) => (
                 <Link
                   key={item.href}
                   to={item.href}
@@ -188,6 +175,7 @@ export function Navbar() {
                   {item.label}
                 </Link>
               ))}
+
               {isAuthenticated ? (
                 <button
                   onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
@@ -196,13 +184,22 @@ export function Navbar() {
                   <LogOut className="w-4 h-4" /> Logout
                 </button>
               ) : (
-                <Link
-                  to="/login"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="p-2.5 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-bold"
-                >
-                  Login Page
-                </Link>
+                <div className="grid grid-cols-2 gap-2 pt-2">
+                  <Link
+                    to="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 text-center font-bold"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    to="/register"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="p-2.5 rounded-xl bg-emerald-500 text-slate-950 text-center font-bold"
+                  >
+                    Register
+                  </Link>
+                </div>
               )}
             </div>
           </div>

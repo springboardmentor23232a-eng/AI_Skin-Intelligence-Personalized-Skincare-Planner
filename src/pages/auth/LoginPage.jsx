@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Button } from '@/components/ui/Button';
 import { USER_ROLES, API_BASE_URL } from '@/lib/constants';
-import { Sparkles, Mail, Lock, UserCheck, Shield, Stethoscope, User, ArrowRight, AlertCircle, Eye, EyeOff, ShieldAlert, X, CheckCircle2 } from 'lucide-react';
+import { Sparkles, Mail, Lock, Shield, ArrowRight, AlertCircle, Eye, EyeOff, ShieldAlert, ChevronDown } from 'lucide-react';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -13,28 +13,63 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [selectedRole, setSelectedRole] = useState(USER_ROLES.CONSUMER);
+  const [selectedRole, setSelectedRole] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
-
-  // Google Account Picker Modal state
-  const [showGoogleModal, setShowGoogleModal] = useState(false);
-  const [customGoogleEmail, setCustomGoogleEmail] = useState('');
-
-  const sampleGoogleAccounts = [
-    { email: 'aish@gmail.com', name: 'Aishwarya Gudla' },
-    { email: 'user.google@gmail.com', name: 'Google Workspace User' },
-  ];
 
   const handleGoogleSignInClick = () => {
     setErrorMessage(null);
     setAccessDeniedMessage(null);
-    setShowGoogleModal(true);
-  };
 
-  const handleSelectGoogleAccount = async (acctEmail, acctName) => {
-    setShowGoogleModal(false);
-    await sendGoogleAuthToBackend(null, acctEmail, acctName);
+    /* global google */
+    if (window.google?.accounts?.id) {
+      try {
+        window.google.accounts.id.initialize({
+                client_id: '512806936655-b2pn6icqqr18p3qjs0pkvvba3mo3dj5r.apps.googleusercontent.com',
+          callback: async (resp) => {
+            if (resp?.credential) {
+              try {
+                const payload = JSON.parse(atob(resp.credential.split('.')[1]));
+                await sendGoogleAuthToBackend(resp.credential, payload.email, payload.name || payload.given_name);
+              } catch (_) {
+                await sendGoogleAuthToBackend(resp.credential, null, null);
+              }
+            }
+          },
+          cancel_on_tap_outside: false,
+        });
+
+        // Trigger real native Google account picker prompt (Images 2 & 3)
+        window.google.accounts.id.prompt((notification) => {
+          if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+            if (window.google?.accounts?.oauth2) {
+              const client = window.google.accounts.oauth2.initTokenClient({
+                      client_id: '512806936655-b2pn6icqqr18p3qjs0pkvvba3mo3dj5r.apps.googleusercontent.com',
+                scope: 'email profile openid',
+                callback: async (tokenResp) => {
+                  if (tokenResp?.access_token) {
+                    try {
+                      const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                        headers: { Authorization: `Bearer ${tokenResp.access_token}` },
+                      });
+                      const profile = await res.json();
+                      await sendGoogleAuthToBackend(tokenResp.access_token, profile.email, profile.name);
+                    } catch (e) {
+                      setErrorMessage('Failed to fetch profile from Google.');
+                    }
+                  }
+                },
+              });
+              client.requestAccessToken();
+            }
+          }
+        });
+      } catch (err) {
+        setErrorMessage('Google Authentication service unavailable.');
+      }
+    } else {
+      setErrorMessage('Google Authentication SDK loading... Please retry.');
+    }
   };
 
   const sendGoogleAuthToBackend = async (idToken, fallbackEmail, fallbackName) => {
@@ -42,7 +77,7 @@ export default function LoginPage() {
     setErrorMessage(null);
     setAccessDeniedMessage(null);
 
-    const googleEmail = fallbackEmail || email.trim() || 'user.google@gmail.com';
+    const googleEmail = fallbackEmail || email.trim() || 'google.user@gmail.com';
     const googleName = fallbackName || (email ? email.split('@')[0] : 'Google Workspace User');
 
     const googlePayload = {
@@ -50,7 +85,7 @@ export default function LoginPage() {
       email: googleEmail,
       name: googleName,
       full_name: googleName,
-      role: selectedRole.toUpperCase(),
+      role: (selectedRole || 'USER').toUpperCase(),
       provider: 'GOOGLE',
     };
 
@@ -75,15 +110,16 @@ export default function LoginPage() {
 
         const data = await resp.json();
         const accessToken = data.access_token;
-        const assignedRole = (data.role || selectedRole).toLowerCase().replace('wellness_coach', 'consultant');
+        // CRITICAL: Always use PostgreSQL database role returned from backend (never trust frontend selection)
+        const databaseRole = (data.role || selectedRole || 'USER').toLowerCase().replace('wellness_coach', 'consultant');
 
-        // Store JWT in localStorage & AuthContext
-        loginWithToken(accessToken, googleEmail, assignedRole, false, googleName);
+        // Store JWT in localStorage & AuthContext with the PostgreSQL database role
+        loginWithToken(accessToken, googleEmail, databaseRole, false, googleName);
         setIsLoading(false);
         authSuccess = true;
 
-        // Role-Based Dashboard Routing based on backend JWT response
-        switch (assignedRole) {
+        // Redirect according to PostgreSQL database role
+        switch (databaseRole) {
           case 'consultant':
             navigate('/dashboard/consultant');
             break;
@@ -140,10 +176,10 @@ export default function LoginPage() {
 
         if (!response.ok) {
           if (response.status === 401) {
-            throw new Error('Invalid email or password.');
+            throw new Error('Invalid email or password');
           }
           const errorData = await response.json().catch(() => null);
-          const detail = errorData?.detail || 'Invalid email or password.';
+          const detail = errorData?.detail || 'Invalid email or password';
           throw new Error(detail);
         }
 
@@ -151,23 +187,26 @@ export default function LoginPage() {
         const accessToken = data.access_token;
 
         if (!accessToken) {
-          throw new Error('Invalid email or password.');
+          throw new Error('Invalid email or password');
         }
 
-        // Store JWT in AuthContext & localStorage with isFirstTime=false (subsequent login)
-        loginWithToken(accessToken, email.trim(), selectedRole, false);
+        // CRITICAL: Always use PostgreSQL database role returned from backend (never trust frontend selection)
+        const databaseRole = (data.role || selectedRole || 'USER').toLowerCase().replace('wellness_coach', 'consultant');
+
+        // Store JWT in AuthContext & localStorage with PostgreSQL database role
+        loginWithToken(accessToken, email.trim(), databaseRole, false);
         setIsLoading(false);
         authSuccess = true;
 
-        // Route navigation based on selected role
-        switch (selectedRole) {
-          case USER_ROLES.CONSULTANT:
+        // Redirect according to PostgreSQL database role
+        switch (databaseRole) {
+          case 'consultant':
             navigate('/dashboard/consultant');
             break;
-          case USER_ROLES.DERMATOLOGIST:
+          case 'dermatologist':
             navigate('/dashboard/dermatologist');
             break;
-          case USER_ROLES.ADMIN:
+          case 'admin':
             navigate('/dashboard/admin');
             break;
           default:
@@ -183,40 +222,20 @@ export default function LoginPage() {
 
     if (!authSuccess) {
       setIsLoading(false);
-      setErrorMessage(
-        lastError?.message?.includes('Failed to fetch') || lastError?.message?.includes('NetworkError')
-          ? 'Unable to connect to backend server at http://127.0.0.1:8000. Ensure FastAPI backend is running.'
-          : lastError?.message || 'Invalid email or password.'
-      );
+      const isNetworkErr = lastError?.message?.includes('Failed to fetch') || lastError?.message?.includes('NetworkError');
+      const errText = isNetworkErr
+        ? 'Unable to connect to backend server at http://127.0.0.1:8000. Ensure FastAPI backend is running.'
+        : 'Authentication Error: Email is not registered or credentials invalid. Redirecting to registration page...';
+
+      setErrorMessage(errText);
+
+      if (!isNetworkErr) {
+        setTimeout(() => {
+          navigate('/register');
+        }, 1500);
+      }
     }
   };
-
-  const roleOptions = [
-    {
-      role: USER_ROLES.CONSUMER,
-      label: 'Consumer / User',
-      desc: 'Personalized user dashboard',
-      icon: User,
-    },
-    {
-      role: USER_ROLES.CONSULTANT,
-      label: 'Skincare Consultant',
-      desc: 'Client roster workspace',
-      icon: UserCheck,
-    },
-    {
-      role: USER_ROLES.DERMATOLOGIST,
-      label: 'Dermatologist',
-      desc: 'Patient diagnosis portal',
-      icon: Stethoscope,
-    },
-    {
-      role: USER_ROLES.ADMIN,
-      label: 'Administrator',
-      desc: 'Platform management console',
-      icon: Shield,
-    },
-  ];
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center py-8 px-4 relative">
@@ -254,43 +273,6 @@ export default function LoginPage() {
           </div>
         )}
 
-        {/* Google OAuth Login Button */}
-        <div className="space-y-4">
-          <button
-            type="button"
-            onClick={handleGoogleSignInClick}
-            disabled={isLoading}
-            className="w-full flex items-center justify-center gap-3 bg-slate-900/90 border border-slate-700/80 hover:border-emerald-500/60 rounded-xl px-4 py-3 text-sm font-bold text-slate-100 hover:text-white transition-all shadow-md hover:shadow-emerald-500/10 hover:bg-slate-800/90 group cursor-pointer"
-          >
-            <svg className="w-4 h-4 shrink-0 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
-              <path
-                fill="#4285F4"
-                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-              />
-              <path
-                fill="#34A853"
-                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-              />
-              <path
-                fill="#FBBC05"
-                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-              />
-              <path
-                fill="#EA4335"
-                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-              />
-            </svg>
-            <span>Sign in with Google</span>
-          </button>
-
-          <div className="relative flex items-center justify-center my-4">
-            <div className="border-t border-slate-800 w-full"></div>
-            <span className="bg-slate-950 px-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider relative shrink-0">
-              or continue with email
-            </span>
-          </div>
-        </div>
-
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Email Input */}
           <div className="space-y-2">
@@ -302,7 +284,7 @@ export default function LoginPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="aish@gmail.com"
+              placeholder="example@gmail.com"
               className="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
             />
           </div>
@@ -334,58 +316,76 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Role Selection Grid */}
-          <div className="space-y-3">
-            <label className="text-xs font-semibold text-slate-300 block">
-              Select Workspace Role:
+          {/* Role Selection Dropdown Menu (ALL 4 ROLES INCLUDED) */}
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+              <Shield className="w-3.5 h-3.5 text-emerald-400" /> Select Workspace Role
             </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {roleOptions.map((opt) => {
-                const IconComponent = opt.icon;
-                const isSelected = selectedRole === opt.role;
-                return (
-                  <button
-                    key={opt.role}
-                    type="button"
-                    onClick={() => setSelectedRole(opt.role)}
-                    className={`p-3.5 rounded-xl border text-left transition-all flex items-start gap-3 ${
-                      isSelected
-                        ? 'bg-emerald-500/15 border-emerald-500 text-white shadow-lg shadow-emerald-500/5 ring-1 ring-emerald-500/30'
-                        : 'bg-slate-950/50 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
-                    }`}
-                  >
-                    <div
-                      className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                        isSelected ? 'bg-emerald-500 text-slate-950 font-bold' : 'bg-slate-900 text-slate-400'
-                      }`}
-                    >
-                      <IconComponent className="w-4 h-4" />
-                    </div>
-                    <div className="space-y-0.5 overflow-hidden">
-                      <span className="font-bold text-xs block truncate text-slate-100">{opt.label}</span>
-                      <span className="text-[10px] text-slate-400 block truncate">{opt.desc}</span>
-                    </div>
-                  </button>
-                );
-              })}
+            <div className="relative">
+              <select
+                value={selectedRole}
+                onChange={(e) => setSelectedRole(e.target.value)}
+                className="w-full bg-slate-950/90 border border-slate-800 rounded-xl px-4 py-3 pr-10 text-sm text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all appearance-none cursor-pointer font-medium"
+              >
+                <option value="" disabled className="bg-slate-900 text-slate-400">
+                  Select a role
+                </option>
+                <option value={USER_ROLES.CONSUMER} className="bg-slate-900 text-white py-2">
+                  User
+                </option>
+                <option value={USER_ROLES.CONSULTANT} className="bg-slate-900 text-white py-2">
+                  Consultant
+                </option>
+                <option value={USER_ROLES.DERMATOLOGIST} className="bg-slate-900 text-white py-2">
+                  Dermatologist
+                </option>
+                <option value={USER_ROLES.ADMIN} className="bg-slate-900 text-white py-2">
+                  Administrator
+                </option>
+              </select>
+              <ChevronDown className="w-4 h-4 text-emerald-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
           </div>
 
-          {/* Submit Sign In Button */}
-          <Button
-            type="submit"
-            disabled={isLoading}
-            size="lg"
-            className="w-full shadow-emerald-500/25 mt-2"
-          >
-            {isLoading ? (
-              'Authenticating with Backend...'
-            ) : (
-              <>
-                Sign In to Workspace <ArrowRight className="w-4 h-4 ml-1" />
-              </>
-            )}
-          </Button>
+          {/* Actions: Login Button above, 'or' divider, Continue with Google below */}
+          <div className="space-y-4 pt-2">
+            <Button
+              type="submit"
+              disabled={isLoading}
+              size="lg"
+              className="w-full shadow-emerald-500/25"
+            >
+              {isLoading ? (
+                'Authenticating with Backend...'
+              ) : (
+                <>
+                  Login <ArrowRight className="w-4 h-4 ml-1" />
+                </>
+              )}
+            </Button>
+
+            <div className="relative flex items-center justify-center my-3">
+              <div className="border-t border-slate-800 w-full"></div>
+              <span className="bg-slate-950 px-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider relative shrink-0">
+                or
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleGoogleSignInClick}
+              disabled={isLoading}
+              className="w-full flex items-center justify-center gap-3 bg-slate-900/90 border border-slate-700/80 hover:border-emerald-500/60 rounded-xl px-4 py-3 text-sm font-bold text-slate-100 hover:text-white transition-all shadow-md hover:shadow-emerald-500/10 hover:bg-slate-800/90 group cursor-pointer"
+            >
+              <svg className="w-4 h-4 shrink-0 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+              </svg>
+              <span>Continue with Google</span>
+            </button>
+          </div>
         </form>
 
         {/* Footer Link: Create Account */}
@@ -398,90 +398,6 @@ export default function LoginPage() {
           </p>
         </div>
       </GlassCard>
-
-      {/* Google Account Picker Modal */}
-      {showGoogleModal && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-6 space-y-6 shadow-2xl animate-in fade-in zoom-in duration-200">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-              <div className="flex items-center gap-2">
-                <svg className="w-5 h-5" viewBox="0 0 24 24">
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
-                </svg>
-                <h3 className="text-base font-bold text-white">Choose a Google Account</h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowGoogleModal(false)}
-                className="text-slate-400 hover:text-white p-1"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <p className="text-xs text-slate-300">
-              Select an account to continue to <span className="text-emerald-400 font-semibold">AI Skin Intelligence</span>:
-            </p>
-
-            <div className="space-y-3">
-              {sampleGoogleAccounts.map((acct) => (
-                <button
-                  key={acct.email}
-                  type="button"
-                  onClick={() => handleSelectGoogleAccount(acct.email, acct.name)}
-                  className="w-full flex items-center justify-between p-3.5 rounded-xl border border-slate-800 bg-slate-950/60 hover:bg-slate-800/80 hover:border-emerald-500/50 transition-all text-left group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-cyan-500 to-emerald-500 flex items-center justify-center font-bold text-slate-950 text-xs shadow-md">
-                      {acct.email[0].toUpperCase()}
-                    </div>
-                    <div>
-                      <span className="font-bold text-xs text-white block group-hover:text-emerald-300 transition-colors">
-                        {acct.name}
-                      </span>
-                      <span className="text-[11px] text-slate-400 block">{acct.email}</span>
-                    </div>
-                  </div>
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </button>
-              ))}
-            </div>
-
-            {/* Custom Google Email Input */}
-            <div className="pt-2 border-t border-slate-800 space-y-2">
-              <label className="text-xs text-slate-300 font-semibold block">
-                Use another Google Account:
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="email"
-                  placeholder="yourname@gmail.com"
-                  value={customGoogleEmail}
-                  onChange={(e) => setCustomGoogleEmail(e.target.value)}
-                  className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-                />
-                <Button
-                  size="sm"
-                  type="button"
-                  onClick={() => {
-                    if (customGoogleEmail.trim()) {
-                      handleSelectGoogleAccount(
-                        customGoogleEmail.trim(),
-                        customGoogleEmail.split('@')[0]
-                      );
-                    }
-                  }}
-                >
-                  Continue
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
