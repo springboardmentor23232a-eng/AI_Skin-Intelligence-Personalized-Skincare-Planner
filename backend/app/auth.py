@@ -21,12 +21,16 @@ def register_user(user: schemas.UserCreate, db: Session):
 
     # Determine full_name from full_name or name
     display_name = user.full_name or user.name or user.email.split('@')[0]
+    user_role = (user.role or "USER").upper()
+    user_provider = user.provider or "local"
 
     # Create new user
     new_user = models.User(
         full_name=display_name,
         email=user.email,
-        password=hashed_password
+        password=hashed_password,
+        role=user_role,
+        provider=user_provider,
     )
 
     db.add(new_user)
@@ -49,7 +53,9 @@ def login_user(user: schemas.UserLogin, db: Session):
 
     token = create_access_token(
         {
-            "sub": existing_user.email
+            "sub": existing_user.email,
+            "role": existing_user.role,
+            "provider": existing_user.provider,
         }
     )
 

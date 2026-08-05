@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { RootLayout } from '@/components/layout/RootLayout';
 import LandingPage from '@/pages/LandingPage';
 import LoginPage from '@/pages/auth/LoginPage';
+import RegisterPage from '@/pages/auth/RegisterPage';
 import UserOverviewPage from '@/pages/user/UserOverviewPage';
 import AssessmentPage from '@/pages/user/AssessmentPage';
 import RoutinePlannerPage from '@/pages/user/RoutinePlannerPage';
@@ -19,6 +20,7 @@ export function AppRouter() {
       <Routes>
         <Route path="/" element={<RootLayout />}>
           <Route index element={<LandingPage />} />
+          <Route path="register" element={<RegisterPage />} />
           <Route path="login" element={<LoginPage />} />
           <Route path="dashboard/user" element={<UserOverviewPage />} />
           <Route path="dashboard/user/assessment" element={<AssessmentPage />} />

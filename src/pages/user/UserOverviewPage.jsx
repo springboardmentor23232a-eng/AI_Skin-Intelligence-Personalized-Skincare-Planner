@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 
 export default function UserOverviewPage() {
-  const { user } = useAuth();
+  const { user, isFirstTimeLogin } = useAuth();
 
   const [checklist, setChecklist] = useState([
     { id: 1, text: 'Gentle Hydrating Cleanser', done: true },
@@ -58,12 +58,12 @@ export default function UserOverviewPage() {
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
-              Welcome back, {user.name.split(' ')[0]}
+              {isFirstTimeLogin ? `Welcome ${user?.name ? user.name.split(' ')[0] : 'User'}` : `Welcome back, ${user?.name ? user.name.split(' ')[0] : 'User'}`}
             </h1>
             <Badge variant="emerald">User Prototype Dashboard</Badge>
           </div>
           <p className="text-xs sm:text-sm text-slate-400">
-            Skin Profile: <span className="text-slate-200 font-medium">{user.skinType}</span> • Primary Concerns: {user.concerns.join(', ')} (Sample Data)
+            Skin Profile: <span className="text-slate-200 font-medium">{user?.skinType || 'Combination'}</span> • Primary Concerns: {user?.concerns ? user.concerns.join(', ') : 'Hyperpigmentation'} (Sample Data)
           </p>
         </div>
 

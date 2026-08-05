@@ -1,14 +1,22 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { USER_ROLES } from '@/lib/constants';
-import { Sparkles, SlidersHorizontal, User, UserCheck, Stethoscope, Shield, Menu, X, LogIn, LayoutDashboard } from 'lucide-react';
+import { Sparkles, SlidersHorizontal, User, UserCheck, Stethoscope, Shield, Menu, X, LogIn, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function Navbar() {
   const location = useLocation();
-  const { user, switchRole } = useAuth();
+  const navigate = useNavigate();
+  const { user, switchRole, isAuthenticated, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const activeRole = user?.role || USER_ROLES.CONSUMER;
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   const mainNavItems = [
     { label: 'Home', href: '/' },
@@ -60,7 +68,7 @@ export function Navbar() {
             })}
           </nav>
 
-          {/* Role Switcher Pill & Login Action */}
+          {/* Role Switcher Pill & Login/Logout Action */}
           <div className="flex items-center gap-3">
             {/* Role Switcher Pill */}
             <div className="hidden sm:flex items-center gap-1 bg-slate-900/90 border border-slate-800/90 rounded-2xl p-1 text-xs shadow-lg">
@@ -71,7 +79,7 @@ export function Navbar() {
                 onClick={() => switchRole(USER_ROLES.CONSUMER)}
                 className={cn(
                   'px-2.5 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1',
-                  user.role === USER_ROLES.CONSUMER
+                  activeRole === USER_ROLES.CONSUMER
                     ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
                     : 'text-slate-400 hover:text-white'
                 )}
@@ -82,7 +90,7 @@ export function Navbar() {
                 onClick={() => switchRole(USER_ROLES.CONSULTANT)}
                 className={cn(
                   'px-2.5 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1',
-                  user.role === USER_ROLES.CONSULTANT
+                  activeRole === USER_ROLES.CONSULTANT
                     ? 'bg-teal-500 text-slate-950 shadow-md shadow-teal-500/20'
                     : 'text-slate-400 hover:text-white'
                 )}
@@ -93,7 +101,7 @@ export function Navbar() {
                 onClick={() => switchRole(USER_ROLES.DERMATOLOGIST)}
                 className={cn(
                   'px-2.5 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1',
-                  user.role === USER_ROLES.DERMATOLOGIST
+                  activeRole === USER_ROLES.DERMATOLOGIST
                     ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20'
                     : 'text-slate-400 hover:text-white'
                 )}
@@ -104,7 +112,7 @@ export function Navbar() {
                 onClick={() => switchRole(USER_ROLES.ADMIN)}
                 className={cn(
                   'px-2.5 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1',
-                  user.role === USER_ROLES.ADMIN
+                  activeRole === USER_ROLES.ADMIN
                     ? 'bg-violet-500 text-slate-950 shadow-md shadow-violet-500/20'
                     : 'text-slate-400 hover:text-white'
                 )}
@@ -113,12 +121,21 @@ export function Navbar() {
               </button>
             </div>
 
-            <Link
-              to="/login"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 border border-slate-800 text-slate-200 hover:text-white hover:border-slate-700 transition-all"
-            >
-              <LogIn className="w-3.5 h-3.5 text-emerald-400" /> Login
-            </Link>
+            {isAuthenticated ? (
+              <button
+                onClick={handleLogout}
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-500/10 border border-rose-500/30 text-rose-300 hover:bg-rose-500/20 transition-all"
+              >
+                <LogOut className="w-3.5 h-3.5 text-rose-400" /> Logout
+              </button>
+            ) : (
+              <Link
+                to="/login"
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 border border-slate-800 text-slate-200 hover:text-white hover:border-slate-700 transition-all"
+              >
+                <LogIn className="w-3.5 h-3.5 text-emerald-400" /> Login
+              </Link>
+            )}
 
             {/* Mobile Menu Toggle */}
             <button
@@ -136,25 +153,25 @@ export function Navbar() {
             <div className="flex flex-wrap gap-1 p-2 bg-slate-900/90 rounded-xl border border-slate-800">
               <button
                 onClick={() => { switchRole(USER_ROLES.CONSUMER); setMobileMenuOpen(false); }}
-                className={cn('flex-1 py-1.5 rounded-lg text-xs font-bold', user.role === USER_ROLES.CONSUMER ? 'bg-emerald-500 text-slate-950' : 'text-slate-400')}
+                className={cn('flex-1 py-1.5 rounded-lg text-xs font-bold', activeRole === USER_ROLES.CONSUMER ? 'bg-emerald-500 text-slate-950' : 'text-slate-400')}
               >
                 User
               </button>
               <button
                 onClick={() => { switchRole(USER_ROLES.CONSULTANT); setMobileMenuOpen(false); }}
-                className={cn('flex-1 py-1.5 rounded-lg text-xs font-bold', user.role === USER_ROLES.CONSULTANT ? 'bg-teal-500 text-slate-950' : 'text-slate-400')}
+                className={cn('flex-1 py-1.5 rounded-lg text-xs font-bold', activeRole === USER_ROLES.CONSULTANT ? 'bg-teal-500 text-slate-950' : 'text-slate-400')}
               >
                 Consultant
               </button>
               <button
                 onClick={() => { switchRole(USER_ROLES.DERMATOLOGIST); setMobileMenuOpen(false); }}
-                className={cn('flex-1 py-1.5 rounded-lg text-xs font-bold', user.role === USER_ROLES.DERMATOLOGIST ? 'bg-cyan-500 text-slate-950' : 'text-slate-400')}
+                className={cn('flex-1 py-1.5 rounded-lg text-xs font-bold', activeRole === USER_ROLES.DERMATOLOGIST ? 'bg-cyan-500 text-slate-950' : 'text-slate-400')}
               >
                 Derm
               </button>
               <button
                 onClick={() => { switchRole(USER_ROLES.ADMIN); setMobileMenuOpen(false); }}
-                className={cn('flex-1 py-1.5 rounded-lg text-xs font-bold', user.role === USER_ROLES.ADMIN ? 'bg-violet-500 text-slate-950' : 'text-slate-400')}
+                className={cn('flex-1 py-1.5 rounded-lg text-xs font-bold', activeRole === USER_ROLES.ADMIN ? 'bg-violet-500 text-slate-950' : 'text-slate-400')}
               >
                 Admin
               </button>
@@ -171,13 +188,22 @@ export function Navbar() {
                   {item.label}
                 </Link>
               ))}
-              <Link
-                to="/login"
-                onClick={() => setMobileMenuOpen(false)}
-                className="p-2.5 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-bold"
-              >
-                Login Page
-              </Link>
+              {isAuthenticated ? (
+                <button
+                  onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
+                  className="p-2.5 rounded-xl bg-rose-500/20 border border-rose-500/30 text-rose-300 font-bold text-left flex items-center gap-2"
+                >
+                  <LogOut className="w-4 h-4" /> Logout
+                </button>
+              ) : (
+                <Link
+                  to="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-2.5 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-bold"
+                >
+                  Login Page
+                </Link>
+              )}
             </div>
           </div>
         )}
