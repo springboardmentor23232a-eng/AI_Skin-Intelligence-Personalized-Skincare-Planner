@@ -1,0 +1,92 @@
+{
+  "userProfile": {
+    "name": "Sarah Connor",
+    "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
+    "skinType": "Combination",
+    "concerns": ["Oily T-Zone", "Mild Acne", "Hyperpigmentation"],
+    "allergies": ["Salicylic Acid"],
+    "climate": "Humid / Urban",
+    "scores": {
+      "overall": 84,
+      "lifestyle": 75,
+      "sleep": 80,
+      "hydration": 90,
+      "adherence": 95
+    }
+  },
+  "routineChecklist": {
+    "morning": [
+      { "id": "m1", "step": "Cleanse", "product": "Gentle Hydrating Cleanser", "done": true },
+      { "id": "m2", "step": "Tone", "product": "Rosewater Soothing Toner", "done": true },
+      { "id": "m3", "step": "Treat", "product": "Vitamin C Serum (15%)", "done": false },
+      { "id": "m4", "step": "Protect", "product": "Broad Spectrum SPF 50", "done": false }
+    ],
+    "evening": [
+      { "id": "e1", "step": "Cleanse (Double)", "product": "Centella Cleansing Oil + Gentle Gel", "done": false },
+      { "id": "e2", "step": "Treat", "product": "Retinol Serum (0.5%)", "done": false },
+      { "id": "e3", "step": "Moisturize", "product": "Ceramide Barrier Cream", "done": false }
+    ]
+  },
+  "trackers": {
+    "water": {
+      "current": 2.0,
+      "target": 2.5,
+      "unit": "Liters",
+      "history": [2.2, 2.5, 1.8, 2.5, 2.0]
+    },
+    "sleep": {
+      "current": 7.5,
+      "target": 8.0,
+      "unit": "Hours",
+      "history": [7.0, 8.2, 6.5, 7.8, 7.5]
+    }
+  },
+  "progressChart": [
+    { "date": "Jul 25", "score": 79 },
+    { "date": "Jul 26", "score": 81 },
+    { "date": "Jul 27", "score": 80 },
+    { "date": "Jul 28", "score": 82 },
+    { "date": "Jul 29", "score": 83 },
+    { "date": "Jul 30", "score": 84 }
+  ],
+  "recommendations": [
+    {
+      "id": "prod_1",
+      "name": "Squalane Facial Oil",
+      "brand": "Ordinary Elements",
+      "matchScore": 98,
+      "category": "Moisturizer",
+      "price": 14.50,
+      "rating": 4.7
+    },
+    {
+      "id": "prod_2",
+      "name": "Niacinamide 10% + Zinc 1%",
+      "brand": "DermaPure",
+      "matchScore": 95,
+      "category": "Serum",
+      "price": 18.00,
+      "rating": 4.9
+    },
+    {
+      "id": "prod_3",
+      "name": "Hyaluronic Acid Hydrating Gel",
+      "brand": "HydroBoost",
+      "matchScore": 91,
+      "category": "Gel",
+      "price": 22.90,
+      "rating": 4.6
+    }
+  ],
+  "reminders": [
+    { "time": "08:00 AM", "message": "Apply Broad Spectrum SPF 50 sunscreen before heading out." },
+    { "time": "02:00 PM", "message": "Drink 500ml water to stay on track for your hydration goal." },
+    { "time": "10:00 PM", "message": "Cleanse thoroughly and apply Retinol treatment." }
+  ],
+  "beforeAfter": {
+    "before": "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&w=400&q=80",
+    "after": "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=400&q=80",
+    "beforeLabel": "Week 1 - Active Redness",
+    "afterLabel": "Week 4 - Calm Tone"
+  }
+}

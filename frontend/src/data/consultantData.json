@@ -1,0 +1,94 @@
+{
+  "profile": {
+    "name": "Dr. Clara Oswald",
+    "avatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
+    "title": "Senior Skincare Consultant",
+    "specialty": "Cosmetic Formulation & Skin Analysis",
+    "clientsCount": 124,
+    "activeConsultations": 18,
+    "pendingRequests": 7,
+    "appointmentsToday": 4
+  },
+  "clients": [
+    {
+      "id": "c_101",
+      "name": "Sarah Connor",
+      "email": "user@demo.com",
+      "skinType": "Combination",
+      "concerns": ["Oily T-Zone", "Mild Acne"],
+      "status": "Active",
+      "lastAssessment": "2026-07-30",
+      "progress": 84
+    },
+    {
+      "id": "c_102",
+      "name": "James Cole",
+      "email": "james.cole@demo.com",
+      "skinType": "Dry",
+      "concerns": ["Extreme Flaking", "Dehydration"],
+      "status": "Pending Review",
+      "lastAssessment": "2026-08-01",
+      "progress": 62
+    },
+    {
+      "id": "c_103",
+      "name": "Lola Martinez",
+      "email": "lola.m@demo.com",
+      "skinType": "Sensitive",
+      "concerns": ["Rosacea", "Erythema"],
+      "status": "Active",
+      "lastAssessment": "2026-07-28",
+      "progress": 75
+    },
+    {
+      "id": "c_104",
+      "name": "Ethan Hunt",
+      "email": "ethan.h@demo.com",
+      "skinType": "Oily",
+      "concerns": ["Clogged Pores", "Sebum Control"],
+      "status": "Inactive",
+      "lastAssessment": "2026-06-15",
+      "progress": 90
+    },
+    {
+      "id": "c_105",
+      "name": "Grace Hopper",
+      "email": "grace.h@demo.com",
+      "skinType": "Normal",
+      "concerns": ["Fine Lines", "Aging Prevention"],
+      "status": "Active",
+      "lastAssessment": "2026-07-29",
+      "progress": 88
+    }
+  ],
+  "appointments": [
+    { "time": "09:30 AM", "clientName": "James Cole", "type": "Video Review" },
+    { "time": "11:00 AM", "clientName": "Lola Martinez", "type": "Routine Update" },
+    { "time": "03:15 PM", "clientName": "Grace Hopper", "type": "First Diagnostic" }
+  ],
+  "recentAssessments": [
+    {
+      "id": "as_1",
+      "clientName": "James Cole",
+      "date": "Today, 10:15 AM",
+      "photo": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
+      "concern": "Dry / Peeling cheeks",
+      "severity": "High"
+    },
+    {
+      "id": "as_2",
+      "clientName": "Sarah Connor",
+      "date": "Yesterday, 04:30 PM",
+      "photo": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80",
+      "concern": "Nose T-Zone Sebum",
+      "severity": "Moderate"
+    }
+  ],
+  "improvementTrends": [
+    { "month": "March", "avgScore": 68 },
+    { "month": "April", "avgScore": 72 },
+    { "month": "May", "avgScore": 75 },
+    { "month": "June", "avgScore": 78 },
+    { "month": "July", "avgScore": 81 }
+  ]
+}

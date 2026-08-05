@@ -1,0 +1,39 @@
+{
+  "stats": {
+    "totalUsers": 1845,
+    "activeUsers": 932,
+    "consultantsCount": 14,
+    "dermatologistsCount": 8,
+    "registrationsToday": 37
+  },
+  "usersList": [
+    { "id": "u_501", "name": "Sarah Connor", "email": "user@demo.com", "role": "User", "status": "Active", "joined": "2026-06-12" },
+    { "id": "u_502", "name": "Clara Oswald", "email": "consultant@demo.com", "role": "Consultant", "status": "Active", "joined": "2026-05-18" },
+    { "id": "u_503", "name": "Gregory House", "email": "dermatologist@demo.com", "role": "Dermatologist", "status": "Active", "joined": "2026-04-20" },
+    { "id": "u_504", "name": "Bruce Banner", "email": "bruce.b@demo.com", "role": "User", "status": "Active", "joined": "2026-07-28" },
+    { "id": "u_505", "name": "Diana Prince", "email": "diana.p@demo.com", "role": "User", "status": "Active", "joined": "2026-07-31" },
+    { "id": "u_506", "name": "Arthur Dent", "email": "arthur.d@demo.com", "role": "User", "status": "Suspended", "joined": "2026-03-10" }
+  ],
+  "systemHealth": {
+    "apiStatus": "Operational",
+    "dbStatus": "Operational",
+    "cacheStatus": "Operational",
+    "dbLatency": "14ms",
+    "redisMemory": "48 MB",
+    "pgPool": "18 / 50",
+    "cpuUsage": "12%"
+  },
+  "recentActivity": [
+    { "timestamp": "10 min ago", "user": "Sarah Connor", "action": "Completed Skin Assessment #1" },
+    { "timestamp": "34 min ago", "user": "Dr. Clara Oswald", "action": "Updated skincare routine for James Cole" },
+    { "timestamp": "1 hr ago", "user": "Dr. Gregory House", "action": "Approved Accutane cycle for Diana Prince" },
+    { "timestamp": "2 hr ago", "user": "System Auto-Scheduler", "action": "Triggered 542 morning hydration push notifications" }
+  ],
+  "registrationsChart": [
+    { "day": "Mon", "count": 28 },
+    { "day": "Tue", "count": 32 },
+    { "day": "Wed", "count": 35 },
+    { "day": "Thu", "count": 40 },
+    { "day": "Fri", "count": 37 }
+  ]
+}

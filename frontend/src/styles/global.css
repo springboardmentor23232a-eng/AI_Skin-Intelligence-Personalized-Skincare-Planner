@@ -1,0 +1,92 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Outfit', system-ui, -apple-system, sans-serif;
+
+  /* Premium Luxury Brand Colors */
+  --color-brand-50: #f4fbf7;
+  --color-brand-100: #e3f7ec;
+  --color-brand-200: #c9efdc;
+  --color-brand-300: #9fdfc1;
+  --color-brand-400: #6bc9a0;
+  --color-brand-500: #3fae80;
+  --color-brand-600: #2d8f66;
+  --color-brand-700: #247253;
+  --color-brand-800: #1f5b44;
+  --color-brand-900: #1b4b39;
+  --color-brand-950: #0d291f;
+
+  /* Accent Gold/Sand */
+  --color-accent-50: #fbfaf7;
+  --color-accent-100: #f7f4ec;
+  --color-accent-200: #ede7d5;
+  --color-accent-300: #ded1b2;
+  --color-accent-400: #cbb489;
+  --color-accent-500: #b59560;
+  --color-accent-600: #a27f4c;
+  --color-accent-700: #87653c;
+  --color-accent-800: #6e5033;
+  --color-accent-900: #5a422c;
+  --color-accent-950: #322216;
+
+  /* Neutral Slate Extensions */
+  --color-slate-950: #0b0f19;
+
+  /* Micro-animations */
+  --animate-fade-in: fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-slide-up: slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { transform: translateY(12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Glassmorphism custom components */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.dark .glass-effect {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Custom premium buttons */
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-brand-600) 0%, var(--color-brand-800) 100%);
+  color: white;
+  font-family: var(--font-display);
+  font-weight: 500;
+  box-shadow: 0 4px 14px 0 rgba(45, 143, 102, 0.2);
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px 0 rgba(45, 143, 102, 0.3);
+}
+
+.btn-accent {
+  background: linear-gradient(135deg, var(--color-accent-500) 0%, var(--color-accent-700) 100%);
+  color: white;
+  font-family: var(--font-display);
+  font-weight: 500;
+  box-shadow: 0 4px 14px 0 rgba(181, 149, 96, 0.2);
+  transition: all 0.3s ease;
+}
+
+.btn-accent:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px 0 rgba(181, 149, 96, 0.3);
+}

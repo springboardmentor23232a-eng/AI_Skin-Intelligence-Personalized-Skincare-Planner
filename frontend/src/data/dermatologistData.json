@@ -1,0 +1,85 @@
+{
+  "profile": {
+    "name": "Dr. Gregory House",
+    "avatar": "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
+    "title": "Chief Clinical Dermatologist",
+    "patientsCount": 412,
+    "criticalCases": 6,
+    "todayAppointments": 5
+  },
+  "patients": [
+    {
+      "id": "p_201",
+      "name": "Bruce Banner",
+      "age": 42,
+      "gender": "Male",
+      "diagnosis": "Severe Rosacea / Demodex Folliculorum",
+      "status": "Critical",
+      "lastVisit": "2026-07-28",
+      "notes": "Erythema persisting. Advised metronidazole gel override."
+    },
+    {
+      "id": "p_202",
+      "name": "Diana Prince",
+      "age": 29,
+      "gender": "Female",
+      "diagnosis": "Cystic Acne (Grade IV)",
+      "status": "Critical",
+      "lastVisit": "2026-07-31",
+      "notes": "Patient initiating oral isotretinoin. Check liver enzymes panel."
+    },
+    {
+      "id": "p_203",
+      "name": "Peter Parker",
+      "age": 21,
+      "gender": "Male",
+      "diagnosis": "Atopic Dermatitis",
+      "status": "Stable",
+      "lastVisit": "2026-07-15",
+      "notes": "Skin barrier showing recovery. Hydration compliance high."
+    },
+    {
+      "id": "p_204",
+      "name": "Tony Stark",
+      "age": 48,
+      "gender": "Male",
+      "diagnosis": "Contact Dermatitis / Chemical Burn",
+      "status": "Stable",
+      "lastVisit": "2026-07-22",
+      "notes": "Avoid synthetic perfumes and surfactant cleansers."
+    }
+  ],
+  "appointments": [
+    { "time": "09:00 AM", "patientName": "Bruce Banner", "reason": "Severe flare-up check" },
+    { "time": "10:30 AM", "patientName": "Diana Prince", "reason": "Accutane cycle 1 review" },
+    { "time": "02:00 PM", "patientName": "Tony Stark", "reason": "Follow-up recovery check" }
+  ],
+  "criticalCasesList": [
+    {
+      "id": "cc_1",
+      "patientName": "Bruce Banner",
+      "condition": "Severe Erythema & Swelling",
+      "photo": "https://images.unsplash.com/photo-1521224724738-963690d2402d?auto=format&fit=crop&w=150&q=80",
+      "severity": "Grade IV (Critical)"
+    },
+    {
+      "id": "cc_2",
+      "patientName": "Diana Prince",
+      "condition": "Cystic Acne Clusters",
+      "photo": "https://images.unsplash.com/photo-1594744803329-e58b31de215f?auto=format&fit=crop&w=150&q=80",
+      "severity": "Grade IV (Critical)"
+    }
+  ],
+  "diseaseDistribution": [
+    { "condition": "Acne Vulgaris", "percentage": 45 },
+    { "condition": "Eczema / Dermatitis", "percentage": 25 },
+    { "condition": "Rosacea", "percentage": 15 },
+    { "condition": "Psoriasis", "percentage": 10 },
+    { "condition": "Other Infections", "percentage": 5 }
+  ],
+  "activityTimeline": [
+    { "time": "09:00 AM", "action": "Approved treatment override for Bruce Banner." },
+    { "time": "11:45 AM", "action": "Scheduled blood test follow-up for Diana Prince." },
+    { "time": "03:30 PM", "action": "Logged recovery notes for patient Peter Parker." }
+  ]
+}
