@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Login</title>
+
+<link rel="stylesheet" href="../css/login.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<div class="login-box">
+
+
+<h2>Welcome Back</h2>
+
+<p>Login to AI Skin Intelligence</p>
+
+
+
+<form onsubmit="login(); return false;">
+
+
+<div class="input-box">
+
+<i class="fa-solid fa-envelope"></i>
+
+<input 
+type="email"
+id="email"
+placeholder="Enter Email"
+required>
+
+</div>
+
+
+
+
+<div class="input-box">
+
+<i class="fa-solid fa-lock"></i>
+
+<input
+type="password"
+id="password"
+placeholder="Enter Password"
+required>
+
+</div>
+
+
+
+
+<div class="input-box">
+
+<select id="role" required>
+
+<option value="">Select Role</option>
+
+<option value="user">User</option>
+
+<option value="admin">Admin</option>
+
+<option value="dermatologist">Dermatologist</option>
+
+<option value="consultant">Consultant</option>
+
+</select>
+
+</div>
+
+
+
+
+<button class="login-btn" type="submit">
+
+Login
+
+</button>
+
+
+
+<button class="google-btn" type="button" onclick="googleLogin()">
+
+<i class="fa-brands fa-google"></i>
+
+Login with Google
+
+</button>
+
+
+
+
+
+<p class="register">
+
+Don't have an account?
+
+<a href="register.html">
+
+Register
+
+</a>
+
+</p>
+
+
+
+</form>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<script src="../js/login.js"></script>
+
+
+</body>
+
+</html>

@@ -1,85 +1,252 @@
+/* ===========================
+   RESET
+=========================== */
+
 *{
     margin:0;
     padding:0;
     box-sizing:border-box;
-    font-family:Arial,sans-serif;
+    font-family:'Poppins',sans-serif;
 }
 
 body{
-    height:100vh;
+
     display:flex;
     justify-content:center;
     align-items:center;
-    background:linear-gradient(135deg,#4F46E5,#7C3AED);
+
+    min-height:100vh;
+
+    background:linear-gradient(135deg,#4CAF50,#81C784);
+
 }
 
-.login-container{
+/* ===========================
+   CONTAINER
+=========================== */
+
+.container{
+
     width:100%;
     display:flex;
     justify-content:center;
     align-items:center;
+
 }
+
+/* ===========================
+   LOGIN BOX
+=========================== */
 
 .login-box{
+
+    width:420px;
+
     background:#fff;
-    width:400px;
+
     padding:40px;
+
     border-radius:15px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.2);
+
+    box-shadow:0 15px 35px rgba(0,0,0,.2);
+
 }
 
-.login-box h2{
+.login-box h1{
+
     text-align:center;
-    color:#4F46E5;
+
+    color:#2E7D32;
+
     margin-bottom:10px;
+
 }
 
 .login-box p{
+
     text-align:center;
-    margin-bottom:25px;
-    color:#666;
+
+    margin-bottom:30px;
+
+    color:#555;
+
 }
 
-.input-group{
-    margin-bottom:20px;
-}
+/* ===========================
+   INPUT BOX
+=========================== */
 
-.input-group label{
-    display:block;
-    margin-bottom:8px;
-    font-weight:bold;
-}
+.input-box{
 
-.input-group input,
-.input-group select{
-    width:100%;
+    display:flex;
+    align-items:center;
+
+    background:#f4f4f4;
+
+    border-radius:10px;
+
     padding:12px;
-    border:1px solid #ccc;
-    border-radius:8px;
-    font-size:15px;
+
+    margin-bottom:20px;
+
 }
 
-button{
+.input-box i{
+
+    color:#4CAF50;
+
+    margin-right:10px;
+
+}
+
+.input-box input{
+
     width:100%;
-    padding:14px;
+
     border:none;
-    background:#4F46E5;
-    color:white;
-    font-size:16px;
-    border-radius:8px;
-    cursor:pointer;
-    transition:.3s;
+
+    background:transparent;
+
+    outline:none;
+
+    font-size:15px;
+
 }
 
-button:hover{
-    background:#372fc9;
+/* ===========================
+   OPTIONS
+=========================== */
+
+.options{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    margin-bottom:20px;
+
+    font-size:14px;
+
 }
 
-.back-home{
-    display:block;
-    text-align:center;
-    margin-top:20px;
+.options a{
+
     text-decoration:none;
-    color:#4F46E5;
-    font-weight:bold;
+
+    color:#4CAF50;
+
+}
+
+/* ===========================
+   LOGIN BUTTON
+=========================== */
+
+.login-btn{
+
+    width:100%;
+
+    padding:14px;
+
+    border:none;
+
+    border-radius:8px;
+
+    background:#4CAF50;
+
+    color:white;
+
+    font-size:16px;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+}
+
+.login-btn:hover{
+
+    background:#2E7D32;
+
+}
+
+/* ===========================
+   DIVIDER
+=========================== */
+
+.divider{
+
+    text-align:center;
+
+    margin:20px 0;
+
+    color:#777;
+
+}
+
+/* ===========================
+   GOOGLE BUTTON
+=========================== */
+
+.google-btn{
+
+    width:100%;
+
+    padding:14px;
+
+    border:2px solid #4CAF50;
+
+    border-radius:8px;
+
+    background:white;
+
+    color:#4CAF50;
+
+    cursor:pointer;
+
+    font-size:15px;
+
+}
+
+.google-btn i{
+
+    margin-right:8px;
+
+}
+
+/* ===========================
+   REGISTER
+=========================== */
+
+.register{
+
+    text-align:center;
+
+    margin-top:25px;
+
+}
+
+.register a{
+
+    color:#4CAF50;
+
+    text-decoration:none;
+
+    font-weight:600;
+
+}
+
+/* ===========================
+   RESPONSIVE
+=========================== */
+
+@media(max-width:500px){
+
+.login-box{
+
+    width:90%;
+
+    padding:25px;
+
+}
+
 }
