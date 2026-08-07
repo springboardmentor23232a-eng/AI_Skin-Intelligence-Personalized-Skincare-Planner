@@ -24,8 +24,10 @@
                 <a href="/user_dashboard/skin_assessment.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="scan-face" class="w-4 h-4"></i> Skin Assessment</a>
                 <a href="/user_dashboard/routine_planner.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="calendar" class="w-4 h-4"></i> Routine Planner</a>
                 <a href="/user_dashboard/product_recommendations.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="sliders" class="w-4 h-4"></i> Product Recommendations</a>
+                <a href="/user_dashboard/assessment_history.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="history" class="w-4 h-4"></i> Assessment History</a>
                 <a href="/user_dashboard/progress.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-teal-700 bg-teal-50 font-bold border-r-4 border-teal-600"><i data-lucide="activity" class="w-4 h-4"></i> Progress</a>
-                <a href="/user_dashboard/checklist.html" class="flex items-center gap-3 px-4 py=3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="list-check" class="w-4 h=4"></i> Checklist</a>
+                <a href="/user_dashboard/risk_analysis.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="shield-alert" class="w-4 h-4"></i> Risk Analysis</a>
+                <a href="/user_dashboard/checklist.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="list-check" class="w-4 h-4"></i> Checklist</a>
             </nav>
         </div>
         <div class="p-4 border-t border-slate-100 bg-slate-50/50">
@@ -36,22 +38,45 @@
     <main class="flex-1 overflow-y-auto p-8 space-y-6">
         <div>
             <h1 class="text-2xl font-bold text-slate-900">Skin Progress Analytics</h1>
-            <p class="text-sm text-slate-500">Historical scoring trends and concern resolution.</p>
+            <p class="text-sm text-slate-500">Historical scoring trends derived from database assessment records.</p>
         </div>
 
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-            <h2 class="font-bold text-slate-800 text-sm">Weekly Skin Health Trend</h2>
-            <div class="flex items-end gap-4 h-32 pt-4">
-                <div class="flex-1 bg-teal-100 rounded-t-xl h-[60%] flex items-center justify-center text-xs font-bold text-teal-800">Week 1 (65)</div>
-                <div class="flex-1 bg-teal-200 rounded-t-xl h-[72%] flex items-center justify-center text-xs font-bold text-teal-800">Week 2 (72)</div>
-                <div class="flex-1 bg-teal-500 rounded-t-xl h-[85%] flex items-center justify-center text-xs font-bold text-white">Week 3 (82)</div>
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 max-w-2xl">
+            <h2 class="font-bold text-slate-800 text-sm">Skin Health Score Timeline</h2>
+            <div id="progress-chart" class="flex items-end gap-4 h-36 pt-4">
+                <div class="text-center text-xs text-slate-400 italic">Loading progress metrics...</div>
             </div>
         </div>
     </main>
 
     <script>
         lucide.createIcons();
-        document.getElementById('user-display-name').innerText = localStorage.getItem('user_identity') || 'User';
+        document.addEventListener('DOMContentLoaded', async () => {
+            document.getElementById('user-display-name').innerText = localStorage.getItem('user_identity') || 'User';
+            const email = localStorage.getItem('user_email');
+            const chart = document.getElementById('progress-chart');
+
+            try {
+                const res = await fetch(`/assessment/history?email=${encodeURIComponent(email)}`);
+                const json = await res.json();
+                if (res.ok && json.data && json.data.length > 0) {
+                    const history = json.data.reverse(); // chronological order
+                    chart.innerHTML = '';
+                    history.forEach((item) => {
+                        const score = item.assessment.skin_health_score;
+                        chart.innerHTML += `
+                            <div class="flex-1 bg-teal-500 rounded-t-xl flex items-center justify-center text-xs font-bold text-white" style="height: ${score}%;">
+                                ${score}
+                            </div>
+                        `;
+                    });
+                } else {
+                    chart.innerHTML = '<div class="text-xs text-slate-400 italic">No past assessments found for trend analysis.</div>';
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        });
     </script>
 </body>
 </html>
