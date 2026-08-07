@@ -1,9 +1,3 @@
-"""
-skin_assessment_engine.py
--------------------------
-Multi-modal inference engine with direct PostgreSQL database integration 
-for SKINASSESSMENT, SKINCONCERN, RISKFACTOR, and SKIN_PROFILES tables.
-"""
 
 import io
 import re
@@ -187,7 +181,6 @@ def decode_image(file: Optional[UploadFile], b64_str: Optional[str]) -> Image.Im
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=f"Image decoding failed: {str(e)}")
 
-# Helper function to sync assessment results into legacy table if needed
 def update_user_skin_profile(user_id: int, skin_type: str, age_group: str, water_intake: float, sleep: float, score: int, conn):
     cursor = conn.cursor()
     try:
@@ -284,7 +277,7 @@ async def create_assessment(
         )
         risk_record = cursor.fetchone()
 
-        # 5. SYNC TO SKIN_PROFILES (Fixes missing data on Consultant Dashboard)
+        # 5. SYNC TO SKIN_PROFILES
         update_user_skin_profile(
             user_id=resolved_user_id,
             skin_type=primary_skin_type,
