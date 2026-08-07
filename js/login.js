@@ -5,48 +5,51 @@ async function login(){
     const password = document.getElementById("password").value;
 
 
-    const response = await fetch("http://localhost:5000/api/auth/login",{
+    const response = await fetch(
+        "http://127.0.0.1:8000/api/auth/login",
+        {
 
-        method:"POST",
+            method:"POST",
 
-        headers:{
-            "Content-Type":"application/json"
-        },
+            headers:{
+                "Content-Type":"application/json"
+            },
 
-        body:JSON.stringify({
+            body:JSON.stringify({
 
-            email: email,
+                email: email,
 
-            password: password
+                password: password
 
-        })
+            })
 
-    });
-
+        }
+    );
 
 
     const data = await response.json();
+
+    console.log(data);
 
 
 
     if(response.ok){
 
 
-        // Store JWT Token
+        localStorage.setItem(
+            "token",
+            data.token
+        );
 
-        localStorage.setItem("token", data.token);
 
-
-
-        // Get role
 
         const role = data.user.role.toLowerCase();
 
 
-
-        // Store Role
-
-        localStorage.setItem("role", role);
+        localStorage.setItem(
+            "role",
+            role
+        );
 
 
 
@@ -54,40 +57,30 @@ async function login(){
 
 
 
-        // Role Based Dashboard Redirect
-
-
         if(role === "user"){
 
-            window.location.href="../pages/user-dashboard.html";
+            window.location.href="user-dashboard.html";
 
         }
 
 
         else if(role === "admin"){
 
-            window.location.href="../pages/admin-dashboard.html";
+            window.location.href="admin-dashboard.html";
 
         }
 
 
         else if(role === "consultant"){
 
-            window.location.href="../pages/consultant-dashboard.html";
+            window.location.href="consultant-dashboard.html";
 
         }
 
 
         else if(role === "dermatologist"){
 
-            window.location.href="../pages/dermatologist-dashboard.html";
-
-        }
-
-
-        else if(role === "wellness_coach"){
-
-            window.location.href="../pages/coach-dashboard.html";
+            window.location.href="dermatologist-dashboard.html";
 
         }
 
@@ -104,7 +97,7 @@ async function login(){
 
     else{
 
-        alert(data.message);
+        alert(data.detail || "Login failed");
 
     }
 
@@ -119,7 +112,8 @@ async function login(){
 
 function googleLogin(){
 
-    window.location.href = "http://localhost:5000/auth/google";
+    window.location.href =
+    "http://127.0.0.1:8000/auth/google";
 
 }
 
@@ -127,16 +121,12 @@ function googleLogin(){
 
 
 
-// Store Google OAuth JWT Token
+function logout(){
 
-const params = new URLSearchParams(window.location.search);
+    localStorage.removeItem("token");
 
+    localStorage.removeItem("role");
 
-const googleToken = params.get("token");
-
-
-if(googleToken){
-
-    localStorage.setItem("token", googleToken);
+    window.location.href="login.html";
 
 }

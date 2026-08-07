@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
 <meta charset="UTF-8">
@@ -13,7 +14,9 @@
 
 </head>
 
+
 <body>
+
 
 <div class="sidebar">
 
@@ -31,31 +34,49 @@
 
 <li><a href="progress.html">Progress</a></li>
 
-<li><a href="../index.html">Logout</a></li>
+<li><a href="#" onclick="logout()">Logout</a></li>
 
 </ul>
 
 </div>
 
+
+
+
 <div class="main">
 
 <h1>User Profile</h1>
 
+
 <div class="card">
+
+
+<h2 id="profileName">Loading...</h2>
+
+
+<p>
+<b>Email:</b>
+<span id="profileEmail"></span>
+</p>
+
+
+<p>
+<b>Role:</b>
+<span id="profileRole"></span>
+</p>
+
+
 
 <form>
 
-<label>Full Name</label>
-
-<input type="text" placeholder="Enter Name">
-
-<br><br>
 
 <label>Age</label>
 
-<input type="number">
+<input type="number" placeholder="Enter Age">
+
 
 <br><br>
+
 
 <label>Gender</label>
 
@@ -69,7 +90,9 @@
 
 </select>
 
+
 <br><br>
+
 
 <label>Skin Type</label>
 
@@ -87,31 +110,45 @@
 
 </select>
 
+
 <br><br>
+
 
 <label>Water Intake (Litres)</label>
 
 <input type="number">
 
+
 <br><br>
+
 
 <label>Sleep Hours</label>
 
 <input type="number">
 
+
 <br><br>
 
-<button class="login-btn">
+
+<button class="login-btn" type="button">
 
 Save Profile
 
 </button>
 
+
 </form>
 
-</div>
 
 </div>
+
+
+</div>
+
+
+
+<script src="../js/profile.js"></script>
+
 
 </body>
 

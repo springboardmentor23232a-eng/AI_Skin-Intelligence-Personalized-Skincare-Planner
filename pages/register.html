@@ -20,25 +20,25 @@
 
         <p>Join AI Skin Intelligence</p>
 
-        <form>
+        <form id="registerForm">
 
             <div class="input-box">
-                <input type="text" placeholder="Full Name" required>
+                <input type="text" id="name" placeholder="Full Name" required>
             </div>
 
             <div class="input-box">
-                <input type="email" placeholder="Email Address" required>
+                <input type="email" id="email" placeholder="Email Address" required>
             </div>
 
             <div class="input-box">
-                <input type="password" placeholder="Password" required>
+                <input type="password" id="password" placeholder="Password" required>
             </div>
 
             <div class="input-box">
-                <input type="password" placeholder="Confirm Password" required>
+                <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
             </div>
 
-            <button class="login-btn">
+            <button class="login-btn" type="submit">
                 Register
             </button>
 
@@ -52,6 +52,8 @@
     </div>
 
 </div>
+
+<script src="../js/register.js"></script>
 
 </body>
 </html>

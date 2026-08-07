@@ -31,13 +31,12 @@
 
 <li><a href="progress.html">Progress</a></li>
 
-<li><a href="../index.html">Logout</a></li>
+<li><a href="#" onclick="logout()">Logout</a></li>
 
 </ul>
 
 
 </div>
-
 
 
 
@@ -59,9 +58,9 @@
 
 <h3>Current Skin Score</h3>
 
-<h2>92%</h2>
+<h2 id="currentScore">Loading...</h2>
 
-<p>Excellent improvement</p>
+<p>Latest AI Score</p>
 
 </div>
 
@@ -72,9 +71,9 @@
 
 <h3>Previous Score</h3>
 
-<h2>78%</h2>
+<h2 id="previousScore">Loading...</h2>
 
-<p>30 days ago</p>
+<p>Previous Assessment</p>
 
 </div>
 
@@ -85,32 +84,11 @@
 
 <h3>Improvement</h3>
 
-<h2>+14%</h2>
+<h2 id="improvement">Loading...</h2>
 
-<p>Positive growth</p>
-
-</div>
-
+<p>Skin growth</p>
 
 </div>
-
-
-
-
-
-<div class="analysis-box">
-
-
-<h2>Monthly Progress</h2>
-
-
-<p>Week 1 : ██████ 60%</p>
-
-<p>Week 2 : ███████ 70%</p>
-
-<p>Week 3 : ████████ 82%</p>
-
-<p>Week 4 : █████████ 92%</p>
 
 
 </div>
@@ -125,11 +103,9 @@
 <h2>AI Skin Report Summary</h2>
 
 
-<p>✔ Hydration improved</p>
-
-<p>✔ Acne reduced</p>
-
-<p>✔ Skin texture improved</p>
+<p id="summary">
+Loading...
+</p>
 
 
 </div>
@@ -138,6 +114,9 @@
 
 </div>
 
+
+
+<script src="../js/progress.js"></script>
 
 
 </body>
