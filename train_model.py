@@ -1,11 +1,3 @@
-"""
-train_model.py
---------------
-Trains a multi-modal PyTorch neural network combining:
-  1. Actual image folders from 'skin_type_classification_dataset' & 'Skin v2'
-  2. Tabular datasets (Skincare Treatment CSV)
-Exports 'model.pth'.
-"""
 
 import os
 import pickle
