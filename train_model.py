@@ -41,7 +41,6 @@ def train_and_export():
     with open('encoders.pkl', 'wb') as f:
         pickle.dump(encoders, f)
 
-    # Custom Multi-Modal Dataset scanning real image directories
     class RealSkinMultiModalDataset(Dataset):
         def __init__(self, root_dirs, transform=None):
             self.transform = transform
@@ -105,7 +104,6 @@ def train_and_export():
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
 
-    # Scan both dataset directories
     dataset = RealSkinMultiModalDataset([SKIN_V2_DIR, SKIN_TYPE_DIR], transform=transform)
     dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
 
