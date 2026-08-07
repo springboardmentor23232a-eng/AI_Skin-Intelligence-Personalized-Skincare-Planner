@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment History - DermaAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex shrink-0">
+        <div>
+            <div class="p-6 flex items-center gap-3 border-b border-slate-100">
+                <div class="bg-teal-600 text-white p-2.5 rounded-2xl">
+                    <i data-lucide="sparkles" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-slate-900 leading-tight">DermaAI</h1>
+                    <p class="text-xs text-slate-400">User Dashboard</p>
+                </div>
+            </div>
+
+            <nav class="p-4 space-y-1 text-sm font-medium">
+                <a href="/user_dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+                </a>
+                <a href="/user_dashboard/skin_assessment.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="scan-face" class="w-4 h-4"></i> Skin Assessment
+                </a>
+                <a href="/user_dashboard/routine_planner.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="calendar" class="w-4 h-4"></i> Routine Planner
+                </a>
+                <a href="/user_dashboard/product_recommendations.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="sliders" class="w-4 h-4"></i> Product Recommendations
+                </a>
+                <a href="/user_dashboard/assessment_history.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-teal-700 bg-teal-50 font-bold border-r-4 border-teal-600">
+                    <i data-lucide="history" class="w-4 h-4"></i> Assessment History
+                </a>
+                <a href="/user_dashboard/progress.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="activity" class="w-4 h-4"></i> Progress
+                </a>
+                <a href="/user_dashboard/risk_analysis.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="shield-alert" class="w-4 h-4"></i> Risk Analysis
+                </a>
+                <a href="/user_dashboard/checklist.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="list-check" class="w-4 h-4"></i> Checklist
+                </a>
+            </nav>
+        </div>
+
+        <div class="p-4 border-t border-slate-100 bg-slate-50/50">
+            <div class="flex items-center justify-between">
+                <p id="user-display-name" class="text-xs font-bold text-slate-800 truncate">Loading...</p>
+                <button onclick="logout()" class="text-slate-400 hover:text-rose-600 p-1 rounded-lg"><i data-lucide="log-out" class="w-4 h-4"></i></button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-8 space-y-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900">Assessment History & Logs</h1>
+                <p class="text-sm text-slate-500">Review all past multi-modal skin engine evaluations, health scores, and risk factors.</p>
+            </div>
+            <a href="/user_dashboard/skin_assessment.html" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md shadow-teal-600/20 transition">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i> New Assessment
+            </a>
+        </div>
+
+        <!-- History Records Container -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                <h2 class="font-bold text-slate-800 text-sm">Past Evaluations</h2>
+                <button onclick="loadHistory()" class="text-xs text-teal-600 font-semibold hover:underline flex items-center gap-1">
+                    <i data-lucide="refresh-cw" class="w-3 h-3"></i> Refresh Logs
+                </button>
+            </div>
+            <div id="history-container" class="divide-y divide-slate-100">
+                <div class="p-8 text-center text-slate-400 text-xs italic">Loading assessment history records...</div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('auth_token');
+            if (!token) window.location.href = '/index.html';
+            document.getElementById('user-display-name').innerText = localStorage.getItem('user_identity') || 'User';
+            loadHistory();
+        });
+
+        async function loadHistory() {
+            const email = localStorage.getItem('user_email');
+            const container = document.getElementById('history-container');
+            
+            try {
+                const res = await fetch(`/assessment/history?email=${encodeURIComponent(email)}`);
+                const json = await res.json();
+
+                if (!res.ok || !json.data || json.data.length === 0) {
+                    container.innerHTML = '<div class="p-8 text-center text-slate-400 text-xs italic">No assessment history found. Complete your first skin assessment!</div>';
+                    return;
+                }
+
+                container.innerHTML = '';
+                json.data.forEach(item => {
+                    const assessment = item.assessment;
+                    const risk = item.risk_factor || {};
+                    const concerns = item.concerns || [];
+
+                    let riskBadgeClass = 'bg-emerald-100 text-emerald-800';
+                    if (risk.risk_level === 'Medium') riskBadgeClass = 'bg-amber-100 text-amber-800';
+                    if (risk.risk_level === 'High') riskBadgeClass = 'bg-rose-100 text-rose-800';
+
+                    let concernsHtml = concerns.map(c => `<span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[10px] font-medium">${c.concern_name} (${c.severity})</span>`).join(' ');
+
+                    container.innerHTML += `
+                        <div class="p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-slate-50/50 transition">
+                            <div class="space-y-1">
+                                <div class="flex items-center gap-3">
+                                    <span class="font-bold text-slate-900 text-sm">Assessment #${assessment.id}</span>
+                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded ${riskBadgeClass}">Risk: ${risk.risk_level || 'Low'}</span>
+                                </div>
+                                <p class="text-xs text-slate-500">${assessment.assessment_date} &bull; ${assessment.overall_condition}</p>
+                                <div class="flex flex-wrap gap-1.5 pt-1">
+                                    ${concernsHtml || '<span class="text-xs text-slate-400 italic">No primary concerns detected</span>'}
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4 shrink-0">
+                                <div class="text-right">
+                                    <span class="text-lg font-extrabold text-teal-600">${assessment.skin_health_score} <span class="text-xs font-normal text-slate-400">/ 100</span></span>
+                                    <p class="text-[10px] text-slate-400 uppercase font-bold">Health Score</p>
+                                </div>
+                                <button onclick="deleteAssessment(${assessment.id})" title="Delete Assessment" class="text-slate-300 hover:text-rose-600 p-2 rounded-xl transition cursor-pointer">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                lucide.createIcons();
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = '<div class="p-8 text-center text-rose-500 text-xs">Failed to load assessment history from server.</div>';
+            }
+        }
+
+        async function deleteAssessment(id) {
+            if (!confirm(`Are you sure you want to delete assessment #${id}?`)) return;
+            try {
+                const res = await fetch(`/assessment/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    alert(`Assessment #${id} deleted successfully.`);
+                    loadHistory();
+                } else {
+                    alert('Failed to delete assessment.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Error connecting to backend server.');
+            }
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/index.html';
+        }
+    </script>
+</body>
+</html>
