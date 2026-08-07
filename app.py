@@ -1,9 +1,10 @@
+
 import jwt
 import secrets
 import datetime
 from pathlib import Path
 from typing import List, Optional
-from fastapi import FastAPI, HTTPException, status, Header
+from fastapi import FastAPI, HTTPException, status, Header, Form, File, UploadFile, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
@@ -13,7 +14,11 @@ from psycopg2.extras import RealDictCursor
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
+# Import the dedicated Skin Assessment Engine Router
+from skin_assessment_engine import router as assessment_router
+
 app = FastAPI(title="DermaAI API")
+app.include_router(assessment_router)
 
 BASE_DIR = Path(__file__).resolve().parent
 GOOGLE_CLIENT_ID = "680095467315-59h797sp8tinmglr3qnctq8qoi3s9clh.apps.googleusercontent.com"
@@ -76,22 +81,10 @@ class UpdateStatusSchema(BaseModel):
     email: str
     action: str
 
-class SkinAssessmentSchema(BaseModel):
-    email: str
-    skinType: str
-    ageGroup: str
-    allergies: Optional[str] = ""
-    sensitivities: Optional[str] = ""
-    waterIntake: float
-    sleepQuality: str
-    environment: str
-    concerns: List[str]
-    score: int
-
 class RecommendationSchema(BaseModel):
     client_email: str
     recommendation: str
-
+    
 # --- AUTH ENDPOINTS ---
 @app.post("/api/register")
 def register(data: RegisterSchema):
@@ -133,7 +126,6 @@ def login(data: LoginSchema):
             raise HTTPException(status_code=401, detail=f"Invalid credentials or role mismatch for {role.lower()}!")
 
         user_status = user.get('status', 'APPROVED')
-
         if user_status == "PENDING":
             raise HTTPException(status_code=403, detail="Your account is awaiting Admin approval.")
         if user_status == "REJECTED":
@@ -145,7 +137,6 @@ def login(data: LoginSchema):
     except psycopg2.Error as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# --- GOOGLE OAUTH ENDPOINT ---
 @app.post("/api/auth/google")
 def google_auth(data: GoogleAuthSchema):
     try:
@@ -169,7 +160,6 @@ def google_auth(data: GoogleAuthSchema):
                 raise HTTPException(status_code=400, detail=f"An account registered with {email} already exists!")
 
             initial_status = "APPROVED" if target_role in ["USER", "ADMIN"] else "PENDING"
-
             cursor.execute(
                 """
                 INSERT INTO USERS (NAME, EMAIL, PASSWORD, ROLE, PROVIDER, STATUS) 
@@ -188,9 +178,9 @@ def google_auth(data: GoogleAuthSchema):
 
             clean_role = user['role'].lower()
             token = create_jwt_token(user['email'], clean_role, user['name'])
-            return {"status": "approved", "token": token, "name": user['name'], "role": clean_role,"email": user['email']}
+            return {"status": "approved", "token": token, "name": user['name'], "role": clean_role, "email": user['email']}
         
-        else: # Login action
+        else:
             if not user:
                 cursor.close()
                 conn.close()
@@ -214,13 +204,12 @@ def google_auth(data: GoogleAuthSchema):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# --- ADMIN: GET ALL REGISTERED USERS FROM POSTGRESQL ---
+# --- ADMIN ENDPOINTS ---
 @app.get("/api/admin/users")
 def get_admin_users():
     try:
         conn = get_db()
         cursor = conn.cursor()
-        
         cursor.execute("SELECT ID, NAME, EMAIL, ROLE, PROVIDER, STATUS FROM USERS ORDER BY ID DESC")
         users = cursor.fetchall()
         cursor.close()
@@ -235,122 +224,23 @@ def get_admin_users():
                 "role": u['role'].lower(),
                 "status": (u.get('status') or 'APPROVED').lower()
             })
-
         return formatted_users
-
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# --- ADMIN: APPROVE / REJECT USER STATUS ---
 @app.post("/api/admin/update-status")
 def update_status(data: UpdateStatusSchema):
     try:
         conn = get_db()
         cursor = conn.cursor()
-        
-        # Permanently save APPROVED or REJECTED into PostgreSQL
         new_status = data.action.upper()
         cursor.execute("UPDATE USERS SET STATUS = %s WHERE EMAIL = %s", (new_status, data.email))
         conn.commit()
-        
         cursor.close()
         conn.close()
         return {"message": f"User status permanently updated to {new_status}"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-# --- USER ASSESSMENT ENDPOINTS ---
-@app.post("/api/user/assessment")
-def save_assessment(data: SkinAssessmentSchema):
-    conn = None
-    cursor = None
-    try:
-        conn = get_db()
-        cursor = conn.cursor()
-
-        # Check if user exists
-        cursor.execute("SELECT ID FROM USERS WHERE EMAIL = %s", (data.email,))
-        user = cursor.fetchone()
-        
-        if not user:
-            raise HTTPException(status_code=404, detail="User account not found.")
-
-        user_id = user['id']
-
-        # Upsert Skin Profile Record
-        cursor.execute("""
-            INSERT INTO SKIN_PROFILES (
-                USER_ID, SKIN_TYPE, AGE_GROUP, WATER_INTAKE, SLEEP_QUALITY, 
-                ENVIRONMENT, ALLERGIES, SENSITIVITIES, CONCERNS, SCORE
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            ON CONFLICT (USER_ID) DO UPDATE SET
-                SKIN_TYPE = EXCLUDED.SKIN_TYPE,
-                AGE_GROUP = EXCLUDED.AGE_GROUP,
-                WATER_INTAKE = EXCLUDED.WATER_INTAKE,
-                SLEEP_QUALITY = EXCLUDED.SLEEP_QUALITY,
-                ENVIRONMENT = EXCLUDED.ENVIRONMENT,
-                ALLERGIES = EXCLUDED.ALLERGIES,
-                SENSITIVITIES = EXCLUDED.SENSITIVITIES,
-                CONCERNS = EXCLUDED.CONCERNS,
-                SCORE = EXCLUDED.SCORE,
-                UPDATED_AT = CURRENT_TIMESTAMP;
-        """, (
-            user_id, data.skinType, data.ageGroup, data.waterIntake, data.sleepQuality,
-            data.environment, data.allergies, data.sensitivities, data.concerns, data.score
-        ))
-
-        conn.commit()
-        return {"message": "Skin assessment saved successfully!"}
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        if conn:
-            conn.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        if cursor:
-            cursor.close()
-        if conn:
-            conn.close()
-
-
-@app.get("/api/user/assessment")
-def get_assessment(email: str):
-    conn = None
-    cursor = None
-    try:
-        conn = get_db()
-        cursor = conn.cursor()
-        cursor.execute("""
-            SELECT s.* FROM SKIN_PROFILES s
-            JOIN USERS u ON u.ID = s.USER_ID
-            WHERE u.EMAIL = %s
-        """, (email,))
-        profile = cursor.fetchone()
-
-        if not profile:
-            return {"assessmentComplete": False}
-
-        return {
-            "assessmentComplete": True,
-            "skinType": profile['skin_type'],
-            "ageGroup": profile['age_group'],
-            "waterIntake": float(profile['water_intake']),
-            "sleepQuality": profile['sleep_quality'],
-            "environment": profile['environment'],
-            "allergies": profile['allergies'],
-            "sensitivities": profile['sensitivities'],
-            "concerns": profile['concerns'] or [],
-            "score": profile['score']
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        if cursor:
-            cursor.close()
-        if conn:
-            conn.close()
 
 # --- CONSULTANT DASHBOARD ENDPOINTS ---
 
@@ -463,8 +353,7 @@ def get_dermatologist_patients():
         """
         cursor.execute(query)
         patients = cursor.fetchall()
-        
-        # Format response with medical risk assessment fallback
+
         results = []
         for p in patients:
             results.append({
@@ -593,27 +482,6 @@ async def serve_admin_dashboard():
 @app.get("/user_dashboard/{page_name}")
 async def serve_user_subpages(page_name: str):
     file_path = BASE_DIR / "user_dashboard" / page_name
-    if file_path.exists():
-        return FileResponse(file_path)
-    raise HTTPException(status_code=404, detail="File not found")
-
-@app.get("/consultant_dashboard/{page_name}")
-async def serve_consultant_subpages(page_name: str):
-    file_path = BASE_DIR / "consultant_dashboard" / page_name
-    if file_path.exists():
-        return FileResponse(file_path)
-    raise HTTPException(status_code=404, detail="File not found")
-
-@app.get("/dermatologist_dashboard/{page_name}")
-async def serve_dermatologist_subpages(page_name: str):
-    file_path = BASE_DIR / "dermatologist_dashboard" / page_name
-    if file_path.exists():
-        return FileResponse(file_path)
-    raise HTTPException(status_code=404, detail="File not found")
-
-@app.get("/admin_dashboard/{page_name}")
-async def serve_admin_subpages(page_name: str):
-    file_path = BASE_DIR / "admin_dashboard" / page_name
     if file_path.exists():
         return FileResponse(file_path)
     raise HTTPException(status_code=404, detail="File not found")
