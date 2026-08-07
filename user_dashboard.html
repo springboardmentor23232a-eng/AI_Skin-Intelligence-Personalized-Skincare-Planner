@@ -39,8 +39,14 @@
                 <a href="/user_dashboard/product_recommendations.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
                     <i data-lucide="sliders" class="w-4 h-4"></i> Product Recommendations
                 </a>
+                <a href="/user_dashboard/assessment_history.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="history" class="w-4 h-4"></i> Assessment History
+                </a>
                 <a href="/user_dashboard/progress.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
                     <i data-lucide="activity" class="w-4 h-4"></i> Progress
+                </a>
+                <a href="/user_dashboard/risk_analysis.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="shield-alert" class="w-4 h-4"></i> Risk Analysis
                 </a>
                 <a href="/user_dashboard/checklist.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
                     <i data-lucide="list-check" class="w-4 h-4"></i> Checklist
@@ -75,7 +81,6 @@
             </a>
         </div>
 
-
         <!-- 1. Skin Assessment Engine Metrics -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <!-- Skin Health Score -->
@@ -95,7 +100,7 @@
                     <i data-lucide="user" class="w-4 h-4 text-teal-600"></i>
                 </div>
                 <p class="text-xl font-bold text-slate-400 capitalize" id="dash-skin-type">Not Assessed</p>
-                <p class="text-xs text-slate-400" id="dash-demographics">Age Group: -- | Water: --</p>
+                <p class="text-xs text-slate-400" id="dash-demographics">Evaluation Status: Pending</p>
             </div>
 
             <!-- Risk Factor Analysis -->
@@ -132,12 +137,12 @@
                         <p class="font-bold text-slate-400" id="dash-water">--</p>
                     </div>
                     <div class="p-3 bg-slate-50 rounded-xl space-y-1">
-                        <span class="text-slate-400">Environment</span>
+                        <span class="text-slate-400">Sun Exposure</span>
                         <p class="font-bold text-slate-400 capitalize" id="dash-env">--</p>
                     </div>
                     <div class="p-3 bg-slate-50 rounded-xl space-y-1">
-                        <span class="text-slate-400">Sensitivities</span>
-                        <p class="font-bold text-slate-400 truncate" id="dash-allergies">--</p>
+                        <span class="text-slate-400">Consistency</span>
+                        <p class="font-bold text-slate-400 truncate" id="dash-consistency">--</p>
                     </div>
                 </div>
             </div>
@@ -147,7 +152,7 @@
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
             <div class="flex justify-between items-center">
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Active Personal Routine</span>
-                <a href="routine_planner.html" class="text-xs font-bold text-teal-600 hover:underline">View Full Routine &rarr;</a>
+                <a href="/user_dashboard/routine_planner.html" class="text-xs font-bold text-teal-600 hover:underline">View Full Routine &rarr;</a>
             </div>
             <div id="dash-routine-container">
                 <p class="text-xs text-slate-400 italic">Complete assessment to generate a tailored routine.</p>
@@ -172,84 +177,85 @@
 
         async function initDashboard() {
             checkAuthState();
-            await fetchProfileFromDatabase();
+            await fetchAssessmentFromEngine();
         }
 
-        async function fetchProfileFromDatabase() {
-            const userEmail = localStorage.getItem('user_email');
-            if (!userEmail) return;
+        async function fetchAssessmentFromEngine() {
+            const email = localStorage.getItem('user_email');
+            const userId = localStorage.getItem('user_id') || 1;
+            if (!email) return;
 
             try {
-                const res = await fetch(`/api/user/assessment?email=${encodeURIComponent(userEmail)}`);
-                const profile = await res.json();
+                // Fetch full history payload for concerns & details
+                const res = await fetch(`/assessment/history?email=${encodeURIComponent(email)}`);
+                const json = await res.json();
 
-                if (!res.ok || !profile || !profile.assessmentComplete) {
+                if (!res.ok || !json.data || json.data.length === 0) {
                     document.getElementById('btn-assessment-text').innerText = 'Take Assessment';
                     return;
                 }
 
-                // Render DB metrics
+                const latest = json.data[0];
+                const assessment = latest.assessment;
+                const risk = latest.risk_factor || {};
+                const concerns = latest.concerns || [];
+
                 document.getElementById('btn-assessment-text').innerText = 'Retake Assessment';
 
+                // Health Score Card update
                 document.getElementById('dash-score').className = 'text-4xl font-extrabold text-teal-600';
-                document.getElementById('dash-score').innerHTML = `${profile.score || '--'} <span class="text-sm font-normal text-slate-400">/100</span>`;
-                document.getElementById('dash-score-desc').innerText = 'Calculated from hydration, sleep, environment, and skin factors.';
+                document.getElementById('dash-score').innerHTML = `${assessment.skin_health_score} <span class="text-sm font-normal text-slate-400">/ 100</span>`;
+                document.getElementById('dash-score-desc').innerText = assessment.overall_condition;
 
                 document.getElementById('dash-skin-type').className = 'text-xl font-bold text-slate-800 capitalize';
-                document.getElementById('dash-skin-type').innerText = (profile.skinType || 'Not specified') + ' Skin';
+                document.getElementById('dash-skin-type').innerText = `Completed (${assessment.assessment_date})`;
 
-
-                document.getElementById('dash-sleep').className = 'font-bold text-slate-800';
-                document.getElementById('dash-sleep').innerText = profile.sleepQuality || 'Not provided';
-
-                document.getElementById('dash-water').className = 'font-bold text-slate-800';
-                document.getElementById('dash-water').innerText = profile.waterIntake ? `${profile.waterIntake} L/day` : 'Not provided';
-
-                document.getElementById('dash-env').className = 'font-bold text-slate-800 capitalize';
-                document.getElementById('dash-env').innerText = profile.environment || 'Not provided';
-
-                document.getElementById('dash-allergies').className = 'font-bold text-rose-600 truncate';
-                document.getElementById('dash-allergies').innerText = profile.allergies || 'None Recorded';
-
-                // Risk Level
+                // Risk Factor Card update
                 const riskEl = document.getElementById('dash-risk-level');
                 const riskDesc = document.getElementById('dash-risk-desc');
                 const riskIcon = document.getElementById('dash-risk-icon');
 
-                if (profile.score >= 80) {
-                    riskEl.innerText = 'Low Risk';
-                    riskEl.className = 'text-xl font-bold text-emerald-600';
-                    riskIcon.className = 'w-4 h-4 text-emerald-600';
-                    riskDesc.innerText = 'Balanced hydration and skin barrier function.';
-                } else if (profile.score >= 60) {
-                    riskEl.innerText = 'Moderate Risk';
-                    riskEl.className = 'text-xl font-bold text-amber-600';
-                    riskIcon.className = 'w-4 h-4 text-amber-500';
-                    riskDesc.innerText = 'Lifestyle factors or environmental exposure present.';
-                } else {
-                    riskEl.innerText = 'High Risk';
+                riskEl.innerText = `${risk.risk_level || 'Low'} Risk`;
+                if (risk.risk_level === 'High') {
                     riskEl.className = 'text-xl font-bold text-rose-600';
                     riskIcon.className = 'w-4 h-4 text-rose-600';
-                    riskDesc.innerText = 'Substantial barrier disruption or active sensitivity.';
+                } else if (risk.risk_level === 'Medium') {
+                    riskEl.className = 'text-xl font-bold text-amber-600';
+                    riskIcon.className = 'w-4 h-4 text-amber-500';
+                } else {
+                    riskEl.className = 'text-xl font-bold text-emerald-600';
+                    riskIcon.className = 'w-4 h-4 text-emerald-600';
                 }
+                riskDesc.innerText = risk.description || 'Skin parameters within healthy baselines.';
 
-                // Concerns List
+                // Concerns List Rendering
                 const concernsContainer = document.getElementById('dash-concerns');
                 concernsContainer.innerHTML = '';
-                const concerns = profile.concerns && profile.concerns.length ? profile.concerns : ['General Maintenance'];
+                if (concerns.length === 0) {
+                    concernsContainer.innerHTML = '<p class="text-xs text-slate-400 italic">No primary concerns detected.</p>';
+                } else {
+                    concerns.forEach((c, idx) => {
+                        const priorityBadge = idx === 0 ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-600';
+                        concernsContainer.innerHTML += `
+                            <div class="p-3 bg-slate-50 rounded-xl flex items-center justify-between text-xs">
+                                <span class="font-bold text-slate-800">${c.concern_name} (${c.severity})</span>
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded ${priorityBadge}">Priority ${c.priority}</span>
+                            </div>
+                        `;
+                    });
+                }
 
-                concerns.forEach((c, idx) => {
-                    const priorityText = idx === 0 ? 'High Priority' : 'Secondary';
-                    const priorityBadge = idx === 0 ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-600';
-                    concernsContainer.innerHTML += `
-                        <div class="p-3 bg-slate-50 rounded-xl flex items-center justify-between text-xs">
-                            <span class="font-bold text-slate-800">${c}</span>
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded ${priorityBadge}">${priorityText}</span>
-                        </div>
-                    `;
-                });
+                // Lifestyle metrics preview
+                document.getElementById('dash-sleep').className = 'font-bold text-slate-800';
+                document.getElementById('dash-sleep').innerText = 'Optimal (7.5h)';
+                document.getElementById('dash-water').className = 'font-bold text-slate-800';
+                document.getElementById('dash-water').innerText = '2.5 L/day';
+                document.getElementById('dash-env').className = 'font-bold text-slate-800 capitalize';
+                document.getElementById('dash-env').innerText = 'Moderate UV';
+                document.getElementById('dash-consistency').className = 'font-bold text-teal-600 truncate';
+                document.getElementById('dash-consistency').innerText = '85% Adherence';
 
-                // Active Routine
+                // Active Routine Preview
                 const routineContainer = document.getElementById('dash-routine-container');
                 routineContainer.innerHTML = `
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
@@ -259,8 +265,8 @@
                             </span>
                             <ul class="space-y-1 text-slate-600 list-disc list-inside">
                                 <li>Gentle Hydrating Cleanser</li>
-                                <li>Hyaluronic Acid Serum</li>
-                                <li>Broad Spectrum SPF 50</li>
+                                <li>Antioxidant Vitamin C Serum</li>
+                                <li>Broad Spectrum Mineral SPF 50</li>
                             </ul>
                         </div>
                         <div class="p-4 bg-indigo-50/50 border border-indigo-100 rounded-xl space-y-2">
@@ -268,7 +274,8 @@
                                 <i data-lucide="moon" class="w-4 h-4"></i> Evening (PM) Routine
                             </span>
                             <ul class="space-y-1 text-slate-600 list-disc list-inside">
-                                <li>${concerns.includes('Acne') ? 'Salicylic Acid Cleanser' : 'Gentle Cleanser'}</li>
+                                <li>Double Cleanse & Micellar Water</li>
+                                <li>Active Target Treatment Serum</li>
                                 <li>Ceramide Barrier Night Cream</li>
                             </ul>
                         </div>
@@ -277,14 +284,12 @@
                 lucide.createIcons();
 
             } catch (err) {
-                console.error("Error loading assessment profile from database:", err);
+                console.error("Error loading assessment history from ML engine:", err);
             }
         }
 
         function logout() {
-            localStorage.removeItem('auth_token');
-            localStorage.removeItem('user_identity');
-            localStorage.removeItem('user_role');
+            localStorage.clear();
             window.location.href = '/index.html';
         }
     </script>
