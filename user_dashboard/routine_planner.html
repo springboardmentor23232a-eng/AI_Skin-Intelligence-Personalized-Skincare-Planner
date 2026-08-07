@@ -24,7 +24,9 @@
                 <a href="/user_dashboard/skin_assessment.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="scan-face" class="w-4 h-4"></i> Skin Assessment</a>
                 <a href="/user_dashboard/routine_planner.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-teal-700 bg-teal-50 font-bold border-r-4 border-teal-600"><i data-lucide="calendar" class="w-4 h-4"></i> Routine Planner</a>
                 <a href="/user_dashboard/product_recommendations.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="sliders" class="w-4 h-4"></i> Product Recommendations</a>
+                <a href="/user_dashboard/assessment_history.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="history" class="w-4 h-4"></i> Assessment History</a>
                 <a href="/user_dashboard/progress.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="activity" class="w-4 h-4"></i> Progress</a>
+                <a href="/user_dashboard/risk_analysis.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="shield-alert" class="w-4 h-4"></i> Risk Analysis</a>
                 <a href="/user_dashboard/checklist.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="list-check" class="w-4 h-4"></i> Checklist</a>
             </nav>
         </div>
@@ -40,47 +42,25 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- AM Routine -->
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                 <div class="flex justify-between items-center border-b pb-3">
                     <h2 class="font-bold text-slate-800 flex items-center gap-2"><i data-lucide="sun" class="w-4 h-4 text-amber-500"></i> Morning (AM) Regimen</h2>
-                    <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded">Protection & Hydration</span>
                 </div>
                 <div class="space-y-3 text-xs">
-                    <div class="p-3 bg-slate-50 rounded-xl">
-                        <span class="font-bold block text-slate-800">1. Cleanser</span>
-                        <p class="text-slate-500">Gentle Hydrating Foam Cleanser</p>
-                    </div>
-                    <div class="p-3 bg-slate-50 rounded-xl">
-                        <span class="font-bold block text-slate-800">2. Treatment / Serum</span>
-                        <p class="text-slate-500" id="am-treatment">10% Vitamin C Antioxidant Serum</p>
-                    </div>
-                    <div class="p-3 bg-slate-50 rounded-xl">
-                        <span class="font-bold block text-slate-800">3. Sunscreen</span>
-                        <p class="text-slate-500">Broad Spectrum SPF 50 Mineral Fluid</p>
-                    </div>
+                    <div class="p-3 bg-slate-50 rounded-xl"><span class="font-bold block text-slate-800">1. Cleanser</span><p class="text-slate-500">Gentle Hydrating Foam Cleanser</p></div>
+                    <div class="p-3 bg-slate-50 rounded-xl"><span class="font-bold block text-slate-800">2. Treatment / Serum</span><p class="text-slate-500" id="am-treatment">10% Vitamin C Antioxidant Serum</p></div>
+                    <div class="p-3 bg-slate-50 rounded-xl"><span class="font-bold block text-slate-800">3. Sunscreen</span><p class="text-slate-500">Broad Spectrum SPF 50 Mineral Fluid</p></div>
                 </div>
             </div>
 
-            <!-- PM Routine -->
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                 <div class="flex justify-between items-center border-b pb-3">
                     <h2 class="font-bold text-slate-800 flex items-center gap-2"><i data-lucide="moon" class="w-4 h-4 text-indigo-500"></i> Evening (PM) Regimen</h2>
-                    <span class="text-[10px] bg-indigo-100 text-indigo-800 font-bold px-2 py-0.5 rounded">Repair & Barrier Care</span>
                 </div>
                 <div class="space-y-3 text-xs">
-                    <div class="p-3 bg-slate-50 rounded-xl">
-                        <span class="font-bold block text-slate-800">1. Double Cleanse</span>
-                        <p class="text-slate-500">Micellar Water + Hydrating Cleanser</p>
-                    </div>
-                    <div class="p-3 bg-slate-50 rounded-xl">
-                        <span class="font-bold block text-slate-800">2. Active Treatment</span>
-                        <p class="text-slate-500" id="pm-treatment">0.5% Encapsulated Retinol / AHA Solution</p>
-                    </div>
-                    <div class="p-3 bg-slate-50 rounded-xl">
-                        <span class="font-bold block text-slate-800">3. Night Moisturizer</span>
-                        <p class="text-slate-500">Ceramide & Peptide Barrier Repair Cream</p>
-                    </div>
+                    <div class="p-3 bg-slate-50 rounded-xl"><span class="font-bold block text-slate-800">1. Double Cleanse</span><p class="text-slate-500">Micellar Water + Hydrating Cleanser</p></div>
+                    <div class="p-3 bg-slate-50 rounded-xl"><span class="font-bold block text-slate-800">2. Active Treatment</span><p class="text-slate-500" id="pm-treatment">0.5% Encapsulated Retinol / AHA Solution</p></div>
+                    <div class="p-3 bg-slate-50 rounded-xl"><span class="font-bold block text-slate-800">3. Night Moisturizer</span><p class="text-slate-500">Ceramide & Peptide Barrier Repair Cream</p></div>
                 </div>
             </div>
         </div>
@@ -88,16 +68,19 @@
 
     <script>
         lucide.createIcons();
-        document.addEventListener('DOMContentLoaded', () => {
-            const identity = localStorage.getItem('user_identity') || 'User';
-            document.getElementById('user-display-name').innerText = identity;
-
-            const profile = JSON.parse(localStorage.getItem('user_skin_profile'));
-            if (profile && profile.concerns) {
-                if (profile.concerns.includes('Acne')) {
-                    document.getElementById('pm-treatment').innerText = '2% Salicylic Acid Exfoliant Serum';
+        document.addEventListener('DOMContentLoaded', async () => {
+            document.getElementById('user-display-name').innerText = localStorage.getItem('user_identity') || 'User';
+            const email = localStorage.getItem('user_email');
+            try {
+                const res = await fetch(`/assessment/history?email=${encodeURIComponent(email)}`);
+                const json = await res.json();
+                if (res.ok && json.data && json.data.length > 0) {
+                    const concerns = json.data[0].concerns || [];
+                    if (concerns.some(c => c.concern_name.toLowerCase().includes('acne'))) {
+                        document.getElementById('pm-treatment').innerText = '2% Salicylic Acid Exfoliant Serum';
+                    }
                 }
-            }
+            } catch (err) { console.error(err); }
         });
     </script>
 </body>
