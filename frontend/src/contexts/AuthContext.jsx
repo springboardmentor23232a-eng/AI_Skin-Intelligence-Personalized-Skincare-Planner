@@ -38,10 +38,10 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const login = async (email, password) => {
+  const login = async (email, password, selectedRole) => {
     try {
       // API request to login credentials
-      const data = await authService.login(email, password);
+      const data = await authService.login(email, password, selectedRole);
       
       // Store signed JWT
       localStorage.setItem('ai_skincare_token', data.access_token);

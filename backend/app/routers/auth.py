@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schemas import UserRegister, UserLogin, UserResponse, TokenResponse, GoogleAuthRequest
-from app.exceptions import InvalidCredentialsException
+from app.exceptions import InvalidCredentialsException, RoleMismatchException
 from app.services import user_service, auth_service
 from app.logging_config import logger
 
@@ -23,6 +23,15 @@ async def login(payload: UserLogin, db: Session = Depends(get_db)):
     if not db_user or db_user.provider != "LOCAL":
         raise InvalidCredentialsException()
     
+    # Verify selected role mismatch
+    if payload.role:
+        req_role = payload.role.upper().strip()
+        if req_role == "DERMATOLOGIST":
+            req_role = "DOCTOR"
+        db_role = db_user.role.upper().strip()
+        if req_role != db_role:
+            raise RoleMismatchException()
+            
     # Verify credentials
     if not auth_service.verify_password(payload.password, db_user.hashed_password):
         raise InvalidCredentialsException()

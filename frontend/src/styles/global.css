@@ -37,6 +37,7 @@
   /* Micro-animations */
   --animate-fade-in: fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   --animate-slide-up: slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-scan-line: scan-line 2.5s ease-in-out infinite;
 }
 
 @keyframes fade-in {
@@ -47,6 +48,12 @@
 @keyframes slide-up {
   from { transform: translateY(12px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes scan-line {
+  0% { top: 0%; }
+  50% { top: 100%; }
+  100% { top: 0%; }
 }
 
 /* Glassmorphism custom components */

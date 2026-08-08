@@ -13,6 +13,10 @@ class DuplicateEmailException(BaseAPIException):
     def __init__(self, message: str = "An account with this email address already exists"):
         super().__init__(status_code=400, message=message)
 
+class RoleMismatchException(BaseAPIException):
+    def __init__(self, message: str = "Selected login role does not match account role."):
+        super().__init__(status_code=400, message=message)
+
 class InvalidCredentialsException(BaseAPIException):
     def __init__(self, message: str = "Incorrect email address or password"):
         super().__init__(status_code=401, message=message)

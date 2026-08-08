@@ -1,0 +1,357 @@
+{
+	"info": {
+		"_postman_id": "a988d8b6-3a1b-4f9e-a89c-53e7d6cf4ba6",
+		"name": "AI Skin Assessment Engine API",
+		"description": "Postman Collection covering Module 3: Skin Assessment Engine, including local authentication, role validations, CRUD skin assessments, history, and rule-based risk listings.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Sarah Connor\",\n    \"email\": \"sarah.connor@example.com\",\n    \"password\": \"password123\",\n    \"role\": \"USER\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();",
+									"if (responseJson && responseJson.access_token) {",
+									"    pm.environment.set(\"access_token\", responseJson.access_token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"sarah.connor@example.com\",\n    \"password\": \"password123\",\n    \"role\": \"USER\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Assessment Engine",
+			"item": [
+				{
+					"name": "Create Skin Assessment",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"description": "Upload face photo (JPG/PNG)",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "notes",
+									"value": "Active dry patches and forehead lines.",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/assessment",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"assessment"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Assessments List",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/assessment",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"assessment"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Assessment History Summary",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/assessment/history",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"assessment",
+								"history"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Score Trend Over Time",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/assessment/score",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"assessment",
+								"score"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Aggregated Risk Factors",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/assessment/risks",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"assessment",
+								"risks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Assessment Details by ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/assessment/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"assessment",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Assessment Notes",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"notes\": \"Updated notes: Redness seems to be reducing.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/assessment/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"assessment",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Assessment Record",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/assessment/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"assessment",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

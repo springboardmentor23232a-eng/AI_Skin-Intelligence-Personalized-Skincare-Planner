@@ -35,6 +35,7 @@ export default function DashboardLayout() {
     // User sidebar options
     { label: 'Dashboard', path: '/dashboard', icon: Home, roles: ['user'] },
     { label: 'Skin Health Score', path: '/dashboard/score', icon: Sparkles, roles: ['user'] },
+    { label: 'Skin Assessment', path: '/dashboard/assessment', icon: Camera, roles: ['user'] },
     { label: 'Personalized Routine', path: '/dashboard/routine', icon: Calendar, roles: ['user'] },
     { label: 'Recommendations', path: '/dashboard/recommendations', icon: ShoppingBag, roles: ['user'] },
     { label: 'Progress Tracking', path: '/dashboard/progress', icon: LineChart, roles: ['user'] },

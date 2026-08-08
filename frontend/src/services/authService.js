@@ -16,10 +16,11 @@ export const register = async (name, email, password, role = 'USER') => {
 /**
  * Logs in with email and password credentials, returning token details.
  */
-export const login = async (email, password) => {
+export const login = async (email, password, role) => {
   const response = await api.post('/api/auth/login', {
     email,
     password,
+    role,
   });
   return response.data;
 };

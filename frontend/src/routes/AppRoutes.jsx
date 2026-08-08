@@ -23,6 +23,7 @@ import NotFound from '../pages/NotFound';
 
 // User Sidebar Sub-Pages
 import SkinHealthScore from '../pages/SkinHealthScore';
+import SkinAssessment from '../pages/SkinAssessment';
 import PersonalizedRoutine from '../pages/PersonalizedRoutine';
 import ProductRecommendations from '../pages/ProductRecommendations';
 import ProgressTracking from '../pages/ProgressTracking';
@@ -76,6 +77,11 @@ export default function AppRoutes() {
         <Route path="/dashboard/score" element={
           <ProtectedRoute allowedRoles={['user']}>
             <SkinHealthScore />
+          </ProtectedRoute>
+        } />
+        <Route path="/dashboard/assessment" element={
+          <ProtectedRoute allowedRoles={['user']}>
+            <SkinAssessment />
           </ProtectedRoute>
         } />
         <Route path="/dashboard/routine" element={

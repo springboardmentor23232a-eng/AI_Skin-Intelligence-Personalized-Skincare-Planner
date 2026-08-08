@@ -32,7 +32,7 @@ export default function Login() {
     setErrorMsg('');
 
     try {
-      const res = await login(email, password);
+      const res = await login(email, password, role);
       if (res.success) {
         toast.success(`Welcome back!`);
         

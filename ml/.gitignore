@@ -1,0 +1,32 @@
+# Python virtual environment
+venv/
+.venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Environment files
+.env
+.env.*
+
+# Training logs
+*.log
+logs/
+runs/
+
+# Trained model files
+*.pth
+*.pt
+*.ckpt
+
+# Kaggle dataset
+skin_type_classification_dataset/
+
+# OS files
+.DS_Store
+Thumbs.db

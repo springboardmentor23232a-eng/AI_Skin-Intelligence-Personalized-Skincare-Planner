@@ -2,13 +2,18 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.exceptions import register_exception_handlers
-from app.routers import auth, profile
+from app.routers import auth, profile, assessment
 from app.logging_config import logger
+from app.database import engine, Base
+import app.models
+
+# Auto-create SQLAlchemy database tables on application start
+Base.metadata.create_all(bind=engine)
 
 # Initialize FastAPI App
 app = FastAPI(
     title="AI Skin Intelligence & Personalized Skincare Planner API",
-    description="Backend API services managing Module 1: User Authentication & Role-Based Access Control.",
+    description="Backend API services managing User Authentication, RBAC, and Skin Assessments.",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc"
@@ -33,6 +38,7 @@ register_exception_handlers(app)
 # Include Router endpoints
 app.include_router(auth.router)
 app.include_router(profile.router)
+app.include_router(assessment.router)
 
 @app.get("/", tags=["Health Check"])
 async def health_check():
