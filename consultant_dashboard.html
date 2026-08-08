@@ -293,7 +293,128 @@
         .client-action-btn.secondary:hover {
             background: rgba(143, 175, 157, 0.25);
         }
-        
+
+        .assessment-results-container {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid rgba(143, 175, 157, 0.2);
+        }
+
+        .assessment-card {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(143, 175, 157, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .assessment-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .assessment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .assessment-score {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .assessment-condition {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .condition-excellent { background: rgba(72, 187, 120, 0.2); color: #2F855A; }
+        .condition-good { background: rgba(66, 153, 225, 0.2); color: #2B6CB0; }
+        .condition-fair { background: rgba(236, 201, 75, 0.2); color: #975A16; }
+        .condition-poor { background: rgba(245, 101, 101, 0.2); color: #C53030; }
+
+        .assessment-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .assessment-detail {
+            background: rgba(143, 175, 157, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .assessment-detail-label {
+            font-size: 0.8rem;
+            color: #718096;
+            margin-bottom: 4px;
+        }
+
+        .assessment-detail-value {
+            font-weight: 600;
+            color: #2D3748;
+        }
+
+        .concerns-tags, .risk-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .tag {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .concern-tag {
+            background: rgba(245, 101, 101, 0.15);
+            color: #C53030;
+        }
+
+        .risk-tag {
+            background: rgba(236, 201, 75, 0.15);
+            color: #975A16;
+        }
+
+        .priority-high {
+            background: rgba(245, 101, 101, 0.2);
+            color: #C53030;
+        }
+
+        .priority-medium {
+            background: rgba(236, 201, 75, 0.2);
+            color: #975A16;
+        }
+
+        .priority-low {
+            background: rgba(72, 187, 120, 0.2);
+            color: #2F855A;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .no-assessments {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
         .quick-actions {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -507,6 +628,15 @@
                 </div>
             </div>
 
+            <!-- Skin Assessment Engine Results -->
+            <div class="section-header" style="margin-top: 40px; margin-bottom: 20px;">
+                <h3 style="color: #1a202c;">🧪 Skin Assessment Engine Results</h3>
+            </div>
+
+            <div id="assessmentResults" class="assessment-results-container">
+                <div class="loading-spinner">Loading assessments...</div>
+            </div>
+
         </div>
     </div>
 
@@ -522,18 +652,18 @@
                     const firstName = user.name.split(' ')[0];
                     welcomeHeading.textContent = `Good Morning, ${firstName}! 👋`;
                 }
-                
+
                 // Update sidebar consultant info
                 const consultantNameEl = document.getElementById('consultantName');
                 if (consultantNameEl) {
                     consultantNameEl.textContent = user.name;
                 }
-                
+
                 const consultantRoleEl = document.getElementById('consultantRole');
                 if (consultantRoleEl) {
                     consultantRoleEl.textContent = user.role.charAt(0).toUpperCase() + user.role.slice(1);
                 }
-                
+
                 // Update avatar initials
                 const avatarEl = document.getElementById('consultantAvatar');
                 if (avatarEl) {
@@ -541,7 +671,79 @@
                     avatarEl.textContent = initials;
                 }
             }
+
+            // Load skin assessment results
+            loadAssessmentResults();
         });
+
+        async function loadAssessmentResults() {
+            const resultsContainer = document.getElementById('assessmentResults');
+
+            try {
+                const response = await fetch('http://localhost:3000/api/skin/assessment');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch assessments');
+                }
+
+                const assessments = await response.json();
+
+                if (assessments.length === 0) {
+                    resultsContainer.innerHTML = '<div class="no-assessments">No skin assessments found. Ask clients to complete the skin profile assessment.</div>';
+                    return;
+                }
+
+                resultsContainer.innerHTML = assessments.map(assessment => `
+                    <div class="assessment-card">
+                        <div class="assessment-header">
+                            <div>
+                                <div class="assessment-score">${assessment.skin_health_score}/100</div>
+                                <div style="font-size: 0.9rem; color: #718096;">Skin Health Score</div>
+                            </div>
+                            <div>
+                                <span class="assessment-condition condition-${assessment.overall_condition.toLowerCase()}">${assessment.overall_condition}</span>
+                                <span class="tag priority-${assessment.priority.toLowerCase()}">${assessment.priority} Priority</span>
+                            </div>
+                        </div>
+
+                        <div class="assessment-details">
+                            <div class="assessment-detail">
+                                <div class="assessment-detail-label">Assessment ID</div>
+                                <div class="assessment-detail-value">#${assessment.id}</div>
+                            </div>
+                            <div class="assessment-detail">
+                                <div class="assessment-detail-label">User ID</div>
+                                <div class="assessment-detail-value">${assessment.user_id}</div>
+                            </div>
+                            <div class="assessment-detail">
+                                <div class="assessment-detail-label">Date</div>
+                                <div class="assessment-detail-value">${new Date(assessment.assessment_date).toLocaleDateString()}</div>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 12px;">
+                            <div class="assessment-detail-label">Identified Concerns</div>
+                            <div class="concerns-tags">
+                                ${assessment.concerns.map(concern => `<span class="tag concern-tag">${concern}</span>`).join('')}
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="assessment-detail-label">Risk Factors</div>
+                            <div class="risk-tags">
+                                ${assessment.risk_factors.map(risk => `<span class="tag risk-tag">${risk}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                console.error('Error loading assessments:', error);
+                resultsContainer.innerHTML = '<div class="no-assessments">Error loading assessments. Please ensure the backend services are running.</div>';
+            }
+        }
+
+        // Refresh assessments every 30 seconds
+        setInterval(loadAssessmentResults, 30000);
     </script>
 </body>
 </html>

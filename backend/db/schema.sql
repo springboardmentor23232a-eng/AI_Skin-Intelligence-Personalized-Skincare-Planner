@@ -139,6 +139,46 @@ CREATE TABLE IF NOT EXISTS environmental_exposure (
 );
 
 -- ============================================================
+-- TABLE: skin_assessments  (AI skin assessment results)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS skin_assessments (
+    id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id             UUID        NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    assessment_date     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    skin_health_score   INTEGER     NOT NULL CHECK (skin_health_score >= 0 AND skin_health_score <= 100),
+    overall_condition   VARCHAR(20) NOT NULL,  -- Excellent, Good, Fair, Poor, Critical
+    concerns            JSONB,                  -- Array of identified concerns
+    risk_factors        JSONB,                  -- Array of risk factor names
+    notes               TEXT,
+    created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- ============================================================
+-- TABLE: skin_concerns  (individual skin concerns)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS skin_concerns (
+    id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    assessment_id       UUID        NOT NULL REFERENCES skin_assessments(id) ON DELETE CASCADE,
+    concern_name        VARCHAR(100) NOT NULL,
+    severity            VARCHAR(20) NOT NULL,  -- Low, Medium, High
+    priority            VARCHAR(20) NOT NULL,  -- Low, Medium, High
+    created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- ============================================================
+-- TABLE: risk_factors  (individual risk factors)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS risk_factors (
+    id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    assessment_id       UUID        NOT NULL REFERENCES skin_assessments(id) ON DELETE CASCADE,
+    risk_name           VARCHAR(100) NOT NULL,
+    description         TEXT,
+    risk_level          VARCHAR(20) NOT NULL,  -- Low, Medium, High
+    created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- ============================================================
 -- INDEXES
 -- ============================================================
 CREATE INDEX IF NOT EXISTS idx_users_email        ON users(email);
@@ -153,6 +193,10 @@ CREATE INDEX IF NOT EXISTS idx_hydration_user    ON hydration_tracking(user_id);
 CREATE INDEX IF NOT EXISTS idx_hydration_date    ON hydration_tracking(tracking_date);
 CREATE INDEX IF NOT EXISTS idx_environmental_user ON environmental_exposure(user_id);
 CREATE INDEX IF NOT EXISTS idx_environmental_date ON environmental_exposure(exposure_date);
+CREATE INDEX IF NOT EXISTS idx_skin_assessments_user ON skin_assessments(user_id);
+CREATE INDEX IF NOT EXISTS idx_skin_assessments_date ON skin_assessments(assessment_date);
+CREATE INDEX IF NOT EXISTS idx_skin_concerns_assessment ON skin_concerns(assessment_id);
+CREATE INDEX IF NOT EXISTS idx_risk_factors_assessment ON risk_factors(assessment_id);
 
 -- ============================================================
 -- TRIGGER: auto-update updated_at on row change
@@ -193,6 +237,11 @@ CREATE TRIGGER set_hydration_tracking_updated_at
 DROP TRIGGER IF EXISTS set_environmental_exposure_updated_at ON environmental_exposure;
 CREATE TRIGGER set_environmental_exposure_updated_at
     BEFORE UPDATE ON environmental_exposure
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS set_skin_assessments_updated_at ON skin_assessments;
+CREATE TRIGGER set_skin_assessments_updated_at
+    BEFORE UPDATE ON skin_assessments
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================================

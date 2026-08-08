@@ -99,3 +99,14 @@ Thumbs.db
 tmp/
 temp/
 *.tmp
+
+# ML Models (too large for GitHub)
+*.keras
+*.h5
+*.pkl
+*.joblib
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3

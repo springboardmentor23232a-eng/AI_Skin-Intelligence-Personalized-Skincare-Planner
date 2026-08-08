@@ -39,7 +39,7 @@ router.post('/', [
   }
 
   try {
-    const { skin_type, skin_concerns, allergies, sensitivity_level, routine_morning, routine_evening, products_used } = req.body;
+    const { skin_type, skin_concerns, allergies, sensitivity_level, routine_morning, routine_evening, products_used, skin_health_score, risk_factors, priority } = req.body;
 
     // Check if profile already exists
     const existing = await pool.query(
@@ -52,10 +52,10 @@ router.post('/', [
     }
 
     const result = await pool.query(
-      `INSERT INTO skin_profiles (user_id, skin_type, skin_concerns, allergies, sensitivity_level, routine_morning, routine_evening, products_used)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      `INSERT INTO skin_profiles (user_id, skin_type, skin_concerns, allergies, sensitivity_level, routine_morning, routine_evening, products_used, skin_health_score, risk_factors, priority)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
        RETURNING *`,
-      [req.user.id, skin_type, skin_concerns, allergies, sensitivity_level, routine_morning, routine_evening, products_used]
+      [req.user.id, skin_type, skin_concerns, allergies, sensitivity_level, routine_morning, routine_evening, products_used, skin_health_score, risk_factors, priority]
     );
 
     return res.status(201).json({ success: true, profile: result.rows[0] });
@@ -77,20 +77,23 @@ router.put('/', [
   }
 
   try {
-    const { skin_type, skin_concerns, allergies, sensitivity_level, routine_morning, routine_evening, products_used } = req.body;
+    const { skin_type, skin_concerns, allergies, sensitivity_level, routine_morning, routine_evening, products_used, skin_health_score, risk_factors, priority } = req.body;
 
     const result = await pool.query(
-      `UPDATE skin_profiles 
+      `UPDATE skin_profiles
        SET skin_type = COALESCE($2, skin_type),
            skin_concerns = COALESCE($3, skin_concerns),
            allergies = COALESCE($4, allergies),
            sensitivity_level = COALESCE($5, sensitivity_level),
            routine_morning = COALESCE($6, routine_morning),
            routine_evening = COALESCE($7, routine_evening),
-           products_used = COALESCE($8, products_used)
+           products_used = COALESCE($8, products_used),
+           skin_health_score = COALESCE($9, skin_health_score),
+           risk_factors = COALESCE($10, risk_factors),
+           priority = COALESCE($11, priority)
        WHERE user_id = $1
        RETURNING *`,
-      [req.user.id, skin_type, skin_concerns, allergies, sensitivity_level, routine_morning, routine_evening, products_used]
+      [req.user.id, skin_type, skin_concerns, allergies, sensitivity_level, routine_morning, routine_evening, products_used, skin_health_score, risk_factors, priority]
     );
 
     if (result.rows.length === 0) {

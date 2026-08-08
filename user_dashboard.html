@@ -330,7 +330,128 @@
         .progress-value.reduction {
             color: var(--accent2);
         }
-        
+
+        .assessment-results-container {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid rgba(143, 175, 157, 0.2);
+        }
+
+        .assessment-card {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(143, 175, 157, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .assessment-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .assessment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .assessment-score {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .assessment-condition {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .condition-excellent { background: rgba(72, 187, 120, 0.2); color: #2F855A; }
+        .condition-good { background: rgba(66, 153, 225, 0.2); color: #2B6CB0; }
+        .condition-fair { background: rgba(236, 201, 75, 0.2); color: #975A16; }
+        .condition-poor { background: rgba(245, 101, 101, 0.2); color: #C53030; }
+
+        .assessment-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .assessment-detail {
+            background: rgba(143, 175, 157, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .assessment-detail-label {
+            font-size: 0.8rem;
+            color: #718096;
+            margin-bottom: 4px;
+        }
+
+        .assessment-detail-value {
+            font-weight: 600;
+            color: #2D3748;
+        }
+
+        .concerns-tags, .risk-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .tag {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .concern-tag {
+            background: rgba(245, 101, 101, 0.15);
+            color: #C53030;
+        }
+
+        .risk-tag {
+            background: rgba(236, 201, 75, 0.15);
+            color: #975A16;
+        }
+
+        .priority-high {
+            background: rgba(245, 101, 101, 0.2);
+            color: #C53030;
+        }
+
+        .priority-medium {
+            background: rgba(236, 201, 75, 0.2);
+            color: #975A16;
+        }
+
+        .priority-low {
+            background: rgba(72, 187, 120, 0.2);
+            color: #2F855A;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .no-assessments {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
         .quick-actions {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -560,22 +681,31 @@
             <div class="score-grid">
                 <div class="enhanced-score-card health">
                     <div class="score-icon">🌟</div>
-                    <div class="score-value health">84.6</div>
+                    <div class="score-value health" id="dashboardHealthScore">--</div>
                     <div class="score-label">Skin Health Score</div>
-                    <div class="score-trend trend-up">↑ 2.3% this week</div>
+                    <div class="score-trend trend-up">Based on latest assessment</div>
                 </div>
                 <div class="enhanced-score-card hydration">
                     <div class="score-icon">💧</div>
-                    <div class="score-value hydration">76</div>
+                    <div class="score-value hydration" id="dashboardHydrationScore">--</div>
                     <div class="score-label">Hydration Score</div>
-                    <div class="score-trend trend-up">↑ 5% improvement</div>
+                    <div class="score-trend trend-up">Based on water intake</div>
                 </div>
                 <div class="enhanced-score-card acne">
                     <div class="score-icon">🎯</div>
-                    <div class="score-value acne">28</div>
-                    <div class="score-label">Acne Risk Score</div>
-                    <div class="score-trend trend-down">↓ Low risk</div>
+                    <div class="score-value acne" id="dashboardPriorityScore">--</div>
+                    <div class="score-label">Priority Level</div>
+                    <div class="score-trend trend-down" id="dashboardPriorityText">Complete assessment</div>
                 </div>
+            </div>
+
+            <!-- Skin Assessment Results -->
+            <div class="section-header" style="margin-top: 40px; margin-bottom: 20px;">
+                <h3>🧪 Your Latest Skin Assessment</h3>
+            </div>
+
+            <div id="userAssessmentResults" class="assessment-results-container">
+                <div class="loading-spinner">Loading your assessment results...</div>
             </div>
 
             <!-- Enhanced Care Notes -->
@@ -901,7 +1031,110 @@
             if (sleepDateInput) sleepDateInput.value = today;
             if (hydrationDateInput) hydrationDateInput.value = today;
             if (envDateInput) envDateInput.value = today;
+
+            // Load user's skin assessment results
+            loadUserAssessment();
         });
+
+        async function loadUserAssessment() {
+            const resultsContainer = document.getElementById('userAssessmentResults');
+
+            try {
+                const token = localStorage.getItem('accessToken');
+                const response = await fetch('http://localhost:3000/api/skin-profile', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!data.success || !data.profile) {
+                    resultsContainer.innerHTML = '<div class="no-assessments">No skin assessment found. <a href="skin_profile.html">Complete your assessment</a> to get personalized recommendations.</div>';
+                    return;
+                }
+
+                const profile = data.profile;
+
+                // Update dashboard scores
+                if (profile.skin_health_score) {
+                    document.getElementById('dashboardHealthScore').textContent = profile.skin_health_score;
+                }
+                if (profile.skin_health_score) {
+                    document.getElementById('dashboardHydrationScore').textContent = Math.round(profile.skin_health_score * 0.9);
+                }
+                if (profile.priority) {
+                    document.getElementById('dashboardPriorityScore').textContent = profile.priority.charAt(0).toUpperCase() + profile.priority.slice(1);
+                    document.getElementById('dashboardPriorityText').textContent = 'Based on concerns';
+                }
+
+                // Display assessment details
+                if (profile.skin_health_score && profile.skin_concerns) {
+                    const concerns = Array.isArray(profile.skin_concerns) ? profile.skin_concerns : JSON.parse(profile.skin_concerns || '[]');
+                    const riskFactors = Array.isArray(profile.risk_factors) ? profile.risk_factors : JSON.parse(profile.risk_factors || '[]');
+
+                    resultsContainer.innerHTML = `
+                        <div class="assessment-card">
+                            <div class="assessment-header">
+                                <div>
+                                    <div class="assessment-score">${profile.skin_health_score}/100</div>
+                                    <div style="font-size: 0.9rem; color: #718096;">Skin Health Score</div>
+                                </div>
+                                <div>
+                                    <span class="assessment-condition condition-${getConditionClass(profile.skin_health_score)}">${getConditionLabel(profile.skin_health_score)}</span>
+                                    <span class="tag priority-${profile.priority?.toLowerCase() || 'medium'}">${profile.priority || 'Medium'} Priority</span>
+                                </div>
+                            </div>
+
+                            <div class="assessment-details">
+                                <div class="assessment-detail">
+                                    <div class="assessment-detail-label">Skin Type</div>
+                                    <div class="assessment-detail-value">${profile.skin_type || 'Not specified'}</div>
+                                </div>
+                                <div class="assessment-detail">
+                                    <div class="assessment-detail-label">Assessment Date</div>
+                                    <div class="assessment-detail-value">${profile.assessment_date ? new Date(profile.assessment_date).toLocaleDateString() : 'Not specified'}</div>
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom: 12px;">
+                                <div class="assessment-detail-label">Identified Concerns</div>
+                                <div class="concerns-tags">
+                                    ${concerns.length > 0 ? concerns.map(concern => `<span class="tag concern-tag">${concern}</span>`).join('') : '<span style="color: #718096;">No specific concerns identified</span>'}
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="assessment-detail-label">Risk Factors</div>
+                                <div class="risk-tags">
+                                    ${riskFactors.length > 0 ? riskFactors.map(risk => `<span class="tag risk-tag">${risk}</span>`).join('') : '<span style="color: #718096;">No specific risk factors identified</span>'}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    resultsContainer.innerHTML = '<div class="no-assessments">Incomplete assessment data. <a href="skin_profile.html">Complete your assessment</a> to get personalized recommendations.</div>';
+                }
+
+            } catch (error) {
+                console.error('Error loading assessment:', error);
+                resultsContainer.innerHTML = '<div class="no-assessments">Error loading assessment. Please try again later.</div>';
+            }
+        }
+
+        function getConditionClass(score) {
+            if (score >= 80) return 'excellent';
+            if (score >= 60) return 'good';
+            if (score >= 40) return 'fair';
+            return 'poor';
+        }
+
+        function getConditionLabel(score) {
+            if (score >= 80) return 'Excellent';
+            if (score >= 60) return 'Good';
+            if (score >= 40) return 'Fair';
+            return 'Poor';
+        }
 
         // Tracking Modal Functions
         function openTrackingModal() {

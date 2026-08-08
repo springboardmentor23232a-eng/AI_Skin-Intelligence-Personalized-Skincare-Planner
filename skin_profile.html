@@ -4,778 +4,1454 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Skin Profile Assessment - AI Skin Intelligence</title>
-    <link rel="stylesheet" href="src/styles.css">
     <style>
-        .profile-container {
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 30px;
-            background: var(--card-bg);
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        :root {
+            --bg: #f4efe6;
+            --panel: #fffaf3;
+            --panel-2: #f6e7d3;
+            --ink: #243041;
+            --muted: #667085;
+            --line: rgba(36, 48, 65, 0.12);
+            --accent: #c08a4b;
+            --accent-2: #6b9a88;
+            --good: #2f855a;
+            --warn: #b7791f;
+            --bad: #c05621;
+            --shadow: 0 24px 70px rgba(36, 48, 65, 0.12);
+            --radius: 22px;
         }
 
-        .profile-header {
-            text-align: center;
-            margin-bottom: 40px;
+        * {
+            box-sizing: border-box;
         }
 
-        .profile-header h1 {
-            font-size: 2rem;
-            color: var(--primary);
-            margin-bottom: 10px;
+        html {
+            scroll-behavior: smooth;
         }
 
-        .profile-header p {
-            color: var(--text-muted);
-            font-size: 1rem;
-        }
-
-        .form-section {
-            margin-bottom: 30px;
-            padding: 25px;
-            background: rgba(255,255,255,0.5);
-            border-radius: 15px;
-            border: 1px solid rgba(0,0,0,0.05);
-        }
-
-        .form-section h3 {
-            font-size: 1.2rem;
-            color: var(--text-main);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--text-main);
-            font-size: 0.95rem;
-        }
-
-        .form-group .description {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-bottom: 10px;
-            font-style: italic;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid var(--border);
-            border-radius: 10px;
-            font-size: 1rem;
-            font-family: inherit;
-            transition: all 0.3s ease;
-            background: var(--white);
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(143, 175, 157, 0.1);
-        }
-
-        .radio-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .radio-option {
-            flex: 1;
-            min-width: 120px;
-        }
-
-        .radio-option input[type="radio"] {
-            display: none;
-        }
-
-        .radio-option label {
-            display: block;
-            padding: 12px 15px;
-            background: var(--white);
-            border: 2px solid var(--border);
-            border-radius: 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
+        body {
             margin: 0;
+            min-height: 100vh;
+            color: var(--ink);
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(192, 138, 75, 0.16), transparent 28%),
+                radial-gradient(circle at top right, rgba(107, 154, 136, 0.14), transparent 22%),
+                linear-gradient(180deg, #f7f2ea 0%, #f2eadf 100%);
         }
 
-        .radio-option input[type="radio"]:checked + label {
-            background: var(--accent);
-            color: var(--white);
-            border-color: var(--accent);
+        .page {
+            width: min(1180px, calc(100% - 32px));
+            margin: 24px auto 40px;
         }
 
-        .checkbox-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+        .hero {
+            display: grid;
+            grid-template-columns: 1.3fr 0.9fr;
+            gap: 18px;
+            margin-bottom: 18px;
         }
 
-        .checkbox-option {
-            flex: 1;
-            min-width: 140px;
+        .hero-card,
+        .stats-card,
+        .form-card,
+        .results-card {
+            background: rgba(255, 250, 243, 0.92);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
         }
 
-        .checkbox-option input[type="checkbox"] {
-            display: none;
-        }
-
-        .checkbox-option label {
-            display: block;
-            padding: 12px 15px;
-            background: var(--white);
-            border: 2px solid var(--border);
-            border-radius: 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin: 0;
-        }
-
-        .checkbox-option input[type="checkbox"]:checked + label {
-            background: var(--accent);
-            color: var(--white);
-            border-color: var(--accent);
-        }
-
-        .slider-container {
-            padding: 10px 0;
-        }
-
-        .slider {
-            width: 100%;
-            height: 8px;
-            border-radius: 5px;
-            background: var(--border);
-            outline: none;
-            -webkit-appearance: none;
-        }
-
-        .slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: var(--accent);
-            cursor: pointer;
-        }
-
-        .slider::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: var(--accent);
-            cursor: pointer;
-        }
-
-        .slider-labels {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 8px;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        .button-group {
-            display: flex;
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 15px 30px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary {
-            background: var(--accent);
-            color: var(--white);
-        }
-
-        .btn-primary:hover {
-            background: var(--primary);
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: var(--border);
-            color: var(--text-main);
-        }
-
-        .btn-secondary:hover {
-            background: var(--text-muted);
-            color: var(--white);
-        }
-
-        .analysis-results {
-            display: none;
-            margin-top: 30px;
-            padding: 25px;
-            background: linear-gradient(135deg, rgba(143, 175, 157, 0.1), rgba(200, 169, 106, 0.1));
-            border-radius: 15px;
-            border: 2px solid var(--accent);
-        }
-
-        .analysis-results.show {
-            display: block;
-        }
-
-        .analysis-results h3 {
-            color: var(--primary);
-            margin-bottom: 20px;
-        }
-
-        .result-item {
-            margin-bottom: 15px;
-            padding: 15px;
-            background: var(--white);
-            border-radius: 10px;
-        }
-
-        .result-item h4 {
-            color: var(--text-main);
-            margin-bottom: 10px;
-        }
-
-        .result-item ul {
-            margin: 0;
-            padding-left: 20px;
-        }
-
-        .result-item li {
-            margin-bottom: 5px;
-            color: var(--text-muted);
-        }
-
-        .confidence-meter {
-            height: 8px;
-            background: var(--border);
-            border-radius: 5px;
-            margin: 10px 0;
+        .hero-card {
+            padding: 28px;
+            position: relative;
             overflow: hidden;
         }
 
-        .confidence-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent), var(--primary));
-            transition: width 0.5s ease;
+        .hero-card::after {
+            content: "";
+            position: absolute;
+            inset: auto -80px -100px auto;
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(192, 138, 75, 0.2), transparent 72%);
+            pointer-events: none;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(107, 154, 136, 0.12);
+            color: var(--accent-2);
+            font-weight: 700;
+            font-size: 0.84rem;
+            letter-spacing: 0.02em;
+            margin-bottom: 16px;
+        }
+
+        .hero h1 {
+            margin: 0 0 12px;
+            font-size: clamp(2rem, 4vw, 3.7rem);
+            line-height: 1.02;
+            letter-spacing: -0.04em;
+        }
+
+        .hero p {
+            margin: 0;
+            max-width: 68ch;
+            color: var(--muted);
+            font-size: 1.03rem;
+            line-height: 1.65;
+        }
+
+        .stats-card {
+            padding: 22px;
+            display: grid;
+            gap: 12px;
+            align-content: start;
+        }
+
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: 18px;
+            background: linear-gradient(180deg, rgba(246, 231, 211, 0.65), rgba(255, 255, 255, 0.7));
+            border: 1px solid rgba(36, 48, 65, 0.08);
+        }
+
+        .stat strong {
+            display: block;
+            font-size: 1.3rem;
+        }
+
+        .stat span {
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1.02fr 0.98fr;
+            gap: 18px;
+            align-items: start;
+        }
+
+        .form-card,
+        .results-card {
+            padding: 24px;
+        }
+
+        .section-title {
+            margin: 0 0 12px;
+            font-size: 1.15rem;
+            letter-spacing: -0.02em;
+        }
+
+        .section-note {
+            margin: 0 0 18px;
+            color: var(--muted);
+            font-size: 0.92rem;
+            line-height: 1.5;
+        }
+
+        form {
+            display: grid;
+            gap: 18px;
+        }
+
+        .section {
+            padding: 18px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.62);
+            border: 1px solid rgba(36, 48, 65, 0.08);
+        }
+
+        .section-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: end;
+            margin-bottom: 14px;
+        }
+
+        .section-head h3 {
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        .section-head p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
+
+        .field {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .field:last-child {
+            margin-bottom: 0;
+        }
+
+        .upload-box {
+            padding: 18px;
+            border-radius: 18px;
+            border: 1px dashed rgba(36, 48, 65, 0.18);
+            background: rgba(255, 255, 255, 0.62);
+            display: grid;
+            gap: 14px;
+        }
+
+        .upload-dropzone {
+            display: grid;
+            place-items: center;
+            gap: 8px;
+            padding: 18px;
+            border-radius: 16px;
+            border: 1px solid rgba(36, 48, 65, 0.12);
+            background: rgba(255, 255, 255, 0.82);
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+        }
+
+        .upload-dropzone:hover {
+            transform: translateY(-1px);
+            border-color: rgba(192, 138, 75, 0.5);
+            background: rgba(255, 255, 255, 0.96);
+        }
+
+        .upload-dropzone strong {
+            font-size: 0.98rem;
+        }
+
+        .upload-dropzone small {
+            color: var(--muted);
+        }
+
+        .preview-wrap {
+            display: none;
+            gap: 12px;
+        }
+
+        .preview-wrap.show {
+            display: grid;
+        }
+
+        .preview-img {
+            width: 100%;
+            max-height: 220px;
+            object-fit: cover;
+            border-radius: 16px;
+            border: 1px solid rgba(36, 48, 65, 0.12);
+            background: #fff;
+        }
+
+        .prediction-result {
+            display: none;
+            padding: 12px 14px;
+            border-radius: 14px;
+            background: rgba(107, 154, 136, 0.1);
+            color: #396354;
+            border: 1px solid rgba(107, 154, 136, 0.18);
+        }
+
+        .prediction-result.show {
+            display: block;
+        }
+
+        label {
+            font-weight: 700;
+            font-size: 0.94rem;
+        }
+
+        .help {
+            font-size: 0.86rem;
+            color: var(--muted);
+            line-height: 1.45;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea {
+            width: 100%;
+            padding: 13px 14px;
+            border-radius: 14px;
+            border: 1px solid rgba(36, 48, 65, 0.14);
+            background: rgba(255, 255, 255, 0.96);
+            color: var(--ink);
+            font: inherit;
+            outline: none;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        textarea:focus {
+            border-color: rgba(192, 138, 75, 0.8);
+            box-shadow: 0 0 0 4px rgba(192, 138, 75, 0.14);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 84px;
+        }
+
+        .segmented,
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .option {
+            position: relative;
+        }
+
+        .option input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .option span {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+            padding: 10px 14px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(36, 48, 65, 0.14);
+            color: var(--ink);
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
+        }
+
+        .option input:checked + span {
+            background: linear-gradient(135deg, var(--accent), #d8a56c);
+            color: #fff;
+            border-color: transparent;
+            transform: translateY(-1px);
+        }
+
+        .option span:hover {
+            transform: translateY(-1px);
+        }
+
+        .range-row {
+            display: grid;
+            gap: 8px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--accent);
+        }
+
+        .range-meta {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 2px;
+        }
+
+        button {
+            border: 0;
+            border-radius: 14px;
+            padding: 13px 18px;
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease, background 0.18s ease;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), #d09c5d);
+            color: #fff;
+            box-shadow: 0 12px 28px rgba(192, 138, 75, 0.22);
+        }
+
+        .btn-secondary {
+            background: rgba(107, 154, 136, 0.14);
+            color: var(--accent-2);
+        }
+
+        .btn-ghost {
+            background: rgba(36, 48, 65, 0.08);
+            color: var(--ink);
+        }
+
+        button:disabled {
+            cursor: progress;
+            opacity: 0.7;
+            transform: none;
+        }
+
+        .banner {
+            display: none;
+            margin-bottom: 16px;
+            padding: 14px 16px;
+            border-radius: 16px;
+            border: 1px solid rgba(36, 48, 65, 0.12);
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .banner.show {
+            display: block;
+            animation: reveal 0.22s ease-out;
+        }
+
+        .banner.success {
+            border-color: rgba(47, 133, 90, 0.22);
+            background: rgba(47, 133, 90, 0.08);
+            color: var(--good);
+        }
+
+        .banner.error {
+            border-color: rgba(192, 86, 33, 0.22);
+            background: rgba(192, 86, 33, 0.08);
+            color: var(--bad);
         }
 
         .loading {
             display: none;
-            text-align: center;
-            padding: 20px;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding: 14px 16px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(36, 48, 65, 0.12);
         }
 
         .loading.show {
-            display: block;
+            display: flex;
         }
 
         .spinner {
-            border: 3px solid var(--border);
-            border-top: 3px solid var(--accent);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
+            width: 18px;
+            height: 18px;
+            border-radius: 999px;
+            border: 2px solid rgba(192, 138, 75, 0.2);
+            border-top-color: var(--accent);
+            animation: spin 0.8s linear infinite;
+            flex: 0 0 auto;
+        }
+
+        .results-card {
+            position: sticky;
+            top: 18px;
+        }
+
+        .results-empty {
+            border: 1px dashed rgba(36, 48, 65, 0.16);
+            border-radius: 18px;
+            padding: 22px;
+            color: var(--muted);
+            background: rgba(255, 255, 255, 0.54);
+        }
+
+        .results-block {
+            display: grid;
+            gap: 14px;
+        }
+
+        .hero-score {
+            display: grid;
+            gap: 8px;
+            padding: 18px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(192, 138, 75, 0.12), rgba(107, 154, 136, 0.11));
+            border: 1px solid rgba(36, 48, 65, 0.08);
+        }
+
+        .hero-score .value {
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            line-height: 1;
+        }
+
+        .hero-score .label {
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        .meter {
+            height: 12px;
+            border-radius: 999px;
+            background: rgba(36, 48, 65, 0.08);
+            overflow: hidden;
+        }
+
+        .meter > div {
+            height: 100%;
+            width: 0%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #d69e2e, #2f855a);
+            transition: width 0.35s ease;
+        }
+
+        .card {
+            padding: 16px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.86);
+            border: 1px solid rgba(36, 48, 65, 0.08);
+        }
+
+        .card h4 {
+            margin: 0 0 10px;
+            font-size: 0.96rem;
+        }
+
+        .list {
+            margin: 0;
+            padding-left: 18px;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            min-height: 30px;
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: rgba(107, 154, 136, 0.12);
+            color: #396354;
+            font-size: 0.86rem;
+            font-weight: 700;
+        }
+
+        .tag.warn {
+            background: rgba(192, 138, 75, 0.12);
+            color: #94663a;
+        }
+
+        .tag.bad {
+            background: rgba(192, 86, 33, 0.12);
+            color: #a24f28;
+        }
+
+        .footer-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 16px;
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            to { transform: rotate(360deg); }
         }
 
-        .error-message {
-            display: none;
-            background: rgba(240, 82, 82, 0.1);
-            border: 1px solid rgba(240, 82, 82, 0.3);
-            color: #f05252;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+        @keyframes reveal {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .error-message.show {
-            display: block;
+        @media (max-width: 980px) {
+            .hero,
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .results-card {
+                position: static;
+            }
         }
 
-        .success-message {
-            display: none;
-            background: rgba(16, 217, 164, 0.1);
-            border: 1px solid rgba(16, 217, 164, 0.3);
-            color: #10d9a4;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
+        @media (max-width: 640px) {
+            .page {
+                width: min(100% - 20px, 100%);
+                margin: 10px auto 24px;
+            }
 
-        .success-message.show {
-            display: block;
+            .hero-card,
+            .stats-card,
+            .form-card,
+            .results-card {
+                border-radius: 18px;
+                padding: 18px;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="profile-container">
-        <div class="profile-header">
-            <h1>🧴 Skin Profile Assessment</h1>
-            <p>Answer these questions to help us understand your skin and provide personalized recommendations</p>
-        </div>
+    <main class="page">
+        <section class="hero">
+            <article class="hero-card">
+                <div class="eyebrow">Skin Profile Assessment</div>
+                <h1>Build a clear skin profile without the page flicker.</h1>
+                <p>
+                    This version runs entirely in the browser, so your analysis appears immediately and stays visible.
+                    You can save the result locally, edit answers, or refresh the page without losing the last analysis.
+                </p>
+            </article>
 
-        <div class="error-message" id="errorMessage"></div>
-        <div class="success-message" id="successMessage"></div>
+            <aside class="stats-card" aria-label="Quick summary">
+                <div class="stat">
+                    <div>
+                        <strong id="quickScore">--</strong>
+                        <span>Current skin health score</span>
+                    </div>
+                    <div class="tag" id="quickConditionTag">No result yet</div>
+                </div>
+                <div class="stat">
+                    <div>
+                        <strong id="quickConcernCount">0</strong>
+                        <span>Detected concerns</span>
+                    </div>
+                    <div class="tag warn" id="quickPriorityTag">Waiting</div>
+                </div>
+            </aside>
+        </section>
 
-        <form id="skinProfileForm">
-            <!-- Skin Type Assessment -->
-            <div class="form-section">
-                <h3>🔍 Skin Type Assessment</h3>
-                
-                <div class="form-group">
-                    <label>How does your skin feel by midday?</label>
-                    <div class="description">This helps us understand your skin's oil production patterns</div>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" name="skin_feel" id="feel_tight" value="tight">
-                            <label for="feel_tight">Tight/Dry</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" name="skin_feel" id="feel_normal" value="normal">
-                            <label for="feel_normal">Normal</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" name="skin_feel" id="feel_oily" value="oily">
-                            <label for="feel_oily">Oily</label>
-                        </div>
+        <section class="grid">
+            <article class="form-card">
+                <div class="section-title">Your details</div>
+                <p class="section-note">
+                    Fill in the form below and click Analyze. The result panel updates in place and does not auto-close.
+                </p>
+
+                <div class="banner" id="messageBanner" role="status" aria-live="polite"></div>
+                <div class="loading" id="loadingBar">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <div>
+                        <strong>Analyzing locally</strong>
+                        <div class="help">Computing your score and recommendations in the browser.</div>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>How oily is your T-zone (forehead, nose, chin)?</label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" name="oiliness" id="oiliness_none" value="none">
-                            <label for="oiliness_none">Not oily</label>
+                <form id="skinProfileForm" novalidate>
+                    <section class="section">
+                        <div class="section-head">
+                            <h3>Optional image analysis</h3>
+                            <p>Use a photo to suggest the closest skin type.</p>
                         </div>
-                        <div class="radio-option">
-                            <input type="radio" name="oiliness" id="oiliness_slightly" value="slightly_oily">
-                            <label for="oiliness_slightly">Slightly oily</label>
+
+                        <div class="upload-box">
+                            <div class="upload-dropzone" id="dropZone">
+                                <strong>Drop a skin photo here or click to upload</strong>
+                                <small>JPG or PNG up to 5 MB</small>
+                                <input id="skinImageUpload" type="file" accept="image/jpeg,image/jpg,image/png" hidden>
+                            </div>
+
+                            <div class="preview-wrap" id="previewWrap">
+                                <img id="previewImg" class="preview-img" alt="Uploaded skin preview">
+                                <div class="prediction-result" id="predictionResult"></div>
+                                <div class="footer-actions">
+                                    <button type="button" class="btn-secondary" id="removeImageBtn">Remove image</button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="radio-option">
-                            <input type="radio" name="oiliness" id="oiliness_oily" value="oily">
-                            <label for="oiliness_oily">Oily</label>
+                    </section>
+
+                    <section class="section">
+                        <div class="section-head">
+                            <h3>Skin type</h3>
+                            <p>Choose the options that match your skin best.</p>
                         </div>
-                        <div class="radio-option">
-                            <input type="radio" name="oiliness" id="oiliness_very" value="very_oily">
-                            <label for="oiliness_very">Very oily</label>
+
+                        <div class="field">
+                            <label>How does your skin feel by midday?</label>
+                            <div class="segmented">
+                                <label class="option"><input type="radio" name="skin_feel" value="tight" checked><span>Tight / Dry</span></label>
+                                <label class="option"><input type="radio" name="skin_feel" value="normal"><span>Normal</span></label>
+                                <label class="option"><input type="radio" name="skin_feel" value="oily"><span>Oily</span></label>
+                            </div>
                         </div>
+
+                        <div class="field">
+                            <label>Oiliness</label>
+                            <div class="segmented">
+                                <label class="option"><input type="radio" name="oiliness" value="dry"><span>Dry</span></label>
+                                <label class="option"><input type="radio" name="oiliness" value="normal" checked><span>Normal</span></label>
+                                <label class="option"><input type="radio" name="oiliness" value="slightly_oily"><span>Slightly oily</span></label>
+                                <label class="option"><input type="radio" name="oiliness" value="oily"><span>Oily</span></label>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label>Skin sensitivity</label>
+                            <div class="segmented">
+                                <label class="option"><input type="radio" name="sensitivity" value="low" checked><span>Low</span></label>
+                                <label class="option"><input type="radio" name="sensitivity" value="medium"><span>Medium</span></label>
+                                <label class="option"><input type="radio" name="sensitivity" value="high"><span>High</span></label>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label>Main concerns</label>
+                            <div class="chips">
+                                <label class="option"><input type="checkbox" name="concerns" value="acne"><span>Acne</span></label>
+                                <label class="option"><input type="checkbox" name="concerns" value="dryness"><span>Dryness</span></label>
+                                <label class="option"><input type="checkbox" name="concerns" value="redness"><span>Redness</span></label>
+                                <label class="option"><input type="checkbox" name="concerns" value="pigmentation"><span>Pigmentation</span></label>
+                                <label class="option"><input type="checkbox" name="concerns" value="dark_circles"><span>Dark circles</span></label>
+                                <label class="option"><input type="checkbox" name="concerns" value="pores"><span>Pores</span></label>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="section">
+                        <div class="section-head">
+                            <h3>Lifestyle factors</h3>
+                            <p>These shape the score and the recommendations.</p>
+                        </div>
+
+                        <div class="field">
+                            <label for="age">Age</label>
+                            <input id="age" name="age" type="number" min="1" max="120" value="25" required>
+                        </div>
+
+                        <div class="field">
+                            <label>Daily water intake</label>
+                            <div class="range-row">
+                                <input id="water_intake" name="water_intake" type="range" min="0" max="5" step="0.5" value="2">
+                                <div class="range-meta">
+                                    <span>0 L</span>
+                                    <span id="waterLabel">2.0 L</span>
+                                    <span>5 L</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label>Sleep hours per night</label>
+                            <div class="range-row">
+                                <input id="sleep_hours" name="sleep_hours" type="range" min="0" max="12" step="0.5" value="7">
+                                <div class="range-meta">
+                                    <span>0 h</span>
+                                    <span id="sleepLabel">7.0 h</span>
+                                    <span>12 h</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label>Sun exposure</label>
+                            <div class="segmented">
+                                <label class="option"><input type="radio" name="sun_exposure" value="low" checked><span>Low</span></label>
+                                <label class="option"><input type="radio" name="sun_exposure" value="medium"><span>Medium</span></label>
+                                <label class="option"><input type="radio" name="sun_exposure" value="high"><span>High</span></label>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label>Smoking</label>
+                            <div class="segmented">
+                                <label class="option"><input type="radio" name="smoking" value="false" checked><span>No</span></label>
+                                <label class="option"><input type="radio" name="smoking" value="true"><span>Yes</span></label>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label>Stress level</label>
+                            <div class="segmented">
+                                <label class="option"><input type="radio" name="stress_level" value="low" checked><span>Low</span></label>
+                                <label class="option"><input type="radio" name="stress_level" value="medium"><span>Medium</span></label>
+                                <label class="option"><input type="radio" name="stress_level" value="high"><span>High</span></label>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="section">
+                        <div class="section-head">
+                            <h3>Extra notes</h3>
+                            <p>Optional, but useful.</p>
+                        </div>
+
+                        <div class="field">
+                            <label for="allergies">Known allergies</label>
+                            <input id="allergies" name="allergies" type="text" placeholder="Example: fragrance, nuts, latex">
+                        </div>
+
+                        <div class="field">
+                            <label for="current_products">Current products</label>
+                            <textarea id="current_products" name="current_products" placeholder="Example: gentle cleanser, vitamin C serum, SPF 50"></textarea>
+                        </div>
+                    </section>
+
+                    <div class="actions">
+                        <button type="submit" class="btn-primary" id="analyzeBtn">Analyze My Skin</button>
+                        <button type="button" class="btn-secondary" id="fillDemoBtn">Use demo values</button>
+                        <button type="button" class="btn-ghost" id="resetBtn">Reset</button>
+                    </div>
+                </form>
+            </article>
+
+            <aside class="results-card">
+                <div class="section-title">Results</div>
+                <p class="section-note">
+                    Your analysis stays on this page until you explicitly clear it.
+                </p>
+
+                <div id="resultsEmpty" class="results-empty">
+                    No analysis yet. Fill in the form and click Analyze My Skin.
+                </div>
+
+                <div id="resultsPanel" class="results-block" style="display:none;">
+                    <div class="hero-score">
+                        <div class="label">Skin health score</div>
+                        <div class="value" id="scoreValue">0</div>
+                        <div class="meter" aria-hidden="true"><div id="scoreBar"></div></div>
+                        <div class="label" id="conditionValue">Condition</div>
+                    </div>
+
+                    <div class="card">
+                        <h4>Skin type</h4>
+                        <div class="tags" id="typeTags"></div>
+                    </div>
+
+                    <div class="card">
+                        <h4>Detected concerns</h4>
+                        <ul class="list" id="concernsList"></ul>
+                    </div>
+
+                    <div class="card">
+                        <h4>Risk factors</h4>
+                        <ul class="list" id="riskList"></ul>
+                    </div>
+
+                    <div class="card">
+                        <h4>Recommendations</h4>
+                        <ul class="list" id="recommendationsList"></ul>
+                    </div>
+
+                    <div class="footer-actions">
+                        <button type="button" class="btn-secondary" id="editBtn">Edit answers</button>
+                        <button type="button" class="btn-primary" id="saveBtn">Save locally</button>
+                        <button type="button" class="btn-ghost" id="clearBtn">Clear saved</button>
                     </div>
                 </div>
+            </aside>
+        </section>
+    </main>
 
-                <div class="form-group">
-                    <label>How dry do your cheeks feel?</label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" name="dryness" id="dryness_none" value="none">
-                            <label for="dryness_none">Not dry</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" name="dryness" id="dryness_slightly" value="slightly_dry">
-                            <label for="dryness_slightly">Slightly dry</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" name="dryness" id="dryness_dry" value="dry">
-                            <label for="dryness_dry">Dry</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" name="dryness" id="dryness_very" value="very_dry">
-                            <label for="dryness_very">Very dry</label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>How visible are your pores?</label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" name="pore_size" id="pores_small" value="small">
-                            <label for="pores_small">Barely visible</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" name="pore_size" id="pores_normal" value="normal">
-                            <label for="pores_normal">Normal</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" name="pore_size" id="pores_visible" value="visible">
-                            <label for="pores_visible">Visible</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" name="pore_size" id="pores_large" value="large">
-                            <label for="pores_large">Large</label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Skin Concerns -->
-            <div class="form-section">
-                <h3>⚠️ Skin Concerns</h3>
-                
-                <div class="form-group">
-                    <label>What are your main skin concerns? (Select all that apply)</label>
-                    <div class="checkbox-group">
-                        <div class="checkbox-option">
-                            <input type="checkbox" name="concerns" id="concern_acne" value="acne">
-                            <label for="concern_acne">Acne</label>
-                        </div>
-                        <div class="checkbox-option">
-                            <input type="checkbox" name="concerns" id="concern_aging" value="aging">
-                            <label for="concern_aging">Aging/Wrinkles</label>
-                        </div>
-                        <div class="checkbox-option">
-                            <input type="checkbox" name="concerns" id="concern_dark" value="dark_spots">
-                            <label for="concern_dark">Dark Spots</label>
-                        </div>
-                        <div class="checkbox-option">
-                            <input type="checkbox" name="concerns" id="concern_redness" value="redness">
-                            <label for="concern_redness">Redness</label>
-                        </div>
-                        <div class="checkbox-option">
-                            <input type="checkbox" name="concerns" id="concern_dull" value="dullness">
-                            <label for="concern_dull">Dullness</label>
-                        </div>
-                        <div class="checkbox-option">
-                            <input type="checkbox" name="concerns" id="concern_pores" value="pores">
-                            <label for="concern_pores">Large Pores</label>
-                        </div>
-                        <div class="checkbox-option">
-                            <input type="checkbox" name="concerns" id="concern_dry" value="dryness">
-                            <label for="concern_dry">Dryness</label>
-                        </div>
-                        <div class="checkbox-option">
-                            <input type="checkbox" name="concerns" id="concern_oily" value="oiliness">
-                            <label for="concern_oily">Oiliness</label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>How frequently do you experience breakouts?</label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" name="breakouts" id="breakouts_never" value="never">
-                            <label for="breakouts_never">Never</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" name="breakouts" id="breakouts_rarely" value="rarely">
-                            <label for="breakouts_rarely">Rarely</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" name="breakouts" id="breakouts_occasional" value="occasional">
-                            <label for="breakouts_occasional">Occasional</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" name="breakouts" id="breakouts_frequent" value="frequent">
-                            <label for="breakouts_frequent">Frequent</label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sensitivity -->
-            <div class="form-section">
-                <h3>🌡️ Skin Sensitivity</h3>
-                
-                <div class="form-group">
-                    <label>How sensitive is your skin?</label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" name="sensitivity" id="sensitivity_none" value="not_sensitive">
-                            <label for="sensitivity_none">Not sensitive</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" name="sensitivity" id="sensitivity_slightly" value="slightly_sensitive">
-                            <label for="sensitivity_slightly">Slightly sensitive</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" name="sensitivity" id="sensitivity_sensitive" value="sensitive">
-                            <label for="sensitivity_sensitive">Sensitive</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" name="sensitivity" id="sensitivity_very" value="very_sensitive">
-                            <label for="sensitivity_very">Very sensitive</label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Do you experience redness, stinging, or irritation from skincare products?</label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" name="irritation" id="irritation_never" value="never">
-                            <label for="irritation_never">Never</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" name="irritation" id="irritation_rarely" value="rarely">
-                            <label for="irritation_rarely">Rarely</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" name="irritation" id="irritation_sometimes" value="sometimes">
-                            <label for="irritation_sometimes">Sometimes</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" name="irritation" id="irritation_often" value="often">
-                            <label for="irritation_often">Often</label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Additional Information -->
-            <div class="form-section">
-                <h3>📝 Additional Information</h3>
-                
-                <div class="form-group">
-                    <label>Any known allergies to skincare ingredients?</label>
-                    <input type="text" class="form-control" name="allergies" placeholder="e.g., fragrance, nuts, latex (leave blank if none)">
-                </div>
-
-                <div class="form-group">
-                    <label>Current skincare products you use (optional)</label>
-                    <textarea class="form-control" name="current_products" rows="3" placeholder="List any products you're currently using..."></textarea>
-                </div>
-            </div>
-
-            <div class="button-group">
-                <button type="button" class="btn btn-secondary" onclick="window.location.href='user_dashboard.html'">Cancel</button>
-                <button type="submit" class="btn btn-primary">Analyze My Skin</button>
-            </div>
-        </form>
-
-        <div class="loading" id="loadingSpinner">
-            <div class="spinner"></div>
-            <p>Analyzing your skin profile...</p>
-        </div>
-
-        <div class="analysis-results" id="analysisResults">
-            <h3>🎯 Your Skin Analysis Results</h3>
-            
-            <div class="result-item">
-                <h4>Determined Skin Type: <span id="resultSkinType"></span></h4>
-                <div class="confidence-meter">
-                    <div class="confidence-fill" id="confidenceFill" style="width: 0%"></div>
-                </div>
-                <p>Confidence: <span id="confidenceScore"></span>%</p>
-            </div>
-
-            <div class="result-item">
-                <h4>Characteristics:</h4>
-                <ul id="characteristicsList"></ul>
-            </div>
-
-            <div class="result-item">
-                <h4>Personalized Recommendations:</h4>
-                <ul id="recommendationsList"></ul>
-            </div>
-
-            <div class="button-group">
-                <button type="button" class="btn btn-secondary" onclick="editProfile()">Edit Answers</button>
-                <button type="button" class="btn btn-primary" onclick="saveProfile()">Save Profile</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="src/script.js"></script>
     <script>
+        const form = document.getElementById('skinProfileForm');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const fillDemoBtn = document.getElementById('fillDemoBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const editBtn = document.getElementById('editBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const dropZone = document.getElementById('dropZone');
+        const skinImageUpload = document.getElementById('skinImageUpload');
+        const previewWrap = document.getElementById('previewWrap');
+        const previewImg = document.getElementById('previewImg');
+        const predictionResult = document.getElementById('predictionResult');
+        const removeImageBtn = document.getElementById('removeImageBtn');
+        const loadingBar = document.getElementById('loadingBar');
+        const messageBanner = document.getElementById('messageBanner');
+        const resultsEmpty = document.getElementById('resultsEmpty');
+        const resultsPanel = document.getElementById('resultsPanel');
+        const scoreValue = document.getElementById('scoreValue');
+        const scoreBar = document.getElementById('scoreBar');
+        const conditionValue = document.getElementById('conditionValue');
+        const typeTags = document.getElementById('typeTags');
+        const concernsList = document.getElementById('concernsList');
+        const riskList = document.getElementById('riskList');
+        const recommendationsList = document.getElementById('recommendationsList');
+        const quickScore = document.getElementById('quickScore');
+        const quickConditionTag = document.getElementById('quickConditionTag');
+        const quickConcernCount = document.getElementById('quickConcernCount');
+        const quickPriorityTag = document.getElementById('quickPriorityTag');
+        const waterInput = document.getElementById('water_intake');
+        const sleepInput = document.getElementById('sleep_hours');
+        const waterLabel = document.getElementById('waterLabel');
+        const sleepLabel = document.getElementById('sleepLabel');
+
         let currentAnalysis = null;
+        let isAnalyzing = false;
+        let detectedSkinType = null;
+        let detectedSkinTypeLabel = null;
 
-        document.getElementById('skinProfileForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const form = e.target;
-            const formData = new FormData(form);
-            
-            // Build assessment object
-            const assessment = {
-                skin_feel: formData.get('skin_feel'),
-                oiliness: formData.get('oiliness'),
-                dryness: formData.get('dryness'),
-                pore_size: formData.get('pore_size'),
-                breakouts: formData.get('breakouts'),
-                sensitivity: formData.get('sensitivity'),
-                irritation: formData.get('irritation'),
-                concerns: []
-            };
+        function showBanner(message, kind = 'success') {
+            messageBanner.textContent = message;
+            messageBanner.className = `banner show ${kind}`;
+        }
 
-            // Get checked concerns
-            document.querySelectorAll('input[name="concerns"]:checked').forEach(checkbox => {
-                assessment.concerns.push(checkbox.value);
-            });
+        function clearBanner() {
+            messageBanner.className = 'banner';
+            messageBanner.textContent = '';
+        }
 
-            // Get additional info
-            assessment.allergies = formData.get('allergies');
-            assessment.current_products = formData.get('current_products');
+        function setLoading(show) {
+            loadingBar.classList.toggle('show', show);
+            analyzeBtn.disabled = show;
+        }
 
-            // Show loading
-            document.getElementById('loadingSpinner').classList.add('show');
-            document.getElementById('errorMessage').classList.remove('show');
+        function normalizeNumber(value, fallback) {
+            const num = Number.parseFloat(value);
+            return Number.isFinite(num) ? num : fallback;
+        }
+
+        function getCheckedValues(name) {
+            return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(el => el.value);
+        }
+
+        function inferSkinType(data) {
+            if (detectedSkinType) return detectedSkinType;
+            const feel = data.skin_feel;
+            const oiliness = data.oiliness;
+
+            if (feel === 'oily' || oiliness === 'oily') return 'oily';
+            if (feel === 'tight' || oiliness === 'dry') return 'dry';
+            if (oiliness === 'slightly_oily') return 'combination';
+            return 'normal';
+        }
+
+        function setPredictionMessage(text, kind = 'success') {
+            predictionResult.textContent = text;
+            predictionResult.className = `prediction-result show ${kind === 'error' ? 'error' : ''}`.trim();
+            predictionResult.style.background = kind === 'error' ? 'rgba(192, 86, 33, 0.08)' : 'rgba(107, 154, 136, 0.1)';
+            predictionResult.style.color = kind === 'error' ? 'var(--bad)' : '#396354';
+            predictionResult.style.borderColor = kind === 'error' ? 'rgba(192, 86, 33, 0.18)' : 'rgba(107, 154, 136, 0.18)';
+        }
+
+        function resetImagePrediction() {
+            detectedSkinType = null;
+            detectedSkinTypeLabel = null;
+            skinImageUpload.value = '';
+            previewWrap.classList.remove('show');
+            previewImg.removeAttribute('src');
+            predictionResult.className = 'prediction-result';
+            predictionResult.textContent = '';
+        }
+
+        async function analyzeSkinPhoto(file) {
+            if (!file) return;
+            if (file.size > 5 * 1024 * 1024) {
+                setPredictionMessage('Image must be smaller than 5 MB.', 'error');
+                return;
+            }
+
+            previewWrap.classList.add('show');
+            previewImg.src = URL.createObjectURL(file);
+            setPredictionMessage('Analyzing photo...');
 
             try {
-                const token = localStorage.getItem('accessToken');
-                const res = await fetch('http://localhost:3000/api/skin-profile/analyze', {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch('http://localhost:3000/api/skin/predict-skin-type', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(assessment)
+                    body: formData
                 });
 
-                const data = await res.json();
+                const data = await response.json();
 
-                document.getElementById('loadingSpinner').classList.remove('show');
-
-                if (!res.ok || !data.success) {
-                    showError(data.message || 'Analysis failed');
-                    return;
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error || data.message || 'Photo analysis failed');
                 }
 
-                currentAnalysis = data.analysis;
-                displayResults(data.analysis);
+                detectedSkinType = data.skin_type || null;
+                detectedSkinTypeLabel = data.skin_type ? data.skin_type.replace('_', ' ').toUpperCase() : 'NORMAL';
+                setPredictionMessage(`Detected skin type: ${detectedSkinTypeLabel} (${Number(data.confidence || 0).toFixed(1)}% confidence)`);
 
-            } catch (err) {
-                document.getElementById('loadingSpinner').classList.remove('show');
-                showError('Cannot connect to server. Please try again.');
+                const mappedFeel = {
+                    dry: 'tight',
+                    normal: 'normal',
+                    oily: 'oily',
+                    combination: 'normal'
+                }[detectedSkinType] || 'normal';
+
+                const matched = form.querySelector(`input[name="skin_feel"][value="${mappedFeel}"]`);
+                if (matched) matched.checked = true;
+            } catch (error) {
+                console.error('Skin photo analysis failed:', error);
+                detectedSkinType = null;
+                detectedSkinTypeLabel = null;
+                setPredictionMessage('Photo analysis could not run right now. You can still use the form below.', 'error');
             }
-        });
+        }
 
-        function displayResults(analysis) {
-            document.getElementById('resultSkinType').textContent = analysis.skinType.replace('_', ' ').toUpperCase();
-            document.getElementById('confidenceScore').textContent = analysis.confidence;
-            document.getElementById('confidenceFill').style.width = analysis.confidence + '%';
+        function buildAnalysis(data) {
+            const age = normalizeNumber(data.age, 25);
+            const water = normalizeNumber(data.water_intake, 2);
+            const sleep = normalizeNumber(data.sleep_hours, 7);
+            const smoking = data.smoking === 'true';
+            const sun = data.sun_exposure;
+            const stress = data.stress_level;
+            const sensitivity = data.sensitivity;
+            const selectedConcerns = data.concerns || [];
+            const skinType = inferSkinType(data);
 
-            // Display characteristics
-            const characteristicsList = document.getElementById('characteristicsList');
-            characteristicsList.innerHTML = '';
-            analysis.characteristics.forEach(char => {
+            const concerns = new Set();
+            const riskFactors = [];
+            const recommendations = [];
+            let score = 100;
+
+            if (skinType === 'dry') {
+                concerns.add('Dryness');
+                score -= 12;
+            }
+            if (skinType === 'oily') {
+                concerns.add('Acne');
+                concerns.add('Enlarged pores');
+                score -= 10;
+            }
+            if (skinType === 'combination') {
+                concerns.add('Oil imbalance');
+                score -= 6;
+            }
+
+            if (selectedConcerns.includes('acne')) {
+                concerns.add('Acne');
+                score -= 10;
+            }
+            if (selectedConcerns.includes('dryness')) {
+                concerns.add('Dryness');
+                score -= 10;
+            }
+            if (selectedConcerns.includes('redness')) {
+                concerns.add('Redness');
+                score -= 7;
+            }
+            if (selectedConcerns.includes('pigmentation')) {
+                concerns.add('Pigmentation');
+                score -= 7;
+            }
+            if (selectedConcerns.includes('dark_circles')) {
+                concerns.add('Dark circles');
+                score -= 6;
+            }
+            if (selectedConcerns.includes('pores')) {
+                concerns.add('Enlarged pores');
+                score -= 5;
+            }
+
+            if (water < 2) {
+                concerns.add('Dehydration');
+                riskFactors.push('Low water intake');
+                score -= 10;
+            }
+
+            if (sleep < 6) {
+                concerns.add('Dark circles');
+                riskFactors.push('Poor sleep');
+                score -= 15;
+            } else if (sleep < 7) {
+                riskFactors.push('Borderline sleep');
+                score -= 5;
+            }
+
+            if (sun === 'medium') {
+                concerns.add('Pigmentation');
+                riskFactors.push('Moderate UV exposure');
+                score -= 5;
+            }
+            if (sun === 'high') {
+                concerns.add('Pigmentation');
+                concerns.add('Sun damage risk');
+                riskFactors.push('High UV exposure');
+                score -= 15;
+            }
+
+            if (smoking) {
+                concerns.add('Premature aging');
+                riskFactors.push('Smoking');
+                score -= 18;
+            }
+
+            if (stress === 'medium') {
+                riskFactors.push('Moderate stress');
+                score -= 5;
+            }
+            if (stress === 'high') {
+                riskFactors.push('High stress');
+                score -= 10;
+            }
+
+            if (sensitivity === 'medium') {
+                concerns.add('Sensitivity');
+                score -= 4;
+            }
+            if (sensitivity === 'high') {
+                concerns.add('Sensitivity');
+                riskFactors.push('High sensitivity');
+                score -= 8;
+            }
+
+            if (age > 35) {
+                concerns.add('Fine lines');
+                score -= 4;
+            }
+            if (age > 50) {
+                concerns.add('Loss of elasticity');
+                score -= 5;
+            }
+
+            score = Math.max(0, Math.min(100, Math.round(score)));
+
+            let condition = 'Excellent';
+            if (score < 20) condition = 'Critical';
+            else if (score < 40) condition = 'Poor';
+            else if (score < 60) condition = 'Fair';
+            else if (score < 80) condition = 'Good';
+
+            if (score < 60) {
+                recommendations.push('Consider a dermatologist consultation if concerns persist.');
+            }
+            if (concerns.has('Acne')) {
+                recommendations.push('Use a gentle cleanser and consider salicylic acid or benzoyl peroxide.');
+            }
+            if (concerns.has('Dryness') || concerns.has('Dehydration')) {
+                recommendations.push('Increase hydration and use ceramide or hyaluronic acid moisturizers.');
+            }
+            if (concerns.has('Pigmentation') || concerns.has('Sun damage risk')) {
+                recommendations.push('Use SPF 30+ daily and add vitamin C in the morning.');
+            }
+            if (concerns.has('Dark circles')) {
+                recommendations.push('Improve sleep consistency and reduce late-night screen time.');
+            }
+            if (concerns.has('Sensitivity')) {
+                recommendations.push('Choose fragrance-free products and patch test new items.');
+            }
+            if (concerns.has('Fine lines') || concerns.has('Loss of elasticity')) {
+                recommendations.push('Add retinoids slowly and support barrier repair at night.');
+            }
+            if (riskFactors.includes('Smoking')) {
+                recommendations.push('Reducing smoking will improve skin recovery and tone over time.');
+            }
+            if (!recommendations.length) {
+                recommendations.push('Maintain your current routine and keep sunscreen as a daily habit.');
+            }
+
+            const typeDescription = {
+                dry: 'Dry',
+                oily: 'Oily',
+                combination: 'Combination',
+                normal: 'Normal'
+            }[skinType] || 'Normal';
+
+            return {
+                skin_type: skinType,
+                skin_type_label: typeDescription,
+                skin_health_score: score,
+                overall_condition: condition,
+                concerns: Array.from(concerns),
+                risk_factors: riskFactors,
+                recommendations,
+                priority: score < 40 || concerns.has('Sun damage risk') ? 'High' : score < 70 ? 'Medium' : 'Low',
+                meta: {
+                    age,
+                    water,
+                    sleep,
+                    smoking,
+                    sun,
+                    stress,
+                    sensitivity
+                }
+            };
+        }
+
+        function renderAnalysis(analysis) {
+            currentAnalysis = analysis;
+
+            resultsEmpty.style.display = 'none';
+            resultsPanel.style.display = 'grid';
+
+            scoreValue.textContent = analysis.skin_health_score;
+            scoreBar.style.width = `${analysis.skin_health_score}%`;
+            conditionValue.textContent = `${analysis.overall_condition} condition`;
+
+            if (analysis.skin_health_score >= 80) {
+                scoreBar.style.background = 'linear-gradient(90deg, #2f855a, #6cbf84)';
+                quickConditionTag.textContent = 'Strong';
+                quickConditionTag.className = 'tag';
+            } else if (analysis.skin_health_score >= 60) {
+                scoreBar.style.background = 'linear-gradient(90deg, #3182ce, #74a9e8)';
+                quickConditionTag.textContent = 'Good';
+                quickConditionTag.className = 'tag';
+            } else if (analysis.skin_health_score >= 40) {
+                scoreBar.style.background = 'linear-gradient(90deg, #b7791f, #e0aa45)';
+                quickConditionTag.textContent = 'Needs attention';
+                quickConditionTag.className = 'tag warn';
+            } else {
+                scoreBar.style.background = 'linear-gradient(90deg, #c05621, #ef7b45)';
+                quickConditionTag.textContent = 'Critical';
+                quickConditionTag.className = 'tag bad';
+            }
+
+            quickScore.textContent = analysis.skin_health_score;
+            quickConcernCount.textContent = analysis.concerns.length;
+            quickPriorityTag.textContent = `${analysis.priority} priority`;
+            quickPriorityTag.className = analysis.priority === 'High' ? 'tag bad' : analysis.priority === 'Medium' ? 'tag warn' : 'tag';
+
+            typeTags.innerHTML = '';
+            const typeTag = document.createElement('span');
+            typeTag.className = 'tag';
+            typeTag.textContent = analysis.skin_type_label;
+            typeTags.appendChild(typeTag);
+
+            if (analysis.concerns.length) {
+                const type2 = document.createElement('span');
+                type2.className = 'tag warn';
+                type2.textContent = `${analysis.concerns.length} concern${analysis.concerns.length === 1 ? '' : 's'}`;
+                typeTags.appendChild(type2);
+            }
+
+            concernsList.innerHTML = '';
+            if (analysis.concerns.length) {
+                analysis.concerns.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item;
+                    concernsList.appendChild(li);
+                });
+            } else {
                 const li = document.createElement('li');
-                li.textContent = char;
-                characteristicsList.appendChild(li);
-            });
+                li.textContent = 'No major concerns detected from your answers.';
+                concernsList.appendChild(li);
+            }
 
-            // Display recommendations
-            const recommendationsList = document.getElementById('recommendationsList');
+            riskList.innerHTML = '';
+            if (analysis.risk_factors.length) {
+                analysis.risk_factors.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item;
+                    riskList.appendChild(li);
+                });
+            } else {
+                const li = document.createElement('li');
+                li.textContent = 'No major risk factors identified.';
+                riskList.appendChild(li);
+            }
+
             recommendationsList.innerHTML = '';
-            analysis.recommendations.forEach(rec => {
+            analysis.recommendations.forEach(item => {
                 const li = document.createElement('li');
-                li.textContent = rec;
+                li.textContent = item;
                 recommendationsList.appendChild(li);
             });
-
-            document.getElementById('analysisResults').classList.add('show');
-            document.getElementById('skinProfileForm').style.display = 'none';
         }
 
-        function editProfile() {
-            document.getElementById('analysisResults').classList.remove('show');
-            document.getElementById('skinProfileForm').style.display = 'block';
-        }
-
-        async function saveProfile() {
-            if (!currentAnalysis) return;
-
-            const form = document.getElementById('skinProfileForm');
-            const formData = new FormData(form);
-
-            const profileData = {
-                skin_type: currentAnalysis.skinType,
-                skin_concerns: currentAnalysis.standardizedConcerns || [],
-                allergies: formData.get('allergies') ? formData.get('allergies').split(',').map(a => a.trim()) : [],
-                sensitivity_level: currentAnalysis.assessment.sensitivity?.replace('very_', '').replace('_sensitive', '') || 'medium',
-                products_used: formData.get('current_products') ? formData.get('current_products').split(',').map(p => p.trim()) : []
+        function collectFormData() {
+            return {
+                skin_feel: form.querySelector('input[name="skin_feel"]:checked')?.value || 'normal',
+                oiliness: form.querySelector('input[name="oiliness"]:checked')?.value || 'normal',
+                sensitivity: form.querySelector('input[name="sensitivity"]:checked')?.value || 'low',
+                concerns: getCheckedValues('concerns'),
+                age: form.age.value,
+                water_intake: form.water_intake.value,
+                sleep_hours: form.sleep_hours.value,
+                sun_exposure: form.querySelector('input[name="sun_exposure"]:checked')?.value || 'low',
+                smoking: form.querySelector('input[name="smoking"]:checked')?.value || 'false',
+                stress_level: form.querySelector('input[name="stress_level"]:checked')?.value || 'low',
+                allergies: form.allergies.value.trim(),
+                current_products: form.current_products.value.trim()
             };
+        }
 
-            try {
-                const token = localStorage.getItem('accessToken');
-                
-                // First check if profile exists
-                const checkRes = await fetch('http://localhost:3000/api/skin-profile', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
+        function saveLocalAnalysis() {
+            if (!currentAnalysis) {
+                showBanner('Run an analysis first.', 'error');
+                return;
+            }
+
+            localStorage.setItem('skinProfileLastAnalysis', JSON.stringify(currentAnalysis));
+            localStorage.setItem('skinProfileLastForm', JSON.stringify(collectFormData()));
+            showBanner('Analysis saved locally on this device.', 'success');
+        }
+
+        function loadSavedAnalysis() {
+            const rawAnalysis = localStorage.getItem('skinProfileLastAnalysis');
+            const rawForm = localStorage.getItem('skinProfileLastForm');
+
+            if (rawForm) {
+                try {
+                    const data = JSON.parse(rawForm);
+                    if (data.skin_feel) form.querySelector(`input[name="skin_feel"][value="${data.skin_feel}"]`)?.click();
+                    if (data.oiliness) form.querySelector(`input[name="oiliness"][value="${data.oiliness}"]`)?.click();
+                    if (data.sensitivity) form.querySelector(`input[name="sensitivity"][value="${data.sensitivity}"]`)?.click();
+                    if (data.sun_exposure) form.querySelector(`input[name="sun_exposure"][value="${data.sun_exposure}"]`)?.click();
+                    if (data.smoking) form.querySelector(`input[name="smoking"][value="${data.smoking}"]`)?.click();
+                    if (data.stress_level) form.querySelector(`input[name="stress_level"][value="${data.stress_level}"]`)?.click();
+                    if (data.age) form.age.value = data.age;
+                    if (data.water_intake) form.water_intake.value = data.water_intake;
+                    if (data.sleep_hours) form.sleep_hours.value = data.sleep_hours;
+                    if (data.allergies) form.allergies.value = data.allergies;
+                    if (data.current_products) form.current_products.value = data.current_products;
+                    waterLabel.textContent = `${Number(data.water_intake).toFixed(1)} L`;
+                    sleepLabel.textContent = `${Number(data.sleep_hours).toFixed(1)} h`;
+
+                    if (Array.isArray(data.concerns)) {
+                        data.concerns.forEach(concern => {
+                            const cb = form.querySelector(`input[name="concerns"][value="${concern}"]`);
+                            if (cb) cb.checked = true;
+                        });
                     }
-                });
-                
-                const checkData = await checkRes.json();
-                let res;
-
-                if (checkData.profile) {
-                    // Update existing profile
-                    res = await fetch('http://localhost:3000/api/skin-profile', {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify(profileData)
-                    });
-                } else {
-                    // Create new profile
-                    res = await fetch('http://localhost:3000/api/skin-profile', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify(profileData)
-                    });
+                } catch (_) {
+                    // ignore broken saved form
                 }
+            }
 
-                const data = await res.json();
-
-                if (!res.ok || !data.success) {
-                    showError(data.message || 'Failed to save profile');
-                    return;
+            if (rawAnalysis) {
+                try {
+                    currentAnalysis = JSON.parse(rawAnalysis);
+                    renderAnalysis(currentAnalysis);
+                    showBanner('Loaded your last saved analysis.', 'success');
+                } catch (_) {
+                    localStorage.removeItem('skinProfileLastAnalysis');
                 }
-
-                showSuccess('Profile saved successfully!');
-                setTimeout(() => {
-                    window.location.href = 'user_dashboard.html';
-                }, 2000);
-
-            } catch (err) {
-                showError('Cannot connect to server. Please try again.');
             }
         }
 
-        function showError(message) {
-            const errorEl = document.getElementById('errorMessage');
-            errorEl.textContent = message;
-            errorEl.classList.add('show');
-        }
+        waterInput.addEventListener('input', () => {
+            waterLabel.textContent = `${Number(waterInput.value).toFixed(1)} L`;
+        });
 
-        function showSuccess(message) {
-            const successEl = document.getElementById('successMessage');
-            successEl.textContent = message;
-            successEl.classList.add('show');
-        }
+        sleepInput.addEventListener('input', () => {
+            sleepLabel.textContent = `${Number(sleepInput.value).toFixed(1)} h`;
+        });
+
+        dropZone.addEventListener('click', () => skinImageUpload.click());
+        dropZone.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            dropZone.style.borderColor = 'rgba(192, 138, 75, 0.7)';
+            dropZone.style.background = 'rgba(255, 255, 255, 0.95)';
+        });
+        dropZone.addEventListener('dragleave', (event) => {
+            event.preventDefault();
+            dropZone.style.borderColor = 'rgba(36, 48, 65, 0.18)';
+            dropZone.style.background = 'rgba(255, 255, 255, 0.82)';
+        });
+        dropZone.addEventListener('drop', (event) => {
+            event.preventDefault();
+            dropZone.style.borderColor = 'rgba(36, 48, 65, 0.18)';
+            dropZone.style.background = 'rgba(255, 255, 255, 0.82)';
+            const file = event.dataTransfer.files?.[0];
+            if (file) analyzeSkinPhoto(file);
+        });
+
+        skinImageUpload.addEventListener('change', (event) => {
+            const file = event.target.files?.[0];
+            if (file) analyzeSkinPhoto(file);
+        });
+
+        removeImageBtn.addEventListener('click', resetImagePrediction);
+
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            if (isAnalyzing) return;
+
+            if (!form.age.value || !form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            isAnalyzing = true;
+            clearBanner();
+            setLoading(true);
+
+            window.setTimeout(() => {
+                try {
+                    const analysis = buildAnalysis(collectFormData());
+                    renderAnalysis(analysis);
+                    showBanner('Analysis complete. The result is now shown on the right.', 'success');
+                } catch (error) {
+                    console.error(error);
+                    showBanner('Analysis failed locally. Please try again.', 'error');
+                } finally {
+                    setLoading(false);
+                    isAnalyzing = false;
+                }
+            }, 240);
+        });
+
+        editBtn.addEventListener('click', () => {
+            form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            showBanner('Edit your answers and run a fresh analysis when ready.', 'success');
+        });
+
+        saveBtn.addEventListener('click', saveLocalAnalysis);
+
+        clearBtn.addEventListener('click', () => {
+            localStorage.removeItem('skinProfileLastAnalysis');
+            localStorage.removeItem('skinProfileLastForm');
+            currentAnalysis = null;
+            resultsPanel.style.display = 'none';
+            resultsEmpty.style.display = 'block';
+            quickScore.textContent = '--';
+            quickConditionTag.textContent = 'No result yet';
+            quickConditionTag.className = 'tag';
+            quickConcernCount.textContent = '0';
+            quickPriorityTag.textContent = 'Waiting';
+            quickPriorityTag.className = 'tag warn';
+            showBanner('Saved analysis cleared.', 'success');
+        });
+
+        fillDemoBtn.addEventListener('click', () => {
+            form.querySelector('input[name="skin_feel"][value="oily"]').click();
+            form.querySelector('input[name="oiliness"][value="oily"]').click();
+            form.querySelector('input[name="sensitivity"][value="medium"]').click();
+            form.querySelector('input[name="sun_exposure"][value="high"]').click();
+            form.querySelector('input[name="smoking"][value="false"]').click();
+            form.querySelector('input[name="stress_level"][value="medium"]').click();
+            form.age.value = 33;
+            form.water_intake.value = 1.5;
+            form.sleep_hours.value = 5.5;
+            waterLabel.textContent = '1.5 L';
+            sleepLabel.textContent = '5.5 h';
+            form.allergies.value = 'fragrance';
+            form.current_products.value = 'gel cleanser, spot treatment, SPF 50';
+            document.querySelector('input[name="concerns"][value="acne"]').checked = true;
+            document.querySelector('input[name="concerns"][value="pores"]').checked = true;
+            showBanner('Demo values loaded. Click Analyze My Skin to see the result.', 'success');
+        });
+
+        resetBtn.addEventListener('click', () => {
+            form.reset();
+            waterLabel.textContent = '2.0 L';
+            sleepLabel.textContent = '7.0 h';
+            clearBanner();
+            currentAnalysis = null;
+            resultsPanel.style.display = 'none';
+            resultsEmpty.style.display = 'block';
+            quickScore.textContent = '--';
+            quickConditionTag.textContent = 'No result yet';
+            quickConditionTag.className = 'tag';
+            quickConcernCount.textContent = '0';
+            quickPriorityTag.textContent = 'Waiting';
+            quickPriorityTag.className = 'tag warn';
+        });
+
+        loadSavedAnalysis();
     </script>
 </body>
 </html>

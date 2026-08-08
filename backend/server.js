@@ -3,11 +3,11 @@ const express      = require('express');
 const cors         = require('cors');
 const cookieParser = require('cookie-parser');
 const session      = require('express-session');
-const passport     = require('./config/passport');
 
 const authRoutes       = require('./routes/auth');
 const usersRoutes      = require('./routes/users');
 const skinProfileRoutes = require('./routes/skinProfiles');
+const skinAssessmentRoutes = require('./routes/skinAssessment');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -27,26 +27,36 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Session middleware for Passport
+// Session configuration
 app.use(session({
-  secret: process.env.JWT_SECRET || 'session_secret',
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    httpOnly: true,
+    secure: false, // set to true in production with HTTPS
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
 }));
 
-// Passport initialization
-app.use(passport.initialize());
-app.use(passport.session());
+// Session configuration
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false, // set to true in production with HTTPS
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
+// Authenticated routes (must be before other routes)
 app.use('/api/auth',          authRoutes);
 app.use('/api/users',         usersRoutes);
 app.use('/api/skin-profile',  skinProfileRoutes);
+
+// Skin assessment routes (no auth required for testing)
+app.use('/api/skin',         skinAssessmentRoutes);
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
@@ -72,31 +82,18 @@ app.use((err, req, res, next) => {
 // ─── Start ────────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
   console.log(`\n🚀 Server running at http://localhost:${PORT}`);
-  console.log(`📋 API endpoints:`);
-  console.log(`   POST   http://localhost:${PORT}/api/auth/register`);
+  console.log(`📋 Available API endpoints:`);
+  console.log(`   POST   http://localhost:${PORT}/api/skin/assessment`);
+  console.log(`   GET    http://localhost:${PORT}/api/skin/assessment`);
+  console.log(`   GET    http://localhost:${PORT}/api/skin/assessment/:id`);
+  console.log(`   PUT    http://localhost:${PORT}/api/skin/assessment/:id`);
+  console.log(`   DELETE http://localhost:${PORT}/api/skin/assessment/:id`);
+  console.log(`   GET    http://localhost:${PORT}/api/skin/assessment/history/:userId`);
+  console.log(`   GET    http://localhost:${PORT}/api/skin/assessment/risks/:id`);
+  console.log(`   GET    http://localhost:${PORT}/api/skin/assessment/score/:id`);
+  console.log(`   POST   http://localhost:${PORT}/api/skin/predict-skin-type`);
+  console.log(`   GET    http://localhost:${PORT}/api/skin/classifier-info`);
   console.log(`   POST   http://localhost:${PORT}/api/auth/login`);
-  console.log(`   GET    http://localhost:${PORT}/api/auth/google`);
-  console.log(`   GET    http://localhost:${PORT}/api/auth/google/callback`);
-  console.log(`   POST   http://localhost:${PORT}/api/auth/refresh`);
-  console.log(`   POST   http://localhost:${PORT}/api/auth/logout`);
-  console.log(`   GET    http://localhost:${PORT}/api/auth/me`);
-  console.log(`   GET    http://localhost:${PORT}/api/users        (admin)`);
-  console.log(`   GET    http://localhost:${PORT}/api/users/stats  (admin)`);
-  console.log(`   GET    http://localhost:${PORT}/api/skin-profile`);
-  console.log(`   POST   http://localhost:${PORT}/api/skin-profile`);
-  console.log(`   PUT    http://localhost:${PORT}/api/skin-profile`);
-  console.log(`   DELETE http://localhost:${PORT}/api/skin-profile`);
-  console.log(`   POST   http://localhost:${PORT}/api/skin-profile/analyze`);
-  console.log(`   POST   http://localhost:${PORT}/api/skin-profile/routine`);
-  console.log(`   GET    http://localhost:${PORT}/api/skin-profile/health-score`);
-  console.log(`   POST   http://localhost:${PORT}/api/skin-profile/lifestyle`);
-  console.log(`   GET    http://localhost:${PORT}/api/skin-profile/lifestyle`);
-  console.log(`   POST   http://localhost:${PORT}/api/skin-profile/sleep`);
-  console.log(`   GET    http://localhost:${PORT}/api/skin-profile/sleep`);
-  console.log(`   POST   http://localhost:${PORT}/api/skin-profile/hydration`);
-  console.log(`   PUT    http://localhost:${PORT}/api/skin-profile/hydration`);
-  console.log(`   GET    http://localhost:${PORT}/api/skin-profile/hydration`);
-  console.log(`   POST   http://localhost:${PORT}/api/skin-profile/environmental`);
-  console.log(`   GET    http://localhost:${PORT}/api/skin-profile/environmental`);
+  console.log(`   POST   http://localhost:${PORT}/api/auth/register`);
   console.log(`   GET    http://localhost:${PORT}/api/health\n`);
 });
