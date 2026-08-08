@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Log in — DermaLoop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css" />
+<style>
+  .divider { display:flex; align-items:center; gap:10px; margin:22px 0; color: var(--text-soft); font-size:0.82rem; }
+  .divider::before, .divider::after { content:""; flex:1; height:1px; background: var(--line); }
+  .demo-box { margin-top: 26px; padding: 14px 16px; border: 1px dashed var(--line); border-radius: 8px; font-size: 0.82rem; color: var(--text-soft); }
+  .demo-box code { background: var(--sand); padding: 1px 6px; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<div class="auth-shell">
+  <div class="auth-side">
+    <div>
+      <div class="brand"><span class="dot"></span>DermaLoop</div>
+      <p class="tag" style="margin-top:36px;">WELCOME BACK</p>
+      <h1 class="display" style="font-size:2.4rem;color:var(--paper);margin:14px 0 16px;">
+        Your skin health<br>score is waiting.
+      </h1>
+      <p style="color:var(--sand);opacity:0.75;max-width:360px;">
+        Log in to see your latest scan, tracked lifestyle habits, and
+        recommendations from your consultant or dermatologist.
+      </p>
+    </div>
+    <p style="color:var(--sand);opacity:0.6;font-size:0.85rem;">
+      New here? <a href="register.html" style="color:var(--mint);">Create an account →</a>
+    </p>
+  </div>
+
+  <div class="auth-form-wrap">
+    <form class="auth-form" id="login-form">
+      <h2 style="margin-bottom:6px;">Log in</h2>
+      <p class="muted" style="margin-bottom:26px;">Enter your details to access your dashboard.</p>
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" type="email" required placeholder="you@example.com" />
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" type="password" required placeholder="Your password" />
+      </div>
+
+      <button type="submit" class="btn-lab btn-primary" style="width:100%;">Log in</button>
+      <div id="msg"></div>
+
+      <div class="divider">or</div>
+      <button type="button" id="google-btn" class="btn-lab btn-ghost" style="width:100%;">
+        Continue with Google
+      </button>
+
+      <div class="demo-box">
+        Demo staff logins (seeded via <code>python -m app.seed</code>), password
+        <code>Passw0rd!</code>:<br>
+        <code>admin@skinai.demo</code> · <code>consultant@skinai.demo</code> · <code>dermatologist@skinai.demo</code>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+function dashboardForRole(role) {
+  if (role === "admin") return "dashboards/admin.html";
+  if (role === "consultant") return "dashboards/consultant.html";
+  if (role === "dermatologist") return "dashboards/dermatologist.html";
+  return "dashboards/user.html";
+}
+
+document.getElementById("login-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const msg = document.getElementById("msg");
+  msg.textContent = "";
+
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+
+  try {
+    const data = await apiRequest("/api/auth/login", {
+      method: "POST",
+      authRequired: false,
+      body: { email, password },
+    });
+    Auth.setSession(data);
+    window.location.href = dashboardForRole(data.role);
+  } catch (err) {
+    msg.textContent = err.message;
+    msg.className = "error-msg";
+  }
+});
+
+// Google OAuth2 — expects a Google Identity Services id_token from your own
+// GOOGLE_CLIENT_ID setup. This button is a placeholder wired to the backend
+// endpoint; plug in the Google Identity Services script and pass its
+// credential response here as `id_token`.
+document.getElementById("google-btn").addEventListener("click", async () => {
+  const msg = document.getElementById("msg");
+  msg.textContent = "Configure Google Identity Services (GOOGLE_CLIENT_ID) to enable this button.";
+  msg.className = "error-msg";
+});
+</script>
+
+</body>
+</html>

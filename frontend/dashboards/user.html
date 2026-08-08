@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>My Dashboard — DermaLoop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+<div class="dash-shell">
+  <aside class="sidebar">
+    <div class="brand"><span class="dot"></span>DermaLoop</div>
+    <div class="nav-item active" data-section="overview">Overview</div>
+    <div class="nav-item" data-section="profile">My Profile</div>
+    <div class="nav-item" data-section="skin-profile">Skin Profile</div>
+    <div class="nav-item" data-section="scan">Webcam Skin Scan</div>
+    <div class="nav-item" data-section="history">Assessment History</div>
+    <div class="nav-item" data-section="recommendations">Recommendations</div>
+    <div class="nav-item" data-section="lifestyle">Lifestyle Tracker</div>
+    <div class="nav-item" data-section="environment">Environmental Exposure</div>
+    <div class="nav-item" data-section="appointments">Book Consultant / Dermatologist</div>
+    <div class="nav-item" data-section="messages">Messages</div>
+    <div class="nav-item" data-section="reports">Reports</div>
+    <div class="nav-item" id="logout-btn" style="margin-top:24px;opacity:0.6;">Log out</div>
+  </aside>
+
+  <main class="main-panel">
+
+    <section id="section-overview">
+      <div class="panel-header">
+        <div><span class="eyebrow">USER DASHBOARD</span><h2 style="margin:6px 0 0;">Welcome back, <span id="welcome-name">—</span></h2></div>
+      </div>
+      <div class="metric-grid">
+        <div class="metric-tile"><div class="val" id="ov-health">—</div><div class="label">Skin health score</div></div>
+        <div class="metric-tile"><div class="val" id="ov-risk">—</div><div class="label">Risk score</div></div>
+        <div class="metric-tile"><div class="val" id="ov-scans">—</div><div class="label">Total scans</div></div>
+        <div class="metric-tile"><div class="val" id="ov-status">—</div><div class="label">Latest status</div></div>
+      </div>
+      <div class="card-lab">
+        <h3 style="margin-top:0;">Latest sub-scores</h3>
+        <div id="latest-scores" class="muted">Run a webcam scan to see your breakdown here.</div>
+      </div>
+    </section>
+
+    <section id="section-profile" class="hidden">
+      <div class="panel-header"><h2>My Profile</h2></div>
+      <div class="card-lab" style="max-width:480px;">
+        <div class="field"><label>Full name</label><input id="p-full-name" /></div>
+        <div class="field"><label>Email</label><input id="p-email" disabled /></div>
+        <div class="field"><label>Phone</label><input id="p-phone" /></div>
+        <div class="field"><label>Occupation</label><input id="p-occupation" /></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="field"><label>Height (cm)</label><input id="p-height" type="number" step="0.1" /></div>
+          <div class="field"><label>Weight (kg)</label><input id="p-weight" type="number" step="0.1" /></div>
+        </div>
+        <button class="btn-lab btn-primary" id="save-profile-btn">Save changes</button>
+        <div id="profile-msg"></div>
+      </div>
+    </section>
+
+    <section id="section-skin-profile" class="hidden">
+      <div class="panel-header"><h2>Skin Profile</h2></div>
+      <div class="card-lab" style="max-width:560px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="field"><label>Age</label><input id="sp-age" type="number" /></div>
+          <div class="field"><label>Gender</label>
+            <select id="sp-gender"><option value="">—</option><option>Female</option><option>Male</option><option>Other</option></select>
+          </div>
+          <div class="field"><label>Skin type</label>
+            <select id="sp-skin-type"><option value="">—</option><option>oily</option><option>dry</option><option>combination</option><option>normal</option><option>sensitive</option></select>
+          </div>
+          <div class="field"><label>Sun exposure</label>
+            <select id="sp-sun"><option value="">—</option><option>low</option><option>moderate</option><option>high</option></select>
+          </div>
+        </div>
+        <div class="field"><label>Known concerns</label><input id="sp-concerns" placeholder="e.g. acne, pigmentation" /></div>
+        <div class="field"><label>Allergies (notes)</label><input id="sp-allergies" /></div>
+        <div class="field"><label>Current products</label><textarea id="sp-products" rows="2"></textarea></div>
+
+        <h3 class="mt-32" style="margin-bottom:6px;">Allergy categories</h3>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;">
+          <label><input type="checkbox" id="al-food" /> Food</label>
+          <label><input type="checkbox" id="al-cosmetics" /> Cosmetics</label>
+          <label><input type="checkbox" id="al-medicine" /> Medicine</label>
+          <label><input type="checkbox" id="al-chemical" /> Chemical</label>
+        </div>
+
+        <h3 style="margin-bottom:6px;">Sensitivity triggers</h3>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;">
+          <label><input type="checkbox" id="se-sunlight" /> Sunlight</label>
+          <label><input type="checkbox" id="se-dust" /> Dust</label>
+          <label><input type="checkbox" id="se-pollution" /> Pollution</label>
+          <label><input type="checkbox" id="se-fragrance" /> Fragrance</label>
+          <label><input type="checkbox" id="se-alcohol" /> Alcohol</label>
+        </div>
+
+        <h3 style="margin-bottom:6px;">Lifestyle</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="field"><label>Diet</label>
+            <select id="sp-diet"><option value="">—</option><option value="vegetarian">Vegetarian</option><option value="non_vegetarian">Non-vegetarian</option></select>
+          </div>
+          <div class="field"><label>Exercise</label>
+            <select id="sp-exercise"><option value="">—</option><option value="none">None</option><option value="light">Light</option><option value="moderate">Moderate</option><option value="intense">Intense</option></select>
+          </div>
+          <div class="field"><label>Stress level</label>
+            <select id="sp-stress"><option value="">—</option><option value="low">Low</option><option value="moderate">Moderate</option><option value="high">High</option></select>
+          </div>
+          <div class="field"><label>Screen time (hrs/day)</label><input id="sp-screen-time" type="number" step="0.5" /></div>
+          <div class="field"><label>Smoking</label>
+            <select id="sp-smoking"><option value="">—</option><option value="true">Yes</option><option value="false">No</option></select>
+          </div>
+          <div class="field"><label>Alcohol</label>
+            <select id="sp-alcohol"><option value="">—</option><option value="true">Yes</option><option value="false">No</option></select>
+          </div>
+        </div>
+
+        <button class="btn-lab btn-primary" id="save-skin-profile-btn">Save skin profile</button>
+        <div id="skin-profile-msg"></div>
+      </div>
+    </section>
+
+    <section id="section-scan" class="hidden">
+      <div class="panel-header"><h2>Webcam Skin Scan</h2></div>
+      <div class="card-lab" style="max-width:520px;">
+        <p class="muted">Allow camera access, capture a well-lit frontal frame, and run the AI analysis.</p>
+        <video id="webcam-frame" autoplay playsinline></video>
+        <canvas id="webcam-canvas" class="hidden"></canvas>
+        <div style="margin-top:14px;display:flex;gap:10px;">
+          <button class="btn-lab btn-ghost" id="start-cam-btn">Start camera</button>
+          <button class="btn-lab btn-primary" id="capture-btn" disabled>Capture &amp; analyze</button>
+        </div>
+        <div id="scan-msg"></div>
+      </div>
+      <div class="card-lab mt-32 hidden" id="scan-result-card">
+        <h3 style="margin-top:0;">Latest AI analysis</h3>
+        <div id="scan-scores"></div>
+      </div>
+    </section>
+
+    <section id="section-history" class="hidden">
+      <div class="panel-header"><h2>Assessment History</h2></div>
+      <div class="card-lab">
+        <h3 style="margin-top:0;">Progress graph — skin health score over time</h3>
+        <svg id="progress-graph" width="100%" height="140" viewBox="0 0 600 140" preserveAspectRatio="none"></svg>
+      </div>
+      <div class="card-lab mt-32">
+        <table class="lab-table">
+          <thead><tr><th><input type="checkbox" disabled title="select two rows to compare" /></th><th>Date</th><th>Health score</th><th>Risk</th><th>Status</th><th></th></tr></thead>
+          <tbody id="history-body"><tr><td colspan="6" class="muted">Loading…</td></tr></tbody>
+        </table>
+        <button class="btn-lab btn-ghost mt-32" id="compare-btn">Compare selected results</button>
+        <div id="compare-result" class="mt-32"></div>
+      </div>
+    </section>
+
+    <section id="section-recommendations" class="hidden">
+      <div class="panel-header"><h2>Personalized Recommendations</h2></div>
+      <div id="recs-list" class="card-lab">Loading…</div>
+    </section>
+
+    <section id="section-lifestyle" class="hidden">
+      <div class="panel-header"><h2>Lifestyle Tracker</h2></div>
+      <div class="card-lab" style="max-width:420px;">
+        <div class="field"><label>Average sleep (hours/night)</label><input id="lt-sleep" type="number" step="0.5" /></div>
+        <div class="field"><label>Average water intake (liters/day)</label><input id="lt-water" type="number" step="0.1" /></div>
+        <button class="btn-lab btn-primary" id="save-lifestyle-btn">Save</button>
+        <div id="lifestyle-msg"></div>
+      </div>
+    </section>
+
+    <section id="section-environment" class="hidden">
+      <div class="panel-header"><h2>Environmental Exposure</h2></div>
+      <div class="card-lab" style="max-width:480px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="field"><label>Humidity</label>
+            <select id="env-humidity"><option value="">—</option><option value="low">Low</option><option value="moderate">Moderate</option><option value="high">High</option></select>
+          </div>
+          <div class="field"><label>Pollution level</label>
+            <select id="env-pollution"><option value="">—</option><option value="low">Low</option><option value="moderate">Moderate</option><option value="high">High</option></select>
+          </div>
+          <div class="field"><label>UV exposure</label>
+            <select id="env-uv"><option value="">—</option><option value="low">Low</option><option value="moderate">Moderate</option><option value="high">High</option></select>
+          </div>
+          <div class="field"><label>Climate</label>
+            <select id="env-climate"><option value="">—</option><option value="dry">Dry</option><option value="humid">Humid</option><option value="temperate">Temperate</option><option value="tropical">Tropical</option><option value="cold">Cold</option></select>
+          </div>
+        </div>
+        <div class="field"><label>Average outdoor hours/day</label><input id="env-outdoor" type="number" step="0.5" /></div>
+        <button class="btn-lab btn-primary" id="save-env-btn">Save</button>
+        <div id="env-msg"></div>
+      </div>
+    </section>
+
+    <section id="section-appointments" class="hidden">
+      <div class="panel-header"><h2>Book Consultant / Dermatologist</h2></div>
+      <div class="card-lab" style="max-width:480px;">
+        <div class="field"><label>Provider type</label>
+          <select id="ap-role"><option value="consultant">Consultant</option><option value="dermatologist">Dermatologist</option></select>
+        </div>
+        <div class="field"><label>Provider</label><select id="ap-provider"><option value="">Loading…</option></select></div>
+        <div class="field"><label>Date &amp; time</label><input id="ap-datetime" type="datetime-local" /></div>
+        <div class="field"><label>Notes</label><textarea id="ap-notes" rows="2"></textarea></div>
+        <button class="btn-lab btn-primary" id="book-btn">Request appointment</button>
+        <div id="book-msg"></div>
+      </div>
+      <div class="card-lab mt-32">
+        <h3 style="margin-top:0;">My appointments</h3>
+        <table class="lab-table">
+          <thead><tr><th>When</th><th>Provider role</th><th>Status</th></tr></thead>
+          <tbody id="appointments-body"><tr><td colspan="3" class="muted">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="section-messages" class="hidden">
+      <div class="panel-header"><h2>Messages</h2></div>
+      <div class="card-lab" style="max-width:340px;">
+        <div class="field"><label>Conversation with</label><select id="msg-thread-select"><option value="">Loading…</option></select></div>
+      </div>
+      <div class="card-lab mt-32" style="max-width:640px;">
+        <div id="messages-thread" style="max-height:320px;overflow-y:auto;margin-bottom:14px;">Select a conversation.</div>
+        <div style="display:flex;gap:10px;">
+          <input id="msg-text" placeholder="Type a message…" style="flex:1;" />
+          <button class="btn-lab btn-primary" id="send-msg-btn">Send</button>
+        </div>
+        <div id="msg-send-msg"></div>
+      </div>
+    </section>
+
+    <section id="section-reports" class="hidden">
+      <div class="panel-header"><h2>Reports</h2></div>
+      <div class="card-lab">
+        <p class="muted">Generate a downloadable summary from any past assessment.</p>
+        <div id="reports-list">Loading…</div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="../js/api.js"></script>
+<script src="js/user.js"></script>
+</body>
+</html>

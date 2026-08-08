@@ -1,0 +1,17 @@
+{
+  "assessment_id": "7bfd2549-14d8-4fc1-8b2f-4334f385d88a",
+  "user_id": "b45486b2-21b3-42db-99ca-957a94d4a668",
+  "generated_at": "2026-08-06T06:44:08.823161",
+  "skin_health_score": 65.3,
+  "risk_score": 46.2,
+  "sub_scores": {
+    "acne": 7.6,
+    "pigmentation": 100.0,
+    "wrinkles": 21.3,
+    "dryness": 60.9,
+    "oiliness": 34.0,
+    "redness": 13.3,
+    "pores": 5.8
+  },
+  "status": "pending_review"
+}

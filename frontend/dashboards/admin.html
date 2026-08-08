@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin Dashboard — DermaLoop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+<div class="dash-shell">
+  <aside class="sidebar">
+    <div class="brand"><span class="dot"></span>DermaLoop</div>
+    <div class="nav-item active" data-section="analytics">Analytics</div>
+    <div class="nav-item" data-section="users">Manage Users</div>
+    <div class="nav-item" data-section="products">Manage Products</div>
+    <div class="nav-item" data-section="roles">Manage Roles</div>
+    <div class="nav-item" data-section="permissions">Permissions</div>
+    <div class="nav-item" data-section="logs">AI &amp; Activity Logs</div>
+    <div class="nav-item" data-section="backup">Database Backup</div>
+    <div class="nav-item" id="logout-btn" style="margin-top:24px;opacity:0.6;">Log out</div>
+  </aside>
+
+  <main class="main-panel">
+
+    <section id="section-analytics">
+      <div class="panel-header"><div><span class="eyebrow">ADMIN DASHBOARD</span><h2 style="margin:6px 0 0;">Platform analytics</h2></div></div>
+      <div class="metric-grid">
+        <div class="metric-tile"><div class="val" id="an-users">—</div><div class="label">Users</div></div>
+        <div class="metric-tile"><div class="val" id="an-consultants">—</div><div class="label">Consultants</div></div>
+        <div class="metric-tile"><div class="val" id="an-dermatologists">—</div><div class="label">Dermatologists</div></div>
+        <div class="metric-tile"><div class="val" id="an-assessments">—</div><div class="label">Assessments</div></div>
+        <div class="metric-tile"><div class="val" id="an-appointments">—</div><div class="label">Appointments</div></div>
+        <div class="metric-tile"><div class="val" id="an-avg-health">—</div><div class="label">Avg. health score</div></div>
+        <div class="metric-tile"><div class="val" id="an-avg-risk">—</div><div class="label">Avg. risk score</div></div>
+      </div>
+    </section>
+
+    <section id="section-users" class="hidden">
+      <div class="panel-header">
+        <h2>Manage Users</h2>
+        <select id="user-role-filter">
+          <option value="">All roles</option>
+          <option value="user">Users</option>
+          <option value="consultant">Consultants</option>
+          <option value="dermatologist">Dermatologists</option>
+          <option value="admin">Admins</option>
+        </select>
+      </div>
+      <div class="card-lab">
+        <table class="lab-table">
+          <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="users-body"><tr><td colspan="5" class="muted">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="section-products" class="hidden">
+      <div class="panel-header"><h2>Manage Products</h2></div>
+      <div class="card-lab" style="max-width:560px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="field"><label>Name</label><input id="pr-name" /></div>
+          <div class="field"><label>Brand</label><input id="pr-brand" /></div>
+          <div class="field"><label>Category</label><input id="pr-category" placeholder="cleanser, serum…" /></div>
+          <div class="field"><label>Price</label><input id="pr-price" type="number" step="0.01" /></div>
+        </div>
+        <div class="field"><label>Suitable for</label><input id="pr-suitable" placeholder="oily, dry…" /></div>
+        <div class="field"><label>Description</label><textarea id="pr-description" rows="2"></textarea></div>
+        <button class="btn-lab btn-primary" id="add-product-btn">Add product</button>
+        <div id="product-msg"></div>
+      </div>
+      <div class="card-lab mt-32">
+        <table class="lab-table">
+          <thead><tr><th>Name</th><th>Brand</th><th>Category</th><th>Price</th><th></th></tr></thead>
+          <tbody id="products-body"><tr><td colspan="5" class="muted">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="section-roles" class="hidden">
+      <div class="panel-header"><h2>Manage Roles</h2></div>
+      <div id="roles-list" class="card-lab">Loading…</div>
+    </section>
+
+    <section id="section-permissions" class="hidden">
+      <div class="panel-header"><h2>Permissions</h2></div>
+      <div id="permissions-list" class="card-lab">Loading…</div>
+    </section>
+
+    <section id="section-logs" class="hidden">
+      <div class="panel-header"><h2>AI &amp; Activity Logs</h2></div>
+      <div class="card-lab">
+        <h3 style="margin-top:0;">Recent assessments (AI logs)</h3>
+        <table class="lab-table">
+          <thead><tr><th>User</th><th>Assessment</th><th>Created</th></tr></thead>
+          <tbody id="ai-logs-body"><tr><td colspan="3" class="muted">Loading…</td></tr></tbody>
+        </table>
+      </div>
+      <div class="card-lab mt-32">
+        <h3 style="margin-top:0;">Recent activity</h3>
+        <table class="lab-table">
+          <thead><tr><th>User</th><th>Action</th><th>Details</th><th>When</th></tr></thead>
+          <tbody id="activity-logs-body"><tr><td colspan="4" class="muted">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="section-backup" class="hidden">
+      <div class="panel-header"><h2>Database Backup</h2></div>
+      <div class="card-lab" style="max-width:480px;">
+        <p class="muted">Dumps every table to a timestamped JSON snapshot on the server.</p>
+        <button class="btn-lab btn-primary" id="run-backup-btn">Run backup now</button>
+        <div id="backup-msg"></div>
+      </div>
+      <div class="card-lab mt-32">
+        <h3 style="margin-top:0;">Backup history</h3>
+        <table class="lab-table">
+          <thead><tr><th>Filename</th><th>Size</th><th>Created</th></tr></thead>
+          <tbody id="backups-body"><tr><td colspan="3" class="muted">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="../js/api.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

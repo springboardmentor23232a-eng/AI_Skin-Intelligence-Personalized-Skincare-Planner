@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DermaLoop — AI Skin Intelligence & Personalized Skincare Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css" />
+<style>
+  .hero {
+    padding: 90px 0 70px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 48px;
+    align-items: center;
+  }
+  .hero h1 { font-size: 3rem; line-height: 1.06; margin: 18px 0 20px; font-weight: 600; }
+  .hero p.lede { font-size: 1.1rem; color: var(--text-soft); max-width: 480px; }
+  .cta-row { display: flex; gap: 14px; margin-top: 30px; }
+  .scan-visual {
+    background: var(--ink);
+    border-radius: 16px;
+    padding: 28px;
+    color: var(--sand);
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+  }
+  .scan-visual .line { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px dashed rgba(255,255,255,0.12); }
+  .scan-visual .line span:last-child { color: var(--mint); }
+  .role-strip { background: var(--sand); padding: 60px 0; }
+  .role-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .role-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px;
+  }
+  .role-card .idx { font-family: var(--font-mono); color: var(--lab-teal); font-size: 0.78rem; }
+  .role-card h3 { margin: 8px 0 10px; font-size: 1.15rem; }
+  .role-card ul { margin: 0; padding-left: 18px; color: var(--text-soft); font-size: 0.88rem; line-height: 1.7; }
+  .flow-strip { padding: 70px 0; }
+  .flow-strip h2 { text-align: center; margin-bottom: 8px; }
+  .flow-strip p.center-lede { text-align: center; color: var(--text-soft); margin-bottom: 40px; }
+  .flow-steps {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0;
+  }
+  .flow-step {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 10px 20px;
+    font-size: 0.85rem;
+    margin: 6px;
+  }
+  .flow-step.accent { background: var(--lab-teal); color: #fff; border-color: var(--lab-teal); }
+  footer { background: var(--ink); color: var(--sand); padding: 34px 0; font-size: 0.85rem; opacity: 0.8; }
+  @media (max-width: 860px) {
+    .hero-grid, .role-grid { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 2.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <div class="container-app">
+    <div class="brand"><span class="dot"></span>DermaLoop</div>
+    <nav>
+      <a href="#roles">Platform</a>
+      <a href="#flow">How it works</a>
+      <a href="login.html">Log in</a>
+    </nav>
+  </div>
+</div>
+
+<section class="hero">
+  <div class="container-app hero-grid">
+    <div>
+      <span class="eyebrow">AI Skin Intelligence & Personalized Skincare Planner</span>
+      <h1 class="display">Read the skin.<br>Route the care.</h1>
+      <p class="lede">A webcam scan turns into a skin health score, a risk score, and a routine —
+      then flows to a consultant and dermatologist when it needs a human eye.</p>
+      <div class="cta-row">
+        <a href="register.html" class="btn-lab btn-primary">Start your skin profile</a>
+        <a href="login.html" class="btn-lab btn-ghost">I already have an account</a>
+      </div>
+    </div>
+    <div class="scan-visual">
+      <div class="line"><span>acne_score</span><span>18.4</span></div>
+      <div class="line"><span>pigmentation_score</span><span>26.1</span></div>
+      <div class="line"><span>redness_score</span><span>12.0</span></div>
+      <div class="line"><span>dryness_score</span><span>31.7</span></div>
+      <div class="line"><span>skin_health_score</span><span>81.2</span></div>
+      <div class="line"><span>risk_score</span><span>14.9</span></div>
+      <div class="line"><span>status</span><span>routed → consultant</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="role-strip" id="roles">
+  <div class="container-app">
+    <h2 class="display" style="margin-bottom:30px;">One platform, four dashboards</h2>
+    <div class="role-grid">
+      <div class="role-card">
+        <div class="idx">01 — USER</div>
+        <h3>Your skin, tracked</h3>
+        <ul>
+          <li>Webcam skin scan</li>
+          <li>Health &amp; risk score</li>
+          <li>Sleep &amp; water tracker</li>
+          <li>Book a consultant or dermatologist</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <div class="idx">02 — CONSULTANT</div>
+        <h3>Reviews &amp; routines</h3>
+        <ul>
+          <li>Assigned users</li>
+          <li>AI report review</li>
+          <li>Product recommendations</li>
+          <li>Progress tracking &amp; chat</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <div class="idx">03 — DERMATOLOGIST</div>
+        <h3>Medical follow-through</h3>
+        <ul>
+          <li>Assigned patients</li>
+          <li>AI prediction review</li>
+          <li>Diagnosis &amp; prescription</li>
+          <li>Treatment plan &amp; follow-up</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <div class="idx">04 — ADMIN</div>
+        <h3>System oversight</h3>
+        <ul>
+          <li>Manage users &amp; roles</li>
+          <li>Manage products</li>
+          <li>AI &amp; activity logs</li>
+          <li>Platform analytics</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="flow-strip" id="flow">
+  <div class="container-app">
+    <h2 class="display">The complete workflow</h2>
+    <p class="center-lede">Every scan moves through the same pipeline, end to end.</p>
+    <div class="flow-steps">
+      <span class="flow-step accent">Register / Login</span>
+      <span class="flow-step">Skin profile</span>
+      <span class="flow-step">Webcam scan</span>
+      <span class="flow-step accent">AI detects skin issues</span>
+      <span class="flow-step">Health &amp; risk score</span>
+      <span class="flow-step">Recommendations</span>
+      <span class="flow-step">Consultant review</span>
+      <span class="flow-step">Dermatologist review</span>
+      <span class="flow-step accent">Progress tracked</span>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container-app">
+    DermaLoop — FastAPI · PostgreSQL · OpenCV · JWT + Google OAuth2
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Consultant Dashboard — DermaLoop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+<div class="dash-shell">
+  <aside class="sidebar">
+    <div class="brand"><span class="dot"></span>DermaLoop</div>
+    <div class="nav-item active" data-section="users">Assigned Users</div>
+    <div class="nav-item" data-section="reports">AI Reports</div>
+    <div class="nav-item" data-section="recommend">Recommend Products</div>
+    <div class="nav-item" data-section="notes">Notes &amp; Progress</div>
+    <div class="nav-item" data-section="messages">Message User</div>
+    <div class="nav-item" id="logout-btn" style="margin-top:24px;opacity:0.6;">Log out</div>
+  </aside>
+
+  <main class="main-panel">
+
+    <section id="section-users">
+      <div class="panel-header"><div><span class="eyebrow">CONSULTANT DASHBOARD</span><h2 style="margin:6px 0 0;">Assigned users</h2></div></div>
+      <div class="card-lab">
+        <table class="lab-table">
+          <thead><tr><th>Name</th><th>Email</th><th>Action</th></tr></thead>
+          <tbody id="users-body"><tr><td colspan="3" class="muted">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="section-reports" class="hidden">
+      <div class="panel-header"><h2>Review AI Reports</h2></div>
+      <div class="card-lab" style="max-width:340px;">
+        <div class="field"><label>Select user</label><select id="report-user-select"><option>Loading…</option></select></div>
+      </div>
+      <div class="card-lab mt-32">
+        <table class="lab-table">
+          <thead><tr><th>Date</th><th>Health</th><th>Risk</th><th>Status</th></tr></thead>
+          <tbody id="reports-body"><tr><td colspan="4" class="muted">Select a user above.</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="section-recommend" class="hidden">
+      <div class="panel-header"><h2>Recommend Products &amp; Lifestyle</h2></div>
+      <div class="card-lab" style="max-width:520px;">
+        <div class="field"><label>User</label><select id="rec-user-select"><option>Loading…</option></select></div>
+        <div class="field"><label>Category</label>
+          <select id="rec-category"><option value="routine">Routine</option><option value="lifestyle">Lifestyle</option><option value="product">Product</option></select>
+        </div>
+        <div class="field"><label>Recommendation text</label><textarea id="rec-text" rows="3"></textarea></div>
+        <button class="btn-lab btn-primary" id="send-rec-btn">Send recommendation</button>
+        <div id="rec-msg"></div>
+      </div>
+    </section>
+
+    <section id="section-notes" class="hidden">
+      <div class="panel-header"><h2>Notes &amp; Progress Tracking</h2></div>
+      <div class="card-lab" style="max-width:520px;">
+        <div class="field"><label>User</label><select id="note-user-select"><option>Loading…</option></select></div>
+        <div class="field"><label>Note</label><textarea id="note-text" rows="3" placeholder="Progress observation, chat summary, or guidance…"></textarea></div>
+        <button class="btn-lab btn-primary" id="add-note-btn">Add note</button>
+        <div id="note-msg"></div>
+      </div>
+      <div class="card-lab mt-32" id="notes-list">Select a user above to view notes.</div>
+    </section>
+
+    <section id="section-messages" class="hidden">
+      <div class="panel-header"><h2>Message User</h2></div>
+      <div class="card-lab" style="max-width:340px;">
+        <div class="field"><label>User</label><select id="msg-user-select"><option>Loading…</option></select></div>
+      </div>
+      <div class="card-lab mt-32" style="max-width:640px;">
+        <div id="messages-thread" style="max-height:320px;overflow-y:auto;margin-bottom:14px;">Select a user.</div>
+        <div style="display:flex;gap:10px;">
+          <input id="msg-text" placeholder="Type a message…" style="flex:1;" />
+          <button class="btn-lab btn-primary" id="send-msg-btn">Send</button>
+        </div>
+        <div id="msg-send-msg"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="../js/api.js"></script>
+<script src="js/consultant.js"></script>
+</body>
+</html>

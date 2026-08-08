@@ -1,6 +1,5 @@
-node_modules/
-**/node_modules/
+﻿venv/
+backend/venv/
+__pycache__/
+*.pyc
 .env
-**/.env
-npm-debug.log*
-.DS_Store

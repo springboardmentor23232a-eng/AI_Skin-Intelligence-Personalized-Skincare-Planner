@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Create account — DermaLoop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="auth-shell">
+  <div class="auth-side">
+    <div>
+      <div class="brand"><span class="dot"></span>DermaLoop</div>
+      <p class="tag" style="margin-top:36px;">NEW ACCOUNT</p>
+      <h1 class="display" style="font-size:2.4rem;color:var(--paper);margin:14px 0 16px;">
+        Every account starts<br>as a User profile.
+      </h1>
+      <p style="color:var(--sand);opacity:0.75;max-width:360px;">
+        Consultant, dermatologist, and admin access are provisioned by an
+        administrator — this keeps medical and staff roles verified.
+      </p>
+    </div>
+    <p style="color:var(--sand);opacity:0.6;font-size:0.85rem;">
+      Already registered? <a href="login.html" style="color:var(--mint);">Log in instead →</a>
+    </p>
+  </div>
+
+  <div class="auth-form-wrap">
+    <form class="auth-form" id="register-form">
+      <h2 style="margin-bottom:6px;">Create your account</h2>
+      <p class="muted" style="margin-bottom:26px;">Start tracking your skin health in a couple of minutes.</p>
+
+      <div class="field">
+        <label for="full_name">Full name</label>
+        <input id="full_name" type="text" required placeholder="e.g. Priya Sharma" />
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" type="email" required placeholder="you@example.com" />
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" type="password" required minlength="6" placeholder="At least 6 characters" />
+      </div>
+
+      <button type="submit" class="btn-lab btn-primary" style="width:100%;">Create account</button>
+      <div id="msg"></div>
+    </form>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+document.getElementById("register-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const msg = document.getElementById("msg");
+  msg.textContent = "";
+  msg.className = "";
+
+  const full_name = document.getElementById("full_name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+
+  try {
+    await apiRequest("/api/auth/register", {
+      method: "POST",
+      authRequired: false,
+      body: { full_name, email, password, role: "user" },
+    });
+    const loginData = await apiRequest("/api/auth/login", {
+      method: "POST",
+      authRequired: false,
+      body: { email, password },
+    });
+    Auth.setSession(loginData);
+    window.location.href = "dashboards/user.html";
+  } catch (err) {
+    msg.textContent = err.message;
+    msg.className = "error-msg";
+  }
+});
+</script>
+
+</body>
+</html>

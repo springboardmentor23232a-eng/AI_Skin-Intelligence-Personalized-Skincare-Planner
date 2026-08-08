@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dermatologist Dashboard — DermaLoop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+<div class="dash-shell">
+  <aside class="sidebar">
+    <div class="brand"><span class="dot"></span>DermaLoop</div>
+    <div class="nav-item active" data-section="patients">Assigned Patients</div>
+    <div class="nav-item" data-section="predictions">AI Prediction Review</div>
+    <div class="nav-item" data-section="diagnosis">Diagnosis &amp; Prescription</div>
+    <div class="nav-item" data-section="history">Patient History</div>
+    <div class="nav-item" id="logout-btn" style="margin-top:24px;opacity:0.6;">Log out</div>
+  </aside>
+
+  <main class="main-panel">
+
+    <section id="section-patients">
+      <div class="panel-header"><div><span class="eyebrow">DERMATOLOGIST DASHBOARD</span><h2 style="margin:6px 0 0;">Assigned patients</h2></div></div>
+      <div class="card-lab">
+        <table class="lab-table">
+          <thead><tr><th>Name</th><th>Email</th><th>Action</th></tr></thead>
+          <tbody id="patients-body"><tr><td colspan="3" class="muted">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="section-predictions" class="hidden">
+      <div class="panel-header"><h2>AI Prediction Review</h2></div>
+      <div class="card-lab" style="max-width:340px;">
+        <div class="field"><label>Select patient</label><select id="pred-user-select"><option>Loading…</option></select></div>
+      </div>
+      <div class="card-lab mt-32">
+        <table class="lab-table">
+          <thead><tr><th>Date</th><th>Health</th><th>Risk</th><th>Status</th></tr></thead>
+          <tbody id="predictions-body"><tr><td colspan="4" class="muted">Select a patient above.</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="section-diagnosis" class="hidden">
+      <div class="panel-header"><h2>Medical Diagnosis &amp; Treatment Plan</h2></div>
+      <div class="card-lab" style="max-width:560px;">
+        <div class="field"><label>Patient</label><select id="dx-user-select"><option>Loading…</option></select></div>
+        <div class="field"><label>Diagnosis</label><textarea id="dx-diagnosis" rows="2"></textarea></div>
+        <div class="field"><label>Prescription</label><textarea id="dx-prescription" rows="2"></textarea></div>
+        <div class="field"><label>Treatment plan</label><textarea id="dx-plan" rows="2"></textarea></div>
+        <div class="field"><label>Follow-up date</label><input id="dx-followup" type="date" /></div>
+        <button class="btn-lab btn-primary" id="save-dx-btn">Save diagnosis</button>
+        <div id="dx-msg"></div>
+      </div>
+    </section>
+
+    <section id="section-history" class="hidden">
+      <div class="panel-header"><h2>Patient History</h2></div>
+      <div class="card-lab" style="max-width:340px;">
+        <div class="field"><label>Patient</label><select id="hist-user-select"><option>Loading…</option></select></div>
+      </div>
+      <div class="card-lab mt-32" id="history-list">Select a patient above.</div>
+    </section>
+
+  </main>
+</div>
+
+<script src="../js/api.js"></script>
+<script src="js/dermatologist.js"></script>
+</body>
+</html>
