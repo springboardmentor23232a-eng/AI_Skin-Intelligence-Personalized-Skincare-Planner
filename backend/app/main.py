@@ -4,7 +4,20 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from app.core.config import settings
 from app.database import Base, engine
-from app.models import user, skin_profile, assessment, routine, ingredient, product, progress, notification, recommendation, checklist  # noqa: F401
+from app.models import (
+    user,
+    skin_profile,
+    assessment,
+    skin_concern,
+    risk_factor,
+    routine,
+    ingredient,
+    product,
+    progress,
+    notification,
+    recommendation,
+    checklist,
+)
 
 from app.routers import (
     auth,

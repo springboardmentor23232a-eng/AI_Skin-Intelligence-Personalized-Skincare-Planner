@@ -1,19 +1,48 @@
-import uuid
 from datetime import datetime
-from typing import List, Dict, Optional
+from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+
+
+class SkinConcernOut(BaseModel):
+    id: UUID
+    assessment_id: UUID
+    concern_name: str
+    severity: str
+    priority: int
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class RiskFactorOut(BaseModel):
+    id: UUID
+    assessment_id: UUID
+    risk_name: str
+    description: str | None = None
+    risk_level: str | None = None
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class AssessmentOut(BaseModel):
-    id: uuid.UUID
-    user_id: uuid.UUID
-    identified_concerns: List[str]
-    concern_severity: Dict[str, str]
-    prioritized_concerns: List[str]
-    risk_factors: List[str]
-    condition_score: Optional[float]
+    id: UUID
+    user_id: UUID
+    condition_score: float | None = None
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    concerns: list[SkinConcernOut] = []
+    risk_factors: list[RiskFactorOut] = []
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class AssessmentUpdate(BaseModel):
+    condition_score: float | None = None
+
+
+class AssessmentScoreOut(BaseModel):
+    score: float | None = None
+
+
+class AssessmentRisksOut(BaseModel):
+    risk_factors: list[RiskFactorOut] = []

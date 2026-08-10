@@ -1,0 +1,153 @@
+openapi: 3.0.0
+info:
+  title: Skin Assessment Engine - Module 3 API
+  version: 1.0.0
+  description: Postman collection for the Skin Assessment Engine APIs required by Module 3.
+servers:
+  - url: 'http://localhost:8000'
+paths:
+  /api/assessment/run:
+    post:
+      summary: Run Assessment
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: 'Bearer {{token}}'
+      responses: {}
+      tags:
+        - Assessment
+      description: Runs a skin assessment for the authenticated user's skin profile.
+  /api/assessment:
+    get:
+      summary: List Assessments
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: 'Bearer {{token}}'
+      responses: {}
+      tags:
+        - Assessment
+  /api/assessment/latest:
+    get:
+      summary: Get Latest Assessment
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: 'Bearer {{token}}'
+      responses: {}
+      tags:
+        - Assessment
+  /api/assessment/history:
+    get:
+      summary: Get Assessment History
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: 'Bearer {{token}}'
+      responses: {}
+      tags:
+        - Assessment
+  /api/assessment/score:
+    get:
+      summary: Get Assessment Score
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: 'Bearer {{token}}'
+      responses: {}
+      tags:
+        - Assessment
+  /api/assessment/risks:
+    get:
+      summary: Get Assessment Risks
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: 'Bearer {{token}}'
+      responses: {}
+      tags:
+        - Assessment
+  '/api/assessment/{assessment_id}':
+    get:
+      summary: Get Assessment By ID
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: 'Bearer {{token}}'
+      responses: {}
+      tags:
+        - Assessment
+    parameters:
+      - name: assessment_id
+        in: path
+        required: true
+        schema:
+          type: string
+        example: ''
+    put:
+      summary: Update Assessment
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: 'Bearer {{token}}'
+      responses: {}
+      tags:
+        - Assessment
+      description: Update fields supported by your AssessmentUpdate Pydantic schema. Adjust the sample body if your schema uses different fields.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                identified_concerns:
+                  type: array
+                  items:
+                    type: string
+                prioritized_concerns:
+                  type: array
+                  items:
+                    type: string
+                risk_factors:
+                  type: array
+                  items:
+                    type: string
+                condition_score:
+                  type: integer
+            example:
+              identified_concerns:
+                - acne
+                - dark_spots
+              prioritized_concerns:
+                - acne
+                - dark_spots
+              risk_factors:
+                - Poor sleep
+              condition_score: 82
+    delete:
+      summary: Delete Assessment
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: 'Bearer {{token}}'
+      responses: {}
+      tags:
+        - Assessment

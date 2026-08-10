@@ -1,0 +1,7 @@
+$kind: collection
+name: Skin Assessment Engine - Module 3
+description: Postman collection for the Skin Assessment Engine APIs required by Module 3.
+variables:
+  base_url: http://localhost:8000
+  token: ""
+  assessment_id: ""

@@ -1,0 +1,16 @@
+$kind: http-request
+description: Runs a skin assessment for the authenticated user's skin profile.
+url: "{{base_url}}/api/assessment/run"
+method: POST
+headers:
+  Authorization: Bearer {{token}}
+  Accept: application/json
+scripts:
+  - type: afterResponse
+    code: |-
+      if (pm.response.code === 200) {
+          const data = pm.response.json();
+          if (data.id) pm.collectionVariables.set('assessment_id', data.id);
+      }
+    language: text/javascript
+order: 1000

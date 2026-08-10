@@ -1,0 +1,7 @@
+$kind: http-request
+url: "{{base_url}}/api/assessment"
+method: GET
+headers:
+  Authorization: Bearer {{token}}
+  Accept: application/json
+order: 2000

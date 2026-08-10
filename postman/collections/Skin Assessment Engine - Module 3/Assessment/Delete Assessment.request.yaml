@@ -1,0 +1,7 @@
+$kind: http-request
+url: "{{base_url}}/api/assessment/{{assessment_id}}"
+method: DELETE
+headers:
+  Authorization: Bearer {{token}}
+  Accept: application/json
+order: 9000
