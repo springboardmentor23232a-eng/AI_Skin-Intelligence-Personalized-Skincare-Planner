@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import engine, Base
 from app import models
-from app.routers import users
+from app.routers import users, assessment
 
 Base.metadata.create_all(bind=engine)
 
@@ -19,7 +19,7 @@ app.add_middleware(
 )
 
 app.include_router(users.router)
-
+app.include_router(assessment.router)
 
 @app.get("/")
 def home():

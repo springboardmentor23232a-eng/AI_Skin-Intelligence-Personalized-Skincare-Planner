@@ -72,27 +72,44 @@ export function AuthProvider({ children }) {
 
   // Authenticated HTTP request helper attaching JWT Bearer token
   const fetchWithAuth = async (url, options = {}) => {
-    const storedToken = localStorage.getItem('token');
-    const headers = {
-      'Content-Type': 'application/json',
-      ...(options.headers || {}),
-    };
+  const storedToken = localStorage.getItem('token');
 
-    if (storedToken) {
-      headers['Authorization'] = `Bearer ${storedToken}`;
-    }
-
-    const response = await fetch(url, { ...options, headers });
-
-    if (response.status === 403) {
-      const data = await response.json().catch(() => null);
-      const msg = data?.detail || 'Access Denied: HTTP 403 Forbidden';
-      setAccessDeniedMessage(msg);
-      throw new Error(msg);
-    }
-
-    return response;
+  const headers = {
+    ...(options.headers || {}),
   };
+
+  // Don't manually set Content-Type for FormData.
+  // The browser automatically sets:
+  // multipart/form-data; boundary=...
+  if (!(options.body instanceof FormData)) {
+    headers['Content-Type'] = 'application/json';
+  }
+
+  if (storedToken) {
+    headers['Authorization'] = `Bearer ${storedToken}`;
+  }
+
+  const response = await fetch(url, {
+    ...options,
+    headers,
+  });
+
+  if (response.status === 401) {
+    const data = await response.json().catch(() => null);
+    const msg = data?.detail || 'Authentication required.';
+    setAccessDeniedMessage(msg);
+    throw new Error(msg);
+  }
+
+  if (response.status === 403) {
+    const data = await response.json().catch(() => null);
+    const msg = data?.detail || 'Access Denied: HTTP 403 Forbidden';
+    setAccessDeniedMessage(msg);
+    throw new Error(msg);
+  }
+
+  return response;
+};
 
   // Backwards compatible login helper
   const login = (role = USER_ROLES.CONSUMER) => {

@@ -13,3 +13,7 @@ backend/**/*.py[cod]
 
 # OS
 .DS_Store
+
+.env
+backend/datasets/
+.vite/

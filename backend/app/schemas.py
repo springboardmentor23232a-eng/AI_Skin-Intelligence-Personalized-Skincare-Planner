@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional
+from typing import Any, Dict, List, Optional
 from datetime import datetime
 
 
@@ -42,3 +42,76 @@ class Token(BaseModel):
     email: Optional[str] = None
     full_name: Optional[str] = None
     provider: Optional[str] = "LOCAL"
+
+
+class AssessmentCreate(BaseModel):
+    age: int
+    gender: Optional[str] = None
+    hydration_level: Optional[str] = None
+    oil_level: Optional[str] = None
+    sensitivity: Optional[str] = None
+    humidity: Optional[float] = None
+    temperature: Optional[float] = None
+
+    predicted_skin_type: str
+    health_score: int
+    overall_condition: str
+
+    vision_predicted_concern: Optional[str] = None
+    vision_confidence: Optional[str] = None
+
+    concerns: Optional[List[str]] = None
+    priority_order: Optional[List[str]] = None
+    risk_factors: Optional[List[str]] = None
+    recommendations: Optional[Dict[str, Any]] = None
+
+
+class AssessmentUpdate(BaseModel):
+    age: Optional[int] = None
+    gender: Optional[str] = None
+    hydration_level: Optional[str] = None
+    oil_level: Optional[str] = None
+    sensitivity: Optional[str] = None
+    humidity: Optional[float] = None
+    temperature: Optional[float] = None
+
+    predicted_skin_type: Optional[str] = None
+    health_score: Optional[int] = None
+    overall_condition: Optional[str] = None
+
+    vision_predicted_concern: Optional[str] = None
+    vision_confidence: Optional[str] = None
+
+    concerns: Optional[List[str]] = None
+    priority_order: Optional[List[str]] = None
+    risk_factors: Optional[List[str]] = None
+    recommendations: Optional[Dict[str, Any]] = None
+
+class AssessmentResponse(BaseModel):
+    id: int
+    user_id: int
+
+    age: int
+    gender: Optional[str] = None
+    hydration_level: Optional[str] = None
+    oil_level: Optional[str] = None
+    sensitivity: Optional[str] = None
+    humidity: Optional[str] = None
+    temperature: Optional[str] = None
+
+    predicted_skin_type: str
+    health_score: int
+    overall_condition: str
+
+    vision_predicted_concern: Optional[str] = None
+    vision_confidence: Optional[str] = None
+
+    concerns: Optional[List[str]] = None
+    priority_order: Optional[List[str]] = None
+    risk_factors: Optional[List[str]] = None
+    recommendations: Optional[Dict[str, Any]] = None
+
+    assessment_time: datetime
+
+    class Config:
+        from_attributes = True

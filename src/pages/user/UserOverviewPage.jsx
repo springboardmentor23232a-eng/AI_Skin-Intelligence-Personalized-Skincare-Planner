@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { ScoreGauge } from '@/components/ui/ScoreGauge';
 import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { QuickActionBar } from '@/components/dashboard/QuickActionBar';
 import { TrendBarChart } from '@/components/dashboard/TrendBarChart';
@@ -15,10 +17,58 @@ import {
   ShieldCheck,
   CheckCircle2,
   ShieldAlert,
+  TrendingUp,
 } from 'lucide-react';
 
 export default function UserOverviewPage() {
-  const { user, isFirstTimeLogin } = useAuth();
+  const {
+  user,
+  isFirstTimeLogin,
+  fetchWithAuth,
+  } = useAuth();
+  const [latestAssessment, setLatestAssessment] = useState(null);
+const [assessmentLoading, setAssessmentLoading] = useState(true);
+useEffect(() => {
+  const loadLatestAssessment = async () => {
+    try {
+      setAssessmentLoading(true);
+
+      const response = await fetchWithAuth(
+        'http://127.0.0.1:8000/assessment/history',
+        {
+          method: 'GET',
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data?.detail || 'Unable to load assessment data.'
+        );
+      }
+
+      if (Array.isArray(data) && data.length > 0) {
+        const sorted = [...data].sort(
+          (a, b) =>
+            new Date(b.assessment_time) -
+            new Date(a.assessment_time)
+        );
+
+        setLatestAssessment(sorted[0]);
+      }
+    } catch (error) {
+      console.error(
+        'Failed to load latest assessment:',
+        error
+      );
+    } finally {
+      setAssessmentLoading(false);
+    }
+  };
+
+  loadLatestAssessment();
+}, []);
 
   const [checklist, setChecklist] = useState([
     { id: 1, text: 'Gentle Hydrating Cleanser', done: true },
@@ -63,24 +113,71 @@ export default function UserOverviewPage() {
             <Badge variant="emerald">User Prototype Dashboard</Badge>
           </div>
           <p className="text-xs sm:text-sm text-slate-400">
-            Skin Profile: <span className="text-slate-200 font-medium">{user?.skinType || 'Combination'}</span> • Primary Concerns: {user?.concerns ? user.concerns.join(', ') : 'Hyperpigmentation'} (Sample Data)
-          </p>
+  Skin Profile:{' '}
+  <span className="text-slate-200 font-medium">
+    {latestAssessment?.predicted_skin_type ||
+      user?.skinType ||
+      'Not assessed'}
+  </span>
+
+  {' • '}
+
+  Primary Concern:{' '}
+  <span className="text-slate-200 font-medium">
+    {latestAssessment?.vision_predicted_concern ||
+      'Not assessed'}
+  </span>
+</p>
         </div>
 
-        <QuickActionBar actions={quickActions} />
+        <div className="flex flex-wrap gap-3">
+  <QuickActionBar actions={quickActions} />
+
+  <Link to="/dashboard/user/assessment">
+    <Button
+      variant="outline"
+      size="sm"
+      className="gap-2"
+    >
+      <Sparkles className="w-4 h-4 text-emerald-400" />
+      Skin Assessment
+    </Button>
+  </Link>
+
+  <Link to="/dashboard/user/progress">
+    <Button
+      variant="outline"
+      size="sm"
+      className="gap-2"
+    >
+      <TrendingUp className="w-4 h-4 text-cyan-400" />
+      Progress Tracker
+    </Button>
+  </Link>
+</div>
       </div>
 
       {/* 2. FOUR SUMMARY STATISTIC CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          title="Overall Skin Score"
-          value="82 / 100"
-          change="+5 pts"
-          trend="up"
-          icon={Sparkles}
-          badgeColor="emerald"
-          description="Demo health score index"
-        />
+  title="Overall Skin Score"
+  value={
+    assessmentLoading
+      ? '...'
+      : latestAssessment
+        ? `${latestAssessment.health_score} / 100`
+        : 'No Data'
+  }
+  change={
+    latestAssessment
+      ? latestAssessment.overall_condition
+      : 'Complete assessment'
+  }
+  trend="up"
+  icon={Sparkles}
+  badgeColor="emerald"
+  description="Latest AI assessment score"
+/>
         <StatCard
           title="Routine Consistency"
           value="92%"
@@ -114,12 +211,18 @@ export default function UserOverviewPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Health Score Card */}
         <GlassCard glow className="flex flex-col items-center justify-center p-8 text-center space-y-4">
-          <ScoreGauge score={82} size={180} strokeWidth={14} />
+          <ScoreGauge
+  score={latestAssessment?.health_score || 0}
+  size={180}
+  strokeWidth={14}
+/>
           <div>
             <h3 className="text-lg font-bold text-white">Health Score Overview</h3>
             <p className="text-xs text-slate-400 mt-1">
-              Sample rating based on daily routine consistency, hydration, and skin profile data.
-            </p>
+  {latestAssessment
+    ? `AI assessment indicates ${latestAssessment.overall_condition || 'your current skin condition'}.`
+    : 'Complete a skin assessment to calculate your health score.'}
+</p>
           </div>
         </GlassCard>
 
@@ -134,14 +237,25 @@ export default function UserOverviewPage() {
 
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <div className="flex justify-between text-xs">
-                <span className="text-slate-300 font-medium">Skin Condition Rating</span>
-                <span className="text-emerald-400 font-bold">85 / 100</span>
-              </div>
-              <div className="w-full h-2.5 rounded-full bg-slate-800 overflow-hidden">
-                <div className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400" style={{ width: '85%' }}></div>
-              </div>
-            </div>
+  <div className="flex justify-between text-xs">
+    <span className="text-slate-300 font-medium">
+      Skin Condition Rating
+    </span>
+
+    <span className="text-emerald-400 font-bold">
+      {latestAssessment?.health_score ?? 0} / 100
+    </span>
+  </div>
+
+  <div className="w-full h-2.5 rounded-full bg-slate-800 overflow-hidden">
+    <div
+      className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400"
+      style={{
+        width: `${latestAssessment?.health_score ?? 0}%`,
+      }}
+    ></div>
+  </div>
+</div>
 
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs">
