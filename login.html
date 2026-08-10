@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login | AI Skin Intelligence</title>
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+</head>
+
+<body class="login-page">
+
+<div class="login-box">
+
+    <div class="login-icon">
+
+        <i class="fa-solid fa-heart-pulse"></i>
+
+    </div>
+
+    <h1>Welcome Back</h1>
+
+    <p>
+
+        Login to continue to AI Skin Intelligence Dashboard
+
+    </p>
+
+    <input type="text"
+    id="username"
+    placeholder="Username">
+
+    <input type="password"
+    id="password"
+    placeholder="Password">
+
+    <select id="role">
+
+        <option value="">Select Your Role</option>
+
+        <option value="user">User</option>
+
+        <option value="doctor">Doctor</option>
+
+        <option value="consultant">Consultant</option>
+
+        <option value="admin">Admin</option>
+
+    </select>
+
+    <button onclick="login()">
+
+        Login
+
+    </button>
+
+    <small>
+
+        Demo Login (OAuth & JWT will be integrated in future.)
+
+    </small>
+
+</div>
+
+<script src="js/login.js"></script>
+
+</body>
+
+</html>
