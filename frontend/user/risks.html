@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Risk Factors - GlowSense AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <div class="dashboard-layout">
+    <div class="dashboard-main">
+      <div class="dashboard-content">
+        <h1 class="page-title">Risk Factors</h1>
+        <p class="page-subtitle">Lifestyle and environmental factors affecting your skin health.</p>
+
+        <div id="risksList"></div>
+        <div class="empty-state" id="emptyRisks" style="display:none;">
+          <div class="empty-state-icon">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M16 5l8 3v7c0 5-4 8-8 9-4-1-8-4-8-9V8l8-3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="empty-state-title">No risk factors identified</div>
+          <div class="empty-state-text">Complete an assessment to identify potential risk factors.</div>
+          <a href="/user/assessment.html" class="btn btn-primary">Start Assessment</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initUserRisks } from '/js/user.js';
+    initUserRisks();
+  </script>
+</body>
+</html>

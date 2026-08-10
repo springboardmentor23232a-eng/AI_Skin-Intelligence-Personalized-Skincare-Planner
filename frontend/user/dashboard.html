@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - GlowSense AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="/css/assessment.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <div class="dashboard-layout">
+    <div class="dashboard-main">
+      <div class="dashboard-content">
+        <h1 class="page-title">Skin Health Overview</h1>
+        <p class="page-subtitle">Here's your latest skin health overview.</p>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <div class="stat-card-icon accent">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3v7l4 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/></svg>
+              </div>
+            </div>
+            <div class="stat-card-value" id="statScore">N/A</div>
+            <div class="stat-card-label">Skin Health Score</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <div class="stat-card-icon blue">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M7 10c0-2 1.5-3 3-3s3 1 3 3-1.5 3-3 3-3-1-3-3z" stroke="currentColor" stroke-width="1.5"/></svg>
+              </div>
+            </div>
+            <div class="stat-card-value" id="statType">N/A</div>
+            <div class="stat-card-label">Skin Type</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <div class="stat-card-icon amber">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3l8 14H2L10 3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+              </div>
+            </div>
+            <div class="stat-card-value" id="statConcerns">0</div>
+            <div class="stat-card-label">Active Concerns</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <div class="stat-card-icon red">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3l6 2v5c0 4-3 6-6 7-3-1-6-3-6-7V5l6-2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+              </div>
+            </div>
+            <div class="stat-card-value" id="statRisk">N/A</div>
+            <div class="stat-card-label">Risk Level</div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div>
+            <div class="card" id="latestAssessmentCard" style="margin-bottom:1rem;">
+              <div class="card-header">
+                <h3 class="card-title">Latest Assessment</h3>
+                <a href="/user/history.html" class="btn btn-sm btn-ghost">View All</a>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-top:0.5rem;">
+                <div><span style="font-size:var(--fs-xs);color:var(--color-text-tertiary);">Date</span><div id="latestDate" style="font-weight:600;">N/A</div></div>
+                <div><span style="font-size:var(--fs-xs);color:var(--color-text-tertiary);">Method</span><div id="latestMethod" style="font-weight:600;">N/A</div></div>
+                <div><span style="font-size:var(--fs-xs);color:var(--color-text-tertiary);">Score</span><div id="latestScore" style="font-weight:600;">N/A</div></div>
+                <div><span style="font-size:var(--fs-xs);color:var(--color-text-tertiary);">Skin Type</span><div id="latestType" style="font-weight:600;">N/A</div></div>
+                <div><span style="font-size:var(--fs-xs);color:var(--color-text-tertiary);">Risk Level</span><div id="latestRisk">N/A</div></div>
+              </div>
+              <a href="/user/history.html" id="viewLatestBtn" class="btn btn-outline btn-sm" style="margin-top:1rem;">View Assessment</a>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Skin Health Trend</h3>
+              </div>
+              <div class="chart-container" id="trendChart"></div>
+              <div class="empty-state" id="emptyTrend" style="display:none;">
+                <div class="empty-state-icon">
+                  <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M4 20l5-5 4 4 8-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 11h6v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="empty-state-title">No assessment history yet</div>
+                <div class="empty-state-text">Complete your first assessment to see your skin health trend over time.</div>
+                <a href="/user/assessment.html" class="btn btn-primary">Start Your First Assessment</a>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="card" style="margin-bottom:1rem;">
+              <div class="card-header">
+                <h3 class="card-title">Main Concerns</h3>
+              </div>
+              <div class="concerns-grid" id="mainConcerns">
+                <p style="color:var(--color-text-tertiary);font-size:var(--fs-sm);">No concerns detected yet.</p>
+              </div>
+            </div>
+
+            <div class="card" style="margin-bottom:1rem;">
+              <div class="card-header">
+                <h3 class="card-title">Recommendations</h3>
+                <a href="/user/recommendations.html" class="btn btn-sm btn-ghost">View All</a>
+              </div>
+              <div id="recsPreview">
+                <p style="color:var(--color-text-tertiary);font-size:var(--fs-sm);">No recommendations available yet.</p>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Quick Actions</h3>
+              </div>
+              <div class="quick-actions">
+                <a href="/user/form-assessment.html" class="quick-action">
+                  <div class="quick-action-icon">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="4" y="3" width="12" height="14" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M7 7h6M7 10h6M7 13h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                  </div>
+                  <div><div class="quick-action-text">Form Assessment</div><div class="quick-action-desc">Answer questionnaire</div></div>
+                </a>
+                <a href="/user/webcam-assessment.html" class="quick-action">
+                  <div class="quick-action-icon">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="5" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/></svg>
+                  </div>
+                  <div><div class="quick-action-text">Webcam Assessment</div><div class="quick-action-desc">Capture or upload image</div></div>
+                </a>
+                <a href="/user/history.html" class="quick-action">
+                  <div class="quick-action-icon">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v4l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                  </div>
+                  <div><div class="quick-action-text">View History</div><div class="quick-action-desc">Past assessments</div></div>
+                </a>
+                <a href="#" class="quick-action" onclick="document.getElementById('consultModal').classList.add('active');return false;">
+                  <div class="quick-action-icon">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 5a2 2 0 012-2h10a2 2 0 012 2v7a2 2 0 01-2 2H8l-4 3v-3H5a2 2 0 01-2-2V5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                  </div>
+                  <div><div class="quick-action-text">Request Consultation</div><div class="quick-action-desc">Talk to an expert</div></div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Consultation Modal -->
+  <div class="modal-overlay" id="consultModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Request Consultation</h3>
+        <button class="modal-close" onclick="document.getElementById('consultModal').classList.remove('active')">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M6 6l8 8M14 6l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="consultation-request-form">
+          <div class="form-group">
+            <label class="form-label">Request From</label>
+            <select class="form-select" id="consultRole">
+              <option value="consultant">Skincare Consultant</option>
+              <option value="dermatologist">Dermatologist</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Message (Optional)</label>
+            <textarea class="form-input" id="consultMessage" rows="4" placeholder="Describe your concern..." style="padding-left:1rem;"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="document.getElementById('consultModal').classList.remove('active')">Cancel</button>
+        <button class="btn btn-primary" id="sendConsultBtn">Send Request</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initUserDashboard, requestConsultation } from '/js/user.js';
+    initUserDashboard().then(auth => {
+      if (auth) {
+        document.getElementById('sendConsultBtn').addEventListener('click', () => requestConsultation(auth.user.id));
+      }
+    });
+  </script>
+</body>
+</html>

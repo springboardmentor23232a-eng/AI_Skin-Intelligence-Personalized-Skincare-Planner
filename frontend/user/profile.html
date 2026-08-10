@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile - GlowSense AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="/css/auth.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <div class="dashboard-layout">
+    <div class="dashboard-main">
+      <div class="dashboard-content">
+        <h1 class="page-title">My Profile</h1>
+        <p class="page-subtitle">Manage your personal and skin profile information.</p>
+
+        <div class="profile-grid">
+          <div class="card">
+            <div class="profile-avatar-section">
+              <div class="profile-avatar" id="profileAvatar">?</div>
+              <div class="profile-name" id="profileName">Loading...</div>
+              <div class="profile-email" id="profileEmail">Loading...</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Profile Information</h3>
+              <button class="btn btn-sm btn-primary" id="saveProfileBtn">Save Changes</button>
+            </div>
+
+            <div class="form-section" style="border:none;padding:0;margin-bottom:1.5rem;">
+              <h4 style="font-size:var(--fs-base);font-weight:600;margin-bottom:0.75rem;">Basic Information</h4>
+              <div class="form-grid">
+                <div class="form-field">
+                  <label class="form-field-label">Age</label>
+                  <input type="number" class="form-input" id="fieldAge" min="1" max="120" style="padding-left:1rem;" />
+                </div>
+                <div class="form-field">
+                  <label class="form-field-label">Gender</label>
+                  <select class="form-select" id="fieldGender">
+                    <option value="">Select...</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section" style="border:none;padding:0;margin-bottom:1.5rem;">
+              <h4 style="font-size:var(--fs-base);font-weight:600;margin-bottom:0.75rem;">Skin Profile</h4>
+              <div class="form-grid">
+                <div class="form-field">
+                  <label class="form-field-label">Skin Type</label>
+                  <select class="form-select" id="fieldSkinType">
+                    <option value="">Select...</option>
+                    <option value="Oily">Oily</option>
+                    <option value="Dry">Dry</option>
+                    <option value="Combination">Combination</option>
+                    <option value="Normal">Normal</option>
+                    <option value="Sensitive">Sensitive</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label class="form-field-label">Skin Sensitivity</label>
+                  <select class="form-select" id="fieldSensitivity">
+                    <option value="">Select...</option>
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section" style="border:none;padding:0;margin-bottom:1.5rem;">
+              <h4 style="font-size:var(--fs-base);font-weight:600;margin-bottom:0.75rem;">Lifestyle</h4>
+              <div class="form-grid">
+                <div class="form-field">
+                  <label class="form-field-label">Water Intake</label>
+                  <select class="form-select" id="fieldWaterIntake">
+                    <option value="">Select...</option>
+                    <option value="0-2 glasses">0-2 glasses</option>
+                    <option value="3-4 glasses">3-4 glasses</option>
+                    <option value="5-6 glasses">5-6 glasses</option>
+                    <option value="7+ glasses">7+ glasses</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label class="form-field-label">Sleep Duration</label>
+                  <select class="form-select" id="fieldSleep">
+                    <option value="">Select...</option>
+                    <option value="less than 5 hours">Less than 5 hours</option>
+                    <option value="5-6 hours">5-6 hours</option>
+                    <option value="6-7 hours">6-7 hours</option>
+                    <option value="7-8 hours">7-8 hours</option>
+                    <option value="8+ hours">8+ hours</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label class="form-field-label">Stress Level</label>
+                  <select class="form-select" id="fieldStress">
+                    <option value="">Select...</option>
+                    <option value="Low">Low</option>
+                    <option value="Moderate">Moderate</option>
+                    <option value="High">High</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label class="form-field-label">Exercise Frequency</label>
+                  <select class="form-select" id="fieldExercise">
+                    <option value="">Select...</option>
+                    <option value="Never">Never</option>
+                    <option value="1-2 times/week">1-2 times/week</option>
+                    <option value="3-4 times/week">3-4 times/week</option>
+                    <option value="Daily">Daily</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label class="form-field-label">Smoking</label>
+                  <select class="form-select" id="fieldSmoking">
+                    <option value="">Select...</option>
+                    <option value="No">No</option>
+                    <option value="Occasionally">Occasionally</option>
+                    <option value="Regularly">Regularly</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label class="form-field-label">Alcohol</label>
+                  <select class="form-select" id="fieldAlcohol">
+                    <option value="">Select...</option>
+                    <option value="Never">Never</option>
+                    <option value="Occasionally">Occasionally</option>
+                    <option value="Regularly">Regularly</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section" style="border:none;padding:0;margin-bottom:1.5rem;">
+              <h4 style="font-size:var(--fs-base);font-weight:600;margin-bottom:0.75rem;">Skincare Routine</h4>
+              <div class="form-grid">
+                <div class="form-field">
+                  <label class="form-field-label">Cleanser Usage</label>
+                  <select class="form-select" id="fieldCleanser">
+                    <option value="">Select...</option>
+                    <option value="Never">Never</option>
+                    <option value="Once daily">Once daily</option>
+                    <option value="Twice daily">Twice daily</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label class="form-field-label">Moisturizer Usage</label>
+                  <select class="form-select" id="fieldMoisturizer">
+                    <option value="">Select...</option>
+                    <option value="Never">Never</option>
+                    <option value="Once daily">Once daily</option>
+                    <option value="Twice daily">Twice daily</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label class="form-field-label">Sunscreen Usage</label>
+                  <select class="form-select" id="fieldSunscreen">
+                    <option value="">Select...</option>
+                    <option value="Never">Never</option>
+                    <option value="Rarely">Rarely</option>
+                    <option value="Sometimes">Sometimes</option>
+                    <option value="Daily">Daily</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label class="form-field-label">Current Routine</label>
+                  <input type="text" class="form-input" id="fieldRoutine" placeholder="e.g. Cleanser + Moisturizer" style="padding-left:1rem;" />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section" style="border:none;padding:0;">
+              <h4 style="font-size:var(--fs-base);font-weight:600;margin-bottom:0.75rem;">Environment</h4>
+              <div class="form-grid">
+                <div class="form-field">
+                  <label class="form-field-label">Sun Exposure</label>
+                  <select class="form-select" id="fieldSunExposure">
+                    <option value="">Select...</option>
+                    <option value="Low">Low</option>
+                    <option value="Moderate">Moderate</option>
+                    <option value="High">High</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label class="form-field-label">Pollution Exposure</label>
+                  <select class="form-select" id="fieldPollution">
+                    <option value="">Select...</option>
+                    <option value="Low">Low</option>
+                    <option value="Moderate">Moderate</option>
+                    <option value="High">High</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label class="form-field-label">Climate</label>
+                  <select class="form-select" id="fieldClimate">
+                    <option value="">Select...</option>
+                    <option value="Tropical">Tropical</option>
+                    <option value="Dry">Dry</option>
+                    <option value="Humid">Humid</option>
+                    <option value="Cold">Cold</option>
+                    <option value="Temperate">Temperate</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initUserProfile, saveProfile } from '/js/user.js';
+    initUserProfile().then(auth => {
+      if (auth) {
+        document.getElementById('saveProfileBtn').addEventListener('click', () => saveProfile(auth.user.id));
+      }
+    });
+  </script>
+</body>
+</html>
