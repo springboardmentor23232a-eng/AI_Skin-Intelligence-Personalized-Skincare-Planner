@@ -27,6 +27,17 @@ const DEFAULT_SEASONAL_STEPS = [
   { id: 's2', step_number: 2, category: 'SUN_PROTECTION', step_name: 'Summer SPF Reapplication Spray', instructions: 'Reapply SPF 50 mist every 2 hours when outdoors under summer sun.', recommended_ingredient: 'Broad-Spectrum UV Shield', season: 'Summer' }
 ];
 
+const CATEGORY_MAP = {
+  CLEANSER: { label: 'Cleansing', emoji: '🧼' },
+  EXFOLIATION: { label: 'Exfoliation', emoji: '✨' },
+  TREATMENT: { label: 'Treatment', emoji: '💧' },
+  MOISTURIZER: { label: 'Moisturizing', emoji: '🧴' },
+  SUN_PROTECTION: { label: 'Sun Protection', emoji: '☀️' },
+  NIGHT_CARE: { label: 'Night Care', emoji: '🌙' },
+  MASK: { label: 'Masking', emoji: '🎭' },
+  SEASONAL_CARE: { label: 'Seasonal Care', emoji: '🌿' }
+};
+
 const SkincareRoutineModule = ({ onToast }) => {
   const [activeTab, setActiveTab] = useState('MORNING'); // MORNING | EVENING | WEEKLY | SEASONAL
   const [routineData, setRoutineData] = useState({
@@ -35,15 +46,20 @@ const SkincareRoutineModule = ({ onToast }) => {
     weekly_treatment: DEFAULT_WEEKLY_STEPS,
     seasonal_recommendations: DEFAULT_SEASONAL_STEPS,
     skin_type: 'Combination',
-    season: 'Summer'
+    season: 'Summer',
+    skin_health_score: 75,
+    allergies: 'None',
+    lifestyle: 'Normal'
   });
 
   const [loading, setLoading] = useState(false);
   const [showGenModal, setShowGenModal] = useState(false);
 
-  // Form State for Routine Generation
+  // Form State for Routine Generation (Items 2 & 3)
   const [genSkinType, setGenSkinType] = useState('Combination');
-  const [genConcern, setGenConcern] = useState('Acne & Oil Control');
+  const [genConcern, setGenConcern] = useState('Acne Breakouts & Oiliness');
+  const [genAllergies, setGenAllergies] = useState('None');
+  const [genLifestyle, setGenLifestyle] = useState('Normal');
   const [genSeason, setGenSeason] = useState('Summer');
 
   // Track completed steps per day
@@ -75,6 +91,8 @@ const SkincareRoutineModule = ({ onToast }) => {
       const res = await apiService.generateRoutine({
         skin_type: genSkinType,
         primary_concern: genConcern,
+        allergies: genAllergies,
+        lifestyle: genLifestyle,
         season: genSeason
       });
       if (res && res.morning_routine) {
@@ -131,7 +149,7 @@ const SkincareRoutineModule = ({ onToast }) => {
             Personalized Skincare Routine Generator
           </h3>
           <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', margin: '0.2rem 0 0 0' }}>
-            AI-generated daily, weekly &amp; seasonal skincare protocols tailored to your skin profile
+            AI-generated daily, weekly &amp; seasonal skincare protocols considering skin type, score, allergies &amp; lifestyle
           </p>
         </div>
 
@@ -143,6 +161,39 @@ const SkincareRoutineModule = ({ onToast }) => {
           >
             <RefreshCw size={14} className={loading ? 'spin' : ''} /> <span>Generate New AI Routine</span>
           </button>
+        </div>
+      </div>
+
+      {/* Item 2 Personalization Factors Summary Banner */}
+      <div style={{
+        background: 'rgba(59, 130, 246, 0.08)',
+        border: '1px solid rgba(59, 130, 246, 0.2)',
+        borderRadius: 'var(--radius-sm)',
+        padding: '0.75rem 1rem',
+        marginBottom: '1.25rem',
+        fontSize: '0.82rem',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.75rem',
+        flexWrap: 'wrap'
+      }}>
+        <ShieldCheck size={18} style={{ color: '#3B82F6', flexShrink: 0 }} />
+        <div style={{ flex: 1 }}>
+          <strong style={{ color: 'var(--text-primary)' }}>Active Personalization Matrix:</strong>{' '}
+          <span style={{ color: 'var(--text-secondary)' }}>
+            Skin Type: <strong>{routineData.skin_type || 'Combination'}</strong> | Health Score:{' '}
+            <strong>{routineData.skin_health_score || 75}/100</strong> | Allergies:{' '}
+            <strong style={{ color: routineData.allergies !== 'None' ? 'var(--warning)' : 'inherit' }}>
+              {routineData.allergies || 'None'}
+            </strong>{' '}
+            | Lifestyle: <strong>{routineData.lifestyle || 'Normal'}</strong>
+          </span>
+          {routineData.previous_assessment_results && (
+            <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--success)', marginTop: '0.2rem' }}>
+              ✔ Calibrated with Previous Assessment #{routineData.previous_assessment_results.assessment_id} (Condition:{' '}
+              {routineData.previous_assessment_results.overall_condition})
+            </span>
+          )}
         </div>
       </div>
 
@@ -181,23 +232,23 @@ const SkincareRoutineModule = ({ onToast }) => {
         </button>
       </div>
 
-      {/* Flow Diagram Visualizer */}
+      {/* Item 3 Routine Categories Flow Visualizer */}
       <div style={{ background: 'var(--input-bg)', padding: '1rem 1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', marginBottom: '1.25rem' }}>
         <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', letterSpacing: '0.05em', marginBottom: '0.6rem' }}>
-          ROUTINE SEQUENCE FLOW
+          SUPPORTED ROUTINE CATEGORIES SEQUENCE
         </div>
 
         {activeTab === 'MORNING' && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', fontSize: '0.82rem', fontWeight: 700 }}>
             <span style={{ padding: '0.35rem 0.75rem', background: 'var(--primary-light)', color: 'var(--primary)', borderRadius: '20px' }}>Morning</span>
             <ArrowRight size={14} style={{ color: 'var(--text-muted)' }} />
-            <span style={{ padding: '0.35rem 0.75rem', background: 'rgba(59, 130, 246, 0.12)', color: '#3B82F6', borderRadius: '20px' }}>Cleanser</span>
+            <span style={{ padding: '0.35rem 0.75rem', background: 'rgba(59, 130, 246, 0.12)', color: '#3B82F6', borderRadius: '20px' }}>🧼 Cleansing</span>
             <ArrowRight size={14} style={{ color: 'var(--text-muted)' }} />
-            <span style={{ padding: '0.35rem 0.75rem', background: 'rgba(139, 92, 246, 0.12)', color: 'var(--accent)', borderRadius: '20px' }}>Treatment</span>
+            <span style={{ padding: '0.35rem 0.75rem', background: 'rgba(139, 92, 246, 0.12)', color: 'var(--accent)', borderRadius: '20px' }}>💧 Treatment</span>
             <ArrowRight size={14} style={{ color: 'var(--text-muted)' }} />
-            <span style={{ padding: '0.35rem 0.75rem', background: 'rgba(16, 185, 129, 0.12)', color: '#10B981', borderRadius: '20px' }}>Moisturizer</span>
+            <span style={{ padding: '0.35rem 0.75rem', background: 'rgba(16, 185, 129, 0.12)', color: '#10B981', borderRadius: '20px' }}>🧴 Moisturizing</span>
             <ArrowRight size={14} style={{ color: 'var(--text-muted)' }} />
-            <span style={{ padding: '0.35rem 0.75rem', background: 'rgba(245, 158, 11, 0.12)', color: '#F59E0B', borderRadius: '20px' }}>Sunscreen</span>
+            <span style={{ padding: '0.35rem 0.75rem', background: 'rgba(245, 158, 11, 0.12)', color: '#F59E0B', borderRadius: '20px' }}>☀️ Sun Protection</span>
           </div>
         )}
 
@@ -205,23 +256,23 @@ const SkincareRoutineModule = ({ onToast }) => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', fontSize: '0.82rem', fontWeight: 700 }}>
             <span style={{ padding: '0.35rem 0.75rem', background: 'rgba(99, 102, 241, 0.15)', color: '#6366F1', borderRadius: '20px' }}>Evening</span>
             <ArrowRight size={14} style={{ color: 'var(--text-muted)' }} />
-            <span style={{ padding: '0.35rem 0.75rem', background: 'rgba(59, 130, 246, 0.12)', color: '#3B82F6', borderRadius: '20px' }}>Cleanser</span>
+            <span style={{ padding: '0.35rem 0.75rem', background: 'rgba(59, 130, 246, 0.12)', color: '#3B82F6', borderRadius: '20px' }}>🧼 Cleansing</span>
             <ArrowRight size={14} style={{ color: 'var(--text-muted)' }} />
-            <span style={{ padding: '0.35rem 0.75rem', background: 'rgba(139, 92, 246, 0.12)', color: 'var(--accent)', borderRadius: '20px' }}>Treatment</span>
+            <span style={{ padding: '0.35rem 0.75rem', background: 'rgba(139, 92, 246, 0.12)', color: 'var(--accent)', borderRadius: '20px' }}>💧 Treatment</span>
             <ArrowRight size={14} style={{ color: 'var(--text-muted)' }} />
-            <span style={{ padding: '0.35rem 0.75rem', background: 'rgba(16, 185, 129, 0.12)', color: '#10B981', borderRadius: '20px' }}>Moisturizer</span>
+            <span style={{ padding: '0.35rem 0.75rem', background: 'rgba(16, 185, 129, 0.12)', color: '#10B981', borderRadius: '20px' }}>🧴 Moisturizing</span>
             <ArrowRight size={14} style={{ color: 'var(--text-muted)' }} />
-            <span style={{ padding: '0.35rem 0.75rem', background: 'rgba(236, 72, 153, 0.12)', color: '#EC4899', borderRadius: '20px' }}>Night Care</span>
+            <span style={{ padding: '0.35rem 0.75rem', background: 'rgba(236, 72, 153, 0.12)', color: '#EC4899', borderRadius: '20px' }}>🌙 Night Care</span>
           </div>
         )}
 
         {activeTab === 'WEEKLY' && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', fontSize: '0.82rem', fontWeight: 700 }}>
-            <span style={{ padding: '0.35rem 0.75rem', background: 'rgba(249, 115, 22, 0.12)', color: '#F97316', borderRadius: '20px' }}>Wed Exfoliation</span>
+            <span style={{ padding: '0.35rem 0.75rem', background: 'rgba(249, 115, 22, 0.12)', color: '#F97316', borderRadius: '20px' }}>✨ Exfoliation</span>
             <ChevronRight size={14} style={{ color: 'var(--text-muted)' }} />
-            <span style={{ padding: '0.35rem 0.75rem', background: 'rgba(16, 185, 129, 0.12)', color: '#10B981', borderRadius: '20px' }}>Fri Lipid Repair</span>
+            <span style={{ padding: '0.35rem 0.75rem', background: 'rgba(139, 92, 246, 0.12)', color: 'var(--accent)', borderRadius: '20px' }}>🎭 Masking &amp; Treatment</span>
             <ChevronRight size={14} style={{ color: 'var(--text-muted)' }} />
-            <span style={{ padding: '0.35rem 0.75rem', background: 'rgba(139, 92, 246, 0.12)', color: 'var(--accent)', borderRadius: '20px' }}>Sun Clay/Sheet Mask</span>
+            <span style={{ padding: '0.35rem 0.75rem', background: 'rgba(16, 185, 129, 0.12)', color: '#10B981', borderRadius: '20px' }}>🧴 Lipid Repair</span>
           </div>
         )}
 
@@ -229,7 +280,7 @@ const SkincareRoutineModule = ({ onToast }) => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', fontSize: '0.82rem', fontWeight: 700 }}>
             <span style={{ padding: '0.35rem 0.75rem', background: 'rgba(59, 130, 246, 0.15)', color: '#3B82F6', borderRadius: '20px' }}>Season: {routineData.season || 'Summer'}</span>
             <ChevronRight size={14} style={{ color: 'var(--text-muted)' }} />
-            <span style={{ padding: '0.35rem 0.75rem', background: 'rgba(34, 197, 94, 0.12)', color: 'var(--success)', borderRadius: '20px' }}>Climate Adaptation &amp; UV Shield</span>
+            <span style={{ padding: '0.35rem 0.75rem', background: 'rgba(34, 197, 94, 0.12)', color: 'var(--success)', borderRadius: '20px' }}>🌿 Climate Adaptation &amp; ☀️ Sun Protection</span>
           </div>
         )}
 
@@ -250,6 +301,7 @@ const SkincareRoutineModule = ({ onToast }) => {
         {currentSteps.map((step, idx) => {
           const stepKey = step.id || `step-${step.step_number}`;
           const isDone = completedStepIds.includes(stepKey);
+          const categoryInfo = CATEGORY_MAP[step.category] || { label: step.category, emoji: '✨' };
 
           return (
             <div
@@ -278,7 +330,7 @@ const SkincareRoutineModule = ({ onToast }) => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <span style={{ fontSize: '0.72rem', fontWeight: 800, padding: '0.15rem 0.55rem', borderRadius: '10px', background: 'var(--primary-light)', color: 'var(--primary)' }}>
-                      STEP {step.step_number || idx + 1} • {step.category}
+                      STEP {step.step_number || idx + 1} • {categoryInfo.emoji} {categoryInfo.label}
                     </span>
                     {step.created_by_role && step.created_by_role !== 'SYSTEM_AI' && (
                       <span style={{ fontSize: '0.68rem', fontWeight: 800, padding: '0.15rem 0.5rem', borderRadius: '10px', background: 'rgba(139, 92, 246, 0.15)', color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '3px' }}>
@@ -289,7 +341,7 @@ const SkincareRoutineModule = ({ onToast }) => {
 
                   {step.recommended_ingredient && (
                     <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--secondary)', background: 'rgba(14, 165, 233, 0.1)', padding: '0.15rem 0.5rem', borderRadius: '8px' }}>
-                      Key Ingredient: {step.recommended_ingredient}
+                      Key Active: {step.recommended_ingredient}
                     </span>
                   )}
                 </div>
@@ -313,10 +365,10 @@ const SkincareRoutineModule = ({ onToast }) => {
         })}
       </div>
 
-      {/* AI Routine Generation Modal */}
+      {/* AI Routine Generation Modal (Items 2 & 3 Compliant) */}
       {showGenModal && (
         <div className="modal-backdrop">
-          <div className="modal-card" style={{ maxWidth: '500px' }}>
+          <div className="modal-card" style={{ maxWidth: '540px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
               <h3 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Sparkles size={18} className="text-primary" /> Generate AI Skincare Routine
@@ -326,7 +378,7 @@ const SkincareRoutineModule = ({ onToast }) => {
 
             <form onSubmit={handleGenerateRoutine} className="form-container">
               <div className="form-group">
-                <label style={{ fontWeight: 700, fontSize: '0.85rem' }}>Skin Type</label>
+                <label style={{ fontWeight: 700, fontSize: '0.85rem' }}>1. Skin Type</label>
                 <select value={genSkinType} onChange={(e) => setGenSkinType(e.target.value)}>
                   <option value="Oily">Oily Skin</option>
                   <option value="Dry">Dry Skin</option>
@@ -337,7 +389,7 @@ const SkincareRoutineModule = ({ onToast }) => {
               </div>
 
               <div className="form-group">
-                <label style={{ fontWeight: 700, fontSize: '0.85rem' }}>Primary Skin Concern</label>
+                <label style={{ fontWeight: 700, fontSize: '0.85rem' }}>2. Primary Skin Concern</label>
                 <select value={genConcern} onChange={(e) => setGenConcern(e.target.value)}>
                   <option value="Acne Breakouts & Oiliness">Acne Breakouts &amp; Oiliness</option>
                   <option value="Hyperpigmentation & Dark Spots">Hyperpigmentation &amp; Dark Spots</option>
@@ -349,7 +401,29 @@ const SkincareRoutineModule = ({ onToast }) => {
               </div>
 
               <div className="form-group">
-                <label style={{ fontWeight: 700, fontSize: '0.85rem' }}>Current Season</label>
+                <label style={{ fontWeight: 700, fontSize: '0.85rem' }}>3. Allergies &amp; Sensitivities</label>
+                <select value={genAllergies} onChange={(e) => setGenAllergies(e.target.value)}>
+                  <option value="None">None (Standard Actives Tolerated)</option>
+                  <option value="Fragrance / Essential Oils">Fragrance / Essential Oils Sensitive</option>
+                  <option value="Retinoids / Retinol">Retinoid Sensitive (Use Bakuchiol Alternative)</option>
+                  <option value="Salicylic Acid / BHA">Salicylic Acid / BHA Sensitive (Use Mild PHA)</option>
+                  <option value="Sulfates / Harsh Surfactants">Sulfate Sensitive (Amino Acid Cleansers)</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label style={{ fontWeight: 700, fontSize: '0.85rem' }}>4. Lifestyle Factors</label>
+                <select value={genLifestyle} onChange={(e) => setGenLifestyle(e.target.value)}>
+                  <option value="Normal">Normal Daily Routine</option>
+                  <option value="High Sun Exposure">High Sun Exposure (Outdoors / Travel)</option>
+                  <option value="High Stress / Late Sleep">High Stress / Late Night Sleep (Fatigue &amp; Eye Circles)</option>
+                  <option value="Urban Pollution">Urban Pollution (Smog &amp; Dust Heavy Exposure)</option>
+                  <option value="Indoor AC / Heater">Indoor AC / Heater Constant Exposure</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label style={{ fontWeight: 700, fontSize: '0.85rem' }}>5. Current Season</label>
                 <select value={genSeason} onChange={(e) => setGenSeason(e.target.value)}>
                   <option value="Summer">Summer (UV &amp; Sebum Control)</option>
                   <option value="Winter">Winter (Deep Cold Hydration &amp; Barrier)</option>
@@ -363,7 +437,7 @@ const SkincareRoutineModule = ({ onToast }) => {
                   Cancel
                 </button>
                 <button type="submit" disabled={loading} className="btn btn-primary" style={{ flex: 2 }}>
-                  {loading ? 'Generating...' : 'Generate 4 Skincare Plans'}
+                  {loading ? 'Calibrating AI Routine...' : 'Generate Personalized Routine'}
                 </button>
               </div>
             </form>

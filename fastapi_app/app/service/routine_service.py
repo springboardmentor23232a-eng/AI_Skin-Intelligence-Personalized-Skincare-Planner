@@ -12,6 +12,7 @@ from app.schemas.routine import (
     RoutineUpdateRequest,
     RoutineStatsResponse
 )
+from app.repository.assessment_repository import AssessmentRepository
 from app.engine.routine_engine import RoutineEngine
 
 class RoutineService:
@@ -31,6 +32,25 @@ class RoutineService:
             db.add(db_user)
             db.commit()
             db.refresh(db_user)
+
+        # Look up latest assessment for current user to consider previous assessment results, score, & concerns
+        latest_assessment = AssessmentRepository.get_latest_by_user_id(db, current_user.id)
+        if latest_assessment:
+            if not input_data.previous_assessment_results:
+                concerns_list = [c.concern_name for c in (latest_assessment.concerns or [])]
+                risks_list = [r.risk_name for r in (latest_assessment.risks or [])]
+                input_data.previous_assessment_results = {
+                    "assessment_id": latest_assessment.id,
+                    "skin_health_score": latest_assessment.skin_health_score,
+                    "overall_condition": latest_assessment.overall_condition,
+                    "concerns": concerns_list,
+                    "risks": risks_list,
+                    "date": str(latest_assessment.assessment_date)
+                }
+            if input_data.skin_health_score == 75 or input_data.skin_health_score is None:
+                input_data.skin_health_score = latest_assessment.skin_health_score
+            if (not input_data.primary_concern or input_data.primary_concern == "General Maintenance") and latest_assessment.concerns:
+                input_data.primary_concern = latest_assessment.concerns[0].concern_name
 
         # Remove previous routines for user to generate fresh ones
         db.query(PersonalizedRoutine).filter(PersonalizedRoutine.user_id == current_user.id).delete()
@@ -60,7 +80,16 @@ class RoutineService:
         for r in db_routines:
             db.refresh(r)
 
-        return RoutineService._group_routines(db_routines, current_user.id, input_data.skin_type or "Normal", input_data.season or "Summer")
+        return RoutineService._group_routines(
+            db_routines,
+            current_user.id,
+            input_data.skin_type or "Normal",
+            input_data.season or "Summer",
+            input_data.skin_health_score or 75,
+            input_data.allergies or input_data.sensitivities or "None",
+            input_data.lifestyle or "Normal",
+            input_data.previous_assessment_results
+        )
 
     @staticmethod
     def get_user_routine(db: Session, target_user_id: int, current_user: AuthenticatedUser) -> RoutineGroupResponse:
@@ -76,9 +105,28 @@ class RoutineService:
             PersonalizedRoutine.is_active == True
         ).order_by(PersonalizedRoutine.time_of_day, PersonalizedRoutine.step_number).all()
 
+        latest_assessment = AssessmentRepository.get_latest_by_user_id(db, target_user_id)
+        prev_res = None
+        score = 75
+        if latest_assessment:
+            score = latest_assessment.skin_health_score
+            prev_res = {
+                "assessment_id": latest_assessment.id,
+                "skin_health_score": latest_assessment.skin_health_score,
+                "overall_condition": latest_assessment.overall_condition,
+                "concerns": [c.concern_name for c in (latest_assessment.concerns or [])],
+                "risks": [r.risk_name for r in (latest_assessment.risks or [])],
+                "date": str(latest_assessment.assessment_date)
+            }
+
         if not routines:
             # Generate default fallback routine if none exists yet
-            default_input = RoutineGenerateInput(skin_type="Normal", season="Summer")
+            default_input = RoutineGenerateInput(
+                skin_type="Normal",
+                season="Summer",
+                skin_health_score=score,
+                previous_assessment_results=prev_res
+            )
             generated_steps = RoutineEngine.generate(default_input, target_user_id)
             db_routines = []
             for step in generated_steps:
@@ -100,7 +148,16 @@ class RoutineService:
                 db.refresh(r)
             routines = db_routines
 
-        return RoutineService._group_routines(routines, target_user_id, "Personalized", "Current Season")
+        return RoutineService._group_routines(
+            routines,
+            target_user_id,
+            "Personalized",
+            "Current Season",
+            score,
+            "None",
+            "Normal",
+            prev_res
+        )
 
     @staticmethod
     def update_routine_step(db: Session, routine_id: int, update_data: RoutineUpdateRequest, current_user: AuthenticatedUser) -> RoutineStepSchema:
@@ -154,7 +211,16 @@ class RoutineService:
         )
 
     @staticmethod
-    def _group_routines(routines: List[PersonalizedRoutine], user_id: int, skin_type: str, season: str) -> RoutineGroupResponse:
+    def _group_routines(
+        routines: List[PersonalizedRoutine],
+        user_id: int,
+        skin_type: str,
+        season: str,
+        skin_health_score: int = 75,
+        allergies: str = "None",
+        lifestyle: str = "Normal",
+        previous_assessment_results: Dict = None
+    ) -> RoutineGroupResponse:
         morning = [RoutineStepSchema.model_validate(r) for r in routines if r.time_of_day == "MORNING"]
         evening = [RoutineStepSchema.model_validate(r) for r in routines if r.time_of_day == "EVENING"]
         weekly = [RoutineStepSchema.model_validate(r) for r in routines if r.time_of_day == "WEEKLY"]
@@ -164,6 +230,10 @@ class RoutineService:
             user_id=user_id,
             skin_type=skin_type,
             season=season,
+            skin_health_score=skin_health_score,
+            allergies=allergies,
+            lifestyle=lifestyle,
+            previous_assessment_results=previous_assessment_results,
             morning_routine=morning,
             evening_routine=evening,
             weekly_treatment=weekly,

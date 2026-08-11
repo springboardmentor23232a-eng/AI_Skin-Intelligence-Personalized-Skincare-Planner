@@ -8,6 +8,10 @@ class RoutineGenerateInput(BaseModel):
     season: Optional[str] = Field(default="Summer", description="Target Season (Summer, Winter, Spring, Autumn)")
     age_group: Optional[str] = Field(default="18-24", description="Age group")
     sensitivities: Optional[str] = Field(default="None", description="Known sensitivities or allergies")
+    allergies: Optional[str] = Field(default="None", description="Allergies (Fragrance, Nuts, Sulfates, Retinoids, Salicylic)")
+    lifestyle: Optional[str] = Field(default="Normal", description="Lifestyle (High Sun Exposure, High Stress, Late Night Sleep, Urban Pollution)")
+    skin_health_score: Optional[int] = Field(default=75, description="Skin Health Score (0-100)")
+    previous_assessment_results: Optional[Dict] = Field(default=None, description="Previous assessment results")
 
 class RoutineStepSchema(BaseModel):
     id: Optional[int] = None
@@ -31,6 +35,10 @@ class RoutineGroupResponse(BaseModel):
     user_id: int
     skin_type: str
     season: str
+    skin_health_score: Optional[int] = 75
+    allergies: Optional[str] = "None"
+    lifestyle: Optional[str] = "Normal"
+    previous_assessment_results: Optional[Dict] = None
     morning_routine: List[RoutineStepSchema]
     evening_routine: List[RoutineStepSchema]
     weekly_treatment: List[RoutineStepSchema]
