@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"vite\" \"node backend/server.js\"",
+    "dev": "concurrently \"vite\" \"node backend/server.js\" \"cd fastapi_app && .\\venv\\Scripts\\python.exe main.py\"",
     "fastapi": "cd fastapi_app && .\\venv\\Scripts\\python.exe main.py",
     "start:all": "concurrently \"vite\" \"node backend/server.js\" \"cd fastapi_app && .\\venv\\Scripts\\python.exe main.py\"",
     "client": "vite",

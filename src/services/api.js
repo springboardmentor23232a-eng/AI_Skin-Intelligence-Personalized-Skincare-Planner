@@ -177,6 +177,52 @@ export const apiService = {
     } catch (err) {
       throw err.response ? err.response.data : new Error(err.message);
     }
+  },
+
+  // Module 4: Routine Generation Engine APIs
+  generateRoutine: async (routineData) => {
+    try {
+      const res = await axiosInstance.post('/routine/generate', routineData);
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  getMyRoutine: async () => {
+    try {
+      const res = await axiosInstance.get('/routine/me');
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  getPatientRoutine: async (userId) => {
+    try {
+      const res = await axiosInstance.get(`/routine/patient/${userId}`);
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  updateRoutineStep: async (stepId, updateData) => {
+    try {
+      const res = await axiosInstance.put(`/routine/${stepId}`, updateData);
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  getRoutineStats: async () => {
+    try {
+      const res = await axiosInstance.get('/routine/stats');
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
   }
 };
 

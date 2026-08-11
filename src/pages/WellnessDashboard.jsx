@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import JwtInspector from "../components/JwtInspector";
@@ -11,8 +12,19 @@ const INITIAL_CLIENTS = [
 ];
 
 const WellnessDashboard = () => {
+  const location = useLocation();
   const [clients] = useState(INITIAL_CLIENTS);
   const [selectedClient, setSelectedClient] = useState(clients[0]);
+
+  useEffect(() => {
+    if (location.hash) {
+      const targetId = location.hash.replace("#", "");
+      const el = document.getElementById(targetId) || document.getElementById(targetId === "habits" ? "clients" : targetId);
+      if (el) {
+        setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 100);
+      }
+    }
+  }, [location.hash]);
 
   // Lifestyle & Wellness Plan Form
   const [dietPlan, setDietPlan] = useState("Increase green leafy vegetables, walnuts, and berries. Avoid refined sugar & processed oils.");
@@ -66,7 +78,7 @@ const WellnessDashboard = () => {
           <JwtInspector />
 
           {/* Section Header */}
-          <div className="section-header">
+          <div id="overview" className="section-header">
             <div>
               <h2>
                 <Award className="icon-title" style={{ color: 'var(--warning)' }} /> Wellness &amp; Lifestyle Coach Dashboard
@@ -121,7 +133,7 @@ const WellnessDashboard = () => {
           <div className="grid-layout grid-3-col">
             
             {/* Left Column: Assigned Clients List */}
-            <div className="glass-card span-1">
+            <div id="clients" className="glass-card span-1">
               <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
                 <h3>Assigned Clients</h3>
                 <Users size={18} />

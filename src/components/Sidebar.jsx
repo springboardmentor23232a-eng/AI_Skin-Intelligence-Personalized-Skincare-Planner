@@ -67,7 +67,7 @@ const Sidebar = () => {
           <h4 className="sidebar-title">NAVIGATION</h4>
           <ul className="sidebar-menu">
             <li>
-              <Link to={activeDashboard} className={`sidebar-item ${isActive(activeDashboard) ? "active" : ""}`}>
+              <Link to={`${activeDashboard}#overview`} className={`sidebar-item ${isActive(activeDashboard) && (!location.hash || location.hash === "#overview") ? "active" : ""}`}>
                 <LayoutDashboard size={18} />
                 <span>Overview</span>
               </Link>
@@ -83,7 +83,7 @@ const Sidebar = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/wellness" className={`sidebar-item ${isActive("/wellness") ? "active" : ""}`}>
+                  <Link to="/user#history" className={`sidebar-item ${isActive("/user") && location.hash === "#history" ? "active" : ""}`}>
                     <History size={18} />
                     <span>Skin History & Goals</span>
                   </Link>
@@ -94,7 +94,7 @@ const Sidebar = () => {
             {userRole === 'SKINCARE_CONSULTANT' && (
               <>
                 <li>
-                  <Link to="/consultant" className={`sidebar-item ${isActive("/consultant") ? "active" : ""}`}>
+                  <Link to="/consultant#assigned-clients" className={`sidebar-item ${isActive("/consultant") && location.hash === "#assigned-clients" ? "active" : ""}`}>
                     <Sparkles size={18} />
                     <span>Assigned Clients</span>
                   </Link>
@@ -105,7 +105,7 @@ const Sidebar = () => {
             {userRole === 'DERMATOLOGIST' && (
               <>
                 <li>
-                  <Link to="/doctor" className={`sidebar-item ${isActive("/doctor") ? "active" : ""}`}>
+                  <Link to="/doctor#patients" className={`sidebar-item ${isActive("/doctor") && location.hash === "#patients" ? "active" : ""}`}>
                     <Stethoscope size={18} />
                     <span>Patient Consultations</span>
                   </Link>
@@ -116,7 +116,7 @@ const Sidebar = () => {
             {userRole === 'WELLNESS_COACH' && (
               <>
                 <li>
-                  <Link to="/wellness" className={`sidebar-item ${isActive("/wellness") ? "active" : ""}`}>
+                  <Link to="/wellness#clients" className={`sidebar-item ${isActive("/wellness") && location.hash === "#clients" ? "active" : ""}`}>
                     <Award size={18} />
                     <span>Lifestyle & Habits</span>
                   </Link>
@@ -127,7 +127,7 @@ const Sidebar = () => {
             {userRole === 'ADMIN' && (
               <>
                 <li>
-                  <Link to="/admin" className={`sidebar-item ${isActive("/admin") ? "active" : ""}`}>
+                  <Link to="/admin#users" className={`sidebar-item ${isActive("/admin") && location.hash === "#users" ? "active" : ""}`}>
                     <Shield size={18} />
                     <span>System Command</span>
                   </Link>
@@ -142,13 +142,13 @@ const Sidebar = () => {
           <h4 className="sidebar-title">COMMUNITY</h4>
           <ul className="sidebar-menu">
             <li>
-              <Link to="/consultant" className={`sidebar-item ${isActive("/consultant") ? "active" : ""}`}>
+              <Link to={userRole === 'USER' ? "/user#consult" : "/consultant"} className={`sidebar-item ${(isActive("/consultant") || (isActive("/user") && location.hash === "#consult")) ? "active" : ""}`}>
                 <Stethoscope size={18} />
                 <span>Consult a Specialist</span>
               </Link>
             </li>
             <li>
-              <Link to="/user" className="sidebar-item">
+              <Link to="/user#tips" className={`sidebar-item ${isActive("/user") && location.hash === "#tips" ? "active" : ""}`}>
                 <BookOpen size={18} />
                 <span>Tips &amp; Articles</span>
               </Link>
@@ -161,13 +161,13 @@ const Sidebar = () => {
           <h4 className="sidebar-title">ACCOUNT</h4>
           <ul className="sidebar-menu">
             <li>
-              <Link to="/profile" className="sidebar-item">
+              <Link to="/profile" className={`sidebar-item ${isActive("/profile") && location.search !== "?tab=settings" ? "active" : ""}`}>
                 <User size={18} />
                 <span>My Profile</span>
               </Link>
             </li>
             <li>
-              <Link to="/profile" className="sidebar-item">
+              <Link to="/profile?tab=settings" className={`sidebar-item ${isActive("/profile") && location.search === "?tab=settings" ? "active" : ""}`}>
                 <Settings size={18} />
                 <span>Settings</span>
               </Link>

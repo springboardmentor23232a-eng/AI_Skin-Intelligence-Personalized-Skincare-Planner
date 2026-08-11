@@ -67,17 +67,20 @@ initDb();
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
 
-// Module 3: Forward /api/assessment requests to Python FastAPI Skin Assessment Engine (port 8000)
-import fetch from 'node-fetch'; // or built-in fetch in Node v18+
-
-app.all(['/api/assessment', '/api/assessment/*'], async (req, res) => {
+// Module 3 & 4: Forward /api/assessment and /api/routine requests to Python FastAPI Engine (port 8000)
+app.all(['/api/assessment', '/api/assessment/*', '/api/routine', '/api/routine/*'], async (req, res) => {
   const fastApiBase = process.env.FASTAPI_URL || 'http://localhost:8000';
-  const subPath = req.originalUrl.replace('/api/assessment', '/assessment');
-  const targetUrl = `${fastApiBase}${subPath}`;
+  let targetUrl = `${fastApiBase}${req.originalUrl}`;
+  if (req.originalUrl.startsWith('/api/assessment')) {
+    targetUrl = `${fastApiBase}${req.originalUrl.replace('/api/assessment', '/assessment')}`;
+  } else if (req.originalUrl.startsWith('/api/routine')) {
+    targetUrl = `${fastApiBase}${req.originalUrl.replace('/api/routine', '/routine')}`;
+  }
 
   try {
     const headers = { ...req.headers };
     delete headers.host;
+    delete headers['content-length'];
 
     const fetchOptions = {
       method: req.method,
@@ -96,7 +99,7 @@ app.all(['/api/assessment', '/api/assessment/*'], async (req, res) => {
     console.warn(`[Proxy Warning] Failed to reach Python FastAPI on port 8000: ${err.message}`);
     res.status(503).json({
       success: false,
-      message: 'FastAPI Skin Assessment Engine service is starting or unavailable on port 8000. Please verify Python service status.',
+      message: 'FastAPI Skin Engine service is starting or unavailable on port 8000. Please verify Python service status.',
       error: err.message
     });
   }

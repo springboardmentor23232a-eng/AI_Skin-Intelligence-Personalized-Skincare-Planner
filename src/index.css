@@ -956,3 +956,79 @@ input::placeholder, textarea::placeholder {
   border-color: var(--primary);
   color: var(--primary);
 }
+
+/* High Contrast Custom Tables & Typography Overrides */
+.fw-bold {
+  font-weight: 700 !important;
+  color: var(--text-primary) !important;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 0.5rem;
+  border-radius: var(--radius-sm);
+}
+
+.custom-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  color: var(--text-primary) !important;
+}
+
+.custom-table th {
+  background: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+  font-weight: 800;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 0.85rem 1rem;
+  text-align: left;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.custom-table td {
+  padding: 0.85rem 1rem;
+  color: var(--text-primary) !important;
+  font-size: 0.88rem;
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: middle;
+}
+
+.custom-table tr:hover td {
+  background: var(--primary-light) !important;
+}
+
+[data-theme="dark"] .custom-table th {
+  background: #1E293B !important;
+  color: #FFFFFF !important;
+  border-bottom: 2px solid #334155;
+}
+
+[data-theme="dark"] .custom-table td {
+  color: #F8FAFC !important;
+  border-bottom: 1px solid #1E293B;
+}
+
+[data-theme="dark"] .custom-table td.fw-bold {
+  color: #FFFFFF !important;
+}
+
+[data-theme="dark"] .custom-table tr:hover td {
+  background: rgba(129, 140, 248, 0.18) !important;
+}
+
+.select-role-sm {
+  background-color: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
+  font-weight: 600;
+}
+
+[data-theme="dark"] .select-role-sm {
+  background-color: #1E293B !important;
+  color: #FFFFFF !important;
+  border-color: #475569 !important;
+}

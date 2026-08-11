@@ -19,6 +19,7 @@ class User(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     assessments = relationship("SkinAssessment", back_populates="user", cascade="all, delete-orphan")
+    routines = relationship("PersonalizedRoutine", back_populates="user", cascade="all, delete-orphan")
 
 
 class SkinAssessment(Base):

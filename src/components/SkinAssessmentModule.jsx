@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { apiService } from "../services/api";
-import { Sparkles, AlertTriangle, ShieldCheck, Activity, Clock, CheckCircle, ChevronRight, PlusCircle, RefreshCw, X, FileText } from "lucide-react";
+import { Sparkles, AlertTriangle, ShieldCheck, Activity, Clock, PlusCircle, RefreshCw, X } from "lucide-react";
 
 const DEFAULT_FORM_STATE = {
   skin_type: "Combination",
@@ -23,8 +23,8 @@ const DEFAULT_FORM_STATE = {
 
 const SkinAssessmentModule = ({ onToast }) => {
   const [history, setHistory] = useState([]);
-  const [latestScoreData, setLatestScoreData] = useState(null);
-  const [latestRiskData, setLatestRiskData] = useState(null);
+  const [, setLatestScoreData] = useState(null);
+  const [, setLatestRiskData] = useState(null);
   const [selectedAssessment, setSelectedAssessment] = useState(null);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -63,7 +63,9 @@ const SkinAssessmentModule = ({ onToast }) => {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchAssessmentData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleInputChange = (field, value) => {

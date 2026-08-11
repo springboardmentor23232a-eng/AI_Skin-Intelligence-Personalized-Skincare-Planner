@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import JwtInspector from "../components/JwtInspector";
@@ -6,6 +7,7 @@ import { useAuth } from "../context/AuthContext";
 import { getTimeBasedGreeting } from "../utils/greeting";
 import CameraModal from "../components/CameraModal";
 import SkinAssessmentModule from "../components/SkinAssessmentModule";
+import SkincareRoutineModule from "../components/SkincareRoutineModule";
 import { Sparkles, Sun, Droplets, Moon, Flame, Search, Bell, Star, Heart, CheckCircle, TrendingUp, Camera } from "lucide-react";
 
 const INITIAL_GOALS = [
@@ -83,6 +85,17 @@ const RECOMMENDED_PRODUCTS = [
 
 const UserDashboard = () => {
   const { user } = useAuth();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash) {
+      const targetId = location.hash.replace("#", "");
+      const el = document.getElementById(targetId) || document.getElementById(targetId === "tips" ? "dermatology-tips" : targetId);
+      if (el) {
+        setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 100);
+      }
+    }
+  }, [location.hash]);
   const [goals, setGoals] = useState(INITIAL_GOALS);
   const [tips, setTips] = useState(INITIAL_TIPS);
   const [selectedBrand, setSelectedBrand] = useState("ALL");
@@ -228,10 +241,10 @@ const UserDashboard = () => {
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', background: 'var(--input-bg)', padding: '0.35rem 0.75rem', borderRadius: '30px', border: '1px solid var(--border-color)' }}>
-                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Avatar" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} />
+                <img src={user?.profile_picture || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"} alt="Avatar" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} />
                 <div>
-                  <h4 style={{ fontSize: '0.85rem', fontWeight: 700, margin: 0 }}>Akash Prajapati</h4>
-                  <small style={{ fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 600 }}>Premium User</small>
+                  <h4 style={{ fontSize: '0.85rem', fontWeight: 700, margin: 0 }}>{getDisplayName()}</h4>
+                  <small style={{ fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 600 }}>{user?.role || 'USER'}</small>
                 </div>
               </div>
             </div>
@@ -324,7 +337,7 @@ const UserDashboard = () => {
           <div className="grid-layout grid-2-col" style={{ marginBottom: '2rem' }}>
             
             {/* Left Column: Skincare Habit Goals Card */}
-            <div className="glass-card">
+            <div id="history" className="glass-card">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
                 <div>
                   <h3 style={{ fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -382,7 +395,7 @@ const UserDashboard = () => {
             </div>
 
             {/* Right Column: Dermatology Tips Card */}
-            <div className="glass-card">
+            <div id="dermatology-tips" className="glass-card">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
                 <div>
                   <h3 style={{ fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -428,8 +441,44 @@ const UserDashboard = () => {
 
           </div>
 
+          {/* Module 4: Skincare Routine Generation Engine Section */}
+          <SkincareRoutineModule onToast={showToast} />
+
           {/* Module 3: Skin Assessment Engine Section */}
           <SkinAssessmentModule onToast={showToast} />
+
+          {/* Specialist Consultation & Clinical Direct Support Card */}
+          <div id="consult" className="glass-card" style={{ marginBottom: '2rem', padding: '1.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
+              <div>
+                <h3 style={{ fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '0.6rem', margin: 0 }}>
+                  <span style={{ padding: '0.45rem', background: 'rgba(13, 148, 136, 0.12)', borderRadius: '50%', color: 'var(--secondary)', display: 'flex' }}>
+                    <TrendingUp size={20} />
+                  </span>
+                  Consult a Skincare Specialist &amp; Dermatologist
+                </h3>
+                <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', margin: '0.2rem 0 0 0' }}>
+                  Request personalized guidance or clinical review from assigned certified specialists
+                </p>
+              </div>
+              <button
+                onClick={() => showToast("✉ Consultation request sent to certified Dermatologists & Consultants!")}
+                className="btn btn-primary"
+                style={{ padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}
+              >
+                Request Clinical Review
+              </button>
+            </div>
+            <div style={{ background: 'var(--input-bg)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', padding: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <CheckCircle size={24} style={{ color: 'var(--success)', flexShrink: 0 }} />
+              <div>
+                <h4 style={{ fontSize: '0.9rem', margin: 0, fontWeight: 700 }}>Direct Clinical Access Active</h4>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0 0' }}>
+                  Your latest AI Skin Assessment and Personalized Routine are automatically shared with your assigned specialist.
+                </p>
+              </div>
+            </div>
+          </div>
 
           {/* Bottom Recommended For You Carousel */}
           <div className="glass-card">

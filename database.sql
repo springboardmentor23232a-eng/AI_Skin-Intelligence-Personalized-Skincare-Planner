@@ -75,3 +75,27 @@ CREATE TABLE IF NOT EXISTS risk_factors (
 
 CREATE INDEX IF NOT EXISTS idx_risk_factors_assessment_id ON risk_factors(assessment_id);
 
+-- ====================================================
+-- MODULE 4: ROUTINE GENERATION SCHEMA
+-- ====================================================
+
+CREATE TABLE IF NOT EXISTS personalized_routines (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    time_of_day VARCHAR(30) NOT NULL, -- MORNING, EVENING, WEEKLY, SEASONAL
+    step_number INT NOT NULL,
+    category VARCHAR(50) NOT NULL, -- CLEANSER, EXFOLIATION, TREATMENT, MOISTURIZER, SUN_PROTECTION, NIGHT_CARE, MASK, SEASONAL_CARE
+    step_name VARCHAR(150) NOT NULL,
+    instructions TEXT NOT NULL,
+    recommended_ingredient VARCHAR(100),
+    season VARCHAR(30) DEFAULT 'ALL_SEASONS', -- ALL_SEASONS, SUMMER, WINTER, SPRING, AUTUMN
+    created_by_role VARCHAR(30) DEFAULT 'SYSTEM_AI', -- PATIENT, DOCTOR, CONSULTANT, SYSTEM_AI
+    doctor_notes TEXT,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_personalized_routines_user_id ON personalized_routines(user_id);
+CREATE INDEX IF NOT EXISTS idx_personalized_routines_time_of_day ON personalized_routines(time_of_day);
+
+

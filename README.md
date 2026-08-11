@@ -53,4 +53,26 @@ Personalized Skincare & Skill Assessment Platform integrated with **Node.js, Exp
 - ✔ **Containerization & Docker Support**: `Dockerfile` for FastAPI, `Dockerfile.backend` for Express, and multi-container `docker-compose.yml`.
 - ✔ **Postman Collection**: `postman_collection_module3.json` provided with pre-configured requests.
 
+---
+
+## 🌿 Module 4: Skincare Plan & Routine Generation Engine Features Implemented
+
+- ✔ **Rule-Based Routine Generation Engine**: Generates 4 tailored skincare plans based on skin type, primary concerns, target season, and age group:
+  1. **Morning Skincare Routine**: `Morning → Cleanser → Treatment → Moisturizer → Sunscreen`
+  2. **Evening Skincare Routine**: `Evening → Cleanser → Treatment → Moisturizer → Night Care`
+  3. **Weekly Treatment Plan**: Multi-day schedule (Wednesday AHA/BHA Exfoliation, Sunday Kaolin Clay Detox & Sheet Masking, Friday Barrier Repair).
+  4. **Seasonal Skincare Recommendations**: Season-specific adaptations (Summer UV photoprotection & lightweight hydration, Winter ceramide barrier repair, Spring brightening renewal, Autumn pigment recovery).
+- ✔ **Full CRUD Routine APIs**:
+  - `POST /routine/generate`: Auto-generate Morning, Evening, Weekly, and Seasonal routines.
+  - `GET /routine/me`: Fetch authenticated user's active routine plans.
+  - `GET /routine/patient/{user_id}`: Doctor/Consultant view of patient's routine.
+  - `PUT /routine/{id}`: Doctor/Consultant update routine steps or add clinical notes.
+  - `GET /routine/stats`: Admin routine data traffic & platform analytics.
+- ✔ **Role-Based Access Control (RBAC)** across Dashboards:
+  - **Patient Dashboard**: Interactive `SkincareRoutineModule` with step flow diagrams (`Morning → Cleanser → Treatment → Moisturizer → Sunscreen`), step completion checkboxes, and AI routine generator modal.
+  - **Doctor Dashboard**: Patient Routine tab for inspecting assigned patient routines, customizing steps, and adding clinical doctor notes.
+  - **Consultant Dashboard**: Client Routine tab for reviewing client steps and adding recommendations.
+  - **Admin Dashboard**: Dedicated Routine Traffic & Analytics tab monitoring step counts, active users, and traffic status.
+
+
 

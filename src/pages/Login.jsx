@@ -11,17 +11,9 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [email, setEmail] = useState(() => {
-    return localStorage.getItem("remembered_email") || "akp73733@gmail.com";
-  });
-  const [password, setPassword] = useState(() => {
-    const savedEmail = localStorage.getItem("remembered_email");
-    const savedPassword = localStorage.getItem("remembered_password");
-    if (savedEmail && savedPassword) return savedPassword;
-    if (!savedEmail) return "#Prem@123";
-    return "";
-  });
-  const [rememberMe, setRememberMe] = useState(true);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState(() => {
     const params = new URLSearchParams(location.search);
     return params.get("expired") === "true" ? "Your session has expired (24h JWT limit). Please sign in again." : "";
@@ -56,9 +48,7 @@ const Login = () => {
           loginWithToken(oauthToken, userData);
           setTimeout(() => {
             const role = (userData.role || "USER").toUpperCase();
-            if (role === "ADMIN") navigate("/admin");
-            else if (role === "WELLNESS_COACH" || role === "SKINCARE_CONSULTANT" || role === "DERMATOLOGIST") navigate("/consultant");
-            else navigate("/user");
+            navigate(getDashboardForRole(role));
           }, 800);
         }
       } catch (_err) {
@@ -97,25 +87,11 @@ const Login = () => {
     }
   };
 
-  const handleQuickDemoLogin = async (demoRole, demoEmail, demoPass = "Password@123") => {
+  const handleFillRoleCredentials = (_roleTitle, demoEmail, demoPass = "Password@123") => {
     setEmail(demoEmail);
     setPassword(demoPass);
-    if (rememberMe) {
-      localStorage.setItem("remembered_email", demoEmail);
-      localStorage.setItem("remembered_password", demoPass);
-    }
-    setIsSubmitting(true);
     setError("");
-    try {
-      const res = await login(demoEmail, demoPass);
-      if (res && res.success) {
-        navigate(getDashboardForRole(res.user?.role || demoRole));
-      }
-    } catch (_err) {
-      setError("Demo login failed.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    setSuccessMsg("");
   };
 
   const handleGoogleSuccess = (user) => {
@@ -149,6 +125,67 @@ const Login = () => {
 
           {error && <div className="alert alert-danger">{error}</div>}
           {successMsg && <div className="alert alert-success">{successMsg}</div>}
+
+          {/* Preset Role Credentials Filler */}
+          <div style={{
+            marginBottom: '1.25rem',
+            padding: '0.85rem 1rem',
+            background: 'var(--input-bg)',
+            borderRadius: 'var(--radius-sm)',
+            border: '1px solid var(--border-color)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center'
+          }}>
+            <small style={{ fontSize: '0.76rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', fontWeight: 600 }}>
+              Select Role:
+            </small>
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', justifyContent: 'center', width: '100%' }}>
+              <button
+                type="button"
+                onClick={() => handleFillRoleCredentials("User", "john@gmail.com", "Password@123")}
+                className="btn btn-outline"
+                style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }}
+              >
+                <User size={13} /> User
+              </button>
+              <button
+                type="button"
+                onClick={() => handleFillRoleCredentials("Consultant", "consultant@skincare.com", "Password@123")}
+                className="btn btn-outline"
+                style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }}
+              >
+                <Sparkles size={13} /> Consultant
+              </button>
+              <button
+                type="button"
+                onClick={() => handleFillRoleCredentials("Dermatologist", "dermatologist@skincare.com", "Password@123")}
+                className="btn btn-outline"
+                style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }}
+              >
+                <Stethoscope size={13} /> Dermatologist
+              </button>
+              <button
+                type="button"
+                onClick={() => handleFillRoleCredentials("Coach", "coach@wellness.com", "Password@123")}
+                className="btn btn-outline"
+                style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }}
+              >
+                <Award size={13} /> Coach
+              </button>
+              <button
+                type="button"
+                onClick={() => handleFillRoleCredentials("Admin", "akp73733@gmail.com", "#Prem@123")}
+                className="btn btn-outline"
+                style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }}
+              >
+                <Shield size={13} /> Admin
+              </button>
+            </div>
+          </div>
 
           <form onSubmit={handleSubmit} className="auth-form">
             <div className="form-group">
@@ -220,44 +257,6 @@ const Login = () => {
             onSuccess={handleGoogleSuccess}
             onError={(msg) => setError(msg)}
           />
-
-          {/* Preset Login Credentials / Quick Buttons */}
-          <div style={{
-            marginTop: '1.5rem',
-            padding: '1rem',
-            background: 'var(--input-bg)',
-            borderRadius: 'var(--radius-sm)',
-            border: '1px solid var(--border-color)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            textAlign: 'center'
-          }}>
-            <button
-              type="button"
-              onClick={() => handleQuickDemoLogin("ADMIN", "akp73733@gmail.com", "#Prem@123")}
-              className="btn btn-primary btn-block"
-              style={{ marginBottom: '0.75rem', fontSize: '0.82rem', background: 'linear-gradient(135deg, var(--primary), var(--secondary))', width: '100%' }}
-            >
-              <Shield size={16} /> Login as Akash Prajapati (Super Admin)
-            </button>
-
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', justifyContent: 'center', width: '100%' }}>
-              <button type="button" onClick={() => handleQuickDemoLogin("USER", "john@gmail.com")} className="btn btn-outline" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }}>
-                <User size={13} /> User
-              </button>
-              <button type="button" onClick={() => handleQuickDemoLogin("SKINCARE_CONSULTANT", "consultant@skincare.com")} className="btn btn-outline" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }}>
-                <Sparkles size={13} /> Consultant
-              </button>
-              <button type="button" onClick={() => handleQuickDemoLogin("DERMATOLOGIST", "dermatologist@skincare.com")} className="btn btn-outline" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }}>
-                <Stethoscope size={13} /> Dermatologist
-              </button>
-              <button type="button" onClick={() => handleQuickDemoLogin("WELLNESS_COACH", "coach@wellness.com")} className="btn btn-outline" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }}>
-                <Award size={13} /> Coach
-              </button>
-            </div>
-          </div>
 
           <div className="auth-footer" style={{ marginTop: '1.25rem', textAlign: 'center', fontSize: '0.85rem' }}>
             <p>

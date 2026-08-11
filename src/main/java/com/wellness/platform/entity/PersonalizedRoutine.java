@@ -16,13 +16,13 @@ public class PersonalizedRoutine {
     private User user;
 
     @Column(name = "time_of_day", nullable = false, length = 30)
-    private String timeOfDay; // MORNING, EVENING, WEEKLY
+    private String timeOfDay; // MORNING, EVENING, WEEKLY, SEASONAL
 
     @Column(name = "step_number", nullable = false)
     private Integer stepNumber;
 
     @Column(nullable = false, length = 50)
-    private String category; // CLEANSING, EXFOLIATION, TREATMENT, MOISTURIZING, SUN_PROTECTION, NIGHT_CARE
+    private String category; // CLEANSER, EXFOLIATION, TREATMENT, MOISTURIZER, SUN_PROTECTION, NIGHT_CARE, MASK, SEASONAL_CARE
 
     @Column(name = "step_name", nullable = false, length = 150)
     private String stepName;
@@ -32,6 +32,15 @@ public class PersonalizedRoutine {
 
     @Column(name = "recommended_ingredient", length = 100)
     private String recommendedIngredient;
+
+    @Column(length = 30)
+    private String season = "ALL_SEASONS"; // ALL_SEASONS, SUMMER, WINTER, SPRING, AUTUMN
+
+    @Column(name = "created_by_role", length = 30)
+    private String createdByRole = "SYSTEM_AI"; // PATIENT, DOCTOR, CONSULTANT, SYSTEM_AI
+
+    @Column(name = "doctor_notes", columnDefinition = "TEXT")
+    private String doctorNotes;
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
@@ -109,6 +118,30 @@ public class PersonalizedRoutine {
 
     public void setRecommendedIngredient(String recommendedIngredient) {
         this.recommendedIngredient = recommendedIngredient;
+    }
+
+    public String getSeason() {
+        return season;
+    }
+
+    public void setSeason(String season) {
+        this.season = season;
+    }
+
+    public String getCreatedByRole() {
+        return createdByRole;
+    }
+
+    public void setCreatedByRole(String createdByRole) {
+        this.createdByRole = createdByRole;
+    }
+
+    public String getDoctorNotes() {
+        return doctorNotes;
+    }
+
+    public void setDoctorNotes(String doctorNotes) {
+        this.doctorNotes = doctorNotes;
     }
 
     public Boolean getIsActive() {

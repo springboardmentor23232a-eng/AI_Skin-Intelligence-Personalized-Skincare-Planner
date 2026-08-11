@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { getDashboardForRole } from "../utils/roleUtils";
 import Navbar from "../components/Navbar";
 import GoogleOAuthButton from "../components/GoogleOAuthButton";
 import { User, Mail, Lock, UserPlus, Shield, Award, Sparkles, CheckCircle2, XCircle, Phone, Stethoscope } from "lucide-react";
@@ -40,9 +41,7 @@ const Register = () => {
       const res = await register(name, email, password, role);
       if (res && res.success) {
         const userRole = (role || res.user?.role || "USER").toUpperCase();
-        if (userRole === "ADMIN") navigate("/admin");
-        else if (userRole === "WELLNESS_COACH" || userRole === "SKINCARE_CONSULTANT" || userRole === "DERMATOLOGIST") navigate("/consultant");
-        else navigate("/user");
+        navigate(getDashboardForRole(userRole));
       } else {
         setError(res.message || "Registration failed. Please check inputs.");
       }
@@ -55,9 +54,7 @@ const Register = () => {
 
   const handleGoogleSuccess = (user) => {
     const userRole = (user?.role || role || "USER").toUpperCase();
-    if (userRole === "ADMIN") navigate("/admin");
-    else if (userRole === "WELLNESS_COACH" || userRole === "SKINCARE_CONSULTANT" || userRole === "DERMATOLOGIST") navigate("/consultant");
-    else navigate("/user");
+    navigate(getDashboardForRole(userRole));
   };
 
   return (

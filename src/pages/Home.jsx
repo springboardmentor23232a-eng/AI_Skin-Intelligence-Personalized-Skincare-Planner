@@ -2,22 +2,30 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { useAuth } from "../context/AuthContext";
-import { Sparkles, LayoutDashboard, Stethoscope, Shield, ArrowRight } from "lucide-react";
+import { getDashboardForRole } from "../utils/roleUtils";
+import { Sparkles, Stethoscope, Shield, Award, User, ArrowRight } from "lucide-react";
 
 export default function Home() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const handleQuickLogin = async (role) => {
-    if (role === "user") {
-      await login("john@gmail.com", "Password@123");
-      navigate("/user");
-    } else if (role === "consultant") {
-      await login("coach@wellness.com", "Password@123");
-      navigate("/consultant");
-    } else {
-      await login("admin@wellness.com", "Password@123");
-      navigate("/admin");
+  const handleQuickLogin = async (roleKey) => {
+    let email = "john@gmail.com";
+    let pass = "Password@123";
+    if (roleKey === "consultant") {
+      email = "consultant@skincare.com";
+    } else if (roleKey === "doctor") {
+      email = "dermatologist@skincare.com";
+    } else if (roleKey === "coach") {
+      email = "coach@wellness.com";
+    } else if (roleKey === "admin") {
+      email = "akp73733@gmail.com";
+      pass = "#Prem@123";
+    }
+
+    const res = await login(email, pass);
+    if (res && res.success) {
+      navigate(getDashboardForRole(res.user?.role));
     }
   };
 
@@ -34,7 +42,7 @@ export default function Home() {
             AI Skin Intelligence &amp; Personalized Skincare Planner
           </h1>
           <p style={{ maxWidth: '720px', margin: '0 auto 1.5rem', color: 'var(--text-secondary)', fontSize: '1.1rem' }}>
-            Next-generation AI Optical Skin Analysis, Image &amp; Camera Scan, Disease Detection, Hydration Tracking, and Certified Dermatologist Product Recommendations.
+            Next-generation AI Optical Skin Analysis, Image &amp; Camera Scan, Disease Detection, Hydration Tracking, and Role-Based Portals for Users, Consultants, Dermatologists, Coaches &amp; Admins.
           </p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '1.5rem' }}>
             <button className="btn btn-primary" onClick={() => navigate("/login")}>
@@ -46,12 +54,18 @@ export default function Home() {
           </div>
         </div>
 
+        {/* Role Portal Exploration Grid */}
+        <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '1rem', textAlign: 'center' }}>
+          Explore Unique Role-Based Dashboards
+        </h2>
+
         <div className="grid-layout grid-3-col" style={{ marginBottom: '2rem' }}>
+          {/* 1. User Dashboard */}
           <div className="glass-card text-center">
-            <LayoutDashboard size={32} style={{ color: 'var(--primary)', marginBottom: '0.75rem' }} />
-            <h3 style={{ fontSize: '1.15rem', marginBottom: '0.5rem' }}>User Skincare Hub</h3>
+            <User size={32} style={{ color: 'var(--primary)', marginBottom: '0.75rem', margin: '0 auto' }} />
+            <h3 style={{ fontSize: '1.15rem', marginBottom: '0.5rem' }}>User Dashboard</h3>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
-              Track daily skincare routines, skin type summary, hydration targets, and AI product recommendations.
+              Track daily skincare routines, skin health score (82/100), hydration targets, camera photo scans, and AI product recommendations.
             </p>
             <button
               className="btn btn-outline btn-block"
@@ -61,25 +75,57 @@ export default function Home() {
             </button>
           </div>
 
+          {/* 2. Skincare Consultant Portal */}
           <div className="glass-card text-center">
-            <Stethoscope size={32} style={{ color: 'var(--secondary)', marginBottom: '0.75rem' }} />
-            <h3 style={{ fontSize: '1.15rem', marginBottom: '0.5rem' }}>Clinical Specialist Portal</h3>
+            <Sparkles size={32} style={{ color: 'var(--secondary)', marginBottom: '0.75rem', margin: '0 auto' }} />
+            <h3 style={{ fontSize: '1.15rem', marginBottom: '0.5rem' }}>Skincare Consultant</h3>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
-              Dermatologist &amp; Coach portal to review patient consultation requests, review skin concerns, and issue advice.
+              Evaluate assigned user skin profiles, review AI assessment results, track history, and add targeted routine recommendations.
             </p>
             <button
               className="btn btn-outline btn-block"
               onClick={() => handleQuickLogin("consultant")}
             >
-              Explore Specialist View
+              Explore Consultant View
             </button>
           </div>
 
+          {/* 3. Dermatologist Clinical Center */}
           <div className="glass-card text-center">
-            <Shield size={32} style={{ color: 'var(--accent)', marginBottom: '0.75rem' }} />
+            <Stethoscope size={32} style={{ color: 'var(--accent)', marginBottom: '0.75rem', margin: '0 auto' }} />
+            <h3 style={{ fontSize: '1.15rem', marginBottom: '0.5rem' }}>Dermatologist Clinical</h3>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
+              Review patient optical scans, formulate medical diagnoses, issue digital prescriptions, and schedule follow-ups.
+            </p>
+            <button
+              className="btn btn-outline btn-block"
+              onClick={() => handleQuickLogin("doctor")}
+            >
+              Explore Doctor View
+            </button>
+          </div>
+
+          {/* 4. Wellness Coach Dashboard */}
+          <div className="glass-card text-center">
+            <Award size={32} style={{ color: 'var(--warning)', marginBottom: '0.75rem', margin: '0 auto' }} />
+            <h3 style={{ fontSize: '1.15rem', marginBottom: '0.5rem' }}>Wellness Coach</h3>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
+              Monitor client hydration, nocturnal sleep turnover, exercise routines, and publish holistic diet &amp; lifestyle plans.
+            </p>
+            <button
+              className="btn btn-outline btn-block"
+              onClick={() => handleQuickLogin("coach")}
+            >
+              Explore Coach View
+            </button>
+          </div>
+
+          {/* 5. Admin Command Center */}
+          <div className="glass-card text-center">
+            <Shield size={32} style={{ color: 'var(--danger)', marginBottom: '0.75rem', margin: '0 auto' }} />
             <h3 style={{ fontSize: '1.15rem', marginBottom: '0.5rem' }}>Admin Command Center</h3>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
-              System administration panel to manage registered users, update roles, and monitor system metrics.
+              Full system control: user &amp; role management, AI model weight calibration, database backups, audit logs &amp; security settings.
             </p>
             <button
               className="btn btn-outline btn-block"

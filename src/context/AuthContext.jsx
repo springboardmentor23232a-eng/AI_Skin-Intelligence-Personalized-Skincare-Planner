@@ -112,10 +112,18 @@ export const AuthProvider = ({ children }) => {
       // Local fallback for UI demo testing
       let role = "USER";
       let name = "John Doe";
-      if (email.includes("admin")) {
+      const emailLower = email.toLowerCase();
+
+      if (emailLower.includes("admin") || emailLower.includes("akp73733")) {
         role = "ADMIN";
         name = "System Admin";
-      } else if (email.includes("coach")) {
+      } else if (emailLower.includes("dermatologist") || emailLower.includes("doctor")) {
+        role = "DERMATOLOGIST";
+        name = "Dr. Michael Chen";
+      } else if (emailLower.includes("consultant")) {
+        role = "SKINCARE_CONSULTANT";
+        name = "Dr. Emily Watson";
+      } else if (emailLower.includes("coach") || emailLower.includes("wellness")) {
         role = "WELLNESS_COACH";
         name = "Sarah Coach";
       }
@@ -175,8 +183,14 @@ export const AuthProvider = ({ children }) => {
         return { success: true, user: userData };
       }
     } catch (_err) {
-      // Determine role based on email or default to ADMIN if akp73733@gmail.com
-      const userRole = (googleUser.email && (googleUser.email.includes("akp73733") || googleUser.email.includes("admin"))) ? "ADMIN" : "USER";
+      // Determine role based on email
+      const emailLower = (googleUser.email || "").toLowerCase();
+      let userRole = "USER";
+      if (emailLower.includes("akp73733") || emailLower.includes("admin")) userRole = "ADMIN";
+      else if (emailLower.includes("dermatologist") || emailLower.includes("doctor")) userRole = "DERMATOLOGIST";
+      else if (emailLower.includes("consultant")) userRole = "SKINCARE_CONSULTANT";
+      else if (emailLower.includes("coach") || emailLower.includes("wellness")) userRole = "WELLNESS_COACH";
+
       const userData = {
         id: 99,
         name: googleUser.name || "Google User",

@@ -3,7 +3,8 @@ import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import JwtInspector from "../components/JwtInspector";
 import CameraModal from "../components/CameraModal";
-import { Sparkles, Camera, Upload, ShieldCheck, Star, Globe, ShoppingCart } from "lucide-react";
+import { apiService } from "../services/api";
+import { Sparkles, Camera, Upload, ShieldCheck, Star, Globe, ShoppingCart, AlertTriangle } from "lucide-react";
 
 // Product Recommendations Dataset for CeraVe, Cetaphil, La Roche-Posay, Neutrogena, The Ordinary, Minimalist, Dot & Key
 const BRAND_PRODUCTS = [
@@ -154,6 +155,7 @@ const SkillAssessment = () => {
 
   const [assessmentResult, setAssessmentResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -177,15 +179,37 @@ const SkillAssessment = () => {
   const handleAnalyze = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
 
-    setTimeout(() => {
-      let detectedDisease = "No Malignant Pathologies Detected (Healthy Barrier)";
+    const parsedWater = parseFloat(waterIntake) > 10 ? parseFloat(waterIntake) / 1000 : (parseFloat(waterIntake) || 2.0);
+
+    const payload = {
+      skin_type: skinType.charAt(0).toUpperCase() + skinType.slice(1).toLowerCase(),
+      oiliness: skinType === "OILY" ? "High" : (skinType === "COMBINATION" ? "Medium" : "Low"),
+      dryness: skinType === "DRY" ? "High" : (skinConcern === "ECZEMA" ? "High" : "Low"),
+      acne: skinConcern === "ACNE" ? "Moderate" : "None",
+      pigmentation: skinConcern === "HYPERPIGMENTATION" ? "Moderate" : "None",
+      redness: skinConcern === "ROSACEA" ? "Moderate" : "None",
+      wrinkles: skinConcern === "UV_DAMAGE" ? "Mild" : "None",
+      dark_spots: skinConcern === "HYPERPIGMENTATION" ? "Mild" : "None",
+      sun_exposure: sunExposure === "HIGH" ? "High" : (sunExposure === "LOW" ? "Low" : "Moderate"),
+      water_intake: parsedWater,
+      sleep_hours: 7.0,
+      stress_level: "Medium",
+      smoking: false,
+      alcohol: "Occasional",
+      age: 26,
+      notes: `Optical Scan Analysis - ${skinConcern}`
+    };
+
+    try {
+      const response = await apiService.createAssessment(payload);
+
+      let detectedDisease = `Overall Condition: ${response.overall_condition}`;
       if (skinConcern === "ACNE") detectedDisease = "Grade I Acne Vulgaris (Mild Inflammatory Lesions)";
       if (skinConcern === "ROSACEA") detectedDisease = "Erythematotelangiectatic Rosacea (Facial Flush)";
       if (skinConcern === "ECZEMA") detectedDisease = "Atopic Dermatitis Flare (Epidermal Barrier Compromise)";
       if (skinConcern === "HYPERPIGMENTATION") detectedDisease = "Post-Inflammatory Hyperpigmentation (PIH)";
-
-      const score = skinType === "SENSITIVE" ? 78 : skinType === "DRY" ? 82 : 89;
 
       const filteredProducts = BRAND_PRODUCTS.filter(p => 
         p.suitableSkinType.toLowerCase().includes(skinType.toLowerCase()) || 
@@ -194,15 +218,21 @@ const SkillAssessment = () => {
       );
 
       setAssessmentResult({
-        skinType,
+        skinType: payload.skin_type,
         detectedDisease,
-        assessmentScore: score,
-        aiDiagnosis: `AI Optical Intelligence Diagnosis:\n• Detected Skin Type: ${skinType} Skin.\n• Detected Condition: ${detectedDisease}.\n• Barrier Index: ${score}/100.\n• Daily Water Intake: ${waterIntake} ml logged.\n\nKey Recommendation: Maintain gentle non-stripping cleansing, layer barrier-restoring ceramide formulations, and apply broad-spectrum SPF 30+ daily.`,
+        assessmentScore: response.skin_health_score,
+        overallCondition: response.overall_condition,
+        concerns: response.concerns || [],
+        risks: response.risks || [],
+        aiDiagnosis: `AI Optical & Rule Engine Diagnosis:\n• Detected Skin Type: ${payload.skin_type} Skin.\n• Primary Assessment: ${detectedDisease}.\n• Health Index: ${response.skin_health_score}/100 (${response.overall_condition}).\n• Daily Hydration: ${parsedWater.toFixed(1)} L/day.\n\nKey Recommendation: Follow barrier protection routines, maintain consistent cleansing, and layer SPF 30+ daily.`,
         recommendedProducts: filteredProducts.length > 0 ? filteredProducts : BRAND_PRODUCTS.slice(0, 4)
       });
-
+    } catch (err) {
+      console.error("Skin Assessment API Error:", err);
+      setError(err?.detail || err?.message || "Failed to execute skin assessment");
+    } finally {
       setLoading(false);
-    }, 1200);
+    }
   };
 
   return (
@@ -345,6 +375,12 @@ const SkillAssessment = () => {
                 )}
               </div>
 
+              {error && (
+                <div style={{ padding: '0.85rem 1rem', background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: 'var(--radius-md)', color: '#EF4444', marginBottom: '1.25rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <AlertTriangle size={18} /> <span>{error}</span>
+                </div>
+              )}
+
               {!assessmentResult ? (
                 <div className="empty-state" style={{ textAlign: 'center', padding: '3rem 1rem' }}>
                   <Sparkles size={48} style={{ color: 'var(--text-muted)', marginBottom: '1rem' }} />
@@ -394,9 +430,22 @@ const SkillAssessment = () => {
                     marginBottom: '1.25rem'
                   }}>
                     <h5 style={{ fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--primary)' }}>AI Clinical Findings</h5>
-                    <p style={{ whiteSpace: 'pre-line', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                    <p style={{ whiteSpace: 'pre-line', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.85rem' }}>
                       {assessmentResult.aiDiagnosis}
                     </p>
+
+                    {assessmentResult.concerns && assessmentResult.concerns.length > 0 && (
+                      <div style={{ marginTop: '0.75rem' }}>
+                        <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.35rem' }}>Identified Concerns:</span>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                          {assessmentResult.concerns.map((c, idx) => (
+                            <span key={idx} style={{ fontSize: '0.72rem', padding: '0.2rem 0.55rem', borderRadius: '12px', background: 'rgba(245, 158, 11, 0.15)', color: '#F59E0B', border: '1px solid rgba(245, 158, 11, 0.3)', fontWeight: 700 }}>
+                              {c.concern_name} ({c.severity})
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

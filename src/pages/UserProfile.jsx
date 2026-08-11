@@ -1,14 +1,24 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import JwtInspector from "../components/JwtInspector";
 import CameraModal from "../components/CameraModal";
 import { useAuth } from "../context/AuthContext";
 import { apiService } from "../services/api";
-import { User, Shield, Lock, Save, Mail, Award, Phone, Camera } from "lucide-react";
+import { User, Shield, Lock, Save, Mail, Award, Phone, Camera, Settings as SettingsIcon } from "lucide-react";
 
 const UserProfile = () => {
   const { user, updateProfileState } = useAuth();
+  const location = useLocation();
+
+  const [activeTab, setActiveTab] = useState("PROFILE");
+
+  useEffect(() => {
+    const isSettings = location.search.includes("tab=settings") || location.hash === "#settings";
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setActiveTab(isSettings ? "SETTINGS" : "PROFILE");
+  }, [location.search, location.hash]);
 
   // Profile Edit State
   const [name, setName] = useState(user?.name || "");
@@ -84,10 +94,26 @@ const UserProfile = () => {
         <main className="main-viewport">
           <JwtInspector />
 
-          <div className="section-header">
+          <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
               <h2><User className="icon-title" style={{ color: 'var(--primary)' }} /> Skin Profile &amp; Account Settings</h2>
               <p>Manage personal skincare metadata and profile information. Role and auth provider are immutable.</p>
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem', background: 'var(--input-bg)', padding: '0.35rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+              <button
+                onClick={() => setActiveTab("PROFILE")}
+                className={`btn ${activeTab === "PROFILE" ? "btn-primary" : "btn-outline"}`}
+                style={{ padding: '0.45rem 1rem', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+              >
+                <User size={15} /> Personal Profile
+              </button>
+              <button
+                onClick={() => setActiveTab("SETTINGS")}
+                className={`btn ${activeTab === "SETTINGS" ? "btn-primary" : "btn-outline"}`}
+                style={{ padding: '0.45rem 1rem', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+              >
+                <SettingsIcon size={15} /> Account Settings
+              </button>
             </div>
           </div>
 

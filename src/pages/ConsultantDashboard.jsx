@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import JwtInspector from "../components/JwtInspector";
@@ -6,11 +7,26 @@ import { apiService } from "../services/api";
 import { Sparkles, Users, Send, ShieldCheck, CheckCircle, Bell, ShoppingBag, Clock } from "lucide-react";
 
 const ConsultantDashboard = () => {
+  const location = useLocation();
   const [assessments, setAssessments] = useState([]);
   const [selectedAssessment, setSelectedAssessment] = useState(null);
   const [recommendationText, setRecommendationText] = useState("");
   const [savingRec, setSavingRec] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
+
+  const [activeSubTab, setActiveSubTab] = useState("RECOMMENDATIONS"); // RECOMMENDATIONS | ROUTINE
+  const [patientRoutine, setPatientRoutine] = useState(null);
+  const [loadingRoutine, setLoadingRoutine] = useState(false);
+
+  useEffect(() => {
+    if (location.hash) {
+      const targetId = location.hash.replace("#", "");
+      const el = document.getElementById(targetId) || document.getElementById(targetId === "clients" ? "assigned-clients" : targetId);
+      if (el) {
+        setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 100);
+      }
+    }
+  }, [location.hash]);
 
   const showToast = (msg) => {
     setToastMsg(msg);
@@ -32,9 +48,33 @@ const ConsultantDashboard = () => {
     }
   };
 
-  React.useEffect(() => {
+  const fetchPatientRoutineData = async (userId) => {
+    if (!userId) return;
+    setLoadingRoutine(true);
+    try {
+      const routineRes = await apiService.getPatientRoutine(userId);
+      setPatientRoutine(routineRes);
+    } catch (err) {
+      console.warn("Failed to fetch patient routine:", err);
+    } finally {
+      setLoadingRoutine(false);
+    }
+  };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchConsultantAssessments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const activeAssessment = selectedAssessment || (assessments.length > 0 ? assessments[0] : null);
+
+  useEffect(() => {
+    if (activeAssessment?.user_id && activeSubTab === "ROUTINE") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      fetchPatientRoutineData(activeAssessment.user_id);
+    }
+  }, [activeAssessment?.user_id, activeSubTab]);
 
   const handleSaveRecommendation = async (e) => {
     e.preventDefault();
@@ -53,8 +93,6 @@ const ConsultantDashboard = () => {
       setSavingRec(false);
     }
   };
-
-  const activeAssessment = selectedAssessment || (assessments.length > 0 ? assessments[0] : null);
 
   return (
     <div className="dashboard-layout">
@@ -90,12 +128,12 @@ const ConsultantDashboard = () => {
           <JwtInspector />
 
           {/* Section Header */}
-          <div className="section-header">
+          <div id="overview" className="section-header">
             <div>
               <h2>
                 <Sparkles className="icon-title" style={{ color: 'var(--secondary)' }} /> Skincare Consultant Portal
               </h2>
-              <p>Evaluate user skin profiles, review AI assessment results, track history, and add targeted recommendations.</p>
+              <p>Evaluate user skin profiles, review AI assessment results, track routines, and add targeted recommendations.</p>
             </div>
             <span className="role-badge role-skincare_consultant" style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
               <Sparkles size={14} /> SKINCARE_CONSULTANT Authorized
@@ -147,7 +185,7 @@ const ConsultantDashboard = () => {
           <div className="grid-layout grid-3-col">
             
             {/* Left Column: Assigned User Assessments */}
-            <div className="glass-card span-1">
+            <div id="assigned-clients" className="glass-card span-1">
               <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
                 <h3>Assigned Assessments</h3>
                 <Users size={18} />
@@ -161,6 +199,7 @@ const ConsultantDashboard = () => {
                       onClick={() => {
                         setSelectedAssessment(a);
                         setRecommendationText(a.notes || "");
+                        if (activeSubTab === "ROUTINE") fetchPatientRoutineData(a.user_id);
                       }}
                       style={{
                         background: activeAssessment?.id === a.id ? 'var(--primary-light)' : 'var(--input-bg)',
@@ -194,62 +233,120 @@ const ConsultantDashboard = () => {
               </div>
             </div>
 
-            {/* Right Column: AI Results Review & Recommendations */}
+            {/* Right Column: AI Results Review, Recommendations & Routine Review */}
             <div className="glass-card span-2">
-              <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+              <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                 <div>
-                  <h3 style={{ fontSize: '1.15rem' }}>Review AI Results & Add Recommendations</h3>
+                  <h3 style={{ fontSize: '1.15rem', margin: 0 }}>Review AI Results &amp; Skincare Plan</h3>
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0 }}>
                     Selected Assessment: <strong>#{activeAssessment?.id || 'N/A'}</strong> • User ID: <strong>{activeAssessment?.user_id || 'N/A'}</strong> • Score: <strong>{activeAssessment?.skin_health_score || 0}/100</strong> ({activeAssessment?.overall_condition})
                   </p>
                 </div>
-                <ShieldCheck size={20} style={{ color: 'var(--secondary)' }} />
+
+                <div style={{ display: 'flex', gap: '0.4rem' }}>
+                  <button
+                    onClick={() => setActiveSubTab("RECOMMENDATIONS")}
+                    className={`btn ${activeSubTab === "RECOMMENDATIONS" ? "btn-primary" : "btn-outline"}`}
+                    style={{ padding: '0.35rem 0.65rem', fontSize: '0.78rem' }}
+                  >
+                    <ShieldCheck size={14} /> Recommendations
+                  </button>
+                  <button
+                    onClick={() => setActiveSubTab("ROUTINE")}
+                    className={`btn ${activeSubTab === "ROUTINE" ? "btn-primary" : "btn-outline"}`}
+                    style={{ padding: '0.35rem 0.65rem', fontSize: '0.78rem' }}
+                  >
+                    <Sparkles size={14} /> Client Routine
+                  </button>
+                </div>
               </div>
 
               {activeAssessment ? (
                 <div>
-                  {/* AI Results Summary */}
-                  <div style={{ background: 'var(--input-bg)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', marginBottom: '1.25rem' }}>
-                    <h4 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
-                      Identified Concerns ({activeAssessment.concerns?.length || 0})
-                    </h4>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem' }}>
-                      {activeAssessment.concerns?.map((c, idx) => (
-                        <span key={idx} style={{ padding: '0.25rem 0.65rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 700, background: 'rgba(79, 70, 229, 0.12)', color: 'var(--primary)', border: '1px solid rgba(79, 70, 229, 0.2)' }}>
-                          {c.concern_name} ({c.severity} Severity / {c.priority} Priority)
-                        </span>
-                      ))}
-                    </div>
-
-                    <h4 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
-                      Risk Factors ({activeAssessment.risks?.length || 0})
-                    </h4>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                      {activeAssessment.risks?.map((r, idx) => (
-                        <div key={idx} style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', background: 'var(--card-bg)', padding: '0.4rem 0.65rem', borderRadius: '6px' }}>
-                          <strong style={{ color: 'var(--text-primary)' }}>{r.risk_name} ({r.risk_level}):</strong> {r.description}
+                  {activeSubTab === "RECOMMENDATIONS" ? (
+                    <>
+                      {/* AI Results Summary */}
+                      <div style={{ background: 'var(--input-bg)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', marginBottom: '1.25rem' }}>
+                        <h4 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
+                          Identified Concerns ({activeAssessment.concerns?.length || 0})
+                        </h4>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem' }}>
+                          {activeAssessment.concerns?.map((c, idx) => (
+                            <span key={idx} style={{ padding: '0.25rem 0.65rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 700, background: 'rgba(79, 70, 229, 0.12)', color: 'var(--primary)', border: '1px solid rgba(79, 70, 229, 0.2)' }}>
+                              {c.concern_name} ({c.severity} Severity / {c.priority} Priority)
+                            </span>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  </div>
 
-                  {/* Recommendations Form */}
-                  <form onSubmit={handleSaveRecommendation} className="form-container">
-                    <div className="form-group">
-                      <label style={{ fontWeight: 700, fontSize: '0.88rem' }}>Consultant Skincare Recommendations & Routine Notes</label>
-                      <textarea
-                        rows="4"
-                        value={recommendationText}
-                        onChange={(e) => setRecommendationText(e.target.value)}
-                        placeholder="Add personalized skincare recommendations, ingredient advise, or product routine steps for this user..."
-                        required
-                      />
-                    </div>
+                        <h4 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
+                          Risk Factors ({activeAssessment.risks?.length || 0})
+                        </h4>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                          {activeAssessment.risks?.map((r, idx) => (
+                            <div key={idx} style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', background: 'var(--card-bg)', padding: '0.4rem 0.65rem', borderRadius: '6px' }}>
+                              <strong style={{ color: 'var(--text-primary)' }}>{r.risk_name} ({r.risk_level}):</strong> {r.description}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
 
-                    <button type="submit" disabled={savingRec} className="btn btn-primary btn-block" style={{ marginTop: '1rem', padding: '0.6rem' }}>
-                      <Send size={16} /> <span>{savingRec ? "Saving..." : "Save Consultant Recommendations"}</span>
-                    </button>
-                  </form>
+                      {/* Recommendations Form */}
+                      <form onSubmit={handleSaveRecommendation} className="form-container">
+                        <div className="form-group">
+                          <label style={{ fontWeight: 700, fontSize: '0.88rem' }}>Consultant Skincare Recommendations &amp; Routine Notes</label>
+                          <textarea
+                            rows="4"
+                            value={recommendationText}
+                            onChange={(e) => setRecommendationText(e.target.value)}
+                            placeholder="Add personalized skincare recommendations, ingredient advice, or product routine steps for this user..."
+                            required
+                          />
+                        </div>
+
+                        <button type="submit" disabled={savingRec} className="btn btn-primary btn-block" style={{ marginTop: '1rem', padding: '0.6rem' }}>
+                          <Send size={16} /> <span>{savingRec ? "Saving..." : "Save Consultant Recommendations"}</span>
+                        </button>
+                      </form>
+                    </>
+                  ) : (
+                    <div>
+                      <h4 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <Sparkles size={16} className="text-secondary" /> Active Client Skincare Routine Steps
+                      </h4>
+
+                      {loadingRoutine ? (
+                        <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                          Loading client routines...
+                        </div>
+                      ) : patientRoutine ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', maxHeight: '480px', overflowY: 'auto' }}>
+                          {['morning_routine', 'evening_routine', 'weekly_treatment', 'seasonal_recommendations'].map((grpKey) => {
+                            const steps = patientRoutine[grpKey] || [];
+                            const groupTitle = grpKey.replace('_', ' ').toUpperCase();
+
+                            return (
+                              <div key={grpKey} style={{ background: 'var(--input-bg)', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
+                                <h5 style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--secondary)', marginBottom: '0.4rem' }}>{groupTitle} ({steps.length} Steps)</h5>
+                                {steps.map((s) => (
+                                  <div key={s.id || s.step_number} style={{ padding: '0.55rem', background: 'var(--card-bg)', borderRadius: '6px', marginBottom: '0.4rem', border: '1px solid var(--border-color)' }}>
+                                    <div style={{ fontSize: '0.82rem', fontWeight: 700 }}>Step {s.step_number}: {s.step_name}</div>
+                                    <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: '0.15rem 0' }}>{s.instructions}</p>
+                                    {s.recommended_ingredient && (
+                                      <small style={{ fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 700 }}>Ingredient: {s.recommended_ingredient}</small>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                          No routine generated yet for User #{activeAssessment?.user_id}.
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div style={{ textAlign: 'center', padding: '3rem 1rem', color: 'var(--text-muted)' }}>
