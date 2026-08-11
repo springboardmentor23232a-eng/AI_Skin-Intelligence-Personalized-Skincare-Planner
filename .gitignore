@@ -34,6 +34,7 @@ ml/data/sample_images/
 # Trained model files
 ml/models/*.pth
 ml/models/*.pt
+!ml/models/skin_condition_improved.pth
 
 # Environment files
 .env
