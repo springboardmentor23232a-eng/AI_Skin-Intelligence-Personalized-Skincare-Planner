@@ -1,21 +1,59 @@
-# Logs
-logs
-*.log
+# ==========================================
+# ENVIRONMENT / SECRETS
+# ==========================================
+.env
+.env.*
+!.env.example
+
+# ==========================================
+# PYTHON
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+
+.venv/
+venv/
+env/
+ENV/
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ==========================================
+# DATABASE
+# ==========================================
+*.db
+*.sqlite
+*.sqlite3
+
+# ==========================================
+# NODE / REACT
+# ==========================================
+node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# ==========================================
+# FRONTEND BUILD
+# ==========================================
+dist/
+build/
+.vite/
+dist-ssr/
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# ==========================================
+# IDE / OS
+# ==========================================
+.vscode/
+.idea/
+*.swp
+*.swo
 .DS_Store
 *.suo
 *.ntvs*
@@ -44,3 +82,51 @@ ml/models/*.pt
 backend/uploads/
 backend/skin_db.db
 
+=======
+Thumbs.db
+
+# ==========================================
+# LOGS
+# ==========================================
+*.log
+logs/
+
+# ==========================================
+# USER UPLOADS
+# ==========================================
+backend/uploads/
+
+# ==========================================
+# MACHINE LEARNING DATA
+# ==========================================
+ml/data/
+ml/datasets/
+ml/raw_data/
+
+# ==========================================
+# MACHINE LEARNING MODEL WEIGHTS
+# ==========================================
+ml/models/
+*.pth
+*.pt
+*.onnx
+*.ckpt
+*.h5
+*.pkl
+
+# ==========================================
+# JUPYTER
+# ==========================================
+.ipynb_checkpoints/
+
+# ==========================================
+# GIT WORKTREES
+# ==========================================
+skin-dashboard.worktrees/
+
+# ==========================================
+# TEMPORARY / GENERATED FILES
+# ==========================================
+*.tmp
+*.temp
+*.cache

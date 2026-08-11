@@ -1,0 +1,70 @@
+.home-page {
+  padding: 32px 24px;
+  max-width: 1280px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.home-page header {
+  margin-bottom: 32px;
+}
+
+.role-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.role-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.role-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-md), var(--shadow-glow);
+}
+
+.role-card h3 {
+  margin: 0;
+  font-family: var(--font-family-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.role-card p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.role-card button {
+  align-self: flex-start;
+  padding: 10px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-md);
+  background-color: var(--color-primary);
+  color: #ffffff;
+  cursor: pointer;
+  box-shadow: var(--shadow-xs);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.role-card button:hover {
+  background-color: var(--color-primary-hover);
+  transform: translateY(-1px);
+}
+
