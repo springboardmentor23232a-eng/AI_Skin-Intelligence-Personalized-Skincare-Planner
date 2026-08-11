@@ -5,99 +5,143 @@ async function login(){
     const password = document.getElementById("password").value;
 
 
-    const response = await fetch(
-        "http://127.0.0.1:8000/api/auth/login",
-        {
-
-            method:"POST",
-
-            headers:{
-                "Content-Type":"application/json"
-            },
-
-            body:JSON.stringify({
-
-                email: email,
-
-                password: password
-
-            })
-
-        }
-    );
+    try{
 
 
-    const data = await response.json();
+        const response = await fetch(
+            "http://127.0.0.1:8000/api/auth/login",
+            {
 
-    console.log(data);
+                method:"POST",
 
+                headers:{
+                    "Content-Type":"application/json"
+                },
 
+                body:JSON.stringify({
 
-    if(response.ok){
+                    email: email,
 
+                    password: password
 
-        localStorage.setItem(
-            "token",
-            data.token
+                })
+
+            }
         );
 
 
 
-        const role = data.user.role.toLowerCase();
+        const data = await response.json();
 
 
-        localStorage.setItem(
-            "role",
-            role
-        );
+        console.log("Login Response:", data);
 
 
 
-        alert("Login Successful");
+        if(response.ok){
+
+
+            // Save JWT token
+
+            localStorage.setItem(
+                "token",
+                data.token || data.access_token
+            );
 
 
 
-        if(role === "user"){
+            // Get role safely
 
-            window.location.href="user-dashboard.html";
-
-        }
-
-
-        else if(role === "admin"){
-
-            window.location.href="admin-dashboard.html";
-
-        }
+            const role = 
+            (data.role || "user").toLowerCase();
 
 
-        else if(role === "consultant"){
 
-            window.location.href="consultant-dashboard.html";
+            localStorage.setItem(
+                "role",
+                role
+            );
 
-        }
 
 
-        else if(role === "dermatologist"){
+            alert("Login Successful");
 
-            window.location.href="dermatologist-dashboard.html";
+
+
+            // Role based dashboard redirect
+
+            if(role === "user"){
+
+                window.location.href =
+                "user-dashboard.html";
+
+            }
+
+
+            else if(role === "admin"){
+
+                window.location.href =
+                "admin-dashboard.html";
+
+            }
+
+
+            else if(role === "consultant"){
+
+                window.location.href =
+                "consultant-dashboard.html";
+
+            }
+
+
+            else if(role === "dermatologist"){
+
+                window.location.href =
+                "dermatologist-dashboard.html";
+
+            }
+
+
+            else{
+
+                window.location.href =
+                "user-dashboard.html";
+
+            }
+
+
 
         }
 
 
         else{
 
-            alert("Role not found: " + role);
+
+            alert(
+                data.detail || "Login failed"
+            );
+
 
         }
+
 
 
     }
 
 
-    else{
+    catch(error){
 
-        alert(data.detail || "Login failed");
+
+        console.error(
+            "Login Error:",
+            error
+        );
+
+
+        alert(
+            "Server error"
+        );
+
 
     }
 
@@ -112,8 +156,10 @@ async function login(){
 
 function googleLogin(){
 
+
     window.location.href =
     "http://127.0.0.1:8000/auth/google";
+
 
 }
 
@@ -121,12 +167,18 @@ function googleLogin(){
 
 
 
+// Logout
+
 function logout(){
+
 
     localStorage.removeItem("token");
 
     localStorage.removeItem("role");
 
-    window.location.href="login.html";
+
+    window.location.href =
+    "login.html";
+
 
 }

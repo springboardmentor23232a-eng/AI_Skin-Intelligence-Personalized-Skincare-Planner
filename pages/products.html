@@ -2,70 +2,1151 @@
 <html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skin AI | Recommended Products</title>
 
-<title>Skincare Products</title>
+    <link rel="stylesheet" href="../css/dashboard.css">
 
-<link rel="stylesheet" href="../css/dashboard.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+        /* ==========================================
+           PRODUCT IMAGE AREA
+        ========================================== */
+
+        .product-image-area {
+            position: relative;
+            min-height: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding: 35px 20px;
+        }
+
+        /* ==========================================
+           REAL PRODUCT IMAGE
+        ========================================== */
+
+        .real-product-image {
+            width: 190px;
+            height: 190px;
+            object-fit: contain;
+            display: block;
+            margin: auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* ==========================================
+           FALLBACK PRODUCT
+        ========================================== */
+
+        .fallback-product {
+            width: 190px;
+            height: 190px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .fallback-product.show {
+            display: flex;
+        }
+
+        /* ==========================================
+           FALLBACK BOTTLE
+        ========================================== */
+
+        .fake-bottle {
+            width: 82px;
+            height: 145px;
+            border-radius: 14px 14px 18px 18px;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fake-bottle::before {
+            content: "";
+            position: absolute;
+            width: 45px;
+            height: 22px;
+            top: -18px;
+            left: 18px;
+            border-radius: 5px 5px 2px 2px;
+            background: #ffffff;
+            border: 1px solid #ddd;
+        }
+
+        .fake-bottle::after {
+            content: "SPF 50";
+            position: absolute;
+            width: 60px;
+            padding: 7px 0;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: #333;
+            background: #ffffff;
+            border-radius: 5px;
+        }
+
+        .sunscreen-bottle {
+            background: linear-gradient(145deg, #fff4c2, #f7d66a);
+            border: 2px solid #e2bd3e;
+        }
+
+        .cleanser-bottle {
+            background: linear-gradient(145deg, #d9f5ff, #7ed8ee);
+            border: 2px solid #52b8d2;
+        }
+
+        .moisturizer-bottle {
+            background: linear-gradient(145deg, #e9ddff, #b89be8);
+            border: 2px solid #9670d0;
+        }
+
+        .serum-bottle {
+            width: 65px;
+            height: 125px;
+            border-radius: 10px 10px 14px 14px;
+            background: linear-gradient(145deg, #ffd89b, #e99b38);
+            border: 2px solid #c77c1d;
+        }
+
+        .serum-bottle::before {
+            width: 25px;
+            left: 18px;
+            background: #222;
+        }
+
+        .serum-bottle::after {
+            content: "VIT C";
+            width: 48px;
+            font-size: 10px;
+        }
+
+        /* ==========================================
+           PRODUCT CATEGORY
+        ========================================== */
+
+        .product-category {
+            position: absolute;
+            top: 18px;
+            left: 18px;
+            z-index: 5;
+        }
+
+        /* ==========================================
+           MATCH BADGE
+        ========================================== */
+
+        .match-badge {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            z-index: 5;
+        }
+
+        /* ==========================================
+           MOBILE
+        ========================================== */
+
+        @media (max-width: 768px) {
+
+            .product-image-area {
+                min-height: 240px;
+            }
+
+            .real-product-image {
+                width: 160px;
+                height: 160px;
+            }
+
+            .fallback-product {
+                width: 160px;
+                height: 160px;
+            }
+        }
+    </style>
 
 </head>
 
-
 <body>
 
+<!-- ==========================================
+     SIDEBAR
+=========================================== -->
 
-<div class="sidebar">
+<aside class="sidebar">
 
-<h2>Skin AI</h2>
+    <div class="brand">
 
-<ul>
+        <div class="brand-icon">
+            <i class="fa-solid fa-leaf"></i>
+        </div>
 
-<li><a href="user-dashboard.html">Dashboard</a></li>
+        <div>
+            <h2>Skin AI</h2>
+            <span>Intelligence Platform</span>
+        </div>
 
-<li><a href="assessment.html">Assessment</a></li>
+    </div>
 
-<li><a href="products.html">Products</a></li>
+    <nav>
 
-<li><a href="progress.html">Progress</a></li>
+        <p class="nav-title">MAIN MENU</p>
 
-<li><a href="#" onclick="logout()">Logout</a></li>
+        <ul>
 
-</ul>
+            <li>
+                <a href="user-dashboard.html">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
 
-</div>
+            <li>
+                <a href="profile.html">
+                    <i class="fa-solid fa-user"></i>
+                    <span>Profile</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="assessment.html">
+                    <i class="fa-solid fa-camera"></i>
+                    <span>Skin Assessment</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="products.html" class="active">
+                    <i class="fa-solid fa-pump-soap"></i>
+                    <span>Products</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="progress.html">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Progress</span>
+                </a>
+            </li>
+
+        </ul>
+
+        <p class="nav-title secondary-title">ACCOUNT</p>
+
+        <ul>
+
+            <li>
+                <a href="#" onclick="logout()">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span>
+                </a>
+            </li>
+
+        </ul>
+
+    </nav>
+
+</aside>
 
 
+<!-- ==========================================
+     MAIN CONTENT
+=========================================== -->
+
+<main class="main">
+
+    <!-- PAGE HEADER -->
+
+    <header class="dashboard-header">
+
+        <div>
+
+            <span class="welcome-label">
+                AI PRODUCT INTELLIGENCE
+            </span>
+
+            <h1>Recommended Products</h1>
+
+            <p>
+                AI-personalized skincare products based on your skin profile
+                and latest assessment.
+            </p>
+
+        </div>
+
+        <div class="header-status">
+
+            <span class="status-dot"></span>
+
+            <span>AI Recommendations Active</span>
+
+        </div>
+
+    </header>
 
 
-<div class="main">
+    <!-- ==========================================
+         AI PROFILE SUMMARY
+    =========================================== -->
+
+    <section class="product-profile-summary">
+
+        <div class="product-profile-icon">
+
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+
+        </div>
+
+        <div class="product-profile-content">
+
+            <span class="section-label">
+                YOUR AI SKIN PROFILE
+            </span>
+
+            <h2>Personalized For Your Skin</h2>
+
+            <p>
+                Based on your latest AI skin assessment, these products
+                have been selected to support your current skin needs.
+            </p>
+
+            <div class="skin-tags">
+
+                <span>
+                    <i class="fa-solid fa-droplet"></i>
+                    Combination Skin
+                </span>
+
+                <span>
+                    <i class="fa-solid fa-face-smile"></i>
+                    Mild Acne
+                </span>
+
+                <span>
+                    <i class="fa-solid fa-sun"></i>
+                    Dark Spots
+                </span>
+
+                <span>
+                    <i class="fa-solid fa-heart-pulse"></i>
+                    Good Hydration
+                </span>
+
+            </div>
+
+        </div>
+
+        <div class="ai-score-box">
+
+            <span>AI MATCH</span>
+
+            <strong>92%</strong>
+
+            <small>Excellent Match</small>
+
+        </div>
+
+    </section>
 
 
-<h1>Recommended Skincare Products 🧴</h1>
+    <!-- ==========================================
+         PRODUCT SECTION
+    =========================================== -->
 
-<p>AI personalised product recommendations</p>
+    <section class="product-section">
+
+        <div class="section-heading">
+
+            <div>
+
+                <span class="section-label">
+                    PERSONALIZED SELECTION
+                </span>
+
+                <h2>Top Recommended Products</h2>
+
+            </div>
+
+            <span class="updated-text">
+                Updated from latest assessment
+            </span>
+
+        </div>
 
 
+        <div class="professional-product-grid">
 
 
-<div class="cards" id="productContainer">
+            <!-- ======================================
+                 PRODUCT 1 - CLEANSER
+            ======================================= -->
+
+            <article class="professional-product-card">
+
+                <div class="product-image-area">
+
+                    <div class="product-category">
+                        CLEANSER
+                    </div>
+
+                    <img
+                        src="../images/cleanser.png"
+                        alt="Gentle Cleanser"
+                        class="real-product-image"
+                        onerror="showFallback(this, 'cleanserFallback')"
+                    >
+
+                    <div
+                        id="cleanserFallback"
+                        class="fallback-product"
+                    >
+
+                        <div class="fake-bottle cleanser-bottle"></div>
+
+                    </div>
+
+                    <div class="match-badge">
+
+                        <i class="fa-solid fa-check"></i>
+
+                        96% Match
+
+                    </div>
+
+                </div>
 
 
-<p>Loading recommendations...</p>
+                <div class="product-content">
+
+                    <span class="product-type">
+                        DAILY CLEANSING
+                    </span>
+
+                    <h3>Gentle Cleanser</h3>
+
+                    <p class="product-description">
+                        A mild cleanser designed to remove excess oil
+                        and impurities without stripping the skin.
+                    </p>
+
+                    <div class="product-rating">
+
+                        <span class="stars">
+                            ★★★★★
+                        </span>
+
+                        <strong>4.8</strong>
+
+                        <span>
+                            Excellent
+                        </span>
+
+                    </div>
+
+                    <div class="product-benefits">
+
+                        <span>
+                            <i class="fa-solid fa-check"></i>
+                            Acne Care
+                        </span>
+
+                        <span>
+                            <i class="fa-solid fa-check"></i>
+                            Oil Control
+                        </span>
+
+                        <span>
+                            <i class="fa-solid fa-check"></i>
+                            Gentle
+                        </span>
+
+                    </div>
+
+                    <div class="ai-reason">
+
+                        <i class="fa-solid fa-brain"></i>
+
+                        <div>
+
+                            <strong>
+                                Why AI recommends this
+                            </strong>
+
+                            <p>
+                                Suitable for combination skin and
+                                mild acne concerns.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="product-footer">
+
+                        <div>
+
+                            <small>
+                                Recommended for
+                            </small>
+
+                            <strong>
+                                Morning &amp; Evening
+                            </strong>
+
+                        </div>
+
+                        <button
+                            class="product-btn"
+                            type="button"
+                            onclick="viewProduct('Gentle Cleanser')"
+                        >
+
+                            View Product
+
+                            <i class="fa-solid fa-arrow-right"></i>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </article>
 
 
-</div>
+            <!-- ======================================
+                 PRODUCT 2 - MOISTURIZER
+            ======================================= -->
+
+            <article class="professional-product-card">
+
+                <div class="product-image-area">
+
+                    <div class="product-category">
+                        MOISTURIZER
+                    </div>
+
+                    <img
+                        src="../images/moisturizer.png"
+                        alt="Hydrating Moisturizer"
+                        class="real-product-image"
+                        onerror="showFallback(this, 'moisturizerFallback')"
+                    >
+
+                    <div
+                        id="moisturizerFallback"
+                        class="fallback-product"
+                    >
+
+                        <div class="fake-bottle moisturizer-bottle"></div>
+
+                    </div>
+
+                    <div class="match-badge">
+
+                        <i class="fa-solid fa-check"></i>
+
+                        94% Match
+
+                    </div>
+
+                </div>
 
 
+                <div class="product-content">
+
+                    <span class="product-type">
+                        HYDRATION CARE
+                    </span>
+
+                    <h3>Hydrating Moisturizer</h3>
+
+                    <p class="product-description">
+                        A lightweight moisturizer that helps maintain
+                        skin hydration while supporting the skin barrier.
+                    </p>
+
+                    <div class="product-rating">
+
+                        <span class="stars">
+                            ★★★★★
+                        </span>
+
+                        <strong>4.7</strong>
+
+                        <span>
+                            Excellent
+                        </span>
+
+                    </div>
+
+                    <div class="product-benefits">
+
+                        <span>
+                            <i class="fa-solid fa-check"></i>
+                            Hydration
+                        </span>
+
+                        <span>
+                            <i class="fa-solid fa-check"></i>
+                            Barrier Care
+                        </span>
+
+                        <span>
+                            <i class="fa-solid fa-check"></i>
+                            Lightweight
+                        </span>
+
+                    </div>
+
+                    <div class="ai-reason">
+
+                        <i class="fa-solid fa-brain"></i>
+
+                        <div>
+
+                            <strong>
+                                Why AI recommends this
+                            </strong>
+
+                            <p>
+                                Your assessment indicates good hydration,
+                                so lightweight maintenance is recommended.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="product-footer">
+
+                        <div>
+
+                            <small>
+                                Recommended for
+                            </small>
+
+                            <strong>
+                                Morning &amp; Evening
+                            </strong>
+
+                        </div>
+
+                        <button
+                            class="product-btn"
+                            type="button"
+                            onclick="viewProduct('Hydrating Moisturizer')"
+                        >
+
+                            View Product
+
+                            <i class="fa-solid fa-arrow-right"></i>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </article>
 
 
-</div>
+            <!-- ======================================
+                 PRODUCT 3 - SUNSCREEN
+            ======================================= -->
+
+            <article class="professional-product-card">
+
+                <div class="product-image-area">
+
+                    <div class="product-category">
+                        SUNSCREEN
+                    </div>
 
 
+                    <!-- IMPORTANT:
+                         YOUR IMAGE FILE IS sunscreen.png
+                    -->
+
+                    <img
+                        id="sunscreenImage"
+                        src="../images/sunscreen.png"
+                        alt="Sunscreen SPF 50"
+                        class="real-product-image"
+                        onerror="showSunscreenFallback()"
+                    >
+
+
+                    <!-- SUNSCREEN FALLBACK -->
+
+                    <div
+                        id="sunscreenFallback"
+                        class="fallback-product"
+                    >
+
+                        <div class="fake-bottle sunscreen-bottle"></div>
+
+                    </div>
+
+
+                    <div class="match-badge">
+
+                        <i class="fa-solid fa-check"></i>
+
+                        98% Match
+
+                    </div>
+
+                </div>
+
+
+                <div class="product-content">
+
+                    <span class="product-type">
+                        UV PROTECTION
+                    </span>
+
+                    <h3>Sunscreen SPF 50</h3>
+
+                    <p class="product-description">
+                        Broad-spectrum daily sun protection that helps
+                        protect the skin from UV-related damage.
+                    </p>
+
+                    <div class="product-rating">
+
+                        <span class="stars">
+                            ★★★★★
+                        </span>
+
+                        <strong>4.9</strong>
+
+                        <span>
+                            Outstanding
+                        </span>
+
+                    </div>
+
+                    <div class="product-benefits">
+
+                        <span>
+                            <i class="fa-solid fa-check"></i>
+                            SPF 50
+                        </span>
+
+                        <span>
+                            <i class="fa-solid fa-check"></i>
+                            UV Protection
+                        </span>
+
+                        <span>
+                            <i class="fa-solid fa-check"></i>
+                            Daily Use
+                        </span>
+
+                    </div>
+
+                    <div class="ai-reason">
+
+                        <i class="fa-solid fa-brain"></i>
+
+                        <div>
+
+                            <strong>
+                                Why AI recommends this
+                            </strong>
+
+                            <p>
+                                Consistent sunscreen use can help protect
+                                skin and support dark-spot management.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="product-footer">
+
+                        <div>
+
+                            <small>
+                                Recommended for
+                            </small>
+
+                            <strong>
+                                Every Morning
+                            </strong>
+
+                        </div>
+
+                        <button
+                            class="product-btn"
+                            type="button"
+                            onclick="viewProduct('Sunscreen SPF 50')"
+                        >
+
+                            View Product
+
+                            <i class="fa-solid fa-arrow-right"></i>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+
+            <!-- ======================================
+                 PRODUCT 4 - SERUM
+            ======================================= -->
+
+            <article class="professional-product-card">
+
+                <div class="product-image-area">
+
+                    <div class="product-category">
+                        SERUM
+                    </div>
+
+                    <img
+                        src="../images/serum.png"
+                        alt="Vitamin C Serum"
+                        class="real-product-image"
+                        onerror="showFallback(this, 'serumFallback')"
+                    >
+
+                    <div
+                        id="serumFallback"
+                        class="fallback-product"
+                    >
+
+                        <div class="fake-bottle serum-bottle"></div>
+
+                    </div>
+
+                    <div class="match-badge">
+
+                        <i class="fa-solid fa-check"></i>
+
+                        91% Match
+
+                    </div>
+
+                </div>
+
+
+                <div class="product-content">
+
+                    <span class="product-type">
+                        DARK-SPOT CARE
+                    </span>
+
+                    <h3>Vitamin C Serum</h3>
+
+                    <p class="product-description">
+                        A brightening serum designed to support a more
+                        even-looking skin tone and reduce the appearance
+                        of dark spots.
+                    </p>
+
+                    <div class="product-rating">
+
+                        <span class="stars">
+                            ★★★★★
+                        </span>
+
+                        <strong>4.6</strong>
+
+                        <span>
+                            Very Good
+                        </span>
+
+                    </div>
+
+                    <div class="product-benefits">
+
+                        <span>
+                            <i class="fa-solid fa-check"></i>
+                            Brightening
+                        </span>
+
+                        <span>
+                            <i class="fa-solid fa-check"></i>
+                            Dark Spots
+                        </span>
+
+                        <span>
+                            <i class="fa-solid fa-check"></i>
+                            Antioxidant
+                        </span>
+
+                    </div>
+
+                    <div class="ai-reason">
+
+                        <i class="fa-solid fa-brain"></i>
+
+                        <div>
+
+                            <strong>
+                                Why AI recommends this
+                            </strong>
+
+                            <p>
+                                Your latest assessment detected some
+                                dark spots, making targeted care relevant.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="product-footer">
+
+                        <div>
+
+                            <small>
+                                Recommended for
+                            </small>
+
+                            <strong>
+                                Evening Routine
+                            </strong>
+
+                        </div>
+
+                        <button
+                            class="product-btn"
+                            type="button"
+                            onclick="viewProduct('Vitamin C Serum')"
+                        >
+
+                            View Product
+
+                            <i class="fa-solid fa-arrow-right"></i>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+        </div>
+
+    </section>
+
+
+    <!-- ==========================================
+         ROUTINE PLACEMENT
+    =========================================== -->
+
+    <section class="product-routine-box">
+
+        <div class="routine-box-icon">
+
+            <i class="fa-solid fa-list-check"></i>
+
+        </div>
+
+        <div>
+
+            <span class="section-label">
+                AI ROUTINE PLACEMENT
+            </span>
+
+            <h2>
+                How These Products Fit Your Routine
+            </h2>
+
+            <p>
+                Your recommended products are organized into a simple
+                skincare routine based on your current AI skin profile.
+            </p>
+
+        </div>
+
+        <div class="mini-routine">
+
+            <div>
+
+                <span>AM</span>
+
+                <strong>
+                    Cleanser → Moisturizer → SPF 50
+                </strong>
+
+            </div>
+
+            <div>
+
+                <span>PM</span>
+
+                <strong>
+                    Cleanser → Vitamin C → Moisturizer
+                </strong>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ==========================================
+         DISCLAIMER
+    =========================================== -->
+
+    <section class="product-disclaimer">
+
+        <i class="fa-solid fa-circle-info"></i>
+
+        <p>
+            Product recommendations are generated using your profile
+            and AI skin assessment results. Always review product
+            ingredients and perform a patch test when appropriate.
+            AI recommendations are for informational purposes and
+            do not replace professional dermatological advice.
+        </p>
+
+    </section>
+
+
+    <!-- ==========================================
+         FOOTER
+    =========================================== -->
+
+    <footer class="dashboard-footer">
+
+        <p>
+
+            <i class="fa-solid fa-shield-heart"></i>
+
+            Skin AI • Personalized Skin Intelligence
+
+        </p>
+
+        <span>
+            AI-generated recommendations are for informational purposes.
+        </span>
+
+    </footer>
+
+</main>
+
+
+<!-- ==========================================
+     JAVASCRIPT
+========================================== -->
+
+<script src="../js/auth-check.js"></script>
 
 <script src="../js/products.js"></script>
 
+<script>
+
+    /* ==========================================
+       IMAGE FALLBACK
+    ========================================== */
+
+    function showFallback(image, fallbackId) {
+
+        console.log("Image not found:", image.src);
+
+        image.style.display = "none";
+
+        const fallback = document.getElementById(fallbackId);
+
+        if (fallback) {
+            fallback.classList.add("show");
+        }
+    }
+
+
+    /* ==========================================
+       SUNSCREEN IMAGE FALLBACK
+    ========================================== */
+
+    function showSunscreenFallback() {
+
+        console.log(
+            "Sunscreen image could not be loaded."
+        );
+
+        const image =
+            document.getElementById("sunscreenImage");
+
+        const fallback =
+            document.getElementById("sunscreenFallback");
+
+        if (image) {
+            image.style.display = "none";
+        }
+
+        if (fallback) {
+            fallback.classList.add("show");
+        }
+    }
+
+
+    /* ==========================================
+       PRODUCT BUTTON
+    ========================================== */
+
+    function viewProduct(productName) {
+
+        alert(
+            productName +
+            "\n\nThis product recommendation is personalized using your AI skin profile."
+        );
+
+    }
+
+
+    /* ==========================================
+       CHECK PRODUCT IMAGES
+    ========================================== */
+
+    window.addEventListener("load", function () {
+
+        console.log("Products page loaded.");
+
+        const images =
+            document.querySelectorAll(".real-product-image");
+
+        images.forEach(function (image) {
+
+            console.log(
+                "Checking image:",
+                image.getAttribute("src")
+            );
+
+        });
+
+    });
+
+</script>
 
 </body>
 

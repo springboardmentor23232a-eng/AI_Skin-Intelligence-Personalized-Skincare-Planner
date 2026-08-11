@@ -3,12 +3,353 @@
 
 <head>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Skin Assessment</title>
+    <title>AI Skin Assessment</title>
 
-<link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f5f7f6;
+        }
+
+        .assessment-container {
+            max-width: 1180px;
+            margin: auto;
+            padding-bottom: 50px;
+        }
+
+        /* ================= HEADER ================= */
+
+        .assessment-header {
+            margin-bottom: 28px;
+        }
+
+        .assessment-header h1 {
+            font-size: 30px;
+            font-weight: 600;
+            color: #1f2933;
+            margin-bottom: 8px;
+        }
+
+        .assessment-header p {
+            color: #6b7280;
+            font-size: 15px;
+        }
+
+        /* ================= UPLOAD CARD ================= */
+
+        .upload-section {
+            background: #ffffff;
+            padding: 32px;
+            border-radius: 16px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 25px;
+        }
+
+        .upload-box {
+            border: 1.5px dashed #b7c9bd;
+            border-radius: 14px;
+            padding: 38px 25px;
+            text-align: center;
+            background: #fafcfb;
+        }
+
+        .upload-icon {
+            font-size: 38px;
+            margin-bottom: 12px;
+        }
+
+        .upload-box h2 {
+            color: #263238;
+            font-size: 21px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .upload-box p {
+            color: #70777b;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        /* ================= BUTTONS ================= */
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .upload-btn,
+        .camera-btn,
+        .analyze-btn {
+            border: none;
+            padding: 12px 22px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .upload-btn {
+            background: #2f6f4e;
+            color: white;
+        }
+
+        .camera-btn {
+            background: #ffffff;
+            color: #2f6f4e;
+            border: 1px solid #2f6f4e;
+        }
+
+        .upload-btn:hover {
+            background: #245b3f;
+        }
+
+        .camera-btn:hover {
+            background: #f0f7f3;
+        }
+
+        .analyze-btn {
+            background: #2f6f4e;
+            color: white;
+            margin-top: 18px;
+            display: none;
+        }
+
+        .analyze-btn:hover {
+            background: #245b3f;
+        }
+
+        /* ================= CAMERA ================= */
+
+        #cameraContainer {
+            display: none;
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        #cameraVideo {
+            width: 100%;
+            max-width: 520px;
+            border-radius: 12px;
+            border: 1px solid #dfe5e1;
+        }
+
+        #captureBtn {
+            margin-top: 12px;
+            background: #2f6f4e;
+            color: white;
+            border: none;
+            padding: 11px 22px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* ================= PREVIEW ================= */
+
+        .preview-section {
+            display: none;
+            margin-top: 28px;
+            padding-top: 25px;
+            border-top: 1px solid #e5e7eb;
+            text-align: center;
+        }
+
+        .preview-section h3 {
+            color: #374151;
+            font-size: 16px;
+            margin-bottom: 14px;
+        }
+
+        #imagePreview {
+            width: 260px;
+            height: 260px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 1px solid #dfe5e1;
+        }
+
+        /* ================= RESULTS ================= */
+
+        .result-section {
+            background: #ffffff;
+            padding: 32px;
+            border-radius: 16px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .result-header h2 {
+            color: #1f2933;
+            font-size: 21px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .status-badge {
+            background: #edf7f0;
+            color: #2f6f4e;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .result-description {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 22px;
+        }
+
+        /* ================= RESULT GRID ================= */
+
+        .result-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .result-card {
+            background: #fafbfb;
+            border: 1px solid #e6ebe8;
+            border-radius: 12px;
+            padding: 22px;
+            min-height: 125px;
+        }
+
+        .result-card h3 {
+            color: #6b7280;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+
+        .result-card h2 {
+            color: #263238;
+            font-size: 23px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        /* SCORE */
+
+        .score-card {
+            background: #f3f8f5;
+            border-color: #d9e9df;
+        }
+
+        .score-card h2 {
+            color: #2f6f4e;
+            font-size: 32px;
+        }
+
+        /* ================= DETAILED ANALYSIS ================= */
+
+        .details-title {
+            margin-top: 32px;
+            margin-bottom: 16px;
+            font-size: 18px;
+            color: #263238;
+            font-weight: 600;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .detail-item {
+            padding: 18px;
+            border: 1px solid #e6ebe8;
+            border-radius: 12px;
+            background: #ffffff;
+        }
+
+        .detail-item span {
+            display: block;
+            color: #7a8287;
+            font-size: 13px;
+            margin-bottom: 7px;
+        }
+
+        .detail-item strong {
+            color: #263238;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        /* ================= RECOMMENDATION ================= */
+
+        .recommendation {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f7faf8;
+            border-left: 4px solid #2f6f4e;
+            border-radius: 8px;
+        }
+
+        .recommendation h3 {
+            margin: 0 0 8px;
+            font-size: 16px;
+            color: #263238;
+        }
+
+        .recommendation p {
+            margin: 0;
+            color: #687278;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width: 800px) {
+
+            .result-cards {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+        @media (max-width: 550px) {
+
+            .result-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .upload-section,
+            .result-section {
+                padding: 20px;
+            }
+
+        }
+
+    </style>
 
 </head>
 
@@ -16,70 +357,368 @@
 <body>
 
 
+<!-- SIDEBAR -->
+
 <div class="sidebar">
 
-<h2>Skin AI</h2>
+    <h2>Skin AI</h2>
 
-<ul>
+    <ul>
 
-<li><a href="user-dashboard.html">Dashboard</a></li>
+        <li>
+            <a href="user-dashboard.html">Dashboard</a>
+        </li>
 
-<li><a href="profile.html">Profile</a></li>
+        <li>
+            <a href="assessment.html">Assessment</a>
+        </li>
 
-<li><a href="assessment.html">Assessment</a></li>
+        <li>
+            <a href="products.html">Products</a>
+        </li>
 
-<li><a href="products.html">Products</a></li>
+        <li>
+            <a href="progress.html">Progress</a>
+        </li>
 
-<li><a href="progress.html">Progress</a></li>
+        <li>
+            <a href="#" onclick="logout()">Logout</a>
+        </li>
 
-<li><a href="#" onclick="logout()">Logout</a></li>
-
-</ul>
+    </ul>
 
 </div>
 
 
+<!-- MAIN -->
 
 <div class="main">
 
-
-<h1>Skin Assessment</h1>
-
-
-<div class="card">
+    <div class="assessment-container">
 
 
-<h2>Latest Skin Analysis</h2>
+        <!-- HEADER -->
+
+        <div class="assessment-header">
+
+            <h1>AI Skin Assessment</h1>
+
+            <p>
+                Upload a facial image to receive an AI-powered skin analysis.
+            </p>
+
+        </div>
 
 
-<p>
-<b>Acne Detection:</b>
-<span id="acne">Loading...</span>
-</p>
+        <!-- UPLOAD -->
+
+        <div class="upload-section">
+
+            <div class="upload-box">
+
+                <div class="upload-icon">
+                    📷
+                </div>
+
+                <h2>
+                    Upload or Capture Skin Image
+                </h2>
+
+                <p>
+                    Use a clear, well-lit image for the most reliable analysis.
+                </p>
 
 
-<p>
-<b>Hydration Level:</b>
-<span id="hydration">Loading...</span>
-</p>
+                <div class="button-group">
+
+                    <label class="upload-btn">
+
+                        Upload Image
+
+                        <input
+                            type="file"
+                            id="imageUpload"
+                            accept="image/*"
+                            hidden
+                        >
+
+                    </label>
 
 
-<p>
-<b>Dark Spots:</b>
-<span id="spots">Loading...</span>
-</p>
+                    <button
+                        class="camera-btn"
+                        type="button"
+                        onclick="openCamera()">
+
+                        Capture Photo
+
+                    </button>
+
+                </div>
 
 
+                <!-- CAMERA -->
+
+                <div id="cameraContainer">
+
+                    <video
+                        id="cameraVideo"
+                        autoplay>
+                    </video>
+
+                    <br>
+
+                    <button
+                        id="captureBtn"
+                        type="button"
+                        onclick="capturePhoto()">
+
+                        Take Photo
+
+                    </button>
+
+                </div>
+
+
+                <!-- PREVIEW -->
+
+                <div
+                    class="preview-section"
+                    id="previewSection">
+
+                    <h3>
+                        Image Preview
+                    </h3>
+
+                    <img
+                        id="imagePreview"
+                        alt="Skin image preview">
+
+                    <br>
+
+                    <button
+                        class="analyze-btn"
+                        id="analyzeBtn"
+                        type="button">
+
+                        Analyze Skin
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- RESULTS -->
+
+        <div class="result-section">
+
+            <div class="result-header">
+
+                <h2>
+                    AI Analysis Results
+                </h2>
+
+                <span
+                    class="status-badge"
+                    id="analysisStatus">
+
+                    Awaiting Analysis
+
+                </span>
+
+            </div>
+
+
+            <p class="result-description">
+
+                Your skin assessment results will be displayed here after
+                image analysis.
+
+            </p>
+
+
+            <!-- MAIN RESULTS -->
+
+            <div class="result-cards">
+
+
+                <div class="result-card score-card">
+
+                    <h3>
+                        Skin Health Score
+                    </h3>
+
+                    <h2 id="skinScore">
+                        --
+                    </h2>
+
+                </div>
+
+
+                <div class="result-card">
+
+                    <h3>
+                        Skin Type
+                    </h3>
+
+                    <h2 id="skinType">
+                        --
+                    </h2>
+
+                </div>
+
+
+                <div class="result-card">
+
+                    <h3>
+                        Primary Concern
+                    </h3>
+
+                    <h2 id="mainConcern">
+                        --
+                    </h2>
+
+                </div>
+
+
+                <div class="result-card">
+
+                    <h3>
+                        Hydration
+                    </h3>
+
+                    <h2 id="hydration">
+                        --
+                    </h2>
+
+                </div>
+
+
+                <div class="result-card">
+
+                    <h3>
+                        Acne Level
+                    </h3>
+
+                    <h2 id="acneLevel">
+                        --
+                    </h2>
+
+                </div>
+
+
+                <div class="result-card">
+
+                    <h3>
+                        Skin Condition
+                    </h3>
+
+                    <h2 id="skinCondition">
+                        --
+                    </h2>
+
+                </div>
+
+
+            </div>
+
+
+            <!-- DETAILED ANALYSIS -->
+
+            <h3 class="details-title">
+                Detailed Assessment
+            </h3>
+
+
+            <div class="detail-grid">
+
+
+                <div class="detail-item">
+
+                    <span>
+                        Dark Spots
+                    </span>
+
+                    <strong id="darkSpots">
+                        --
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span>
+                        Redness
+                    </span>
+
+                    <strong id="redness">
+                        --
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span>
+                        Texture
+                    </span>
+
+                    <strong id="texture">
+                        --
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span>
+                        Sensitivity
+                    </span>
+
+                    <strong id="sensitivity">
+                        --
+                    </strong>
+
+                </div>
+
+
+            </div>
+
+
+            <!-- RECOMMENDATION -->
+
+            <div class="recommendation">
+
+                <h3>
+                    AI Recommendation
+                </h3>
+
+                <p id="recommendationText">
+
+                    Complete an assessment to receive personalized
+                    skincare recommendations.
+
+                </p>
+
+            </div>
+
+
+        </div>
+
+
+    </div>
 
 </div>
-
-
-</div>
-
 
 
 <script src="../js/assessment.js"></script>
-
 
 </body>
 

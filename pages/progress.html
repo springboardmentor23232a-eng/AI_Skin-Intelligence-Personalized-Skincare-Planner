@@ -1,123 +1,1417 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
 
+```
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Skin Progress</title>
+<title>Skin AI | Progress Tracking</title>
 
 <link rel="stylesheet" href="../css/dashboard.css">
 
-</head>
+<link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
 
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<style>
+
+    /* ==========================================
+       PROGRESS PAGE
+    ========================================== */
+
+    .progress-page {
+        padding-bottom: 40px;
+    }
+
+    /* ==========================================
+       HEADER
+    ========================================== */
+
+    .progress-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 25px;
+        margin-bottom: 30px;
+    }
+
+    .progress-header h1 {
+        margin: 8px 0 8px;
+    }
+
+    .progress-header p {
+        margin: 0;
+        color: #6b7280;
+        max-width: 700px;
+    }
+
+    .progress-status {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        background: #ffffff;
+        padding: 12px 18px;
+        border-radius: 12px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        font-size: 13px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .progress-status-dot {
+        width: 9px;
+        height: 9px;
+        background: #22c55e;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    /* ==========================================
+       SCORE CARDS
+    ========================================== */
+
+    .score-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .score-card {
+        background: #ffffff;
+        border-radius: 18px;
+        padding: 25px;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #edf0f4;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+    }
+
+    .score-card::after {
+        content: "";
+        position: absolute;
+        width: 110px;
+        height: 110px;
+        right: -45px;
+        top: -45px;
+        border-radius: 50%;
+        background: rgba(99, 102, 241, 0.06);
+    }
+
+    .score-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+    }
+
+    .score-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+
+    .score-icon.current {
+        background: #eefcf4;
+        color: #16a34a;
+    }
+
+    .score-icon.previous {
+        background: #eff6ff;
+        color: #2563eb;
+    }
+
+    .score-icon.improvement {
+        background: #fff7ed;
+        color: #ea580c;
+    }
+
+    .score-label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: #6b7280;
+        letter-spacing: 0.4px;
+        text-transform: uppercase;
+    }
+
+    .score-value {
+        font-size: 40px;
+        font-weight: 700;
+        color: #1f2937;
+        line-height: 1.1;
+        margin: 8px 0;
+    }
+
+    .score-value.empty {
+        color: #9ca3af;
+        font-size: 30px;
+    }
+
+    .score-description {
+        font-size: 13px;
+        color: #8a93a3;
+    }
+
+    .score-progress {
+        height: 7px;
+        background: #eef1f5;
+        border-radius: 20px;
+        margin-top: 17px;
+        overflow: hidden;
+    }
+
+    .score-progress span {
+        display: block;
+        height: 100%;
+        width: 0%;
+        border-radius: 20px;
+        background: #22c55e;
+    }
+
+    /* ==========================================
+       MAIN CONTENT GRID
+    ========================================== */
+
+    .progress-main-grid {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 22px;
+        margin-bottom: 25px;
+    }
+
+    .progress-card {
+        background: #ffffff;
+        border: 1px solid #edf0f4;
+        border-radius: 18px;
+        padding: 25px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.04);
+    }
+
+    .card-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 22px;
+    }
+
+    .card-heading h2 {
+        margin: 0;
+        font-size: 19px;
+        color: #1f2937;
+    }
+
+    .card-heading span {
+        font-size: 12px;
+        color: #8a93a3;
+    }
+
+    /* ==========================================
+       REPORT SUMMARY
+    ========================================== */
+
+    .report-summary {
+        display: flex;
+        gap: 18px;
+        align-items: flex-start;
+        padding: 20px;
+        background: #f8fafc;
+        border-radius: 14px;
+        border: 1px solid #edf0f4;
+    }
+
+    .report-icon {
+        min-width: 48px;
+        width: 48px;
+        height: 48px;
+        border-radius: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #eef2ff;
+        color: #6366f1;
+        font-size: 20px;
+    }
+
+    .report-summary h3 {
+        margin: 0 0 7px;
+        font-size: 15px;
+        color: #374151;
+    }
+
+    .report-summary p {
+        margin: 0;
+        color: #6b7280;
+        line-height: 1.7;
+        font-size: 13px;
+    }
+
+    /* ==========================================
+       SKIN METRICS
+    ========================================== */
+
+    .metric-list {
+        display: flex;
+        flex-direction: column;
+        gap: 19px;
+    }
+
+    .metric-item {
+        display: grid;
+        grid-template-columns: 110px 1fr 45px;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .metric-name {
+        font-size: 13px;
+        font-weight: 500;
+        color: #4b5563;
+    }
+
+    .metric-bar {
+        height: 8px;
+        background: #eef1f5;
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .metric-bar span {
+        display: block;
+        height: 100%;
+        border-radius: 20px;
+        background: #6366f1;
+    }
+
+    .metric-score {
+        text-align: right;
+        font-size: 13px;
+        font-weight: 600;
+        color: #374151;
+    }
+
+    /* ==========================================
+       HISTORY
+    ========================================== */
+
+    .history-card {
+        margin-bottom: 25px;
+    }
+
+    .history-empty {
+        text-align: center;
+        padding: 40px 20px;
+        border: 1px dashed #d8dee8;
+        border-radius: 14px;
+        background: #fafbfc;
+    }
+
+    .history-empty i {
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #eef2ff;
+        color: #6366f1;
+        font-size: 23px;
+        margin-bottom: 15px;
+    }
+
+    .history-empty h3 {
+        margin: 0 0 7px;
+        color: #374151;
+        font-size: 16px;
+    }
+
+    .history-empty p {
+        margin: 0 auto;
+        max-width: 500px;
+        color: #8a93a3;
+        font-size: 13px;
+        line-height: 1.7;
+    }
+
+    /* ==========================================
+       AI INSIGHTS
+    ========================================== */
+
+    .insights-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+    }
+
+    .insight-item {
+        padding: 20px;
+        border-radius: 15px;
+        background: #fafbfc;
+        border: 1px solid #edf0f4;
+    }
+
+    .insight-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 11px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #eef2ff;
+        color: #6366f1;
+        margin-bottom: 14px;
+    }
+
+    .insight-item h3 {
+        margin: 0 0 7px;
+        font-size: 14px;
+        color: #374151;
+    }
+
+    .insight-item p {
+        margin: 0;
+        color: #7b8494;
+        font-size: 12px;
+        line-height: 1.7;
+    }
+
+    /* ==========================================
+       EMPTY STATE
+    ========================================== */
+
+    .no-assessment {
+        text-align: center;
+        padding: 45px 25px;
+        background: linear-gradient(135deg, #f8fafc, #ffffff);
+        border: 1px solid #e8edf3;
+        border-radius: 18px;
+        margin-bottom: 25px;
+    }
+
+    .no-assessment-icon {
+        width: 65px;
+        height: 65px;
+        border-radius: 18px;
+        background: #eef2ff;
+        color: #6366f1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 17px;
+        font-size: 26px;
+    }
+
+    .no-assessment h2 {
+        margin: 0 0 8px;
+        color: #374151;
+        font-size: 19px;
+    }
+
+    .no-assessment p {
+        max-width: 550px;
+        margin: 0 auto 20px;
+        color: #7b8494;
+        font-size: 13px;
+        line-height: 1.7;
+    }
+
+    .assessment-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        padding: 11px 20px;
+        border-radius: 10px;
+        background: #6366f1;
+        color: #ffffff;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+        transition: 0.2s ease;
+    }
+
+    .assessment-btn:hover {
+        transform: translateY(-1px);
+        opacity: 0.92;
+    }
+
+    /* ==========================================
+       FOOTER
+    ========================================== */
+
+    .progress-footer {
+        text-align: center;
+        padding: 25px 10px 10px;
+        color: #8a93a3;
+        font-size: 12px;
+    }
+
+    .progress-footer p {
+        margin: 0 0 5px;
+        font-weight: 500;
+    }
+
+    .progress-footer i {
+        margin-right: 5px;
+    }
+
+    /* ==========================================
+       RESPONSIVE
+    ========================================== */
+
+    @media (max-width: 1000px) {
+
+        .score-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .progress-main-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .insights-grid {
+            grid-template-columns: 1fr;
+        }
+
+    }
+
+    @media (max-width: 768px) {
+
+        .progress-header {
+            flex-direction: column;
+        }
+
+        .progress-status {
+            width: fit-content;
+        }
+
+        .metric-item {
+            grid-template-columns: 90px 1fr 40px;
+        }
+
+    }
+
+</style>
+```
+
+</head>
 
 <body>
 
+<!-- ==========================================
+     SIDEBAR
+========================================== -->
 
-<div class="sidebar">
+<aside class="sidebar">
 
-<h2>Skin AI</h2>
+```
+<div class="brand">
 
+    <div class="brand-icon">
+        <i class="fa-solid fa-leaf"></i>
+    </div>
 
-<ul>
-
-<li><a href="user-dashboard.html">Dashboard</a></li>
-
-<li><a href="assessment.html">Assessment</a></li>
-
-<li><a href="products.html">Products</a></li>
-
-<li><a href="progress.html">Progress</a></li>
-
-<li><a href="#" onclick="logout()">Logout</a></li>
-
-</ul>
-
+    <div>
+        <h2>Skin AI</h2>
+        <span>Intelligence Platform</span>
+    </div>
 
 </div>
 
 
+<nav>
+
+    <p class="nav-title">MAIN MENU</p>
+
+    <ul>
+
+        <li>
+            <a href="user-dashboard.html">
+                <i class="fa-solid fa-house"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="profile.html">
+                <i class="fa-solid fa-user"></i>
+                <span>Profile</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="assessment.html">
+                <i class="fa-solid fa-camera"></i>
+                <span>Skin Assessment</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="products.html">
+                <i class="fa-solid fa-pump-soap"></i>
+                <span>Products</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="progress.html" class="active">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Progress</span>
+            </a>
+        </li>
+
+    </ul>
 
 
-<div class="main">
+    <p class="nav-title secondary-title">
+        ACCOUNT
+    </p>
 
 
-<h1>Skin Progress Tracking 📈</h1>
+    <ul>
 
-<p>Monitor your skin improvement with AI analysis</p>
+        <li>
+            <a href="#" onclick="logout()">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Logout</span>
+            </a>
+        </li>
 
+    </ul>
 
+</nav>
+```
 
+</aside>
 
-<div class="cards">
+<!-- ==========================================
+     MAIN
+========================================== -->
 
+<main class="main progress-page">
 
-<div class="card">
+```
+<!-- ==========================================
+     HEADER
+=========================================== -->
 
-<h3>Current Skin Score</h3>
+<header class="progress-header">
 
-<h2 id="currentScore">Loading...</h2>
+    <div>
 
-<p>Latest AI Score</p>
+        <span class="welcome-label">
+            AI SKIN MONITORING
+        </span>
 
-</div>
+        <h1>Skin Progress Tracking</h1>
 
+        <p>
+            Monitor your skin improvement over time using
+            AI-powered assessment results and personalized insights.
+        </p>
 
-
-
-<div class="card">
-
-<h3>Previous Score</h3>
-
-<h2 id="previousScore">Loading...</h2>
-
-<p>Previous Assessment</p>
-
-</div>
-
-
-
-
-<div class="card">
-
-<h3>Improvement</h3>
-
-<h2 id="improvement">Loading...</h2>
-
-<p>Skin growth</p>
-
-</div>
+    </div>
 
 
-</div>
+    <div class="progress-status">
+
+        <span class="progress-status-dot"></span>
+
+        <span>Progress Monitoring Active</span>
+
+    </div>
+
+</header>
 
 
+<!-- ==========================================
+     SCORE CARDS
+=========================================== -->
+
+<section class="score-grid">
 
 
+    <!-- CURRENT SCORE -->
 
-<div class="analysis-box">
+    <article class="score-card">
+
+        <div class="score-card-header">
+
+            <div>
+
+                <span class="score-label">
+                    Current Skin Score
+                </span>
+
+            </div>
+
+            <div class="score-icon current">
+
+                <i class="fa-solid fa-chart-simple"></i>
+
+            </div>
+
+        </div>
 
 
-<h2>AI Skin Report Summary</h2>
+        <div
+            id="currentScore"
+            class="score-value empty"
+        >
+            No data
+        </div>
+
+        <div class="score-description">
+            Latest AI Score
+        </div>
 
 
-<p id="summary">
-Loading...
-</p>
+        <div class="score-progress">
+
+            <span
+                id="currentScoreBar"
+                style="width: 0%;"
+            ></span>
+
+        </div>
+
+    </article>
 
 
-</div>
+    <!-- PREVIOUS SCORE -->
+
+    <article class="score-card">
+
+        <div class="score-card-header">
+
+            <div>
+
+                <span class="score-label">
+                    Previous Score
+                </span>
+
+            </div>
+
+            <div class="score-icon previous">
+
+                <i class="fa-solid fa-clock-rotate-left"></i>
+
+            </div>
+
+        </div>
 
 
+        <div
+            id="previousScore"
+            class="score-value empty"
+        >
+            No data
+        </div>
 
-</div>
+        <div class="score-description">
+            Previous Assessment
+        </div>
 
 
+        <div class="score-progress">
 
-<script src="../js/progress.js"></script>
+            <span
+                id="previousScoreBar"
+                style="width: 0%;"
+            ></span>
 
+        </div>
+
+    </article>
+
+
+    <!-- IMPROVEMENT -->
+
+    <article class="score-card">
+
+        <div class="score-card-header">
+
+            <div>
+
+                <span class="score-label">
+                    Improvement
+                </span>
+
+            </div>
+
+            <div class="score-icon improvement">
+
+                <i class="fa-solid fa-arrow-trend-up"></i>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="improvementScore"
+            class="score-value"
+        >
+            0%
+        </div>
+
+        <div class="score-description">
+            Change from previous assessment
+        </div>
+
+
+        <div class="score-progress">
+
+            <span
+                id="improvementBar"
+                style="width: 0%;"
+            ></span>
+
+        </div>
+
+    </article>
+
+</section>
+
+
+<!-- ==========================================
+     NO ASSESSMENT STATE
+=========================================== -->
+
+<section
+    id="noAssessment"
+    class="no-assessment"
+>
+
+    <div class="no-assessment-icon">
+
+        <i class="fa-solid fa-camera"></i>
+
+    </div>
+
+
+    <h2>No Skin Assessment Yet</h2>
+
+
+    <p>
+        Complete your first AI skin assessment to start tracking
+        your skin health, compare future results, and receive
+        personalized progress insights.
+    </p>
+
+
+    <a
+        href="assessment.html"
+        class="assessment-btn"
+    >
+
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+
+        Start Skin Assessment
+
+    </a>
+
+</section>
+
+
+<!-- ==========================================
+     REPORT + METRICS
+=========================================== -->
+
+<section class="progress-main-grid">
+
+
+    <!-- AI REPORT -->
+
+    <article class="progress-card">
+
+        <div class="card-heading">
+
+            <h2>AI Skin Report Summary</h2>
+
+            <span>
+                Latest assessment
+            </span>
+
+        </div>
+
+
+        <div class="report-summary">
+
+            <div class="report-icon">
+
+                <i class="fa-solid fa-brain"></i>
+
+            </div>
+
+
+            <div>
+
+                <h3 id="reportTitle">
+                    No assessment found
+                </h3>
+
+
+                <p id="reportText">
+                    Complete an AI skin assessment to generate
+                    your personalized skin report. Your results
+                    will appear here once an assessment is completed.
+                </p>
+
+            </div>
+
+        </div>
+
+    </article>
+
+
+    <!-- SKIN METRICS -->
+
+    <article class="progress-card">
+
+        <div class="card-heading">
+
+            <h2>Skin Metrics</h2>
+
+            <span>
+                AI analysis
+            </span>
+
+        </div>
+
+
+        <div class="metric-list">
+
+
+            <div class="metric-item">
+
+                <span class="metric-name">
+                    Skin Health
+                </span>
+
+                <div class="metric-bar">
+
+                    <span
+                        id="healthBar"
+                        style="width: 0%;"
+                    ></span>
+
+                </div>
+
+                <span
+                    id="healthScore"
+                    class="metric-score"
+                >
+                    --
+                </span>
+
+            </div>
+
+
+            <div class="metric-item">
+
+                <span class="metric-name">
+                    Hydration
+                </span>
+
+                <div class="metric-bar">
+
+                    <span
+                        id="hydrationBar"
+                        style="width: 0%;"
+                    ></span>
+
+                </div>
+
+                <span
+                    id="hydrationScore"
+                    class="metric-score"
+                >
+                    --
+                </span>
+
+            </div>
+
+
+            <div class="metric-item">
+
+                <span class="metric-name">
+                    Texture
+                </span>
+
+                <div class="metric-bar">
+
+                    <span
+                        id="textureBar"
+                        style="width: 0%;"
+                    ></span>
+
+                </div>
+
+                <span
+                    id="textureScore"
+                    class="metric-score"
+                >
+                    --
+                </span>
+
+            </div>
+
+
+            <div class="metric-item">
+
+                <span class="metric-name">
+                    Clarity
+                </span>
+
+                <div class="metric-bar">
+
+                    <span
+                        id="clarityBar"
+                        style="width: 0%;"
+                    ></span>
+
+                </div>
+
+                <span
+                    id="clarityScore"
+                    class="metric-score"
+                >
+                    --
+                </span>
+
+            </div>
+
+
+        </div>
+
+    </article>
+
+</section>
+
+
+<!-- ==========================================
+     ASSESSMENT HISTORY
+=========================================== -->
+
+<section class="progress-card history-card">
+
+    <div class="card-heading">
+
+        <h2>Assessment History</h2>
+
+        <span>
+            Track your progress
+        </span>
+
+    </div>
+
+
+    <div class="history-empty">
+
+        <i class="fa-solid fa-chart-line"></i>
+
+        <h3>No assessment history available</h3>
+
+        <p>
+            Your skin score history will appear here after you
+            complete multiple AI skin assessments. Regular
+            assessments help you understand how your skin changes
+            over time.
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- ==========================================
+     AI INSIGHTS
+=========================================== -->
+
+<section class="progress-card">
+
+    <div class="card-heading">
+
+        <h2>AI Progress Insights</h2>
+
+        <span>
+            Personalized guidance
+        </span>
+
+    </div>
+
+
+    <div class="insights-grid">
+
+
+        <div class="insight-item">
+
+            <div class="insight-icon">
+
+                <i class="fa-solid fa-calendar-check"></i>
+
+            </div>
+
+            <h3>Assess Regularly</h3>
+
+            <p>
+                Complete assessments periodically to compare
+                your skin score and identify meaningful changes.
+            </p>
+
+        </div>
+
+
+        <div class="insight-item">
+
+            <div class="insight-icon">
+
+                <i class="fa-solid fa-droplet"></i>
+
+            </div>
+
+            <h3>Maintain Hydration</h3>
+
+            <p>
+                Consistent hydration and a suitable moisturizer
+                can help support a healthy skin barrier.
+            </p>
+
+        </div>
+
+
+        <div class="insight-item">
+
+            <div class="insight-icon">
+
+                <i class="fa-solid fa-shield-halved"></i>
+
+            </div>
+
+            <h3>Protect Your Skin</h3>
+
+            <p>
+                Daily broad-spectrum sunscreen can help protect
+                your skin from UV-related damage.
+            </p>
+
+        </div>
+
+
+    </div>
+
+</section>
+
+
+<!-- ==========================================
+     FOOTER
+=========================================== -->
+
+<footer class="progress-footer">
+
+    <p>
+
+        <i class="fa-solid fa-shield-heart"></i>
+
+        Skin AI • Personalized Skin Intelligence
+
+    </p>
+
+    <span>
+        AI-generated progress information is for informational purposes.
+    </span>
+
+</footer>
+```
+
+</main>
+
+<!-- ==========================================
+     JAVASCRIPT
+========================================== -->
+
+<script src="../js/auth-check.js"></script>
+
+<script>
+
+    /*
+    ==================================================
+    PROGRESS PAGE
+    ==================================================
+
+    This page is ready to receive assessment data.
+
+    If no assessment exists:
+        - Current Score = No data
+        - Previous Score = No data
+        - Improvement = 0%
+        - AI Report = No assessment found
+
+    Later, your backend can populate these values.
+    */
+
+
+    function updateProgressData(data) {
+
+        if (!data) {
+            return;
+        }
+
+
+        /* CURRENT SCORE */
+
+        if (data.current_score !== undefined) {
+
+            const current =
+                Number(data.current_score);
+
+            document.getElementById("currentScore").textContent =
+                current + "%";
+
+            document.getElementById("currentScore")
+                .classList.remove("empty");
+
+            document.getElementById("currentScoreBar")
+                .style.width = current + "%";
+
+        }
+
+
+        /* PREVIOUS SCORE */
+
+        if (data.previous_score !== undefined) {
+
+            const previous =
+                Number(data.previous_score);
+
+            document.getElementById("previousScore").textContent =
+                previous + "%";
+
+            document.getElementById("previousScore")
+                .classList.remove("empty");
+
+            document.getElementById("previousScoreBar")
+                .style.width = previous + "%";
+
+        }
+
+
+        /* IMPROVEMENT */
+
+        if (
+            data.current_score !== undefined &&
+            data.previous_score !== undefined
+        ) {
+
+            const current =
+                Number(data.current_score);
+
+            const previous =
+                Number(data.previous_score);
+
+            if (previous > 0) {
+
+                const improvement =
+                    ((current - previous) / previous) * 100;
+
+                const rounded =
+                    Math.round(improvement);
+
+                document.getElementById(
+                    "improvementScore"
+                ).textContent =
+                    (rounded >= 0 ? "+" : "") +
+                    rounded +
+                    "%";
+
+                document.getElementById(
+                    "improvementBar"
+                ).style.width =
+                    Math.min(Math.abs(rounded), 100) +
+                    "%";
+
+            }
+
+        }
+
+
+        /* REPORT */
+
+        if (data.report) {
+
+            document.getElementById(
+                "reportTitle"
+            ).textContent =
+                "AI Assessment Available";
+
+            document.getElementById(
+                "reportText"
+            ).textContent =
+                data.report;
+
+            document.getElementById(
+                "noAssessment"
+            ).style.display =
+                "none";
+
+        }
+
+
+        /* METRICS */
+
+        updateMetric(
+            "health",
+            data.health
+        );
+
+        updateMetric(
+            "hydration",
+            data.hydration
+        );
+
+        updateMetric(
+            "texture",
+            data.texture
+        );
+
+        updateMetric(
+            "clarity",
+            data.clarity
+        );
+
+    }
+
+
+    function updateMetric(name, value) {
+
+        if (value === undefined || value === null) {
+            return;
+        }
+
+        const score =
+            Number(value);
+
+        const bar =
+            document.getElementById(
+                name + "Bar"
+            );
+
+        const label =
+            document.getElementById(
+                name + "Score"
+            );
+
+        if (bar) {
+            bar.style.width =
+                Math.min(Math.max(score, 0), 100) +
+                "%";
+        }
+
+        if (label) {
+            label.textContent =
+                Math.round(score);
+        }
+
+    }
+
+
+    /*
+    ==================================================
+    OPTIONAL BACKEND CONNECTION
+    ==================================================
+
+    Uncomment this when your progress API is ready.
+
+    Example endpoint:
+
+    GET /assessment/progress/
+    */
+
+
+    async function loadProgress() {
+
+        const token =
+            localStorage.getItem("token");
+
+        if (!token) {
+
+            console.log(
+                "No authentication token found."
+            );
+
+            return;
+
+        }
+
+
+        try {
+
+            /*
+            const response = await fetch(
+                "http://127.0.0.1:8000/assessment/progress/",
+                {
+                    method: "GET",
+
+                    headers: {
+                        "Authorization":
+                            "Bearer " + token,
+
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+
+            if (!response.ok) {
+                throw new Error(
+                    "Unable to load progress data."
+                );
+            }
+
+
+            const data =
+                await response.json();
+
+
+            updateProgressData(data);
+            */
+
+            console.log(
+                "Progress page ready for backend data."
+            );
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Progress loading error:",
+                error
+            );
+
+        }
+
+    }
+
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        loadProgress
+    );
+
+</script>
 
 </body>
 

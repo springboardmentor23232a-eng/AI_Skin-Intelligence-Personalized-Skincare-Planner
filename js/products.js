@@ -1,13 +1,12 @@
 async function loadProducts(){
 
-
     const container = document.getElementById("productContainer");
 
 
     const products = [
 
         {
-            image:"images/cleanser.png",
+            image:"../images/cleanser.png",
             name:"Gentle Cleanser",
             description:"For oily and acne-prone skin",
             rating:"⭐ 4.8"
@@ -15,7 +14,7 @@ async function loadProducts(){
 
 
         {
-            image:"images/moisturizer.png",
+            image:"../images/moisturizer.png",
             name:"Hydrating Moisturizer",
             description:"Improves skin hydration",
             rating:"⭐ 4.7"
@@ -23,7 +22,7 @@ async function loadProducts(){
 
 
         {
-            image:"images/sun.png",
+            image:"../images/sunscreen.png",
             name:"Sunscreen SPF 50",
             description:"Protects from UV damage",
             rating:"⭐ 4.9"
@@ -31,7 +30,7 @@ async function loadProducts(){
 
 
         {
-            image:"images/skin-ai.png",
+            image:"../images/serum.png",
             name:"Vitamin C Serum",
             description:"Reduces dark spots",
             rating:"⭐ 4.6"
@@ -50,7 +49,7 @@ async function loadProducts(){
 
         container.innerHTML += `
 
-        <div class="card">
+        <div class="product-card">
 
 
             <img src="${product.image}" alt="${product.name}">
@@ -71,7 +70,6 @@ async function loadProducts(){
 
 
     });
-
 
 }
 
