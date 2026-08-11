@@ -55,33 +55,6 @@ dist-ssr/
 *.swp
 *.swo
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-# Python cache
-__pycache__/
-*.py[cod]
-
-# ML generated image cache
-ml/data/image_cache/
-ml/data/sample_images/
-
-# Trained model files
-ml/models/*.pth
-ml/models/*.pt
-
-# Environment files
-.env
-**/.env
-
-# Backend local/generated files
-backend/uploads/
-backend/skin_db.db
-
-=======
 Thumbs.db
 
 # ==========================================
