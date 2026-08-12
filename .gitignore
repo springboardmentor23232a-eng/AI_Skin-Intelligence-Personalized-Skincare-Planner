@@ -4,8 +4,13 @@ __pycache__/
 venv/
 *.egg-info/
 
+ml_env/
+__pycache__/
+*.pyc
+
 # Environment secrets — never commit this
 backend/.env
+backend/ml/dataset/
 
 # Node
 node_modules/

@@ -10,15 +10,32 @@ export default function Login() {
   const [error, setError] = useState('')
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
-    try {
-      await login(email, password)
-      navigate('/dashboard')
-    } catch (err) {
-      setError(err.response?.data?.detail || 'Login failed')
+  e.preventDefault();
+  setError("");
+
+  try {
+    const loggedInUser = await login(email, password);
+    console.log("Role:", loggedInUser.role);
+console.log(loggedInUser);
+
+    switch (loggedInUser.role) {
+      case "admin":
+        navigate("/admin");
+        break;
+
+      case "consultant":
+      case "dermatologist":
+        navigate("/clients");
+        break;
+
+      default:
+        navigate("/dashboard");
+        break;
     }
+  } catch (err) {
+    setError(err.response?.data?.detail || "Login failed");
   }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-primary-50">

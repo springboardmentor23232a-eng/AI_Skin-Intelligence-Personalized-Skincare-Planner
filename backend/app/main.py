@@ -36,6 +36,7 @@ from app.routers import (
     recommendations,
     checklist as checklist_router,
     oauth as oauth_router,
+    ml,
 )
 
 app = FastAPI(
@@ -74,6 +75,7 @@ app.include_router(clients.router)
 app.include_router(recommendations.router)
 app.include_router(checklist_router.router)
 app.include_router(oauth_router.router)
+app.include_router(ml.router)
 
 
 @app.get("/")
