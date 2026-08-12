@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: dermai_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: dermai_db
+    ports:
+      - "5433:5432" # Mapped to 5433 to avoid conflict with local postgres if running
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  backend:
+    build: ./backend
+    container_name: dermai_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@db:5432/dermai_db
+    depends_on:
+      - db
+    volumes:
+      - ./backend/uploads:/app/uploads
+    restart: always
+
+volumes:
+  postgres_data:
