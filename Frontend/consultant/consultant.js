@@ -23,6 +23,10 @@ const fetchConsultantProfile = async (tkn, fallbackEmail) => {
       if (greetingEl) {
         greetingEl.textContent = `Welcome, ${displayName || 'Consultant'}`;
       }
+      const sidebarNameEl = document.getElementById('sidebarConsultantName');
+      if (sidebarNameEl) {
+        sidebarNameEl.textContent = displayName || 'Consultant';
+      }
     }
   } catch (err) {
     console.error('Error fetching consultant profile:', err);
@@ -219,7 +223,22 @@ const openProfileModal = (client) => {
   if (nameEl) nameEl.textContent = displayName;
   if (emailEl) emailEl.textContent = client.email;
 
+  const imgWrapper = document.getElementById('modalClientImageWrapper');
+  const imgEl = document.getElementById('modalClientImage');
+  if (client.image_url) {
+    if (imgEl) imgEl.src = client.image_url;
+    if (imgWrapper) imgWrapper.classList.remove('hidden');
+  } else {
+    if (imgWrapper) imgWrapper.classList.add('hidden');
+  }
+
+  const risksText = client.risks && client.risks.length
+    ? client.risks.map(r => `${r.title} (${r.level})`).join(', ')
+    : 'No high risks identified';
+
   const fields = [
+    { label: 'AI Health Score', value: `${client.skin_health_score || 0} / 100` },
+    { label: 'Identified Risk Factors', value: risksText },
     { label: 'Skin Type', value: client.skin_type },
     { label: 'Age Group', value: client.age_group },
     { label: 'Skin Concerns', value: client.skin_concerns },
@@ -288,6 +307,77 @@ if (headerLogout) {
   });
 }
 
+// ── Section View Navigation (Admin Dashboard Style) ─────────
+
+const sidebar = document.getElementById('sidebar');
+const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+const closeSidebarBtn = document.getElementById('closeSidebarBtn');
+const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+
+const toggleSidebar = (show) => {
+  if (sidebar && sidebarBackdrop) {
+    if (show) {
+      sidebar.classList.add('open');
+      sidebarBackdrop.classList.add('active');
+    } else {
+      sidebar.classList.remove('open');
+      sidebarBackdrop.classList.remove('active');
+    }
+  }
+};
+
+if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', () => toggleSidebar(true));
+if (closeSidebarBtn) closeSidebarBtn.addEventListener('click', () => toggleSidebar(false));
+if (sidebarBackdrop) sidebarBackdrop.addEventListener('click', () => toggleSidebar(false));
+
+const sections = {
+  clients: { el: document.getElementById('section-clients'), nav: document.getElementById('navClients'), title: 'Client Profiles', sub: 'Your assigned clients' },
+  reports: { el: document.getElementById('section-reports'), nav: document.getElementById('navReports'), title: 'Skin Assessment Reports', sub: 'Recent client assessments' },
+  progress: { el: document.getElementById('section-progress'), nav: document.getElementById('navProgress'), title: 'Progress Monitoring', sub: 'Track client improvements' },
+  recommendations: { el: document.getElementById('section-recommendations'), nav: document.getElementById('navRecommendations'), title: 'Recommendation Management', sub: 'Assigned routines and products' },
+};
+
+const showSection = (key) => {
+  const targetKey = sections[key] ? key : 'clients';
+  Object.entries(sections).forEach(([k, s]) => {
+    const isActive = (k === targetKey);
+    if (s.el) s.el.classList.toggle('active', isActive);
+    if (s.nav) s.nav.classList.toggle('active', isActive);
+  });
+
+  const activeSec = sections[targetKey];
+  const titleEl = document.getElementById('pageTitle');
+  const subEl = document.getElementById('pageSubtitle');
+  if (titleEl && activeSec) titleEl.textContent = activeSec.title;
+  if (subEl && activeSec) subEl.textContent = activeSec.sub;
+  window.scrollTo({ top: 0 });
+};
+
+// Bind navigation clicks
+Object.entries(sections).forEach(([key, s]) => {
+  if (s.nav) {
+    s.nav.addEventListener('click', (e) => {
+      e.preventDefault();
+      showSection(key);
+      toggleSidebar(false);
+      window.location.hash = key;
+    });
+  }
+});
+
+// Restore section view from URL hash on load or hashchange
+const initSectionFromHash = () => {
+  const hash = window.location.hash.replace('#', '').trim();
+  if (hash && sections[hash]) {
+    showSection(hash);
+  } else {
+    showSection('clients');
+  }
+};
+
+window.addEventListener('hashchange', initSectionFromHash);
+
 // ── Boot ─────────────────────────────────────────────────────────
 
 verifySession();
+initSectionFromHash();

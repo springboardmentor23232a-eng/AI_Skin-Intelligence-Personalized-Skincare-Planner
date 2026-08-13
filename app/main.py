@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
 
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import Depends, FastAPI, HTTPException, status, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -20,56 +20,33 @@ load_dotenv()
 
 
 from app.database import Base, engine, get_db, SessionLocal
-from app.models import Admin, Assignment, Consultant, User, SkinProfile
+from app.models import (
+    Admin, Assignment, Consultant, User, SkinProfile, AssessmentHistory,
+    AssessmentRisk, AssessmentPriority, SkincareRoutine, RoutineStep,
+    SeasonalRecommendation, RoutineCheckin
+)
+from app.services.routine_engine import generate_personalized_routine_data, get_current_season
 
-# Automatically create PostgreSQL tables
+from ML_models.risk_engine import analyze_risks
+from ML_models.priority_concern import prioritize_concerns
+
+
+# Automatically create database tables if missing
 try:
     Base.metadata.create_all(bind=engine)
 except Exception as e:
-    print(f"Warning: Could not automatically create PostgreSQL tables: {e}")
+    print(f"Warning: Could not automatically create database tables: {e}")
 
-# Migrate existing tables: add `name` column if missing
-try:
-    with engine.connect() as conn:
-        conn.execute(
-            __import__('sqlalchemy').text(
-                "ALTER TABLE users ADD COLUMN IF NOT EXISTS name VARCHAR(255) NOT NULL DEFAULT ''"
-            )
-        )
-        conn.execute(
-            __import__('sqlalchemy').text(
-                "ALTER TABLE consultants ADD COLUMN IF NOT EXISTS name VARCHAR(255) NOT NULL DEFAULT ''"
-            )
-        )
-        conn.commit()
-except Exception as e:
-    print(f"Warning: Could not migrate name column: {e}")
 
-# Migrate skin_profiles: widen environmental_exposure column if it exists
-try:
-    with engine.connect() as conn:
-        conn.execute(
-            __import__('sqlalchemy').text(
-                "ALTER TABLE skin_profiles ALTER COLUMN environmental_exposure TYPE VARCHAR(500)"
-            )
-        )
-        conn.commit()
-except Exception as e:
-    print(f"Note: skin_profiles migration skipped (table may not exist yet): {e}")
-
-# Ensure assignments table exists
-try:
-    Base.metadata.create_all(bind=engine, tables=[Assignment.__table__])
-except Exception as e:
-    print(f"Note: assignments table creation skipped: {e}")
-
-SECRET_KEY = os.getenv("SECRET_KEY","fallback-insecure-key-for-development")
+SECRET_KEY = os.getenv("SECRET_KEY", "fallback-insecure-key-for-development").strip()
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 5
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 FRONTEND_DIR = BASE_DIR / "Frontend"
 INDEX_FILE = FRONTEND_DIR / "index.html"
+UPLOADS_DIR = BASE_DIR / "uploads"
+UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
 app = FastAPI(title="Skincare Planner API")
 app.add_middleware(
@@ -129,6 +106,130 @@ class StatusResponse(BaseModel):
     status: str
 
 
+class AssessmentRiskResponse(BaseModel):
+    id: int
+    risk_title: str
+    risk_level: str
+    description: str
+    recommendation: str
+
+    class Config:
+        from_attributes = True
+
+
+class AssessmentPriorityResponse(BaseModel):
+    id: int
+    concern_name: str
+    priority_rank: int
+    severity: str
+    priority_score: int
+
+    class Config:
+        from_attributes = True
+
+
+class AssessmentHistoryResponse(BaseModel):
+    assessment_id: int
+    user_id: int
+    skin_profile_id: int
+    skin_health_score: int
+    skin_health_category: str
+    overall_risk_level: str
+    assessment_date: Optional[datetime] = None
+    model_version: str
+    image_url: Optional[str] = ""
+    trigger_source: str
+    notes: Optional[str] = ""
+    created_at: Optional[datetime] = None
+    risks: list[AssessmentRiskResponse] = []
+    priorities: list[AssessmentPriorityResponse] = []
+
+    class Config:
+        from_attributes = True
+
+
+class AssessmentHistoryListResponse(BaseModel):
+    history: list[AssessmentHistoryResponse] = []
+
+
+class AssessmentScoreResponse(BaseModel):
+    skin_health_score: int
+    skin_health_category: str
+
+
+class AssessmentRisksResponse(BaseModel):
+    risks: list[AssessmentRiskResponse] = []
+
+
+class RoutineStepResponse(BaseModel):
+    id: int
+    time_of_day: str
+    step_order: int
+    category: str
+    category_icon: str
+    step_title: str
+    description: str
+    active_ingredients: Optional[str] = ""
+    frequency: str
+    caution_notes: Optional[str] = ""
+    is_active: bool = True
+    is_customized: bool = False
+
+    class Config:
+        from_attributes = True
+
+
+class SeasonalRecommendationResponse(BaseModel):
+    id: int
+    season: str
+    title: str
+    description: str
+    tip: Optional[str] = ""
+
+    class Config:
+        from_attributes = True
+
+
+class SkincareRoutineResponse(BaseModel):
+    id: int
+    user_id: int
+    season: str
+    last_adapted_at: Optional[datetime] = None
+    adaptation_summary: Optional[str] = ""
+    morning_steps: list[RoutineStepResponse] = []
+    evening_steps: list[RoutineStepResponse] = []
+    weekly_steps: list[RoutineStepResponse] = []
+    seasonal_recommendations: list[SeasonalRecommendationResponse] = []
+
+    class Config:
+        from_attributes = True
+
+
+class RoutineStepCreate(BaseModel):
+    time_of_day: str  # morning, evening, weekly
+    category: str
+    step_title: str
+    description: Optional[str] = ""
+    active_ingredients: Optional[str] = ""
+    frequency: Optional[str] = "Daily"
+    caution_notes: Optional[str] = ""
+
+
+class RoutineStepUpdate(BaseModel):
+    step_title: Optional[str] = None
+    description: Optional[str] = None
+    active_ingredients: Optional[str] = None
+    frequency: Optional[str] = None
+    caution_notes: Optional[str] = None
+    is_active: Optional[bool] = None
+
+
+class RoutineCheckinRequest(BaseModel):
+    time_of_day: str  # morning or evening
+    completed: bool = True
+
+
+
 class SkinProfileResponse(BaseModel):
     id: int
     user_id: int
@@ -141,6 +242,10 @@ class SkinProfileResponse(BaseModel):
     sleep_quality: Optional[str] = ""
     water_intake: Optional[str] = ""
     environmental_exposure: Optional[str] = ""
+    image_url: Optional[str] = ""
+    skin_health_score: Optional[int] = 0
+    risks: Optional[list] = []
+    priority_concerns: Optional[list] = []
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
@@ -158,6 +263,7 @@ class SkinProfileUpdate(BaseModel):
     sleep_quality: Optional[str] = ""
     water_intake: Optional[str] = ""
     environmental_exposure: Optional[str] = ""
+    image_url: Optional[str] = ""
 
 
 class AssignRequest(BaseModel):
@@ -165,10 +271,440 @@ class AssignRequest(BaseModel):
     consultant_id: int
 
 
+class AssessmentNotesUpdate(BaseModel):
+    notes: Optional[str] = ""
+
+
+
 
 # ---------------------------------------------------------------------------
-# Helpers
+# ML Model Loading & Prediction Helper
 # ---------------------------------------------------------------------------
+ML_MODEL = None
+
+def load_ml_model():
+    global ML_MODEL
+    model_file = BASE_DIR / "ML_models" / "skin_health_score_model.pkl"
+    if model_file.exists():
+        try:
+            import joblib
+            ML_MODEL = joblib.load(model_file)
+            print(f"ML Model successfully loaded from {model_file}")
+        except Exception as e:
+            print(f"Warning: Could not load ML model from {model_file}: {e}")
+    else:
+        print(f"Warning: ML model file not found at {model_file}")
+
+load_ml_model()
+
+
+def calculate_skin_health_score(profile: SkinProfile) -> int:
+    """Predict skin health score (0-100) using ML model pipeline from user skin profile features."""
+    global ML_MODEL
+    if not ML_MODEL:
+        load_ml_model()
+    if not ML_MODEL:
+        return 85
+
+    try:
+        import pandas as pd
+
+        concerns = [c.strip() for c in (profile.skin_concerns or "").split(",") if c.strip()]
+        habits = [h.strip() for h in (profile.lifestyle_habits or "").split(",") if h.strip()]
+        env = [e.strip() for e in (profile.environmental_exposure or "").split(",") if e.strip()]
+
+        def has_val(val_list, target):
+            return 1 if any(target.lower() in v.lower() for v in val_list) else 0
+
+        def norm_title(val: Optional[str], default: str = "") -> str:
+            if not val or not val.strip():
+                return default
+            v = val.strip()
+            v_low = v.lower()
+            if "dry" in v_low:
+                return "Dry"
+            elif "oily" in v_low:
+                return "Oily"
+            elif "combination" in v_low:
+                return "Combination"
+            elif "sensitive" in v_low:
+                return "Sensitive"
+            elif "normal" in v_low:
+                return "Normal"
+            elif "poor" in v_low:
+                return "Poor"
+            elif "average" in v_low:
+                return "Average"
+            elif "good" in v_low:
+                return "Good"
+            elif "excellent" in v_low:
+                return "Excellent"
+            elif "low" in v_low:
+                return "Low"
+            elif "moderate" in v_low:
+                return "Moderate"
+            elif "high" in v_low:
+                return "High"
+            return v.title()
+
+        input_data = {
+            "SkinType": [norm_title(profile.skin_type, "Normal")],
+            "AgeGroup": [profile.age_group.strip() if profile.age_group and profile.age_group.strip() else "25-34"],
+            "SleepQuality": [norm_title(profile.sleep_quality, "Average")],
+            "WaterIntake": [norm_title(profile.water_intake, "Moderate")],
+            "HasAllergy": [1 if profile.allergies and profile.allergies.strip().lower() not in ["", "none", "no"] else 0],
+            "HasSensitivity": [1 if profile.sensitivities and profile.sensitivities.strip().lower() not in ["", "none", "no"] else 0],
+            "Acne": [has_val(concerns, "Acne")],
+            "Aging": [has_val(concerns, "Aging")],
+            "Dryness": [has_val(concerns, "Dryness")],
+            "Hyperpigmentation": [has_val(concerns, "Hyperpigmentation")],
+            "Redness": [has_val(concerns, "Redness")],
+            "DarkSpots": [has_val(concerns, "Dark Spots")],
+            "LargePores": [1 if has_val(concerns, "Pore") or has_val(concerns, "Pores") else 0],
+            "Dullness": [has_val(concerns, "Dullness")],
+            "Stress": [has_val(habits, "Stress")],
+            "Smoking": [has_val(habits, "Smoking")],
+            "Alcohol": [has_val(habits, "Alcohol")],
+            "HealthyDiet": [has_val(habits, "Healthy Diet")],
+            "RegularExercise": [1 if has_val(habits, "Exercise") or has_val(habits, "Active") else 0],
+            "HighCaffeine": [has_val(habits, "Caffeine")],
+            "SunExposure": [has_val(env, "Sun Exposure")],
+            "HighPollution": [has_val(env, "Pollution")],
+            "DryClimate": [has_val(env, "Climate")],
+            "IndoorAC": [1 if has_val(env, "AC") or has_val(env, "Air Conditioning") else 0],
+        }
+
+        df_input = pd.DataFrame(input_data)
+        score_pred = ML_MODEL.predict(df_input)[0]
+        return int(round(max(0, min(100, float(score_pred)))))
+    except Exception as err:
+        print(f"Error calculating ML skin health score: {err}")
+        return 85
+
+
+def get_skin_risks(profile: Optional[SkinProfile]) -> list:
+    """Analyze risk factors from user profile using the risk engine."""
+    if not profile:
+        return []
+    try:
+        concerns = [c.strip() for c in (profile.skin_concerns or "").split(",") if c.strip()]
+        habits = [h.strip() for h in (profile.lifestyle_habits or "").split(",") if h.strip()]
+        env = [e.strip() for e in (profile.environmental_exposure or "").split(",") if e.strip()]
+
+        def has_val(val_list, target):
+            return 1 if any(target.lower() in v.lower() for v in val_list) else 0
+
+        skin_type = (profile.skin_type or "").strip().lower()
+
+        risk_input = {
+            "SleepQuality": profile.sleep_quality or "",
+            "WaterIntake": profile.water_intake or "",
+            "DrySkin": 1 if "dry" in skin_type else 0,
+            "OilySkin": 1 if "oily" in skin_type else 0,
+            "SensitiveSkin": 1 if "sensitive" in skin_type else 0,
+            "HasAllergy": 1 if profile.allergies and profile.allergies.strip().lower() not in ["", "none", "no"] else 0,
+            "HasSensitivity": 1 if profile.sensitivities and profile.sensitivities.strip().lower() not in ["", "none", "no"] else 0,
+            "Stress": has_val(habits, "Stress"),
+            "Smoking": has_val(habits, "Smoking"),
+            "Alcohol": has_val(habits, "Alcohol"),
+            "HighCaffeine": has_val(habits, "Caffeine"),
+            "SunExposure": has_val(env, "Sun Exposure"),
+            "HighPollution": has_val(env, "Pollution"),
+            "DryClimate": has_val(env, "Climate"),
+            "IndoorAC": 1 if has_val(env, "AC") or has_val(env, "Air Conditioning") else 0,
+            "Acne": has_val(concerns, "Acne"),
+            "Hyperpigmentation": has_val(concerns, "Hyperpigmentation"),
+            "DarkSpots": 1 if has_val(concerns, "Dark Spots") or has_val(concerns, "Dark") else 0,
+            "Dryness": has_val(concerns, "Dryness"),
+            "LargePores": 1 if has_val(concerns, "Pore") or has_val(concerns, "Pores") else 0,
+            "Aging": has_val(concerns, "Aging"),
+            "Redness": has_val(concerns, "Redness"),
+            "Dullness": has_val(concerns, "Dullness"),
+        }
+        return analyze_risks(risk_input)
+    except Exception as err:
+        print(f"Error evaluating skin risks: {err}")
+        return []
+
+
+def get_priority_concerns(profile: Optional[SkinProfile]) -> list:
+    """Calculate prioritized skin concerns for a user profile using ML scoring rules."""
+    if not profile:
+        return []
+    try:
+        concerns = [c.strip() for c in (profile.skin_concerns or "").split(",") if c.strip()]
+        habits = [h.strip() for h in (profile.lifestyle_habits or "").split(",") if h.strip()]
+        env = [e.strip() for e in (profile.environmental_exposure or "").split(",") if e.strip()]
+
+        def has_val(val_list, target):
+            return 1 if any(target.lower() in v.lower() for v in val_list) else 0
+
+        def norm_title(val: Optional[str], default: str = "") -> str:
+            if not val or not val.strip():
+                return default
+            v = val.strip().lower()
+            if "dry" in v:
+                return "Dry"
+            elif "oily" in v:
+                return "Oily"
+            elif "combination" in v:
+                return "Combination"
+            elif "sensitive" in v:
+                return "Sensitive"
+            elif "normal" in v:
+                return "Normal"
+            elif "poor" in v:
+                return "Poor"
+            elif "average" in v:
+                return "Average"
+            elif "good" in v:
+                return "Good"
+            elif "excellent" in v:
+                return "Excellent"
+            elif "low" in v:
+                return "Low"
+            elif "moderate" in v:
+                return "Moderate"
+            elif "high" in v:
+                return "High"
+            return val.strip().title()
+
+        data = {
+            "Acne": has_val(concerns, "Acne"),
+            "SkinType": norm_title(profile.skin_type, "Normal"),
+            "Stress": has_val(habits, "Stress"),
+            "SleepQuality": norm_title(profile.sleep_quality, "Average"),
+            "HighPollution": has_val(env, "Pollution"),
+            "Dryness": has_val(concerns, "Dryness"),
+            "WaterIntake": norm_title(profile.water_intake, "Moderate"),
+            "DryClimate": has_val(env, "Climate"),
+            "IndoorAC": 1 if has_val(env, "AC") or has_val(env, "Air Conditioning") else 0,
+            "Hyperpigmentation": has_val(concerns, "Hyperpigmentation"),
+            "SunExposure": has_val(env, "Sun Exposure"),
+            "DarkSpots": 1 if has_val(concerns, "Dark Spots") or has_val(concerns, "Dark") else 0,
+            "Aging": has_val(concerns, "Aging"),
+            "AgeGroup": (profile.age_group or "25-34").strip(),
+            "Smoking": has_val(habits, "Smoking"),
+            "Redness": has_val(concerns, "Redness"),
+            "HasAllergy": 1 if profile.allergies and profile.allergies.strip().lower() not in ["", "none", "no"] else 0,
+            "HasSensitivity": 1 if profile.sensitivities and profile.sensitivities.strip().lower() not in ["", "none", "no"] else 0,
+            "LargePores": 1 if has_val(concerns, "Pore") or has_val(concerns, "Pores") else 0,
+            "Dullness": has_val(concerns, "Dullness"),
+        }
+        return prioritize_concerns(data)
+    except Exception as err:
+        print(f"Error calculating priority concerns: {err}")
+        return []
+
+
+def calculate_health_category(score: int) -> str:
+    if score >= 80:
+        return "Excellent"
+    elif score >= 65:
+        return "Good"
+    elif score >= 50:
+        return "Fair"
+    else:
+        return "Poor"
+
+
+def calculate_overall_risk_level(risks: list) -> str:
+    if not risks:
+        return "Low"
+    levels = [r.get("level", "").capitalize() for r in risks if isinstance(r, dict)]
+    if "Critical" in levels:
+        return "Critical"
+    elif "High" in levels:
+        return "High"
+    elif "Medium" in levels:
+        return "Medium"
+    return "Low"
+
+
+def record_assessment_history(
+    db: Session, user_id: int, profile: SkinProfile, trigger_source: str = "survey_update"
+) -> Optional[AssessmentHistory]:
+    """Record a complete skin assessment session to assessment_history, risks, and priorities tables."""
+    if not profile:
+        return None
+    try:
+        score = profile.skin_health_score or 0
+        category = calculate_health_category(score)
+        risks_data = get_skin_risks(profile)
+        priorities_data = get_priority_concerns(profile)
+        overall_risk = calculate_overall_risk_level(risks_data)
+
+        history_entry = AssessmentHistory(
+            user_id=user_id,
+            skin_profile_id=profile.id,
+            skin_health_score=score,
+            skin_health_category=category,
+            overall_risk_level=overall_risk,
+            model_version="v1.0.0",
+            image_url=profile.image_url or "",
+            trigger_source=trigger_source,
+            notes=f"Assessment session recorded via {trigger_source.replace('_', ' ')}",
+        )
+        db.add(history_entry)
+        db.flush()
+
+        for r in risks_data:
+            risk_rec = AssessmentRisk(
+                assessment_id=history_entry.assessment_id,
+                risk_title=r.get("title", "Risk Factor"),
+                risk_level=r.get("level", "Low"),
+                description=r.get("description", ""),
+                recommendation=r.get("recommendation", ""),
+            )
+            db.add(risk_rec)
+
+        for p in priorities_data:
+            prio_rec = AssessmentPriority(
+                assessment_id=history_entry.assessment_id,
+                concern_name=p.get("concern", "Concern"),
+                priority_rank=p.get("priority", 1),
+                severity=p.get("severity", "Low"),
+                priority_score=p.get("score", 0),
+            )
+            db.add(prio_rec)
+
+        db.commit()
+        db.refresh(history_entry)
+
+        # Trigger adaptive routine update based on new assessment
+        try:
+            ensure_user_routine(db, user_id, force_regenerate=True)
+        except Exception as r_err:
+            print(f"Note: Adaptive routine update skipped: {r_err}")
+
+        return history_entry
+    except Exception as err:
+        print(f"Error recording assessment history: {err}")
+        db.rollback()
+        return None
+
+
+def ensure_user_routine(db: Session, user_id: int, force_regenerate: bool = False) -> SkincareRoutine:
+    """Get or generate user skincare routine, adapting dynamically when skin assessment updates."""
+    profile = db.query(SkinProfile).filter(SkinProfile.user_id == user_id).first()
+    if not profile:
+        profile = SkinProfile(user_id=user_id, skin_health_score=70)
+        db.add(profile)
+        db.commit()
+        db.refresh(profile)
+
+    # Fetch assessment history ordered by date descending
+    history = (
+        db.query(AssessmentHistory)
+        .filter(AssessmentHistory.user_id == user_id)
+        .order_by(AssessmentHistory.assessment_date.desc())
+        .all()
+    )
+    latest_assessment = history[0] if history else None
+    previous_assessment = history[1] if len(history) > 1 else None
+
+    routine = db.query(SkincareRoutine).filter(SkincareRoutine.user_id == user_id).first()
+
+    current_season = get_current_season()
+
+    if routine and not force_regenerate:
+        if routine.season != current_season:
+            routine.season = current_season
+            db.commit()
+        return routine
+
+    data = generate_personalized_routine_data(
+        profile=profile,
+        latest_assessment=latest_assessment,
+        previous_assessment=previous_assessment,
+        override_season=current_season
+    )
+
+    if not routine:
+        routine = SkincareRoutine(
+            user_id=user_id,
+            season=data["season"],
+            adaptation_summary=data["adaptation_summary"],
+        )
+        db.add(routine)
+        db.flush()
+    else:
+        routine.season = data["season"]
+        routine.adaptation_summary = data["adaptation_summary"]
+        routine.last_adapted_at = datetime.now(timezone.utc)
+        db.query(RoutineStep).filter(RoutineStep.routine_id == routine.id, RoutineStep.is_customized == False).delete()
+        db.query(SeasonalRecommendation).filter(SeasonalRecommendation.routine_id == routine.id).delete()
+        db.flush()
+
+    # Insert Morning Steps
+    for s in data["morning_steps"]:
+        step = RoutineStep(
+            routine_id=routine.id,
+            time_of_day=s["time_of_day"],
+            step_order=s["step_order"],
+            category=s["category"],
+            category_icon=s["category_icon"],
+            step_title=s["step_title"],
+            description=s["description"],
+            active_ingredients=s.get("active_ingredients", ""),
+            frequency=s.get("frequency", "Daily"),
+            caution_notes=s.get("caution_notes", ""),
+            is_active=True,
+            is_customized=False
+        )
+        db.add(step)
+
+    # Insert Evening Steps
+    for s in data["evening_steps"]:
+        step = RoutineStep(
+            routine_id=routine.id,
+            time_of_day=s["time_of_day"],
+            step_order=s["step_order"],
+            category=s["category"],
+            category_icon=s["category_icon"],
+            step_title=s["step_title"],
+            description=s["description"],
+            active_ingredients=s.get("active_ingredients", ""),
+            frequency=s.get("frequency", "Nightly"),
+            caution_notes=s.get("caution_notes", ""),
+            is_active=True,
+            is_customized=False
+        )
+        db.add(step)
+
+    # Insert Weekly Steps
+    for s in data["weekly_steps"]:
+        step = RoutineStep(
+            routine_id=routine.id,
+            time_of_day=s["time_of_day"],
+            step_order=s["step_order"],
+            category=s["category"],
+            category_icon=s["category_icon"],
+            step_title=s["step_title"],
+            description=s["description"],
+            active_ingredients=s.get("active_ingredients", ""),
+            frequency=s.get("frequency", "1x/week"),
+            caution_notes=s.get("caution_notes", ""),
+            is_active=True,
+            is_customized=False
+        )
+        db.add(step)
+
+    # Insert Seasonal Recommendations
+    for r in data["seasonal_recommendations"]:
+        rec = SeasonalRecommendation(
+            routine_id=routine.id,
+            season=r["season"],
+            title=r["title"],
+            description=r["description"],
+            tip=r.get("tip", "")
+        )
+        db.add(rec)
+
+    db.commit()
+    db.refresh(routine)
+    return routine
+
 
 def get_model_for_role(role: str):
     """Return the SQLAlchemy model class for a given role string."""
@@ -306,6 +842,9 @@ async def register(request: RegisterRequest, db: Session = Depends(get_db)) -> T
 
     if not clean_email or not request.password:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email and password required")
+
+    if len(request.password) < 6:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password must be at least 6 characters long")
 
     model = get_model_for_role(clean_role)
     if not model:
@@ -453,12 +992,21 @@ async def get_user_skin_profile(
     
     profile = db.query(SkinProfile).filter(SkinProfile.user_id == user_record.id).first()
     if not profile:
-        profile = SkinProfile(user_id=user_record.id)
+        profile = SkinProfile(user_id=user_record.id, skin_health_score=0)
         db.add(profile)
         db.commit()
         db.refresh(profile)
     
-    return profile
+    # If survey is submitted but score in DB is 0, update score in DB
+    has_survey = bool(profile.skin_type or profile.age_group or profile.skin_concerns or profile.sleep_quality)
+    if has_survey and (profile.skin_health_score is None or profile.skin_health_score == 0):
+        profile.skin_health_score = calculate_skin_health_score(profile)
+        db.commit()
+        db.refresh(profile)
+    
+    profile.risks = get_skin_risks(profile)
+    profile.priority_concerns = get_priority_concerns(profile)
+    return SkinProfileResponse.model_validate(profile)
 
 
 @app.post("/user/profile", response_model=SkinProfileResponse)
@@ -495,10 +1043,578 @@ async def update_user_skin_profile(
     profile.sleep_quality = profile_update.sleep_quality
     profile.water_intake = profile_update.water_intake
     profile.environmental_exposure = profile_update.environmental_exposure
+    if profile_update.image_url is not None:
+        profile.image_url = profile_update.image_url
     
+    # Predict score via ML model when survey is submitted and save to database
+    has_survey = bool(profile.skin_type or profile.age_group or profile.skin_concerns or profile.sleep_quality or profile.water_intake)
+    if has_survey:
+        profile.skin_health_score = calculate_skin_health_score(profile)
+    else:
+        profile.skin_health_score = 0
+
     db.commit()
     db.refresh(profile)
-    return profile
+    profile.risks = get_skin_risks(profile)
+    profile.priority_concerns = get_priority_concerns(profile)
+
+    # Log assessment history session
+    record_assessment_history(db, user_record.id, profile, trigger_source="survey_update")
+
+    return SkinProfileResponse.model_validate(profile)
+
+
+@app.get("/user/risks")
+async def get_user_skin_risks(
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if current_user.role != "user":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only users can access skin risks",
+        )
+    user_record = db.query(User).filter(User.email == current_user.email).first()
+    if not user_record:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+    profile = db.query(SkinProfile).filter(SkinProfile.user_id == user_record.id).first()
+    return {"risks": get_skin_risks(profile)}
+
+
+@app.get("/user/priority-concerns")
+async def get_user_priority_concerns(
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if current_user.role != "user":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only users can access priority concerns",
+        )
+    user_record = db.query(User).filter(User.email == current_user.email).first()
+    if not user_record:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+    profile = db.query(SkinProfile).filter(SkinProfile.user_id == user_record.id).first()
+    return {"priority_concerns": get_priority_concerns(profile)}
+
+
+@app.get("/user/assessment-history")
+async def get_user_assessment_history(
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if current_user.role != "user":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only users can access assessment history",
+        )
+    user_record = db.query(User).filter(User.email == current_user.email).first()
+    if not user_record:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+
+    history_records = (
+        db.query(AssessmentHistory)
+        .filter(AssessmentHistory.user_id == user_record.id)
+        .order_by(AssessmentHistory.assessment_date.desc())
+        .all()
+    )
+
+    result = []
+    for h in history_records:
+        result.append({
+            "assessment_id": h.assessment_id,
+            "user_id": h.user_id,
+            "skin_profile_id": h.skin_profile_id,
+            "skin_health_score": h.skin_health_score,
+            "skin_health_category": h.skin_health_category,
+            "overall_risk_level": h.overall_risk_level,
+            "assessment_date": h.assessment_date.isoformat() if h.assessment_date else None,
+            "model_version": h.model_version,
+            "image_url": h.image_url or "",
+            "trigger_source": h.trigger_source or "survey_update",
+            "notes": h.notes or "",
+            "created_at": h.created_at.isoformat() if h.created_at else None,
+            "risks": [
+                {
+                    "id": r.id,
+                    "risk_title": r.risk_title,
+                    "risk_level": r.risk_level,
+                    "description": r.description,
+                    "recommendation": r.recommendation,
+                }
+                for r in h.risks
+            ],
+            "priorities": [
+                {
+                    "id": p.id,
+                    "concern_name": p.concern_name,
+                    "priority_rank": p.priority_rank,
+                    "severity": p.severity,
+                    "priority_score": p.priority_score,
+                }
+                for p in h.priorities
+            ],
+        })
+
+    return {"history": result}
+
+
+@app.get("/user/routine", response_model=SkincareRoutineResponse)
+async def get_user_routine_endpoint(
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> SkincareRoutineResponse:
+    if current_user.role != "user":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only users can access skincare routines",
+        )
+    user_record = db.query(User).filter(User.email == current_user.email).first()
+    if not user_record:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+    routine = ensure_user_routine(db, user_record.id, force_regenerate=False)
+
+    morning_steps = [s for s in routine.steps if s.time_of_day == "morning" and s.is_active]
+    evening_steps = [s for s in routine.steps if s.time_of_day == "evening" and s.is_active]
+    weekly_steps = [s for s in routine.steps if s.time_of_day == "weekly" and s.is_active]
+
+    resp_data = {
+        "id": routine.id,
+        "user_id": routine.user_id,
+        "season": routine.season,
+        "last_adapted_at": routine.last_adapted_at,
+        "adaptation_summary": routine.adaptation_summary,
+        "morning_steps": morning_steps,
+        "evening_steps": evening_steps,
+        "weekly_steps": weekly_steps,
+        "seasonal_recommendations": routine.seasonal_recommendations,
+    }
+    return SkincareRoutineResponse.model_validate(resp_data)
+
+
+@app.post("/user/routine/regenerate", response_model=SkincareRoutineResponse)
+async def regenerate_user_routine_endpoint(
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> SkincareRoutineResponse:
+    if current_user.role != "user":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only users can regenerate skincare routines",
+        )
+    user_record = db.query(User).filter(User.email == current_user.email).first()
+    if not user_record:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+    routine = ensure_user_routine(db, user_record.id, force_regenerate=True)
+    return await get_user_routine_endpoint(current_user, db)
+
+
+@app.post("/user/routine/step", response_model=RoutineStepResponse)
+async def add_routine_step_endpoint(
+    step_data: RoutineStepCreate,
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> RoutineStepResponse:
+    if current_user.role != "user":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+    user_record = db.query(User).filter(User.email == current_user.email).first()
+    if not user_record:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    routine = ensure_user_routine(db, user_record.id, force_regenerate=False)
+    
+    existing_steps = [s for s in routine.steps if s.time_of_day == step_data.time_of_day.lower()]
+    next_order = len(existing_steps) + 1
+
+    icon_map = {
+        "cleansing": "🧼",
+        "exfoliation": "✨",
+        "treatment": "💧",
+        "moisturizing": "🧴",
+        "sun_protection": "☀️",
+        "night_care": "🌙",
+    }
+    cat_lower = step_data.category.lower()
+    icon = icon_map.get(cat_lower, "🧴")
+
+    new_step = RoutineStep(
+        routine_id=routine.id,
+        time_of_day=step_data.time_of_day.lower(),
+        step_order=next_order,
+        category=cat_lower,
+        category_icon=icon,
+        step_title=step_data.step_title,
+        description=step_data.description or "",
+        active_ingredients=step_data.active_ingredients or "",
+        frequency=step_data.frequency or "Daily",
+        caution_notes=step_data.caution_notes or "",
+        is_active=True,
+        is_customized=True
+    )
+    db.add(new_step)
+    db.commit()
+    db.refresh(new_step)
+    return RoutineStepResponse.model_validate(new_step)
+
+
+@app.put("/user/routine/step/{step_id}", response_model=RoutineStepResponse)
+async def update_routine_step_endpoint(
+    step_id: int,
+    step_update: RoutineStepUpdate,
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> RoutineStepResponse:
+    if current_user.role != "user":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+    user_record = db.query(User).filter(User.email == current_user.email).first()
+    if not user_record:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    routine = ensure_user_routine(db, user_record.id, force_regenerate=False)
+    step = db.query(RoutineStep).filter(RoutineStep.id == step_id, RoutineStep.routine_id == routine.id).first()
+    if not step:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Step not found")
+
+    if step_update.step_title is not None:
+        step.step_title = step_update.step_title
+    if step_update.description is not None:
+        step.description = step_update.description
+    if step_update.active_ingredients is not None:
+        step.active_ingredients = step_update.active_ingredients
+    if step_update.frequency is not None:
+        step.frequency = step_update.frequency
+    if step_update.caution_notes is not None:
+        step.caution_notes = step_update.caution_notes
+    if step_update.is_active is not None:
+        step.is_active = step_update.is_active
+
+    step.is_customized = True
+    db.commit()
+    db.refresh(step)
+    return RoutineStepResponse.model_validate(step)
+
+
+@app.delete("/user/routine/step/{step_id}")
+async def delete_routine_step_endpoint(
+    step_id: int,
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if current_user.role != "user":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+    user_record = db.query(User).filter(User.email == current_user.email).first()
+    if not user_record:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    routine = ensure_user_routine(db, user_record.id, force_regenerate=False)
+    step = db.query(RoutineStep).filter(RoutineStep.id == step_id, RoutineStep.routine_id == routine.id).first()
+    if not step:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Step not found")
+
+    db.delete(step)
+    db.commit()
+    return {"message": f"Step {step_id} deleted successfully"}
+
+
+@app.post("/user/routine/checkin")
+async def routine_checkin_endpoint(
+    checkin_data: RoutineCheckinRequest,
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if current_user.role != "user":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+    user_record = db.query(User).filter(User.email == current_user.email).first()
+    if not user_record:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    checkin = (
+        db.query(RoutineCheckin)
+        .filter(RoutineCheckin.user_id == user_record.id, RoutineCheckin.checkin_date == today_str)
+        .first()
+    )
+    if not checkin:
+        checkin = RoutineCheckin(user_id=user_record.id, checkin_date=today_str)
+        db.add(checkin)
+
+    if checkin_data.time_of_day.lower() == "morning":
+        checkin.morning_completed = checkin_data.completed
+    elif checkin_data.time_of_day.lower() == "evening":
+        checkin.evening_completed = checkin_data.completed
+
+    db.commit()
+    db.refresh(checkin)
+    return {
+        "checkin_date": checkin.checkin_date,
+        "morning_completed": checkin.morning_completed,
+        "evening_completed": checkin.evening_completed,
+    }
+
+
+@app.get("/user/routine/checkin")
+async def get_routine_checkin_endpoint(
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if current_user.role != "user":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+    user_record = db.query(User).filter(User.email == current_user.email).first()
+    if not user_record:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    checkin = (
+        db.query(RoutineCheckin)
+        .filter(RoutineCheckin.user_id == user_record.id, RoutineCheckin.checkin_date == today_str)
+        .first()
+    )
+    return {
+        "checkin_date": today_str,
+        "morning_completed": checkin.morning_completed if checkin else False,
+        "evening_completed": checkin.evening_completed if checkin else False,
+    }
+
+
+
+def assessment_history_to_dict(h: AssessmentHistory) -> dict:
+    return {
+        "assessment_id": h.assessment_id,
+        "user_id": h.user_id,
+        "skin_profile_id": h.skin_profile_id,
+        "skin_health_score": h.skin_health_score,
+        "skin_health_category": h.skin_health_category,
+        "overall_risk_level": h.overall_risk_level,
+        "assessment_date": h.assessment_date.isoformat() if h.assessment_date else None,
+        "model_version": h.model_version,
+        "image_url": h.image_url or "",
+        "trigger_source": h.trigger_source or "survey_update",
+        "notes": h.notes or "",
+        "created_at": h.created_at.isoformat() if h.created_at else None,
+        "risks": [
+            {
+                "id": r.id,
+                "risk_title": r.risk_title,
+                "risk_level": r.risk_level,
+                "description": r.description,
+                "recommendation": r.recommendation,
+            }
+            for r in h.risks
+        ],
+        "priorities": [
+            {
+                "id": p.id,
+                "concern_name": p.concern_name,
+                "priority_rank": p.priority_rank,
+                "severity": p.severity,
+                "priority_score": p.priority_score,
+            }
+            for p in h.priorities
+        ],
+    }
+
+
+# ---------------------------------------------------------------------------
+# Standard /assessment REST API Endpoints
+# ---------------------------------------------------------------------------
+
+@app.post("/assessment", response_model=SkinProfileResponse)
+async def create_assessment(
+    profile_update: SkinProfileUpdate,
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """POST /assessment - Create/submit a new skin assessment session."""
+    return await update_user_skin_profile(profile_update, current_user, db)
+
+
+@app.get("/assessment", response_model=SkinProfileResponse)
+async def get_latest_assessment(
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """GET /assessment - Get the user's current assessment profile."""
+    return await get_user_skin_profile(current_user, db)
+
+
+@app.get("/assessment/history", response_model=AssessmentHistoryListResponse)
+async def get_assessment_history_endpoint(
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """GET /assessment/history - Retrieve all historical assessment sessions."""
+    return await get_user_assessment_history(current_user, db)
+
+
+@app.get("/assessment/score", response_model=AssessmentScoreResponse)
+async def get_assessment_score(
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """GET /assessment/score - Get user's current AI skin health score & category."""
+    profile_resp = await get_user_skin_profile(current_user, db)
+    return AssessmentScoreResponse(
+        skin_health_score=profile_resp.skin_health_score,
+        skin_health_category=calculate_health_category(profile_resp.skin_health_score or 0),
+    )
+
+
+@app.get("/assessment/risks", response_model=AssessmentRisksResponse)
+async def get_assessment_risks(
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """GET /assessment/risks - Get identified health and environmental risk factors."""
+    risks_response = await get_user_skin_risks(current_user, db)
+    return AssessmentRisksResponse(risks=risks_response.get("risks", []))
+
+
+@app.get("/assessment/{assessment_id}", response_model=AssessmentHistoryResponse)
+async def get_assessment_by_id(
+    assessment_id: int,
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """GET /assessment/{id} - Get specific assessment session record by ID."""
+    user_record = db.query(User).filter(User.email == current_user.email).first()
+    if not user_record:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    h = (
+        db.query(AssessmentHistory)
+        .filter(AssessmentHistory.assessment_id == assessment_id, AssessmentHistory.user_id == user_record.id)
+        .first()
+    )
+    if not h:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Assessment record not found")
+
+    return assessment_history_to_dict(h)
+
+
+@app.put("/assessment/{assessment_id}")
+async def update_assessment_notes(
+    assessment_id: int,
+    req: AssessmentNotesUpdate,
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """PUT /assessment/{id} - Update notes on a specific assessment session."""
+    user_record = db.query(User).filter(User.email == current_user.email).first()
+    if not user_record:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    h = (
+        db.query(AssessmentHistory)
+        .filter(AssessmentHistory.assessment_id == assessment_id, AssessmentHistory.user_id == user_record.id)
+        .first()
+    )
+    if not h:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Assessment record not found")
+
+    h.notes = req.notes or ""
+    db.commit()
+    db.refresh(h)
+    return {"message": "Assessment record updated successfully", "assessment_id": h.assessment_id, "notes": h.notes}
+
+
+@app.delete("/assessment/{assessment_id}")
+async def delete_assessment_by_id(
+    assessment_id: int,
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """DELETE /assessment/{id} - Delete a specific assessment session record."""
+    user_record = db.query(User).filter(User.email == current_user.email).first()
+    if not user_record:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    h = (
+        db.query(AssessmentHistory)
+        .filter(AssessmentHistory.assessment_id == assessment_id, AssessmentHistory.user_id == user_record.id)
+        .first()
+    )
+    if not h:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Assessment record not found")
+
+    db.delete(h)
+    db.commit()
+    return {"message": f"Assessment session #{assessment_id} deleted successfully"}
+
+
+
+@app.post("/user/upload-image")
+async def upload_skin_image(
+    file: UploadFile = File(...),
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if current_user.role != "user":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only users can upload skin images",
+        )
+
+    allowed_types = ["image/jpeg", "image/png", "image/webp", "image/jpg"]
+    if file.content_type and file.content_type.lower() not in allowed_types:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid image format. Allowed formats: JPG, PNG, WEBP.",
+        )
+
+    user_record = db.query(User).filter(User.email == current_user.email).first()
+    if not user_record:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+
+    import uuid
+    ext = Path(file.filename).suffix.lower() if file.filename else ".jpg"
+    if ext not in [".jpg", ".jpeg", ".png", ".webp"]:
+        ext = ".jpg"
+
+    filename = f"user_{user_record.id}_{uuid.uuid4().hex[:8]}{ext}"
+    file_path = UPLOADS_DIR / filename
+
+    contents = await file.read()
+    with open(file_path, "wb") as f:
+        f.write(contents)
+
+    image_url = f"/uploads/{filename}"
+
+    profile = db.query(SkinProfile).filter(SkinProfile.user_id == user_record.id).first()
+    if not profile:
+        profile = SkinProfile(user_id=user_record.id)
+        db.add(profile)
+
+    profile.image_url = image_url
+    if profile.skin_health_score is None or profile.skin_health_score == 0:
+        has_survey = bool(profile.skin_type or profile.age_group or profile.skin_concerns or profile.sleep_quality)
+        if has_survey:
+            profile.skin_health_score = calculate_skin_health_score(profile)
+
+    db.commit()
+    db.refresh(profile)
+
+    # Log assessment history session for photo upload scan
+    record_assessment_history(db, user_record.id, profile, trigger_source="photo_scan")
+
+    return {"image_url": image_url, "message": "Skin image uploaded successfully"}
 
 
 
@@ -696,10 +1812,34 @@ async def get_my_clients(
     current_user: UserPayload = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> dict:
-    if current_user.role != "consultant":
+    if current_user.role not in ["consultant", "admin"]:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Consultant access required")
 
     consultant = db.query(Consultant).filter(Consultant.email == current_user.email).first()
+    if not consultant and current_user.role == "admin":
+        users = db.query(User).all()
+        clients = []
+        for user in users:
+            profile = db.query(SkinProfile).filter(SkinProfile.user_id == user.id).first()
+            clients.append({
+                "id": user.id,
+                "name": user.name or "",
+                "email": user.email,
+                "skin_type": profile.skin_type if profile else "",
+                "age_group": profile.age_group if profile else "",
+                "skin_concerns": profile.skin_concerns if profile else "",
+                "allergies": profile.allergies if profile else "",
+                "sensitivities": profile.sensitivities if profile else "",
+                "lifestyle_habits": profile.lifestyle_habits if profile else "",
+                "sleep_quality": profile.sleep_quality if profile else "",
+                "water_intake": profile.water_intake if profile else "",
+                "environmental_exposure": profile.environmental_exposure if profile else "",
+                "image_url": profile.image_url if profile else "",
+                "skin_health_score": profile.skin_health_score if profile else 0,
+                "risks": get_skin_risks(profile),
+                "priority_concerns": get_priority_concerns(profile),
+            })
+        return {"clients": clients}
     if not consultant:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Consultant not found")
 
@@ -723,10 +1863,15 @@ async def get_my_clients(
             "sleep_quality": profile.sleep_quality if profile else "",
             "water_intake": profile.water_intake if profile else "",
             "environmental_exposure": profile.environmental_exposure if profile else "",
+            "image_url": profile.image_url if profile else "",
+            "skin_health_score": profile.skin_health_score if profile else 0,
+            "risks": get_skin_risks(profile),
+            "priority_concerns": get_priority_concerns(profile),
         })
     return {"clients": clients}
 
 
+app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
 app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="static")
 
 

@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="consultant.css?v=4" />
+    <link rel="stylesheet" href="consultant.css?v=7" />
   </head>
   <body class="consultant-body">
 
@@ -37,101 +37,163 @@
         <button id="closeProfileModal" class="profile-modal-close">&times;</button>
         <h2 id="modalClientName" class="profile-modal-name">Client Profile</h2>
         <p id="modalClientEmail" class="profile-modal-email"></p>
+        <div id="modalClientImageWrapper" class="client-image-wrapper hidden">
+          <p class="modal-image-title">Skin Photo Scan</p>
+          <img id="modalClientImage" src="" alt="Client Skin Photo" class="modal-client-img" />
+        </div>
         <div class="profile-modal-grid" id="modalProfileGrid">
           <!-- filled dynamically -->
         </div>
       </div>
     </div>
 
-    <header class="consultant-header">
-      <div class="brand">
-        <a href="consultant.html" class="brand-link">AI Skin Intelligence & Personalized Skincare Planner</a>
+    <div class="dashboard-layout">
+      <!-- Mobile Top Header -->
+      <header class="mobile-header">
+        <div class="brand flex items-center gap-2">
+          <span class="font-bold text-slate-800 text-sm">AI Skin Intelligence</span>
+        </div>
+        <button id="mobileMenuBtn" class="mobile-menu-toggle" aria-label="Toggle menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      </header>
+
+      <!-- Sidebar Backdrop -->
+      <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+
+      <!-- Sidebar -->
+      <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-brand">
+            <div>
+              <h2 class="sidebar-title">AI Skin Intelligence</h2>
+              <span class="sidebar-badge">Consultant Portal</span>
+            </div>
+          </div>
+          <button id="closeSidebarBtn" class="close-sidebar-btn">&times;</button>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a href="#clients" class="nav-item active" id="navClients" data-section="clients">
+            <span>Clients</span>
+          </a>
+          <a href="#reports" class="nav-item" id="navReports" data-section="reports">
+            <span>Reports</span>
+          </a>
+          <a href="#progress" class="nav-item" id="navProgress" data-section="progress">
+            <span>Progress</span>
+          </a>
+          <a href="#recommendations" class="nav-item" id="navRecommendations" data-section="recommendations">
+            <span>Recommendations</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="user-info">
+            <div class="avatar-circle">C</div>
+            <div class="user-details truncate">
+              <span id="sidebarConsultantName" class="user-name truncate">Consultant</span>
+              <span class="user-role">Specialist</span>
+            </div>
+          </div>
+          <a href="../index.html" class="sidebar-logout-btn" id="headerLogout" title="Logout">
+            <span>Logout</span>
+          </a>
+        </div>
+      </aside>
+
+      <!-- Main wrapper -->
+      <div class="main-wrapper">
+        <!-- Top bar -->
+        <header class="topbar">
+          <div>
+            <h1 id="pageTitle" class="page-title">Client Profiles</h1>
+            <p id="pageSubtitle" class="page-subtitle">Your assigned clients</p>
+          </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="content">
+          <!-- ── CLIENTS section ── -->
+          <section id="section-clients" class="section active panel clients-panel">
+            <div class="panel-heading-group">
+              <p class="panel-label">Client Profiles</p>
+              <h1 class="panel-title">Your assigned clients</h1>
+            </div>
+            <div class="client-search-row">
+              <input id="clientSearch" type="search" class="client-search" placeholder="Search clients" />
+              <button type="button" class="search-btn" id="clientSearchBtn">Search</button>
+            </div>
+            <div id="assignedClientsGrid" class="client-grid">
+              <p class="empty-clients-msg">Loading clients…</p>
+            </div>
+          </section>
+
+          <!-- ── REPORTS section ── -->
+          <section id="section-reports" class="section panel reports-panel">
+            <div class="panel-heading-group">
+              <p class="panel-label">Skin Assessment Reports</p>
+              <h2 class="panel-title">Recent client assessments</h2>
+            </div>
+            <div id="reportList" class="report-list">
+              <p class="empty-clients-msg">Assign clients to see their reports.</p>
+            </div>
+          </section>
+
+          <!-- ── PROGRESS section ── -->
+          <section id="section-progress" class="section panel progress-panel">
+            <div class="panel-heading-group">
+              <p class="panel-label">Progress Monitoring</p>
+              <h2 class="panel-title">Track client improvements</h2>
+            </div>
+            <div class="progress-summary">
+              <div class="progress-item">
+                <h3>Average improvement</h3>
+                <p class="progress-value">72%</p>
+              </div>
+              <div class="progress-item">
+                <h3>Weekly consultations</h3>
+                <p class="progress-value">3</p>
+              </div>
+              <div class="progress-item">
+                <h3>Follow-up tasks</h3>
+                <p class="progress-value">6</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- ── RECOMMENDATIONS section ── -->
+          <section id="section-recommendations" class="section panel recommendations-panel">
+            <div class="panel-heading-group">
+              <p class="panel-label">Recommendation Management</p>
+              <h2 class="panel-title">Assigned routines and products</h2>
+            </div>
+            <div class="recommendation-grid">
+              <article class="recommendation-card">
+                <h3>Renewal Serum</h3>
+                <p>Assign to clients with dry or aging skin.</p>
+                <button class="assign-btn">Assign</button>
+              </article>
+              <article class="recommendation-card">
+                <h3>Balance Cleanser</h3>
+                <p>Good for oil control and sensitive skin.</p>
+                <button class="assign-btn">Assign</button>
+              </article>
+              <article class="recommendation-card">
+                <h3>Barrier Cream</h3>
+                <p>Recommended after assessments of compromised skin.</p>
+                <button class="assign-btn">Assign</button>
+              </article>
+            </div>
+          </section>
+        </main>
       </div>
-      <nav class="consultant-nav">
-        <a href="#clients">Clients</a>
-        <a href="#reports">Reports</a>
-        <a href="#progress">Progress</a>
-        <a href="#recommendations">Recommendations</a>
-      </nav>
-      <a href="../index.html" class="logout-btn" id="headerLogout">Logout</a>
-    </header>
+    </div>
 
-    <main class="consultant-main">
-      <div class="consultant-welcome-banner">
-        <h1 id="welcomeGreeting" class="consultant-welcome-title">Welcome</h1>
-        <p class="consultant-welcome-sub">Manage your client consultations and skin care recommendations.</p>
-      </div>
-
-      <section id="clients" class="panel clients-panel">
-        <div class="panel-heading-group">
-          <p class="panel-label">Client Profiles</p>
-          <h1 class="panel-title">Your assigned clients</h1>
-        </div>
-        <div class="client-search-row">
-          <input id="clientSearch" type="search" class="client-search" placeholder="Search clients" />
-          <button type="button" class="search-btn" id="clientSearchBtn">Search</button>
-        </div>
-        <div id="assignedClientsGrid" class="client-grid">
-          <p class="empty-clients-msg">Loading clients…</p>
-        </div>
-      </section>
-
-      <section id="reports" class="panel reports-panel">
-        <div class="panel-heading-group">
-          <p class="panel-label">Skin Assessment Reports</p>
-          <h2 class="panel-title">Recent client assessments</h2>
-        </div>
-        <div id="reportList" class="report-list">
-          <p class="empty-clients-msg">Assign clients to see their reports.</p>
-        </div>
-      </section>
-
-      <section id="progress" class="panel progress-panel">
-        <div class="panel-heading-group">
-          <p class="panel-label">Progress Monitoring</p>
-          <h2 class="panel-title">Track client improvements</h2>
-        </div>
-        <div class="progress-summary">
-          <div class="progress-item">
-            <h3>Average improvement</h3>
-            <p class="progress-value">72%</p>
-          </div>
-          <div class="progress-item">
-            <h3>Weekly consultations</h3>
-            <p class="progress-value">3</p>
-          </div>
-          <div class="progress-item">
-            <h3>Follow-up tasks</h3>
-            <p class="progress-value">6</p>
-          </div>
-        </div>
-      </section>
-
-      <section id="recommendations" class="panel recommendations-panel">
-        <div class="panel-heading-group">
-          <p class="panel-label">Recommendation Management</p>
-          <h2 class="panel-title">Assigned routines and products</h2>
-        </div>
-        <div class="recommendation-grid">
-          <article class="recommendation-card">
-            <h3>Renewal Serum</h3>
-            <p>Assign to clients with dry or aging skin.</p>
-            <button class="assign-btn">Assign</button>
-          </article>
-          <article class="recommendation-card">
-            <h3>Balance Cleanser</h3>
-            <p>Good for oil control and sensitive skin.</p>
-            <button class="assign-btn">Assign</button>
-          </article>
-          <article class="recommendation-card">
-            <h3>Barrier Cream</h3>
-            <p>Recommended after assessments of compromised skin.</p>
-            <button class="assign-btn">Assign</button>
-          </article>
-        </div>
-      </section>
-    </main>
-
-    <script src="consultant.js?v=4"></script>
+    <script src="consultant.js?v=6"></script>
   </body>
 </html>

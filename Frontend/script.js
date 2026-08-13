@@ -150,6 +150,11 @@ if (registerForm) {
       return;
     }
 
+    if (password.length < 6) {
+      showMessage(registerMessage, 'Password must be at least 6 characters long.');
+      return;
+    }
+
     if (password !== confirmPassword) {
       showMessage(registerMessage, 'Passwords do not match.');
       return;
