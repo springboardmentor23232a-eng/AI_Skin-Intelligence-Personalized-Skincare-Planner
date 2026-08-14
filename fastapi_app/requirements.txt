@@ -7,3 +7,4 @@ pyjwt==2.8.0
 python-dotenv==1.0.1
 python-multipart==0.0.9
 requests==2.32.3
+google-generativeai==0.8.3

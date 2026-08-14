@@ -230,26 +230,6 @@ const Register = () => {
                   border: '1px solid var(--border-color)',
                   borderRadius: '8px',
                   textAlign: 'center',
-                  background: role === 'WELLNESS_COACH' ? 'var(--primary-light)' : 'var(--input-bg)',
-                  borderColor: role === 'WELLNESS_COACH' ? 'var(--primary)' : 'var(--border-color)',
-                  cursor: 'pointer',
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '0.2rem'
-                }}>
-                  <input type="radio" name="role" value="WELLNESS_COACH" checked={role === "WELLNESS_COACH"} onChange={(e) => setRole(e.target.value)} style={{ display: 'none' }} />
-                  <Award size={18} />
-                  <span>Coach</span>
-                </label>
-
-                <label style={{
-                  padding: '0.6rem 0.4rem',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '8px',
-                  textAlign: 'center',
                   background: role === 'ADMIN' ? 'var(--primary-light)' : 'var(--input-bg)',
                   borderColor: role === 'ADMIN' ? 'var(--primary)' : 'var(--border-color)',
                   cursor: 'pointer',

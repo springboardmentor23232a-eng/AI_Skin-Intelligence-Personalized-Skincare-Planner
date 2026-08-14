@@ -170,14 +170,6 @@ const Login = () => {
               </button>
               <button
                 type="button"
-                onClick={() => handleFillRoleCredentials("Coach", "coach@wellness.com", "Password@123")}
-                className="btn btn-outline"
-                style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }}
-              >
-                <Award size={13} /> Coach
-              </button>
-              <button
-                type="button"
                 onClick={() => handleFillRoleCredentials("Admin", "akp73733@gmail.com", "#Prem@123")}
                 className="btn btn-outline"
                 style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }}

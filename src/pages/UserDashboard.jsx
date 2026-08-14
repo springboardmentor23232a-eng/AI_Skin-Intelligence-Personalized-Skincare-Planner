@@ -8,6 +8,7 @@ import { getTimeBasedGreeting } from "../utils/greeting";
 import CameraModal from "../components/CameraModal";
 import SkinAssessmentModule from "../components/SkinAssessmentModule";
 import SkincareRoutineModule from "../components/SkincareRoutineModule";
+import AiSkincareAssistant from "../components/AiSkincareAssistant";
 import { Sparkles, Sun, Droplets, Moon, Flame, Search, Bell, Star, Heart, CheckCircle, TrendingUp, Camera } from "lucide-react";
 
 const INITIAL_GOALS = [
@@ -440,6 +441,9 @@ const UserDashboard = () => {
             </div>
 
           </div>
+
+          {/* Google Gemini AI Skincare Assistant & Vision Scan */}
+          <AiSkincareAssistant userProfile={user} />
 
           {/* Module 4: Skincare Routine Generation Engine Section */}
           <SkincareRoutineModule onToast={showToast} />

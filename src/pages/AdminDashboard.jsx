@@ -7,7 +7,7 @@ import { apiService } from "../services/api";
 import { Shield, Users, Award, Sparkles, Heart, Trash2, Plus, Database, Lock, RefreshCw, FileText, CheckCircle, Sliders } from "lucide-react";
 
 const INITIAL_AUDIT_LOGS = [
-  { id: 1, action: "USER_ROLE_UPDATED", user: "sarah@wellness.com", details: "Role changed to WELLNESS_COACH", timestamp: "2026-08-04 18:30:12" },
+  { id: 1, action: "USER_ROLE_UPDATED", user: "consultant@skincare.com", details: "Role changed to SKINCARE_CONSULTANT", timestamp: "2026-08-04 18:30:12" },
   { id: 2, action: "DATABASE_BACKUP", user: "akp73733@gmail.com", details: "Automated PostgreSQL backup completed (7410)", timestamp: "2026-08-04 17:00:00" },
   { id: 3, action: "AI_MODEL_RECALIBRATION", user: "SYSTEM", details: "Skin Optical Vision Model v2.4 deployed", timestamp: "2026-08-04 14:15:45" }
 ];
@@ -17,8 +17,7 @@ const FALLBACK_USERS = [
   { id: 2, name: "John Doe", email: "john@gmail.com", role: "USER", provider: "LOCAL" },
   { id: 3, name: "Dr. Emily Watson", email: "consultant@skincare.com", role: "SKINCARE_CONSULTANT", provider: "LOCAL" },
   { id: 4, name: "Dr. Michael Chen", email: "dermatologist@skincare.com", role: "DERMATOLOGIST", provider: "LOCAL" },
-  { id: 5, name: "Sarah Coach", email: "coach@wellness.com", role: "WELLNESS_COACH", provider: "LOCAL" },
-  { id: 6, name: "System Admin", email: "admin@wellness.com", role: "ADMIN", provider: "LOCAL" }
+  { id: 5, name: "System Admin", email: "admin@wellness.com", role: "ADMIN", provider: "LOCAL" }
 ];
 
 const AdminDashboard = () => {
@@ -517,7 +516,6 @@ const AdminDashboard = () => {
                               <option value="USER">USER</option>
                               <option value="SKINCARE_CONSULTANT">SKINCARE_CONSULTANT</option>
                               <option value="DERMATOLOGIST">DERMATOLOGIST</option>
-                              <option value="WELLNESS_COACH">WELLNESS_COACH</option>
                               <option value="ADMIN">ADMIN</option>
                             </select>
                           </td>
@@ -569,7 +567,6 @@ const AdminDashboard = () => {
                       <option value="USER">USER</option>
                       <option value="SKINCARE_CONSULTANT">SKINCARE_CONSULTANT</option>
                       <option value="DERMATOLOGIST">DERMATOLOGIST</option>
-                      <option value="WELLNESS_COACH">WELLNESS_COACH</option>
                     </select>
                   </div>
 
@@ -689,7 +686,7 @@ const AdminDashboard = () => {
 
                 <div className="form-group">
                   <label style={{ fontWeight: 700 }}>Role Enforcement Strategy</label>
-                  <input type="text" readOnly value="Strict Isolated RBAC (User, Consultant, Dermatologist, Coach, Admin)" />
+                  <input type="text" readOnly value="Strict Isolated RBAC (User, Consultant, Dermatologist, Admin)" />
                 </div>
 
                 <button onClick={() => showToast("✔ Platform system parameters saved.")} className="btn btn-primary">

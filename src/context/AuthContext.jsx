@@ -123,9 +123,6 @@ export const AuthProvider = ({ children }) => {
       } else if (emailLower.includes("consultant")) {
         role = "SKINCARE_CONSULTANT";
         name = "Dr. Emily Watson";
-      } else if (emailLower.includes("coach") || emailLower.includes("wellness")) {
-        role = "WELLNESS_COACH";
-        name = "Sarah Coach";
       }
 
       const userData = { id: 1, name, email, role, provider: "LOCAL" };
@@ -189,7 +186,6 @@ export const AuthProvider = ({ children }) => {
       if (emailLower.includes("akp73733") || emailLower.includes("admin")) userRole = "ADMIN";
       else if (emailLower.includes("dermatologist") || emailLower.includes("doctor")) userRole = "DERMATOLOGIST";
       else if (emailLower.includes("consultant")) userRole = "SKINCARE_CONSULTANT";
-      else if (emailLower.includes("coach") || emailLower.includes("wellness")) userRole = "WELLNESS_COACH";
 
       const userData = {
         id: 99,

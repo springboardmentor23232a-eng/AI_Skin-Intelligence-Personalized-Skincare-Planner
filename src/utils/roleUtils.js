@@ -9,8 +9,6 @@ export const getDashboardForRole = (role) => {
     case 'SKINCARE_CONSULTANT':
     case 'CONSULTANT':
       return '/consultant';
-    case 'WELLNESS_COACH':
-      return '/wellness';
     case 'USER':
     default:
       return '/user';

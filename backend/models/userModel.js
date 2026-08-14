@@ -56,19 +56,6 @@ const fallbackUsers = [
     updated_at: new Date()
   },
   {
-    id: 5,
-    name: 'Sarah Coach',
-    email: 'coach@wellness.com',
-    password: bcrypt.hashSync('Password@123', 10),
-    role: 'WELLNESS_COACH',
-    provider: 'LOCAL',
-    profile_picture: '',
-    bio: 'Certified Skincare & Personal Wellness Consultant.',
-    phone: '+1 555-0193',
-    created_at: new Date(),
-    updated_at: new Date()
-  },
-  {
     id: 6,
     name: 'System Admin',
     email: 'admin@wellness.com',

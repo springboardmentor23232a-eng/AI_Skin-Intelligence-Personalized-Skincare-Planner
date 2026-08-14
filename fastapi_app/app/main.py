@@ -10,7 +10,7 @@ import uvicorn
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.database import engine, Base
-from app.routers import assessment_router, routine_router
+from app.routers import assessment_router, routine_router, gemini_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -54,6 +54,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 # Register Routers
 app.include_router(assessment_router)
 app.include_router(routine_router.router)
+app.include_router(gemini_router.router)
 
 # Health Check & Root Info
 @app.get("/", tags=["Health & Info"])

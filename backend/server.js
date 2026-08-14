@@ -67,14 +67,16 @@ initDb();
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
 
-// Module 3 & 4: Forward /api/assessment and /api/routine requests to Python FastAPI Engine (port 8000)
-app.all(['/api/assessment', '/api/assessment/*', '/api/routine', '/api/routine/*'], async (req, res) => {
+// Module 3 & 4: Forward /api/assessment, /api/routine, and /api/ai requests to Python FastAPI Engine (port 8000)
+app.all(['/api/assessment', '/api/assessment/*', '/api/routine', '/api/routine/*', '/api/ai', '/api/ai/*'], async (req, res) => {
   const fastApiBase = process.env.FASTAPI_URL || 'http://localhost:8000';
   let targetUrl = `${fastApiBase}${req.originalUrl}`;
   if (req.originalUrl.startsWith('/api/assessment')) {
     targetUrl = `${fastApiBase}${req.originalUrl.replace('/api/assessment', '/assessment')}`;
   } else if (req.originalUrl.startsWith('/api/routine')) {
     targetUrl = `${fastApiBase}${req.originalUrl.replace('/api/routine', '/routine')}`;
+  } else if (req.originalUrl.startsWith('/api/ai')) {
+    targetUrl = `${fastApiBase}${req.originalUrl}`;
   }
 
   try {
@@ -133,16 +135,6 @@ app.get('/api/doctor/dashboard', authenticateJWT, authorizeRoles('DERMATOLOGIST'
     success: true,
     message: 'Welcome to Dermatologist Clinical Dashboard',
     permissions: ['DOCTOR_DASHBOARD', 'PATIENT_LIST', 'APPOINTMENT_SCHEDULE', 'MEDICAL_HISTORY', 'DIAGNOSIS', 'PRESCRIPTIONS', 'TREATMENT_PLANS'],
-    user: req.user
-  });
-});
-
-// WELLNESS_COACH Permissions: Coach Dashboard, Assigned Clients, Diet & Lifestyle Plans
-app.get('/api/wellness/dashboard', authenticateJWT, authorizeRoles('WELLNESS_COACH', 'ADMIN'), (req, res) => {
-  res.json({
-    success: true,
-    message: 'Welcome to Wellness Coach Dashboard',
-    permissions: ['COACH_DASHBOARD', 'ASSIGNED_CLIENTS', 'DIET_PLANS', 'LIFESTYLE_GUIDANCE', 'WATER_SLEEP_TRACKING', 'EXERCISE_RECOMMENDATIONS'],
     user: req.user
   });
 });

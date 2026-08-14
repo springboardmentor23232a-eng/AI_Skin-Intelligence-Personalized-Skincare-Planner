@@ -32,9 +32,18 @@ class RoutineEngine:
         lifestyle = (input_data.lifestyle or "Normal").lower()
         prev_results = input_data.previous_assessment_results or {}
 
-        # Extract risk factors and condition from previous assessment results if available
+        # Extract risk factors, concerns, and condition from previous assessment results
         prev_condition = prev_results.get("overall_condition", "")
+        prev_score = prev_results.get("skin_health_score", None)
         prev_concerns = prev_results.get("concerns", [])
+        prev_acne_severity = prev_results.get("acne_severity", "High") if any("acne" in str(c).lower() for c in prev_concerns) else None
+
+        # Check for adaptive transition triggers
+        adaptive_note = None
+        if prev_score is not None and score > prev_score + 10:
+            adaptive_note = f"Adaptive Update: Skin Health Score improved from {prev_score} to {score}/100! Routine steps adjusted to maintenance mode."
+        elif prev_acne_severity == "High" and ("acne" in concern.lower() or "breakout" in concern.lower()):
+            adaptive_note = "Adaptive Update: Acne severity improved to Moderate/Low. Transitioned from heavy active treatments to gentle maintenance & pore clarification."
 
         steps: List[RoutineStepSchema] = []
 

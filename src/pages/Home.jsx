@@ -16,8 +16,6 @@ export default function Home() {
       email = "consultant@skincare.com";
     } else if (roleKey === "doctor") {
       email = "dermatologist@skincare.com";
-    } else if (roleKey === "coach") {
-      email = "coach@wellness.com";
     } else if (roleKey === "admin") {
       email = "akp73733@gmail.com";
       pass = "#Prem@123";
@@ -42,7 +40,7 @@ export default function Home() {
             AI Skin Intelligence &amp; Personalized Skincare Planner
           </h1>
           <p style={{ maxWidth: '720px', margin: '0 auto 1.5rem', color: 'var(--text-secondary)', fontSize: '1.1rem' }}>
-            Next-generation AI Optical Skin Analysis, Image &amp; Camera Scan, Disease Detection, Hydration Tracking, and Role-Based Portals for Users, Consultants, Dermatologists, Coaches &amp; Admins.
+            Next-generation AI Optical Skin Analysis, Image &amp; Camera Scan, Disease Detection, Hydration Tracking, and Role-Based Portals for Users, Consultants, Dermatologists &amp; Admins.
           </p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '1.5rem' }}>
             <button className="btn btn-primary" onClick={() => navigate("/login")}>
@@ -105,22 +103,7 @@ export default function Home() {
             </button>
           </div>
 
-          {/* 4. Wellness Coach Dashboard */}
-          <div className="glass-card text-center">
-            <Award size={32} style={{ color: 'var(--warning)', marginBottom: '0.75rem', margin: '0 auto' }} />
-            <h3 style={{ fontSize: '1.15rem', marginBottom: '0.5rem' }}>Wellness Coach</h3>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
-              Monitor client hydration, nocturnal sleep turnover, exercise routines, and publish holistic diet &amp; lifestyle plans.
-            </p>
-            <button
-              className="btn btn-outline btn-block"
-              onClick={() => handleQuickLogin("coach")}
-            >
-              Explore Coach View
-            </button>
-          </div>
-
-          {/* 5. Admin Command Center */}
+          {/* 4. Admin Command Center */}
           <div className="glass-card text-center">
             <Shield size={32} style={{ color: 'var(--danger)', marginBottom: '0.75rem', margin: '0 auto' }} />
             <h3 style={{ fontSize: '1.15rem', marginBottom: '0.5rem' }}>Admin Command Center</h3>

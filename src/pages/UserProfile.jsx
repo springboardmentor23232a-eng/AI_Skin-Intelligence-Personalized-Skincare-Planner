@@ -292,11 +292,11 @@ const UserProfile = () => {
                     {user?.role === 'ADMIN' && (
                       <>
                         <li>Admin Command Center (`/admin`)</li>
-                        <li>User &amp; Coach Directory Management</li>
+                        <li>User Directory Management</li>
                         <li>Platform System Metrics</li>
                       </>
                     )}
-                    {(user?.role === 'WELLNESS_COACH' || user?.role === 'SKINCARE_CONSULTANT' || user?.role === 'DERMATOLOGIST') && (
+                    {(user?.role === 'SKINCARE_CONSULTANT' || user?.role === 'DERMATOLOGIST') && (
                       <>
                         <li>Clinical Specialist Portal (`/consultant`)</li>
                         <li>Client Diagnosis &amp; Consultation Review</li>

@@ -67,7 +67,6 @@ export const initDb = async () => {
       ('John Doe', 'john@gmail.com', '${seedHash}', 'USER', 'LOCAL', 'Passionate user seeking personalized skin intelligence.', '+1 555-0192'),
       ('Dr. Emily Watson', 'consultant@skincare.com', '${seedHash}', 'SKINCARE_CONSULTANT', 'LOCAL', 'Senior Skincare Consultant & Routine Specialist.', '+1 555-0195'),
       ('Dr. Michael Chen', 'dermatologist@skincare.com', '${seedHash}', 'DERMATOLOGIST', 'LOCAL', 'Board-Certified Dermatologist.', '+1 555-0196'),
-      ('Sarah Coach', 'coach@wellness.com', '${seedHash}', 'WELLNESS_COACH', 'LOCAL', 'Certified Skincare & Personal Wellness Consultant.', '+1 555-0193'),
       ('System Admin', 'admin@wellness.com', '${seedHash}', 'ADMIN', 'LOCAL', 'AI Skincare Platform Administrator.', '+1 555-0194')
       ON CONFLICT (email) DO NOTHING;
     `);

@@ -93,7 +93,6 @@ export const apiService = {
 
   // Role Based Dashboard APIs
   getUserDashboard: () => axiosInstance.get('/user/dashboard'),
-  getCoachDashboard: () => axiosInstance.get('/coach/dashboard'),
   getAdminDashboard: () => axiosInstance.get('/admin/dashboard'),
   getAllUsers: () => axiosInstance.get('/admin/users'),
 

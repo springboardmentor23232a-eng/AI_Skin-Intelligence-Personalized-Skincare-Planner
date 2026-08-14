@@ -24,8 +24,8 @@ export const validateRegister = [
     .withMessage('Password must contain at least one special character'),
   body('role')
     .optional()
-    .isIn(['USER', 'WELLNESS_COACH', 'SKINCARE_CONSULTANT', 'DERMATOLOGIST', 'ADMIN'])
-    .withMessage('Role must be one of: USER, WELLNESS_COACH, SKINCARE_CONSULTANT, DERMATOLOGIST, ADMIN'),
+    .isIn(['USER', 'SKINCARE_CONSULTANT', 'DERMATOLOGIST', 'ADMIN'])
+    .withMessage('Role must be one of: USER, SKINCARE_CONSULTANT, DERMATOLOGIST, ADMIN'),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

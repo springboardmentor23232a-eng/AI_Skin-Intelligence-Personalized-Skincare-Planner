@@ -28,7 +28,7 @@ function App() {
         <Route
           path="/user"
           element={
-            <ProtectedRoute allowedRoles={['USER', 'SKINCARE_CONSULTANT', 'CONSULTANT', 'DERMATOLOGIST', 'WELLNESS_COACH', 'ADMIN']}>
+            <ProtectedRoute allowedRoles={['USER', 'SKINCARE_CONSULTANT', 'CONSULTANT', 'DERMATOLOGIST', 'ADMIN']}>
               <UserDashboard />
             </ProtectedRoute>
           }
@@ -58,14 +58,6 @@ function App() {
           }
         />
         <Route
-          path="/wellness"
-          element={
-            <ProtectedRoute allowedRoles={['WELLNESS_COACH', 'ADMIN']}>
-              <WellnessDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
           path="/admin"
           element={
             <ProtectedRoute allowedRoles={['ADMIN']}>
@@ -76,7 +68,7 @@ function App() {
         <Route
           path="/profile"
           element={
-            <ProtectedRoute allowedRoles={['USER', 'SKINCARE_CONSULTANT', 'CONSULTANT', 'DERMATOLOGIST', 'WELLNESS_COACH', 'ADMIN']}>
+            <ProtectedRoute allowedRoles={['USER', 'SKINCARE_CONSULTANT', 'CONSULTANT', 'DERMATOLOGIST', 'ADMIN']}>
               <UserProfile />
             </ProtectedRoute>
           }

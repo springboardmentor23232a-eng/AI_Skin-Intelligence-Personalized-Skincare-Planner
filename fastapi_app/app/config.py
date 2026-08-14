@@ -23,3 +23,6 @@ DATABASE_URL = os.getenv(
 # JWT Configuration
 JWT_SECRET = os.getenv("JWT_SECRET", "ai_skincare_super_secret_jwt_key_2026_module1")
 JWT_ALGORITHM = "HS256"
+
+# Gemini API Configuration
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")

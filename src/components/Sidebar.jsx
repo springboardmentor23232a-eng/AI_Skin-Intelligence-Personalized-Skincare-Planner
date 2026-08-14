@@ -55,7 +55,6 @@ const Sidebar = () => {
                 {userRole === 'ADMIN' && 'System Administrator'}
                 {userRole === 'DERMATOLOGIST' && 'Dermatologist Portal'}
                 {userRole === 'SKINCARE_CONSULTANT' && 'Consultant Portal'}
-                {userRole === 'WELLNESS_COACH' && 'Wellness Coach Portal'}
                 {userRole === 'USER' && 'User Dashboard'}
               </strong>
             </div>

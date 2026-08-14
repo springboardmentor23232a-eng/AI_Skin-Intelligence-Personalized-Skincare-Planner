@@ -31,7 +31,6 @@ CREATE TABLE IF NOT EXISTS users (
 INSERT INTO users (name, email, password, role, provider, bio, phone)
 VALUES 
 ('John Doe', 'john@gmail.com', '$2a$10$E.yT5gG.T7N2q7K7z3V5ue/yF8z.yWnE/9K.3S8G.S9V0uK2H.5uO', 'USER', 'LOCAL', 'Passionate developer aiming for skill growth and peak health.', '+1 555-0192'),
-('Sarah Coach', 'coach@wellness.com', '$2a$10$E.yT5gG.T7N2q7K7z3V5ue/yF8z.yWnE/9K.3S8G.S9V0uK2H.5uO', 'WELLNESS_COACH', 'LOCAL', 'Certified Skincare & Personal Wellness Consultant.', '+1 555-0193'),
 ('System Admin', 'admin@wellness.com', '$2a$10$E.yT5gG.T7N2q7K7z3V5ue/yF8z.yWnE/9K.3S8G.S9V0uK2H.5uO', 'ADMIN', 'LOCAL', 'AI Skincare Platform Administrator.', '+1 555-0194')
 ON CONFLICT (email) DO NOTHING;
 
