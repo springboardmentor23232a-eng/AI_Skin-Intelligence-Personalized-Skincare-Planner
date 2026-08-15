@@ -124,6 +124,9 @@ export function getSidebar(role, activePage) {
       { label: 'Concerns', href: '/user/concerns.html', icon: 'alert', key: 'concerns' },
       { label: 'Risk Factors', href: '/user/risks.html', icon: 'shield', key: 'risks' },
       { label: 'Recommendations', href: '/user/recommendations.html', icon: 'sparkles', key: 'recommendations' },
+      { label: 'Skincare Routine', href: '/user/routine.html', icon: 'routine', key: 'routine' },
+      { label: 'Routine Feedback', href: '/user/feedback.html', icon: 'feedback', key: 'feedback' },
+      { label: 'Ingredient Intelligence', href: '/user/ingredients.html', icon: 'beaker', key: 'ingredients' },
       { label: 'Settings', href: '/user/settings.html', icon: 'settings', key: 'settings' },
     ],
     consultant: [
@@ -167,6 +170,9 @@ export function getSidebar(role, activePage) {
     usercheck: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="8" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M2 17c0-3 3-5 6-5s6 2 6 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M14 7l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     stethoscope: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 3v5a4 4 0 008 0V3M5 3H3M5 3h2M13 3h-2M13 3h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 13v2a4 4 0 008 0v-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="17" cy="11" r="2" stroke="currentColor" stroke-width="1.5"/></svg>',
     chart: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 17h14M5 17V10M9 17V6M13 17v-8M17 17V4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    routine: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v4l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6 3v2M14 3v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+    feedback: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 5a2 2 0 012-2h10a2 2 0 012 2v7a2 2 0 01-2 2H8l-4 3v-3H5a2 2 0 01-2-2V5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M7 8h6M7 11h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+    beaker: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M8 3v5L4 16a1 1 0 001 1h10a1 1 0 001-1l-4-8V3M6 3h8M8 10h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   };
 
   const links = menus[role] || [];

@@ -172,6 +172,10 @@ async function loadProfile(userId, authProfile) {
       setFieldValue('fieldSunExposure', profile.sun_exposure);
       setFieldValue('fieldPollution', profile.pollution_exposure);
       setFieldValue('fieldClimate', profile.climate);
+      setFieldValue('fieldAllergies', profile.allergies);
+      setFieldValue('fieldGoals', profile.skincare_goals);
+      setFieldValue('fieldCurrentProducts', profile.current_products);
+      setFieldValue('fieldPrevIssues', profile.previous_ingredient_issues);
     }
   } catch (err) {
     showToast('Unable to load profile data.', 'error');
@@ -202,6 +206,10 @@ export async function saveProfile(userId) {
     sun_exposure: getFieldValue('fieldSunExposure'),
     pollution_exposure: getFieldValue('fieldPollution'),
     climate: getFieldValue('fieldClimate'),
+    allergies: getFieldValue('fieldAllergies'),
+    skincare_goals: getFieldValue('fieldGoals'),
+    current_products: getFieldValue('fieldCurrentProducts'),
+    previous_ingredient_issues: getFieldValue('fieldPrevIssues'),
   };
 
   showLoading('Saving profile...');

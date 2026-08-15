@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ingredient Intelligence - GlowSense AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="/css/assessment.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <div class="dashboard-layout">
+    <div class="dashboard-main">
+      <div class="dashboard-content">
+        <h1 class="page-title">Ingredient Intelligence</h1>
+        <p class="page-subtitle">Understand your skincare ingredients, check suitability, and analyze interactions.</p>
+
+        <div class="card" style="margin-bottom:1.5rem;">
+          <div style="position:relative;margin-bottom:1rem;">
+            <input type="text" id="ingredientSearch" class="form-input" placeholder="Search ingredients..." style="padding:0.875rem 1rem 0.875rem 2.75rem;" />
+            <span class="form-input-icon">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="8" cy="8" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M12 12l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </span>
+          </div>
+          <div id="ingredientGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem;"></div>
+        </div>
+
+        <div id="ingredientDetail" style="display:none;"></div>
+
+        <div class="card" style="margin-top:2rem;">
+          <h2 style="font-size:var(--fs-xl);font-weight:700;margin-bottom:1rem;">Interaction Checker</h2>
+          <p style="color:var(--color-text-secondary);font-size:var(--fs-sm);margin-bottom:1rem;">Select multiple ingredients from your routine to check for potential interactions.</p>
+          <div id="interactionSelector" style="margin-bottom:1rem;"></div>
+          <button class="btn btn-primary" id="checkInteractionsBtn">Check Interactions</button>
+          <div id="interactionResults" style="margin-top:1.5rem;"></div>
+        </div>
+
+        <div class="alert alert-info" style="margin-top:1.5rem;">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M10 9v4M10 7h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span>Ingredient intelligence is for educational purposes and does not constitute medical advice. Always patch-test new products and consult a dermatologist for concerns.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initIngredientIntelligence } from '/js/routines.js';
+    initIngredientIntelligence();
+  </script>
+</body>
+</html>

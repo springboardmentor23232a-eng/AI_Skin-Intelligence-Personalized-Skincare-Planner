@@ -307,3 +307,35 @@
   font-weight: 600;
   color: var(--color-accent-dark);
 }
+
+/* Google Button & Divider */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: var(--space-4) 0;
+  color: var(--color-text-tertiary);
+  font-size: var(--fs-sm);
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.auth-google-btn {
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  border: 1.5px solid var(--color-border);
+  width: 100%;
+}
+
+.auth-google-btn:hover:not(:disabled) {
+  background: var(--color-surface-alt) !important;
+  border-color: var(--color-border-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
