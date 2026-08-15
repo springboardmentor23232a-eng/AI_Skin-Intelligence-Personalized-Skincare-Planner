@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GlowSense AI - AI-Powered Skin Intelligence Platform</title>
+  <meta name="description" content="GlowSense AI analyzes your skin profile and assessment data to provide personalized skin health insights, concerns, risk factors and skincare recommendations." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="/index.html" class="nav-logo">
+        <span class="logo-icon">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <circle cx="14" cy="14" r="13" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M9 14.5l3.5 3.5L19 10.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span class="logo-text">GlowSense<span class="logo-accent">AI</span></span>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#home" class="nav-link">Home</a></li>
+        <li><a href="#features" class="nav-link">Features</a></li>
+        <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
+        <li><a href="#about" class="nav-link">About</a></li>
+        <li><a href="/login.html" class="nav-link nav-link-btn-outline">Login</a></li>
+        <li><a href="/register.html" class="nav-link nav-link-btn-primary">Get Started</a></li>
+      </ul>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <section class="hero" id="home">
+    <div class="hero-bg">
+      <div class="hero-glow"></div>
+    </div>
+    <div class="container hero-container">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span class="badge-dot"></span>
+          AI-Powered Skin Intelligence
+        </div>
+        <h1 class="hero-title">Understand Your Skin.<br /><span class="hero-title-accent">Powered by AI.</span></h1>
+        <p class="hero-description">
+          GlowSense AI analyzes your skin profile and assessment data to provide personalized skin health insights, concerns, risk factors and skincare recommendations.
+        </p>
+        <div class="hero-buttons">
+          <a href="/register.html" class="btn btn-primary btn-lg">
+            Start Skin Assessment
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 9h10M10 5l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a href="#features" class="btn btn-outline btn-lg">Explore GlowSense AI</a>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <span class="stat-value">AI</span>
+            <span class="stat-label">ML Analysis</span>
+          </div>
+          <div class="hero-stat">
+            <span class="stat-value">4</span>
+            <span class="stat-label">Dashboard Types</span>
+          </div>
+          <div class="hero-stat">
+            <span class="stat-value">100</span>
+            <span class="stat-label">Skin Score Scale</span>
+          </div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-card">
+          <div class="hero-card-header">
+            <div class="hero-card-icon">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <circle cx="16" cy="16" r="14" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M16 8v8l5 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div>
+              <div class="hero-card-title">Skin Health Score</div>
+              <div class="hero-card-subtitle">AI Analysis Complete</div>
+            </div>
+          </div>
+          <div class="hero-card-score">
+            <div class="score-ring" style="--score: 82;">
+              <div class="score-ring-inner">
+                <span class="score-number">82</span>
+                <span class="score-max">/100</span>
+              </div>
+            </div>
+            <div class="hero-card-details">
+              <div class="detail-row"><span>Skin Type</span><span class="detail-value">Combination</span></div>
+              <div class="detail-row"><span>Risk Level</span><span class="detail-value detail-moderate">Moderate</span></div>
+              <div class="detail-row"><span>Concerns</span><span class="detail-value">3 Active</span></div>
+            </div>
+          </div>
+          <div class="hero-card-tags">
+            <span class="tag">Acne</span>
+            <span class="tag">Dryness</span>
+            <span class="tag">Sun Protection</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="features" id="features">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label">Features</span>
+        <h2 class="section-title">Intelligent Skin Analysis, Simplified</h2>
+        <p class="section-description">Comprehensive AI-powered tools to understand, track, and improve your skin health.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon feature-icon-blue">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <path d="M14 3l9 5v7c0 5-4 8-9 10-5-2-9-5-9-10V8l9-5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+              <path d="M10 14l3 3 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3 class="feature-title">AI Skin Assessment</h3>
+          <p class="feature-description">Analyze skin profile using AI/ML models trained on comprehensive skin health data.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon feature-icon-green">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <path d="M5 14a9 9 0 0118 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M5 14v5a2 2 0 002 2h2v-7H5zM23 14v5a2 2 0 01-2 2h-2v-7h4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3 class="feature-title">Personalized Insights</h3>
+          <p class="feature-description">Receive personalized skin health insights tailored to your unique profile and concerns.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon feature-icon-amber">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <path d="M14 3v3M14 22v3M3 14h3M22 14h3M6 6l2 2M20 20l2 2M22 6l-2 2M8 20l-2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="14" cy="14" r="4" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <h3 class="feature-title">Risk Analysis</h3>
+          <p class="feature-description">Identify lifestyle and environmental risk factors that may affect your skin health.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon feature-icon-teal">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <path d="M4 20l5-5 4 4 8-8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M17 11h6v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3 class="feature-title">Skin Health Tracking</h3>
+          <p class="feature-description">Track skin assessment history over time and monitor improvements with visual trends.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="how-it-works" id="how-it-works">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label">Process</span>
+        <h2 class="section-title">How It Works</h2>
+        <p class="section-description">Four simple steps to personalized skin intelligence.</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">01</div>
+          <h3 class="step-title">Create Profile</h3>
+          <p class="step-description">Sign up and complete your profile with basic information and skin details.</p>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-card">
+          <div class="step-number">02</div>
+          <h3 class="step-title">Complete Assessment</h3>
+          <p class="step-description">Choose a webcam image analysis or a detailed skin questionnaire.</p>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-card">
+          <div class="step-number">03</div>
+          <h3 class="step-title">AI Analysis</h3>
+          <p class="step-description">Our ML service analyzes your data to generate a comprehensive skin health assessment.</p>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-card">
+          <div class="step-number">04</div>
+          <h3 class="step-title">Get Personalized Insights</h3>
+          <p class="step-description">Receive your skin score, concerns, risks, and personalized recommendations.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="about" id="about">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-content">
+          <span class="section-label">About</span>
+          <h2 class="section-title">AI-Powered Skin Intelligence for Everyone</h2>
+          <p class="about-text">
+            GlowSense AI is a comprehensive skin intelligence platform built for B.Tech AI/ML demonstration. It combines a Node.js + Express backend, PostgreSQL database, and a Python FastAPI ML service to deliver real, data-driven skin health assessments.
+          </p>
+          <p class="about-text">
+            The platform supports four roles — users, consultants, dermatologists, and administrators — each with a dedicated dashboard tailored to their responsibilities.
+          </p>
+          <div class="about-features">
+            <div class="about-feature">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 10l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Node.js + Express REST API</span>
+            </div>
+            <div class="about-feature">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 10l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>PostgreSQL with JWT authentication</span>
+            </div>
+            <div class="about-feature">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 10l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Python FastAPI ML service</span>
+            </div>
+            <div class="about-feature">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 10l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>scikit-learn model integration</span>
+            </div>
+          </div>
+        </div>
+        <div class="about-visual">
+          <div class="about-arch">
+            <div class="arch-layer">
+              <span class="arch-label">Frontend</span>
+              <span class="arch-value">HTML / CSS / JavaScript</span>
+            </div>
+            <div class="arch-arrow">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M6 12l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="arch-layer">
+              <span class="arch-label">Backend</span>
+              <span class="arch-value">Node.js + Express</span>
+            </div>
+            <div class="arch-arrow">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M6 12l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="arch-layer arch-layer-accent">
+              <span class="arch-label">ML Service</span>
+              <span class="arch-value">Python FastAPI + scikit-learn</span>
+            </div>
+            <div class="arch-arrow">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M6 12l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="arch-layer">
+              <span class="arch-label">Database</span>
+              <span class="arch-value">PostgreSQL</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="disclaimer-banner">
+    <div class="container">
+      <div class="disclaimer-content">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        <p>GlowSense AI provides informational skincare insights and does not provide a medical diagnosis. Consult a qualified dermatologist for medical concerns.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="nav-logo">
+            <span class="logo-icon">
+              <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
+                <circle cx="14" cy="14" r="13" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M9 14.5l3.5 3.5L19 10.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="logo-text">GlowSense<span class="logo-accent">AI</span></span>
+          </div>
+          <p class="footer-tagline">AI-Powered Skin Intelligence & Personalized Skincare Platform</p>
+        </div>
+        <div class="footer-links">
+          <h4>Platform</h4>
+          <a href="#features">Features</a>
+          <a href="#how-it-works">How It Works</a>
+          <a href="#about">About</a>
+        </div>
+        <div class="footer-links">
+          <h4>Account</h4>
+          <a href="/login.html">Login</a>
+          <a href="/register.html">Get Started</a>
+        </div>
+        <div class="footer-links">
+          <h4>Legal</h4>
+          <a href="#">Privacy</a>
+          <a href="#">Disclaimer</a>
+          <a href="#">Contact</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 GlowSense AI. B.Tech AI/ML Project. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/common.js"></script>
+</body>
+</html>

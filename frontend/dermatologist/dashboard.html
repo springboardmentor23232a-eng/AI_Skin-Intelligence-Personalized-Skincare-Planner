@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dermatologist Dashboard - GlowSense AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <div class="dashboard-layout">
+    <div class="dashboard-main">
+      <div class="dashboard-content">
+        <h1 class="page-title">Dermatologist Dashboard</h1>
+        <p class="page-subtitle">Clinical review and patient support.</p>
+
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-card-header"><div class="stat-card-icon blue"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="8" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M2 17c0-3 3-5 6-5s6 2 6 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div></div><div class="stat-card-value" id="statPatients">0</div><div class="stat-card-label">Assigned Patients</div></div>
+          <div class="stat-card"><div class="stat-card-header"><div class="stat-card-icon accent"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="5" y="3" width="10" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 7h4M8 10h4M8 13h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div></div><div class="stat-card-value" id="statRecent">0</div><div class="stat-card-label">Recent Assessments</div></div>
+          <div class="stat-card"><div class="stat-card-header"><div class="stat-card-icon red"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3l8 14H2L10 3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M10 9v3M10 14h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div></div><div class="stat-card-value" id="statHighRisk">0</div><div class="stat-card-label">High-Risk Cases</div></div>
+          <div class="stat-card"><div class="stat-card-header"><div class="stat-card-icon amber"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v4l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div></div><div class="stat-card-value" id="statPending">0</div><div class="stat-card-label">Pending Consultations</div></div>
+        </div>
+
+        <div class="card" style="margin-bottom:1rem;">
+          <div class="card-header"><h3 class="card-title">High-Risk Cases</h3></div>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead><tr><th>User</th><th>Date</th><th>Score</th><th>Risk</th><th>Type</th><th>Action</th></tr></thead>
+              <tbody id="highRiskTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="card">
+            <div class="card-header"><h3 class="card-title">Recent Assessments</h3></div>
+            <div class="table-wrapper">
+              <table class="data-table">
+                <thead><tr><th>User</th><th>Date</th><th>Score</th><th>Risk</th><th>Type</th><th>Action</th></tr></thead>
+                <tbody id="dermRecentTable"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3 class="card-title">Consultation Requests</h3></div>
+            <div class="table-wrapper">
+              <table class="data-table">
+                <thead><tr><th>User</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+                <tbody id="dermConsultTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-info" style="margin-top:1.5rem;">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M10 9v4M10 7h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span>AI-generated results are informational and should not be treated as a medical diagnosis. Professional review recommended.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="module">
+    import { initDermatologistDashboard } from '/js/dermatologist.js';
+    initDermatologistDashboard();
+  </script>
+</body>
+</html>

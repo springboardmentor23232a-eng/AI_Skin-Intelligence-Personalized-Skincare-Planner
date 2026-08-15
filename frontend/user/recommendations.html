@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recommendations - GlowSense AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="/css/assessment.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <div class="dashboard-layout">
+    <div class="dashboard-main">
+      <div class="dashboard-content">
+        <h1 class="page-title">Personalized Recommendations</h1>
+        <p class="page-subtitle">Skincare recommendations based on your latest assessment.</p>
+
+        <div id="recsContainer"></div>
+        <div class="empty-state" id="emptyRecs" style="display:none;">
+          <div class="empty-state-icon">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M16 5l2 5 5 2-5 2-2 5-2-5-5-2 5-2 2-5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="empty-state-title">No recommendations available yet</div>
+          <div class="empty-state-text">Complete an assessment to receive personalized skincare recommendations.</div>
+          <a href="/user/assessment.html" class="btn btn-primary">Start Assessment</a>
+        </div>
+
+        <div class="alert alert-info" style="margin-top:1.5rem;">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M10 9v4M10 7h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span>These recommendations are informational and do not constitute medical advice. GlowSense AI does not prescribe medication.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initUserRecommendations } from '/js/user.js';
+    initUserRecommendations();
+  </script>
+</body>
+</html>
