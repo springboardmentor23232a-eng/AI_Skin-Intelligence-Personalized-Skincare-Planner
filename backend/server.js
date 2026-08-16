@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ path: '.env.backup' });
 const express      = require('express');
 const cors         = require('cors');
 const cookieParser = require('cookie-parser');
@@ -8,6 +8,7 @@ const authRoutes       = require('./routes/auth');
 const usersRoutes      = require('./routes/users');
 const skinProfileRoutes = require('./routes/skinProfiles');
 const skinAssessmentRoutes = require('./routes/skinAssessment');
+const routineRoutes    = require('./routes/routines');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -38,17 +39,6 @@ app.use(session({
   }
 }));
 
-// Session configuration
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-secret-key',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: false, // set to true in production with HTTPS
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
-  }
-}));
-
 // ─── Routes ───────────────────────────────────────────────────────────────────
 // Authenticated routes (must be before other routes)
 app.use('/api/auth',          authRoutes);
@@ -57,6 +47,9 @@ app.use('/api/skin-profile',  skinProfileRoutes);
 
 // Skin assessment routes (no auth required for testing)
 app.use('/api/skin',         skinAssessmentRoutes);
+
+// Skincare routine routes
+app.use('/api/routine',      routineRoutes);
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
@@ -93,6 +86,16 @@ app.listen(PORT, () => {
   console.log(`   GET    http://localhost:${PORT}/api/skin/assessment/score/:id`);
   console.log(`   POST   http://localhost:${PORT}/api/skin/predict-skin-type`);
   console.log(`   GET    http://localhost:${PORT}/api/skin/classifier-info`);
+  console.log(`   POST   http://localhost:${PORT}/api/routine/routine`);
+  console.log(`   GET    http://localhost:${PORT}/api/routine/routine/:routineId`);
+  console.log(`   GET    http://localhost:${PORT}/api/routine/routine/user/:userId`);
+  console.log(`   PUT    http://localhost:${PORT}/api/routine/routine/:routineId`);
+  console.log(`   DELETE http://localhost:${PORT}/api/routine/routine/:routineId`);
+  console.log(`   POST   http://localhost:${PORT}/api/routine/routine/ai-personalize`);
+  console.log(`   GET    http://localhost:${PORT}/api/routine/categories`);
+  console.log(`   POST   http://localhost:${PORT}/api/routine/routine/:routineId/check-update`);
+  console.log(`   POST   http://localhost:${PORT}/api/routine/routine/:routineId/adapt`);
+  console.log(`   POST   http://localhost:${PORT}/api/routine/routine/:routineId/regenerate`);
   console.log(`   POST   http://localhost:${PORT}/api/auth/login`);
   console.log(`   POST   http://localhost:${PORT}/api/auth/register`);
   console.log(`   GET    http://localhost:${PORT}/api/health\n`);

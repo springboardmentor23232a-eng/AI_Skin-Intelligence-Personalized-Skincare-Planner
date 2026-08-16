@@ -854,6 +854,7 @@
 
                     <div class="footer-actions">
                         <button type="button" class="btn-secondary" id="editBtn">Edit answers</button>
+                        <button type="button" class="btn-primary" id="generateRoutineBtn">Generate Skincare Routine</button>
                         <button type="button" class="btn-primary" id="saveBtn">Save locally</button>
                         <button type="button" class="btn-ghost" id="clearBtn">Clear saved</button>
                     </div>
@@ -870,6 +871,7 @@
         const editBtn = document.getElementById('editBtn');
         const saveBtn = document.getElementById('saveBtn');
         const clearBtn = document.getElementById('clearBtn');
+        const generateRoutineBtn = document.getElementById('generateRoutineBtn');
         const dropZone = document.getElementById('dropZone');
         const skinImageUpload = document.getElementById('skinImageUpload');
         const previewWrap = document.getElementById('previewWrap');
@@ -1449,6 +1451,53 @@
             quickConcernCount.textContent = '0';
             quickPriorityTag.textContent = 'Waiting';
             quickPriorityTag.className = 'tag warn';
+        });
+
+        // Generate skincare routine button
+        generateRoutineBtn.addEventListener('click', () => {
+            if (!currentAnalysis) {
+                showBanner('Please complete the skin analysis first to generate a personalized routine.', 'error');
+                return;
+            }
+
+            // Convert concerns to proper format for routine generation
+            const concernsMapping = {
+                'Dryness': 'dryness',
+                'Acne': 'acne',
+                'Enlarged pores': 'pores',
+                'Oil imbalance': 'oiliness',
+                'Redness': 'redness',
+                'Pigmentation': 'dark_spots',
+                'Dark circles': 'dark_circles',
+                'Dehydration': 'dryness',
+                'Premature aging': 'aging',
+                'Sun damage risk': 'sun_damage'
+            };
+
+            const mappedConcerns = currentAnalysis.concerns.map(concern => 
+                concernsMapping[concern] || concern.toLowerCase().replace(/ /g, '_')
+            );
+
+            // Store assessment data for routine generation
+            const assessmentData = {
+                skin_type: currentAnalysis.skin_type,
+                skin_concerns: mappedConcerns,
+                skin_health_score: currentAnalysis.skin_health_score,
+                allergies: form.allergies.value ? form.allergies.value.split(',').map(a => a.trim()) : [],
+                lifestyle_factors: {
+                    diet: 'balanced',
+                    exercise: 'moderate',
+                    stress: currentAnalysis.meta?.stress || 'medium'
+                }
+            };
+
+            console.log('Generated assessment data:', assessmentData);
+
+            // Store in localStorage for the routine manager
+            localStorage.setItem('pendingAssessment', JSON.stringify(assessmentData));
+            
+            // Redirect to routine manager
+            window.location.href = 'routine_manager.html';
         });
 
         loadSavedAnalysis();

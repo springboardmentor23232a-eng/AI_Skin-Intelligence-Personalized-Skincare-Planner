@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Skin Intelligence - Skincare Routines</title>
+    <link rel="stylesheet" href="src/styles.css">
+    <style>
+        .routine-page {
+            display: flex;
+            min-height: 100vh;
+            background: linear-gradient(135deg, rgba(143, 175, 157, 0.1) 0%, rgba(200, 169, 106, 0.1) 100%);
+        }
+
+        .routine-sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, var(--white) 0%, rgba(234, 219, 200, 0.3) 100%);
+            border-right: 1px solid rgba(45, 55, 72, 0.1);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .routine-brand {
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: var(--text-main);
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .routine-nav-item {
+            color: var(--text-muted);
+            font-size: 1rem;
+            text-decoration: none;
+            padding: 14px 18px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .routine-nav-item:hover, .routine-nav-item.active {
+            background: linear-gradient(135deg, rgba(143, 175, 157, 0.15), rgba(200, 169, 106, 0.15));
+            color: var(--text-main);
+            transform: translateX(4px);
+        }
+
+        .routine-nav-item.active {
+            border-left: 3px solid var(--accent);
+        }
+
+        .routine-content {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+        }
+
+        .routine-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .routine-header h1 {
+            font-size: 2rem;
+            color: var(--text-main);
+            margin: 0;
+        }
+
+        .create-routine-btn {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: var(--white);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .create-routine-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(143, 175, 157, 0.4);
+        }
+
+        .routine-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .routine-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .routine-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            border-color: var(--primary);
+        }
+
+        .routine-card.active {
+            border-color: var(--accent);
+            background: linear-gradient(135deg, rgba(143, 175, 157, 0.05), rgba(200, 169, 106, 0.05));
+        }
+
+        .routine-type-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .routine-type-morning { background: rgba(255, 193, 7, 0.2); color: #FF8F00; }
+        .routine-type-evening { background: rgba(103, 58, 183, 0.2); color: #673AB7; }
+        .routine-type-weekly { background: rgba(0, 150, 136, 0.2); color: #009688; }
+        .routine-type-seasonal { background: rgba(255, 87, 34, 0.2); color: #FF5722; }
+
+        .routine-card h3 {
+            font-size: 1.2rem;
+            color: var(--text-main);
+            margin: 0 0 8px 0;
+        }
+
+        .routine-card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin: 0 0 16px 0;
+        }
+
+        .routine-steps-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .routine-step-tag {
+            background: rgba(143, 175, 157, 0.2);
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .routine-card-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .routine-action-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .routine-action-btn.primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .routine-action-btn.secondary {
+            background: rgba(143, 175, 157, 0.2);
+            color: var(--primary);
+        }
+
+        .routine-action-btn.danger {
+            background: rgba(245, 101, 101, 0.2);
+            color: #C53030;
+        }
+
+        .routine-detail-panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            margin-bottom: 32px;
+        }
+
+        .routine-detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid rgba(143, 175, 157, 0.2);
+        }
+
+        .routine-steps-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .routine-step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 20px;
+            background: rgba(234, 219, 200, 0.2);
+            border-radius: 12px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .routine-step-number {
+            width: 32px;
+            height: 32px;
+            background: var(--accent);
+            color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .routine-step-content {
+            flex: 1;
+        }
+
+        .routine-step-category {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .routine-step-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .routine-step-description {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .routine-step-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .routine-step-time {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .category-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 16px;
+            background: rgba(143, 175, 157, 0.1);
+            border-radius: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
+        .legend-icon {
+            font-size: 1.2rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-header h3 {
+            font-size: 1.5rem;
+            color: var(--text-main);
+            margin: 0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid rgba(143, 175, 157, 0.3);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: var(--white);
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(143, 175, 157, 0.4);
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .ai-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: linear-gradient(135deg, rgba(143, 175, 157, 0.2), rgba(200, 169, 106, 0.2));
+            color: var(--primary);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .personalized-factors {
+            background: rgba(234, 219, 200, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .factors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .factor-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .factor-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .factor-value {
+            font-size: 1rem;
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .product-suggestions {
+            margin-top: 24px;
+        }
+
+        .product-suggestions h4 {
+            font-size: 1.1rem;
+            color: var(--text-main);
+            margin-bottom: 12px;
+        }
+
+        .product-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .product-tag {
+            background: rgba(143, 175, 157, 0.2);
+            color: var(--primary);
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .routine-detail-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid rgba(143, 175, 157, 0.2);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .update-info {
+            background: rgba(143, 175, 157, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 16px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .update-info h4 {
+            margin: 0 0 8px 0;
+            color: var(--accent);
+            font-size: 1rem;
+        }
+
+        .update-info p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .update-changes {
+            background: rgba(200, 169, 106, 0.1);
+            border-left: 4px solid var(--primary);
+            padding: 16px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .update-changes h4 {
+            margin: 0 0 8px 0;
+            color: var(--primary);
+            font-size: 1rem;
+        }
+
+        .update-changes ul {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
+        .update-changes li {
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="routine-page">
+        <!-- Sidebar -->
+        <div class="routine-sidebar">
+            <div class="routine-brand">✨ AI Skin Intelligence</div>
+            
+            <a href="user_dashboard.html" class="routine-nav-item">
+                <span>🏠</span> Dashboard
+            </a>
+            <a href="routine_manager.html" class="routine-nav-item active">
+                <span>🧴</span> My Routines
+            </a>
+            <a href="skin_profile.html" class="routine-nav-item">
+                <span>🔍</span> Skin Assessment
+            </a>
+            <a href="#" class="routine-nav-item">
+                <span>📅</span> Calendar
+            </a>
+            <a href="#" class="routine-nav-item">
+                <span>📊</span> Analysis
+            </a>
+            <a href="#" class="routine-nav-item">
+                <span>👤</span> Profile
+            </a>
+            
+            <div style="margin-top: auto;">
+                <a href="login.html" class="routine-nav-item" style="color: #e53e3e;">
+                    <span>🚪</span> Logout
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="routine-content">
+            <div class="routine-header">
+                <h1>My Skincare Routines</h1>
+                <button class="create-routine-btn" onclick="openCreateModal()">
+                    <span>➕</span> Create New Routine
+                </button>
+            </div>
+
+            <!-- Category Legend -->
+            <div class="category-legend">
+                <div class="legend-item">
+                    <span class="legend-icon">🧼</span>
+                    <span>Cleansing</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-icon">✨</span>
+                    <span>Exfoliation</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-icon">💧</span>
+                    <span>Treatment</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-icon">🧴</span>
+                    <span>Moisturizing</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-icon">☀️</span>
+                    <span>Sun Protection</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-icon">🌙</span>
+                    <span>Night Care</span>
+                </div>
+            </div>
+
+            <!-- Routine Grid -->
+            <div id="routineGrid" class="routine-grid">
+                <div class="loading-spinner">Loading your routines...</div>
+            </div>
+
+            <!-- Routine Detail Panel -->
+            <div id="routineDetailPanel" class="routine-detail-panel" style="display: none;">
+                <div class="routine-detail-header">
+                    <div>
+                        <h2 id="detailRoutineName">Morning Skincare Routine</h2>
+                        <span id="detailRoutineType" class="routine-type-badge routine-type-morning">Morning</span>
+                        <span class="ai-badge">✨ AI-Personalized</span>
+                    </div>
+                    <div class="routine-card-actions">
+                        <button class="routine-action-btn secondary" onclick="closeDetailPanel()">Close</button>
+                        <button class="routine-action-btn primary" onclick="editCurrentRoutine()">Edit</button>
+                    </div>
+                </div>
+
+                <!-- Personalized Factors -->
+                <div class="personalized-factors">
+                    <h3>🎯 Personalization Factors</h3>
+                    <div class="factors-grid" id="personalizedFactors">
+                        <!-- Factors will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Routine Steps -->
+                <h3>📋 Routine Steps</h3>
+                <div id="routineStepsList" class="routine-steps-list">
+                    <!-- Steps will be populated here -->
+                </div>
+
+                <!-- Product Suggestions -->
+                <div class="product-suggestions">
+                    <h4>🛍️ Recommended Products</h4>
+                    <div id="productTags" class="product-tags">
+                        <!-- Products will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Routine Modal -->
+    <div id="createModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Routine</h3>
+                <button class="close-btn" onclick="closeCreateModal()">&times;</button>
+            </div>
+            
+            <form id="createRoutineForm">
+                <div class="form-group">
+                    <label>Routine Type</label>
+                    <select name="routine_type" required>
+                        <option value="">Select type...</option>
+                        <option value="morning">Morning Routine</option>
+                        <option value="evening">Evening Routine</option>
+                        <option value="weekly">Weekly Treatment</option>
+                        <option value="seasonal">Seasonal Recommendations</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Skin Type</label>
+                        <select name="skin_type" required>
+                            <option value="">Select...</option>
+                            <option value="oily">Oily</option>
+                            <option value="dry">Dry</option>
+                            <option value="combination">Combination</option>
+                            <option value="normal">Normal</option>
+                            <option value="sensitive">Sensitive</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Skin Health Score</label>
+                        <input type="number" name="skin_health_score" min="0" max="100" placeholder="0-100">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Skin Concerns (comma-separated)</label>
+                    <input type="text" name="skin_concerns" placeholder="e.g., acne, aging, dark_spots, dryness">
+                </div>
+
+                <div class="form-group">
+                    <label>Allergies (comma-separated)</label>
+                    <input type="text" name="allergies" placeholder="e.g., fragrance, parabens, sulfates">
+                </div>
+
+                <div class="form-group">
+                    <label>Season (for seasonal routines)</label>
+                    <select name="season">
+                        <option value="">Select...</option>
+                        <option value="spring">Spring</option>
+                        <option value="summer">Summer</option>
+                        <option value="fall">Fall</option>
+                        <option value="winter">Winter</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Lifestyle Factors (JSON)</label>
+                    <textarea name="lifestyle_factors" rows="3" placeholder='{"diet": "balanced", "exercise": "moderate", "stress": "low"}'></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn">Generate AI-Personalized Routine</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Check Update Modal -->
+    <div id="checkUpdateModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🔄 Check for Routine Update</h3>
+                <button class="close-btn" onclick="closeCheckUpdateModal()">&times;</button>
+            </div>
+            
+            <form id="checkUpdateForm">
+                <div class="form-group">
+                    <label>Skin Type</label>
+                    <select name="skin_type" required>
+                        <option value="">Select current skin type...</option>
+                        <option value="oily">Oily</option>
+                        <option value="dry">Dry</option>
+                        <option value="combination">Combination</option>
+                        <option value="normal">Normal</option>
+                        <option value="sensitive">Sensitive</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Skin Health Score (0-100)</label>
+                    <input type="number" name="skin_health_score" min="0" max="100" placeholder="e.g., 75">
+                </div>
+
+                <div class="form-group">
+                    <label>Skin Concerns (comma-separated)</label>
+                    <input type="text" name="skin_concerns" placeholder="e.g., acne, aging, dryness">
+                </div>
+
+                <div class="form-group">
+                    <label>Allergies (comma-separated)</label>
+                    <input type="text" name="allergies" placeholder="e.g., fragrance, parabens">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Diet</label>
+                        <select name="diet">
+                            <option value="balanced">Balanced</option>
+                            <option value="poor">Poor</option>
+                            <option value="mediterranean">Mediterranean</option>
+                            <option value="vegetarian">Vegetarian</option>
+                            <option value="vegan">Vegan</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Exercise</label>
+                        <select name="exercise">
+                            <option value="sedentary">Sedentary</option>
+                            <option value="light">Light</option>
+                            <option value="moderate">Moderate</option>
+                            <option value="active">Active</option>
+                            <option value="very_active">Very Active</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Stress Level</label>
+                    <select name="stress">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="submit-btn">Check for Update</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Regenerate Modal -->
+    <div id="regenerateModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🔄 Regenerate Routine</h3>
+                <button class="close-btn" onclick="closeRegenerateModal()">&times;</button>
+            </div>
+            
+            <form id="regenerateForm">
+                <div class="form-group">
+                    <label>Skin Type</label>
+                    <select name="skin_type" required>
+                        <option value="">Select skin type...</option>
+                        <option value="oily">Oily</option>
+                        <option value="dry">Dry</option>
+                        <option value="combination">Combination</option>
+                        <option value="normal">Normal</option>
+                        <option value="sensitive">Sensitive</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Skin Health Score (0-100)</label>
+                    <input type="number" name="skin_health_score" min="0" max="100" placeholder="e.g., 75">
+                </div>
+
+                <div class="form-group">
+                    <label>Skin Concerns (comma-separated)</label>
+                    <input type="text" name="skin_concerns" placeholder="e.g., acne, aging, dryness">
+                </div>
+
+                <div class="form-group">
+                    <label>Allergies (comma-separated)</label>
+                    <input type="text" name="allergies" placeholder="e.g., fragrance, parabens">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Diet</label>
+                        <select name="diet">
+                            <option value="balanced">Balanced</option>
+                            <option value="poor">Poor</option>
+                            <option value="mediterranean">Mediterranean</option>
+                            <option value="vegetarian">Vegetarian</option>
+                            <option value="vegan">Vegan</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Exercise</label>
+                        <select name="exercise">
+                            <option value="sedentary">Sedentary</option>
+                            <option value="light">Light</option>
+                            <option value="moderate">Moderate</option>
+                            <option value="active">Active</option>
+                        <option value="very_active">Very Active</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Stress Level</label>
+                    <select name="stress">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="submit-btn">Regenerate Routine</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="src/script.js"></script>
+    <script>
+        let currentRoutineId = null;
+        let userRoutines = [];
+        let currentRoutineData = null; // Store current routine data for pre-population
+
+        // Load routines on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserRoutines();
+            
+            // Check for pending assessment data from skin profile
+            const pendingAssessment = localStorage.getItem('pendingAssessment');
+            if (pendingAssessment) {
+                try {
+                    const assessmentData = JSON.parse(pendingAssessment);
+                    console.log('Received assessment data:', assessmentData);
+                    
+                    // Auto-populate the create form with assessment data
+                    const form = document.getElementById('createRoutineForm');
+                    if (form) {
+                        if (assessmentData.skin_type) {
+                            const skinTypeField = form.querySelector('[name="skin_type"]');
+                            if (skinTypeField) skinTypeField.value = assessmentData.skin_type;
+                        }
+                        if (assessmentData.skin_health_score) {
+                            const healthScoreField = form.querySelector('[name="skin_health_score"]');
+                            if (healthScoreField) healthScoreField.value = assessmentData.skin_health_score;
+                        }
+                        if (assessmentData.skin_concerns && assessmentData.skin_concerns.length > 0) {
+                            const concernsField = form.querySelector('[name="skin_concerns"]');
+                            if (concernsField) concernsField.value = assessmentData.skin_concerns.join(', ');
+                        }
+                        if (assessmentData.allergies && assessmentData.allergies.length > 0) {
+                            const allergiesField = form.querySelector('[name="allergies"]');
+                            if (allergiesField) allergiesField.value = assessmentData.allergies.join(', ');
+                        }
+                        if (assessmentData.lifestyle_factors) {
+                            const lifestyle = assessmentData.lifestyle_factors;
+                            const dietField = form.querySelector('[name="diet"]');
+                            if (dietField && lifestyle.diet) dietField.value = lifestyle.diet;
+                            const exerciseField = form.querySelector('[name="exercise"]');
+                            if (exerciseField && lifestyle.exercise) exerciseField.value = lifestyle.exercise;
+                            const stressField = form.querySelector('[name="stress"]');
+                            if (stressField && lifestyle.stress) stressField.value = lifestyle.stress;
+                        }
+                        
+                        // Show a message that data was pre-populated
+                        showBanner('Assessment data loaded! Generate your personalized routine.', 'success');
+                        
+                        // Auto-open the create modal
+                        openCreateModal();
+                        
+                        // Clear the pending assessment
+                        localStorage.removeItem('pendingAssessment');
+                    }
+                } catch (e) {
+                    console.error('Error parsing pending assessment:', e);
+                    localStorage.removeItem('pendingAssessment');
+                }
+            }
+        });
+
+        function openCheckUpdateModal(routineId) {
+            currentRoutineId = routineId;
+            const modal = document.getElementById('checkUpdateModal');
+            const form = document.getElementById('checkUpdateForm');
+            
+            // Load current routine data for pre-population
+            loadRoutineDataForUpdate(routineId).then(data => {
+                currentRoutineData = data;
+                
+                // Pre-populate form with current data
+                if (data.personalized_factors) {
+                    const factors = data.personalized_factors;
+                    if (factors.skin_type) {
+                        form.querySelector('[name="skin_type"]').value = factors.skin_type;
+                    }
+                    if (factors.skin_health_score) {
+                        form.querySelector('[name="skin_health_score"]').value = factors.skin_health_score;
+                    }
+                    if (factors.skin_concerns && Array.isArray(factors.skin_concerns)) {
+                        form.querySelector('[name="skin_concerns"]').value = factors.skin_concerns.join(', ');
+                    }
+                    if (factors.allergies && Array.isArray(factors.allergies)) {
+                        form.querySelector('[name="allergies"]').value = factors.allergies.join(', ');
+                    }
+                    if (factors.lifestyle_factors) {
+                        const lifestyle = factors.lifestyle_factors;
+                        if (lifestyle.diet) form.querySelector('[name="diet"]').value = lifestyle.diet;
+                        if (lifestyle.exercise) form.querySelector('[name="exercise"]').value = lifestyle.exercise;
+                        if (lifestyle.stress) form.querySelector('[name="stress"]').value = lifestyle.stress;
+                    }
+                }
+                
+                modal.classList.add('show');
+            });
+        }
+
+        function closeCheckUpdateModal() {
+            document.getElementById('checkUpdateModal').classList.remove('show');
+            document.getElementById('checkUpdateForm').reset();
+            currentRoutineId = null;
+            currentRoutineData = null;
+        }
+
+        function openRegenerateModal(routineId) {
+            currentRoutineId = routineId;
+            const modal = document.getElementById('regenerateModal');
+            const form = document.getElementById('regenerateForm');
+            
+            // Load current routine data for pre-population
+            loadRoutineDataForUpdate(routineId).then(data => {
+                currentRoutineData = data;
+                
+                // Pre-populate form with current data
+                if (data.personalized_factors) {
+                    const factors = data.personalized_factors;
+                    if (factors.skin_type) {
+                        form.querySelector('[name="skin_type"]').value = factors.skin_type;
+                    }
+                    if (factors.skin_health_score) {
+                        form.querySelector('[name="skin_health_score"]').value = factors.skin_health_score;
+                    }
+                    if (factors.skin_concerns && Array.isArray(factors.skin_concerns)) {
+                        form.querySelector('[name="skin_concerns"]').value = factors.skin_concerns.join(', ');
+                    }
+                    if (factors.allergies && Array.isArray(factors.allergies)) {
+                        form.querySelector('[name="allergies"]').value = factors.allergies.join(', ');
+                    }
+                    if (factors.lifestyle_factors) {
+                        const lifestyle = factors.lifestyle_factors;
+                        if (lifestyle.diet) form.querySelector('[name="diet"]').value = lifestyle.diet;
+                        if (lifestyle.exercise) form.querySelector('[name="exercise"]').value = lifestyle.exercise;
+                        if (lifestyle.stress) form.querySelector('[name="stress"]').value = lifestyle.stress;
+                    }
+                }
+                
+                modal.classList.add('show');
+            });
+        }
+
+        function closeRegenerateModal() {
+            document.getElementById('regenerateModal').classList.remove('show');
+            document.getElementById('regenerateForm').reset();
+            currentRoutineId = null;
+            currentRoutineData = null;
+        }
+
+        async function loadRoutineDataForUpdate(routineId) {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (!user) {
+                alert('Please login first');
+                return null;
+            }
+
+            try {
+                const token = localStorage.getItem('accessToken');
+                const response = await fetch(`http://localhost:3000/api/routine/routine/${routineId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    return await response.json();
+                } else {
+                    alert('Error loading routine data');
+                    return null;
+                }
+            } catch (error) {
+                console.error('Error loading routine data:', error);
+                alert('Error loading routine data');
+                return null;
+            }
+        }
+
+        // Handle check update form submission
+        document.getElementById('checkUpdateForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!currentRoutineId) {
+                alert('No routine selected');
+                return;
+            }
+
+            const formData = new FormData(this);
+            const newAssessment = {
+                skin_type: formData.get('skin_type'),
+                skin_concerns: formData.get('skin_concerns') ? formData.get('skin_concerns').split(',').map(s => s.trim()) : [],
+                skin_health_score: parseInt(formData.get('skin_health_score')) || 70,
+                allergies: formData.get('allergies') ? formData.get('allergies').split(',').map(s => s.trim()) : [],
+                lifestyle_factors: {
+                    diet: formData.get('diet'),
+                    exercise: formData.get('exercise'),
+                    stress: formData.get('stress')
+                }
+            };
+
+            // Validate input
+            if (!newAssessment.skin_type || isNaN(newAssessment.skin_health_score)) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            await checkForUpdateWithModal(currentRoutineId, newAssessment);
+        });
+
+        // Handle regenerate form submission
+        document.getElementById('regenerateForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!currentRoutineId) {
+                alert('No routine selected');
+                return;
+            }
+
+            const formData = new FormData(this);
+            const newParams = {
+                skin_type: formData.get('skin_type'),
+                skin_concerns: formData.get('skin_concerns') ? formData.get('skin_concerns').split(',').map(s => s.trim()) : [],
+                skin_health_score: parseInt(formData.get('skin_health_score')) || 70,
+                allergies: formData.get('allergies') ? formData.get('allergies').split(',').map(s => s.trim()) : [],
+                lifestyle_factors: {
+                    diet: formData.get('diet'),
+                    exercise: formData.get('exercise'),
+                    stress: formData.get('stress')
+                }
+            };
+
+            // Validate input
+            if (!newParams.skin_type || isNaN(newParams.skin_health_score)) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            await regenerateRoutineWithModal(currentRoutineId, newParams);
+        });
+
+        function showBanner(message, type = 'success') {
+            // Simple banner notification
+            const banner = document.createElement('div');
+            banner.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#2f855a' : '#c05621'};
+                color: white;
+                padding: 16px 24px;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            banner.textContent = message;
+            document.body.appendChild(banner);
+            
+            setTimeout(() => {
+                banner.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => banner.remove(), 300);
+            }, 3000);
+        }
+
+        async function loadUserRoutines() {
+            const grid = document.getElementById('routineGrid');
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+
+            if (!user) {
+                grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔐</div><h3>Please login first</h3><p>You need to be logged in to view your routines.</p></div>';
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('accessToken');
+                const response = await fetch(`http://localhost:3000/api/routine/routine/user/${user.id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !Array.isArray(data)) {
+                    grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🧴</div><h3>No routines yet</h3><p>Create your first personalized skincare routine to get started!</p></div>';
+                    return;
+                }
+
+                userRoutines = data;
+                displayRoutines(data);
+
+            } catch (error) {
+                console.error('Error loading routines:', error);
+                grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><h3>Error loading routines</h3><p>Please try again later.</p></div>';
+            }
+        }
+
+        function displayRoutines(routines) {
+            const grid = document.getElementById('routineGrid');
+
+            if (routines.length === 0) {
+                grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🧴</div><h3>No routines yet</h3><p>Create your first personalized skincare routine to get started!</p></div>';
+                return;
+            }
+
+            grid.innerHTML = routines.map(routine => `
+                <div class="routine-card" onclick="showRoutineDetail('${routine.id}')">
+                    <span class="routine-type-badge routine-type-${routine.routine_type}">${routine.routine_type.charAt(0).toUpperCase() + routine.routine_type.slice(1)}</span>
+                    <h3>${routine.routine_name}</h3>
+                    <p>${routine.routine_steps?.length || 0} steps • Created ${new Date(routine.created_at).toLocaleDateString()}</p>
+                    <div class="routine-steps-preview">
+                        ${routine.routine_steps?.slice(0, 3).map(step => 
+                            `<span class="routine-step-tag">${step.step_name}</span>`
+                        ).join('') || ''}
+                        ${routine.routine_steps?.length > 3 ? '<span class="routine-step-tag">+' + (routine.routine_steps.length - 3) + ' more</span>' : ''}
+                    </div>
+                    <div class="routine-card-actions">
+                        <button class="routine-action-btn primary" onclick="event.stopPropagation(); showRoutineDetail('${routine.id}')">View</button>
+                        <button class="routine-action-btn secondary" onclick="event.stopPropagation(); checkForUpdate('${routine.id}')">🔄 Update</button>
+                        <button class="routine-action-btn danger" onclick="event.stopPropagation(); deleteRoutine('${routine.id}')">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function showRoutineDetail(routineId) {
+            currentRoutineId = routineId;
+            const detailPanel = document.getElementById('routineDetailPanel');
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+
+            try {
+                const token = localStorage.getItem('accessToken');
+                const response = await fetch(`http://localhost:3000/api/routine/routine/${routineId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const routine = await response.json();
+
+                if (!response.ok) {
+                    alert('Error loading routine details');
+                    return;
+                }
+
+                // Update detail panel
+                document.getElementById('detailRoutineName').textContent = routine.routine_name;
+                document.getElementById('detailRoutineType').textContent = routine.routine_type.charAt(0).toUpperCase() + routine.routine_type.slice(1);
+                document.getElementById('detailRoutineType').className = `routine-type-badge routine-type-${routine.routine_type}`;
+
+                // Display personalized factors
+                const factorsGrid = document.getElementById('personalizedFactors');
+                const factors = routine.personalized_factors || {};
+                factorsGrid.innerHTML = `
+                    <div class="factor-item">
+                        <span class="factor-label">Skin Type</span>
+                        <span class="factor-value">${factors.skin_type || 'N/A'}</span>
+                    </div>
+                    <div class="factor-item">
+                        <span class="factor-label">Health Score</span>
+                        <span class="factor-value">${factors.skin_health_score || 'N/A'}/100</span>
+                    </div>
+                    <div class="factor-item">
+                        <span class="factor-label">Concerns</span>
+                        <span class="factor-value">${Array.isArray(factors.skin_concerns) ? factors.skin_concerns.join(', ') : factors.skin_concerns || 'N/A'}</span>
+                    </div>
+                    <div class="factor-item">
+                        <span class="factor-label">Allergies</span>
+                        <span class="factor-value">${Array.isArray(factors.allergies) ? factors.allergies.join(', ') : factors.allergies || 'None'}</span>
+                    </div>
+                `;
+
+                // Display routine steps
+                const stepsList = document.getElementById('routineStepsList');
+                const categoryEmojis = {
+                    'cleansing': '🧼',
+                    'exfoliation': '✨',
+                    'treatment': '💧',
+                    'moisturizing': '🧴',
+                    'sun_protection': '☀️',
+                    'night_care': '🌙'
+                };
+
+                stepsList.innerHTML = (routine.routine_steps || []).map((step, index) => `
+                    <div class="routine-step-item">
+                        <div class="routine-step-number">${index + 1}</div>
+                        <div class="routine-step-content">
+                            <div class="routine-step-category">${categoryEmojis[step.category] || '📋'} ${step.category.replace('_', ' ')}</div>
+                            <div class="routine-step-name">${step.step_name}</div>
+                            <div class="routine-step-description">${step.description || ''}</div>
+                            <div class="routine-step-meta">
+                                <div class="routine-step-time">
+                                    <span>⏱️</span>
+                                    <span>${step.duration_minutes || 1} min</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Display product suggestions
+                const productTags = document.getElementById('productTags');
+                productTags.innerHTML = (routine.products || []).map(product => 
+                    `<span class="product-tag">${product}</span>`
+                ).join('');
+
+                // Add adaptive update buttons
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'routine-detail-actions';
+                actionsDiv.innerHTML = `
+                    <button class="routine-action-btn secondary" onclick="checkForUpdate('${routine.id}')">🔄 Check for Update</button>
+                    <button class="routine-action-btn primary" onclick="editCurrentRoutine()">✏️ Edit Routine</button>
+                `;
+                
+                // Insert after product suggestions
+                const suggestionsDiv = document.querySelector('.product-suggestions');
+                if (suggestionsDiv) {
+                    suggestionsDiv.appendChild(actionsDiv);
+                }
+
+                detailPanel.style.display = 'block';
+                detailPanel.scrollIntoView({ behavior: 'smooth' });
+
+            } catch (error) {
+                console.error('Error loading routine detail:', error);
+                alert('Error loading routine details');
+            }
+        }
+
+        function closeDetailPanel() {
+            document.getElementById('routineDetailPanel').style.display = 'none';
+            currentRoutineId = null;
+        }
+
+        async function deleteRoutine(routineId) {
+            if (!confirm('Are you sure you want to delete this routine?')) {
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('accessToken');
+                const response = await fetch(`http://localhost:3000/api/routine/routine/${routineId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    alert('Routine deleted successfully');
+                    loadUserRoutines();
+                    closeDetailPanel();
+                } else {
+                    alert('Error deleting routine');
+                }
+            } catch (error) {
+                console.error('Error deleting routine:', error);
+                alert('Error deleting routine');
+            }
+        }
+
+        function openCreateModal() {
+            document.getElementById('createModal').classList.add('show');
+        }
+
+        function closeCreateModal() {
+            document.getElementById('createModal').classList.remove('show');
+            document.getElementById('createRoutineForm').reset();
+        }
+
+        // Handle form submission
+        document.getElementById('createRoutineForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (!user) {
+                alert('Please login first');
+                return;
+            }
+
+            const formData = new FormData(this);
+            const routineData = {
+                user_id: user.id,
+                routine_type: formData.get('routine_type'),
+                skin_type: formData.get('skin_type'),
+                skin_health_score: parseInt(formData.get('skin_health_score')) || 70,
+                skin_concerns: formData.get('skin_concerns') ? formData.get('skin_concerns').split(',').map(s => s.trim()) : [],
+                allergies: formData.get('allergies') ? formData.get('allergies').split(',').map(s => s.trim()) : [],
+                season: formData.get('season') || null,
+                lifestyle_factors: formData.get('lifestyle_factors') ? JSON.parse(formData.get('lifestyle_factors')) : {}
+            };
+
+            try {
+                const token = localStorage.getItem('accessToken');
+                const response = await fetch('http://localhost:3000/api/routine/routine', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(routineData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert('Routine created successfully!');
+                    closeCreateModal();
+                    loadUserRoutines();
+                } else {
+                    alert('Error creating routine: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error creating routine:', error);
+                alert('Error creating routine');
+            }
+        });
+
+        function editCurrentRoutine() {
+            if (!currentRoutineId) {
+                alert('Please select a routine first');
+                return;
+            }
+            
+            // For now, let's implement a simple edit by opening the create modal with existing data
+            // In a full implementation, this would open a dedicated edit modal
+            alert('Full edit functionality coming soon! For now, use "Check Update" to adapt your routine based on new assessment data.');
+        }
+
+        async function checkForUpdate(routineId) {
+            openCheckUpdateModal(routineId);
+        }
+
+        async function checkForUpdateWithModal(routineId, newAssessment) {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (!user) {
+                alert('Please login first');
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('accessToken');
+                const response = await fetch(`http://localhost:3000/api/routine/routine/${routineId}/check-update`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(newAssessment)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    closeCheckUpdateModal();
+                    
+                    if (result.should_update) {
+                        // Show update recommendation with option choice
+                        const userChoice = confirm(
+                            `Update Recommended!\n\nReason: ${result.reason}\n\n` +
+                            `Would you like to:\n` +
+                            `OK - Auto-adapt routine (smart adjustments)\n` +
+                            `Cancel - Manually regenerate completely`
+                        );
+
+                        if (userChoice) {
+                            await adaptRoutine(routineId, newAssessment);
+                        } else {
+                            closeCheckUpdateModal();
+                            openRegenerateModal(routineId);
+                        }
+                    } else {
+                        alert('No update needed: ' + result.reason);
+                        closeCheckUpdateModal();
+                    }
+                } else {
+                    alert('Error checking update: ' + (result.error || 'Unknown error'));
+                    closeCheckUpdateModal();
+                }
+            } catch (error) {
+                console.error('Error checking update:', error);
+                alert('Error checking update');
+                closeCheckUpdateModal();
+            }
+        }
+
+        async function adaptRoutine(routineId, newAssessment) {
+            try {
+                const token = localStorage.getItem('accessToken');
+                const response = await fetch(`http://localhost:3000/api/routine/routine/${routineId}/adapt`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(newAssessment)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    alert('Routine adapted successfully!\n\nChanges made:\n' + result.changes.join('\n'));
+                    loadUserRoutines();
+                    if (currentRoutineId === routineId) {
+                        showRoutineDetail(routineId);
+                    }
+                } else {
+                    alert('Adaptation not needed: ' + result.reason);
+                }
+            } catch (error) {
+                console.error('Error adapting routine:', error);
+                alert('Error adapting routine');
+            }
+        }
+
+        async function regenerateRoutineWithModal(routineId, newParams) {
+            try {
+                const token = localStorage.getItem('accessToken');
+                const response = await fetch(`http://localhost:3000/api/routine/routine/${routineId}/regenerate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(newParams)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert('Routine regenerated successfully with new parameters!');
+                    closeRegenerateModal();
+                    loadUserRoutines();
+                    if (currentRoutineId === routineId) {
+                        showRoutineDetail(routineId);
+                    }
+                } else {
+                    alert('Error regenerating routine: ' + (result.error || 'Unknown error'));
+                    closeRegenerateModal();
+                }
+            } catch (error) {
+                console.error('Error regenerating routine:', error);
+                alert('Error regenerating routine');
+                closeRegenerateModal();
+            }
+        }
+    </script>
+</body>
+</html>

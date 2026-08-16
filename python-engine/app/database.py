@@ -46,6 +46,8 @@ def init_db():
     """
     try:
         from app.models import Base
+        # Import all models to ensure they're registered with Base
+        from app.models import SkinAssessment, SkinConcern, RiskFactor, SkincareRoutine, RoutineStep
         Base.metadata.create_all(bind=engine)
         print("Database initialized successfully")
     except Exception as e:

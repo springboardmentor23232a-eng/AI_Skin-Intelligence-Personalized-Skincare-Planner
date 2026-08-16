@@ -459,6 +459,12 @@
             margin-bottom: 28px;
         }
         
+        @media (min-width: 768px) {
+            .quick-actions {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
         .quick-action-btn {
             background: var(--white);
             border: 2px solid rgba(143, 175, 157, 0.3);
@@ -625,8 +631,8 @@
             <a href="skin_profile.html" class="enhanced-nav-item">
                 <span>🧴</span> Skin Profile
             </a>
-            <a href="#" class="enhanced-nav-item">
-                <span>🔍</span> Skin Scan
+            <a href="routine_manager.html" class="enhanced-nav-item">
+                <span>🧴</span> My Routines
             </a>
             <a href="#" class="enhanced-nav-item">
                 <span>📅</span> Calendar
@@ -666,6 +672,10 @@
                 <a href="skin_profile.html" class="quick-action-btn">
                     <div class="quick-action-icon">📸</div>
                     <div class="quick-action-label">Skin Assessment</div>
+                </a>
+                <a href="routine_manager.html" class="quick-action-btn">
+                    <div class="quick-action-icon">🧴</div>
+                    <div class="quick-action-label">My Routines</div>
                 </a>
                 <a href="#" class="quick-action-btn">
                     <div class="quick-action-icon">💬</div>

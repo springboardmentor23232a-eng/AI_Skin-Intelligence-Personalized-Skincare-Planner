@@ -54,3 +54,32 @@ class RiskFactor(Base):
     description = Column(Text, nullable=True)
     risk_level = Column(String(20), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+class SkincareRoutine(Base):
+    __tablename__ = "skincare_routines"
+
+    id = Column(UUIDType, primary_key=True, default=generate_uuid, index=True)
+    user_id = Column(UUIDType, nullable=False)
+    assessment_id = Column(UUIDType, ForeignKey("skin_assessments.id"), nullable=True)
+    routine_name = Column(String(100), nullable=False)
+    routine_type = Column(String(20), nullable=False)  # morning, evening, weekly, seasonal
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Store JSON data for routine details
+    routine_steps = Column(JSON, nullable=True)
+    personalized_factors = Column(JSON, nullable=True)
+    products = Column(JSON, nullable=True)
+
+class RoutineStep(Base):
+    __tablename__ = "routine_steps"
+
+    id = Column(UUIDType, primary_key=True, default=generate_uuid, index=True)
+    routine_id = Column(UUIDType, ForeignKey("skincare_routines.id"), nullable=False)
+    step_order = Column(Integer, nullable=False)
+    category = Column(String(50), nullable=False)  # cleansing, exfoliation, treatment, moisturizing, sun_protection, night_care
+    step_name = Column(String(100), nullable=False)
+    description = Column(Text, nullable=True)
+    duration_minutes = Column(Integer, nullable=True)
+    product_recommendations = Column(JSON, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)

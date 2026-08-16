@@ -63,3 +63,57 @@ class ClassifierInfoResponse(BaseModel):
     model_path: str
     supported_classes: List[str]
     input_size: List[int]
+
+# Routine Generation Schemas
+class RoutineStepSchema(BaseModel):
+    step_order: int
+    category: str
+    step_name: str
+    description: Optional[str] = None
+    duration_minutes: Optional[int] = None
+    product_recommendations: Optional[List[str]] = None
+
+class RoutineRequest(BaseModel):
+    user_id: str
+    assessment_id: Optional[str] = None
+    routine_type: str  # morning, evening, weekly, seasonal
+    skin_type: Optional[str] = None
+    skin_concerns: Optional[List[str]] = None
+    skin_health_score: Optional[int] = None
+    allergies: Optional[List[str]] = None
+    lifestyle_factors: Optional[dict] = None
+    season: Optional[str] = None  # for seasonal routines
+
+class RoutineResponse(BaseModel):
+    id: str
+    user_id: str
+    assessment_id: Optional[str] = None
+    routine_name: str
+    routine_type: str
+    routine_steps: List[RoutineStepSchema]
+    personalized_factors: dict
+    products: List[str]
+    created_at: datetime
+    updated_at: datetime
+
+class RoutineUpdateRequest(BaseModel):
+    routine_name: Optional[str] = None
+    routine_steps: Optional[List[RoutineStepSchema]] = None
+    personalized_factors: Optional[dict] = None
+    products: Optional[List[str]] = None
+
+class AIPersonalizationRequest(BaseModel):
+    skin_type: str
+    skin_concerns: List[str]
+    skin_health_score: int
+    allergies: List[str]
+    lifestyle_factors: dict
+    routine_type: str
+    season: Optional[str] = None
+    previous_assessment_results: Optional[dict] = None
+
+class AIPersonalizationResponse(BaseModel):
+    routine_steps: List[RoutineStepSchema]
+    personalized_recommendations: str
+    product_suggestions: List[str]
+    lifestyle_tips: List[str]

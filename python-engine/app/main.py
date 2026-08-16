@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.database import init_db
 from app.routes.assessment import router as assessment_router
 from app.routes.skin_classifier import router as skin_classifier_router
+from app.routes.routine import router as routine_router
 
 # Create FastAPI app
 app = FastAPI(
@@ -23,6 +24,7 @@ app.add_middleware(
 # Include routers
 app.include_router(assessment_router, prefix="/api", tags=["assessments"])
 app.include_router(skin_classifier_router, prefix="/api", tags=["skin-classifier"])
+app.include_router(routine_router, prefix="/api", tags=["routines"])
 
 # Startup event - Initialize database
 @app.on_event("startup")
