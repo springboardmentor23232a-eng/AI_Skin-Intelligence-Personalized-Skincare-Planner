@@ -15,7 +15,7 @@ import ProgressTrackerPage from '@/pages/user/ProgressTrackerPage';
 import ConsultantDashboardPage from '@/pages/consultant/ConsultantDashboardPage';
 import DermatologistDashboardPage from '@/pages/dermatologist/DermatologistDashboardPage';
 import AdminDashboardPage from '@/pages/admin/AdminDashboardPage';
-
+import ProfilePage from '@/pages/ProfilePage';
 // Protected Route Guard with RBAC Enforcement
 function ProtectedRoute({ children, allowedRoles }) {
   const { isAuthenticated, user, setAccessDeniedMessage } = useAuth();
@@ -57,7 +57,15 @@ export function AppRouter() {
           <Route index element={<LandingPage />} />
           <Route path="register" element={<RegisterPage />} />
           <Route path="login" element={<LoginPage />} />
-
+          
+          <Route
+  path="profile"
+  element={
+    <ProtectedRoute>
+      <ProfilePage />
+    </ProtectedRoute>
+  }
+/>
           {/* User / Consumer Protected Routes */}
           <Route
             path="dashboard/user"

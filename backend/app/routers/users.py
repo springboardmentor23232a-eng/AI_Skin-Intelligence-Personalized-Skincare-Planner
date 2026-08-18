@@ -198,6 +198,42 @@ def get_user_profile(current_user: models.User = Depends(get_current_user)):
         "updated_at": current_user.updated_at,
     }
 
+@router.put("/api/me")
+def update_user_profile(
+    user_data: schemas.UserUpdate,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Updates the authenticated user's profile."""
+
+    if user_data.full_name is not None:
+        new_name = user_data.full_name.strip()
+
+        if not new_name:
+            raise HTTPException(
+                status_code=400,
+                detail="Full name cannot be empty."
+            )
+
+        current_user.full_name = new_name
+
+    current_user.updated_at = datetime.now(timezone.utc)
+
+    db.commit()
+    db.refresh(current_user)
+
+    return {
+        "message": "Profile updated successfully.",
+        "profile": {
+            "id": current_user.id,
+            "full_name": current_user.full_name,
+            "email": current_user.email,
+            "role": current_user.role,
+            "provider": current_user.provider,
+            "created_at": current_user.created_at,
+            "updated_at": current_user.updated_at,
+        }
+    }
 
 @router.get("/api/user/overview")
 def user_dashboard_data(current_user: models.User = Depends(require_role(["USER", "CONSUMER", "ADMIN"]))):

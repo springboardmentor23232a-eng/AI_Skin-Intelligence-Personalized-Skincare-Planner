@@ -18,6 +18,7 @@ import {
   CheckCircle2,
   ShieldAlert,
   TrendingUp,
+  User,
 } from 'lucide-react';
 
 export default function UserOverviewPage() {
@@ -102,6 +103,60 @@ useEffect(() => {
   ];
 
   return (
+  <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-6">
+    
+    {/* LEFT SIDEBAR NAVIGATION */}
+    <aside className="lg:sticky lg:top-24 lg:self-start">
+      <GlassCard className="p-3 space-y-2">
+        
+        <div className="px-3 py-2 mb-2">
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            Navigation
+          </p>
+        </div>
+
+        <Link
+          to="/dashboard/user"
+          className="flex items-center gap-3 px-3 py-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 transition-all"
+        >
+          <Sparkles className="w-4 h-4" />
+          <span className="text-sm font-medium">Dashboard</span>
+        </Link>
+
+        <Link
+          to="/dashboard/user/assessment"
+          className="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-900/80 border border-transparent hover:border-slate-800 transition-all"
+        >
+          <Sparkles className="w-4 h-4 text-emerald-400" />
+          <span className="text-sm font-medium">Skin Assessment</span>
+        </Link>
+
+        <Link
+          to="/dashboard/user/routine"
+          className="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-900/80 border border-transparent hover:border-slate-800 transition-all"
+        >
+          <Sun className="w-4 h-4 text-amber-400" />
+          <span className="text-sm font-medium">Routine Planner</span>
+        </Link>
+
+        <Link
+          to="/dashboard/user/progress"
+          className="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-900/80 border border-transparent hover:border-slate-800 transition-all"
+        >
+          <TrendingUp className="w-4 h-4 text-cyan-400" />
+          <span className="text-sm font-medium">Progress Tracker</span>
+        </Link>
+        <Link
+  to="/profile"
+  className="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-900/80 border border-transparent hover:border-slate-800 transition-all"
+>
+  <User className="w-4 h-4 text-emerald-400" />
+  <span className="text-sm font-medium">Profile</span>
+</Link>
+      </GlassCard>
+    </aside>
+
+    {/* EXISTING DASHBOARD CONTENT */}
     <div className="space-y-8">
       {/* 1. WELCOME SECTION */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800/80 pb-6">
@@ -131,32 +186,9 @@ useEffect(() => {
         </div>
 
         <div className="flex flex-wrap gap-3">
-  <QuickActionBar actions={quickActions} />
-
-  <Link to="/dashboard/user/assessment">
-    <Button
-      variant="outline"
-      size="sm"
-      className="gap-2"
-    >
-      <Sparkles className="w-4 h-4 text-emerald-400" />
-      Skin Assessment
-    </Button>
-  </Link>
-
-  <Link to="/dashboard/user/progress">
-    <Button
-      variant="outline"
-      size="sm"
-      className="gap-2"
-    >
-      <TrendingUp className="w-4 h-4 text-cyan-400" />
-      Progress Tracker
-    </Button>
-  </Link>
-</div>
+          <QuickActionBar actions={quickActions} />
+       </div>
       </div>
-
       {/* 2. FOUR SUMMARY STATISTIC CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
@@ -344,5 +376,7 @@ useEffect(() => {
         <ActivityFeedCard title="Sample Activity Log" activities={userActivities} />
       </div>
     </div>
+  </div>
   );
 }
+

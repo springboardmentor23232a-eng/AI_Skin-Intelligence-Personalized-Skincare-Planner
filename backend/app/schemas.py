@@ -15,6 +15,9 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
+class UserUpdate(BaseModel):
+    full_name: Optional[str] = None
+
 class GoogleAuthRequest(BaseModel):
     id_token: Optional[str] = None
     email: EmailStr

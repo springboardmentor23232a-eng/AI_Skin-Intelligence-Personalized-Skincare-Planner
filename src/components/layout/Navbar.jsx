@@ -34,18 +34,30 @@ export function Navbar() {
         { label: 'Consultant Dashboard', href: '/dashboard/consultant' },
         { label: 'Dermatologist Dashboard', href: '/dashboard/dermatologist' },
         { label: 'Admin Console', href: '/dashboard/admin' },
+        
       ];
     }
 
     if (rawRole === 'consultant') {
-      items.push({ label: 'Consultant Workspace', href: '/dashboard/consultant' });
-    } else if (rawRole === 'dermatologist') {
-      items.push({ label: 'Dermatologist Portal', href: '/dashboard/dermatologist' });
-    } else {
-      items.push({ label: 'User Dashboard', href: '/dashboard/user' });
-    }
+  items.push({
+    label: 'Consultant Workspace',
+    href: '/dashboard/consultant'
+  });
+} else if (rawRole === 'dermatologist') {
+  items.push({
+    label: 'Dermatologist Portal',
+    href: '/dashboard/dermatologist'
+  });
+} else {
+  items.push({
+    label: 'User Dashboard',
+    href: '/dashboard/user'
+  });
+}
 
-    return items;
+
+
+return items;
   };
 
   const navItems = getNavItems();
