@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 import tempfile
 import shutil
 import os
+import json
 
 from app.database import get_db
 from app import models
@@ -27,6 +28,12 @@ async def combined_assessment_api(
     sensitivity: str = Form(...),
     humidity: float = Form(...),
     temperature: float = Form(...),
+
+    # Lifestyle & personalization inputs
+    sleep_hours: float = Form(None),
+    water_glasses: float = Form(None),
+    allergies: str = Form(None),
+
     image: UploadFile = File(...),
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -55,14 +62,32 @@ async def combined_assessment_api(
             temp_file_path = temp_file.name
 
         # --------------------------------------------------
+# Parse allergies for JSONB storage
+# --------------------------------------------------
+
+        parsed_allergies = []
+
+        if allergies:
+            try:
+                parsed_allergies = json.loads(allergies)
+
+                if not isinstance(parsed_allergies, list):
+                    parsed_allergies = [str(parsed_allergies)]
+
+            except json.JSONDecodeError:
+                parsed_allergies = [
+                    item.strip()
+                    for item in allergies.split(",")
+                    if item.strip()
+                ]
+        # --------------------------------------------------
         # 2. Prepare questionnaire data
         # --------------------------------------------------
-
+        
         questionnaire_data = {
             "age": age,
             "gender": gender,
-            "hydration_level": hydration_level,
-            "oil_level": oil_level,
+            "hydration_level": hydration_level,            "oil_level": oil_level,
             "sensitivity": sensitivity,
             "humidity": humidity,
             "temperature": temperature
@@ -109,6 +134,10 @@ async def combined_assessment_api(
             sensitivity=sensitivity,
             humidity=humidity,
             temperature=temperature,
+
+            sleep_hours=sleep_hours,
+            water_glasses=water_glasses,
+            allergies=parsed_allergies,
 
             predicted_skin_type=summary.get(
                 "predicted_skin_type",
@@ -213,6 +242,9 @@ def get_assessment_history(
             "sensitivity": assessment.sensitivity,
             "humidity": assessment.humidity,
             "temperature": assessment.temperature,
+            "sleep_hours": assessment.sleep_hours,
+            "water_glasses": assessment.water_glasses,
+            "allergies": assessment.allergies,
             "predicted_skin_type": assessment.predicted_skin_type,
             "health_score": assessment.health_score,
             "overall_condition": assessment.overall_condition,
@@ -336,6 +368,9 @@ def get_assessment(
         "sensitivity": assessment.sensitivity,
         "humidity": assessment.humidity,
         "temperature": assessment.temperature,
+        "sleep_hours": assessment.sleep_hours,
+        "water_glasses": assessment.water_glasses,
+        "allergies": assessment.allergies,
         "predicted_skin_type": assessment.predicted_skin_type,
         "health_score": assessment.health_score,
         "overall_condition": assessment.overall_condition,

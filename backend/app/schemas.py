@@ -115,3 +115,6 @@ class AssessmentResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class RoutineUpdate(BaseModel):
+    routine_data: Dict[str, Any]

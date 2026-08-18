@@ -38,6 +38,11 @@ class Assessment(Base):
     humidity = Column(Float, nullable=True)
     temperature = Column(Float, nullable=True)
 
+# Lifestyle & personalization inputs
+    sleep_hours = Column(Float, nullable=True)
+    water_glasses = Column(Float, nullable=True)
+    allergies = Column(JSONB, nullable=True)
+
     # Questionnaire assessment result
     predicted_skin_type = Column(String, nullable=False)
     health_score = Column(Integer, nullable=False)
@@ -59,4 +64,39 @@ class Assessment(Base):
         server_default=func.now(),
         nullable=False,
         index=True
+    )
+
+class Routine(Base):
+    __tablename__ = "routines"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    user_id = Column(
+        Integer,
+        ForeignKey("users.id"),
+        nullable=False,
+        index=True
+    )
+
+    assessment_id = Column(
+        Integer,
+        ForeignKey("assessments.id"),
+        nullable=False,
+        index=True
+    )
+
+    # Stores the complete generated/customized routine
+    routine_data = Column(JSONB, nullable=False)
+
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False
+    )
+
+    updated_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False
     )
