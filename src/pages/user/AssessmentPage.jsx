@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -17,6 +17,7 @@ export default function AssessmentPage() {
   ]);
   const [sleepHours, setSleepHours] = useState(7);
   const [waterGlasses, setWaterGlasses] = useState(8);
+  const [allergies, setAllergies] = useState('');
 
   // Backend assessment fields
   const [age, setAge] = useState(36);
@@ -29,7 +30,11 @@ export default function AssessmentPage() {
 
   // Image
   const [imageFile, setImageFile] = useState(null);
-
+  // Camera
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const [cameraError, setCameraError] = useState('');
+  const videoRef = useRef(null);
+  const streamRef = useRef(null);
   // API state
   const [assessmentResult, setAssessmentResult] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -50,7 +55,101 @@ export default function AssessmentPage() {
     setImageFile(file);
     setError('');
   };
+  const startCamera = async () => {
+  try {
+    setCameraError('');
 
+    if (!navigator.mediaDevices?.getUserMedia) {
+      throw new Error(
+        'Camera access is not supported by this browser.'
+      );
+    }
+
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: 'user',
+      },
+      audio: false,
+    });
+
+    streamRef.current = stream;
+    setCameraOpen(true);
+
+    // Wait until the video element is rendered
+    setTimeout(() => {
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    }, 100);
+
+  } catch (err) {
+    console.error('Camera error:', err);
+
+    setCameraError(
+      'Unable to access the camera. Please allow camera permission and try again.'
+    );
+  }
+};
+  const stopCamera = () => {
+  if (streamRef.current) {
+    streamRef.current.getTracks().forEach((track) => {
+      track.stop();
+    });
+
+    streamRef.current = null;
+  }
+
+  if (videoRef.current) {
+    videoRef.current.srcObject = null;
+  }
+
+  setCameraOpen(false);
+};
+const capturePhoto = () => {
+  if (!videoRef.current) return;
+
+  const video = videoRef.current;
+
+  const canvas = document.createElement('canvas');
+
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+
+  const context = canvas.getContext('2d');
+
+  context.drawImage(
+    video,
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  canvas.toBlob(
+    (blob) => {
+      if (!blob) {
+        setCameraError('Unable to capture the image.');
+        return;
+      }
+
+      const file = new File(
+        [blob],
+        `skin-camera-${Date.now()}.jpg`,
+        {
+          type: 'image/jpeg',
+        }
+      );
+
+      setImageFile(file);
+      setError('');
+      setCameraError('');
+
+      stopCamera();
+    },
+    'image/jpeg',
+    0.9
+  );
+};
   const handleAssessment = async () => {
     if (!imageFile) {
       setError('Please select a skin image before starting the assessment.');
@@ -65,13 +164,23 @@ export default function AssessmentPage() {
       const formData = new FormData();
 
       formData.append('age', String(age));
-      formData.append('gender', gender);
-      formData.append('hydration_level', hydrationLevel);
-      formData.append('oil_level', oilLevel);
-      formData.append('sensitivity', sensitivity);
-      formData.append('humidity', String(humidity));
-      formData.append('temperature', String(temperature));
-      formData.append('image', imageFile);
+formData.append('gender', gender);
+formData.append('hydration_level', hydrationLevel);
+formData.append('oil_level', oilLevel);
+formData.append('sensitivity', sensitivity);
+formData.append('humidity', String(humidity));
+formData.append('temperature', String(temperature));
+
+formData.append('sleep_hours', String(sleepHours));
+formData.append('water_glasses', String(waterGlasses));
+formData.append('allergies', JSON.stringify(
+  allergies
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean)
+));
+
+formData.append('image', imageFile);
 
       const response = await fetchWithAuth(
         'http://127.0.0.1:8000/assessment/combined',
@@ -99,6 +208,15 @@ export default function AssessmentPage() {
       setLoading(false);
     }
   };
+  useEffect(() => {
+  return () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => {
+        track.stop();
+      });
+    }
+  };
+}, []);
 
   return (
     <div className="space-y-6">
@@ -261,31 +379,113 @@ export default function AssessmentPage() {
               IMAGE UPLOAD
           ====================================================== */}
           <GlassCard className="space-y-4">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-cyan-400" />
-              Skin Image Analysis
-            </h3>
+  <h3 className="text-base font-bold text-white flex items-center gap-2">
+    <Sparkles className="w-5 h-5 text-cyan-400" />
+    Skin Image Analysis
+  </h3>
 
-            <p className="text-xs text-slate-400">
-              Upload a clear image of the skin area you want the
-              Vision AI model to analyze.
-            </p>
+  <p className="text-xs text-slate-400">
+    Upload a clear image of the skin area you want the
+    Vision AI model to analyze, or take a picture using your camera.
+  </p>
 
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="w-full text-sm text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-emerald-500 file:text-white file:cursor-pointer"
-            />
+  {/* Upload / Camera buttons */}
+  {!cameraOpen && (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
 
-            {imageFile && (
-              <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
-                <p className="text-xs text-emerald-300">
-                  Selected image: {imageFile.name}
-                </p>
-              </div>
-            )}
-          </GlassCard>
+      {/* Upload Image */}
+      <label className="cursor-pointer">
+        <div className="w-full p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20 transition text-center">
+          <p className="text-sm font-semibold text-emerald-300">
+            📁 Upload Image
+          </p>
+
+          <p className="text-xs text-slate-500 mt-1">
+            Choose an image from your device
+          </p>
+        </div>
+
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleImageChange}
+          className="hidden"
+        />
+      </label>
+
+      {/* Take Picture */}
+      <button
+        type="button"
+        onClick={startCamera}
+        className="w-full p-4 rounded-xl bg-cyan-500/10 border border-cyan-500/30 hover:bg-cyan-500/20 transition text-center"
+      >
+        <p className="text-sm font-semibold text-cyan-300">
+          📷 Take a Picture
+        </p>
+
+        <p className="text-xs text-slate-500 mt-1">
+          Use your camera
+        </p>
+      </button>
+
+    </div>
+  )}
+
+  {/* Camera */}
+  {cameraOpen && (
+    <div className="space-y-3">
+
+      <div className="rounded-xl overflow-hidden border border-cyan-500/30 bg-black">
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted
+          className="w-full max-h-[400px] object-contain"
+        />
+      </div>
+
+      <div className="flex gap-3">
+
+        <button
+          type="button"
+          onClick={capturePhoto}
+          className="flex-1 px-4 py-3 rounded-xl bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 font-semibold hover:bg-cyan-500/30 transition"
+        >
+          📸 Capture Photo
+        </button>
+
+        <button
+          type="button"
+          onClick={stopCamera}
+          className="px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 font-semibold hover:bg-slate-700 transition"
+        >
+          Cancel
+        </button>
+
+      </div>
+
+    </div>
+  )}
+
+  {/* Camera error */}
+  {cameraError && (
+    <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30">
+      <p className="text-xs text-red-300">
+        {cameraError}
+      </p>
+    </div>
+  )}
+
+  {/* Selected / captured image */}
+  {imageFile && !cameraOpen && (
+    <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
+      <p className="text-xs text-emerald-300">
+        Selected image: {imageFile.name}
+      </p>
+    </div>
+  )}
+</GlassCard>
 
           {/* =====================================================
               EXISTING STEP 1
@@ -389,7 +589,23 @@ export default function AssessmentPage() {
                   className="w-full accent-cyan-500"
                 />
               </div>
+              <div className="space-y-2 sm:col-span-2">
+  <label className="text-slate-300 font-medium block">
+    Allergies / Ingredient Sensitivities
+  </label>
 
+  <input
+    type="text"
+    value={allergies}
+    onChange={(e) => setAllergies(e.target.value)}
+    placeholder="e.g. Fragrance, Nuts, Perfume"
+    className="w-full p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-white outline-none focus:border-emerald-500"
+  />
+
+  <p className="text-[11px] text-slate-500">
+    Separate multiple allergies with commas.
+  </p>
+</div>
             </div>
           </GlassCard>
         </div>
