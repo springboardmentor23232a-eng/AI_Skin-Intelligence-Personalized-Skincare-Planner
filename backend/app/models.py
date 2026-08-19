@@ -39,8 +39,11 @@ class Assessment(Base):
     temperature = Column(Float, nullable=True)
 
 # Lifestyle & personalization inputs
+    # Lifestyle & personalization inputs
     sleep_hours = Column(Float, nullable=True)
+    sleep_quality = Column(String, nullable=True)
     water_glasses = Column(Float, nullable=True)
+    lifestyle_habits = Column(JSONB, nullable=True)
     allergies = Column(JSONB, nullable=True)
 
     # Questionnaire assessment result

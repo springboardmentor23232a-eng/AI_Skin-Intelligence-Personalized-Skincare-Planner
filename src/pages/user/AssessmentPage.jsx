@@ -16,7 +16,9 @@ export default function AssessmentPage() {
     'Uneven Skin Tone',
   ]);
   const [sleepHours, setSleepHours] = useState(7);
+  const [sleepQuality, setSleepQuality] = useState('Good');
   const [waterGlasses, setWaterGlasses] = useState(8);
+  const [lifestyleHabits, setLifestyleHabits] = useState('');
   const [allergies, setAllergies] = useState('');
 
   // Backend assessment fields
@@ -172,7 +174,19 @@ formData.append('humidity', String(humidity));
 formData.append('temperature', String(temperature));
 
 formData.append('sleep_hours', String(sleepHours));
+formData.append('sleep_quality', sleepQuality);
 formData.append('water_glasses', String(waterGlasses));
+
+formData.append(
+  'lifestyle_habits',
+  JSON.stringify({
+    habits: lifestyleHabits
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean),
+  })
+);
+
 formData.append('allergies', JSON.stringify(
   allergies
     .split(',')
@@ -548,66 +562,111 @@ formData.append('image', imageFile);
           {/* =====================================================
               EXISTING STEP 3
           ====================================================== */}
-          <GlassCard className="space-y-4">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Sliders className="w-5 h-5 text-cyan-400" />
-              3. Lifestyle & Hydration Metrics
-            </h3>
+          {/* =====================================================
+    STEP 3 - LIFESTYLE & HYDRATION
+====================================================== */}
+<GlassCard className="space-y-4">
+  <h3 className="text-base font-bold text-white flex items-center gap-2">
+    <Sliders className="w-5 h-5 text-cyan-400" />
+    3. Lifestyle & Hydration Metrics
+  </h3>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
 
-              <div className="space-y-2">
-                <label className="text-slate-300 font-medium block">
-                  Average Sleep per Night ({sleepHours} hrs)
-                </label>
+    {/* Sleep Hours */}
+    <div className="space-y-2">
+      <label className="text-slate-300 font-medium block">
+        Average Sleep per Night ({sleepHours} hrs)
+      </label>
 
-                <input
-                  type="range"
-                  min="4"
-                  max="10"
-                  value={sleepHours}
-                  onChange={(e) =>
-                    setSleepHours(Number(e.target.value))
-                  }
-                  className="w-full accent-emerald-500"
-                />
-              </div>
+      <input
+        type="range"
+        min="4"
+        max="10"
+        value={sleepHours}
+        onChange={(e) =>
+          setSleepHours(Number(e.target.value))
+        }
+        className="w-full accent-emerald-500"
+      />
+    </div>
 
-              <div className="space-y-2">
-                <label className="text-slate-300 font-medium block">
-                  Daily Water Intake ({waterGlasses} glasses)
-                </label>
+    {/* Sleep Quality */}
+    <div className="space-y-2">
+      <label className="text-slate-300 font-medium block">
+        Sleep Quality
+      </label>
 
-                <input
-                  type="range"
-                  min="2"
-                  max="16"
-                  value={waterGlasses}
-                  onChange={(e) =>
-                    setWaterGlasses(Number(e.target.value))
-                  }
-                  className="w-full accent-cyan-500"
-                />
-              </div>
-              <div className="space-y-2 sm:col-span-2">
-  <label className="text-slate-300 font-medium block">
-    Allergies / Ingredient Sensitivities
-  </label>
+      <select
+        value={sleepQuality}
+        onChange={(e) => setSleepQuality(e.target.value)}
+        className="w-full p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-white outline-none focus:border-emerald-500"
+      >
+        <option value="Excellent">Excellent</option>
+        <option value="Good">Good</option>
+        <option value="Fair">Fair</option>
+        <option value="Poor">Poor</option>
+      </select>
+    </div>
 
-  <input
-    type="text"
-    value={allergies}
-    onChange={(e) => setAllergies(e.target.value)}
-    placeholder="e.g. Fragrance, Nuts, Perfume"
-    className="w-full p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-white outline-none focus:border-emerald-500"
-  />
+    {/* Water Intake */}
+    <div className="space-y-2">
+      <label className="text-slate-300 font-medium block">
+        Daily Water Intake ({waterGlasses} glasses)
+      </label>
 
-  <p className="text-[11px] text-slate-500">
-    Separate multiple allergies with commas.
-  </p>
-</div>
-            </div>
-          </GlassCard>
+      <input
+        type="range"
+        min="2"
+        max="16"
+        value={waterGlasses}
+        onChange={(e) =>
+          setWaterGlasses(Number(e.target.value))
+        }
+        className="w-full accent-cyan-500"
+      />
+    </div>
+
+    {/* Lifestyle Habits */}
+    <div className="space-y-2">
+      <label className="text-slate-300 font-medium block">
+        Lifestyle Habits
+      </label>
+
+      <input
+        type="text"
+        value={lifestyleHabits}
+        onChange={(e) => setLifestyleHabits(e.target.value)}
+        placeholder="e.g. Regular exercise, Balanced diet"
+        className="w-full p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-white outline-none focus:border-emerald-500"
+      />
+
+      <p className="text-[11px] text-slate-500">
+        Separate multiple habits with commas.
+      </p>
+    </div>
+
+    {/* Allergies */}
+    <div className="space-y-2 sm:col-span-2">
+      <label className="text-slate-300 font-medium block">
+        Allergies / Ingredient Sensitivities
+      </label>
+
+      <input
+        type="text"
+        value={allergies}
+        onChange={(e) => setAllergies(e.target.value)}
+        placeholder="e.g. Fragrance, Nuts, Perfume"
+        className="w-full p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-white outline-none focus:border-emerald-500"
+      />
+
+      <p className="text-[11px] text-slate-500">
+        Separate multiple allergies with commas.
+      </p>
+    </div>
+
+  </div>
+</GlassCard>
         </div>
 
         {/* =====================================================

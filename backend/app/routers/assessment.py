@@ -31,7 +31,9 @@ async def combined_assessment_api(
 
     # Lifestyle & personalization inputs
     sleep_hours: float = Form(None),
+    sleep_quality: str = Form(None),
     water_glasses: float = Form(None),
+    lifestyle_habits: str = Form(None),
     allergies: str = Form(None),
 
     image: UploadFile = File(...),
@@ -80,6 +82,18 @@ async def combined_assessment_api(
                     for item in allergies.split(",")
                     if item.strip()
                 ]
+        # Parse lifestyle habits for JSONB storage
+        parsed_lifestyle_habits = {}
+
+        if lifestyle_habits:
+            try:
+                parsed_lifestyle_habits = json.loads(lifestyle_habits)
+
+                if not isinstance(parsed_lifestyle_habits, dict):
+                    parsed_lifestyle_habits = {}
+
+            except json.JSONDecodeError:
+                parsed_lifestyle_habits = {}
         # --------------------------------------------------
         # 2. Prepare questionnaire data
         # --------------------------------------------------
@@ -136,7 +150,9 @@ async def combined_assessment_api(
             temperature=temperature,
 
             sleep_hours=sleep_hours,
+            sleep_quality=sleep_quality,
             water_glasses=water_glasses,
+            lifestyle_habits=parsed_lifestyle_habits,
             allergies=parsed_allergies,
 
             predicted_skin_type=summary.get(
@@ -243,7 +259,9 @@ def get_assessment_history(
             "humidity": assessment.humidity,
             "temperature": assessment.temperature,
             "sleep_hours": assessment.sleep_hours,
+            "sleep_quality": assessment.sleep_quality,
             "water_glasses": assessment.water_glasses,
+            "lifestyle_habits": assessment.lifestyle_habits,
             "allergies": assessment.allergies,
             "predicted_skin_type": assessment.predicted_skin_type,
             "health_score": assessment.health_score,
@@ -369,7 +387,9 @@ def get_assessment(
         "humidity": assessment.humidity,
         "temperature": assessment.temperature,
         "sleep_hours": assessment.sleep_hours,
+        "sleep_quality": assessment.sleep_quality,
         "water_glasses": assessment.water_glasses,
+        "lifestyle_habits": assessment.lifestyle_habits,
         "allergies": assessment.allergies,
         "predicted_skin_type": assessment.predicted_skin_type,
         "health_score": assessment.health_score,
@@ -475,4 +495,69 @@ def update_assessment(
             "recommendations": assessment.recommendations,
             "assessment_time": assessment.assessment_time,
         }
+    }
+
+@router.get("/profile/skin")
+def get_skin_profile(
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    latest_assessment = (
+        db.query(models.Assessment)
+        .filter(models.Assessment.user_id == current_user.id)
+        .order_by(models.Assessment.assessment_time.desc())
+        .first()
+    )
+
+    if not latest_assessment:
+        raise HTTPException(
+            status_code=404,
+            detail="No skin assessment found. Please complete an assessment first."
+        )
+
+    age = latest_assessment.age
+
+    # Derive age group from the stored age
+    if age < 18:
+        age_group = "Under 18"
+    elif age <= 25:
+        age_group = "18–25"
+    elif age <= 35:
+        age_group = "26–35"
+    elif age <= 45:
+        age_group = "36–45"
+    elif age <= 60:
+        age_group = "46–60"
+    else:
+        age_group = "60+"
+
+    return {
+        "user": {
+            "id": current_user.id,
+            "full_name": current_user.full_name,
+            "email": current_user.email,
+        },
+        "skin_information": {
+            "skin_type": latest_assessment.predicted_skin_type,
+            "age": age,
+            "age_group": age_group,
+            "skin_concerns": latest_assessment.concerns or [],
+            "allergies": latest_assessment.allergies or [],
+            "sensitivity": latest_assessment.sensitivity,
+        },
+        "lifestyle": {
+            "sleep_hours": latest_assessment.sleep_hours,
+            "sleep_quality": latest_assessment.sleep_quality,
+            "water_glasses": latest_assessment.water_glasses,
+            "lifestyle_habits": latest_assessment.lifestyle_habits or {},
+        },
+        "environment": {
+            "humidity": latest_assessment.humidity,
+            "temperature": latest_assessment.temperature,
+        },
+        "assessment": {
+            "health_score": latest_assessment.health_score,
+            "overall_condition": latest_assessment.overall_condition,
+            "assessment_time": latest_assessment.assessment_time,
+        },
     }

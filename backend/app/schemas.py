@@ -56,6 +56,12 @@ class AssessmentCreate(BaseModel):
     humidity: Optional[float] = None
     temperature: Optional[float] = None
 
+    sleep_hours: Optional[float] = None
+    sleep_quality: Optional[str] = None
+    water_glasses: Optional[float] = None
+    lifestyle_habits: Optional[Dict[str, Any]] = None
+    allergies: Optional[List[str]] = None
+
     predicted_skin_type: str
     health_score: int
     overall_condition: str
@@ -77,6 +83,12 @@ class AssessmentUpdate(BaseModel):
     sensitivity: Optional[str] = None
     humidity: Optional[float] = None
     temperature: Optional[float] = None
+
+    sleep_hours: Optional[float] = None
+    sleep_quality: Optional[str] = None
+    water_glasses: Optional[float] = None
+    lifestyle_habits: Optional[Dict[str, Any]] = None
+    allergies: Optional[List[str]] = None
 
     predicted_skin_type: Optional[str] = None
     health_score: Optional[int] = None
@@ -101,6 +113,12 @@ class AssessmentResponse(BaseModel):
     sensitivity: Optional[str] = None
     humidity: Optional[str] = None
     temperature: Optional[str] = None
+
+    sleep_hours: Optional[float] = None
+    sleep_quality: Optional[str] = None
+    water_glasses: Optional[float] = None
+    lifestyle_habits: Optional[Dict[str, Any]] = None
+    allergies: Optional[List[str]] = None
 
     predicted_skin_type: str
     health_score: int
