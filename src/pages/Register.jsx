@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { getDashboardForRole } from "../utils/roleUtils";
 import Navbar from "../components/Navbar";
 import GoogleOAuthButton from "../components/GoogleOAuthButton";
-import { User, Mail, Lock, UserPlus, Shield, Award, Sparkles, CheckCircle2, XCircle, Phone, Stethoscope } from "lucide-react";
+import { User, Mail, Lock, UserPlus, Shield, Sparkles, CheckCircle2, XCircle, Phone, Stethoscope } from "lucide-react";
 
 const Register = () => {
   const { register } = useAuth();

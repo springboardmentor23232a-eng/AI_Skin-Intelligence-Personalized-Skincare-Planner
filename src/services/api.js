@@ -222,6 +222,108 @@ export const apiService = {
     } catch (err) {
       throw err.response ? err.response.data : new Error(err.message);
     }
+  },
+
+  // Module 5: Ingredient Intelligence Engine APIs
+  getIngredients: async (query = '') => {
+    try {
+      const res = await axiosInstance.get('/ingredient', { params: { q: query } });
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  getIngredientConflicts: async () => {
+    try {
+      const res = await axiosInstance.get('/ingredient/conflicts');
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  analyzeIngredients: async (data) => {
+    try {
+      const res = await axiosInstance.post('/ingredient/analyze', data);
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  // Module 6: Product Recommendation Engine APIs
+  getProducts: async (category = '') => {
+    try {
+      const res = await axiosInstance.get('/product', { params: { category } });
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  getMyProductRecommendations: async (category = '') => {
+    try {
+      const res = await axiosInstance.get('/product/recommendations/me', { params: { category } });
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  getCustomProductRecommendations: async (data) => {
+    try {
+      const res = await axiosInstance.post('/product/recommendations', data);
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  // Module 7: Progress Tracking & Analytics APIs
+  createProgressLog: async (logData) => {
+    try {
+      const res = await axiosInstance.post('/progress/log', logData);
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  getProgressHistory: async (limit = 30) => {
+    try {
+      const res = await axiosInstance.get('/progress/history', { params: { limit } });
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  getProgressStats: async () => {
+    try {
+      const res = await axiosInstance.get('/progress/stats');
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  getUserAnalytics: async () => {
+    try {
+      const res = await axiosInstance.get('/analytics/user');
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  getSystemAnalytics: async () => {
+    try {
+      const res = await axiosInstance.get('/analytics/system');
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
   }
 };
 

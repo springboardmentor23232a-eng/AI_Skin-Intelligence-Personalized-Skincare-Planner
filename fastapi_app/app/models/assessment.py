@@ -20,6 +20,7 @@ class User(Base):
 
     assessments = relationship("SkinAssessment", back_populates="user", cascade="all, delete-orphan")
     routines = relationship("PersonalizedRoutine", back_populates="user", cascade="all, delete-orphan")
+    progress_logs = relationship("SkinProgressLog", back_populates="user", cascade="all, delete-orphan")
 
 
 class SkinAssessment(Base):

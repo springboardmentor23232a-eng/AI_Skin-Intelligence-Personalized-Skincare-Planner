@@ -9,6 +9,10 @@ import CameraModal from "../components/CameraModal";
 import SkinAssessmentModule from "../components/SkinAssessmentModule";
 import SkincareRoutineModule from "../components/SkincareRoutineModule";
 import AiSkincareAssistant from "../components/AiSkincareAssistant";
+import IngredientIntelligenceModule from "../components/IngredientIntelligenceModule";
+import ProductRecommendationModule from "../components/ProductRecommendationModule";
+import ProgressTrackingModule from "../components/ProgressTrackingModule";
+import SkincareAnalyticsModule from "../components/SkincareAnalyticsModule";
 import { Sparkles, Sun, Droplets, Moon, Flame, Search, Bell, Star, Heart, CheckCircle, TrendingUp, Camera } from "lucide-react";
 
 const INITIAL_GOALS = [
@@ -450,6 +454,18 @@ const UserDashboard = () => {
 
           {/* Module 3: Skin Assessment Engine Section */}
           <SkinAssessmentModule onToast={showToast} />
+
+          {/* Module 5: Ingredient Intelligence Engine Section */}
+          <IngredientIntelligenceModule onToast={showToast} />
+
+          {/* Module 6: Product Recommendation Engine Section */}
+          <ProductRecommendationModule onToast={showToast} />
+
+          {/* Module 7: Progress Tracking System Section */}
+          <ProgressTrackingModule onToast={showToast} />
+
+          {/* Skincare Analytics Dashboard Section */}
+          <SkincareAnalyticsModule onToast={showToast} />
 
           {/* Specialist Consultation & Clinical Direct Support Card */}
           <div id="consult" className="glass-card" style={{ marginBottom: '2rem', padding: '1.5rem' }}>

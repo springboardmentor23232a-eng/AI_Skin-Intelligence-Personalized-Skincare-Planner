@@ -82,9 +82,27 @@ const Sidebar = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/user#history" className={`sidebar-item ${isActive("/user") && location.hash === "#history" ? "active" : ""}`}>
+                  <Link to="/user#ingredients" className={`sidebar-item ${isActive("/user") && location.hash === "#ingredients" ? "active" : ""}`}>
+                    <Shield size={18} />
+                    <span>Ingredient Intelligence</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/user#products" className={`sidebar-item ${isActive("/user") && location.hash === "#products" ? "active" : ""}`}>
+                    <Crown size={18} />
+                    <span>Product Recommendations</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/user#progress" className={`sidebar-item ${isActive("/user") && location.hash === "#progress" ? "active" : ""}`}>
                     <History size={18} />
-                    <span>Skin History & Goals</span>
+                    <span>Daily Progress Tracker</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/user#analytics" className={`sidebar-item ${isActive("/user") && location.hash === "#analytics" ? "active" : ""}`}>
+                    <Award size={18} />
+                    <span>Skincare Analytics</span>
                   </Link>
                 </li>
               </>

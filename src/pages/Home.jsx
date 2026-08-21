@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { useAuth } from "../context/AuthContext";
 import { getDashboardForRole } from "../utils/roleUtils";
-import { Sparkles, Stethoscope, Shield, Award, User, ArrowRight } from "lucide-react";
+import { Sparkles, Stethoscope, Shield, User, ArrowRight } from "lucide-react";
 
 export default function Home() {
   const navigate = useNavigate();

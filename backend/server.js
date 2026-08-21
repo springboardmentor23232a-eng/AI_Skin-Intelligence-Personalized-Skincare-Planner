@@ -67,14 +67,30 @@ initDb();
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
 
-// Module 3 & 4: Forward /api/assessment, /api/routine, and /api/ai requests to Python FastAPI Engine (port 8000)
-app.all(['/api/assessment', '/api/assessment/*', '/api/routine', '/api/routine/*', '/api/ai', '/api/ai/*'], async (req, res) => {
+// Module 3, 4, 5, 6, 7: Forward FastAPI engine endpoints to Python FastAPI Engine (port 8000)
+app.all([
+  '/api/assessment', '/api/assessment/*', 
+  '/api/routine', '/api/routine/*', 
+  '/api/ai', '/api/ai/*',
+  '/api/ingredient', '/api/ingredient/*',
+  '/api/product', '/api/product/*',
+  '/api/progress', '/api/progress/*',
+  '/api/analytics', '/api/analytics/*'
+], async (req, res) => {
   const fastApiBase = process.env.FASTAPI_URL || 'http://localhost:8000';
   let targetUrl = `${fastApiBase}${req.originalUrl}`;
   if (req.originalUrl.startsWith('/api/assessment')) {
     targetUrl = `${fastApiBase}${req.originalUrl.replace('/api/assessment', '/assessment')}`;
   } else if (req.originalUrl.startsWith('/api/routine')) {
     targetUrl = `${fastApiBase}${req.originalUrl.replace('/api/routine', '/routine')}`;
+  } else if (req.originalUrl.startsWith('/api/ingredient')) {
+    targetUrl = `${fastApiBase}${req.originalUrl.replace('/api/ingredient', '/ingredient')}`;
+  } else if (req.originalUrl.startsWith('/api/product')) {
+    targetUrl = `${fastApiBase}${req.originalUrl.replace('/api/product', '/product')}`;
+  } else if (req.originalUrl.startsWith('/api/progress')) {
+    targetUrl = `${fastApiBase}${req.originalUrl.replace('/api/progress', '/progress')}`;
+  } else if (req.originalUrl.startsWith('/api/analytics')) {
+    targetUrl = `${fastApiBase}${req.originalUrl.replace('/api/analytics', '/analytics')}`;
   } else if (req.originalUrl.startsWith('/api/ai')) {
     targetUrl = `${fastApiBase}${req.originalUrl}`;
   }

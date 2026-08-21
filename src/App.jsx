@@ -7,7 +7,6 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import UserDashboard from "./pages/UserDashboard";
 import SkillAssessment from "./pages/SkillAssessment";
-import WellnessDashboard from "./pages/WellnessDashboard";
 import UserProfile from "./pages/UserProfile";
 import ConsultantDashboard from "./pages/ConsultantDashboard";
 import DoctorDashboard from "./pages/DoctorDashboard";

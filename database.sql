@@ -97,4 +97,68 @@ CREATE TABLE IF NOT EXISTS personalized_routines (
 CREATE INDEX IF NOT EXISTS idx_personalized_routines_user_id ON personalized_routines(user_id);
 CREATE INDEX IF NOT EXISTS idx_personalized_routines_time_of_day ON personalized_routines(time_of_day);
 
+-- ====================================================
+-- MODULE 5: INGREDIENT INTELLIGENCE ENGINE SCHEMA
+-- ====================================================
 
+CREATE TABLE IF NOT EXISTS ingredients (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL,
+    category VARCHAR(50) NOT NULL, -- ACTIVE, MOISTURIZER, EXFOLIANT, ANTIOXIDANT, SUNSCREEN
+    comedogenic_rating INT DEFAULT 0 CHECK (comedogenic_rating BETWEEN 0 AND 5),
+    target_skin_types VARCHAR(150), -- Oily, Dry, Sensitive, Combination, Normal
+    target_concerns VARCHAR(255), -- Acne, Hyperpigmentation, Aging, Redness, Dehydration
+    description TEXT,
+    benefits TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS ingredient_conflicts (
+    id SERIAL PRIMARY KEY,
+    ingredient_a VARCHAR(100) NOT NULL,
+    ingredient_b VARCHAR(100) NOT NULL,
+    severity VARCHAR(30) NOT NULL, -- HIGH, MEDIUM, LOW
+    warning_message TEXT NOT NULL,
+    recommendation TEXT
+);
+
+-- ====================================================
+-- MODULE 6: PRODUCT RECOMMENDATION ENGINE SCHEMA
+-- ====================================================
+
+CREATE TABLE IF NOT EXISTS products (
+    id SERIAL PRIMARY KEY,
+    brand VARCHAR(100) NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    category VARCHAR(50) NOT NULL, -- Cleanser, Serum, Moisturizer, Sunscreen, Exfoliant, Mask
+    active_ingredients TEXT NOT NULL,
+    target_skin_types VARCHAR(150) NOT NULL,
+    target_concerns VARCHAR(255) NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    rating DECIMAL(3, 2) DEFAULT 4.5,
+    reviews_count INT DEFAULT 120,
+    image_url TEXT,
+    buy_url TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ====================================================
+-- MODULE 7: PROGRESS TRACKING & ANALYTICS SCHEMA
+-- ====================================================
+
+CREATE TABLE IF NOT EXISTS skin_progress_logs (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    log_date DATE DEFAULT CURRENT_DATE,
+    skin_score INT NOT NULL CHECK (skin_score BETWEEN 0 AND 100),
+    moisture_level INT NOT NULL CHECK (moisture_level BETWEEN 0 AND 100),
+    acne_severity VARCHAR(30) DEFAULT 'Low', -- None, Low, Medium, High
+    redness_level VARCHAR(30) DEFAULT 'Low', -- None, Low, Medium, High
+    routine_completed BOOLEAN DEFAULT TRUE,
+    photo_url TEXT,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_skin_progress_logs_user_id ON skin_progress_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_skin_progress_logs_log_date ON skin_progress_logs(log_date);

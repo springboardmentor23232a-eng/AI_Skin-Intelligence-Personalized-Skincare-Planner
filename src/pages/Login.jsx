@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { getDashboardForRole } from "../utils/roleUtils";
 import Navbar from "../components/Navbar";
 import GoogleOAuthButton from "../components/GoogleOAuthButton";
-import { Sparkles, Mail, Lock, LogIn, Shield, User, Award, Key, X, Stethoscope } from "lucide-react";
+import { Sparkles, Mail, Lock, LogIn, Shield, User, Key, X, Stethoscope } from "lucide-react";
 
 const Login = () => {
   const { login, loginWithToken } = useAuth();
