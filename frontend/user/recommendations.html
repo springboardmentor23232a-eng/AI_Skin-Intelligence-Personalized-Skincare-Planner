@@ -29,9 +29,12 @@
           <a href="/user/assessment.html" class="btn btn-primary">Start Assessment</a>
         </div>
 
-        <div class="alert alert-info" style="margin-top:1.5rem;">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M10 9v4M10 7h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <span>These recommendations are informational and do not constitute medical advice. GlowSense AI does not prescribe medication.</span>
+        <div id="productsSection" style="display:none;margin-top:2rem;">
+          <h2 class="page-title" style="font-size:var(--fs-xl);">Recommended Products</h2>
+          <p class="page-subtitle">Products selected based on your personalized routine, allergies, and feedback.</p>
+          <div id="productsSource" style="margin-bottom:1rem;"></div>
+          <div id="productsContainer" style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-top:1rem;"></div>
+          <style>@media(max-width:640px){#productsContainer{grid-template-columns:1fr !important;}}</style>
         </div>
       </div>
     </div>

@@ -565,6 +565,25 @@ export const dataAPI = {
     return data || [];
   },
 
+  async updateFeedbackReviewStatus(feedbackId, status) {
+    if (authAPI.isDemoMode()) {
+      const data = getDemoData();
+      const feedback = (data.feedback || []).find(f => f.id === feedbackId);
+      if (feedback) {
+        feedback.review_status = status;
+        saveDemoData(data);
+      }
+      return feedback;
+    }
+    const { data, error } = await supabase.from('routine_feedback')
+      .update({ review_status: status, reviewed_at: new Date().toISOString() })
+      .eq('id', feedbackId)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
   /* ---- Adaptive Updates ---- */
   async createAdaptiveUpdate(update) {
     if (authAPI.isDemoMode()) {
@@ -842,6 +861,123 @@ export const geminiAPI = {
     }
   },
 
+  async generateProducts(assessment, userProfile, concerns, feedback, routine) {
+    if (authAPI.isDemoMode() || !hasSupabaseConfig) {
+      return this._fallbackProducts(assessment, userProfile, concerns, feedback, routine);
+    }
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return this._fallbackProducts(assessment, userProfile, concerns, feedback, routine);
+
+      const response = await fetch(`${supabaseUrl}/functions/v1/gemini-products`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+          'apikey': supabaseAnonKey,
+        },
+        body: JSON.stringify({ assessment, userProfile, concerns, feedback, routine }),
+      });
+
+      if (!response.ok) throw new Error(`Edge function error: ${response.status}`);
+      const data = await response.json();
+      if (data.error && !data.products) throw new Error(data.error);
+      return data;
+    } catch (err) {
+      return this._fallbackProducts(assessment, userProfile, concerns, feedback, routine);
+    }
+  },
+
+  _fallbackProducts(assessment, userProfile, concerns, feedback, routine) {
+    const skinType = assessment?.skin_type || userProfile?.skin_type || 'Combination';
+    const sensitivity = userProfile?.skin_sensitivity || 'Normal';
+    const allergies = (userProfile?.allergies || '').toLowerCase();
+    const hasAllergy = (ing) => allergies.includes(ing.toLowerCase());
+    const hasFeedbackIrritation = feedback?.some(f => f.experienced_irritation || f.experienced_burning);
+    const concernNames = (concerns || []).map(c => c.concern_name);
+    const hasAcne = concernNames.includes('Acne');
+    const hasDryness = concernNames.includes('Dryness');
+
+    const products = [];
+
+    if (hasAcne || concernNames.includes('Oiliness')) {
+      products.push({
+        name: 'La Roche-Posay Effaclar Medicated Gel Cleanser', brand: 'La Roche-Posay', category: 'Cleanser',
+        key_ingredients: ['Salicylic Acid'],
+        why_recommended: `Targets acne and excess oil with salicylic acid${hasFeedbackIrritation ? '. Use every other day if irritation was previously reported.' : '.'}`,
+        suitable_skin_types: ['Oily', 'Combination'], suitable_concerns: ['Acne', 'Oiliness'],
+        how_to_use: 'Massage onto damp skin morning and evening. Rinse thoroughly.', price_range: '₹1,200-1,600', image_url: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&q=80', is_popular_pick: true,
+      });
+    } else {
+      products.push({
+        name: 'CeraVe Hydrating Facial Cleanser', brand: 'CeraVe', category: 'Cleanser',
+        key_ingredients: ['Ceramides', 'Hyaluronic Acid'],
+        why_recommended: `Gentle non-foaming cleanser ideal for ${skinType} skin.`,
+        suitable_skin_types: ['Dry', 'Sensitive', 'Normal'], suitable_concerns: ['Dryness', 'Sensitivity'],
+        how_to_use: 'Massage onto damp skin in circular motions. Rinse with lukewarm water.', price_range: '₹800-1,200', image_url: 'https://images.unsplash.com/photo-1608248543803-ba4f208c93cb?w=400&q=80', is_popular_pick: true,
+      });
+    }
+
+    if (!hasAllergy('niacinamide')) {
+      products.push({
+        name: 'The Ordinary Niacinamide 10% + Zinc 1%', brand: 'The Ordinary', category: 'Serum',
+        key_ingredients: ['Niacinamide'],
+        why_recommended: `Helps regulate oil and minimize pores.`,
+        suitable_skin_types: ['Oily', 'Combination', 'Sensitive'], suitable_concerns: ['Oiliness', 'Pores', 'Redness'],
+        how_to_use: 'Apply a thin layer morning and/or evening before heavier creams.', price_range: '₹550-750', image_url: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&q=80', is_popular_pick: true,
+      });
+    }
+
+    if (!hasAllergy('retinoid') && sensitivity !== 'Very High' && !hasFeedbackIrritation) {
+      products.push({
+        name: "Paula's Choice Clinical 0.3% Retinol Treatment", brand: "Paula's Choice", category: 'Treatment',
+        key_ingredients: ['Retinoids'],
+        why_recommended: `Anti-aging treatment targeting fine lines. Start slow if new to retinoids.`,
+        suitable_skin_types: ['Normal', 'Mature'], suitable_concerns: ['Aging', 'Fine Lines'],
+        how_to_use: 'Apply a pea-sized amount 2-3 nights per week. Always follow with moisturizer.', price_range: '₹2,500-3,200', image_url: 'https://images.unsplash.com/photo-1591251770167-8c8f8b8d5b8e?w=400&q=80', is_popular_pick: false,
+      });
+    }
+
+    if (!hasFeedbackIrritation && !hasAllergy('salicylic acid')) {
+      products.push({
+        name: "Paula's Choice 2% BHA Liquid Exfoliant", brand: "Paula's Choice", category: 'Exfoliant',
+        key_ingredients: ['Salicylic Acid'],
+        why_recommended: `Gentle BHA exfoliant for pore clearing. Use 2-3 times per week.`,
+        suitable_skin_types: ['Oily', 'Combination', 'Normal'], suitable_concerns: ['Acne', 'Blackheads', 'Pores'],
+        how_to_use: 'Apply with a cotton pad after cleansing. Start 2x per week and increase gradually.', price_range: '₹1,800-2,500', image_url: 'https://images.unsplash.com/photo-1556228578-8c89e6adf853?w=400&q=80', is_popular_pick: false,
+      });
+    }
+
+    products.push({
+      name: 'CeraVe Moisturizing Cream', brand: 'CeraVe', category: 'Moisturizer',
+      key_ingredients: ['Ceramides', 'Hyaluronic Acid'],
+      why_recommended: `Barrier-restoring moisturizer for daily hydration.`,
+      suitable_skin_types: ['Dry', 'Sensitive', 'Normal', 'Combination'], suitable_concerns: ['Dryness', 'Barrier damage'],
+      how_to_use: 'Apply evenly to face and neck after serums. Use morning and evening.', price_range: '₹1,200-1,800', image_url: 'https://images.unsplash.com/photo-1608248543803-ba4f208c93cb?w=400&q=80', is_popular_pick: true,
+    });
+
+    products.push({
+      name: 'EltaMD UV Clear Broad-Spectrum SPF 46', brand: 'EltaMD', category: 'Sunscreen',
+      key_ingredients: ['Niacinamide'],
+      why_recommended: `Lightweight, non-comedogenic sunscreen. Essential daily protection.`,
+      suitable_skin_types: ['All'], suitable_concerns: ['Sun damage'],
+      how_to_use: 'Apply generously as the last step of your morning routine. Reapply every 2 hours when outdoors.', price_range: '₹2,200-3,000', image_url: 'https://images.unsplash.com/photo-1556228852-80b2e1c3b814?w=400&q=80', is_popular_pick: false,
+    });
+
+    if (!hasAllergy('hyaluronic acid')) {
+      products.push({
+        name: 'The Ordinary Hyaluronic Acid 2% + B5', brand: 'The Ordinary', category: 'Night care',
+        key_ingredients: ['Hyaluronic Acid'],
+        why_recommended: `Multi-depth hydration for plumping fine lines. Apply before moisturizer.`,
+        suitable_skin_types: ['All'], suitable_concerns: ['Dryness', 'Dehydration', 'Fine Lines'],
+        how_to_use: 'Apply to damp skin before moisturizer, morning and/or evening.', price_range: '₹550-750', image_url: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&q=80', is_popular_pick: false,
+      });
+    }
+
+    return { products, source: 'rule_based' };
+  },
+
   async analyzeInteractions(ingredients, userProfile, feedback) {
     if (authAPI.isDemoMode() || !hasSupabaseConfig) {
       return this._fallbackInteractions(ingredients, userProfile, feedback);
@@ -975,14 +1111,14 @@ export const googleAPI = {
 
 function getDemoProducts() {
   return [
-    { id: 'demo-prod-1', name: 'Gentle Skin Cleanser', brand: 'CeraVe', category: 'Cleanser', key_ingredients: ['Ceramides', 'Hyaluronic Acid'], description: 'Gentle non-foaming cleanser.', suitable_skin_types: ['Dry', 'Sensitive', 'Normal'], suitable_concerns: ['Dryness', 'Sensitivity'], price_range: '$10-15', popularity: 95 },
-    { id: 'demo-prod-2', name: 'Salicylic Acid Cleanser', brand: 'La Roche-Posay', category: 'Cleanser', key_ingredients: ['Salicylic Acid'], description: 'Daily cleanser for acne-prone skin.', suitable_skin_types: ['Oily', 'Combination'], suitable_concerns: ['Acne', 'Oiliness'], price_range: '$15-20', popularity: 88 },
-    { id: 'demo-prod-3', name: 'Hyaluronic Acid Serum', brand: 'The Ordinary', category: 'Serum', key_ingredients: ['Hyaluronic Acid'], description: 'Multi-depth hydration serum.', suitable_skin_types: ['Dry', 'Oily', 'Normal', 'Sensitive'], suitable_concerns: ['Dryness', 'Dehydration'], price_range: '$5-10', popularity: 92 },
-    { id: 'demo-prod-4', name: 'Niacinamide 10% + Zinc 1%', brand: 'The Ordinary', category: 'Serum', key_ingredients: ['Niacinamide'], description: 'Blemish formula.', suitable_skin_types: ['Oily', 'Combination'], suitable_concerns: ['Oiliness', 'Pores'], price_range: '$5-10', popularity: 90 },
-    { id: 'demo-prod-5', name: 'Vitamin C Serum 15%', brand: 'Mad Hippie', category: 'Serum', key_ingredients: ['Vitamin C'], description: 'Brightening serum.', suitable_skin_types: ['Normal', 'Mature'], suitable_concerns: ['Dullness', 'Hyperpigmentation'], price_range: '$25-35', popularity: 85 },
-    { id: 'demo-prod-6', name: 'Retinol 0.3% Serum', brand: 'Paulas Choice', category: 'Treatment', key_ingredients: ['Retinoids'], description: 'Anti-aging retinol.', suitable_skin_types: ['Normal', 'Mature'], suitable_concerns: ['Aging', 'Fine Lines'], price_range: '$25-35', popularity: 87 },
-    { id: 'demo-prod-7', name: 'Moisturizing Cream', brand: 'CeraVe', category: 'Moisturizer', key_ingredients: ['Ceramides', 'Hyaluronic Acid'], description: 'Barrier-restoring moisturizer.', suitable_skin_types: ['Dry', 'Sensitive'], suitable_concerns: ['Dryness', 'Barrier damage'], price_range: '$15-20', popularity: 93 },
-    { id: 'demo-prod-8', name: 'Daily Sunscreen SPF 50', brand: 'EltaMD', category: 'Sunscreen', key_ingredients: ['Niacinamide'], description: 'Broad-spectrum SPF 50.', suitable_skin_types: ['All'], suitable_concerns: ['Sun damage'], price_range: '$25-35', popularity: 89 },
+    { id: 'demo-prod-1', name: 'Gentle Skin Cleanser', brand: 'CeraVe', category: 'Cleanser', key_ingredients: ['Ceramides', 'Hyaluronic Acid'], description: 'Gentle non-foaming cleanser.', suitable_skin_types: ['Dry', 'Sensitive', 'Normal'], suitable_concerns: ['Dryness', 'Sensitivity'], price_range: '₹800-1,200', popularity: 95 },
+    { id: 'demo-prod-2', name: 'Salicylic Acid Cleanser', brand: 'La Roche-Posay', category: 'Cleanser', key_ingredients: ['Salicylic Acid'], description: 'Daily cleanser for acne-prone skin.', suitable_skin_types: ['Oily', 'Combination'], suitable_concerns: ['Acne', 'Oiliness'], price_range: '₹1,200-1,600', popularity: 88 },
+    { id: 'demo-prod-3', name: 'Hyaluronic Acid Serum', brand: 'The Ordinary', category: 'Serum', key_ingredients: ['Hyaluronic Acid'], description: 'Multi-depth hydration serum.', suitable_skin_types: ['Dry', 'Oily', 'Normal', 'Sensitive'], suitable_concerns: ['Dryness', 'Dehydration'], price_range: '₹550-750', popularity: 92 },
+    { id: 'demo-prod-4', name: 'Niacinamide 10% + Zinc 1%', brand: 'The Ordinary', category: 'Serum', key_ingredients: ['Niacinamide'], description: 'Blemish formula.', suitable_skin_types: ['Oily', 'Combination'], suitable_concerns: ['Oiliness', 'Pores'], price_range: '₹550-750', popularity: 90 },
+    { id: 'demo-prod-5', name: 'Vitamin C Serum 15%', brand: 'Mad Hippie', category: 'Serum', key_ingredients: ['Vitamin C'], description: 'Brightening serum.', suitable_skin_types: ['Normal', 'Mature'], suitable_concerns: ['Dullness', 'Hyperpigmentation'], price_range: '₹2,000-2,800', popularity: 85 },
+    { id: 'demo-prod-6', name: 'Retinol 0.3% Serum', brand: 'Paulas Choice', category: 'Treatment', key_ingredients: ['Retinoids'], description: 'Anti-aging retinol.', suitable_skin_types: ['Normal', 'Mature'], suitable_concerns: ['Aging', 'Fine Lines'], price_range: '₹2,500-3,200', popularity: 87 },
+    { id: 'demo-prod-7', name: 'Moisturizing Cream', brand: 'CeraVe', category: 'Moisturizer', key_ingredients: ['Ceramides', 'Hyaluronic Acid'], description: 'Barrier-restoring moisturizer.', suitable_skin_types: ['Dry', 'Sensitive'], suitable_concerns: ['Dryness', 'Barrier damage'], price_range: '₹1,200-1,800', popularity: 93 },
+    { id: 'demo-prod-8', name: 'Daily Sunscreen SPF 50', brand: 'EltaMD', category: 'Sunscreen', key_ingredients: ['Niacinamide'], description: 'Broad-spectrum SPF 50.', suitable_skin_types: ['All'], suitable_concerns: ['Sun damage'], price_range: '₹2,200-3,000', popularity: 89 },
   ];
 }
 

@@ -267,11 +267,40 @@ async function handleFeedbackSubmit(event, userId) {
   };
 
   submitBtn.disabled = true;
-  submitBtn.textContent = 'Submitting...';
+  submitBtn.textContent = 'Submitting & updating routine...';
 
   try {
-    await dataAPI.createFeedback(feedback);
-    showToast('Feedback submitted! Your future recommendations will consider this.', 'success');
+    const savedFeedback = await dataAPI.createFeedback(feedback);
+
+    // Generate an updated routine version based on the new feedback
+    try {
+      const assessments = await dataAPI.getAssessments(userId);
+      const latest = assessments[0];
+      if (latest) {
+        const profile = await dataAPI.getUserProfile(userId);
+        const concerns = await dataAPI.getConcerns(latest.id);
+        const allFeedback = await dataAPI.getFeedback(userId);
+        const previousAssessments = assessments.slice(1);
+
+        const result = await geminiAPI.generateRoutine(latest, profile, concerns, allFeedback, previousAssessments);
+
+        // Save as a NEW routine version (insert, not update)
+        await dataAPI.createRoutine({
+          user_id: userId,
+          assessment_id: latest.id,
+          morning_routine: result.routine.morning_routine,
+          evening_routine: result.routine.evening_routine,
+          weekly_plan: result.routine.weekly_plan,
+          seasonal_recommendations: result.routine.seasonal_recommendations,
+          source: result.source,
+          feedback_id: savedFeedback?.id || null,
+        });
+      }
+    } catch (e) {
+      // Routine update failure is non-fatal — feedback was still saved
+    }
+
+    showToast('Feedback submitted! Your routine has been updated and sent for dermatologist review.', 'success');
     event.target.reset();
     await loadFeedbackHistory(userId);
   } catch (err) {

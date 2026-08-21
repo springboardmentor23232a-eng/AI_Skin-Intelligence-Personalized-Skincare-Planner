@@ -11,6 +11,7 @@ export async function initDermatologistDashboard() {
   await loadHighRiskCases();
   await loadDermRecentAssessments();
   await loadDermConsultRequests();
+  await loadFeedbackReviews();
 }
 
 async function loadDermStats() {
@@ -116,6 +117,85 @@ async function loadDermConsultRequests() {
     }).join('');
   } catch (err) {
     showToast('Unable to load consultation requests.', 'error');
+  }
+}
+
+/* ---- Feedback Reviews ---- */
+async function loadFeedbackReviews() {
+  const tbody = document.getElementById('feedbackReviewTable');
+  if (!tbody) return;
+
+  try {
+    const allFeedback = await dataAPI.getFeedback();
+    if (!allFeedback || allFeedback.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8" class="table-empty">No routine feedback submitted.</td></tr>';
+      return;
+    }
+
+    const profiles = await dataAPI.getAllProfiles();
+
+    const rows = await Promise.all(allFeedback.map(async f => {
+      const user = profiles.find(p => p.id === f.user_id);
+      const routines = await dataAPI.getRoutines(f.user_id);
+      const sorted = (routines || []).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      const updatedRoutine = sorted[0];
+      const previousRoutine = sorted[1] || sorted[0];
+
+      const effects = [];
+      if (f.experienced_irritation) effects.push('Irritation');
+      if (f.experienced_redness) effects.push('Redness');
+      if (f.experienced_dryness) effects.push('Dryness');
+      if (f.experienced_burning) effects.push('Burning');
+      if (f.experienced_breakouts) effects.push('Breakouts');
+
+      const statusLabels = { improved: 'Skin Improved', no_change: 'No Change', worsened: 'Skin Worsened' };
+      const reviewStatus = f.review_status || 'pending';
+      const reviewColors = { pending: 'badge-warning', reviewed: 'badge-success', needs_adjustment: 'badge-error' };
+      const reviewLabels = { pending: 'Pending Review', reviewed: 'Reviewed', needs_adjustment: 'Needs Adjustment' };
+
+      const routineSummary = (r) => {
+        if (!r) return 'N/A';
+        const morning = (r.morning_routine || []).map(s => s.ingredient).filter(Boolean).join(', ');
+        const evening = (r.evening_routine || []).map(s => s.ingredient).filter(Boolean).join(', ');
+        return `AM: ${morning || 'N/A'} | PM: ${evening || 'N/A'}`;
+      };
+
+      const reasonText = f.notes || f.ingredient_feedback || statusLabels[f.improvement_status] || 'N/A';
+
+      return `
+        <tr>
+          <td>${user ? user.name : 'Unknown'}</td>
+          <td style="max-width:200px;font-size:var(--fs-sm);">
+            ${statusLabels[f.improvement_status] || 'N/A'}${effects.length > 0 ? '<br><span style="color:var(--color-text-tertiary);">' + effects.join(', ') + '</span>' : ''}
+          </td>
+          <td style="font-size:var(--fs-sm);">${f.ingredient_feedback || 'N/A'}</td>
+          <td style="font-size:var(--fs-xs);max-width:180px;">${routineSummary(previousRoutine)}</td>
+          <td style="font-size:var(--fs-xs);max-width:180px;">${routineSummary(updatedRoutine)}</td>
+          <td style="font-size:var(--fs-sm);max-width:200px;">${reasonText}</td>
+          <td style="font-size:var(--fs-sm);">${formatDate(f.created_at)}</td>
+          <td>
+            <select class="filter-input" onchange="window.updateFeedbackReviewStatus('${f.id}', this.value)">
+              <option value="pending" ${reviewStatus === 'pending' ? 'selected' : ''}>Pending Review</option>
+              <option value="reviewed" ${reviewStatus === 'reviewed' ? 'selected' : ''}>Reviewed</option>
+              <option value="needs_adjustment" ${reviewStatus === 'needs_adjustment' ? 'selected' : ''}>Needs Adjustment</option>
+            </select>
+          </td>
+        </tr>`;
+    }));
+
+    tbody.innerHTML = (await Promise.all(rows)).join('');
+
+    window.updateFeedbackReviewStatus = async (id, status) => {
+      try {
+        await dataAPI.updateFeedbackReviewStatus(id, status);
+        showToast('Feedback review status updated.', 'success');
+      } catch (err) {
+        showToast('Unable to update review status.', 'error');
+        loadFeedbackReviews();
+      }
+    };
+  } catch (err) {
+    tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Unable to load feedback reviews.</td></tr>';
   }
 }
 

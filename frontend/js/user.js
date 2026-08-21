@@ -1,6 +1,6 @@
 /* ==================== GLOWSENSE AI — USER DASHBOARD LOGIC ==================== */
 
-import { dataAPI, authAPI } from './api.js';
+import { dataAPI, authAPI, geminiAPI } from './api.js';
 import { initDashboard, showToast, showLoading, hideLoading, formatDate, riskBadge, renderLineChart } from './common.js';
 
 /* ---- Dashboard ---- */
@@ -394,6 +394,7 @@ export async function initUserRecommendations() {
   const auth = await initDashboard('user', 'recommendations');
   if (!auth) return;
   await loadAllRecommendations(auth.user.id);
+  await loadProductRecommendations(auth.user.id);
 }
 
 async function loadAllRecommendations(userId) {
@@ -440,6 +441,100 @@ async function loadAllRecommendations(userId) {
   } catch (err) {
     showToast('Unable to load recommendations.', 'error');
   }
+}
+
+async function loadProductRecommendations(userId) {
+  const productsSection = document.getElementById('productsSection');
+  const productsContainer = document.getElementById('productsContainer');
+  const sourceBadge = document.getElementById('productsSource');
+  if (!productsSection || !productsContainer) return;
+
+  try {
+    const assessments = await dataAPI.getAssessments(userId);
+    if (!assessments || assessments.length === 0) return;
+
+    const latest = assessments[0];
+    const profile = await dataAPI.getUserProfile(userId);
+    const concerns = await dataAPI.getConcerns(latest.id);
+    const feedback = await dataAPI.getFeedback(userId);
+    const routineData = await dataAPI.getLatestRoutine(userId);
+    const routine = routineData?.routine || routineData || null;
+
+    const result = await geminiAPI.generateProducts(latest, profile, concerns, feedback, routine);
+    const products = result?.products || [];
+    const source = result?.source || 'rule_based';
+
+    if (products.length === 0) return;
+
+    productsSection.style.display = 'block';
+
+    if (sourceBadge) {
+      sourceBadge.innerHTML = `<span class="badge ${source === 'gemini' ? 'badge-info' : 'badge-neutral'}">${source === 'gemini' ? 'AI-Enhanced (Gemini)' : 'Rule-Based Analysis'}</span>`;
+    }
+
+    productsContainer.innerHTML = products.map(p => renderProductCard(p)).join('');
+  } catch (err) {
+    showToast('Unable to load product recommendations.', 'error');
+  }
+}
+
+function renderProductCard(product) {
+  const categoryColors = {
+    'Cleanser': 'var(--color-accent-dark)',
+    'Serum': 'var(--color-success)',
+    'Moisturizer': '#2563eb',
+    'Sunscreen': '#ea580c',
+    'Treatment': '#7c3aed',
+    'Exfoliant': '#dc2626',
+    'Night care': '#0d9488',
+  };
+  const catColor = categoryColors[product.category] || 'var(--color-text-tertiary)';
+  const searchUrl = `https://www.google.com/search?q=${encodeURIComponent((product.brand || '') + ' ' + product.name)}`;
+
+  const imgSrc = product.image_url || '';
+  const imgHtml = imgSrc
+    ? `<img src="${imgSrc}" alt="${product.name}" loading="lazy" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"/><div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;background:var(--color-surface-alt);"><svg width="32" height="32" viewBox="0 0 36 36" fill="none" style="color:${catColor};"><path d="M18 6l3 8 8 3-8 3-3 8-3-8-8-3 8-3 3-8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></div>`
+    : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--color-surface-alt);"><svg width="32" height="32" viewBox="0 0 36 36" fill="none" style="color:${catColor};"><path d="M18 6l3 8 8 3-8 3-3 8-3-8-8-3 8-3 3-8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></div>`;
+
+  return `
+    <div class="card product-card" style="display:flex;flex-direction:column;overflow:hidden;padding:0;transition:all 0.2s;">
+      <div style="height:100px;position:relative;overflow:hidden;background:var(--color-surface-alt);">
+        ${imgHtml}
+        ${product.is_popular_pick ? '<span class="badge badge-warning" style="position:absolute;top:0.375rem;right:0.375rem;font-size:10px;">Popular</span>' : ''}
+      </div>
+      <div style="padding:0.75rem;display:flex;flex-direction:column;flex:1;">
+        <span class="badge" style="background:${catColor}22;color:${catColor};font-size:10px;margin-bottom:0.25rem;align-self:flex-start;">${product.category}</span>
+        <h3 style="font-size:var(--fs-sm);font-weight:600;margin-bottom:0.125rem;line-height:1.3;">${product.name}</h3>
+        <div style="font-size:var(--fs-xs);color:var(--color-text-tertiary);margin-bottom:0.5rem;">${product.brand || ''}</div>
+        ${product.key_ingredients && product.key_ingredients.length > 0 ? `
+          <div style="margin-bottom:0.5rem;">
+            <div style="font-size:10px;font-weight:600;color:var(--color-text-tertiary);text-transform:uppercase;margin-bottom:0.125rem;">Key Ingredients</div>
+            <div style="display:flex;flex-wrap:wrap;gap:0.25rem;">${product.key_ingredients.map(i => `<span class="badge badge-neutral" style="font-size:10px;">${i}</span>`).join('')}</div>
+          </div>` : ''}
+        ${product.why_recommended ? `
+          <div style="margin-bottom:0.5rem;">
+            <div style="font-size:10px;font-weight:600;color:var(--color-text-tertiary);text-transform:uppercase;margin-bottom:0.125rem;">Why Recommended</div>
+            <p style="font-size:var(--fs-xs);color:var(--color-text-secondary);line-height:1.4;">${product.why_recommended}</p>
+          </div>` : ''}
+        ${product.suitable_skin_types && product.suitable_skin_types.length > 0 ? `
+          <div style="margin-bottom:0.5rem;">
+            <div style="font-size:10px;font-weight:600;color:var(--color-text-tertiary);text-transform:uppercase;margin-bottom:0.125rem;">Suitable For</div>
+            <div style="display:flex;flex-wrap:wrap;gap:0.25rem;">${product.suitable_skin_types.map(t => `<span class="badge badge-info" style="font-size:10px;">${t}</span>`).join('')}</div>
+          </div>` : ''}
+        ${product.suitable_concerns && product.suitable_concerns.length > 0 ? `
+          <div style="margin-bottom:0.5rem;">
+            <div style="font-size:10px;font-weight:600;color:var(--color-text-tertiary);text-transform:uppercase;margin-bottom:0.125rem;">Targets</div>
+            <div style="display:flex;flex-wrap:wrap;gap:0.25rem;">${product.suitable_concerns.map(c => `<span class="badge badge-success" style="font-size:10px;">${c}</span>`).join('')}</div>
+          </div>` : ''}
+        ${product.how_to_use ? `
+          <div style="margin-bottom:0.5rem;">
+            <div style="font-size:10px;font-weight:600;color:var(--color-text-tertiary);text-transform:uppercase;margin-bottom:0.125rem;">How to Use</div>
+            <p style="font-size:var(--fs-xs);color:var(--color-text-secondary);line-height:1.4;">${product.how_to_use}</p>
+          </div>` : ''}
+        ${product.price_range ? `<div style="font-size:var(--fs-sm);font-weight:700;color:var(--color-accent-dark);margin-bottom:0.5rem;">${product.price_range}</div>` : ''}
+        <a href="${searchUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="margin-top:auto;width:100%;text-align:center;text-decoration:none;font-size:var(--fs-xs);padding:0.5rem;">View Product</a>
+      </div>
+    </div>`;
 }
 
 /* ---- Settings ---- */
