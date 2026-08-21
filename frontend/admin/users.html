@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Users - GlowSense AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <div class="dashboard-layout">
+    <div class="dashboard-main">
+      <div class="dashboard-content">
+        <h1 class="page-title">All Users</h1>
+        <p class="page-subtitle">Manage all system users.</p>
+        <div class="filter-bar">
+          <input type="text" class="search-input" placeholder="Search users..." id="searchInput" />
+          <select class="filter-input" id="filterRole"><option value="">All Roles</option><option value="user">User</option><option value="consultant">Consultant</option><option value="dermatologist">Dermatologist</option><option value="admin">Admin</option></select>
+        </div>
+        <div class="card">
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Provider</th><th>Created</th><th>Status</th><th>Action</th></tr></thead>
+              <tbody id="usersTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="module">
+    import { initAdminUsers } from '/js/admin.js';
+    initAdminUsers();
+  </script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings - GlowSense AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <div class="dashboard-layout">
+    <div class="dashboard-main">
+      <div class="dashboard-content">
+        <h1 class="page-title">System Settings</h1>
+        <p class="page-subtitle">Manage system configuration.</p>
+        <div class="card" style="max-width:600px;">
+          <div class="card-header"><h3 class="card-title">System Information</h3></div>
+          <div style="padding:1rem 0;">
+            <div class="profile-info-item"><div class="profile-info-label">Platform</div><div class="profile-info-value">GlowSense AI v1.0</div></div>
+            <div class="profile-info-item"><div class="profile-info-label">Database</div><div class="profile-info-value">PostgreSQL (Supabase)</div></div>
+            <div class="profile-info-item"><div class="profile-info-label">ML Service</div><div class="profile-info-value">Python FastAPI</div></div>
+          </div>
+        </div>
+        <div class="card" style="max-width:600px;margin-top:1rem;">
+          <div class="card-header"><h3 class="card-title">Admin Actions</h3></div>
+          <div style="padding:1rem 0;">
+            <button class="btn btn-danger" onclick="window.handleLogout()">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="module">
+    import { initAdminSettings } from '/js/admin.js';
+    initAdminSettings();
+  </script>
+</body>
+</html>

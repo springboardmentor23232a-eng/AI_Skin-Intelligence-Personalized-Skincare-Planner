@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard - GlowSense AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <div class="dashboard-layout">
+    <div class="dashboard-main">
+      <div class="dashboard-content">
+        <h1 class="page-title">Admin Dashboard</h1>
+        <p class="page-subtitle">Overall system management and statistics.</p>
+
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-card-header"><div class="stat-card-icon blue"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="8" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M2 17c0-3 3-5 6-5s6 2 6 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div></div><div class="stat-card-value" id="statTotalUsers">0</div><div class="stat-card-label">Total Users</div></div>
+          <div class="stat-card"><div class="stat-card-header"><div class="stat-card-icon green"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 8l3 3 7-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div><div class="stat-card-value" id="statConsultants">0</div><div class="stat-card-label">Consultants</div></div>
+          <div class="stat-card"><div class="stat-card-header"><div class="stat-card-icon accent"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 3v5a4 4 0 008 0V3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M9 13v2a4 4 0 008 0v-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="17" cy="11" r="2" stroke="currentColor" stroke-width="1.5"/></svg></div></div><div class="stat-card-value" id="statDermatologists">0</div><div class="stat-card-label">Dermatologists</div></div>
+          <div class="stat-card"><div class="stat-card-header"><div class="stat-card-icon amber"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="5" y="3" width="10" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 7h4M8 10h4M8 13h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div></div><div class="stat-card-value" id="statAssessments">0</div><div class="stat-card-label">Total Assessments</div></div>
+        </div>
+
+        <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);">
+          <div class="stat-card"><div class="stat-card-header"><div class="stat-card-icon teal"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v4l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div></div><div class="stat-card-value" id="statActiveUsers">0</div><div class="stat-card-label">Active Users</div></div>
+          <div class="stat-card"><div class="stat-card-header"><div class="stat-card-icon amber"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 5a2 2 0 012-2h10a2 2 0 012 2v7a2 2 0 01-2 2H8l-4 3v-3H5a2 2 0 01-2-2V5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></div></div><div class="stat-card-value" id="statPendingConsults">0</div><div class="stat-card-label">Pending Consultations</div></div>
+          <div class="stat-card"><div class="stat-card-header"><div class="stat-card-icon red"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3l8 14H2L10 3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M10 9v3M10 14h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div></div><div class="stat-card-value" id="statHighRisk">0</div><div class="stat-card-label">High-Risk Assessments</div></div>
+        </div>
+
+        <div class="card" style="margin-top:1rem;">
+          <div class="card-header"><h3 class="card-title">Recent Activity</h3></div>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead><tr><th>Activity</th><th>Detail</th><th>Date</th></tr></thead>
+              <tbody id="recentActivityTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="module">
+    import { initAdminDashboard } from '/js/admin.js';
+    initAdminDashboard();
+  </script>
+</body>
+</html>

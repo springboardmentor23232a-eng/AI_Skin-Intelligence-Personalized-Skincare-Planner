@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Routine Feedback - GlowSense AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="/css/assessment.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <div class="dashboard-layout">
+    <div class="dashboard-main">
+      <div class="dashboard-content">
+        <h1 class="page-title">Routine Feedback</h1>
+        <p class="page-subtitle">Share how your skin is responding to your routine. Your feedback improves future recommendations.</p>
+
+        <div class="card" id="feedbackFormCard">
+          <form id="feedbackForm">
+            <div class="form-group">
+              <label class="form-label">Overall improvement</label>
+              <div class="radio-group" data-field="improvement_status">
+                <label class="radio-option"><input type="radio" name="improvement_status" value="improved" /><span>Skin improved</span></label>
+                <label class="radio-option"><input type="radio" name="improvement_status" value="no_change" /><span>No change</span></label>
+                <label class="radio-option"><input type="radio" name="improvement_status" value="worsened" /><span>Skin worsened</span></label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Did you experience any of the following?</label>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.75rem;margin-top:0.5rem;">
+                <label style="display:flex;align-items:center;gap:0.5rem;padding:0.75rem;border:1px solid var(--color-border);border-radius:8px;cursor:pointer;">
+                  <input type="checkbox" id="fb_irritation" /> Irritation
+                </label>
+                <label style="display:flex;align-items:center;gap:0.5rem;padding:0.75rem;border:1px solid var(--color-border);border-radius:8px;cursor:pointer;">
+                  <input type="checkbox" id="fb_redness" /> Redness
+                </label>
+                <label style="display:flex;align-items:center;gap:0.5rem;padding:0.75rem;border:1px solid var(--color-border);border-radius:8px;cursor:pointer;">
+                  <input type="checkbox" id="fb_dryness" /> Dryness
+                </label>
+                <label style="display:flex;align-items:center;gap:0.5rem;padding:0.75rem;border:1px solid var(--color-border);border-radius:8px;cursor:pointer;">
+                  <input type="checkbox" id="fb_burning" /> Burning
+                </label>
+                <label style="display:flex;align-items:center;gap:0.5rem;padding:0.75rem;border:1px solid var(--color-border);border-radius:8px;cursor:pointer;">
+                  <input type="checkbox" id="fb_breakouts" /> Breakouts
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="fb_ingredient">Which ingredient or product caused an issue? (optional)</label>
+              <input type="text" id="fb_ingredient" class="form-input" placeholder="e.g., Retinol, Salicylic Acid, Vitamin C" style="padding:0.875rem 1rem;" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="fb_notes">Additional notes</label>
+              <textarea id="fb_notes" rows="4" style="width:100%;padding:0.875rem 1rem;border:1.5px solid var(--color-border);border-radius:var(--radius-md);font-size:var(--fs-base);background:var(--color-surface);color:var(--color-text);outline:none;resize:vertical;" placeholder="Describe your experience in more detail..."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="submitFeedbackBtn">Submit Feedback</button>
+          </form>
+        </div>
+
+        <div id="feedbackHistory" style="margin-top:2rem;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initUserFeedback } from '/js/routines.js';
+    initUserFeedback();
+  </script>
+</body>
+</html>

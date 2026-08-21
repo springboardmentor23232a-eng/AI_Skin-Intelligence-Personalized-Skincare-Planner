@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile - GlowSense AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <div class="dashboard-layout">
+    <div class="dashboard-main">
+      <div class="dashboard-content">
+        <h1 class="page-title">My Profile</h1>
+        <p class="page-subtitle">Your consultant account information.</p>
+        <div class="card" style="max-width:600px;">
+          <div class="profile-avatar-section">
+            <div class="profile-avatar" id="profileAvatar">?</div>
+            <div class="profile-name" id="profileName">Loading...</div>
+            <div class="profile-email" id="profileEmail">Loading...</div>
+          </div>
+          <div style="margin-top:1rem;">
+            <div class="profile-info-item"><div class="profile-info-label">Role</div><div class="profile-info-value" id="profileRole">Consultant</div></div>
+            <div class="profile-info-item"><div class="profile-info-label">Member Since</div><div class="profile-info-value" id="profileJoined">Loading...</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="module">
+    import { initConsultantProfile } from '/js/consultant.js';
+    initConsultantProfile();
+  </script>
+</body>
+</html>

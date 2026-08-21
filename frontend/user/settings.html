@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings - GlowSense AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <div class="dashboard-layout">
+    <div class="dashboard-main">
+      <div class="dashboard-content">
+        <h1 class="page-title">Settings</h1>
+        <p class="page-subtitle">Manage your account preferences.</p>
+
+        <div class="card" style="max-width:600px;">
+          <div class="card-header">
+            <h3 class="card-title">Account</h3>
+          </div>
+          <div style="padding:1rem 0;">
+            <div class="profile-info-item">
+              <div class="profile-info-label">Email</div>
+              <div class="profile-info-value" id="settingsEmail">Loading...</div>
+            </div>
+            <div class="profile-info-item">
+              <div class="profile-info-label">Role</div>
+              <div class="profile-info-value" id="settingsRole">Loading...</div>
+            </div>
+            <div class="profile-info-item">
+              <div class="profile-info-label">Member Since</div>
+              <div class="profile-info-value" id="settingsJoined">Loading...</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="max-width:600px;margin-top:1rem;">
+          <div class="card-header">
+            <h3 class="card-title">Notifications</h3>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:1rem;padding:1rem 0;">
+            <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
+              <input type="checkbox" checked /> Email notifications for assessment results
+            </label>
+            <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
+              <input type="checkbox" checked /> Consultation request updates
+            </label>
+            <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
+              <input type="checkbox" /> Weekly skin health tips
+            </label>
+          </div>
+        </div>
+
+        <div class="card" style="max-width:600px;margin-top:1rem;">
+          <div class="card-header">
+            <h3 class="card-title">Danger Zone</h3>
+          </div>
+          <div style="padding:1rem 0;">
+            <button class="btn btn-danger" onclick="window.handleLogout()">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initUserSettings } from '/js/user.js';
+    import { formatDate } from '/js/common.js';
+    initUserSettings().then(auth => {
+      if (auth) {
+        document.getElementById('settingsEmail').textContent = auth.user.email || 'N/A';
+        document.getElementById('settingsRole').textContent = auth.profile.role || 'user';
+        document.getElementById('settingsJoined').textContent = formatDate(auth.profile.created_at);
+      }
+    });
+  </script>
+</body>
+</html>

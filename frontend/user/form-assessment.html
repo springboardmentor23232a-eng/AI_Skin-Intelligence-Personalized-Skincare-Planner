@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Form Assessment - GlowSense AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="/css/auth.css" />
+  <link rel="stylesheet" href="/css/assessment.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <div class="dashboard-layout">
+    <div class="dashboard-main">
+      <div class="dashboard-content">
+        <h1 class="page-title">Skin Assessment Questionnaire</h1>
+        <p class="page-subtitle">Answer the questions below for a personalized AI skin analysis.</p>
+
+        <form id="assessmentForm" class="form-assessment-container">
+          <div class="form-section">
+            <div class="form-section-title">
+              <div class="form-section-icon">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M4 17c0-3 3-5 6-5s6 2 6 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </div>
+              Basic Information
+            </div>
+            <p class="form-section-desc">Tell us about yourself.</p>
+            <div class="form-grid">
+              <div class="form-field">
+                <label class="form-field-label">Age <span class="required">*</span></label>
+                <input type="number" class="form-input" id="age" min="1" max="120" required style="padding-left:1rem;" />
+              </div>
+              <div class="form-field">
+                <label class="form-field-label">Gender <span class="required">*</span></label>
+                <select class="form-select" id="gender" required>
+                  <option value="">Select...</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-title">
+              <div class="form-section-icon">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M7 10c0-2 1.5-3 3-3s3 1 3 3-1.5 3-3 3-3-1-3-3z" stroke="currentColor" stroke-width="1.5"/></svg>
+              </div>
+              Skin Profile
+            </div>
+            <p class="form-section-desc">Rate each concern from 1 (none) to 5 (severe).</p>
+            <div class="form-grid">
+              <div class="form-field">
+                <label class="form-field-label">Skin Type <span class="required">*</span></label>
+                <select class="form-select" id="skin_type" required>
+                  <option value="">Select...</option>
+                  <option value="Oily">Oily</option>
+                  <option value="Dry">Dry</option>
+                  <option value="Combination">Combination</option>
+                  <option value="Normal">Normal</option>
+                  <option value="Sensitive">Sensitive</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label class="form-field-label">Skin Sensitivity</label>
+                <select class="form-select" id="skin_sensitivity">
+                  <option value="">Select...</option>
+                  <option value="Low">Low</option>
+                  <option value="Medium">Medium</option>
+                  <option value="High">High</option>
+                </select>
+              </div>
+            </div>
+            <div style="margin-top:1rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+              <div class="form-field"><label class="form-field-label">Oiliness (1-5)</label><div class="slider-wrapper"><input type="range" class="slider" id="oiliness" min="1" max="5" value="3" /><span class="slider-value" id="oiliness_val">3</span></div></div>
+              <div class="form-field"><label class="form-field-label">Dryness (1-5)</label><div class="slider-wrapper"><input type="range" class="slider" id="dryness" min="1" max="5" value="3" /><span class="slider-value" id="dryness_val">3</span></div></div>
+              <div class="form-field"><label class="form-field-label">Acne Frequency (1-5)</label><div class="slider-wrapper"><input type="range" class="slider" id="acne_frequency" min="1" max="5" value="3" /><span class="slider-value" id="acne_frequency_val">3</span></div></div>
+              <div class="form-field"><label class="form-field-label">Pigmentation (1-5)</label><div class="slider-wrapper"><input type="range" class="slider" id="pigmentation" min="1" max="5" value="3" /><span class="slider-value" id="pigmentation_val">3</span></div></div>
+              <div class="form-field"><label class="form-field-label">Dark Spots (1-5)</label><div class="slider-wrapper"><input type="range" class="slider" id="dark_spots" min="1" max="5" value="3" /><span class="slider-value" id="dark_spots_val">3</span></div></div>
+              <div class="form-field"><label class="form-field-label">Redness (1-5)</label><div class="slider-wrapper"><input type="range" class="slider" id="redness" min="1" max="5" value="3" /><span class="slider-value" id="redness_val">3</span></div></div>
+              <div class="form-field"><label class="form-field-label">Uneven Skin Tone (1-5)</label><div class="slider-wrapper"><input type="range" class="slider" id="uneven_tone" min="1" max="5" value="3" /><span class="slider-value" id="uneven_tone_val">3</span></div></div>
+              <div class="form-field"><label class="form-field-label">Fine Lines / Wrinkles (1-5)</label><div class="slider-wrapper"><input type="range" class="slider" id="fine_lines" min="1" max="5" value="3" /><span class="slider-value" id="fine_lines_val">3</span></div></div>
+              <div class="form-field"><label class="form-field-label">Visible Pores (1-5)</label><div class="slider-wrapper"><input type="range" class="slider" id="visible_pores" min="1" max="5" value="3" /><span class="slider-value" id="visible_pores_val">3</span></div></div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-title">
+              <div class="form-section-icon">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3a4 4 0 00-4 4v3l-2 3h12l-2-3V7a4 4 0 00-4-4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+              </div>
+              Lifestyle
+            </div>
+            <div class="form-grid">
+              <div class="form-field">
+                <label class="form-field-label">Water Intake</label>
+                <select class="form-select" id="water_intake">
+                  <option value="">Select...</option>
+                  <option value="0-2 glasses">0-2 glasses</option>
+                  <option value="3-4 glasses">3-4 glasses</option>
+                  <option value="5-6 glasses">5-6 glasses</option>
+                  <option value="7+ glasses">7+ glasses</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label class="form-field-label">Sleep Duration</label>
+                <select class="form-select" id="sleep_duration">
+                  <option value="">Select...</option>
+                  <option value="less than 5 hours">Less than 5 hours</option>
+                  <option value="5-6 hours">5-6 hours</option>
+                  <option value="6-7 hours">6-7 hours</option>
+                  <option value="7-8 hours">7-8 hours</option>
+                  <option value="8+ hours">8+ hours</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label class="form-field-label">Stress Level</label>
+                <select class="form-select" id="stress_level">
+                  <option value="">Select...</option>
+                  <option value="Low">Low</option>
+                  <option value="Moderate">Moderate</option>
+                  <option value="High">High</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label class="form-field-label">Exercise Frequency</label>
+                <select class="form-select" id="exercise_frequency">
+                  <option value="">Select...</option>
+                  <option value="Never">Never</option>
+                  <option value="1-2 times/week">1-2 times/week</option>
+                  <option value="3-4 times/week">3-4 times/week</option>
+                  <option value="Daily">Daily</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label class="form-field-label">Smoking</label>
+                <select class="form-select" id="smoking">
+                  <option value="">Select...</option>
+                  <option value="No">No</option>
+                  <option value="Occasionally">Occasionally</option>
+                  <option value="Regularly">Regularly</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label class="form-field-label">Alcohol Consumption</label>
+                <select class="form-select" id="alcohol">
+                  <option value="">Select...</option>
+                  <option value="Never">Never</option>
+                  <option value="Occasionally">Occasionally</option>
+                  <option value="Regularly">Regularly</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-title">
+              <div class="form-section-icon">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 3h10v14H5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 7h4M8 10h4M8 13h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </div>
+              Skincare Routine
+            </div>
+            <div class="form-grid">
+              <div class="form-field">
+                <label class="form-field-label">Cleanser Usage</label>
+                <select class="form-select" id="cleanser_usage">
+                  <option value="">Select...</option>
+                  <option value="Never">Never</option>
+                  <option value="Once daily">Once daily</option>
+                  <option value="Twice daily">Twice daily</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label class="form-field-label">Moisturizer Usage</label>
+                <select class="form-select" id="moisturizer_usage">
+                  <option value="">Select...</option>
+                  <option value="Never">Never</option>
+                  <option value="Once daily">Once daily</option>
+                  <option value="Twice daily">Twice daily</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label class="form-field-label">Sunscreen Usage</label>
+                <select class="form-select" id="sunscreen_usage">
+                  <option value="">Select...</option>
+                  <option value="Never">Never</option>
+                  <option value="Rarely">Rarely</option>
+                  <option value="Sometimes">Sometimes</option>
+                  <option value="Daily">Daily</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label class="form-field-label">Current Routine</label>
+                <input type="text" class="form-input" id="skincare_routine" placeholder="e.g. Cleanser + Moisturizer + Sunscreen" style="padding-left:1rem;" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-title">
+              <div class="form-section-icon">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </div>
+              Environment
+            </div>
+            <div class="form-grid-3">
+              <div class="form-field">
+                <label class="form-field-label">Sun Exposure</label>
+                <select class="form-select" id="sun_exposure">
+                  <option value="">Select...</option>
+                  <option value="Low">Low</option>
+                  <option value="Moderate">Moderate</option>
+                  <option value="High">High</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label class="form-field-label">Pollution Exposure</label>
+                <select class="form-select" id="pollution_exposure">
+                  <option value="">Select...</option>
+                  <option value="Low">Low</option>
+                  <option value="Moderate">Moderate</option>
+                  <option value="High">High</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label class="form-field-label">Climate</label>
+                <select class="form-select" id="climate">
+                  <option value="">Select...</option>
+                  <option value="Tropical">Tropical</option>
+                  <option value="Dry">Dry</option>
+                  <option value="Humid">Humid</option>
+                  <option value="Cold">Cold</option>
+                  <option value="Temperate">Temperate</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div style="text-align:center;margin-top:1.5rem;">
+            <button type="submit" class="btn btn-primary btn-lg">Analyze My Skin</button>
+          </div>
+        </form>
+
+        <div id="assessmentResult"></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initFormAssessment } from '/js/assessment.js';
+    initFormAssessment();
+    // Update slider value displays
+    document.querySelectorAll('.slider').forEach(slider => {
+      const valEl = document.getElementById(slider.id + '_val');
+      if (valEl) {
+        slider.addEventListener('input', () => { valEl.textContent = slider.value; });
+      }
+    });
+  </script>
+</body>
+</html>

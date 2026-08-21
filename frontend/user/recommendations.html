@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recommendations - GlowSense AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="/css/assessment.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <div class="dashboard-layout">
+    <div class="dashboard-main">
+      <div class="dashboard-content">
+        <h1 class="page-title">Personalized Recommendations</h1>
+        <p class="page-subtitle">Skincare recommendations based on your latest assessment.</p>
+
+        <div id="recsContainer"></div>
+        <div class="empty-state" id="emptyRecs" style="display:none;">
+          <div class="empty-state-icon">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M16 5l2 5 5 2-5 2-2 5-2-5-5-2 5-2 2-5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="empty-state-title">No recommendations available yet</div>
+          <div class="empty-state-text">Complete an assessment to receive personalized skincare recommendations.</div>
+          <a href="/user/assessment.html" class="btn btn-primary">Start Assessment</a>
+        </div>
+
+        <div id="productsSection" style="display:none;margin-top:2rem;">
+          <h2 class="page-title" style="font-size:var(--fs-xl);">Recommended Products</h2>
+          <p class="page-subtitle">Products selected based on your personalized routine, allergies, and feedback.</p>
+          <div id="productsSource" style="margin-bottom:1rem;"></div>
+          <div id="productsContainer" style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-top:1rem;"></div>
+          <style>@media(max-width:640px){#productsContainer{grid-template-columns:1fr !important;}}</style>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initUserRecommendations } from '/js/user.js';
+    initUserRecommendations();
+  </script>
+</body>
+</html>
