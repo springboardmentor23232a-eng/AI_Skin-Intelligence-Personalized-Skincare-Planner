@@ -1,0 +1,304 @@
+{
+	"info": {
+		"_postman_id": "b833d8c1-1a9e-4b2f-a99c-53e8d6df4ca7",
+		"name": "AI Skin Personalized Routine API",
+		"description": "Postman Collection covering Module 4: Personalized Skincare Routine Generation endpoints, including saving skin profile questionnaire, routine generation, manual modifications, and history log management.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Save Routine Profile",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"age_group\": \"25–34\",\n    \"skin_type\": \"Oily\",\n    \"sensitivity\": \"Slightly sensitive\",\n    \"concerns\": [\"Acne\", \"Excess oil\", \"Blackheads\"],\n    \"acne_severity\": \"Moderate\",\n    \"oiliness\": \"Very oily\",\n    \"dryness\": \"Not dry\",\n    \"redness_frequency\": \"Sometimes\",\n    \"has_routine\": \"Yes\",\n    \"current_products\": [\"Cleanser\", \"Moisturizer\", \"Sunscreen\"],\n    \"routine_frequency\": \"Every day\",\n    \"skincare_irritation\": \"No\",\n    \"active_ingredients\": [\"Niacinamide\"],\n    \"sleep_hours\": \"7–8\",\n    \"water_intake\": \"2–3 L\",\n    \"stress_level\": \"Moderate\",\n    \"exercise_frequency\": \"3–4 times/week\",\n    \"outdoor_hours\": \"1–2 hours\",\n    \"climate\": \"Moderate\",\n    \"pollution_exposure\": \"Moderate\",\n    \"sunlight_exposure\": \"Moderate\",\n    \"has_allergies\": \"Yes\",\n    \"avoid_ingredients\": \"Salicylic acid\",\n    \"has_allergic_reaction\": \"No\",\n    \"skincare_time\": \"10–20 minutes\",\n    \"routine_preference\": \"Detailed\",\n    \"budget\": \"Moderate\",\n    \"skincare_goal\": \"Clear acne\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/routine/profile",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"routine",
+						"profile"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Routine Profile",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/routine/profile",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"routine",
+						"profile"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Generate Routine",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json();",
+							"if (responseJson && responseJson.id) {",
+							"    pm.environment.set(\"routine_id\", responseJson.id);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/routine/generate",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"routine",
+						"generate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Current Routine",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/routine/current",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"routine",
+						"current"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Routine History",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/routine/history",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"routine",
+						"history"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Specific Routine",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/routine/{{routine_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"routine",
+						"{{routine_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Manual Modify Routine Items",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"items\": [\n        {\n            \"routine_type\": \"MORNING\",\n            \"category\": \"CLEANSING\",\n            \"step_order\": 1,\n            \"name\": \"Ultra-Gentle Custom Cleanser\",\n            \"description\": \"Cleanse face thoroughly with lukewarm water.\",\n            \"frequency\": \"Every morning\",\n            \"notes\": \"User modified\",\n            \"is_enabled\": true\n        },\n        {\n            \"routine_type\": \"MORNING\",\n            \"category\": \"SUN_PROTECTION\",\n            \"step_order\": 2,\n            \"name\": \"Mineral SPF 50 Broad Sunscreen\",\n            \"description\": \"Apply generous coating as the final morning step.\",\n            \"frequency\": \"Every morning\",\n            \"notes\": \"User modified\",\n            \"is_enabled\": true\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/routine/{{routine_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"routine",
+						"{{routine_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Regenerate Routine Card",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/routine/{{routine_id}}/regenerate",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"routine",
+						"{{routine_id}}",
+						"regenerate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Routine",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/routine/{{routine_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"routine",
+						"{{routine_id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

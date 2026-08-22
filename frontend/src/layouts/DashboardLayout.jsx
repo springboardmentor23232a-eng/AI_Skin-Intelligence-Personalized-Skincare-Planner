@@ -34,12 +34,12 @@ export default function DashboardLayout() {
   const navItems = [
     // User sidebar options
     { label: 'Dashboard', path: '/dashboard', icon: Home, roles: ['user'] },
-    { label: 'Skin Health Score', path: '/dashboard/score', icon: Sparkles, roles: ['user'] },
     { label: 'Skin Assessment', path: '/dashboard/assessment', icon: Camera, roles: ['user'] },
     { label: 'Personalized Routine', path: '/dashboard/routine', icon: Calendar, roles: ['user'] },
     { label: 'Recommendations', path: '/dashboard/recommendations', icon: ShoppingBag, roles: ['user'] },
     { label: 'Progress Tracking', path: '/dashboard/progress', icon: LineChart, roles: ['user'] },
     { label: 'Skincare Checklist', path: '/dashboard/checklist', icon: CheckCircle2, roles: ['user'] },
+    { label: 'Ingredient Intelligence', path: '/dashboard/ingredients', icon: TestTube, roles: ['user'] },
 
     // Consultant sidebar options
     { label: 'Dashboard', path: '/consultant', icon: Home, roles: ['consultant'] },

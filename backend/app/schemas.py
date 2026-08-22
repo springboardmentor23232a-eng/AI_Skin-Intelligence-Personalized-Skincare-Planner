@@ -84,3 +84,135 @@ class SkinAssessmentHistoryResponse(BaseModel):
 
 class AssessmentUpdateNotesRequest(BaseModel):
     notes: str = Field(..., max_length=500, description="Updated assessment notes")
+
+
+# --- Module 4: Routine Generation Schemas ---
+
+class RoutineProfileCreateUpdate(BaseModel):
+    age_group: str = Field(..., description="Q1: Age group")
+    skin_type: str = Field(..., description="Q2: Skin type")
+    sensitivity: str = Field(..., description="Q3: Skin sensitivity")
+    concerns: List[str] = Field(..., description="Q4: Main skin concerns")
+    acne_severity: str = Field(..., description="Q5: Acne severity")
+    oiliness: str = Field(..., description="Q6: Oiliness")
+    dryness: str = Field(..., description="Q7: Dryness/dehydration")
+    redness_frequency: str = Field(..., description="Q8: Irritation/redness frequency")
+    has_routine: str = Field(..., description="Q9: Follows routine")
+    current_products: List[str] = Field(..., description="Q10: Current products list")
+    routine_frequency: str = Field(..., description="Q11: Skincare routine frequency")
+    skincare_irritation: str = Field(..., description="Q12: Irritation history")
+    active_ingredients: List[str] = Field(..., description="Q13: Actives currently used")
+    sleep_hours: str = Field(..., description="Q14: Daily sleep hours")
+    water_intake: str = Field(..., description="Q15: Daily water intake")
+    stress_level: str = Field(..., description="Q16: Stress level")
+    exercise_frequency: str = Field(..., description="Q17: Weekly exercise frequency")
+    outdoor_hours: str = Field(..., description="Q18: Outdoor hours")
+    climate: str = Field(..., description="Q19: Environment climate")
+    pollution_exposure: str = Field(..., description="Q20: Pollution exposure level")
+    sunlight_exposure: str = Field(..., description="Q21: Sunlight exposure level")
+    has_allergies: str = Field(..., description="Q22: Has allergies")
+    avoid_ingredients: Optional[str] = Field(None, max_length=500, description="Q23: Ingredients to avoid")
+    has_allergic_reaction: str = Field(..., description="Q24: Product reaction history")
+    skincare_time: str = Field(..., description="Q25: Skincare time preference")
+    routine_preference: str = Field(..., description="Q26: Skincare complexity preference")
+    budget: str = Field(..., description="Q27: Skincare budget preference")
+    skincare_goal: str = Field(..., max_length=100, description="Q28: Primary skincare goal")
+
+class RoutineProfileResponse(RoutineProfileCreateUpdate):
+    id: int
+    user_id: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class RoutineItemSchema(BaseModel):
+    id: int
+    routine_type: str
+    category: str
+    step_order: int
+    name: str
+    description: str
+    frequency: str
+    notes: Optional[str] = None
+    is_enabled: bool
+
+    class Config:
+        from_attributes = True
+
+class RoutineResponse(BaseModel):
+    id: int
+    user_id: int
+    profile_id: Optional[int] = None
+    generated_at: datetime
+    updated_at: datetime
+    is_user_modified: bool
+    items: List[RoutineItemSchema] = []
+
+    class Config:
+        from_attributes = True
+
+class RoutineItemCreateUpdate(BaseModel):
+    id: Optional[int] = None
+    routine_type: str
+    category: str
+    step_order: int
+    name: str
+    description: str
+    frequency: str
+    notes: Optional[str] = None
+    is_enabled: bool = True
+
+class RoutineManualUpdateRequest(BaseModel):
+    items: List[RoutineItemCreateUpdate]
+
+
+# --- Module 5: Ingredient Intelligence Schemas ---
+
+class IngredientResponse(BaseModel):
+    id: int
+    name: str
+    category: str
+    short_description: str
+    benefits: List[str]
+    suitable_skin_types: List[str]
+    common_concerns: List[str]
+    usage_guidance: str
+    precautions: str
+    typical_frequency: str
+    irritation_level: str
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class IngredientSuitabilityRequest(BaseModel):
+    ingredient_id: int
+
+class IngredientSuitabilityResponse(BaseModel):
+    ingredient: str
+    suitability: str # SUITABLE, USE_WITH_CAUTION, NOT_RECOMMENDED, AVOID
+    reason: str
+    warnings: List[str]
+    usage_guidance: str
+
+class IngredientInteractionRequest(BaseModel):
+    ingredient_ids: List[int]
+
+class IngredientInteractionResponse(BaseModel):
+    compatibility: str # COMPATIBLE, USE_WITH_CAUTION, AVOID_SAME_ROUTINE
+    explanation: str
+    recommended_usage: str
+
+class ProfileContextResponse(BaseModel):
+    has_profile: bool
+    skin_type: Optional[str] = None
+    sensitivity: Optional[str] = None
+    concerns: List[str] = []
+    avoid_ingredients: Optional[str] = None
+    skincare_goal: Optional[str] = None
+    has_allergies: Optional[str] = None
+    has_allergic_reaction: Optional[str] = None
+

@@ -1,55 +1,19 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from app.config import settings
-from app.exceptions import register_exception_handlers
-from app.routers import auth, profile, assessment, routine, consultant, ingredients
-from app.logging_config import logger
-from app.database import engine, Base, SessionLocal
+import sys
+import os
+
+# Add backend directory to sys.path
+sys.path.append(r"c:\Users\LAXMI PRANEETHA\OneDrive\Desktop\AI-Skin\backend")
+
+from app.database import SessionLocal
 from app.models import Ingredient
-import app.models
 
-# Auto-create SQLAlchemy database tables on application start
-Base.metadata.create_all(bind=engine)
-
-# Initialize FastAPI App
-app = FastAPI(
-    title="AI Skin Intelligence & Personalized Skincare Planner API",
-    description="Backend API services managing User Authentication, RBAC, and Skin Assessments.",
-    version="1.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc"
-)
-
-# Configure CORS Origins allowed lists
-origins = [origin.strip() for origin in settings.CORS_ORIGINS.split(",") if origin.strip()]
-if not origins or "*" in origins:
-    origins = ["*"]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True if "*" not in origins else False,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Register global centralized exception handlers
-register_exception_handlers(app)
-
-# Include Router endpoints
-app.include_router(auth.router)
-app.include_router(profile.router)
-app.include_router(assessment.router)
-app.include_router(routine.router)
-app.include_router(consultant.router)
-app.include_router(ingredients.router)
-
-@app.on_event("startup")
-def seed_ingredients():
+def seed():
     db = SessionLocal()
     try:
-        if db.query(Ingredient).count() == 0:
-            logger.info("Seeding initial ingredients data...")
+        count = db.query(Ingredient).count()
+        print(f"Current seeded count: {count}")
+        if count == 0:
+            print("Database is empty. Seeding initial ingredients...")
             initial_ingredients = [
                 Ingredient(
                     name="Retinoids",
@@ -107,7 +71,7 @@ def seed_ingredients():
                     suitable_skin_types=["Oily", "Combination", "Normal"],
                     common_concerns=["Acne", "Blackheads", "Whiteheads", "Excess oil", "Open pores"],
                     usage_guidance="Apply after cleansing. Use as a spot treatment or all-over exfoliant. Start with 2-3 times per week.",
-                    precautions="Avoid using with retinoids or other strong acids in the same routine step. Can be drying, follow with a good moisturizer.",
+                    precautions="Avoid using with retinoids or other strong active acids in the same routine step. Can be drying, follow with a good moisturizer.",
                     typical_frequency="2-3 times per week",
                     irritation_level="Medium"
                 ),
@@ -150,19 +114,15 @@ def seed_ingredients():
             ]
             db.add_all(initial_ingredients)
             db.commit()
-            logger.info("Successfully seeded 8 initial ingredients into PostgreSQL database.")
+            print("Successfully seeded 8 ingredients.")
+        else:
+            print("Database already contains data.")
     except Exception as e:
-        logger.error(f"Failed to seed ingredients: {e}")
+        import traceback
+        traceback.print_exc()
         db.rollback()
     finally:
         db.close()
 
-@app.get("/", tags=["Health Check"])
-async def health_check():
-    """Simple API status health check ping endpoint."""
-    logger.info("Health check ping received")
-    return {
-        "success": True,
-        "message": "AI Skin Intelligence API is running successfully.",
-        "version": "1.0.0"
-    }
+if __name__ == "__main__":
+    seed()

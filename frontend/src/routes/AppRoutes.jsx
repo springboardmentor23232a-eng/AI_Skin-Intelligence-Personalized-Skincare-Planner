@@ -28,6 +28,7 @@ import PersonalizedRoutine from '../pages/PersonalizedRoutine';
 import ProductRecommendations from '../pages/ProductRecommendations';
 import ProgressTracking from '../pages/ProgressTracking';
 import DailySkincareChecklist from '../pages/DailySkincareChecklist';
+import IngredientIntelligence from '../pages/IngredientIntelligence';
 
 // Consultant Sidebar Sub-Pages
 import ClientProfiles from '../pages/ClientProfiles';
@@ -102,6 +103,11 @@ export default function AppRoutes() {
         <Route path="/dashboard/checklist" element={
           <ProtectedRoute allowedRoles={['user']}>
             <DailySkincareChecklist />
+          </ProtectedRoute>
+        } />
+        <Route path="/dashboard/ingredients" element={
+          <ProtectedRoute allowedRoles={['user']}>
+            <IngredientIntelligence />
           </ProtectedRoute>
         } />
 
