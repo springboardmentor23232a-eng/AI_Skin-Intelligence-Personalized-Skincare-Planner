@@ -1,0 +1,208 @@
+{
+  "info": {
+    "name": "AI Skin Intelligence",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Full API collection for the AI Skin Intelligence & Personalized Skincare Planner."
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8000" },
+    { "key": "token", "value": "" },
+    { "key": "assessment_id", "value": "" },
+    { "key": "product_id", "value": "" },
+    { "key": "client_id", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/auth/register",
+            "body": { "mode": "raw", "raw": "{\n  \"full_name\": \"Demo User\",\n  \"email\": \"demo@aiskin.com\",\n  \"password\": \"Password@123\",\n  \"role\": \"user\"\n}" }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["var d=pm.response.json(); pm.collectionVariables.set('token', d.access_token);"], "type": "text/javascript" }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
+            "url": "{{base_url}}/api/auth/login",
+            "body": { "mode": "urlencoded", "urlencoded": [
+              { "key": "username", "value": "user@aiskin.com" },
+              { "key": "password", "value": "Password@123" }
+            ]}
+          }
+        },
+        {
+          "name": "Get Me",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/auth/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Skin Profile",
+      "item": [
+        {
+          "name": "Get Profile",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{base_url}}/api/users/profile" }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/users/profile",
+            "body": { "mode": "raw", "raw": "{\n  \"skin_type\": \"combination\",\n  \"age_group\": \"18-25\",\n  \"allergies\": \"fragrance\",\n  \"sensitivities\": \"retinol\",\n  \"lifestyle_habits\": \"exercise, balanced diet\",\n  \"sleep_quality\": 7,\n  \"water_intake_liters\": 2.2,\n  \"environmental_exposure\": \"moderate pollution, high UV\",\n  \"hydration_level\": 7\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Skin Assessment",
+      "item": [
+        {
+          "name": "Create Assessment (no image)",
+          "event": [{ "listen": "test", "script": { "exec": ["var d=pm.response.json(); pm.collectionVariables.set('assessment_id', d.id);"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/assessment",
+            "body": { "mode": "raw", "raw": "{\n  \"notes\": \"Manual check-in\",\n  \"concerns\": [\"Acne\"]\n}" }
+          }
+        },
+        {
+          "name": "Analyze Image (webcam/upload)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/assessment/analyze-image",
+            "body": { "mode": "formdata", "formdata": [{ "key": "file", "type": "file", "src": "" }] }
+          }
+        },
+        { "name": "List Assessments", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{base_url}}/api/assessment" } },
+        { "name": "Assessment History", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{base_url}}/api/assessment/history" } },
+        { "name": "Latest Score", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{base_url}}/api/assessment/score" } },
+        { "name": "Latest Risks", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{base_url}}/api/assessment/risks" } },
+        { "name": "Get Assessment By ID", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{base_url}}/api/assessment/{{assessment_id}}" } },
+        {
+          "name": "Update Assessment",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/assessment/{{assessment_id}}",
+            "body": { "mode": "raw", "raw": "{\n  \"notes\": \"Updated notes\"\n}" }
+          }
+        },
+        { "name": "Delete Assessment", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{base_url}}/api/assessment/{{assessment_id}}" } }
+      ]
+    },
+    {
+      "name": "Routine",
+      "item": [
+        { "name": "Generate Morning Routine", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{base_url}}/api/routine/generate?routine_type=morning" } },
+        { "name": "Generate Evening Routine", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{base_url}}/api/routine/generate?routine_type=evening" } },
+        { "name": "List Routines", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{base_url}}/api/routine" } }
+      ]
+    },
+    {
+      "name": "Ingredients",
+      "item": [
+        { "name": "List Ingredients", "request": { "method": "GET", "url": "{{base_url}}/api/ingredients" } },
+        {
+          "name": "Check Suitability",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/ingredients/check-suitability",
+            "body": { "mode": "raw", "raw": "{\n  \"ingredient_names\": [\"Retinol\", \"Vitamin C\"]\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        { "name": "List Products", "request": { "method": "GET", "url": "{{base_url}}/api/products" } },
+        { "name": "Recommended Products", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{base_url}}/api/products/recommended" } },
+        { "name": "Get Product", "request": { "method": "GET", "url": "{{base_url}}/api/products/{{product_id}}" } },
+        { "name": "Product Alternatives", "request": { "method": "GET", "url": "{{base_url}}/api/products/{{product_id}}/alternatives" } }
+      ]
+    },
+    {
+      "name": "Progress Tracking",
+      "item": [
+        {
+          "name": "Log Progress",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/progress",
+            "body": { "mode": "raw", "raw": "{\n  \"routine_adherence_pct\": 85,\n  \"skin_health_score\": 72\n}" }
+          }
+        },
+        { "name": "Get Progress Logs", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{base_url}}/api/progress" } },
+        { "name": "Progress Trend", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{base_url}}/api/progress/trend" } },
+        { "name": "Before/After Comparison", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{base_url}}/api/progress/before-after" } }
+      ]
+    },
+    {
+      "name": "Dashboards",
+      "item": [
+        { "name": "User Dashboard", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{base_url}}/api/dashboard/user" } },
+        { "name": "Consultant Dashboard", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{base_url}}/api/dashboard/consultant" } },
+        { "name": "Dermatologist Dashboard", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{base_url}}/api/dashboard/dermatologist" } },
+        { "name": "Admin Dashboard", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{base_url}}/api/dashboard/admin" } },
+        { "name": "Link Client", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{base_url}}/api/dashboard/clients/{{client_id}}/link" } },
+        {
+          "name": "Create Recommendation",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/dashboard/recommendations",
+            "body": { "mode": "raw", "raw": "{\n  \"client_id\": \"{{client_id}}\",\n  \"recommendation_text\": \"Switch to fragrance-free products.\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        { "name": "List Notifications", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{base_url}}/api/notifications" } },
+        { "name": "Generate Reminders", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{base_url}}/api/notifications/generate-reminders" } }
+      ]
+    },
+    {
+      "name": "AI Assistant (Gemini)",
+      "item": [
+        {
+          "name": "Chat",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/ai/chat",
+            "body": { "mode": "raw", "raw": "{\n  \"prompt\": \"How can I reduce redness on my cheeks?\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - User Management",
+      "item": [
+        { "name": "List All Users", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{base_url}}/api/users" } },
+        { "name": "Deactivate User", "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{base_url}}/api/users/{{client_id}}/deactivate" } },
+        { "name": "Activate User", "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{base_url}}/api/users/{{client_id}}/activate" } }
+      ]
+    }
+  ]
+}

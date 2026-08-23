@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dermatologist Dashboard · AI Skin Intelligence</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">AI Skin<small>Intelligence Platform</small></div>
+    <div class="nav-role-badge">Dermatologist</div>
+    <a class="nav-link active" data-tab="overview">Patient Insights</a>
+    <a class="nav-link" data-tab="recommendations">Treatment Recs</a>
+    <div class="nav-spacer"></div>
+    <button class="logout-btn" onclick="logout()">Sign out</button>
+  </aside>
+
+  <main class="main">
+    <section id="tab-overview">
+      <div class="page-header"><h1>Patient Insights</h1></div>
+
+      <div class="grid grid-3" style="margin-bottom:18px;">
+        <div class="card">
+          <div class="card-title">Total Patients</div>
+          <div class="stat-value" id="stat-total-patients">0</div>
+        </div>
+        <div class="card">
+          <div class="card-title">High-Risk Patients</div>
+          <div class="stat-value" id="stat-high-risk">0</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Link a New Patient</h3>
+        <div style="display:flex; gap:10px;">
+          <input type="text" id="link-patient-id" placeholder="Patient user ID" style="flex:1; padding:10px 12px; border:1px solid var(--line); border-radius:10px;" />
+          <button class="btn btn-primary" onclick="linkPatient()">Link</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:18px;">
+        <h3>Patients Needing Attention</h3>
+        <div id="high-risk-list"></div>
+      </div>
+    </section>
+
+    <section id="tab-recommendations" style="display:none;">
+      <div class="page-header"><h1>Treatment Recommendations</h1></div>
+      <div class="card">
+        <h3>Send a Treatment Recommendation</h3>
+        <div class="field">
+          <label>Patient ID</label>
+          <input type="text" id="rec-patient-id" />
+        </div>
+        <div class="field">
+          <label>Recommendation</label>
+          <textarea id="rec-text" rows="4" placeholder="e.g. Recommend dermatologist-strength retinoid; monitor for irritation over 4 weeks."></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="sendRecommendation()">Send</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/dermatologist-dashboard.js"></script>
+</body>
+</html>

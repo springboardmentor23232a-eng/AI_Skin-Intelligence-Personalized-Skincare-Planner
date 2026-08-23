@@ -1,0 +1,234 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>My Dashboard AI Skin Intelligence</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">AI Skin<small>Intelligence Platform</small></div>
+    <div class="nav-role-badge">User</div>
+    <a class="nav-link active" data-tab="overview">Overview</a>
+    <a class="nav-link" data-tab="scan">Skin Scan</a>
+    <a class="nav-link" data-tab="routine">My Routine</a>
+    <a class="nav-link" data-tab="products">Products</a>
+    <a class="nav-link" data-tab="ingredients">Ingredient Check</a>
+    <a class="nav-link" data-tab="progress">Progress</a>
+    <a class="nav-link" data-tab="recommendations">Recommendations</a>
+    <a class="nav-link" data-tab="assistant">AI Assistant</a>
+    <a class="nav-link" data-tab="profile">Skin Profile</a>
+    <div class="nav-spacer"></div>
+    <button class="logout-btn" onclick="logout()">Sign out</button>
+  </aside>
+
+  <main class="main">
+
+    <!-- OVERVIEW -->
+    <section id="tab-overview">
+      <div class="page-header">
+        <h1>Welcome back<span id="user-name-header"></span></h1>
+      </div>
+      <div class="grid grid-3" style="margin-bottom:18px;">
+        <div class="card">
+          <div class="card-title">Skin Health Score</div>
+          <div class="score-ring-wrap">
+            <div class="score-ring">
+              <svg width="96" height="96" viewBox="0 0 96 96">
+                <circle class="track" cx="48" cy="48" r="42" stroke-width="9" fill="none"/>
+                <circle id="score-fill" class="fill" cx="48" cy="48" r="42" stroke-width="9" fill="none"
+                  stroke-dasharray="264" stroke-dashoffset="264"/>
+              </svg>
+              <div class="num" id="score-num">--</div>
+            </div>
+            <div>
+              <div class="stat-label" id="score-condition">No assessment yet</div>
+              <div class="muted" id="score-skintype"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Active Routine Steps</div>
+          <div class="stat-value" id="routine-count">0</div>
+          <div class="stat-label">Steps in your current plan</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Unread Notifications</div>
+          <div class="stat-value" id="notif-count">0</div>
+          <div class="stat-label">Reminders & alerts</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Top Concerns</h3>
+        <div id="overview-concerns" class="muted">No data yet run a skin scan to get started.</div>
+      </div>
+    </section>
+
+    <!-- SKIN SCAN -->
+    <section id="tab-scan" style="display:none;">
+      <div class="page-header"><h1>Skin Scan</h1></div>
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>Webcam Capture</h3>
+          <p class="muted">Center your face in good lighting, then capture a frame for analysis.</p>
+          <div class="webcam-box" id="webcam-box">
+            <div class="placeholder">Camera not started</div>
+          </div>
+          <div class="webcam-controls">
+            <button class="btn btn-outline" id="btn-start-cam">Start Camera</button>
+            <button class="btn btn-primary" id="btn-capture" disabled>Capture</button>
+            <button class="btn btn-outline" id="btn-retake" style="display:none;">Retake</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Or Upload a Photo</h3>
+          <p class="muted">Prefer a still image? Upload a clear, well-lit photo of your skin instead.</p>
+          <input type="file" id="file-upload" accept="image/*" />
+          <hr class="divider" />
+          <button class="btn btn-clay" id="btn-analyze" disabled>Analyze Skin</button>
+          <div id="analyze-status" class="muted" style="margin-top:10px;"></div>
+        </div>
+      </div>
+
+      <div class="card" id="scan-result" style="margin-top:18px; display:none;">
+        <h3>Latest Result</h3>
+        <div id="scan-result-body"></div>
+      </div>
+    </section>
+
+    <!-- ROUTINE -->
+    <section id="tab-routine" style="display:none;">
+      <div class="page-header">
+        <h1>My Routine</h1>
+        <div>
+          <button class="btn btn-outline btn-sm" onclick="generateRoutine('morning')">Generate Morning</button>
+          <button class="btn btn-outline btn-sm" onclick="generateRoutine('evening')">Generate Evening</button>
+        </div>
+      </div>
+      <div id="routine-list" class="grid grid-2"></div>
+    </section>
+
+    <!-- PRODUCTS -->
+    <section id="tab-products" style="display:none;">
+      <div class="page-header"><h1>Recommended Products</h1></div>
+      <div id="products-list" class="grid grid-3"></div>
+    </section>
+
+    <!-- INGREDIENTS -->
+    <section id="tab-ingredients" style="display:none;">
+      <div class="page-header"><h1>Ingredient Check</h1></div>
+      <div class="card">
+        <p class="muted">Enter ingredient names (comma-separated) to check suitability against your allergy & sensitivity profile.</p>
+        <div class="field">
+          <input type="text" id="ingredient-input" placeholder="e.g. Retinol, Vitamin C, Niacinamide" />
+        </div>
+        <button class="btn btn-primary" onclick="checkIngredients()">Check Suitability</button>
+        <div id="ingredient-results" style="margin-top:16px;"></div>
+      </div>
+    </section>
+
+    <!-- PROGRESS -->
+    <section id="tab-progress" style="display:none;">
+      <div class="page-header"><h1>Progress Tracking</h1></div>
+      <div class="card">
+        <h3>Log Today's Progress</h3>
+        <div class="grid grid-2">
+          <div class="field">
+            <label>Routine Adherence (%)</label>
+            <input type="number" id="log-adherence" min="0" max="100" value="80" />
+          </div>
+          <div class="field">
+            <label>Current Skin Health Score</label>
+            <input type="number" id="log-score" min="0" max="100" value="70" />
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="submitProgress()">Save Log</button>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <h3>Trend</h3>
+        <div id="progress-trend" class="muted">No logs yet.</div>
+      </div>
+    </section>
+
+    <!-- RECOMMENDATIONS -->
+    <section id="tab-recommendations" style="display:none;">
+      <div class="page-header"><h1>Recommendations From Your Care Team</h1></div>
+      <div class="card">
+        <div id="recommendations-list">Loading</div>
+      </div>
+    </section>
+
+    <!-- AI ASSISTANT -->
+    <section id="tab-assistant" style="display:none;">
+      <div class="page-header"><h1>AI Skincare Assistant</h1></div>
+      <div class="card">
+        <p class="muted">Ask about ingredients, routines, or your latest assessment. Powered by Gemini general guidance only, not a medical diagnosis.</p>
+        <div class="field">
+          <textarea id="ai-prompt" rows="3" placeholder="e.g. Why did my skin score drop this week?"></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="askAI()">Ask</button>
+        <div id="ai-response" class="card" style="margin-top:14px; display:none; background:var(--sage-tint); border:none;"></div>
+      </div>
+    </section>
+
+    <!-- PROFILE -->
+    <section id="tab-profile" style="display:none;">
+      <div class="page-header"><h1>Skin Profile</h1></div>
+      <div class="card" style="max-width:640px;">
+        <div class="grid grid-2">
+          <div class="field">
+            <label>Skin Type</label>
+            <select id="p-skintype">
+              <option value="">--</option>
+              <option value="oily">Oily</option>
+              <option value="dry">Dry</option>
+              <option value="combination">Combination</option>
+              <option value="normal">Normal</option>
+              <option value="sensitive">Sensitive</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Age Group</label>
+            <input type="text" id="p-age" placeholder="e.g. 18-25" />
+          </div>
+          <div class="field">
+            <label>Allergies (comma separated)</label>
+            <input type="text" id="p-allergies" />
+          </div>
+          <div class="field">
+            <label>Sensitivities (comma separated)</label>
+            <input type="text" id="p-sensitivities" />
+          </div>
+          <div class="field">
+            <label>Lifestyle Habits (comma separated)</label>
+            <input type="text" id="p-lifestyle" placeholder="exercise, smoking, balanced diet" />
+          </div>
+          <div class="field">
+            <label>Sleep Quality (1-10)</label>
+            <input type="number" id="p-sleep" min="1" max="10" />
+          </div>
+          <div class="field">
+            <label>Water Intake (L/day)</label>
+            <input type="number" step="0.1" id="p-water" />
+          </div>
+          <div class="field">
+            <label>Environmental Exposure</label>
+            <input type="text" id="p-env" placeholder="e.g. high pollution, high UV" />
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="saveProfile()">Save Profile</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/webcam.js"></script>
+<script src="js/user-dashboard.js"></script>
+</body>
+</html>

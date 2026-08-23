@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Consultant Dashboard · AI Skin Intelligence</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">AI Skin<small>Intelligence Platform</small></div>
+    <div class="nav-role-badge">Consultant</div>
+    <a class="nav-link active" data-tab="overview">Client Overview</a>
+    <a class="nav-link" data-tab="recommendations">Recommendations</a>
+    <div class="nav-spacer"></div>
+    <button class="logout-btn" onclick="logout()">Sign out</button>
+  </aside>
+
+  <main class="main">
+    <section id="tab-overview">
+      <div class="page-header"><h1>Client Profiles</h1></div>
+
+      <div class="grid grid-3" style="margin-bottom:18px;">
+        <div class="card">
+          <div class="card-title">Total Clients</div>
+          <div class="stat-value" id="stat-total-clients">0</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Link a New Client</h3>
+        <p class="muted">Enter a client's user ID (from their profile / admin panel) to link them to your caseload.</p>
+        <div style="display:flex; gap:10px;">
+          <input type="text" id="link-client-id" placeholder="Client user ID" style="flex:1; padding:10px 12px; border:1px solid var(--line); border-radius:10px;" />
+          <button class="btn btn-primary" onclick="linkClient()">Link</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:18px;">
+        <h3>My Clients</h3>
+        <div id="clients-list"></div>
+      </div>
+    </section>
+
+    <section id="tab-recommendations" style="display:none;">
+      <div class="page-header"><h1>Recommendations</h1></div>
+      <div class="card">
+        <h3>Send a Recommendation</h3>
+        <div class="field">
+          <label>Client ID</label>
+          <input type="text" id="rec-client-id" />
+        </div>
+        <div class="field">
+          <label>Recommendation</label>
+          <textarea id="rec-text" rows="4" placeholder="e.g. Switch to a fragrance-free moisturizer and reduce exfoliation to 2x/week."></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="sendRecommendation()">Send</button>
+      </div>
+      <div class="card" style="margin-top:18px;">
+        <h3>Recent Recommendations</h3>
+        <div id="recs-list"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/consultant-dashboard.js"></script>
+</body>
+</html>

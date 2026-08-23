@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Skin Intelligence</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="auth-shell">
+  <div class="auth-hero">
+    <div>
+      <div class="brand" style="font-size:1.4rem;">AI Skin<small>Intelligence Platform</small></div>
+    </div>
+    <div>
+      <h1>Skincare that reads your skin, not just your skin type.</h1>
+      <p>Webcam-based analysis, dermatologist-informed scoring, and routines that adapt to your lifestyle — built for consumers, consultants, and clinics.</p>
+    </div>
+    <div class="signature">Assess &middot; Score &middot; Route &middot; Track</div>
+  </div>
+
+  <div class="auth-panel">
+    <div class="auth-card">
+      <div class="error-banner" id="error-banner"></div>
+
+      <!-- LOGIN FORM -->
+      <div id="login-view">
+        <h2>Welcome back</h2>
+        <p class="muted" style="margin-bottom:20px;">Sign in to continue to your dashboard.</p>
+        <form id="login-form">
+          <div class="field">
+            <label>Email</label>
+            <input type="email" id="login-email" required placeholder="you@example.com" />
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <input type="password" id="login-password" required placeholder="••••••••" />
+          </div>
+          <button class="btn btn-primary" type="submit" style="width:100%; justify-content:center;">
+            Sign In
+          </button>
+        </form>
+        <div class="form-toggle">New here? <a onclick="showRegister()">Create an account</a></div>
+        <hr class="divider" />
+        <p class="muted" style="text-align:center; font-size:0.78rem;">
+          Demo logins (password: <code>Password@123</code>)<br/>
+          user@aiskin.com &middot; consultant@aiskin.com &middot; dermatologist@aiskin.com &middot; admin@aiskin.com
+        </p>
+      </div>
+
+      <!-- REGISTER FORM -->
+      <div id="register-view" style="display:none;">
+        <h2>Create your account</h2>
+        <p class="muted" style="margin-bottom:16px;">Choose the role that fits you.</p>
+        <div class="role-toggle" id="role-toggle">
+          <button type="button" data-role="user" class="active">User</button>
+          <button type="button" data-role="consultant">Consultant</button>
+          <button type="button" data-role="dermatologist">Dermatologist</button>
+        </div>
+        <form id="register-form">
+          <div class="field">
+            <label>Full name</label>
+            <input type="text" id="reg-name" required placeholder="Jane Doe" />
+          </div>
+          <div class="field">
+            <label>Email</label>
+            <input type="email" id="reg-email" required placeholder="you@example.com" />
+          </div>
+          <div class="field">
+            <label>Phone (optional)</label>
+            <input type="text" id="reg-phone" placeholder="+91 90000 00000" />
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <input type="password" id="reg-password" required minlength="6" placeholder="At least 6 characters" />
+          </div>
+          <button class="btn btn-primary" type="submit" style="width:100%; justify-content:center;">
+            Create Account
+          </button>
+        </form>
+        <div class="form-toggle">Already have an account? <a onclick="showLogin()">Sign in</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>

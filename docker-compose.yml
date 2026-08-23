@@ -1,0 +1,54 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: aiskin_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: skin_user
+      POSTGRES_PASSWORD: skin_pass
+      POSTGRES_DB: skin_intelligence_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - aiskin_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U skin_user -d skin_intelligence_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    container_name: aiskin_backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://skin_user:skin_pass@db:5432/skin_intelligence_db
+      SECRET_KEY: change_this_to_a_long_random_secret_key
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      UPLOAD_DIR: uploads
+    ports:
+      - "8000:8000"
+    volumes:
+      - aiskin_uploads:/app/uploads
+
+  frontend:
+    image: nginx:alpine
+    container_name: aiskin_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+
+volumes:
+  aiskin_pgdata:
+  aiskin_uploads:

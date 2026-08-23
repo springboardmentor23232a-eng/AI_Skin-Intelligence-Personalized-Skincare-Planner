@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin Dashboard · AI Skin Intelligence</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">AI Skin<small>Intelligence Platform</small></div>
+    <div class="nav-role-badge">Administrator</div>
+    <a class="nav-link active" data-tab="overview">Platform Analytics</a>
+    <a class="nav-link" data-tab="users">User Management</a>
+    <div class="nav-spacer"></div>
+    <button class="logout-btn" onclick="logout()">Sign out</button>
+  </aside>
+
+  <main class="main">
+    <section id="tab-overview">
+      <div class="page-header"><h1>Platform Analytics</h1></div>
+      <div class="grid grid-4" id="analytics-cards"></div>
+    </section>
+
+    <section id="tab-users" style="display:none;">
+      <div class="page-header"><h1>User Management</h1></div>
+      <div class="card">
+        <div id="users-list"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/admin-dashboard.js"></script>
+</body>
+</html>
