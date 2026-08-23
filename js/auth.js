@@ -133,11 +133,18 @@ class AuthController {
   async registerUser(username, email, password, role = 'user') {
     const apiRes = await api.register(username, email, password, role);
     if (apiRes && apiRes.success) {
+      if (!apiRes.pendingApproval && apiRes.token && apiRes.user) {
+        this.currentUser = apiRes.user;
+        this.jwtToken = apiRes.token;
+        const userRole = (apiRes.user.role || 'user').toLowerCase();
+        this.login(userRole);
+      }
       return {
         success: true,
         pendingApproval: apiRes.pendingApproval || false,
         user: apiRes.user,
-        message: apiRes.message || 'Registration submitted successfully!'
+        token: apiRes.token || null,
+        message: apiRes.message || 'Registration completed successfully!'
       };
     }
     return {

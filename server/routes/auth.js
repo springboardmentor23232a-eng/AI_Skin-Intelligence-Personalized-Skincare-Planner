@@ -101,20 +101,33 @@ router.post('/register', async (req, res) => {
     const passwordHash = await bcrypt.hash(password, saltRounds);
     const avatarUrl = `https://api.dicebear.com/7.x/bottts/svg?seed=${cleanUsername}`;
 
-    // Insert into PostgreSQL with status = 'pending_approval'
+    // Regular 'user' role is active immediately without admin approval.
+    // Professional roles ('consultant', 'dermatologist') require Administrator verification.
+    const initialStatus = targetRole === 'user' ? 'active' : 'pending_approval';
+    const isPending = initialStatus === 'pending_approval';
+
+    // Insert into PostgreSQL with initialStatus
     const insertResult = await db.query(
       `INSERT INTO users (username, email, password_hash, role, status, avatar_url)
        VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING id, username, email, role, status, avatar_url, created_at`,
-      [cleanUsername, cleanEmail, passwordHash, targetRole, 'pending_approval', avatarUrl]
+      [cleanUsername, cleanEmail, passwordHash, targetRole, initialStatus, avatarUrl]
     );
 
     const newUser = insertResult.rows[0];
 
+    let token = null;
+    if (!isPending) {
+      token = generateJwtToken(newUser);
+    }
+
     return res.status(201).json({
       success: true,
-      pendingApproval: true,
-      message: `Registration submitted for ${newUser.username}! Your account is pending Administrator verification before you can sign in.`,
+      pendingApproval: isPending,
+      token: token,
+      message: isPending
+        ? `Registration submitted for ${newUser.username}! Your professional account is pending Administrator verification before you can sign in.`
+        : `Registration successful! Welcome to PanaceaAI, ${newUser.username}.`,
       user: {
         id: newUser.id,
         username: newUser.username,
@@ -311,7 +324,8 @@ router.post('/google', async (req, res) => {
         });
       }
     } else {
-      // Auto-register new Google OAuth account as pending_approval
+      // Auto-register new Google OAuth account: regular 'user' role is active immediately
+      const initialStatus = requestedRole === 'user' ? 'active' : 'pending_approval';
       const randomPassHash = await bcrypt.hash(`oauth_${Date.now()}`, 10);
       const username = googleUser.email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '_');
 
@@ -319,17 +333,17 @@ router.post('/google', async (req, res) => {
         `INSERT INTO users (username, email, password_hash, role, status, google_id, avatar_url)
          VALUES ($1, $2, $3, $4, $5, $6, $7)
          RETURNING id, username, email, role, status, google_id, avatar_url`,
-        [username, googleUser.email, randomPassHash, requestedRole, 'pending_approval', googleUser.google_id, googleUser.picture]
+        [username, googleUser.email, randomPassHash, requestedRole, initialStatus, googleUser.google_id, googleUser.picture]
       );
       dbUser = insertResult.rows[0];
     }
 
-    // SECURITY RULE: Account verification check
+    // SECURITY RULE: Account verification check for professional roles
     if (dbUser.status === 'pending_approval') {
       return res.status(403).json({
         success: false,
         pendingApproval: true,
-        message: `Google Account Registered! Account '${dbUser.username}' is currently pending Administrator verification. Please wait for an admin to approve your account.`
+        message: `Google Account Registered! Professional account '${dbUser.username}' is pending Administrator verification before sign-in.`
       });
     }
 

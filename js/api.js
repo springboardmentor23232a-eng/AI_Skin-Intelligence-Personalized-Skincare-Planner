@@ -1,18 +1,26 @@
 /**
  * PanaceaAI API Client
- * Manages JWT Tokens and Backend Express API HTTP Requests
+ * Manages JWT Tokens and Backend Express + FastAPI HTTP Requests
+ * Enhanced with Module 3: Skin Assessment Engine Integration
  */
 
 const API_BASE_URL = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
 
+// Module 3: Skin Assessment Engine FastAPI Base URL
+const ASSESSMENT_API_URL = typeof window !== 'undefined'
+  ? (window.ASSESSMENT_API_URL || 'http://localhost:8000')
+  : 'http://localhost:8000';
+
 class ApiClient {
   constructor() {
-    this._onSessionExpired = null; // BUG 11: callback for 401 auto-logout
+    this._onSessionExpired = null;
+    this._requestQueue = new Map(); // Deduplication: prevent concurrent identical GET requests
   }
 
   onSessionExpired(callback) {
     this._onSessionExpired = callback;
   }
+
   getToken() {
     if (typeof localStorage !== 'undefined') {
       return localStorage.getItem('panacea_jwt_token') || sessionStorage?.getItem('panacea_jwt_token') || null;
@@ -24,7 +32,9 @@ class ApiClient {
     if (!token) return;
     this.memoryToken = token;
     if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('panacea_jwt_token', token);
+      if (remember) {
+        localStorage.setItem('panacea_jwt_token', token);
+      }
       sessionStorage.setItem('panacea_jwt_token', token);
     }
   }
@@ -51,7 +61,11 @@ class ApiClient {
     return headers;
   }
 
-  async request(endpoint, options = {}) {
+  /**
+   * Core HTTP request handler for Express backend (port 3000).
+   * Includes automatic retry on transient 5xx errors and 401 session expiry handling.
+   */
+  async request(endpoint, options = {}, retries = 1) {
     const url = `${API_BASE_URL}${endpoint}`;
     const config = {
       ...options,
@@ -60,7 +74,21 @@ class ApiClient {
 
     try {
       const response = await fetch(url, config);
-      const data = await response.json();
+
+      // Retry once on transient server errors (502, 503, 504)
+      if (retries > 0 && [502, 503, 504].includes(response.status)) {
+        await new Promise(r => setTimeout(r, 800));
+        return this.request(endpoint, options, retries - 1);
+      }
+
+      let data;
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        data = { success: false, message: text || 'Unexpected non-JSON response from server.' };
+      }
 
       // Auto-logout on 401 session expiry (only for protected endpoints, not login/register/oauth calls)
       const isAuthRequest = endpoint.startsWith('/api/auth/login') || endpoint.startsWith('/api/auth/register') || endpoint.startsWith('/api/auth/google');
@@ -82,7 +110,68 @@ class ApiClient {
     }
   }
 
-  // BUG 8 FIX: Accept rememberMe flag to choose localStorage vs sessionStorage
+  /**
+   * Core HTTP request handler for FastAPI Assessment Engine (port 8000).
+   * Supports GET/POST/PUT/DELETE with JWT forwarding and automatic error normalization.
+   */
+  async assessmentRequest(endpoint, options = {}) {
+    const url = `${ASSESSMENT_API_URL}${endpoint}`;
+    const config = {
+      ...options,
+      headers: this.getHeaders(options.headers || {})
+    };
+
+    // GET request deduplication: prevent duplicate concurrent GET calls to the same endpoint
+    if ((!options.method || options.method === 'GET') && this._requestQueue.has(url)) {
+      return this._requestQueue.get(url);
+    }
+
+    const promise = (async () => {
+      try {
+        const response = await fetch(url, config);
+
+        let data;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          data = await response.json();
+        } else {
+          const text = await response.text();
+          data = { success: false, message: text || 'Unexpected non-JSON response from Assessment Engine.' };
+        }
+
+        if (!response.ok) {
+          return {
+            success: false,
+            status: response.status,
+            message: data?.detail || data?.message || `Assessment Engine Error (HTTP ${response.status})`,
+            ...data
+          };
+        }
+
+        return { success: true, ...data };
+      } catch (err) {
+        console.warn(`[Assessment Engine] Request to ${endpoint} failed:`, err.message);
+        return {
+          success: false,
+          message: 'Skin Assessment Engine is offline or unreachable.',
+          offline: true
+        };
+      } finally {
+        this._requestQueue.delete(url);
+      }
+    })();
+
+    if (!options.method || options.method === 'GET') {
+      this._requestQueue.set(url, promise);
+    }
+
+    return promise;
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // EXPRESS BACKEND AUTH & DATA ENDPOINTS (port 3000)
+  // ════════════════════════════════════════════════════════════════
+
   async login(username, password, role = 'user', rememberMe = false) {
     const res = await this.request('/api/auth/login', {
       method: 'POST',
@@ -123,9 +212,16 @@ class ApiClient {
     return await this.request('/api/auth/me', { method: 'GET' });
   }
 
-  // Data Operations
+  // Data Operations (Express)
   async getSkinScore() {
     return await this.request('/api/user/skin-score', { method: 'GET' });
+  }
+
+  async updateUserProfile(profileData) {
+    return await this.request('/api/user/profile', {
+      method: 'PUT',
+      body: JSON.stringify(profileData)
+    });
   }
 
   async getConsultations() {
@@ -160,6 +256,101 @@ class ApiClient {
   async deleteAdminUser(userId) {
     return await this.request(`/api/admin/users/${userId}`, {
       method: 'DELETE'
+    });
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // MODULE 3: SKIN ASSESSMENT ENGINE APIs (FastAPI - port 8000)
+  // ════════════════════════════════════════════════════════════════
+
+  /**
+   * POST /assessment — Create new skin assessment.
+   * Runs scoring engine, concern identification, and risk analysis.
+   * @param {Object} assessmentData - Skin profile parameters
+   */
+  async createAssessment(assessmentData) {
+    return await this.assessmentRequest('/assessment', {
+      method: 'POST',
+      body: JSON.stringify(assessmentData)
+    });
+  }
+
+  /**
+   * GET /assessment — Retrieve paginated list of user assessments.
+   * @param {number} skip - Pagination offset (default 0)
+   * @param {number} limit - Pagination limit (default 20)
+   */
+  async getAssessments(skip = 0, limit = 20) {
+    return await this.assessmentRequest(`/assessment?skip=${skip}&limit=${limit}`, {
+      method: 'GET'
+    });
+  }
+
+  /**
+   * GET /assessment/{id} — Get detailed assessment with concerns & risks.
+   * @param {number} assessmentId
+   */
+  async getAssessmentById(assessmentId) {
+    return await this.assessmentRequest(`/assessment/${assessmentId}`, {
+      method: 'GET'
+    });
+  }
+
+  /**
+   * PUT /assessment/{id} — Update assessment and re-evaluate engines.
+   * @param {number} assessmentId
+   * @param {Object} updateData - Updated skin parameters
+   */
+  async updateAssessment(assessmentId, updateData) {
+    return await this.assessmentRequest(`/assessment/${assessmentId}`, {
+      method: 'PUT',
+      body: JSON.stringify(updateData)
+    });
+  }
+
+  /**
+   * DELETE /assessment/{id} — Delete assessment record.
+   * @param {number} assessmentId
+   */
+  async deleteAssessment(assessmentId) {
+    return await this.assessmentRequest(`/assessment/${assessmentId}`, {
+      method: 'DELETE'
+    });
+  }
+
+  /**
+   * GET /assessment/history — Get assessment history timeline & score trends.
+   */
+  async getAssessmentHistory() {
+    return await this.assessmentRequest('/assessment/history', {
+      method: 'GET'
+    });
+  }
+
+  /**
+   * GET /assessment/score — Get latest skin health score breakdown & insights.
+   */
+  async getAssessmentScore() {
+    return await this.assessmentRequest('/assessment/score', {
+      method: 'GET'
+    });
+  }
+
+  /**
+   * GET /assessment/risks — Get active risk factors categorized by severity.
+   */
+  async getAssessmentRisks() {
+    return await this.assessmentRequest('/assessment/risks', {
+      method: 'GET'
+    });
+  }
+
+  /**
+   * GET /health — Check Assessment Engine health & DB connectivity.
+   */
+  async getAssessmentEngineHealth() {
+    return await this.assessmentRequest('/health', {
+      method: 'GET'
     });
   }
 }

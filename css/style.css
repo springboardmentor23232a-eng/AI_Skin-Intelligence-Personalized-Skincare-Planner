@@ -1058,8 +1058,8 @@ body {
 .service-status-card { background: #FAF8F5; border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 1.1rem; }
 
 /* Modals */
-.modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(20, 18, 17, 0.7); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: var(--transition); }
-.modal-backdrop.active { opacity: 1; pointer-events: auto; }
+.modal-backdrop, .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(20, 18, 17, 0.7); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: var(--transition); }
+.modal-backdrop.active, .modal-overlay.active { opacity: 1; pointer-events: auto; }
 .modal-card { background: #FFFFFF; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 2.2rem; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25); }
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
 .close-btn { background: transparent; border: none; font-size: 1.7rem; cursor: pointer; }

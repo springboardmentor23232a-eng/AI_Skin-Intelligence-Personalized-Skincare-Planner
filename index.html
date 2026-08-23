@@ -55,7 +55,7 @@
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
               <span>Home / Landing Page</span>
             </button>
-            <button class="dropdown-item" onclick="window.app.openUserSettingsModal()">
+            <button class="dropdown-item" onclick="window.app.navigateToUserSettings(event)">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
               <span>User Settings</span>
             </button>
@@ -170,18 +170,19 @@
       </div>
 
       <!-- Google OAuth 2.0 Sign In Section -->
-      <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem; margin-top: 0.5rem; text-align: center;">
+      <div style="border-top: 1px solid var(--border-light); padding-top: 1rem; margin-top: 0.75rem; text-align: center;">
         <div class="form-group" style="margin-bottom: 0.75rem; text-align: left;">
-          <label for="modal-oauth-role" style="font-size: 0.8rem; color: #94a3b8;">Select Role for Google OAuth Sign In:</label>
+          <label for="modal-oauth-role" style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Account Role for Google Sign In:</label>
           <select id="modal-oauth-role" class="form-control" style="font-size: 0.85rem;">
             <option value="user">User / Patient</option>
             <option value="consultant">Skincare Consultant</option>
             <option value="dermatologist">Dermatologist Doctor</option>
           </select>
         </div>
-        <button type="button" id="google-oauth-btn" class="btn btn-secondary" onclick="window.app.handleGoogleOAuthLogin()" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #fff;">
+        <div id="google-gsi-button-container" style="display: flex; justify-content: center; margin-bottom: 0.5rem; width: 100%;"></div>
+        <button type="button" id="google-oauth-btn" class="btn btn-outline" onclick="window.app.handleGoogleOAuthLogin()" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; padding: 0.7rem; border-radius: var(--radius-sm); border: 1px solid var(--border-light); background: #FFFFFF; color: var(--text-primary); transition: var(--transition);">
           <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
-          <span>Continue with Google</span>
+          <span id="google-btn-text">Continue with Google</span>
         </button>
       </div>
     </div>
@@ -192,56 +193,124 @@
     <div class="modal-card">
       <div class="modal-header">
         <div>
-          <h3>✨ Take AI Skin Assessment Survey</h3>
+          <h3>Clinical Skin Assessment Survey</h3>
           <p class="text-muted" style="font-size: 0.85rem;">Calculates live score using weighted health algorithm</p>
         </div>
         <button class="close-btn" onclick="window.app.closeModal('assessment-modal')">×</button>
       </div>
 
-      <form id="survey-form" onsubmit="window.app.handleSurveySubmit(event)">
-        <div class="form-group">
-          <label>Skin Type Profile</label>
-          <select id="survey-skin-type" class="form-control">
-            <option value="Combination / Sensitive">Combination / Sensitive</option>
-            <option value="Oily / Acne-Prone">Oily / Acne-Prone</option>
-            <option value="Dry / Dehydrated">Dry / Dehydrated</option>
-            <option value="Normal / Balanced">Normal / Balanced</option>
-          </select>
+      <form id="survey-form" onsubmit="window.app.handleSurveySubmit(event)" style="display: flex; flex-direction: column; gap: 0.85rem; max-height: 70vh; overflow-y: auto; padding-right: 0.5rem;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label>Skin Type Profile</label>
+            <select id="survey-skin-type" class="form-control">
+              <option value="Combination">Combination Skin</option>
+              <option value="Oily">Oily Skin</option>
+              <option value="Dry">Dry Skin</option>
+              <option value="Normal">Normal / Balanced</option>
+              <option value="Sensitive">Sensitive Skin</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Primary Clinical Goal</label>
+            <select id="survey-goal" class="form-control">
+              <option value="Barrier Repair & Hydration">Barrier Repair & Hydration</option>
+              <option value="Acne & Pore Clearing">Acne & Pore Clearing</option>
+              <option value="Fading Dark Spots & Hyperpigmentation">Fading Dark Spots & Hyperpigmentation</option>
+              <option value="Anti-Aging & Collagen Protection">Anti-Aging & Collagen Protection</option>
+              <option value="Soothing Redness & Sensitivity">Soothing Redness & Sensitivity</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label>Climate & Environment</label>
+            <select id="survey-climate" class="form-control">
+              <option value="Temperate & Balanced">Temperate & Balanced</option>
+              <option value="Hot & Humid (Tropical)">Hot & Humid (Tropical)</option>
+              <option value="Arid & Dry (Desert)">Arid & Dry (Desert)</option>
+              <option value="Cold & Harsh Winds">Cold & Harsh Winds</option>
+              <option value="High Urban Pollution">High Urban Pollution</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Fitzpatrick Skin Phototype</label>
+            <select id="survey-fitzpatrick" class="form-control">
+              <option value="Type III (Medium)">Type III (Medium / Tans Gradually)</option>
+              <option value="Type I (Very Fair)">Type I (Very Fair / Always Burns)</option>
+              <option value="Type II (Fair)">Type II (Fair / Burns Easily)</option>
+              <option value="Type IV (Olive / Brown)">Type IV (Olive / Tans Easily)</option>
+              <option value="Type V (Dark Brown)">Type V (Dark Brown / Rarely Burns)</option>
+              <option value="Type VI (Deeply Pigmented)">Type VI (Deeply Pigmented)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label>Exfoliation Frequency</label>
+            <select id="survey-exfoliation" class="form-control">
+              <option value="1-2 Times/Week">1-2 Times/Week (Optimal)</option>
+              <option value="Never">Never Exfoliate</option>
+              <option value="3-4 Times/Week">3-4 Times/Week (Moderate)</option>
+              <option value="Daily / Over-Exfoliated">Daily / Over-Exfoliated</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Cosmetics & Makeup Usage</label>
+            <select id="survey-makeup" class="form-control">
+              <option value="Light Minimal Makeup">Light Minimal Makeup</option>
+              <option value="None / Skincare Only">None / Skincare Only</option>
+              <option value="Full Coverage / Daily Heavy">Full Coverage / Heavy</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label>Daily Water Intake (Liters)</label>
+            <input type="number" id="survey-water" min="0.5" max="6.0" step="0.25" value="2.0" class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label>Sun Exposure (Hours/day)</label>
+            <input type="number" id="survey-sun" min="0" max="14" step="0.5" value="2.0" class="form-control">
+          </div>
         </div>
 
         <div class="form-group">
-          <label>Primary Skin Concern</label>
-          <select id="survey-concern" class="form-control">
-            <option value="Acne & Breakouts">Acne & Breakouts</option>
-            <option value="Hyperpigmentation">Hyperpigmentation</option>
-            <option value="Redness & Sensitivity">Redness & Sensitivity</option>
-            <option value="Fine Lines & Aging">Fine Lines & Aging</option>
-          </select>
+          <label>Hydration Level (0-100)</label>
+          <input type="range" id="survey-hydration" min="0" max="100" value="55" class="form-control"
+            oninput="document.getElementById('hyd-val').innerText = this.value">
+          <small>Selected: <strong id="hyd-val" style="color: var(--gold-primary);">55</strong>/100</small>
         </div>
 
         <div class="form-group">
-          <label>Skin Barrier & Condition Self-Rating (35% Weight)</label>
-          <input type="range" id="survey-condition" min="50" max="100" value="75" class="form-control"
-            oninput="document.getElementById('cond-val').innerText = this.value">
-          <small>Selected Rating: <strong id="cond-val" style="color: var(--gold-primary);">75</strong>/100</small>
+          <label>Oiliness / Sebum Index (0-100)</label>
+          <input type="range" id="survey-oiliness" min="0" max="100" value="50" class="form-control"
+            oninput="document.getElementById('oil-val').innerText = this.value">
+          <small>Selected: <strong id="oil-val" style="color: var(--gold-primary);">50</strong>/100</small>
         </div>
 
         <div class="form-group">
-          <label>Lifestyle & Diet Habits Rating (20% Weight)</label>
-          <input type="range" id="survey-lifestyle" min="50" max="100" value="80" class="form-control"
-            oninput="document.getElementById('life-val').innerText = this.value">
-          <small>Selected Rating: <strong id="life-val" style="color: var(--gold-primary);">80</strong>/100</small>
+          <label>Blemish & Acne Severity (0-100)</label>
+          <input type="range" id="survey-acne" min="0" max="100" value="20" class="form-control"
+            oninput="document.getElementById('acne-val').innerText = this.value">
+          <small>Selected: <strong id="acne-val" style="color: var(--gold-primary);">20</strong>/100</small>
         </div>
 
         <div class="form-group">
-          <label>Sleep Quality Rating (15% Weight)</label>
-          <input type="range" id="survey-sleep" min="40" max="100" value="70" class="form-control"
-            oninput="document.getElementById('sleep-val').innerText = this.value">
-          <small>Selected Rating: <strong id="sleep-val" style="color: var(--gold-primary);">70</strong>/100</small>
+          <label>Stress Level (1-10 Scale)</label>
+          <input type="range" id="survey-stress" min="1" max="10" value="4" class="form-control"
+            oninput="document.getElementById('stress-val').innerText = this.value">
+          <small>Selected: <strong id="stress-val" style="color: var(--gold-primary);">4</strong>/10</small>
         </div>
 
-        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Recalculate AI Skin Health
-          Score 🚀</button>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">Calculate Clinical Skin Score & Routine</button>
       </form>
     </div>
   </div>
@@ -251,7 +320,7 @@
     <div class="modal-card">
       <div class="modal-header">
         <div>
-          <h3>🧪 Ingredient Safety & Contraindication Checker</h3>
+          <h3>Ingredient Safety & Contraindication Checker</h3>
           <p class="text-muted" style="font-size: 0.85rem;">Check interaction safety between active ingredients</p>
         </div>
         <button class="close-btn" onclick="window.app.closeModal('ingredient-modal')">×</button>
@@ -285,43 +354,354 @@
         <!-- Injected dynamically -->
       </div>
     </div>
-  <!-- User Account Settings Modal -->
+  <!-- User Account & Profile Settings Modal -->
   <div id="user-settings-modal" class="modal-backdrop">
-    <div class="modal-card">
+    <div class="modal-card" style="max-width: 580px;">
       <div class="modal-header">
         <div>
-          <h3>⚙️ Account & Profile Settings</h3>
-          <p class="text-muted" style="font-size: 0.85rem;">Manage your profile details and preferences</p>
+          <h3>Account & Profile Settings</h3>
+          <p class="text-muted" style="font-size: 0.85rem;">Edit your personal profile details, avatar, and skincare preferences</p>
         </div>
         <button class="close-btn" onclick="window.app.closeModal('user-settings-modal')">×</button>
       </div>
-      <div class="settings-profile-preview" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: rgba(197,155,39,0.08); border-radius: var(--radius-sm); margin-bottom: 1.25rem; border: 1px solid var(--border-gold);">
-        <img id="settings-avatar-img" src="" alt="User Avatar" style="width: 52px; height: 52px; border-radius: 50%; border: 2px solid var(--gold-primary);">
+
+      <div class="settings-profile-preview" style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; background: rgba(197,155,39,0.06); border-radius: var(--radius-sm); margin-bottom: 1.25rem; border: 1px solid var(--border-gold);">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <img id="settings-avatar-img" src="" alt="User Avatar" style="width: 56px; height: 56px; border-radius: 50%; border: 2px solid var(--gold-primary); background: #fff;">
+          <div>
+            <h4 id="settings-user-name" style="margin: 0; font-size: 1.1rem; color: var(--text-primary);">User</h4>
+            <span id="settings-user-role" class="badge" style="font-size: 0.75rem;">Role</span>
+          </div>
+        </div>
+        <button type="button" class="btn btn-outline btn-sm" onclick="window.app.randomizeAvatar()" style="font-size: 0.78rem; padding: 0.4rem 0.8rem;">Change Avatar</button>
+      </div>
+
+      <form id="settings-profile-form" onsubmit="window.app.saveUserSettings(event)">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label for="settings-user-fullname">Full Name / Username</label>
+            <input type="text" id="settings-user-fullname" class="form-control" placeholder="Enter full name" required>
+          </div>
+          <div class="form-group">
+            <label for="settings-user-email">Email Address</label>
+            <input type="text" id="settings-user-email" class="form-control" readonly style="background: rgba(0,0,0,0.03); opacity: 0.8;">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label for="settings-skin-type">Skin Type Classification</label>
+            <select id="settings-skin-type" class="form-control">
+              <option value="Combination / Sensitive">Combination / Sensitive</option>
+              <option value="Dry / Dehydrated">Dry / Dehydrated</option>
+              <option value="Oily / Acne-Prone">Oily / Acne-Prone</option>
+              <option value="Normal / Balanced">Normal / Balanced</option>
+              <option value="Sensitive / Rosacea-Prone">Sensitive / Rosacea-Prone</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="settings-age-group">Age Demographic</label>
+            <select id="settings-age-group" class="form-control">
+              <option value="18 - 24">18 - 24 years</option>
+              <option value="25 - 34">25 - 34 years</option>
+              <option value="35 - 44">35 - 44 years</option>
+              <option value="45 - 54">45 - 54 years</option>
+              <option value="55+">55+ years</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="settings-primary-goal">Primary Skincare Focus</label>
+          <input type="text" id="settings-primary-goal" class="form-control" placeholder="e.g. Barrier Repair, Acne & Breakout Prevention">
+        </div>
+
+        <div class="form-group">
+          <label for="settings-allergies">Known Allergies & Sensitivity Triggers</label>
+          <input type="text" id="settings-allergies" class="form-control" placeholder="e.g. Fragrance (Parfum), Essential Oils, Alcohol Denat">
+        </div>
+
+        <div class="form-group">
+          <label>Notification & Telemetry Preferences</label>
+          <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.25rem;">
+            <label style="font-size: 0.85rem; color: var(--text-muted); font-weight: normal; cursor: pointer;">
+              <input type="checkbox" id="settings-pref-reminders" checked style="accent-color: var(--gold-primary); margin-right: 0.4rem;"> Daily AM/PM Skincare Routine Reminders
+            </label>
+            <label style="font-size: 0.85rem; color: var(--text-muted); font-weight: normal; cursor: pointer;">
+              <input type="checkbox" id="settings-pref-reports" checked style="accent-color: var(--gold-primary); margin-right: 0.4rem;"> Weekly Diagnostic Telemetry Reports
+            </label>
+          </div>
+        </div>
+
+        <div id="settings-alert-box" class="login-alert-box hidden" style="margin-bottom: 0.75rem;"></div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem;">Save Profile & Preferences</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ML PHOTO UPLOAD & LIVE WEBCAM SCAN MODAL -->
+  <div id="photo-scan-modal" class="modal-overlay hidden">
+    <div class="modal-card" style="max-width: 620px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header">
         <div>
-          <h4 id="settings-user-name" style="margin: 0; font-size: 1.1rem; color: var(--text-primary);">User</h4>
-          <span id="settings-user-role" class="badge" style="font-size: 0.75rem;">Role</span>
+          <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem;">ML Skin Analyzer & Disease Classifier</h3>
+          <p class="text-muted" style="font-size: 0.8rem;">Upload photo or capture live webcam feed for optical biomarker analysis</p>
+        </div>
+        <button class="modal-close" onclick="window.app.closeModal('photo-scan-modal')">&times;</button>
+      </div>
+
+      <!-- Mode Switcher Tabs -->
+      <div style="display: flex; gap: 0.5rem; background: #FAF9F6; padding: 0.3rem; border-radius: 20px; border: 1px solid var(--border-light); margin-bottom: 1.25rem;">
+        <button id="scan-tab-webcam" class="tab-btn active" style="flex: 1; text-align: center; font-size: 0.82rem; padding: 0.4rem;" onclick="window.app.switchScanTab('webcam')">📷 Live Webcam Capture</button>
+        <button id="scan-tab-file" class="tab-btn" style="flex: 1; text-align: center; font-size: 0.82rem; padding: 0.4rem;" onclick="window.app.switchScanTab('file')">📁 Photo File Upload</button>
+      </div>
+
+      <!-- Live Webcam Mode View -->
+      <div id="scan-view-webcam">
+        <div style="position: relative; background: #111; border-radius: var(--radius-sm); overflow: hidden; text-align: center; margin-bottom: 0.85rem; border: 1px solid var(--border-light);">
+          <video id="webcam-video" autoplay playsinline style="width: 100%; height: 260px; object-fit: cover; background: #000;"></video>
+          <canvas id="webcam-canvas" style="display: none;"></canvas>
+          <img id="webcam-preview-img" style="display: none; width: 100%; height: 260px; object-fit: cover;" />
+          <div id="webcam-status-overlay" style="position: absolute; bottom: 8px; left: 8px; right: 8px; background: rgba(0,0,0,0.65); color: #fff; padding: 0.35rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; text-align: center;">
+            Click "Start Camera" to align your face in frame
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+          <button id="btn-start-cam" class="btn btn-sm btn-outline" style="flex: 1; font-size: 0.8rem;" onclick="window.app.startWebcamStream()">📷 Start Camera</button>
+          <button id="btn-capture-cam" class="btn btn-sm btn-primary" style="flex: 1; font-size: 0.8rem;" onclick="window.app.captureWebcamSnapshot()" disabled>📸 Capture Snapshot</button>
+          <button id="btn-stop-cam" class="btn btn-sm btn-outline" style="font-size: 0.8rem;" onclick="window.app.stopWebcamStream()">🛑 Stop Camera</button>
+        </div>
+
+        <button id="btn-analyze-webcam" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-weight: 700;" onclick="window.app.submitWebcamForMLAnalysis()" disabled>
+          ✨ Run ML Diagnostic Classifier Scan
+        </button>
+      </div>
+
+      <!-- Photo File Mode View -->
+      <div id="scan-view-file" class="hidden">
+        <div id="file-drop-zone" onclick="document.getElementById('photo-file-input').click()" style="border: 2px dashed var(--gold-primary); border-radius: var(--radius-sm); padding: 2rem; text-align: center; background: #FAF9F6; cursor: pointer; margin-bottom: 1rem; transition: var(--transition);">
+          <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">📸</div>
+          <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.2rem;">Click to Upload Skin Photo</h4>
+          <p class="text-muted" style="font-size: 0.8rem; margin: 0;">Supports JPG, PNG, WEBP (Clear facial lighting recommended)</p>
+          <input type="file" id="photo-file-input" accept="image/*" style="display: none;" onchange="window.app.handleFileSelect(event)">
+        </div>
+
+        <div id="file-preview-container" class="hidden" style="margin-bottom: 1rem; text-align: center;">
+          <img id="file-preview-img" style="max-width: 100%; max-height: 240px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); object-fit: contain;" />
+        </div>
+
+        <button id="btn-analyze-file" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-weight: 700;" onclick="window.app.submitFileForMLAnalysis()" disabled>
+          ✨ Run ML Diagnostic Classifier Scan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STANDALONE ML SCAN RESULTS DIAGNOSTIC DIALOG BOX MODAL -->
+  <div id="scan-results-dialog" class="modal-overlay hidden">
+    <div class="modal-card" style="max-width: 680px; max-height: 92vh; overflow-y: auto; background: #FFFFFF; padding: 1.75rem;">
+      <div class="modal-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 1rem; margin-bottom: 1.25rem;">
+        <div>
+          <span class="section-tag-pill" style="font-size: 0.7rem; padding: 0.15rem 0.6rem; background: rgba(46, 125, 50, 0.1); color: var(--accent-emerald);">AI CLINICAL DIAGNOSTIC SCAN REPORT</span>
+          <h3 style="font-family: 'Playfair Display', serif; font-size: 1.35rem; margin-top: 0.25rem;">ML Facial Skin & Disease Analysis</h3>
+          <p class="text-muted" style="font-size: 0.8rem; margin: 0;">Multi-task optical biomarker extraction & lesion binary classification results</p>
+        </div>
+        <button class="modal-close" onclick="window.app.closeModal('scan-results-dialog')">&times;</button>
+      </div>
+
+      <!-- Scanned Image Thumbnail & Key Biomarkers Hero Card -->
+      <div style="display: grid; grid-template-columns: 160px 1fr; gap: 1.25rem; background: linear-gradient(135deg, #FAF9F6, #F4F1EA); border: 1px solid var(--border-gold); border-radius: var(--radius-sm); padding: 1.2rem; margin-bottom: 1.25rem; align-items: center;">
+        <div style="text-align: center;">
+          <img id="res-dialog-snapshot" style="width: 140px; height: 140px; object-fit: cover; border-radius: var(--radius-sm); border: 2px solid var(--gold-primary); box-shadow: 0 4px 12px rgba(0,0,0,0.1);" src="assets/sample_face.jpg" alt="Scanned Skin Photo" />
+          <small class="text-muted" style="display: block; font-size: 0.72rem; margin-top: 0.35rem; font-weight: 600;">Scanned Photo Frame</small>
+        </div>
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+            <span id="res-dialog-type-badge" class="badge badge-accent" style="font-size: 0.78rem;">Combination Skin</span>
+            <span id="res-dialog-score-badge" style="font-size: 1.3rem; font-weight: 800; color: var(--gold-primary);">78.5 / 100</span>
+          </div>
+          <h4 id="res-dialog-skin-type" style="font-family: 'Playfair Display', serif; font-size: 1.15rem; margin: 0 0 0.35rem 0;">Detected Skin Type: Combination</h4>
+          <div id="res-dialog-lesion-card" style="padding: 0.6rem 0.85rem; background: #FFFFFF; border: 1px solid rgba(46, 125, 50, 0.3); border-radius: 6px; margin-top: 0.4rem;">
+            <small style="font-size: 0.7rem; font-weight: 800; color: var(--accent-emerald); text-transform: uppercase; letter-spacing: 0.05em;">ISIC Binary Lesion Screening:</small>
+            <div id="res-dialog-lesion-text" style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary); margin-top: 0.1rem;">Benign (Safe / Low Risk)</div>
+          </div>
         </div>
       </div>
-      <div class="form-group">
-        <label>Email Address</label>
-        <input type="text" id="settings-user-email" class="form-control" readonly style="background: rgba(0,0,0,0.03);">
-      </div>
-      <div class="form-group">
-        <label>Account Status</label>
-        <input type="text" id="settings-user-status" class="form-control" value="Active (Verified)" readonly style="background: rgba(0,0,0,0.03);">
-      </div>
-      <div class="form-group">
-        <label>Notification Preferences</label>
-        <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.25rem;">
-          <label style="font-size: 0.85rem; color: var(--text-muted); font-weight: normal; cursor: pointer;">
-            <input type="checkbox" checked style="accent-color: var(--gold-primary); margin-right: 0.4rem;"> Daily AM/PM Skincare Routine Reminders
-          </label>
-          <label style="font-size: 0.85rem; color: var(--text-muted); font-weight: normal; cursor: pointer;">
-            <input type="checkbox" checked style="accent-color: var(--gold-primary); margin-right: 0.4rem;"> Weekly AI Skin Progress & Score Reports
-          </label>
+
+      <!-- Biomarkers Meter Grid -->
+      <div style="margin-bottom: 1.25rem;">
+        <h5 style="font-size: 0.8rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 0.75rem;">Quantitative Optical Biomarkers</h5>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem;">
+          <div style="padding: 0.75rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm);">
+            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.3rem;">
+              <span>💧 Hydration</span>
+              <span id="res-meter-hydr-val" style="color: #0284C7;">68%</span>
+            </div>
+            <div style="height: 6px; background: rgba(0,0,0,0.06); border-radius: 4px; overflow: hidden;">
+              <div id="res-meter-hydr-bar" style="width: 68%; height: 100%; background: #0284C7; border-radius: 4px;"></div>
+            </div>
+          </div>
+
+          <div style="padding: 0.75rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm);">
+            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.3rem;">
+              <span>✨ Oiliness / Sebum</span>
+              <span id="res-meter-oil-val" style="color: #D97706;">58%</span>
+            </div>
+            <div style="height: 6px; background: rgba(0,0,0,0.06); border-radius: 4px; overflow: hidden;">
+              <div id="res-meter-oil-bar" style="width: 58%; height: 100%; background: #D97706; border-radius: 4px;"></div>
+            </div>
+          </div>
+
+          <div style="padding: 0.75rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm);">
+            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.3rem;">
+              <span>🔴 Sensitivity / Erythema</span>
+              <span id="res-meter-sens-val" style="color: #DC2626;">22%</span>
+            </div>
+            <div style="height: 6px; background: rgba(0,0,0,0.06); border-radius: 4px; overflow: hidden;">
+              <div id="res-meter-sens-bar" style="width: 22%; height: 100%; background: #DC2626; border-radius: 4px;"></div>
+            </div>
+          </div>
+
+          <div style="padding: 0.75rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm);">
+            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.3rem;">
+              <span>🫧 Acne Severity</span>
+              <span id="res-meter-acne-val" style="color: #C59B27;">18%</span>
+            </div>
+            <div style="height: 6px; background: rgba(0,0,0,0.06); border-radius: 4px; overflow: hidden;">
+              <div id="res-meter-acne-bar" style="width: 18%; height: 100%; background: #C59B27; border-radius: 4px;"></div>
+            </div>
+          </div>
         </div>
       </div>
-      <button class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;" onclick="window.app.saveUserSettings()">Save Preferences</button>
+
+      <!-- Disease & Condition Diagnostic List -->
+      <div style="margin-bottom: 1.5rem;">
+        <h5 style="font-size: 0.8rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 0.75rem;">Detected Dermatological Diseases & Conditions</h5>
+        <div id="res-dialog-conditions-list" style="display: flex; flex-direction: column; gap: 0.5rem;"></div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+        <button class="btn btn-primary" style="flex: 1; padding: 0.75rem; font-weight: 700;" onclick="window.app.applyScanResultsToDashboard()">
+          🔄 Apply Diagnostic Results & Auto-Update Routine
+        </button>
+        <button class="btn btn-outline" style="padding: 0.75rem 1.25rem;" onclick="window.app.closeModal('scan-results-dialog')">
+          Close Dialog
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CREATE CUSTOM ROUTINE STEP MODAL -->
+  <div id="create-step-modal" class="modal-overlay hidden">
+    <div class="modal-card" style="max-width: 520px; background: #FFFFFF; padding: 1.5rem;">
+      <div class="modal-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 0.75rem; margin-bottom: 1rem;">
+        <div>
+          <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem;">Create Custom Skincare Step</h3>
+          <p class="text-muted" style="font-size: 0.8rem; margin: 0;">Add a custom personalized step to your AM/PM routine</p>
+        </div>
+        <button class="modal-close" onclick="window.app.closeModal('create-step-modal')">&times;</button>
+      </div>
+
+      <form id="create-step-form" onsubmit="window.app.handleCreateStepSubmit(event)">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem;">
+          <div class="form-group">
+            <label for="step-time-of-day">Routine Time</label>
+            <select id="step-time-of-day" class="form-control" required>
+              <option value="morning">Morning (AM) 🌅</option>
+              <option value="evening">Evening (PM) 🌙</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="step-category">Category</label>
+            <select id="step-category" class="form-control" required>
+              <option value="🧼 Cleansing">🧼 Cleansing</option>
+              <option value="✨ Exfoliation">✨ Exfoliation</option>
+              <option value="💧 Treatment">💧 Treatment</option>
+              <option value="🧴 Moisturizing">🧴 Moisturizing</option>
+              <option value="☀️ Sun Protection">☀️ Sun Protection</option>
+              <option value="🌙 Night Care">🌙 Night Care</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="step-title">Step Title</label>
+          <input type="text" id="step-title" class="form-control" placeholder="e.g. 10% Niacinamide Serum" required>
+        </div>
+
+        <div class="form-group">
+          <label for="step-product">Recommended Product Name</label>
+          <input type="text" id="step-product" class="form-control" placeholder="e.g. Clarify Niacinamide + Zinc PCA Serum" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 0.85rem;">
+          <div class="form-group">
+            <label for="step-ingredients">Key Active Ingredients (Comma Separated)</label>
+            <input type="text" id="step-ingredients" class="form-control" placeholder="e.g. Niacinamide 10%, Zinc PCA 1%">
+          </div>
+          <div class="form-group">
+            <label for="step-time-str">Schedule Time</label>
+            <input type="text" id="step-time-str" class="form-control" placeholder="e.g. 8:05 AM" value="8:05 AM" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem; margin-top: 0.5rem; font-weight: 700;">
+          ➕ Save Custom Routine Step
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- CREATE CUSTOM WEEKLY TREATMENT PLAN MODAL -->
+  <div id="create-weekly-modal" class="modal-overlay hidden">
+    <div class="modal-card" style="max-width: 520px; background: #FFFFFF; padding: 1.5rem;">
+      <div class="modal-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 0.75rem; margin-bottom: 1rem;">
+        <div>
+          <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem;">Create Weekly Treatment Schedule</h3>
+          <p class="text-muted" style="font-size: 0.8rem; margin: 0;">Add a targeted weekly exfoliation, mask, or lip/eye care ritual</p>
+        </div>
+        <button class="modal-close" onclick="window.app.closeModal('create-weekly-modal')">&times;</button>
+      </div>
+
+      <form id="create-weekly-form" onsubmit="window.app.handleCreateWeeklySubmit(event)">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem;">
+          <div class="form-group">
+            <label for="weekly-day">Day Schedule</label>
+            <input type="text" id="weekly-day" class="form-control" placeholder="e.g. Wednesday & Sunday" required>
+          </div>
+          <div class="form-group">
+            <label for="weekly-category">Category</label>
+            <select id="weekly-category" class="form-control" required>
+              <option value="✨ Exfoliation">✨ Exfoliation</option>
+              <option value="💧 Treatment">💧 Treatment</option>
+              <option value="🧴 Moisturizing">🧴 Moisturizing</option>
+              <option value="🌙 Night Care">🌙 Night Care</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="weekly-focus">Treatment Focus Area</label>
+          <input type="text" id="weekly-focus" class="form-control" placeholder="e.g. BHA Chemical Exfoliation" required>
+        </div>
+
+        <div class="form-group">
+          <label for="weekly-treatment-name">Treatment Product Name</label>
+          <input type="text" id="weekly-treatment-name" class="form-control" placeholder="e.g. 2% Salicylic Acid Liquid Exfoliant" required>
+        </div>
+
+        <div class="form-group">
+          <label for="weekly-instructions">Usage Instructions</label>
+          <textarea id="weekly-instructions" class="form-control" rows="2" placeholder="e.g. Apply PM after cleansing for deep pore clearing & smooth texture renewal." required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem; margin-top: 0.5rem; font-weight: 700;">
+          ➕ Add to Weekly Treatment Plan
+        </button>
+      </form>
     </div>
   </div>
 

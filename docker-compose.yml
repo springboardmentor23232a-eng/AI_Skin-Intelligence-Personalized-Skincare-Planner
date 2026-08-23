@@ -1,0 +1,64 @@
+services:
+  # 1. Web Application Frontend & Express Platform Backend (Port 3000)
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: panacea_web_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/panacea_skin_db
+      - PGUSER=postgres
+      - PGHOST=db
+      - PGDATABASE=panacea_skin_db
+      - PGPASSWORD=postgres
+      - PGPORT=5432
+      - JWT_SECRET=panacea_ai_skin_intelligence_jwt_secret_key_2026_super_secret
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: always
+
+  # 2. Module 3: Skin Assessment Engine Python FastAPI (Port 8000)
+  assessment_api:
+    build:
+      context: ./skin_assessment_engine
+      dockerfile: Dockerfile
+    container_name: skin_assessment_api
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/panacea_skin_db
+      - JWT_SECRET_KEY=panacea_ai_skin_intelligence_jwt_secret_key_2026_super_secret
+      - JWT_ALGORITHM=HS256
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: always
+
+  # 3. PostgreSQL Shared Database Instance (Port 5432)
+  db:
+    image: postgres:16-alpine
+    container_name: panacea_postgres_db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=panacea_skin_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - panacea_postgres_data:/var/lib/postgresql/data
+      - ./skin_assessment_engine/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d panacea_skin_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    restart: always
+
+volumes:
+  panacea_postgres_data:

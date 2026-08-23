@@ -1,0 +1,338 @@
+{
+  "info": {
+    "_postman_id": "a9e8f7d6-c5b4-4a3b-2c1d-0e9f8a7b6c5d",
+    "name": "PanaceaAI Skin Assessment Engine (Module 3)",
+    "description": "Postman Collection for testing REST APIs of Module 3: Skin Assessment Engine including Skin Health Scoring, Concern Identification, Risk Analysis, and History Trends.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJkZW1vX3VzZXIiLCJyb2xlIjoidXNlciJ9.signature_placeholder",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "1. Health Check",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Service is online', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.status).to.eql('online');",
+              "    pm.expect(jsonData.database).to.include('Connected');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        },
+        "description": "Verifies engine status and PostgreSQL connectivity."
+      }
+    },
+    {
+      "name": "2. Create Skin Assessment",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 201 Created', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "pm.test('Returns assessment ID, score, concerns & risks', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.id).to.be.a('number');",
+              "    pm.expect(jsonData.skin_health_score).to.be.a('number');",
+              "    pm.expect(jsonData.concerns).to.be.an('array');",
+              "    pm.expect(jsonData.risk_factors).to.be.an('array');",
+              "    if (jsonData.concerns.length > 0) {",
+              "        pm.expect(jsonData.concerns[0].recommended_ingredients).to.be.an('array');",
+              "    }",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"skin_type\": \"Combination\",\n  \"hydration_level\": 35.0,\n  \"oiliness_level": 75.0,\n  \"sensitivity_level\": 40.0,\n  \"acne_severity\": 55.0,\n  \"pigmentation_score\": 35.0,\n  \"wrinkles_score\": 15.0,\n  \"sun_exposure_hours\": 4.0,\n  \"spf_frequency\": \"Occasional\",\n  \"sleep_hours\": 5.5,\n  \"stress_level\": 8,\n  \"notes\": \"Baseline assessment with elevated stress and breakout\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/assessment",
+          "host": ["{{baseUrl}}"],
+          "path": ["assessment"]
+        },
+        "description": "Analyzes user skin profile, computes health score, identifies prioritized concerns with treatment advice, and evaluates risk factors."
+      }
+    },
+    {
+      "name": "3. Get Assessments List",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Response is an array of assessments', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.be.an('array');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/assessment?skip=0&limit=20",
+          "host": ["{{baseUrl}}"],
+          "path": ["assessment"],
+          "query": [
+            { "key": "skip", "value": "0" },
+            { "key": "limit", "value": "20" }
+          ]
+        },
+        "description": "Retrieves paginated list of skin assessments for the authenticated user."
+      }
+    },
+    {
+      "name": "4. Get Assessment History Timeline",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Includes statistical trend & velocity', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.eql(true);",
+              "    pm.expect(jsonData.score_trend).to.be.a('string');",
+              "    pm.expect(jsonData.score_velocity).to.be.a('number');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/assessment/history",
+          "host": ["{{baseUrl}}"],
+          "path": ["assessment", "history"]
+        },
+        "description": "Retrieves chronological assessment history, score trends (Improving/Stable/Declining), velocity, and historical scan details."
+      }
+    },
+    {
+      "name": "5. Get Skin Health Score Summary",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Includes weighted breakdown and clinical recommendations', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.overall_score).to.be.a('number');",
+              "    pm.expect(jsonData.breakdown).to.be.an('array');",
+              "    pm.expect(jsonData.breakdown.length).to.eql(5);",
+              "    pm.expect(jsonData.breakdown[0].clinical_recommendation).to.be.a('string');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/assessment/score",
+          "host": ["{{baseUrl}}"],
+          "path": ["assessment", "score"]
+        },
+        "description": "Retrieves overall skin health score (0-100), weighted parameter breakdown with clinical recommendations, and insights."
+      }
+    },
+    {
+      "name": "6. Get Risk Factor Analysis",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Categorizes risks by severity levels', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.total_risks_identified).to.be.a('number');",
+              "    pm.expect(jsonData.general_recommendation).to.be.a('string');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/assessment/risks",
+          "host": ["{{baseUrl}}"],
+          "path": ["assessment", "risks"]
+        },
+        "description": "Retrieves rule-based risk factors categorized by risk levels (CRITICAL, HIGH, MEDIUM, LOW) and mitigation tips."
+      }
+    },
+    {
+      "name": "7. Get Assessment Detail by ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Matches requested ID', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.id).to.eql(1);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/assessment/1",
+          "host": ["{{baseUrl}}"],
+          "path": ["assessment", "1"]
+        },
+        "description": "Retrieves detailed assessment report by ID including concerns and risk factors."
+      }
+    },
+    {
+      "name": "8. Update Assessment",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Reflects updated parameters', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.hydration_level).to.eql(80.0);",
+              "    pm.expect(jsonData.spf_frequency).to.eql('Daily');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"hydration_level\": 80.0,\n  \"spf_frequency\": \"Daily\",\n  \"notes\": \"Updated assessment with improved hydration and regular SPF routine.\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/assessment/1",
+          "host": ["{{baseUrl}}"],
+          "path": ["assessment", "1"]
+        },
+        "description": "Updates skin parameters/notes and re-calculates score, concerns, and risk factors."
+      }
+    },
+    {
+      "name": "9. Delete Assessment",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Success message returned', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.eql(true);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/assessment/1",
+          "host": ["{{baseUrl}}"],
+          "path": ["assessment", "1"]
+        },
+        "description": "Deletes a skin assessment record and associated concerns/risk factors."
+      }
+    }
+  ]
+}

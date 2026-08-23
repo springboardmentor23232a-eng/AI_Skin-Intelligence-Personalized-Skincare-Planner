@@ -1,0 +1,10 @@
+node_modules
+.venv
+.git
+.gitignore
+.vscode
+dist
+tmp
+*.log
+skin_assessment_engine/.venv
+skin_assessment_engine/__pycache__

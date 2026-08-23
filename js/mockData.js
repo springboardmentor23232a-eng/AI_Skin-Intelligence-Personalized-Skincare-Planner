@@ -61,18 +61,45 @@ export const MOCK_USER_DATA = {
     ]
   },
   routine: {
+    season: 'Summer ☀️',
     morning: [
-      { id: 'm1', step: 'Cleansing', title: 'Gentle Hydrating Cleanser', time: '8:00 AM', completed: true, icon: '🧼' },
-      { id: 'm2', step: 'Treatment', title: '10% Niacinamide & Zinc Serum', time: '8:05 AM', completed: true, icon: '💧' },
-      { id: 'm3', step: 'Moisturizing', title: 'Ceramide Barrier Relief Cream', time: '8:10 AM', completed: true, icon: '🧴' },
-      { id: 'm4', step: 'Sun Protection', title: 'Broad Spectrum SPF 50+ Invisible Fluid', time: '8:15 AM', completed: false, icon: '☀️' }
+      { id: 'm1', step_number: 1, step: '🧼 Cleansing', title: 'Gentle Hydrating Gel Cleanser', product_recommendation: 'Clarify Gel Wash with 0.5% Salicylic Acid & Zinc', key_ingredients: ['Salicylic Acid 0.5%', 'Zinc PCA'], time: '8:00 AM', completed: true, icon: '🧼' },
+      { id: 'm2', step_number: 2, step: '💧 Treatment', title: '10% Niacinamide & Zinc Serum', product_recommendation: '10% Niacinamide + 1% Zinc PCA Serum', key_ingredients: ['Niacinamide 10%', 'Zinc PCA 1%'], time: '8:05 AM', completed: true, icon: '💧' },
+      { id: 'm3', step_number: 3, step: '🧴 Moisturizing', title: 'Ceramide Barrier Relief Cream', product_recommendation: 'HydraBalance Water Gel Cream', key_ingredients: ['Ceramides NP', 'Squalane'], time: '8:10 AM', completed: true, icon: '🧴' },
+      { id: 'm4', step_number: 4, step: '☀️ Sun Protection', title: 'Broad Spectrum SPF 50+ Invisible Fluid', product_recommendation: 'ShieldFluid Mineral Sunscreen SPF 50+', key_ingredients: ['Zinc Oxide 12%', 'Niacinamide 2%'], time: '8:15 AM', completed: false, icon: '☀️' }
     ],
     evening: [
-      { id: 'e1', step: 'Double Cleansing', title: 'Micellar Cleansing Water + Foaming Gel', time: '9:00 PM', completed: false, icon: '🌙' },
-      { id: 'e2', step: 'Exfoliation / Treatment', title: '2% BHA Salicylic Acid Liquid Exfoliant', time: '9:05 PM', completed: false, icon: '🧪' },
-      { id: 'e3', step: 'Moisturizing', title: 'Overnight Recovery Gel Cream', time: '9:15 PM', completed: false, icon: '🌌' }
-    ]
+      { id: 'e1', step_number: 1, step: '🧼 Cleansing', title: 'PM Double Cleansing Balm & Gel', product_recommendation: 'Micellar Cleansing Water + Foaming Gel', key_ingredients: ['Jojoba Oil', 'Amino Acids'], time: '9:00 PM', completed: false, icon: '🧼' },
+      { id: 'e2', step_number: 2, step: '✨ Exfoliation', title: '2% BHA Salicylic Acid Liquid Exfoliant', product_recommendation: 'Clarify 2% Liquid Exfoliant', key_ingredients: ['Salicylic Acid 2%', 'Green Tea Extract'], time: '9:05 PM', completed: false, icon: '✨' },
+      { id: 'e3', step_number: 3, step: '💧 Treatment', title: 'Night Renewal Retinol / Azelaic Serum', product_recommendation: '0.3% Encapsulated Retinol Serum', key_ingredients: ['Encapsulated Retinol', 'Bakuchiol'], time: '9:10 PM', completed: false, icon: '💧' },
+      { id: 'e4', step_number: 4, step: '🧴 Moisturizing', title: 'Overnight Recovery Barrier Seal', product_recommendation: 'Ceramide Night Repair Cream', key_ingredients: ['Ceramides AP/EOP/NP', 'Squalane'], time: '9:15 PM', completed: false, icon: '🧴' },
+      { id: 'e5', step_number: 5, step: '🌙 Night Care', title: 'Hydrating Sleeping Mask & Lip Butter', product_recommendation: 'Overnight Cica Recovery Mask', key_ingredients: ['Centella Asiatica', 'Plant Squalane'], time: '9:20 PM', completed: false, icon: '🌙' }
+    ],
+    weeklyPlan: [
+      { day: 'Wed & Sun Evening', focus: 'BHA Chemical Exfoliation', category: '✨ Exfoliation', treatment_name: '2% Salicylic Acid Exfoliant Liquid', instructions: 'Pore clearing & smooth texture renewal.', icon: '✨' },
+      { day: 'Friday Evening', focus: 'Deep Moisture Sheet Mask', category: '💧 Treatment', treatment_name: 'Ceramide & Hyaluronic Sheet Mask', instructions: 'Intense moisture infusion for 15-20 min.', icon: '💧' },
+      { day: 'Saturday Morning', focus: 'Weekend Lip & Eye Ritual', category: '🌙 Night Care', treatment_name: 'Peptide Lip Butter & Cooling Eye Serum', instructions: 'Nourish delicate eye & lip zones.', icon: '🌙' }
+    ],
+    seasonalTips: {
+      season: 'Summer ☀️',
+      climate_impact: 'High UV index, elevated humidity & sweat production.',
+      key_focus: 'Lightweight Hydration, Sebum Control & SPF 50+ Sun Protection',
+      routine_adjustments: [
+        'Switch heavy creams to lightweight oil-free gel moisturizers.',
+        'Ensure daily SPF is 50+ and water/sweat resistant.',
+        'Reapply sunscreen every 2 hours during outdoor exposure.'
+      ],
+      recommended_ingredients: ['Niacinamide', 'Zinc Oxide', 'Green Tea Extract', 'Hyaluronic Acid'],
+      avoid_ingredients: ['Heavy Occlusive Mineral Oils']
+    },
+    adaptiveNotes: {
+      mode: '🌟 Optimal Maintenance Mode',
+      health_score_delta: 4.0,
+      message: 'Your routine has been updated dynamically based on your latest skin profile & +4 pt score gain.',
+      adjustments_made: ['Allergy safety filter active', 'AM/PM routines optimized for Combination skin type']
+    }
   },
+
   recommendedProducts: [
     {
       id: 'p1',

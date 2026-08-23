@@ -3,6 +3,7 @@
  * Inspired by Dribbble Eyehealth AI Editorial Design System
  */
 
+import { auth } from './auth.js';
 import { MOCK_USER_DATA, MOCK_CONSULTANT_DATA, MOCK_DERMATOLOGIST_DATA, MOCK_ADMIN_DATA, MOCK_ROLES } from './mockData.js';
 
 export function renderLandingPage() {
@@ -383,133 +384,339 @@ export function renderUserDashboard() {
   const completedSteps = data.routine.morning.filter(s => s.completed).length + data.routine.evening.filter(s => s.completed).length;
   const routinePct = Math.round((completedSteps / totalSteps) * 100);
 
+  // Default active concerns if not yet populated from API
+  const activeConcerns = data.profile.primaryConcerns && data.profile.primaryConcerns.length > 0 
+    ? data.profile.primaryConcerns 
+    : ['Transepidermal Water Loss', 'Acne & Breakouts'];
+
   return `
     <div class="dashboard-wrapper">
-      <div class="dashboard-header">
+      <!-- HEADER BANNER -->
+      <div class="dashboard-header" style="background: #FFFFFF; padding: 1.5rem 1.75rem; border-radius: var(--radius-md); border: 1px solid var(--border-light); box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 1.5rem;">
         <div>
-          <h2>Welcome back, ${data.profile.name} 👋</h2>
-          <p class="text-muted">Skin Profile: <strong>${data.profile.skinType}</strong> | Age: ${data.profile.ageGroup}</p>
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+            <span class="section-tag-pill" style="font-size: 0.7rem; padding: 0.15rem 0.6rem;">CLINICAL DERMATOLOGY DASHBOARD</span>
+            <span class="badge badge-success" style="font-size: 0.75rem;">🟢 Telemetry Active</span>
+          </div>
+          <h2 style="font-family: 'Playfair Display', serif; font-size: 1.65rem; color: var(--text-primary); margin-bottom: 0.2rem;">
+            Patient Profile: <strong>${data.profile.name}</strong>
+          </h2>
+          <p class="text-muted" style="font-size: 0.88rem; margin: 0;">
+            Skin Classification: <strong>${data.profile.skinType}</strong> &nbsp;|&nbsp; Age Demographic: <strong>${data.profile.ageGroup}</strong> &nbsp;|&nbsp; Barrier Status: <span style="color: var(--accent-emerald); font-weight: 700;">Balanced Equilibrium</span>
+          </p>
         </div>
-        <div style="display: flex; gap: 0.75rem;">
-          <button class="btn btn-primary btn-sm" onclick="window.app.openModal('assessment-modal')">Take AI Assessment Survey</button>
-          <button class="btn btn-pink btn-sm" onclick="window.app.openModal('ingredient-modal')">🧪 Ingredient Checker</button>
+        <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+          <button class="btn btn-gold btn-sm" style="font-size: 0.8rem; padding: 0.6rem 1.1rem; background: var(--gold-primary); color: #fff; border: none; border-radius: var(--radius-sm); font-weight: 700; cursor: pointer;" onclick="window.app.openModal('photo-scan-modal')">📸 ML Photo & Webcam Analyzer</button>
+          <button class="btn btn-primary btn-sm" style="font-size: 0.8rem; padding: 0.6rem 1.1rem;" onclick="window.app.openModal('assessment-modal')">Clinical Assessment Survey</button>
+          <button class="btn btn-outline btn-sm" style="font-size: 0.8rem; padding: 0.6rem 1.1rem;" onclick="window.app.openModal('ingredient-modal')">Ingredient Safety</button>
         </div>
       </div>
 
+      <!-- TOP EXECUTIVE TELEMETRY METRICS GRID -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+        <div class="glass-card" style="padding: 1.1rem; border-left: 4px solid var(--gold-primary);">
+          <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Weighted Skin Health Score</div>
+          <div style="font-size: 1.8rem; font-weight: 800; color: var(--text-primary); margin: 0.2rem 0;">${data.skinScore.overall}<small style="font-size: 0.9rem; font-weight: 500; color: var(--text-muted);">/100</small></div>
+          <div style="font-size: 0.78rem; color: var(--accent-emerald); font-weight: 600;">+4 pts since last evaluation</div>
+        </div>
+
+        <div class="glass-card" style="padding: 1.1rem; border-left: 4px solid var(--accent-emerald);">
+          <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Regimen Completion</div>
+          <div style="font-size: 1.8rem; font-weight: 800; color: var(--text-primary); margin: 0.2rem 0;">${routinePct}%</div>
+          <div style="font-size: 0.78rem; color: var(--text-muted);">${completedSteps} of ${totalSteps} daily steps logged</div>
+        </div>
+
+        <div class="glass-card" style="padding: 1.1rem; border-left: 4px solid var(--accent-amber);">
+          <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Daily Hydration</div>
+          <div style="font-size: 1.8rem; font-weight: 800; color: var(--text-primary); margin: 0.2rem 0;">${data.hydrationMl} <small style="font-size: 0.9rem; font-weight: 500;">ml</small></div>
+          <div style="font-size: 0.78rem; color: var(--text-muted);">Target: 2,500 ml / day</div>
+        </div>
+
+        <div class="glass-card" style="padding: 1.1rem; border-left: 4px solid var(--pink-blush);">
+          <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Primary Concern</div>
+          <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin: 0.35rem 0 0.1rem 0;">${activeConcerns[0] || 'Skin Dehydration'}</div>
+          <div style="font-size: 0.78rem; color: var(--accent-amber); font-weight: 600;">Priority #1 Under Management</div>
+        </div>
+      </div>
+
+      <!-- MAIN DASHBOARD GRID -->
       <div class="dashboard-grid">
-        <!-- Skin Health Score Widget -->
-        <div class="glass-card score-card">
-          <div class="card-header">
-            <h3>Weighted Skin Health Score</h3>
-            <span class="badge badge-success">${data.skinScore.changeThisWeek}</span>
+        <!-- Skin Health Diagnostics Card -->
+        <div class="glass-card score-card" style="background: #FFFFFF;">
+          <div class="card-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 0.85rem; margin-bottom: 1rem;">
+            <div>
+              <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem;">Cutaneous Health Score Breakdown</h3>
+              <p class="text-muted" style="font-size: 0.8rem; margin-top: 0.1rem;">Weighted multi-parameter diagnostic telemetry</p>
+            </div>
+            <span class="badge badge-success" style="font-weight: 600;">${data.skinScore.grade}</span>
           </div>
           
-          <div class="score-display-container">
+          <div class="score-display-container" style="margin-bottom: 1.25rem;">
             <div class="score-circle" style="--score-pct: ${data.skinScore.overall}%;">
               <div class="score-number">${data.skinScore.overall}</div>
-              <div class="score-label">out of 100</div>
+              <div class="score-label">OVERALL INDEX</div>
             </div>
             <div class="score-info">
-              <h4 class="score-grade">${data.skinScore.grade}</h4>
-              <p class="score-desc">Recalculated live across 5 health factors.</p>
+              <h4 class="score-grade" style="font-family: 'Playfair Display', serif; font-size: 1.15rem;">${data.skinScore.grade}</h4>
+              <p class="score-desc" style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">
+                Calculated across 5 clinical diagnostic factors including stratum corneum moisture, sebum regulation, inflammatory index, structural elasticity, and lifestyle resilience.
+              </p>
             </div>
           </div>
 
-          <div class="score-breakdown-list">
-            ${data.skinScore.breakdown.map(item => `
-              <div class="breakdown-item">
-                <div class="breakdown-label">
-                  <span>${item.name} <small class="text-muted">(${item.weight})</small></span>
-                  <span>${item.score}/100</span>
+          <div class="score-breakdown-list" style="display: flex; flex-direction: column; gap: 0.85rem;">
+            ${data.skinScore.breakdown.map(item => {
+              const statusColor = item.score >= 80 ? 'var(--accent-emerald)' : item.score >= 65 ? 'var(--gold-primary)' : 'var(--accent-amber)';
+              const statusText = item.score >= 80 ? 'Optimal' : item.score >= 65 ? 'Good' : 'Needs Attention';
+              return `
+                <div class="breakdown-item" style="padding: 0.65rem 0.85rem; background: #FAF9F6; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+                  <div class="breakdown-label" style="margin-bottom: 0.35rem; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary);">${item.name} <small class="text-muted">(${item.weight})</small></span>
+                    <span style="font-size: 0.82rem; font-weight: 700; color: ${statusColor};">${item.score}/100 &nbsp;•&nbsp; ${statusText}</span>
+                  </div>
+                  <div class="progress-bar-bg" style="height: 6px; background: rgba(0,0,0,0.06); border-radius: 4px;">
+                    <div class="progress-bar-fill" style="width: ${item.score}%; height: 100%; background: ${statusColor}; border-radius: 4px;"></div>
+                  </div>
                 </div>
-                <div class="progress-bar-bg">
-                  <div class="progress-bar-fill" style="width: ${item.score}%; background: var(--gold-gradient);"></div>
-                </div>
-              </div>
-            `).join('')}
+              `;
+            }).join('')}
           </div>
 
           <!-- Interactive Trackers -->
-          <div class="tracker-row">
-            <div class="tracker-box">
-              <small style="color: var(--text-muted); font-weight: 700;">💧 Daily Hydration Tracker</small>
-              <div class="tracker-val">${data.hydrationMl} <small style="font-size: 0.9rem;">ml</small></div>
-              <button class="btn btn-sm btn-pink" style="width: 100%; font-size: 0.75rem;" onclick="window.app.addHydration(250)">+250ml Water 💧</button>
+          <div class="tracker-row" style="margin-top: 1.25rem;">
+            <div class="tracker-box" style="background: rgba(197, 155, 39, 0.05); border: 1px solid var(--border-gold); padding: 1rem; border-radius: var(--radius-sm);">
+              <small style="color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em;">💧 Daily Hydration Tracker</small>
+              <div class="tracker-val" style="font-size: 1.4rem; font-weight: 800; margin: 0.2rem 0;">${data.hydrationMl} <small style="font-size: 0.85rem; font-weight: 500;">ml</small></div>
+              <button class="btn btn-sm btn-primary" style="width: 100%; font-size: 0.75rem; padding: 0.4rem;" onclick="window.app.addHydration(250)">+ Log 250ml Water 💧</button>
             </div>
 
-            <div class="tracker-box">
-              <small style="color: var(--text-muted); font-weight: 700;">🌙 Routine Progress Ring</small>
-              <div class="tracker-val" style="color: var(--pink-blush);">${routinePct}%</div>
-              <small class="text-muted">${completedSteps} of ${totalSteps} steps completed today</small>
+            <div class="tracker-box" style="background: rgba(46, 125, 50, 0.05); border: 1px solid rgba(46, 125, 50, 0.2); padding: 1rem; border-radius: var(--radius-sm);">
+              <small style="color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em;">🌙 Daily Protocol Progress</small>
+              <div class="tracker-val" style="font-size: 1.4rem; font-weight: 800; color: var(--accent-emerald); margin: 0.2rem 0;">${routinePct}%</div>
+              <small class="text-muted" style="font-size: 0.78rem;">${completedSteps} of ${totalSteps} steps completed today</small>
             </div>
           </div>
         </div>
 
-        <!-- AM / PM Routine Checklist -->
-        <div class="glass-card routine-card">
-          <div class="card-header">
-            <h3>Today's Skincare Checklist</h3>
-            <div class="routine-tabs">
-              <button class="tab-btn active" id="tab-am" onclick="window.app.switchRoutineTab('am')">Morning (AM)</button>
-              <button class="tab-btn" id="tab-pm" onclick="window.app.switchRoutineTab('pm')">Evening (PM)</button>
+        <!-- Personalized Routine Generator Module -->
+        <div class="glass-card routine-card" style="background: #FFFFFF; padding: 1.5rem;">
+          <!-- Adaptive Routine Banner -->
+          ${data.routine.adaptiveNotes ? `
+            <div style="background: linear-gradient(135deg, rgba(232, 153, 165, 0.12), rgba(142, 36, 170, 0.05)); border: 1px solid var(--accent-rose); border-radius: var(--radius-sm); padding: 0.85rem 1.1rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+              <div>
+                <span class="badge" style="background: var(--accent-rose); color: #fff; font-size: 0.72rem; font-weight: 800; padding: 0.2rem 0.6rem; border-radius: 12px;">${data.routine.adaptiveNotes.mode}</span>
+                <p style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin: 0.3rem 0 0 0;">${data.routine.adaptiveNotes.message}</p>
+              </div>
+              <button class="btn btn-sm" style="background: var(--accent-rose); color: #fff; font-size: 0.75rem; border-radius: 16px; padding: 0.3rem 0.85rem;" onclick="window.app.reGeneratePersonalizedRoutine()">🔄 Re-Generate Routine</button>
+            </div>
+          ` : ''}
+
+          <div class="card-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 0.85rem; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+            <div>
+              <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3rem;">Personalized Routine Generator</h3>
+              <p class="text-muted" style="font-size: 0.8rem; margin-top: 0.1rem;">Today's Skincare Checklist & Category-driven protocol tuned to skin type, health score & seasonal factors</p>
+            </div>
+            <div class="routine-tabs" style="display: flex; gap: 0.35rem; background: #FAF9F6; padding: 0.25rem; border-radius: 20px; border: 1px solid var(--border-light); flex-wrap: wrap;">
+              <button class="tab-btn active" id="tab-am" style="font-size: 0.78rem; padding: 0.35rem 0.85rem;" onclick="window.app.switchRoutineTab('am')">Morning 🌅</button>
+              <button class="tab-btn" id="tab-pm" style="font-size: 0.78rem; padding: 0.35rem 0.85rem;" onclick="window.app.switchRoutineTab('pm')">Evening 🌙</button>
+              <button class="tab-btn" id="tab-weekly" style="font-size: 0.78rem; padding: 0.35rem 0.85rem;" onclick="window.app.switchRoutineTab('weekly')">Weekly Plan 📅</button>
+              <button class="tab-btn" id="tab-seasonal" style="font-size: 0.78rem; padding: 0.35rem 0.85rem;" onclick="window.app.switchRoutineTab('seasonal')">Seasonal Advice ☀️</button>
             </div>
           </div>
 
+          <!-- AM Routine View -->
           <div id="routine-list-am" class="routine-step-list">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">SEQUENCE: 🧼 Cleansing → 💧 Treatment → 🧴 Moisturizing → ☀️ Sun Protection</div>
+              <button class="btn btn-sm btn-outline" style="font-size: 0.75rem; padding: 0.25rem 0.65rem;" onclick="window.app.openCreateStepModal('morning')">➕ Add Custom AM Step</button>
+            </div>
             ${data.routine.morning.map(item => `
-              <div class="step-item ${item.completed ? 'completed' : ''}" onclick="window.app.toggleStep('morning', '${item.id}')">
-                <div class="step-checkbox">${item.completed ? '✓' : ''}</div>
-                <div class="step-icon" style="font-size: 1.2rem;">${item.icon}</div>
-                <div class="step-details">
-                  <span class="step-type">${item.step}</span>
-                  <h4 class="step-title">${item.title}</h4>
+              <div class="step-item ${item.completed ? 'completed' : ''}" onclick="window.app.toggleStep('morning', '${item.id}')" style="cursor: pointer; padding: 0.9rem 1.1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-light); margin-bottom: 0.65rem; background: ${item.completed ? '#F8FBF8' : '#FAF9F6'}; transition: var(--transition); position: relative;">
+                <div style="display: flex; align-items: flex-start; width: 100%;">
+                  <div class="step-checkbox" style="width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid ${item.completed ? 'var(--accent-emerald)' : 'var(--text-muted)'}; background: ${item.completed ? 'var(--accent-emerald)' : 'transparent'}; color: #fff; font-weight: 700; font-size: 0.8rem; margin-top: 0.2rem;">${item.completed ? '✓' : ''}</div>
+                  <div class="step-details" style="flex: 1; margin-left: 0.85rem; padding-right: 1.5rem;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.2rem;">
+                      <span class="step-type" style="font-size: 0.72rem; font-weight: 800; color: var(--gold-primary); text-transform: uppercase; letter-spacing: 0.05em;">${item.step || item.category}</span>
+                      <span class="step-time" style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted);">${item.time}</span>
+                    </div>
+                    <h4 class="step-title" style="font-size: 0.95rem; font-weight: 700; margin: 0 0 0.25rem 0; ${item.completed ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${item.title}</h4>
+                    <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0 0 0.4rem 0;">💡 <strong>Rec:</strong> ${item.product_recommendation || item.title}</p>
+                    ${item.key_ingredients ? `
+                      <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+                        ${item.key_ingredients.map(ing => `<span style="background: rgba(197, 155, 39, 0.12); color: #7A5F13; font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 10px;">${ing}</span>`).join('')}
+                      </div>
+                    ` : ''}
+                  </div>
+                  <button title="Remove step" onclick="event.stopPropagation(); window.app.deleteStep('morning', '${item.id}')" style="position: absolute; top: 10px; right: 10px; background: transparent; border: none; font-size: 1.1rem; color: var(--text-muted); cursor: pointer;">&times;</button>
                 </div>
-                <div class="step-time">${item.time}</div>
               </div>
             `).join('')}
           </div>
 
+          <!-- PM Routine View -->
           <div id="routine-list-pm" class="routine-step-list hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">SEQUENCE: 🧼 Cleansing → ✨ Exfoliation → 💧 Treatment → 🧴 Moisturizing → 🌙 Night Care</div>
+              <button class="btn btn-sm btn-outline" style="font-size: 0.75rem; padding: 0.25rem 0.65rem;" onclick="window.app.openCreateStepModal('evening')">➕ Add Custom PM Step</button>
+            </div>
             ${data.routine.evening.map(item => `
-              <div class="step-item ${item.completed ? 'completed' : ''}" onclick="window.app.toggleStep('evening', '${item.id}')">
-                <div class="step-checkbox">${item.completed ? '✓' : ''}</div>
-                <div class="step-icon" style="font-size: 1.2rem;">${item.icon}</div>
-                <div class="step-details">
-                  <span class="step-type">${item.step}</span>
-                  <h4 class="step-title">${item.title}</h4>
+              <div class="step-item ${item.completed ? 'completed' : ''}" onclick="window.app.toggleStep('evening', '${item.id}')" style="cursor: pointer; padding: 0.9rem 1.1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-light); margin-bottom: 0.65rem; background: ${item.completed ? '#F8FBF8' : '#FAF9F6'}; transition: var(--transition); position: relative;">
+                <div style="display: flex; align-items: flex-start; width: 100%;">
+                  <div class="step-checkbox" style="width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid ${item.completed ? 'var(--accent-emerald)' : 'var(--text-muted)'}; background: ${item.completed ? 'var(--accent-emerald)' : 'transparent'}; color: #fff; font-weight: 700; font-size: 0.8rem; margin-top: 0.2rem;">${item.completed ? '✓' : ''}</div>
+                  <div class="step-details" style="flex: 1; margin-left: 0.85rem; padding-right: 1.5rem;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.2rem;">
+                      <span class="step-type" style="font-size: 0.72rem; font-weight: 800; color: var(--gold-primary); text-transform: uppercase; letter-spacing: 0.05em;">${item.step || item.category}</span>
+                      <span class="step-time" style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted);">${item.time}</span>
+                    </div>
+                    <h4 class="step-title" style="font-size: 0.95rem; font-weight: 700; margin: 0 0 0.25rem 0; ${item.completed ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${item.title}</h4>
+                    <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0 0 0.4rem 0;">💡 <strong>Rec:</strong> ${item.product_recommendation || item.title}</p>
+                    ${item.key_ingredients ? `
+                      <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+                        ${item.key_ingredients.map(ing => `<span style="background: rgba(142, 36, 170, 0.12); color: #5B1370; font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 10px;">${ing}</span>`).join('')}
+                      </div>
+                    ` : ''}
+                  </div>
+                  <button title="Remove step" onclick="event.stopPropagation(); window.app.deleteStep('evening', '${item.id}')" style="position: absolute; top: 10px; right: 10px; background: transparent; border: none; font-size: 1.1rem; color: var(--text-muted); cursor: pointer;">&times;</button>
                 </div>
-                <div class="step-time">${item.time}</div>
               </div>
             `).join('')}
+          </div>
+
+          <!-- Weekly Treatment Plan View -->
+          <div id="routine-list-weekly" class="routine-step-list hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">PERIODIC TREATMENT SCHEDULE (MON – SUN)</div>
+              <button class="btn btn-sm btn-outline" style="font-size: 0.75rem; padding: 0.25rem 0.65rem;" onclick="window.app.openModal('create-weekly-modal')">➕ Create Custom Weekly Treatment</button>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.85rem;">
+              ${(data.routine.weeklyPlan || [
+                { day: 'Wednesday & Sunday', focus: 'BHA Chemical Exfoliation', category: '✨ Exfoliation', treatment_name: '2% Salicylic Acid Exfoliant Liquid', instructions: 'Pore clearing & smooth texture renewal.', icon: '✨' },
+                { day: 'Friday Evening', focus: 'Deep Moisture Sheet Mask', category: '💧 Treatment', treatment_name: 'Ceramide & Hyaluronic Sheet Mask', instructions: 'Intense moisture infusion for 15-20 min.', icon: '💧' },
+                { day: 'Saturday Morning', focus: 'Weekend Lip & Eye Ritual', category: '🌙 Night Care', treatment_name: 'Peptide Lip Butter & Cooling Eye Serum', instructions: 'Nourish delicate eye & lip zones.', icon: '🌙' }
+              ]).map((w, idx) => `
+                <div style="padding: 1rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm); position: relative;">
+                  <button title="Remove treatment" onclick="event.stopPropagation(); window.app.deleteWeeklyItem(${idx})" style="position: absolute; top: 8px; right: 8px; background: transparent; border: none; font-size: 1.1rem; color: var(--text-muted); cursor: pointer;">&times;</button>
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem; padding-right: 1.5rem;">
+                    <span style="font-size: 0.72rem; font-weight: 800; color: var(--accent-amber); text-transform: uppercase;">${w.day}</span>
+                    <span style="font-size: 1.1rem;">${w.icon || '✨'}</span>
+                  </div>
+                  <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.2rem;">${w.focus}</h4>
+                  <p style="font-size: 0.82rem; font-weight: 600; color: var(--gold-primary); margin-bottom: 0.35rem;">${w.treatment_name}</p>
+                  <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">${w.instructions}</p>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Seasonal Advice View -->
+          <div id="routine-list-seasonal" class="routine-step-list hidden">
+            <div style="padding: 1.1rem; background: linear-gradient(135deg, rgba(204, 251, 241, 0.3), rgba(240, 253, 250, 0.8)); border: 1px solid rgba(45, 212, 191, 0.3); border-radius: var(--radius-sm);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <h4 style="font-family: 'Playfair Display', serif; font-size: 1.1rem; margin: 0;">Season: ${data.routine.seasonalTips ? data.routine.seasonalTips.season : 'Summer ☀️'}</h4>
+                <span class="badge" style="background: #0D9488; color: #fff; font-size: 0.72rem;">Active Climate Protocol</span>
+              </div>
+              <p style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">🌍 <strong>Impact:</strong> ${data.routine.seasonalTips ? data.routine.seasonalTips.climate_impact : 'High UV index, elevated humidity & sweat production.'}</p>
+              
+              <div style="margin-top: 0.75rem;">
+                <h5 style="font-size: 0.82rem; font-weight: 700; text-transform: uppercase; color: #0F766E; margin-bottom: 0.35rem;">Recommended Adjustments:</h5>
+                <ul style="margin: 0; padding-left: 1.2rem; font-size: 0.82rem; color: var(--text-secondary);">
+                  ${(data.routine.seasonalTips && data.routine.seasonalTips.routine_adjustments ? data.routine.seasonalTips.routine_adjustments : [
+                    'Switch heavy creams to lightweight oil-free gel moisturizers.',
+                    'Ensure daily SPF is 50+ and water/sweat resistant.'
+                  ]).map(tip => `<li style="margin-bottom: 0.25rem;">${tip}</li>`).join('')}
+                </ul>
+              </div>
+
+              <div style="display: flex; gap: 1.5rem; margin-top: 0.85rem; flex-wrap: wrap;">
+                <div>
+                  <small style="font-size: 0.72rem; font-weight: 800; color: #047857; text-transform: uppercase;">Best Ingredients:</small>
+                  <div style="display: flex; gap: 0.3rem; margin-top: 0.2rem; flex-wrap: wrap;">
+                    ${(data.routine.seasonalTips && data.routine.seasonalTips.recommended_ingredients ? data.routine.seasonalTips.recommended_ingredients : ['Niacinamide', 'Zinc Oxide', 'Squalane']).map(i => `<span style="background: #D1FAE5; color: #065F46; font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.45rem; border-radius: 8px;">${i}</span>`).join('')}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- CLINICAL ACTIVE CONCERNS MATRIX -->
+      <div class="glass-card section-margin" style="background: #FFFFFF; padding: 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--border-light); margin-top: 1.5rem;">
+        <div class="card-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 0.85rem; margin-bottom: 1rem;">
+          <div>
+            <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem;">Active Dermatological Concerns & Treatment Protocol</h3>
+            <p class="text-muted" style="font-size: 0.8rem; margin-top: 0.1rem;">Clinical severity categorization and targeted ingredient guidance</p>
+          </div>
+          <span class="badge badge-accent" style="font-weight: 600;">2 Active Factors</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem;">
+          <div style="padding: 1.1rem; background: #FAF9F6; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-size: 0.7rem; font-weight: 800; color: var(--accent-amber); text-transform: uppercase; letter-spacing: 0.05em;">PRIORITY #1 • MOISTURE & BARRIER</span>
+              <span class="badge badge-warning" style="font-size: 0.75rem;">Moderate Severity</span>
+            </div>
+            <h4 style="font-family: 'Playfair Display', serif; font-size: 1.05rem; margin-bottom: 0.35rem;">Transepidermal Water Loss (TEWL)</h4>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">Impaired lipid barrier permitting moisture evaporation and surface tightness.</p>
+            <div style="margin-bottom: 0.5rem;">
+              <small style="font-size: 0.75rem; font-weight: 700; color: var(--text-primary);">Recommended Active Ingredients:</small>
+              <div class="tag-cloud" style="margin-top: 0.25rem; display: flex; gap: 0.35rem; flex-wrap: wrap;">
+                <span class="tag" style="background: rgba(197,155,39,0.12); color: var(--gold-primary); font-size: 0.75rem; padding: 0.2rem 0.55rem; border-radius: 4px;">Ceramides NP/AP</span>
+                <span class="tag" style="background: rgba(197,155,39,0.12); color: var(--gold-primary); font-size: 0.75rem; padding: 0.2rem 0.55rem; border-radius: 4px;">Multi-Hyaluronic Acid</span>
+                <span class="tag" style="background: rgba(197,155,39,0.12); color: var(--gold-primary); font-size: 0.75rem; padding: 0.2rem 0.55rem; border-radius: 4px;">Centella Asiatica</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="padding: 1.1rem; background: #FAF9F6; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-size: 0.7rem; font-weight: 800; color: var(--accent-rose); text-transform: uppercase; letter-spacing: 0.05em;">PRIORITY #2 • INFLAMMATORY</span>
+              <span class="badge badge-warning" style="font-size: 0.75rem;">Moderate Severity</span>
+            </div>
+            <h4 style="font-family: 'Playfair Display', serif; font-size: 1.05rem; margin-bottom: 0.35rem;">Post-Inflammatory Hyperpigmentation</h4>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">Melanin clustering following active congestion and UV exposure.</p>
+            <div style="margin-bottom: 0.5rem;">
+              <small style="font-size: 0.75rem; font-weight: 700; color: var(--text-primary);">Recommended Active Ingredients:</small>
+              <div class="tag-cloud" style="margin-top: 0.25rem; display: flex; gap: 0.35rem; flex-wrap: wrap;">
+                <span class="tag" style="background: rgba(46,125,50,0.12); color: var(--accent-emerald); font-size: 0.75rem; padding: 0.2rem 0.55rem; border-radius: 4px;">Azelaic Acid 10%</span>
+                <span class="tag" style="background: rgba(46,125,50,0.12); color: var(--accent-emerald); font-size: 0.75rem; padding: 0.2rem 0.55rem; border-radius: 4px;">Niacinamide 5%</span>
+                <span class="tag" style="background: rgba(46,125,50,0.12); color: var(--accent-emerald); font-size: 0.75rem; padding: 0.2rem 0.55rem; border-radius: 4px;">Alpha Arbutin 2%</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Recommended Products Grid -->
-      <div class="glass-card section-margin">
-        <div class="card-header">
-          <h3>AI Matched Skincare Products</h3>
-          <button class="btn btn-sm btn-outline" onclick="alert('FAISS Vector embeddings updated dynamically!')">🔄 Refresh Matches</button>
+      <!-- FORMULATED PRODUCTS CATALOG -->
+      <div class="glass-card section-margin" style="background: #FFFFFF; padding: 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--border-light); margin-top: 1.5rem;">
+        <div class="card-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 0.85rem; margin-bottom: 1rem;">
+          <div>
+            <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem;">AI Matched Skincare Products</h3>
+            <p class="text-muted" style="font-size: 0.8rem; margin-top: 0.1rem;">Clinical formulations tailored to your current skin classification</p>
+          </div>
+          <button class="btn btn-sm btn-outline" style="font-size: 0.78rem; padding: 0.4rem 0.85rem;" onclick="alert('Regimen matches re-evaluated against latest biomarker scores.')">🔄 Refresh Formulations</button>
         </div>
+        
         <div class="products-grid">
           ${data.recommendedProducts.map(p => `
-            <div class="product-card">
+            <div class="product-card" style="background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 1.1rem; display: flex; flex-direction: column; justify-space-between;">
               <div>
-                <div class="product-header">
-                  <span class="badge badge-accent">${p.badge}</span>
-                  <span class="match-score">${p.matchScore} Match</span>
+                <div class="product-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                  <span class="badge badge-accent" style="font-size: 0.75rem;">${p.badge}</span>
+                  <span class="match-score" style="font-size: 0.82rem; font-weight: 700; color: var(--gold-primary);">${p.matchScore} Compatibility</span>
                 </div>
-                <h4 class="product-name">${p.name}</h4>
-                <p class="product-cat">${p.category} • <strong>${p.price}</strong></p>
-                <div class="product-ingredients">
-                  <small style="color: var(--text-muted);">Key Active Ingredients:</small>
-                  <div class="tag-cloud">
-                    ${p.keyIngredients.map(ing => `<span class="tag">${ing}</span>`).join('')}
+                <h4 class="product-name" style="font-family: 'Playfair Display', serif; font-size: 1.05rem; margin-bottom: 0.2rem;">${p.name}</h4>
+                <p class="product-cat" style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.65rem;">${p.category} &nbsp;•&nbsp; <strong>${p.price}</strong></p>
+                <div class="product-ingredients" style="margin-bottom: 0.65rem;">
+                  <small style="color: var(--text-muted); font-size: 0.75rem; font-weight: 600;">Key Active Ingredients:</small>
+                  <div class="tag-cloud" style="margin-top: 0.25rem; display: flex; gap: 0.35rem; flex-wrap: wrap;">
+                    ${p.keyIngredients.map(ing => `<span class="tag" style="background: #FFFFFF; border: 1px solid var(--border-light); font-size: 0.72rem; padding: 0.15rem 0.45rem; border-radius: 4px; color: var(--text-primary);">${ing}</span>`).join('')}
                   </div>
                 </div>
-                <p class="product-reason">💡 ${p.reason}</p>
+                <p class="product-reason" style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.4;">💡 ${p.reason}</p>
               </div>
-              <button class="btn btn-sm btn-secondary" style="width: 100%; margin-top: 0.75rem;" onclick="window.app.addProductToRoutine('${p.name}', '${p.category}')">+ Add to Morning Routine</button>
+              <button class="btn btn-sm btn-primary" style="width: 100%; margin-top: 1rem; font-size: 0.78rem;" onclick="window.app.addProductToRoutine('${p.name}', '${p.category}')">+ Add to Morning Routine</button>
             </div>
           `).join('')}
         </div>
@@ -938,6 +1145,176 @@ export function renderLoginPage() {
             </button>
           </form>
         </div>
+      </div>
+    </div>
+  `;
+}
+
+export function renderUserSettingsPage() {
+  const data = MOCK_USER_DATA;
+  const user = auth.getCurrentUser();
+  const avatarUrl = user?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${user?.username || 'default'}`;
+  const displayName = data.profile?.name || user?.username || 'Alex Rivera';
+  const displayEmail = user?.email || `${(user?.username || 'alex').toLowerCase()}@panacea.ai`;
+  const roleTitle = 'Skincare Consumer';
+
+  return `
+    <div class="editorial-container reveal" style="padding-top: 1.5rem; max-width: 1200px; margin: 0 auto;">
+      <!-- HEADER BACK NAVIGATION BANNER -->
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-light);">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--gold-primary); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.3rem;">
+            <span>SYSTEM CONFIGURATION & MANAGEMENT</span>
+          </div>
+          <h1 style="font-family: 'Playfair Display', serif; font-size: 2.2rem; margin: 0; color: var(--text-primary);">
+            User Account & Profile Settings
+          </h1>
+          <p class="text-muted" style="margin: 0.2rem 0 0 0; font-size: 0.95rem;">
+            Manage your patient profile identity, clinical skin classification, allergen triggers, and platform preferences.
+          </p>
+        </div>
+        <div>
+          <button class="btn btn-outline" onclick="window.app.navigateToView('dashboard')" style="display: flex; align-items: center; gap: 0.5rem;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            <span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- MAIN 2-COLUMN LAYOUT -->
+      <div style="display: grid; grid-template-columns: 320px 1fr; gap: 2rem;">
+
+        <!-- LEFT COLUMN: IDENTITY & NAVIGATION CARD -->
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+          <div class="glass-card" style="padding: 1.75rem; text-align: center;">
+            <div style="position: relative; display: inline-block; margin-bottom: 1rem;">
+              <img id="page-settings-avatar-img" src="${avatarUrl}" alt="${displayName}" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--gold-primary); background: #FFFFFF; object-fit: cover;">
+            </div>
+            <h3 id="page-settings-display-name" style="font-family: 'Playfair Display', serif; font-size: 1.4rem; margin: 0 0 0.3rem 0; color: var(--text-primary);">${displayName}</h3>
+            <div style="margin-bottom: 1rem;">
+              <span class="badge badge-user">${roleTitle}</span>
+            </div>
+            <p id="page-settings-display-email" class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.2rem;">${displayEmail}</p>
+
+            <button type="button" class="btn btn-outline btn-sm" onclick="window.app.randomizePageAvatar()" style="width: 100%; font-size: 0.82rem; padding: 0.55rem;">
+              Generate New Avatar Seed
+            </button>
+          </div>
+
+          <!-- SECTION QUICK LINKS -->
+          <div class="glass-card" style="padding: 1.25rem;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.8rem;">Settings Sections</div>
+            <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+              <a href="#section-identity" class="btn btn-outline" style="justify-content: flex-start; border: none; background: rgba(0,0,0,0.03); font-size: 0.85rem; padding: 0.6rem 0.8rem;">1. Personal & Account Identity</a>
+              <a href="#section-classification" class="btn btn-outline" style="justify-content: flex-start; border: none; background: rgba(0,0,0,0.03); font-size: 0.85rem; padding: 0.6rem 0.8rem;">2. Dermatological Classification</a>
+              <a href="#section-clinical" class="btn btn-outline" style="justify-content: flex-start; border: none; background: rgba(0,0,0,0.03); font-size: 0.85rem; padding: 0.6rem 0.8rem;">3. Clinical Focus & Allergens</a>
+              <a href="#section-preferences" class="btn btn-outline" style="justify-content: flex-start; border: none; background: rgba(0,0,0,0.03); font-size: 0.85rem; padding: 0.6rem 0.8rem;">4. Reminders & Telemetry</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN: COMPREHENSIVE SETTINGS FORM -->
+        <div class="glass-card" style="padding: 2rem;">
+          <form id="page-settings-form" onsubmit="window.app.handlePageSaveSettings(event)">
+
+            <!-- SECTION 1 -->
+            <div id="section-identity" style="margin-bottom: 2rem;">
+              <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-bottom: 0.4rem; color: var(--text-primary); border-bottom: 2px solid var(--gold-primary); padding-bottom: 0.4rem;">
+                1. Personal & Account Identity
+              </h3>
+              <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.2rem;">Manage your user account credentials and platform representation.</p>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem;">
+                <div class="form-group">
+                  <label for="page-settings-fullname" style="font-weight: 600; font-size: 0.85rem;">Full Name / Display Name</label>
+                  <input type="text" id="page-settings-fullname" class="form-control" value="${displayName}" required>
+                </div>
+                <div class="form-group">
+                  <label for="page-settings-email" style="font-weight: 600; font-size: 0.85rem;">Registered Email Address</label>
+                  <input type="text" id="page-settings-email" class="form-control" value="${displayEmail}" readonly style="background: rgba(0,0,0,0.03); opacity: 0.8;">
+                </div>
+              </div>
+            </div>
+
+            <!-- SECTION 2 -->
+            <div id="section-classification" style="margin-bottom: 2rem;">
+              <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-bottom: 0.4rem; color: var(--text-primary); border-bottom: 2px solid var(--gold-primary); padding-bottom: 0.4rem;">
+                2. Dermatological Classification
+              </h3>
+              <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.2rem;">Configure baseline physiological skin metadata for diagnostic scoring.</p>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem;">
+                <div class="form-group">
+                  <label for="page-settings-skintype" style="font-weight: 600; font-size: 0.85rem;">Skin Type Classification</label>
+                  <select id="page-settings-skintype" class="form-control">
+                    <option value="Combination / Sensitive" ${data.profile.skinType.includes('Combination') ? 'selected' : ''}>Combination / Sensitive</option>
+                    <option value="Dry / Dehydrated" ${data.profile.skinType.includes('Dry') ? 'selected' : ''}>Dry / Dehydrated</option>
+                    <option value="Oily / Acne-Prone" ${data.profile.skinType.includes('Oily') ? 'selected' : ''}>Oily / Acne-Prone</option>
+                    <option value="Normal / Balanced" ${data.profile.skinType.includes('Normal') ? 'selected' : ''}>Normal / Balanced</option>
+                    <option value="Sensitive / Rosacea-Prone" ${data.profile.skinType.includes('Rosacea') ? 'selected' : ''}>Sensitive / Rosacea-Prone</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="page-settings-agegroup" style="font-weight: 600; font-size: 0.85rem;">Age Demographic</label>
+                  <select id="page-settings-agegroup" class="form-control">
+                    <option value="18 - 24" ${data.profile.ageGroup === '18 - 24' ? 'selected' : ''}>18 - 24 years</option>
+                    <option value="25 - 34" ${data.profile.ageGroup === '25 - 34' ? 'selected' : ''}>25 - 34 years</option>
+                    <option value="35 - 44" ${data.profile.ageGroup === '35 - 44' ? 'selected' : ''}>35 - 44 years</option>
+                    <option value="45 - 54" ${data.profile.ageGroup === '45 - 54' ? 'selected' : ''}>45 - 54 years</option>
+                    <option value="55+" ${data.profile.ageGroup === '55+' ? 'selected' : ''}>55+ years</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- SECTION 3 -->
+            <div id="section-clinical" style="margin-bottom: 2rem;">
+              <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-bottom: 0.4rem; color: var(--text-primary); border-bottom: 2px solid var(--gold-primary); padding-bottom: 0.4rem;">
+                3. Clinical Focus & Allergens
+              </h3>
+              <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.2rem;">Specify targeted skin concerns and ingredient safety contraindications.</p>
+
+              <div class="form-group">
+                <label for="page-settings-goals" style="font-weight: 600; font-size: 0.85rem;">Primary Skincare Focus & Target Goals</label>
+                <input type="text" id="page-settings-goals" class="form-control" value="${(data.profile.primaryConcerns || []).join(', ')}" placeholder="e.g. Barrier Repair, Acne & Breakouts">
+              </div>
+
+              <div class="form-group">
+                <label for="page-settings-allergies" style="font-weight: 600; font-size: 0.85rem;">Known Allergies & Sensitivity Triggers</label>
+                <input type="text" id="page-settings-allergies" class="form-control" value="${(data.profile.allergies || []).join(', ')}" placeholder="e.g. Fragrance (Parfum), Essential Oils">
+              </div>
+            </div>
+
+            <!-- SECTION 4 -->
+            <div id="section-preferences" style="margin-bottom: 2rem;">
+              <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-bottom: 0.4rem; color: var(--text-primary); border-bottom: 2px solid var(--gold-primary); padding-bottom: 0.4rem;">
+                4. Notifications & Telemetry Preferences
+              </h3>
+              <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.2rem;">Configure system notifications and routine tracking schedules.</p>
+
+              <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <label style="font-size: 0.9rem; color: var(--text-primary); font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 0.6rem;">
+                  <input type="checkbox" id="page-settings-reminders" checked style="accent-color: var(--gold-primary); width: 18px; height: 18px;">
+                  <span>Daily AM/PM Skincare Routine Application Reminders</span>
+                </label>
+                <label style="font-size: 0.9rem; color: var(--text-primary); font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 0.6rem;">
+                  <input type="checkbox" id="page-settings-reports" checked style="accent-color: var(--gold-primary); width: 18px; height: 18px;">
+                  <span>Weekly Cutaneous Health Telemetry & Barrier Score Reports</span>
+                </label>
+              </div>
+            </div>
+
+            <div id="page-settings-alert" class="login-alert-box hidden" style="margin-bottom: 1rem;"></div>
+
+            <!-- SUBMIT & CANCEL BAR -->
+            <div style="display: flex; gap: 1rem; align-items: center; padding-top: 1rem; border-top: 1px solid var(--border-light);">
+              <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem;">Save Profile Changes</button>
+              <button type="button" class="btn btn-outline" onclick="window.app.navigateToView('dashboard')" style="padding: 0.75rem 1.5rem;">Cancel</button>
+            </div>
+
+          </form>
+        </div>
+
       </div>
     </div>
   `;
