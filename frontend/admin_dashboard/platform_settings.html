@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform Settings - Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between hidden md:flex shrink-0">
+        <div>
+            <div class="p-6 flex items-center gap-3 border-b border-slate-800">
+                <div class="bg-teal-500 text-slate-950 p-2.5 rounded-2xl font-bold">
+                    <i data-lucide="shield-check" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-white leading-tight">DermaAI</h1>
+                    <p class="text-[10px] font-bold text-teal-400 uppercase">Admin Portal</p>
+                </div>
+            </div>
+            <nav class="p-4 space-y-1 text-sm font-medium">
+                <a href="/admin.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/40 transition">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Overview
+                </a>
+                <a href="/admin_dashboard/account_approvals.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/40 transition">
+                    <i data-lucide="user-check" class="w-4 h-4"></i> Account Approvals
+                </a>
+                <a href="/admin_dashboard/user_management.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/40 transition">
+                    <i data-lucide="users" class="w-4 h-4"></i> User Management
+                </a>
+                <a href="/admin_dashboard/system_reports.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/40 transition">
+                    <i data-lucide="activity" class="w-4 h-4"></i> System Reports
+                </a>
+                <a href="/admin_dashboard/platform_settings.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-teal-400 bg-slate-800/60 font-bold border-r-4 border-teal-500">
+                    <i data-lucide="settings" class="w-4 h-4"></i> Platform Settings
+                </a>
+                <a href="/admin_dashboard/recommendation_monitoring.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/40 transition">
+                    <i data-lucide="sliders" class="w-4 h-4"></i> Recommendation Monitoring
+                </a>
+            </nav>
+        </div>
+        <div class="p-4 border-t border-slate-800 bg-slate-950/50">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="min-w-0">
+                        <p id="admin-display-name" class="text-xs font-bold text-white truncate">Administrator</p>
+                        <p class="text-[10px] text-teal-400 font-medium truncate">Role: Admin</p>
+                    </div>
+                </div>
+                <button onclick="logout()" title="Logout" class="text-slate-400 hover:text-rose-500 p-1 rounded-lg transition cursor-pointer">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-8 space-y-6">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900">Platform Settings</h1>
+            <p class="text-xs text-slate-500">System configuration and security protocols dynamically managed via database</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 text-xs max-w-xl">
+            <form id="settings-form" onsubmit="saveSettings(event)" class="space-y-4">
+                <div class="space-y-1">
+                    <label class="font-bold text-slate-700">Platform Name</label>
+                    <input type="text" id="platform-name" placeholder="Loading settings from database..." class="w-full p-2.5 border rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-teal-500 outline-none transition" required>
+                </div>
+                
+                <div class="space-y-1">
+                    <label class="font-bold text-slate-700">Google OAuth Client ID</label>
+                    <input type="password" id="oauth-client-id" placeholder="••••••••••••••••••••••••" class="w-full p-2.5 border rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-teal-500 outline-none transition" required>
+                    <p class="text-[10px] text-slate-400">Masked for security. Used for client authentication backend configuration.</p>
+                </div>
+
+                <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+                    <div>
+                        <span class="font-bold text-slate-700 block">Require Approval for Professionals</span>
+                        <span class="text-[10px] text-slate-400">Force manual admin verification for Dermatologist/Consultant signups</span>
+                    </div>
+                    <input type="checkbox" id="require-approval" class="w-4 h-4 text-teal-600 rounded focus:ring-teal-500 cursor-pointer">
+                </div>
+
+                <div class="pt-2 flex items-center justify-between">
+                    <button type="submit" id="save-btn" class="bg-teal-600 hover:bg-teal-500 text-white font-bold px-5 py-2.5 rounded-xl transition cursor-pointer shadow-sm flex items-center gap-2">
+                        <i data-lucide="save" class="w-4 h-4"></i> Save Settings
+                    </button>
+                    <span id="save-status" class="text-xs font-bold hidden"></span>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+            checkAuthState();
+            loadSettings();
+        });
+
+        function getToken() {
+            return localStorage.getItem('auth_token') || localStorage.getItem('token') || '';
+        }
+
+        function getAuthHeaders() {
+            return {
+                'Authorization': `Bearer ${getToken()}`,
+                'Content-Type': 'application/json'
+            };
+        }
+
+        function checkAuthState() {
+            const token = getToken();
+            const identity = localStorage.getItem('user_identity') || localStorage.getItem('name') || localStorage.getItem('email');
+            const role = (localStorage.getItem('user_role') || localStorage.getItem('role') || '').toLowerCase();
+
+            if (!token || !role.includes('admin')) {
+                window.location.href = '/index.html';
+                return;
+            }
+
+            const displayNameElem = document.getElementById('admin-display-name');
+            if (displayNameElem) displayNameElem.innerText = identity || 'Administrator';
+        }
+
+        // LOAD EXISTING SETTINGS FROM DATABASE
+        async function loadSettings() {
+            const statusElem = document.getElementById('save-status');
+            try {
+                const cacheBuster = `?_t=${Date.now()}`;
+                const res = await fetch(`/api/admin/settings${cacheBuster}`, { headers: getAuthHeaders() });
+
+                if (!res.ok) {
+                    if (res.status === 401 || res.status === 403) {
+                        logout();
+                        return;
+                    }
+                    throw new Error(`Database error (HTTP ${res.status})`);
+                }
+
+                const settings = await res.json();
+                const data = settings.data || settings;
+
+                if (data) {
+                    document.getElementById('platform-name').value = data.platform_name || data.platformName || '';
+                    document.getElementById('oauth-client-id').value = data.oauth_client_id || data.oauthClientId || '';
+                    document.getElementById('require-approval').checked = Boolean(data.require_approval ?? data.requireApproval);
+                }
+            } catch (err) {
+                console.error("Failed to load settings from database:", err);
+                showStatus(`Failed to load database settings: ${err.message}`, true);
+            }
+        }
+
+        // SAVE SETTINGS DIRECTLY TO DATABASE
+        async function saveSettings(event) {
+            event.preventDefault();
+            const btn = document.getElementById('save-btn');
+            
+            const settingsData = {
+                platform_name: document.getElementById('platform-name').value.trim(),
+                oauth_client_id: document.getElementById('oauth-client-id').value.trim(),
+                require_approval: document.getElementById('require-approval').checked
+            };
+
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            try {
+                const res = await fetch('/api/admin/settings', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(settingsData)
+                });
+
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    throw new Error(errData.detail || errData.message || `Server Error ${res.status}`);
+                }
+
+                showStatus('✓ Platform settings saved to database', false);
+            } catch (err) {
+                console.error("Failed to persist settings:", err);
+                showStatus(`Save failed: ${err.message}`, true);
+            } finally {
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        function showStatus(message, isError) {
+            const statusElem = document.getElementById('save-status');
+            statusElem.innerText = message;
+            statusElem.className = isError 
+                ? 'text-xs font-bold text-rose-600 block' 
+                : 'text-xs font-bold text-emerald-600 block';
+            
+            setTimeout(() => {
+                statusElem.className = 'hidden';
+            }, 4000);
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/index.html';
+        }
+    </script>
+</body>
+</html>

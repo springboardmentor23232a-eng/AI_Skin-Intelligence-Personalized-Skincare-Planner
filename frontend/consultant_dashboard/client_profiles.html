@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Profiles - DermaAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex shrink-0">
+        <div>
+            <div class="p-6 flex items-center gap-3 border-b border-slate-100">
+                <div class="bg-teal-600 text-white p-2.5 rounded-2xl">
+                    <i data-lucide="sparkles" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-slate-900 leading-tight">DermaAI</h1>
+                    <p class="text-xs text-slate-400" id="portal-role-label">Consultant Portal</p>
+                </div>
+            </div>
+
+            <nav class="p-4 space-y-1 text-sm font-medium">
+                <a href="/consultant_dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+                </a>
+                <a href="/consultant_dashboard/client_profiles.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-teal-700 bg-teal-50 font-bold border-r-4 border-teal-600">
+                    <i data-lucide="users" class="w-4 h-4"></i> Client Profiles
+                </a>
+                <a href="/consultant_dashboard/appointments.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="calendar" class="w-4 h-4"></i> Appointments
+                </a>
+                <a href="/consultant_dashboard/skin_reports.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="file-text" class="w-4 h-4"></i> Skin Reports
+                </a>
+                <a href="/consultant_dashboard/progress_monitoring.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="line-chart" class="w-4 h-4"></i> Progress 
+                </a>
+                <a href="/consultant_dashboard/recommendations.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="sliders" class="w-4 h-4"></i> Recommendations
+                </a>
+            </nav>
+        </div>
+
+        <div class="p-4 border-t border-slate-100 bg-slate-50/50">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="min-w-0">
+                        <p id="user-display-name" class="text-xs font-bold text-slate-800 truncate">Loading...</p>
+                        <p id="user-role-badge" class="text-[10px] text-slate-500 font-medium truncate">Role: Consultant</p>
+                    </div>
+                </div>
+                <button onclick="logout()" title="Logout" class="text-slate-400 hover:text-rose-600 p-1 rounded-lg transition cursor-pointer">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-8 space-y-6">
+        
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900">Client Clinical Profiles</h1>
+                <p class="text-sm text-slate-500">Comprehensive skin assessment metrics, sensitivities, and clinical imagery.</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="fetchClientProfiles(false)" class="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3.5 py-2.5 rounded-xl transition shadow-sm cursor-pointer">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i> Sync Data
+                </button>
+                <a href="/consultant_dashboard/appointments.html" class="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm transition">
+                    <i data-lucide="plus" class="w-4 h-4"></i> Schedule New Consult
+                </a>
+            </div>
+        </div>
+
+        <!-- Clinical Quick Metrics Bar -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Clients</p>
+                    <h2 id="kpi-total-clients" class="text-2xl font-bold text-slate-900 mt-0.5">0</h2>
+                </div>
+                <div class="p-3 bg-teal-50 text-teal-600 rounded-xl">
+                    <i data-lucide="users" class="w-5 h-5"></i>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Active Assessments</p>
+                    <h2 id="kpi-active-clients" class="text-2xl font-bold text-teal-600 mt-0.5">0</h2>
+                </div>
+                <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+                    <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Compromised Barrier</p>
+                    <h2 id="kpi-barrier-risk" class="text-2xl font-bold text-rose-600 mt-0.5">0</h2>
+                </div>
+                <div class="p-3 bg-rose-50 text-rose-600 rounded-xl">
+                    <i data-lucide="shield-alert" class="w-5 h-5"></i>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Avg Skin Score</p>
+                    <h2 id="kpi-avg-score" class="text-2xl font-bold text-indigo-600 mt-0.5">--</h2>
+                </div>
+                <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
+                    <i data-lucide="activity" class="w-5 h-5"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3 md:space-y-0 md:flex md:items-center md:gap-4">
+            <div class="relative flex-1">
+                <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input type="text" id="searchInput" placeholder="Search by client name or email..." onkeyup="filterClients()" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-teal-500">
+            </div>
+
+            <div class="flex gap-3">
+                <select id="skinTypeFilter" onchange="filterClients()" class="px-3 py-2 border border-slate-200 rounded-xl bg-white text-xs font-medium text-slate-700 focus:outline-none focus:border-teal-500">
+                    <option value="">All Skin Types</option>
+                    <option value="Oily">Oily</option>
+                    <option value="Dry">Dry</option>
+                    <option value="Combination">Combination</option>
+                    <option value="Sensitive">Sensitive</option>
+                    <option value="Normal">Normal</option>
+                </select>
+
+                <select id="barrierFilter" onchange="filterClients()" class="px-3 py-2 border border-slate-200 rounded-xl bg-white text-xs font-medium text-slate-700 focus:outline-none focus:border-teal-500">
+                    <option value="">All Barrier Statuses</option>
+                    <option value="Healthy">Healthy Barrier</option>
+                    <option value="Compromised">Compromised Barrier</option>
+                    <option value="Pending">Pending Assessment</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="clients-container" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="lg:col-span-2 text-center py-12 bg-white rounded-2xl border border-slate-200">
+                <i data-lucide="loader" class="w-6 h-6 text-teal-600 animate-spin mx-auto mb-2"></i>
+                <p class="text-xs text-slate-400">Loading client profiles and assessment records from database...</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let allClients = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuthState();
+            fetchClientProfiles(false);
+            if (window.lucide) lucide.createIcons();
+        });
+
+        window.addEventListener('focus', () => {
+            fetchClientProfiles(true);
+        });
+
+        function getToken() {
+            return localStorage.getItem('auth_token') || localStorage.getItem('token') || '';
+        }
+
+        function getAuthHeaders() {
+            return {
+                'Authorization': `Bearer ${getToken()}`,
+                'Content-Type': 'application/json'
+            };
+        }
+
+        function checkAuthState() {
+            const token = getToken();
+            const identity = localStorage.getItem('user_identity') || localStorage.getItem('name') || localStorage.getItem('email');
+            const role = (localStorage.getItem('user_role') || localStorage.getItem('role') || '').toLowerCase();
+
+            if (!token) {
+                window.location.href = '/index.html';
+                return;
+            }
+
+            document.getElementById('user-display-name').innerText = identity || 'Consultant';
+            document.getElementById('user-role-badge').innerText = `Role: ${role.replace('role_', '').toUpperCase() || 'CONSULTANT'}`;
+            document.getElementById('portal-role-label').innerText = role.includes('dermatologist') || role.includes('doctor') ? 'Dermatologist Portal' : 'Consultant Portal';
+        }
+
+        async function fetchClientProfiles(isSilent = false) {
+            const container = document.getElementById('clients-container');
+            
+            if (!isSilent && allClients.length === 0) {
+                container.innerHTML = `
+                    <div class="lg:col-span-2 text-center py-12 bg-white rounded-2xl border border-slate-200">
+                        <i data-lucide="loader" class="w-6 h-6 text-teal-600 animate-spin mx-auto mb-2"></i>
+                        <p class="text-xs text-slate-400">Fetching live client metrics from database...</p>
+                    </div>`;
+                if (window.lucide) lucide.createIcons();
+            }
+
+            try {
+                const cacheBuster = `?_t=${Date.now()}`;
+                const response = await fetch(`/api/consultant/clients${cacheBuster}`, {
+                    method: 'GET',
+                    cache: 'no-store',
+                    headers: {
+                        ...getAuthHeaders(),
+                        'Cache-Control': 'no-cache, no-store, must-revalidate'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    let freshClients = [];
+                    if (Array.isArray(data)) {
+                        freshClients = data;
+                    } else if (data && (data.clients || data.data)) {
+                        freshClients = data.clients || data.data;
+                    } else if (typeof data === 'object' && data !== null) {
+                        freshClients = [data];
+                    }
+
+                    allClients = freshClients;
+                    filterClients();
+                } else if (!isSilent) {
+                    container.innerHTML = `<div class="lg:col-span-2 text-center py-12 bg-white rounded-2xl border border-rose-200 text-rose-500 text-xs font-semibold">Failed to load client profiles from database (HTTP ${response.status}).</div>`;
+                }
+            } catch (err) {
+                console.error('API Fetch Error:', err);
+                if (!isSilent) {
+                    container.innerHTML = `<div class="lg:col-span-2 text-center py-12 bg-white rounded-2xl border border-rose-200 text-rose-500 text-xs font-semibold">Unable to connect to database API endpoint.</div>`;
+                }
+            }
+        }
+
+        function calculateKPIs(clients) {
+            document.getElementById('kpi-total-clients').innerText = clients.length;
+            
+            const activeClients = clients.filter(c => c.has_assessment && c.score !== null && c.score !== undefined);
+            document.getElementById('kpi-active-clients').innerText = activeClients.length;
+
+            const compromisedCount = clients.filter(c => {
+                const barrier = c.assessment_metrics?.barrier || c.barrier_status;
+                return barrier && barrier.toLowerCase() === 'compromised';
+            }).length;
+            document.getElementById('kpi-barrier-risk').innerText = compromisedCount;
+
+            const scores = activeClients.map(c => Number(c.score)).filter(s => !isNaN(s) && s > 0);
+            const avgScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
+            document.getElementById('kpi-avg-score').innerText = avgScore !== null ? `${avgScore}/100` : '--';
+        }
+
+        function renderClients(clients) {
+            const container = document.getElementById('clients-container');
+            calculateKPIs(allClients);
+
+            if (!clients || clients.length === 0) {
+                container.innerHTML = `
+                    <div class="lg:col-span-2 text-center py-12 bg-white rounded-2xl border border-slate-200">
+                        <i data-lucide="users" class="w-8 h-8 text-slate-300 mx-auto mb-2"></i>
+                        <p class="text-sm font-semibold text-slate-600">No matching client profiles in database.</p>
+                    </div>
+                `;
+                if (window.lucide) lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = clients.map(client => {
+                const name = client.name || client.full_name || 'Unnamed Client';
+                const email = client.email || client.client_email || '';
+                const hasAssessment = Boolean(client.has_assessment && client.score !== null && client.score !== undefined);
+                const scoreVal = hasAssessment ? Number(client.score) : null;
+                const metrics = client.assessment_metrics;
+
+                let concernsArr = [];
+                if (Array.isArray(client.concerns)) {
+                    concernsArr = client.concerns;
+                } else if (typeof client.concerns === 'string') {
+                    concernsArr = client.concerns.replace(/[{}]/g, '').split(/,\s*/).filter(Boolean);
+                }
+
+                const hasAllergies = client.allergies && client.allergies.toLowerCase() !== 'none';
+                const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'CL';
+
+                const statusBadgeHtml = hasAssessment
+                    ? `<span class="text-[10px] font-bold px-2.5 py-1 rounded-full border bg-teal-50 text-teal-700 border-teal-200">Active Client</span>`
+                    : `<span class="text-[10px] font-bold px-2.5 py-1 rounded-full border bg-amber-50 text-amber-700 border-amber-200">Awaiting Intake Scan</span>`;
+
+                const assessmentDateHtml = hasAssessment
+                    ? `Assessed: <strong class="text-slate-600">${escapeHtml(client.assessment_date)}</strong>`
+                    : `<span class="text-amber-600 font-semibold">Assessment Pending</span>`;
+
+                const diagnosticSectionHtml = hasAssessment && metrics ? `
+                    <div class="p-3.5 bg-slate-900 text-slate-100 rounded-xl space-y-3 my-3">
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                            <span class="text-[11px] font-bold uppercase tracking-wider text-teal-400 flex items-center gap-1.5">
+                                <i data-lucide="scan" class="w-3.5 h-3.5"></i> Skin Diagnostic Assessment
+                            </span>
+                            <span class="text-xs font-bold ${scoreVal >= 75 ? 'text-teal-400' : scoreVal >= 55 ? 'text-amber-400' : 'text-rose-400'}">
+                                Overall Score: ${scoreVal}/100
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-[11px]">
+                            <div>
+                                <div class="flex justify-between text-[10px] text-slate-300 mb-0.5">
+                                    <span>Hydration</span>
+                                    <span class="font-bold text-teal-300">${metrics.hydration}%</span>
+                                </div>
+                                <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                    <div class="bg-teal-400 h-full rounded-full" style="width: ${metrics.hydration}%"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between text-[10px] text-slate-300 mb-0.5">
+                                    <span>Sebum Level</span>
+                                    <span class="font-bold text-amber-300">${metrics.sebum}%</span>
+                                </div>
+                                <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                    <div class="bg-amber-400 h-full rounded-full" style="width: ${metrics.sebum}%"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between text-[10px] text-slate-300 mb-0.5">
+                                    <span>Erythema / Redness</span>
+                                    <span class="font-bold ${metrics.erythema > 60 ? 'text-rose-400' : 'text-emerald-400'}">${metrics.erythema}%</span>
+                                </div>
+                                <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                    <div class="${metrics.erythema > 60 ? 'bg-rose-500' : 'bg-emerald-400'} h-full rounded-full" style="width: ${metrics.erythema}%"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between text-[10px] text-slate-300 mb-0.5">
+                                    <span>Barrier Status</span>
+                                    <span class="font-bold ${(metrics.barrier || '').toLowerCase() === 'compromised' ? 'text-rose-400' : 'text-teal-300'}">${escapeHtml(metrics.barrier)}</span>
+                                </div>
+                                <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                    <div class="${(metrics.barrier || '').toLowerCase() === 'compromised' ? 'bg-rose-500' : 'bg-teal-400'} h-full rounded-full" style="width: ${(metrics.barrier || '').toLowerCase() === 'compromised' ? '35%' : '90%'}"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ` : `
+                    <div class="p-4 bg-slate-50 border border-dashed border-slate-200 rounded-xl my-3 text-center space-y-1">
+                        <i data-lucide="clipboard-x" class="w-5 h-5 text-slate-300 mx-auto"></i>
+                        <p class="text-xs font-semibold text-slate-500">No Assessment Submitted Yet</p>
+                        <p class="text-[11px] text-slate-400">Patient has registered but not yet submitted their clinical skin evaluation questionnaire.</p>
+                    </div>
+                `;
+
+                return `
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition space-y-4 client-card flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start gap-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-11 h-11 rounded-xl bg-teal-100 text-teal-800 font-bold text-xs flex items-center justify-center shrink-0 border border-teal-200">
+                                        ${escapeHtml(initials)}
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold text-slate-800 text-base leading-tight client-name">${escapeHtml(name)}</h3>
+                                        <div class="flex items-center gap-2 mt-0.5">
+                                            <p class="text-xs text-slate-400">${escapeHtml(email)}</p>
+                                            <button onclick="copyToClipboard('${escapeHtml(email)}')" title="Copy Email" class="text-slate-300 hover:text-teal-600 transition">
+                                                <i data-lucide="copy" class="w-3 h-3"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex flex-col items-end gap-1">
+                                    ${statusBadgeHtml}
+                                    <span class="text-[10px] font-bold text-slate-400">
+                                        ${assessmentDateHtml}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-2 text-xs text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-100 my-3">
+                                <div><span class="text-[10px] text-slate-400 font-semibold block uppercase">Skin Type</span> <strong class="text-slate-800">${escapeHtml(client.skin_type || 'Not Specified')}</strong></div>
+                                <div><span class="text-[10px] text-slate-400 font-semibold block uppercase">Age Group</span> <strong class="text-slate-800">${escapeHtml(client.age_group || 'Not Specified')}</strong></div>
+                                <div><span class="text-[10px] text-slate-400 font-semibold block uppercase">Environment</span> <strong class="text-slate-800">${escapeHtml(client.environment || 'Not Specified')}</strong></div>
+                            </div>
+
+                            ${diagnosticSectionHtml}
+
+                            <div class="text-xs space-y-1 mb-3">
+                                <p class="flex items-center gap-1.5 text-slate-700">
+                                    <strong class="font-bold text-slate-800">Sensitivities:</strong> 
+                                    <span class="text-slate-600">${escapeHtml(client.sensitivities || 'None reported')}</span>
+                                </p>
+
+                                <p class="flex items-center gap-1.5">
+                                    <strong class="font-bold text-slate-800">Allergies Flag:</strong>
+                                    <span class="${hasAllergies ? 'bg-rose-100 text-rose-800 font-bold' : 'bg-slate-100 text-slate-600'} text-[11px] px-2 py-0.5 rounded border ${hasAllergies ? 'border-rose-200' : 'border-slate-200'}">
+                                        ${escapeHtml(client.allergies || 'None')}
+                                    </span>
+                                </p>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Primary Target Concerns</label>
+                                <div class="flex flex-wrap gap-1.5">
+                                    ${concernsArr.length > 0 ? concernsArr.map(c => `
+                                        <span class="bg-teal-50 text-teal-800 text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-teal-100 flex items-center gap-1">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span> ${escapeHtml(c)}
+                                        </span>
+                                    `).join('') : '<span class="text-slate-400 italic text-[11px]">No active concerns recorded</span>'}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-3 border-t border-slate-100 grid grid-cols-2 gap-2 mt-4">
+                            <a href="/consultant_dashboard/recommendations.html?client=${encodeURIComponent(email)}" title="Send Routine Recommendation" class="flex items-center justify-center gap-1 bg-teal-600 hover:bg-teal-700 text-white text-[11px] font-bold py-2 px-1 rounded-xl transition">
+                                <i data-lucide="sliders" class="w-3.5 h-3.5"></i> Recommend
+                            </a>
+                            <a href="/consultant_dashboard/appointments.html?client=${encodeURIComponent(email)}" title="Schedule Consultation" class="flex items-center justify-center gap-1 bg-slate-800 hover:bg-slate-900 text-white text-[11px] font-bold py-2 px-1 rounded-xl transition">
+                                <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Consult
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function filterClients() {
+            const query = (document.getElementById('searchInput')?.value || '').toLowerCase();
+            const skinType = (document.getElementById('skinTypeFilter')?.value || '').toLowerCase();
+            const barrierStatus = (document.getElementById('barrierFilter')?.value || '').toLowerCase();
+
+            const filtered = allClients.filter(c => {
+                const name = (c.name || c.full_name || '').toLowerCase();
+                const email = (c.email || c.client_email || '').toLowerCase();
+                const concerns = Array.isArray(c.concerns) ? c.concerns.join(' ').toLowerCase() : String(c.concerns || '').toLowerCase();
+                const metrics = c.assessment_metrics || {};
+
+                const matchesQuery = name.includes(query) || email.includes(query) || concerns.includes(query);
+                const matchesSkinType = !skinType || (c.skin_type || '').toLowerCase() === skinType;
+                
+                let matchesBarrier = true;
+                if (barrierStatus === 'pending') {
+                    matchesBarrier = !c.has_assessment;
+                } else if (barrierStatus) {
+                    matchesBarrier = (metrics.barrier || c.barrier_status || '').toLowerCase() === barrierStatus;
+                }
+
+                return matchesQuery && matchesSkinType && matchesBarrier;
+            });
+
+            renderClients(filtered);
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Email copied to clipboard!');
+            }).catch(err => {
+                console.error('Could not copy text: ', err);
+            });
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/index.html';
+        }
+    </script>
+</body>
+</html>

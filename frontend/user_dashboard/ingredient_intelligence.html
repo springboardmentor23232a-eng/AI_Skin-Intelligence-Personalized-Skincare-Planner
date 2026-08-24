@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ingredient Intelligence & Education - DermaAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex shrink-0">
+        <div>
+            <div class="p-6 flex items-center gap-3 border-b border-slate-100">
+                <div class="bg-teal-600 text-white p-2.5 rounded-2xl"><i data-lucide="sparkles" class="w-5 h-5"></i></div>
+                <div><h1 class="font-bold text-slate-900 leading-tight">DermaAI</h1><p class="text-xs text-slate-400">User Dashboard</p></div>
+            </div>
+            <nav class="p-4 space-y-1 text-sm font-medium">
+                <a href="/user_dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard</a>
+                <a href="/user_dashboard/skin_assessment.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="scan-face" class="w-4 h-4"></i> Skin Assessment</a>
+                <a href="/user_dashboard/routine_planner.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="calendar" class="w-4 h-4"></i> Routine Planner</a>
+                <a href="/user_dashboard/product_recommendations.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="sliders" class="w-4 h-4"></i> Product Recommendations</a>
+                <a href="/user_dashboard/ingredient_intelligence.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-teal-700 bg-teal-50 font-bold border-r-4 border-teal-600"><i data-lucide="flask-conical" class="w-4 h-4"></i> Ingredient Intelligence</a>
+                <a href="/user_dashboard/assessment_history.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="history" class="w-4 h-4"></i> Assessment History</a>
+                <a href="/user_dashboard/appointments.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="video" class="w-4 h-4"></i> Appointments</a>
+                <a href="/user_dashboard/progress.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="activity" class="w-4 h-4"></i> Progress</a>
+                <a href="/user_dashboard/risk_analysis.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="shield-alert" class="w-4 h-4"></i> Risk Analysis</a>
+                <a href="/user_dashboard/checklist.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="list-check" class="w-4 h-4"></i> Checklist</a>
+            </nav>
+        </div>
+        <div class="p-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
+            <div class="min-w-0">
+                <p id="sidebar-user-name" class="text-xs font-bold text-slate-800 truncate">Loading...</p>
+                <p class="text-[10px] text-slate-400 font-medium">Role: User</p>
+            </div>
+            <button onclick="logout()" title="Logout" class="text-slate-400 hover:text-rose-600 p-1 cursor-pointer"><i data-lucide="log-out" class="w-4 h-4"></i></button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-y-auto p-8 space-y-8">
+        
+        <!-- Top Active Profile Context Banner -->
+        <div class="p-4 bg-teal-900 text-white rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-teal-800/80 rounded-xl"><i data-lucide="user-check" class="w-5 h-5 text-teal-300"></i></div>
+                <div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-teal-300">Active Skin Assessment Context</span>
+                    <h2 id="active-profile-banner" class="font-bold text-sm">Loading active user profile context...</h2>
+                </div>
+            </div>
+            <button onclick="scrollToBlog()" class="px-3.5 py-2 bg-teal-700 hover:bg-teal-600 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer shrink-0">
+                <i data-lucide="book-open" class="w-4 h-4"></i> Ingredient Guide
+            </button>
+        </div>
+
+        <!-- Section 1: Dynamic Product Intelligence Selector -->
+        <div class="p-6 bg-white border border-slate-200 rounded-2xl shadow-sm space-y-4">
+            <div class="flex items-center justify-between">
+                <h2 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                    <i data-lucide="package-check" class="w-4 h-4 text-teal-600"></i> Select Recommended Product to Inspect
+                </h2>
+                <span class="text-xs text-slate-400">Pulled dynamically from active recommendations</span>
+            </div>
+
+            <div id="dynamic-product-selector" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div class="p-3.5 border border-slate-200 rounded-xl animate-pulse bg-slate-50 h-16"></div>
+                <div class="p-3.5 border border-slate-200 rounded-xl animate-pulse bg-slate-50 h-16"></div>
+                <div class="p-3.5 border border-slate-200 rounded-xl animate-pulse bg-slate-50 h-16"></div>
+            </div>
+        </div>
+
+        <!-- Loader -->
+        <div id="loader" class="hidden py-16 text-center space-y-3">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mx-auto"></div>
+            <p class="text-xs font-semibold text-slate-500">Executing ingredient suitability and safety checks...</p>
+        </div>
+
+        <!-- Section 2: Analysis Results View -->
+        <div id="analysis-results" class="space-y-6 hidden">
+
+            <!-- Suitability Hero Card -->
+            <div id="suitability-card" class="p-6 border rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
+                <div class="space-y-1">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Ingredient Suitability Assessment</span>
+                    <h2 id="verdict-title" class="text-xl font-bold text-slate-900">--</h2>
+                    <p id="verdict-summary" class="text-xs text-slate-600 leading-relaxed max-w-2xl"></p>
+                </div>
+                <div class="text-right shrink-0">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Compatibility Score</span>
+                    <p id="verdict-score" class="text-4xl font-extrabold text-slate-900">--</p>
+                </div>
+            </div>
+
+            <!-- Formulation Analysis Summary Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                <div class="p-4 bg-white border border-slate-200 rounded-2xl space-y-1">
+                    <span class="text-slate-400 font-semibold text-[10px] uppercase">Barrier Compatibility</span>
+                    <p id="formulation-barrier" class="font-bold text-slate-800">--</p>
+                </div>
+                <div class="p-4 bg-white border border-slate-200 rounded-2xl space-y-1">
+                    <span class="text-slate-400 font-semibold text-[10px] uppercase">Est. Concentration</span>
+                    <p id="formulation-concentration" class="font-bold text-slate-800">--</p>
+                </div>
+                <div class="p-4 bg-white border border-slate-200 rounded-2xl space-y-1">
+                    <span class="text-slate-400 font-semibold text-[10px] uppercase">pH / Stability Profile</span>
+                    <p id="formulation-ph" class="font-bold text-slate-800">--</p>
+                </div>
+            </div>
+
+            <!-- Allergy Alerts -->
+            <div id="allergy-container" class="space-y-2"></div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Interaction Analysis -->
+                <div class="p-6 bg-white border border-slate-200 rounded-2xl space-y-4 shadow-sm lg:col-span-1">
+                    <div class="flex items-center gap-2 pb-3 border-b border-slate-100">
+                        <i data-lucide="zap" class="w-4 h-4 text-amber-500"></i>
+                        <h3 class="font-bold text-slate-900 text-sm">Ingredient Interaction Analysis</h3>
+                    </div>
+                    <div id="interactions-list" class="space-y-3"></div>
+                </div>
+
+                <!-- Categorized Actives Grid -->
+                <div class="p-6 bg-white border border-slate-200 rounded-2xl space-y-4 shadow-sm lg:col-span-2">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="layers" class="w-4 h-4 text-teal-600"></i>
+                            <h3 class="font-bold text-slate-900 text-sm">Active Ingredient Categories</h3>
+                        </div>
+                        <span class="text-[10px] text-slate-400 font-semibold">Click active to view educational guide</span>
+                    </div>
+                    <div id="actives-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <hr class="border-slate-200 my-8">
+
+        <!-- Section 3: Ingredient Education Guide Section -->
+        <div id="ingredient-blog-section" class="space-y-6">
+            <div>
+                <div class="flex items-center gap-2 text-teal-700 font-bold text-xs uppercase tracking-wider">
+                    <i data-lucide="book-open" class="w-4 h-4"></i> Educational Knowledge Base
+                </div>
+                <h2 class="text-xl font-bold text-slate-900">Skincare Active Ingredient Guide</h2>
+                <p class="text-xs text-slate-500">Science-backed educational breakdowns for key cosmetic compound categories.</p>
+            </div>
+
+            <!-- Category Filter Tabs -->
+            <div class="flex flex-wrap gap-2 pb-2 border-b border-slate-200" id="blog-tabs">
+                <button onclick="filterBlog('all')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-teal-600 text-white cursor-pointer transition">All Categories</button>
+                <button onclick="filterBlog('retinoids')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer transition">Retinoids</button>
+                <button onclick="filterBlog('niacinamide')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer transition">Niacinamide</button>
+                <button onclick="filterBlog('vitamin-c')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer transition">Vitamin C</button>
+                <button onclick="filterBlog('hyaluronic-acid')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer transition">Hyaluronic Acid</button>
+                <button onclick="filterBlog('salicylic-acid')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer transition">Salicylic Acid</button>
+                <button onclick="filterBlog('ceramides')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer transition">Ceramides</button>
+                <button onclick="filterBlog('peptides')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer transition">Peptides</button>
+                <button onclick="filterBlog('ahas-bhas')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer transition">AHAs/BHAs</button>
+            </div>
+
+            <!-- Educational Knowledge Base Articles -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="blog-articles">
+                <article data-cat="retinoids" class="bg-white border border-slate-200 rounded-2xl p-5 space-y-3 shadow-sm">
+                    <span class="px-2.5 py-1 bg-purple-50 text-purple-700 text-[10px] font-bold rounded-lg border border-purple-100">Retinoids</span>
+                    <h3 class="font-bold text-slate-900 text-sm">Understanding Retinoids: Cell Turnover & Anti-Aging</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">Retinoids accelerate cellular turnover, boost collagen production, and unclog pores. Introduce gradually to avoid barrier irritation.</p>
+                </article>
+
+                <article data-cat="niacinamide" class="bg-white border border-slate-200 rounded-2xl p-5 space-y-3 shadow-sm">
+                    <span class="px-2.5 py-1 bg-blue-50 text-blue-700 text-[10px] font-bold rounded-lg border border-blue-100">Niacinamide</span>
+                    <h3 class="font-bold text-slate-900 text-sm">Niacinamide (Vitamin B3): Sebum Regulation & Barrier Support</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">A versatile active that reduces sebum production, minimizes pore appearance, and strengthens skin barrier lipids.</p>
+                </article>
+
+                <article data-cat="vitamin-c" class="bg-white border border-slate-200 rounded-2xl p-5 space-y-3 shadow-sm">
+                    <span class="px-2.5 py-1 bg-amber-50 text-amber-700 text-[10px] font-bold rounded-lg border border-amber-100">Vitamin C</span>
+                    <h3 class="font-bold text-slate-900 text-sm">Vitamin C (L-Ascorbic Acid): Antioxidant Defense & Brightening</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">Protects skin against environmental free radicals, fades dark spots, and brightens overall complexion when used in the AM.</p>
+                </article>
+
+                <article data-cat="hyaluronic-acid" class="bg-white border border-slate-200 rounded-2xl p-5 space-y-3 shadow-sm">
+                    <span class="px-2.5 py-1 bg-sky-50 text-sky-700 text-[10px] font-bold rounded-lg border border-sky-100">Hyaluronic Acid</span>
+                    <h3 class="font-bold text-slate-900 text-sm">Hyaluronic Acid: Multi-Depth Hydration</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">A powerful humectant that draws moisture from the atmosphere into the epidermis, plumping fine lines instantly.</p>
+                </article>
+
+                <article data-cat="salicylic-acid" class="bg-white border border-slate-200 rounded-2xl p-5 space-y-3 shadow-sm">
+                    <span class="px-2.5 py-1 bg-rose-50 text-rose-700 text-[10px] font-bold rounded-lg border border-rose-100">Salicylic Acid</span>
+                    <h3 class="font-bold text-slate-900 text-sm">Salicylic Acid (BHA): Deep Pore Exfoliation</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">Oil-soluble beta hydroxy acid that penetrates deep into hair follicles to dissolve trapped sebum and clear acne breakouts.</p>
+                </article>
+
+                <article data-cat="ceramides" class="bg-white border border-slate-200 rounded-2xl p-5 space-y-3 shadow-sm">
+                    <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded-lg border border-emerald-100">Ceramides</span>
+                    <h3 class="font-bold text-slate-900 text-sm">Ceramides: The Skin Barrier Building Blocks</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">Essential lipids that make up over 50% of skin composition. Restores barrier damage and prevents transepidermal water loss.</p>
+                </article>
+
+                <article data-cat="peptides" class="bg-white border border-slate-200 rounded-2xl p-5 space-y-3 shadow-sm">
+                    <span class="px-2.5 py-1 bg-indigo-50 text-indigo-700 text-[10px] font-bold rounded-lg border border-indigo-100">Peptides</span>
+                    <h3 class="font-bold text-slate-900 text-sm">Peptides: Structural Signaling Chains</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">Amino acid chains that signal skin cells to produce collagen and elastin, improving skin firmness without irritation.</p>
+                </article>
+
+                <article data-cat="ahas-bhas" class="bg-white border border-slate-200 rounded-2xl p-5 space-y-3 shadow-sm">
+                    <span class="px-2.5 py-1 bg-orange-50 text-orange-700 text-[10px] font-bold rounded-lg border border-orange-100">AHAs/BHAs</span>
+                    <h3 class="font-bold text-slate-900 text-sm">AHAs vs BHAs: Chemical Exfoliation Comparison</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">Alpha hydroxy acids (Glycolic/Lactic) exfoliate the surface for texture improvement; BHAs target interior pore congestion.</p>
+                </article>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        let userProfile = {
+            identity: "User",
+            email: "",
+            skinType: "Sensitive",
+            allergies: [],
+            sensitivities: []
+        };
+
+        let activeProduct = { name: "", ingredients: "" };
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            lucide.createIcons();
+            const token = localStorage.getItem('auth_token');
+            if (!token) {
+                logout();
+                return;
+            }
+
+            userProfile.identity = localStorage.getItem('user_identity') || localStorage.getItem('user_email') || 'User';
+            userProfile.email = localStorage.getItem('user_email') || '';
+            userProfile.skinType = localStorage.getItem('user_skin_type') || 'Sensitive';
+            
+            try {
+                userProfile.allergies = JSON.parse(localStorage.getItem('user_allergies') || '[]');
+                userProfile.sensitivities = JSON.parse(localStorage.getItem('user_sensitivities') || '[]');
+            } catch (e) {
+                userProfile.allergies = [];
+                userProfile.sensitivities = [];
+            }
+
+            document.getElementById('sidebar-user-name').innerText = escapeHtml(userProfile.identity);
+            document.getElementById('active-profile-banner').innerText = 
+                `${escapeHtml(userProfile.identity)}'s Profile: ${escapeHtml(userProfile.skinType)} Skin | Declared Allergies: ${userProfile.allergies.length ? userProfile.allergies.join(', ') : 'None'}`;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const paramProduct = urlParams.get('product');
+            const paramActive = urlParams.get('active');
+            const paramCategory = urlParams.get('category');
+
+            if (paramCategory) {
+                scrollToBlogCategory(paramCategory);
+            }
+
+            await loadUserRecommendations(paramProduct, paramActive);
+        });
+
+        function getAuthHeaders() {
+            const token = localStorage.getItem('auth_token') || '';
+            return {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            };
+        }
+
+        async function loadUserRecommendations(selectedProductName, selectedActive) {
+            const selectorCont = document.getElementById('dynamic-product-selector');
+
+            try {
+                const res = await fetch(`/routine/generate?user_email=${encodeURIComponent(userProfile.email)}`, {
+                    method: 'POST',
+                    headers: getAuthHeaders()
+                });
+
+                if (res.status === 401) {
+                    logout();
+                    return;
+                }
+
+                if (!res.ok) throw new Error("Failed to load user recommendations");
+
+                const json = await res.json();
+                const payload = json.data || json.routine || json;
+                const morning = payload.morning_routine || payload.MORNING_ROUTINE || [];
+                const evening = payload.evening_routine || payload.EVENING_ROUTINE || [];
+
+                const productMap = new Map();
+                [...morning, ...evening].forEach(item => {
+                    const prodName = item?.product || item?.PRODUCT || item?.product_name || item?.PRODUCT_NAME;
+                    if (item && prodName && !productMap.has(prodName)) {
+                        productMap.set(prodName, item);
+                    }
+                });
+
+                const products = Array.from(productMap.values());
+
+                if (products.length === 0) {
+                    selectorCont.innerHTML = '<p class="text-xs text-slate-400 col-span-3">No active product recommendations found in database. Complete a skin assessment first.</p>';
+                    return;
+                }
+
+                selectorCont.innerHTML = products.map((prod, idx) => {
+                    const prodName = prod.product || prod.PRODUCT || prod.product_name || prod.PRODUCT_NAME || "Recommended Product";
+                    const activeIng = prod.active_ingredient || prod.ACTIVE_INGREDIENT || prod.active || "Active Formula";
+
+                    const isSelected = selectedProductName ? prodName === selectedProductName : idx === 0;
+                    if (isSelected) {
+                        activeProduct = {
+                            name: prodName,
+                            ingredients: activeIng
+                        };
+                    }
+
+                    return `
+                        <button onclick="switchProduct('${escapeHtml(prodName)}', '${escapeHtml(activeIng)}', this)" 
+                                class="p-3.5 border rounded-xl text-left transition cursor-pointer prod-btn ${isSelected ? 'border-teal-600 bg-teal-50/30 font-bold' : 'border-slate-200 hover:border-teal-500'}">
+                            <span class="text-[10px] font-bold text-teal-700 uppercase">Recommendation #${idx + 1}</span>
+                            <h3 class="font-bold text-slate-900 text-xs truncate">${escapeHtml(prodName)}</h3>
+                            <p class="text-[10px] text-slate-400 font-medium">Active: ${escapeHtml(activeIng)}</p>
+                        </button>
+                    `;
+                }).join('');
+
+                if (selectedProductName && selectedActive) {
+                    activeProduct = { name: selectedProductName, ingredients: selectedActive };
+                }
+
+                await executeAnalysis();
+
+            } catch (err) {
+                console.error("Load recommendations error:", err);
+                selectorCont.innerHTML = '<p class="text-xs text-rose-500 col-span-3">Error retrieving personalized product list from backend server.</p>';
+            }
+        }
+
+        async function switchProduct(name, ingredients, btnEl) {
+            document.querySelectorAll('.prod-btn').forEach(b => {
+                b.className = "p-3.5 border border-slate-200 rounded-xl text-left hover:border-teal-500 transition cursor-pointer prod-btn";
+            });
+            btnEl.className = "p-3.5 border border-teal-600 bg-teal-50/30 rounded-xl text-left transition cursor-pointer prod-btn font-bold";
+
+            activeProduct = { name, ingredients: ingredients || "Active Compounds" };
+            await executeAnalysis();
+        }
+
+        async function executeAnalysis() {
+            if (!activeProduct.name) return;
+
+            const loader = document.getElementById('loader');
+            const results = document.getElementById('analysis-results');
+
+            loader.classList.remove('hidden');
+            results.classList.add('hidden');
+
+            const payload = {
+                product_name: activeProduct.name,
+                raw_ingredients: activeProduct.ingredients,
+                user_skin_type: userProfile.skinType,
+                user_allergies: userProfile.allergies,
+                user_sensitivities: userProfile.sensitivities,
+                user_email: userProfile.email 
+            };
+
+            try {
+                const res = await fetch('/api/v1/ingredients/analyze-recommendation', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.status === 401) {
+                    logout();
+                    return;
+                }
+
+                if (!res.ok) throw new Error("Analysis engine request failed");
+
+                const json = await res.json();
+                
+                if (json.context) {
+                    const contextHeader = document.getElementById('active-profile-banner');
+                    if (contextHeader) {
+                        contextHeader.innerText = `${escapeHtml(json.context.patient_name)}'s Profile: ${escapeHtml(json.context.skin_type)} Skin | Declared Allergies: ${escapeHtml(json.context.allergies.join(', '))}`;
+                    }
+                    userProfile.identity = json.context.patient_name;
+                    userProfile.skinType = json.context.skin_type;
+                    userProfile.allergies = json.context.allergies;
+                }
+
+                const analysisData = json.data || json;
+                renderAnalysisUI(analysisData);
+            } catch (e) {
+                console.error("Ingredient intelligence engine error:", e);
+                results.innerHTML = '<div class="p-6 bg-rose-50 border border-rose-200 text-rose-600 rounded-xl text-xs font-semibold">Failed to execute AI analysis for selected product. Ensure backend service is reachable.</div>';
+            } finally {
+                loader.classList.add('hidden');
+                results.classList.remove('hidden');
+            }
+        }
+
+        function renderAnalysisUI(data) {
+            const suitCard = document.getElementById('suitability-card');
+            const suitability = data.suitability_assessment || data.SUITABILITY_ASSESSMENT || {};
+            
+            document.getElementById('verdict-title').innerText = suitability.verdict || suitability.VERDICT || "Assessment Complete";
+            document.getElementById('verdict-summary').innerText = suitability.summary || suitability.SUMMARY || "Analyzed against user skin parameters.";
+            
+            const score = data.suitability_score ?? data.SUITABILITY_SCORE ?? 0;
+            document.getElementById('verdict-score').innerText = `${score}/100`;
+
+            // Formulation Card Metrics
+            const fa = data.formulation_analysis || data.FORMULATION_ANALYSIS || {};
+            document.getElementById('formulation-barrier').innerText = fa.barrier_compatibility || fa.BARRIER_COMPATIBILITY || "Moderate";
+            document.getElementById('formulation-concentration').innerText = fa.estimated_active_concentration || fa.ESTIMATED_ACTIVE_CONCENTRATION || "Balanced";
+            document.getElementById('formulation-ph').innerText = fa.ph_dependency_note || fa.PH_DEPENDENCY_NOTE || "Skin Optimal";
+
+            if (score >= 80) {
+                suitCard.className = "p-6 border border-teal-200 bg-teal-50/40 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm";
+            } else if (score >= 50) {
+                suitCard.className = "p-6 border border-amber-200 bg-amber-50/40 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm";
+            } else {
+                suitCard.className = "p-6 border border-rose-200 bg-rose-50/40 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm";
+            }
+
+            // Render Allergies
+            const allergyCont = document.getElementById('allergy-container');
+            const allergyAlerts = data.allergy_alerts || data.ALLERGY_ALERTS || [];
+            allergyCont.innerHTML = allergyAlerts.length ? allergyAlerts.map(a => {
+                const msg = typeof a === 'string' ? a : (a.message || a.MESSAGE || 'Allergy match detected');
+                return `
+                    <div class="p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs flex items-center gap-3">
+                        <i data-lucide="shield-alert" class="w-5 h-5 text-rose-600 shrink-0"></i>
+                        <div><b>Allergy Alert:</b> ${escapeHtml(msg)}</div>
+                    </div>
+                `;
+            }).join('') : '';
+
+            // Render Interactions
+            const interCont = document.getElementById('interactions-list');
+            const interactions = data.ingredient_interactions || data.INGREDIENT_INTERACTIONS || [];
+            interCont.innerHTML = interactions.length ? interactions.map(i => {
+                const pair = i.pair || i.PAIR || 'Compound Pair';
+                const type = i.type || i.TYPE || 'INFO';
+                const explanation = i.explanation || i.EXPLANATION || '';
+                const guidance = i.guidance || i.GUIDANCE || '';
+                return `
+                    <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs space-y-1.5">
+                        <div class="flex items-center justify-between font-bold text-slate-800">
+                            <span>${escapeHtml(pair)}</span>
+                            <span class="text-[9px] uppercase px-2 py-0.5 rounded font-bold ${type === 'CONFLICT' ? 'bg-rose-100 text-rose-700' : 'bg-teal-100 text-teal-700'}">${escapeHtml(type)}</span>
+                        </div>
+                        <p class="text-slate-600">${escapeHtml(explanation)}</p>
+                        <p class="text-teal-700 font-semibold text-[11px]">Guidance: ${escapeHtml(guidance)}</p>
+                    </div>
+                `;
+            }).join('') : '<p class="text-xs text-slate-400 italic">No adverse active interactions detected.</p>';
+
+            // Render Categorized Actives
+            const activesGrid = document.getElementById('actives-grid');
+            const categorized = data.categorized_ingredients || data.CATEGORIZED_INGREDIENTS || [];
+            activesGrid.innerHTML = categorized.length ? categorized.map(c => {
+                const name = c.ingredient_name || c.INGREDIENT_NAME || 'Ingredient';
+                const category = c.category || c.CATEGORY || 'General Active';
+                const summary = c.education_summary || c.EDUCATION_SUMMARY || '';
+                const catSlug = String(category).toLowerCase().replace(/[^a-z0-9]/g, '-');
+                return `
+                    <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-slate-900 text-xs">${escapeHtml(name)}</span>
+                            <span class="text-[10px] font-bold px-2 py-0.5 bg-teal-100 text-teal-800 rounded-md border border-teal-200">${escapeHtml(category)}</span>
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed">${escapeHtml(summary)}</p>
+                        <button onclick="scrollToBlogCategory('${escapeHtml(catSlug)}')" class="text-[11px] font-bold text-teal-600 hover:underline inline-flex items-center gap-1 cursor-pointer">Read Category Guide →</button>
+                    </div>
+                `;
+            }).join('') : '<p class="text-xs text-slate-400 italic">No key active categories detected in formula.</p>';
+
+            lucide.createIcons();
+        }
+
+        function scrollToBlog() {
+            document.getElementById('ingredient-blog-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function scrollToBlogCategory(slug) {
+            scrollToBlog();
+            filterBlog(slug);
+        }
+
+        function filterBlog(category) {
+            const articles = document.querySelectorAll('#blog-articles article');
+            articles.forEach(art => {
+                if (category === 'all' || art.getAttribute('data-cat') === category) {
+                    art.classList.remove('hidden');
+                } else {
+                    art.classList.add('hidden');
+                }
+            });
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/index.html';
+        }
+    </script>
+</body>
+</html>

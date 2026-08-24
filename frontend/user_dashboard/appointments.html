@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teleconsultations - DermaAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
+
+    <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex shrink-0">
+        <div>
+            <div class="p-6 flex items-center gap-3 border-b border-slate-100">
+                <div class="bg-teal-600 text-white p-2.5 rounded-2xl"><i data-lucide="sparkles" class="w-5 h-5"></i></div>
+                <div><h1 class="font-bold text-slate-900 leading-tight">DermaAI</h1><p class="text-xs text-slate-400">User Dashboard</p></div>
+            </div>
+            <nav class="p-4 space-y-1 text-sm font-medium">
+                <a href="/user_dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard</a>
+                <a href="/user_dashboard/skin_assessment.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="scan-face" class="w-4 h-4"></i> Skin Assessment</a>
+                <a href="/user_dashboard/routine_planner.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="calendar" class="w-4 h-4"></i> Routine Planner</a>
+                <a href="/user_dashboard/product_recommendations.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="sliders" class="w-4 h-4"></i> Product Recommendations</a>
+                <a href="/user_dashboard/ingredient_intelligence.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="flask-conical" class="w-4 h-4"></i> Ingredient Scanner</a>
+                <a href="/user_dashboard/assessment_history.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="history" class="w-4 h-4"></i> Assessment History</a>
+                <a href="/user_dashboard/appointments.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-teal-700 bg-teal-50 font-bold border-r-4 border-teal-600"><i data-lucide="video" class="w-4 h-4"></i> Appointments</a>
+                <a href="/user_dashboard/progress.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="activity" class="w-4 h-4"></i> Progress</a>
+                <a href="/user_dashboard/risk_analysis.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="shield-alert" class="w-4 h-4"></i> Risk Analysis</a>
+                <a href="/user_dashboard/checklist.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="list-check" class="w-4 h-4"></i> Checklist</a>
+            </nav>
+        </div>
+        <div class="p-4 border-t border-slate-100 bg-slate-50/50">
+            <div class="flex items-center justify-between">
+                <div class="min-w-0">
+                    <p id="user-display-name" class="text-xs font-bold text-slate-800 truncate">Loading...</p>
+                    <p id="user-role-badge" class="text-[10px] text-slate-500 font-medium truncate">Role: User</p>
+                </div>
+                <button onclick="logout()" title="Logout" class="text-slate-400 hover:text-rose-600 p-1 rounded-lg transition cursor-pointer">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 overflow-y-auto p-8 space-y-6">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900">Dermatologist & Consultant Appointments</h1>
+            <p class="text-sm text-slate-500">Book virtual video sessions and review clinician consultation summaries.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 h-fit">
+                <h2 class="font-bold text-slate-800 text-base border-b border-slate-100 pb-2">Book Teleconsultation</h2>
+                
+                <div class="space-y-3 text-xs">
+                    <div>
+                        <label class="font-semibold block text-slate-700 mb-1">Select Practitioner / Specialist</label>
+                        <select id="consultant-select" class="w-full p-2.5 border border-slate-200 rounded-xl outline-none focus:border-teal-500 bg-white font-medium text-slate-800">
+                            <option value="">Loading available specialists...</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="font-semibold block text-slate-700 mb-1">Preferred Date & Time</label>
+                        <input type="datetime-local" id="appointment-time" class="w-full p-2.5 border border-slate-200 rounded-xl outline-none focus:border-teal-500 font-medium text-slate-800">
+                    </div>
+
+                    <div>
+                        <label class="font-semibold block text-slate-700 mb-1">Symptoms / Consultation Notes</label>
+                        <textarea id="patient-notes" class="w-full p-2.5 border border-slate-200 rounded-xl outline-none focus:border-teal-500 h-24 resize-none font-medium text-slate-800" placeholder="Describe symptoms, allergies, or skin concerns..."></textarea>
+                    </div>
+
+                    <button onclick="bookAppointment()" id="btn-book" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-xl transition cursor-pointer flex items-center justify-center gap-2 shadow-sm">
+                        <i data-lucide="calendar-plus" class="w-4 h-4"></i> Confirm Appointment
+                    </button>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                    <h2 class="font-bold text-slate-800 text-base">Your Scheduled Consultations</h2>
+                    <button onclick="fetchAppointments()" class="text-xs text-teal-600 font-semibold hover:text-teal-800 transition flex items-center gap-1 cursor-pointer bg-teal-50 px-3 py-1.5 rounded-lg border border-teal-100">
+                        <i data-lucide="refresh-cw" class="w-3 h-3"></i> Sync
+                    </button>
+                </div>
+                <div id="appointments-container" class="space-y-3 text-xs">
+                    <div class="text-center py-8">
+                        <i data-lucide="loader" class="w-6 h-6 animate-spin text-teal-600 mx-auto mb-2"></i>
+                        <p class="text-slate-400 italic">Fetching your appointments from database...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_BASE = window.location.origin;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+            if (!checkAuthState()) return;
+
+            setMinAppointmentDate();
+            loadPractitioners();
+            fetchAppointments();
+        });
+
+        function getAuthHeaders() {
+            const token = localStorage.getItem('auth_token') || localStorage.getItem('token') || '';
+            return {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache, no-store, must-revalidate'
+            };
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            const bgClass = type === 'error' ? 'bg-rose-600' : type === 'success' ? 'bg-emerald-600' : 'bg-slate-800';
+            
+            toast.className = `${bgClass} text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-lg transition-all duration-300 pointer-events-auto flex items-center gap-2`;
+            toast.innerHTML = `<span>${escapeHtml(message)}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-[-10px]');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        function checkAuthState() {
+            const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
+            if (!token) {
+                logout();
+                return false;
+            }
+
+            const identity = localStorage.getItem('user_identity') || localStorage.getItem('name') || localStorage.getItem('email') || 'Patient';
+            const role = (localStorage.getItem('user_role') || localStorage.getItem('role') || 'User').toUpperCase().replace('ROLE_', '');
+            
+            const nameEl = document.getElementById('user-display-name');
+            const roleEl = document.getElementById('user-role-badge');
+            
+            if (nameEl) nameEl.innerText = escapeHtml(identity);
+            if (roleEl) roleEl.innerText = `Role: ${escapeHtml(role)}`;
+            
+            return true;
+        }
+
+        function setMinAppointmentDate() {
+            const dateInput = document.getElementById('appointment-time');
+            if (!dateInput) return;
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            dateInput.min = now.toISOString().slice(0, 16);
+        }
+
+        async function loadPractitioners() {
+            const select = document.getElementById('consultant-select');
+            try {
+                const cacheBuster = `?_t=${Date.now()}`;
+                const res = await fetch(`${API_BASE}/api/appointments/consultants${cacheBuster}`, { 
+                    headers: getAuthHeaders(),
+                    cache: 'no-store'
+                });
+                
+                if (res.status === 401) { logout(); return; }
+
+                if (res.ok) {
+                    const json = await res.json();
+                    const list = Array.isArray(json) ? json : (json.data || []);
+
+                    if (list.length === 0) {
+                        select.innerHTML = '<option value="">No specialists registered</option>';
+                        return;
+                    }
+
+                    // Dynamically map exact specialist names and their precise DB specialty designation
+                    select.innerHTML = '<option value="" disabled selected>-- Select Practitioner --</option>' + 
+                        list.map(c => {
+                            const id = c.consultant_id !== undefined ? c.consultant_id : c.id;
+                            const name = escapeHtml(c.name || 'Specialist');
+                            const spec = escapeHtml(c.specialty || 'Medical Specialist');
+                            const rate = c.hourly_rate ? ` — $${c.hourly_rate}/hr` : '';
+                            return `<option value="${id}">${name} — ${spec}${rate}</option>`;
+                        }).join('');
+                } else {
+                    select.innerHTML = '<option value="">Unable to fetch specialists from server</option>';
+                }
+            } catch (err) {
+                console.error('Error fetching specialists:', err);
+                select.innerHTML = '<option value="">Error connecting to practitioner database</option>';
+            }
+        }
+
+        async function bookAppointment() {
+            const email = localStorage.getItem('user_email') || localStorage.getItem('email') || '';
+            const consultantId = document.getElementById('consultant-select').value;
+            const apptTime = document.getElementById('appointment-time').value;
+            const notes = document.getElementById('patient-notes').value;
+            const btn = document.getElementById('btn-book');
+
+            if (!consultantId || consultantId === 'undefined' || isNaN(parseInt(consultantId))) {
+                showToast('Please select a valid practitioner from the list.', 'error');
+                return;
+            }
+
+            if (!apptTime) {
+                showToast('Please select a preferred date and time.', 'error');
+                return;
+            }
+
+            const parsedDate = new Date(apptTime);
+            if (isNaN(parsedDate.getTime())) {
+                showToast('Please select a valid date and time.', 'error');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Booking Session...';
+            if (window.lucide) lucide.createIcons();
+
+            try {
+                const res = await fetch(`${API_BASE}/api/appointments/book`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({
+                        consultant_id: parseInt(consultantId, 10),
+                        patient_email: email,
+                        appointment_date: parsedDate.toISOString(),
+                        patient_notes: notes
+                    })
+                });
+
+                if (res.status === 401) { logout(); return; }
+
+                if (res.ok) {
+                    showToast('Appointment successfully scheduled!', 'success');
+                    document.getElementById('patient-notes').value = '';
+                    document.getElementById('appointment-time').value = '';
+                    document.getElementById('consultant-select').selectedIndex = 0;
+                    await fetchAppointments();
+                } else {
+                    const err = await res.json().catch(() => ({}));
+                    showToast('Booking failed: ' + (err.detail || err.message || 'Server error'), 'error');
+                }
+            } catch (err) {
+                console.error('Booking error:', err);
+                showToast('Database connection error.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i data-lucide="calendar-plus" class="w-4 h-4"></i> Confirm Appointment';
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+
+        async function cancelAppointment(apptId) {
+            if (!confirm("Are you sure you want to cancel this consultation request?")) return;
+
+            try {
+                let res = await fetch(`${API_BASE}/api/appointments/status`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({
+                        appointment_id: parseInt(apptId, 10),
+                        id: parseInt(apptId, 10),
+                        status: 'Cancelled'
+                    })
+                });
+
+                if (res.ok) {
+                    showToast('Appointment cancelled successfully.', 'success');
+                    fetchAppointments();
+                } else {
+                    showToast('Failed to cancel the appointment.', 'error');
+                }
+            } catch (err) {
+                console.error("Cancellation error:", err);
+                showToast('Error connecting to database.', 'error');
+            }
+        }
+
+        async function fetchAppointments() {
+            const email = localStorage.getItem('user_email') || localStorage.getItem('email') || '';
+            const container = document.getElementById('appointments-container');
+
+            try {
+                const cacheBuster = `&_t=${Date.now()}`;
+                const res = await fetch(`${API_BASE}/api/appointments/my-appointments?user_email=${encodeURIComponent(email)}${cacheBuster}`, {
+                    headers: getAuthHeaders(),
+                    cache: 'no-store'
+                });
+
+                if (res.status === 401) { logout(); return; }
+
+                if (res.ok) {
+                    const json = await res.json();
+                    const list = Array.isArray(json) ? json : (json.data || []);
+
+                    if (!list || list.length === 0) {
+                        container.innerHTML = `
+                            <div class="text-center py-10 bg-slate-50 border border-slate-100 rounded-xl">
+                                <i data-lucide="calendar-x" class="w-8 h-8 text-slate-300 mx-auto mb-2"></i>
+                                <p class="text-slate-500 font-medium">No scheduled consultations found.</p>
+                                <p class="text-slate-400 text-[10px] mt-1">Book an appointment using the form on the left.</p>
+                            </div>
+                        `;
+                        if (window.lucide) lucide.createIcons();
+                        return;
+                    }
+
+                    // Dynamically map exact consultant name and their designation as returned by API
+                    container.innerHTML = list.map(a => {
+                        const apptId = a.id || a.ID;
+                        const name = escapeHtml(a.consultant_name || a.CONSULTANT_NAME || 'Specialist');
+                        const spec = escapeHtml(a.specialty || a.SPECIALTY || 'Clinical Specialist');
+                        const rawMeetLink = a.meeting_link || a.MEETING_LINK || '';
+                        const rawStatus = (a.status || a.STATUS || 'Pending').trim();
+                        const statusUpper = rawStatus.toUpperCase();
+                        const patientNotes = a.patient_notes || a.PATIENT_NOTES || '';
+                        const docSummary = a.clinical_summary || a.CLINICAL_SUMMARY || '';
+
+                        const rawDate = a.appointment_date || a.APPOINTMENT_DATE;
+                        const apptDate = new Date(rawDate);
+                        const formattedDate = !isNaN(apptDate.getTime()) ? apptDate.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : 'Date Pending';
+
+                        let statusBadge = 'bg-amber-100 text-amber-800 border-amber-200';
+                        let actionHtml = '';
+
+                        if (statusUpper === 'APPROVED' || statusUpper === 'CONFIRMED') {
+                            statusBadge = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+                            actionHtml = `
+                                <div class="flex flex-col sm:items-end gap-2">
+                                    ${rawMeetLink ? `
+                                    <a href="${escapeHtml(rawMeetLink)}" target="_blank" rel="noopener noreferrer" class="bg-teal-600 hover:bg-teal-700 text-white font-bold px-4 py-2.5 rounded-xl flex items-center justify-center gap-1.5 transition text-xs shadow-sm w-full sm:w-auto">
+                                        <i data-lucide="video" class="w-4 h-4"></i> Join Video Call
+                                    </a>` : `<span class="text-[10px] text-slate-500 italic">No link available</span>`}
+                                    <button onclick="cancelAppointment('${apptId}')" class="text-rose-500 hover:text-rose-700 font-semibold text-[11px] underline">Cancel Appointment</button>
+                                </div>
+                            `;
+                        } else if (statusUpper === 'PENDING' || statusUpper.includes('AWAITING')) {
+                            statusBadge = 'bg-amber-100 text-amber-800 border-amber-200';
+                            actionHtml = `
+                                <div class="flex flex-col sm:items-end gap-2">
+                                    <span class="bg-amber-50 text-amber-700 font-semibold px-3 py-1.5 rounded-xl text-[10px] border border-amber-200 flex items-center gap-1">
+                                        <i data-lucide="clock" class="w-3 h-3"></i> Awaiting Approval
+                                    </span>
+                                    <button onclick="cancelAppointment('${apptId}')" class="text-rose-500 hover:text-rose-700 font-semibold text-[11px] underline">Cancel Request</button>
+                                </div>
+                            `;
+                        } else if (statusUpper === 'COMPLETED') {
+                            statusBadge = 'bg-slate-100 text-slate-800 border-slate-200';
+                        } else {
+                            statusBadge = 'bg-rose-100 text-rose-800 border-rose-200';
+                        }
+
+                        return `
+                            <div class="p-5 bg-white border border-slate-200 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:shadow-md transition">
+                                <div class="space-y-2 min-w-0 w-full sm:w-2/3">
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-bold border px-2 py-0.5 rounded text-[10px] ${statusBadge}">${escapeHtml(rawStatus)}</span>
+                                        <h3 class="font-bold text-slate-800 text-sm truncate">${name}</h3>
+                                    </div>
+                                    
+                                    <div class="flex flex-col gap-1 mt-1">
+                                        <p class="text-slate-600 font-semibold text-xs flex items-center gap-1.5">
+                                            <i data-lucide="calendar" class="w-3.5 h-3.5 text-teal-600"></i> ${formattedDate}
+                                        </p>
+                                        <p class="text-slate-400 font-medium text-[11px] flex items-center gap-1.5">
+                                            <i data-lucide="stethoscope" class="w-3.5 h-3.5"></i> ${spec}
+                                        </p>
+                                    </div>
+
+                                    ${patientNotes ? `<p class="text-slate-500 text-xs italic mt-2 bg-slate-50 p-2 rounded-lg border border-slate-100">" ${escapeHtml(patientNotes)} "</p>` : ''}
+                                    ${docSummary ? `<div class="text-teal-800 bg-teal-50 p-3 rounded-lg border border-teal-100 mt-2 text-xs leading-relaxed"><strong class="flex items-center gap-1"><i data-lucide="file-check" class="w-3.5 h-3.5"></i> Clinician Summary:</strong> ${escapeHtml(docSummary)}</div>` : ''}
+                                </div>
+                                ${actionHtml}
+                            </div>
+                        `;
+                    }).join('');
+
+                    if (window.lucide) lucide.createIcons();
+                }
+            } catch (err) {
+                console.error('Fetch error:', err);
+                container.innerHTML = '<p class="text-xs text-rose-500 bg-rose-50 p-4 rounded-xl border border-rose-100">Failed to load appointment data.</p>';
+            }
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/index.html';
+        }
+    </script>
+</body>
+</html>

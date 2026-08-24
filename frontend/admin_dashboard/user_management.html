@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between hidden md:flex shrink-0">
+        <div>
+            <div class="p-6 flex items-center gap-3 border-b border-slate-800">
+                <div class="bg-teal-500 text-slate-950 p-2.5 rounded-2xl font-bold">
+                    <i data-lucide="shield-check" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-white leading-tight">DermaAI</h1>
+                    <p class="text-[10px] font-bold text-teal-400 uppercase">Admin Portal</p>
+                </div>
+            </div>
+            <nav class="p-4 space-y-1 text-sm font-medium">
+                <a href="/admin.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/40 transition">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Overview
+                </a>
+                <a href="/admin_dashboard/account_approvals.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/40 transition">
+                    <i data-lucide="user-check" class="w-4 h-4"></i> Account Approvals
+                </a>
+                <a href="/admin_dashboard/user_management.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-teal-400 bg-slate-800/60 font-bold border-r-4 border-teal-500">
+                    <i data-lucide="users" class="w-4 h-4"></i> User Management
+                </a>
+                <a href="/admin_dashboard/system_reports.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/40 transition">
+                    <i data-lucide="activity" class="w-4 h-4"></i> System Reports
+                </a>
+                <a href="/admin_dashboard/platform_settings.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/40 transition">
+                    <i data-lucide="settings" class="w-4 h-4"></i> Platform Settings
+                </a>
+                <a href="/admin_dashboard/recommendation_monitoring.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/40 transition">
+                    <i data-lucide="sliders" class="w-4 h-4"></i> Recommendation Monitoring
+                </a>
+            </nav>
+        </div>
+        <div class="p-4 border-t border-slate-800 bg-slate-950/50">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="min-w-0">
+                        <p id="admin-display-name" class="text-xs font-bold text-white truncate">Administrator</p>
+                        <p class="text-[10px] text-teal-400 font-medium truncate">Role: Admin</p>
+                    </div>
+                </div>
+                <button onclick="logout()" title="Logout" class="text-slate-400 hover:text-rose-500 p-1 rounded-lg transition cursor-pointer">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-8 space-y-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900">User Management Directory</h1>
+                <p class="text-xs text-slate-500">Search, manage status, and oversee account permission tiers from database</p>
+            </div>
+            <button onclick="fetchUsers()" class="bg-teal-600 hover:bg-teal-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-2 cursor-pointer shadow-sm">
+                <i data-lucide="refresh-cw" class="w-4 h-4"></i> Refresh Directory
+            </button>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <div class="relative">
+                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+                <input type="text" id="user-search" oninput="filterUsers()" placeholder="Search user by name, email, or role..." class="w-full pl-9 pr-4 py-2.5 border rounded-xl text-xs bg-slate-50 focus:bg-white focus:ring-2 focus:ring-teal-500 outline-none transition">
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-slate-50 text-slate-600 uppercase font-bold border-b">
+                        <tr>
+                            <th class="p-3">Name</th>
+                            <th class="p-3">Email</th>
+                            <th class="p-3">Role</th>
+                            <th class="p-3">Status</th>
+                            <th class="p-3 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-management-table" class="divide-y divide-slate-100">
+                        <tr>
+                            <td colspan="5" class="p-8 text-center text-slate-400 italic">
+                                <i data-lucide="loader" class="w-5 h-5 animate-spin mx-auto mb-2 text-teal-600"></i>
+                                Querying user records from database...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let allUsers = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+            checkAuthState();
+            fetchUsers();
+        });
+
+        function getToken() {
+            return localStorage.getItem('auth_token') || localStorage.getItem('token') || '';
+        }
+
+        function getAuthHeaders() {
+            return {
+                'Authorization': `Bearer ${getToken()}`,
+                'Content-Type': 'application/json'
+            };
+        }
+
+        function checkAuthState() {
+            const token = getToken();
+            const identity = localStorage.getItem('user_identity') || localStorage.getItem('name') || localStorage.getItem('email');
+            const role = (localStorage.getItem('user_role') || localStorage.getItem('role') || '').toLowerCase();
+
+            if (!token || !role.includes('admin')) {
+                window.location.href = '/index.html';
+                return;
+            }
+
+            const displayNameElem = document.getElementById('admin-display-name');
+            if (displayNameElem) displayNameElem.innerText = identity || 'Administrator';
+        }
+
+        async function fetchUsers() {
+            const table = document.getElementById('user-management-table');
+            
+            try {
+                const cacheBuster = `?_t=${Date.now()}`;
+                const res = await fetch(`/api/admin/users${cacheBuster}`, { headers: getAuthHeaders() });
+                
+                if (!res.ok) {
+                    if (res.status === 401 || res.status === 403) {
+                        logout();
+                        return;
+                    }
+                    throw new Error(`Database error (HTTP ${res.status})`);
+                }
+
+                const data = await res.json();
+                allUsers = Array.isArray(data) ? data : (data.users || data.data || []);
+                renderUsers(allUsers);
+            } catch (err) {
+                console.error("Failed to fetch user directory:", err);
+                table.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-rose-500 font-semibold">${escapeHtml(err.message || 'Failed to load user directory from database.')}</td></tr>`;
+            }
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function renderUsers(list) {
+            const table = document.getElementById('user-management-table');
+            if (!list || list.length === 0) {
+                table.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 italic">No matching user records found in database.</td></tr>`;
+                return;
+            }
+
+            table.innerHTML = list.map(u => {
+                const email = u.email || 'N/A';
+                const displayName = u.fullname || u.full_name || u.name || (email.includes('@') ? email.split('@')[0] : 'User');
+                const roleDisplay = u.role || 'user';
+                const userStatus = (u.status || 'pending').toLowerCase();
+
+                let badgeClass = 'bg-amber-100 text-amber-800';
+                if (userStatus === 'approved' || userStatus === 'active') {
+                    badgeClass = 'bg-emerald-100 text-emerald-800';
+                } else if (userStatus === 'rejected' || userStatus === 'suspended' || userStatus === 'revoked') {
+                    badgeClass = 'bg-rose-100 text-rose-800';
+                }
+
+                const isApproved = userStatus === 'approved' || userStatus === 'active';
+                const targetAction = isApproved ? 'rejected' : 'approved';
+                const actionLabel = isApproved ? 'Revoke' : 'Approve';
+                const actionBtnClass = isApproved 
+                    ? 'bg-rose-50 hover:bg-rose-100 text-rose-600' 
+                    : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-600';
+
+                return `
+                    <tr class="hover:bg-slate-50/80 transition">
+                        <td class="p-3 font-semibold text-slate-800">${escapeHtml(displayName)}</td>
+                        <td class="p-3 text-slate-600">${escapeHtml(email)}</td>
+                        <td class="p-3 uppercase font-bold text-[10px] text-slate-500">${escapeHtml(roleDisplay)}</td>
+                        <td class="p-3">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${badgeClass}">${escapeHtml(userStatus.toUpperCase())}</span>
+                        </td>
+                        <td class="p-3 text-right">
+                            <button onclick="updateUserStatus('${escapeHtml(email)}', '${targetAction}', this)" class="${actionBtnClass} font-bold px-2.5 py-1 rounded-lg text-[10px] transition cursor-pointer shadow-xs">
+                                ${actionLabel}
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function filterUsers() {
+            const q = document.getElementById('user-search').value.toLowerCase().trim();
+            if (!q) {
+                renderUsers(allUsers);
+                return;
+            }
+
+            const filtered = allUsers.filter(u => {
+                const email = (u.email || '').toLowerCase();
+                const name = (u.fullname || u.full_name || u.name || '').toLowerCase();
+                const role = (u.role || '').toLowerCase();
+                return email.includes(q) || name.includes(q) || role.includes(q);
+            });
+
+            renderUsers(filtered);
+        }
+
+        async function updateUserStatus(email, action, btnElement) {
+            if (!confirm(`Are you sure you want to change account status for ${email} to ${action.toUpperCase()}?`)) {
+                return;
+            }
+
+            if (btnElement) {
+                btnElement.disabled = true;
+                btnElement.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+
+            try {
+                const response = await fetch('/api/admin/update-status', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ email, action })
+                });
+
+                if (response.ok) {
+                    fetchUsers();
+                } else {
+                    const result = await response.json();
+                    alert(result.detail || result.message || 'Failed to update user status in database.');
+                    if (btnElement) {
+                        btnElement.disabled = false;
+                        btnElement.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }
+                }
+            } catch (err) {
+                console.error("User status update error:", err);
+                alert('Could not connect to the database server.');
+                if (btnElement) {
+                    btnElement.disabled = false;
+                    btnElement.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            }
+        }
+
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/index.html';
+        }
+    </script>
+</body>
+</html>

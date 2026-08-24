@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Recommendations - DermaAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex shrink-0">
+        <div>
+            <div class="p-6 flex items-center gap-3 border-b border-slate-100">
+                <div class="bg-teal-600 text-white p-2.5 rounded-2xl"><i data-lucide="sparkles" class="w-5 h-5"></i></div>
+                <div><h1 class="font-bold text-slate-900 leading-tight">DermaAI</h1><p class="text-xs text-slate-400">User Dashboard</p></div>
+            </div>
+            <nav class="p-4 space-y-1 text-sm font-medium">
+                <a href="/user_dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard</a>
+                <a href="/user_dashboard/skin_assessment.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="scan-face" class="w-4 h-4"></i> Skin Assessment</a>
+                <a href="/user_dashboard/routine_planner.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="calendar" class="w-4 h-4"></i> Routine Planner</a>
+                <a href="/user_dashboard/product_recommendations.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-teal-700 bg-teal-50 font-bold border-r-4 border-teal-600"><i data-lucide="sliders" class="w-4 h-4"></i> Product Recommendations</a>
+                <a href="/user_dashboard/ingredient_intelligence.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="flask-conical" class="w-4 h-4"></i> Ingredient Intelligence</a>
+                <a href="/user_dashboard/assessment_history.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="history" class="w-4 h-4"></i> Assessment History</a>
+                <a href="/user_dashboard/appointments.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="video" class="w-4 h-4"></i> Appointments</a>
+                <a href="/user_dashboard/progress.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="activity" class="w-4 h-4"></i> Progress</a>
+                <a href="/user_dashboard/risk_analysis.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="shield-alert" class="w-4 h-4"></i> Risk Analysis</a>
+                <a href="/user_dashboard/checklist.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="list-check" class="w-4 h-4"></i> Checklist</a>
+            </nav>
+        </div>
+        <div class="p-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
+            <div class="min-w-0">
+                <p id="user-display-name" class="text-xs font-bold text-slate-800 truncate">Loading...</p>
+                <p class="text-[10px] text-slate-400 font-medium">Role: User</p>
+            </div>
+            <button onclick="logout()" title="Logout" class="text-slate-400 hover:text-rose-600 p-1 cursor-pointer"><i data-lucide="log-out" class="w-4 h-4"></i></button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-8 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900">Recommended Products & Active Treatments</h1>
+                <p class="text-sm text-slate-500">Matched dynamically to your active skincare routine steps and AI diagnosis.</p>
+            </div>
+            <a href="/user_dashboard/ingredient_intelligence.html" class="px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-2 self-start sm:self-auto shadow-sm">
+                <i data-lucide="flask-conical" class="w-4 h-4"></i> Open Ingredient Intelligence Module
+            </a>
+        </div>
+
+        <!-- Banner for Ingredient Safety Guidance -->
+        <div class="p-4 bg-teal-50 border border-teal-200 rounded-2xl flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-teal-600 text-white rounded-xl shrink-0"><i data-lucide="shield-check" class="w-5 h-5"></i></div>
+                <p class="text-xs text-teal-900 leading-snug">
+                    <b>Ingredient Safety Enabled:</b> Click <i>"Inspect Ingredients"</i> on any product card below to verify potential chemical clashes, check allergen flags, or learn about active ingredient categories.
+                </p>
+            </div>
+        </div>
+
+        <div id="recommendations-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            <!-- Loading Skeletons -->
+            <div class="p-5 bg-white border border-slate-200 rounded-2xl animate-pulse space-y-3">
+                <div class="h-4 bg-slate-100 rounded w-1/2"></div>
+                <div class="h-3 bg-slate-100 rounded w-1/3"></div>
+                <div class="h-12 bg-slate-50 rounded-xl"></div>
+            </div>
+            <div class="p-5 bg-white border border-slate-200 rounded-2xl animate-pulse space-y-3">
+                <div class="h-4 bg-slate-100 rounded w-1/2"></div>
+                <div class="h-3 bg-slate-100 rounded w-1/3"></div>
+                <div class="h-12 bg-slate-50 rounded-xl"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            lucide.createIcons();
+            const token = localStorage.getItem('auth_token');
+            if (!token) {
+                logout();
+                return;
+            }
+
+            const userName = localStorage.getItem('user_identity') || localStorage.getItem('user_email') || 'User';
+            document.getElementById('user-display-name').innerText = escapeHtml(userName);
+            await loadRecommendations();
+        });
+
+        function getAuthHeaders() {
+            const token = localStorage.getItem('auth_token') || '';
+            return {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            };
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function slugifyIngredient(str) {
+            if (!str) return 'all';
+            return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        }
+
+        async function loadRecommendations() {
+            const email = localStorage.getItem('user_email') || '';
+            const container = document.getElementById('recommendations-container');
+
+            try {
+                const res = await fetch(`/routine/generate?user_email=${encodeURIComponent(email)}`, {
+                    method: 'POST',
+                    headers: getAuthHeaders()
+                });
+
+                if (res.status === 401) {
+                    logout();
+                    return;
+                }
+
+                if (!res.ok) {
+                    container.innerHTML = '<div class="p-6 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl col-span-2 text-xs font-semibold">Failed to load recommendations. Please complete a skin assessment scan first to generate your active routine.</div>';
+                    return;
+                }
+
+                const json = await res.json();
+                const payload = json.data || json.routine || json;
+                const morning = payload.morning_routine || payload.MORNING_ROUTINE || [];
+                const evening = payload.evening_routine || payload.EVENING_ROUTINE || [];
+
+                const productMap = new Map();
+
+                morning.forEach(s => {
+                    const prodName = s?.product || s?.PRODUCT || s?.product_name || s?.PRODUCT_NAME;
+                    if (s && prodName) {
+                        productMap.set(prodName, { 
+                            ...s, 
+                            productName: prodName,
+                            timing: 'Morning (AM)' 
+                        });
+                    }
+                });
+
+                evening.forEach(s => {
+                    const prodName = s?.product || s?.PRODUCT || s?.product_name || s?.PRODUCT_NAME;
+                    if (s && prodName) {
+                        if (productMap.has(prodName)) {
+                            const existing = productMap.get(prodName);
+                            existing.timing = 'Morning & Evening (AM/PM)';
+                        } else {
+                            productMap.set(prodName, { 
+                                ...s, 
+                                productName: prodName,
+                                timing: 'Evening (PM)' 
+                            });
+                        }
+                    }
+                });
+
+                const allProducts = Array.from(productMap.values());
+
+                if (allProducts.length > 0) {
+                    container.innerHTML = allProducts.map(s => {
+                        const prodName = s.productName || 'Recommended Product';
+                        const activeIng = s.active_ingredient || s.ACTIVE_INGREDIENT || s.active || 'N/A';
+                        const category = s.category || s.CATEGORY || s.step || 'General Care';
+                        const instructions = s.instructions || s.INSTRUCTIONS || s.usage_instructions || 'Apply as directed.';
+                        const activeSlug = slugifyIngredient(activeIng);
+
+                        return `
+                        <div class="p-5 bg-white border border-slate-200 rounded-2xl space-y-4 shadow-sm hover:border-teal-300 transition flex flex-col justify-between">
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-start gap-2">
+                                    <div>
+                                        <h3 class="font-bold text-slate-800 text-sm">${escapeHtml(prodName)}</h3>
+                                        <div class="flex items-center gap-1.5 mt-1">
+                                            <span class="text-slate-500 text-[11px] font-medium">Active:</span>
+                                            <a href="/user_dashboard/ingredient_intelligence.html?category=${activeSlug}" class="text-teal-700 hover:text-teal-900 font-semibold text-[11px] underline flex items-center gap-0.5">
+                                                ${escapeHtml(activeIng)}
+                                                <i data-lucide="book-open" class="w-3 h-3"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <span class="bg-teal-50 text-teal-700 border border-teal-200 font-bold px-2.5 py-1 rounded-lg text-[10px] shrink-0">${escapeHtml(category)}</span>
+                                </div>
+                                <div class="text-slate-600 bg-slate-50 p-2.5 rounded-xl space-y-1">
+                                    <p><strong>Frequency:</strong> <span class="text-slate-800">${escapeHtml(s.timing)}</span></p>
+                                    <p><strong>Usage:</strong> ${escapeHtml(instructions)}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
+                                <span class="text-[10px] text-slate-400 font-medium">AI Safety Checked</span>
+                                <a href="/user_dashboard/ingredient_intelligence.html?product=${encodeURIComponent(prodName)}&active=${encodeURIComponent(activeIng)}" class="px-3 py-1.5 bg-slate-900 hover:bg-teal-700 text-white font-bold text-[11px] rounded-lg transition flex items-center gap-1.5">
+                                    <i data-lucide="flask-conical" class="w-3.5 h-3.5"></i> Inspect Ingredients
+                                </a>
+                            </div>
+                        </div>
+                        `;
+                    }).join('');
+                    lucide.createIcons();
+                } else {
+                    container.innerHTML = '<div class="p-6 bg-slate-100 border border-slate-200 text-slate-600 rounded-xl col-span-2 text-xs font-semibold">No recommended products found for your profile. Please complete a skin assessment scan first.</div>';
+                }
+            } catch (err) {
+                console.error("Error loading dynamic recommendations:", err);
+                container.innerHTML = '<div class="p-6 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl col-span-2 text-xs font-semibold">Unable to establish backend server connection to retrieve recommendations.</div>';
+            }
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/index.html';
+        }
+    </script>
+</body>
+</html>

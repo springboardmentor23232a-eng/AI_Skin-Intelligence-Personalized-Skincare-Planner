@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dermatologist Dashboard - DermaAI</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex shrink-0">
+        <div>
+            <div class="p-6 flex items-center gap-3 border-b border-slate-100">
+                <div class="bg-teal-600 text-white p-2.5 rounded-2xl shadow-sm">
+                    <i data-lucide="sparkles" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-slate-900 leading-tight">DermaAI</h1>
+                    <p class="text-xs text-teal-600 font-semibold">Doctor Portal</p>
+                </div>
+            </div>
+
+            <nav class="p-4 space-y-1 text-sm font-medium">
+                <a href="/dermatologist_dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-teal-700 bg-teal-50 font-bold border-r-4 border-teal-600">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+                </a>
+                <a href="/dermatologist_dashboard/patient_insights.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="users" class="w-4 h-4"></i> Patient Insights
+                </a>
+                <a href="/dermatologist_dashboard/skin_condition_report.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="file-text" class="w-4 h-4"></i> Skin Condition Reports
+                </a>
+                <a href="/dermatologist_dashboard/progress.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="line-chart" class="w-4 h-4"></i> Progress
+                </a>
+                <a href="/dermatologist_dashboard/treatment_recommendations.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="sliders" class="w-4 h-4"></i> Treatment Recommendations
+                </a>
+            </nav>
+        </div>
+
+        <div class="p-4 border-t border-slate-100 bg-slate-50/50">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="min-w-0">
+                        <p id="user-display-name" class="text-xs font-bold text-slate-800 truncate">Loading...</p>
+                        <p class="text-[10px] text-teal-600 font-semibold truncate">Role: Dermatologist</p>
+                    </div>
+                </div>
+                <button onclick="logout()" title="Logout" class="text-slate-400 hover:text-rose-600 p-1 rounded-lg transition cursor-pointer">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-8 space-y-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900">Dermatologist Portal</h1>
+                <p id="welcome-msg" class="text-sm text-slate-500">Overview of clinical analytics, appointment requests, and patient monitoring from live database.</p>
+            </div>
+            <button onclick="fetchDashboardData()" class="bg-teal-50 hover:bg-teal-100 text-teal-700 font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 transition border border-teal-200/60 cursor-pointer">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh Data
+            </button>
+        </div>
+
+        <!-- Appointment Approvals Queue -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+            <div class="flex justify-between items-center">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">1. Appointment Requests & Approvals</span>
+                <span id="appointment-count-tag" class="text-xs text-teal-600 font-bold bg-teal-50 px-2.5 py-1 rounded-full border border-teal-200/60">-- Pending</span>
+            </div>
+            <div id="appointments-approval-container" class="space-y-3 text-xs">
+                <p class="text-slate-400 italic">Fetching consultation requests from database...</p>
+            </div>
+        </div>
+
+        <!-- Patient Insights Card -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+            <div class="flex justify-between items-center">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">2. Patient Insights</span>
+                <a href="/dermatologist_dashboard/patient_insights.html" class="text-xs text-teal-600 font-bold hover:underline">View All Patients →</a>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead>
+                        <tr class="border-b border-slate-100 text-slate-800">
+                            <th class="pb-3 font-bold">Name</th>
+                            <th class="pb-3 font-bold">Skin Type</th>
+                            <th class="pb-3 font-bold">Risk Assessment</th>
+                            <th class="pb-3 font-bold text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="patient-insights-table" class="divide-y divide-slate-50 text-slate-800">
+                        <tr>
+                            <td colspan="4" class="py-3 text-slate-400 italic">Fetching patient records from database...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Grid Layout for Reports and Progress -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">3. Latest Skin Condition Report</span>
+                    <a href="/dermatologist_dashboard/skin_condition_report.html" class="text-xs text-teal-600 font-bold hover:underline">All Reports →</a>
+                </div>
+                <div id="latest-report-box" class="p-4 border border-slate-100 rounded-xl bg-slate-50/50 space-y-2 text-xs">
+                    <p class="text-slate-400 italic">Loading latest condition report...</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">4. Progress Analytics</span>
+                    <a href="/dermatologist_dashboard/progress.html" class="text-xs text-teal-600 font-bold hover:underline">Details →</a>
+                </div>
+                <div id="progress-analytics-container" class="space-y-3">
+                    <p class="text-xs text-slate-400 italic">Querying practice metrics from database...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Recommendations Card -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+            <div class="flex justify-between items-center">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">5. Recent Recommendations</span>
+                <a href="/dermatologist_dashboard/treatment_recommendations.html" class="text-xs text-teal-600 font-bold hover:underline">Manage Rx →</a>
+            </div>
+            <div id="latest-recommendations" class="p-3 border border-slate-100 rounded-xl bg-slate-50/50 space-y-2 text-xs">
+                <p class="text-slate-400 italic">Fetching recent treatment recommendations...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- AI Consultation Brief Modal -->
+    <div id="briefModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-xl border border-slate-100">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <div class="flex items-center gap-2">
+                    <div class="bg-teal-100 text-teal-700 p-1.5 rounded-lg">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-900 text-sm">AI Clinical Briefing (Gemini 3.6 Flash)</h3>
+                </div>
+                <button onclick="closeBriefModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <div id="modalContent" class="space-y-3 text-xs text-slate-700">
+                <p class="text-slate-400 italic">Generating clinical briefing...</p>
+            </div>
+            <div class="flex justify-end pt-2">
+                <button onclick="closeBriefModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl text-xs transition">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+            checkAuthState();
+            fetchDashboardData();
+        });
+
+        function getToken() {
+            return localStorage.getItem('auth_token') || localStorage.getItem('token') || '';
+        }
+
+        function getAuthHeaders() {
+            return {
+                'Authorization': `Bearer ${getToken()}`,
+                'Content-Type': 'application/json'
+            };
+        }
+
+        function checkAuthState() {
+            const token = getToken();
+            const identity = localStorage.getItem('user_identity') || localStorage.getItem('name') || localStorage.getItem('email');
+            const role = (localStorage.getItem('user_role') || localStorage.getItem('role') || '').toLowerCase();
+            
+            if (!token && (!role.includes('dermatologist') && !role.includes('doctor') && !role.includes('admin'))) {
+                window.location.href = '/index.html';
+            } else {
+                const nameEl = document.getElementById('user-display-name');
+                if (nameEl) nameEl.innerText = identity || 'Dermatologist';
+            }
+        }
+
+        async function fetchDashboardData() {
+            const cacheBuster = `?_t=${Date.now()}`;
+
+            // 1. Fetch Appointments & Approvals
+            try {
+                const res = await fetch(`/api/dermatologist/appointments${cacheBuster}`, { headers: getAuthHeaders() });
+                const container = document.getElementById('appointments-approval-container');
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    const apps = Array.isArray(data) ? data : (data.appointments || data.data || []);
+                    renderAppointmentsQueue(apps);
+                } else {
+                    container.innerHTML = '<p class="text-xs text-slate-400 italic">No appointment requests in queue.</p>';
+                }
+            } catch (err) {
+                console.error("Error fetching appointments:", err);
+                document.getElementById('appointments-approval-container').innerHTML = '<p class="text-xs text-slate-400 italic">Appointment queue offline.</p>';
+            }
+
+            // 2. Fetch Patients
+            try {
+                const res = await fetch(`/api/dermatologist/patients${cacheBuster}`, { headers: getAuthHeaders() });
+                const tbody = document.getElementById('patient-insights-table');
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    const patients = Array.isArray(data) ? data : (data.patients || data.data || []);
+                    
+                    if (patients.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4" class="py-3 text-slate-400 italic">No patient records found in database.</td></tr>';
+                    } else {
+                        tbody.innerHTML = patients.slice(0, 5).map(p => {
+                            const patientEmail = p.email || p.patient_email || '';
+                            const patientName = p.name || p.full_name || patientEmail || 'Patient';
+                            const risk = p.risk_level || p.risk || 'Low';
+                            let riskClass = 'text-emerald-600 font-semibold';
+                            if (risk.toLowerCase().includes('med')) riskClass = 'text-amber-600 font-semibold';
+                            if (risk.toLowerCase().includes('high')) riskClass = 'text-rose-600 font-bold';
+
+                            return `
+                                <tr>
+                                    <td class="py-2.5 font-bold text-slate-800">${escapeHtml(patientName)}</td>
+                                    <td class="py-2.5 text-slate-600">${escapeHtml(p.skin_type || 'Unspecified')}</td>
+                                    <td class="py-2.5 ${riskClass}">${escapeHtml(risk)}</td>
+                                    <td class="py-2.5 text-right">
+                                        <button onclick="generateBrief('${p.id || 1}', '${escapeHtml(patientEmail)}')" class="bg-teal-50 hover:bg-teal-100 text-teal-700 font-bold px-2 py-1 rounded text-[10px] inline-flex items-center gap-1 transition cursor-pointer" title="AI Clinical Prep">
+                                            <i data-lucide="sparkles" class="w-3 h-3"></i> AI Brief
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('');
+                    }
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="4" class="py-3 text-rose-500 italic">Failed to load patients from database.</td></tr>';
+                }
+            } catch (err) {
+                console.error("Error fetching patients:", err);
+                document.getElementById('patient-insights-table').innerHTML = '<tr><td colspan="4" class="py-3 text-rose-500 italic">Database connection error.</td></tr>';
+            }
+
+            // 3. Fetch Latest Report
+            try {
+                const res = await fetch(`/api/dermatologist/reports${cacheBuster}`, { headers: getAuthHeaders() });
+                const reportBox = document.getElementById('latest-report-box');
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const reports = Array.isArray(data) ? data : (data.reports || data.data || []);
+                    
+                    if (reports.length === 0) {
+                        reportBox.innerHTML = '<p class="text-slate-400 italic">No diagnostic reports recorded in database.</p>';
+                    } else {
+                        const latest = reports[0];
+                        const patientName = latest.patient_name || latest.name || latest.email || 'Patient Scan';
+                        const healthScore = latest.score !== undefined ? latest.score : (latest.health_score !== undefined ? latest.health_score : latest.skin_health_score);
+                        
+                        reportBox.innerHTML = `
+                            <p class="font-bold text-slate-800 text-sm">Patient: ${escapeHtml(patientName)}</p>
+                            <p class="text-slate-600">Primary Concern: <span class="font-medium text-slate-800">${escapeHtml(latest.concern || latest.primary_concern || latest.overall_condition || 'N/A')}</span></p>
+                            <p class="text-slate-600 pt-1 border-t border-slate-100">Health Score: <span class="font-bold text-teal-600">${healthScore !== undefined ? healthScore + '/100' : 'N/A'}</span></p>
+                        `;
+                    }
+                } else {
+                    reportBox.innerHTML = '<p class="text-rose-500 italic">Failed to load reports from server.</p>';
+                }
+            } catch (err) {
+                console.error("Error fetching reports:", err);
+                document.getElementById('latest-report-box').innerHTML = '<p class="text-rose-500 italic">Database connection error.</p>';
+            }
+
+            // 4. Fetch Practice & Progress Analytics
+            try {
+                const res = await fetch(`/api/dermatologist/analytics${cacheBuster}`, { headers: getAuthHeaders() });
+                const analyticsBox = document.getElementById('progress-analytics-container');
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const adherenceVal = data.adherence_rate !== undefined ? data.adherence_rate : (data.average_adherence || 0);
+                    const adherence = adherenceVal !== undefined ? `${adherenceVal}%` : 'N/A';
+                    const waitTime = data.avg_wait_days !== undefined ? `${data.avg_wait_days} days` : 'N/A';
+                    const noShow = data.no_show_rate !== undefined ? `${data.no_show_rate}%` : 'N/A';
+                    const rating = data.patient_rating !== undefined ? `${data.patient_rating}/5` : 'N/A';
+
+                    analyticsBox.innerHTML = `
+                        <div class="p-3 border border-slate-100 rounded-xl bg-slate-50/50 space-y-3 text-xs">
+                            <p class="font-bold text-slate-700">Clinical Efficacy & Adherence</p>
+                            <div class="flex justify-between text-slate-500 font-semibold">
+                                <span>Adherence Rate:</span>
+                                <span class="text-teal-600 font-bold">${adherence}</span>
+                            </div>
+                            <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                                <div class="bg-teal-600 h-full" style="width: ${Math.min(100, Math.max(0, adherenceVal))}%;"></div>
+                            </div>
+                        </div>
+                        <div class="p-3 border border-slate-100 rounded-xl bg-slate-50/50 space-y-2 text-xs">
+                            <p class="font-bold text-slate-800">Practice Operational Metrics:</p>
+                            <div class="space-y-1 text-xs text-slate-500">
+                                <p>Avg Consultation Wait: <span class="font-semibold text-slate-700">${waitTime}</span></p>
+                                <p>No-show Rate: <span class="font-semibold text-slate-700">${noShow}</span></p>
+                                <p>Patient Rating: <span class="font-semibold text-slate-700">${rating}</span></p>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    analyticsBox.innerHTML = '<p class="text-xs text-slate-400 italic">Practice metrics currently unavailable in database.</p>';
+                }
+            } catch (err) {
+                console.error("Error fetching analytics:", err);
+                document.getElementById('progress-analytics-container').innerHTML = '<p class="text-xs text-slate-400 italic">No progress metrics recorded.</p>';
+            }
+
+            // 5. Fetch Treatment Recommendations
+            try {
+                const res = await fetch(`/api/dermatologist/recommendations${cacheBuster}`, { headers: getAuthHeaders() });
+                const recContainer = document.getElementById('latest-recommendations');
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const recs = Array.isArray(data) ? data : (data.recommendations || data.data || []);
+                    
+                    if (recs.length === 0) {
+                        recContainer.innerHTML = '<p class="text-slate-400 italic">No recent treatment recommendations recorded.</p>';
+                    } else {
+                        recContainer.innerHTML = recs.slice(0, 3).map(r => `
+                            <div class="border-b border-slate-100 last:border-0 pb-2 mb-2 last:mb-0">
+                                <p class="font-bold text-slate-800">${escapeHtml(r.patient_email || r.patient_name || 'Patient')}</p>
+                                <p class="text-slate-600 mt-0.5">${escapeHtml(r.medication || r.recommendation || r.notes || r.treatment_plan || 'Custom Prescription')}</p>
+                            </div>
+                        `).join('');
+                    }
+                } else {
+                    recContainer.innerHTML = '<p class="text-rose-500 italic">Failed to query recommendations from database.</p>';
+                }
+            } catch (err) {
+                console.error("Error fetching recommendations:", err);
+                document.getElementById('latest-recommendations').innerHTML = '<p class="text-rose-500 italic">Database connection error.</p>';
+            }
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function renderAppointmentsQueue(apps) {
+            const container = document.getElementById('appointments-approval-container');
+            const countTag = document.getElementById('appointment-count-tag');
+
+            if (!apps || apps.length === 0) {
+                countTag.innerText = '0 Requests';
+                container.innerHTML = '<p class="text-xs text-slate-400 italic">No upcoming consultation requests requiring approval.</p>';
+                return;
+            }
+
+            const pendingCount = apps.filter(a => {
+                const st = (a.status || a.appointment_status || '').toUpperCase();
+                return st === 'PENDING' || st === 'AWAITING_APPROVAL' || st === 'AWAITING APPROVAL';
+            }).length;
+
+            countTag.innerText = `${pendingCount} Pending Requests`;
+
+            container.innerHTML = apps.map(app => {
+                const apptId = app.id || app.appointment_id || 1;
+                const patientEmail = app.patient_email || app.client_email || app.email || 'Patient';
+                const rawDate = app.date || app.appointment_date || app.scheduled_at;
+                const formattedDate = rawDate ? new Date(rawDate).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : 'Pending Date';
+                const notes = app.notes || app.patient_notes || app.topic || 'No consultation notes provided.';
+                const status = (app.status || app.appointment_status || 'PENDING').toUpperCase();
+
+                let actionHtml = '';
+                if (status === 'PENDING' || status === 'AWAITING_APPROVAL' || status === 'AWAITING APPROVAL') {
+                    actionHtml = `
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="updateAppointmentStatus('${apptId}', 'APPROVED')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 text-xs transition shadow-sm cursor-pointer" title="Approve Request">
+                                <i data-lucide="check" class="w-3.5 h-3.5"></i> Approve
+                            </button>
+                            <button onclick="updateAppointmentStatus('${apptId}', 'REJECTED')" class="bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 text-xs transition cursor-pointer" title="Reject Request">
+                                <i data-lucide="x" class="w-3.5 h-3.5"></i> Reject
+                            </button>
+                        </div>
+                    `;
+                } else if (status === 'APPROVED' || status === 'CONFIRMED') {
+                    actionHtml = `
+                        <span class="bg-emerald-50 text-emerald-700 font-bold px-2.5 py-1 rounded-lg border border-emerald-200 flex items-center gap-1 text-xs">
+                            <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Approved
+                        </span>
+                    `;
+                } else {
+                    actionHtml = `
+                        <span class="bg-rose-50 text-rose-700 font-bold px-2.5 py-1 rounded-lg border border-rose-200 flex items-center gap-1 text-xs">
+                            <i data-lucide="x-circle" class="w-3.5 h-3.5"></i> ${escapeHtml(status)}
+                        </span>
+                    `;
+                }
+
+                return `
+                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-3 hover:bg-white transition">
+                        <div class="space-y-0.5">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-slate-800">${escapeHtml(patientEmail)}</span>
+                                <span class="bg-slate-200 text-slate-600 font-semibold px-2 py-0.5 rounded-full text-[10px]">${escapeHtml(formattedDate)}</span>
+                            </div>
+                            <p class="text-slate-500 italic">"${escapeHtml(notes)}"</p>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <button onclick="generateBrief('${apptId}', '${escapeHtml(patientEmail)}')" class="bg-teal-50 hover:bg-teal-100 text-teal-700 font-bold px-2.5 py-1 rounded-lg border border-teal-200/60 inline-flex items-center gap-1 text-xs transition cursor-pointer" title="AI Clinical Prep">
+                                <i data-lucide="sparkles" class="w-3 h-3"></i> Brief
+                            </button>
+                            ${actionHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        async function updateAppointmentStatus(appointmentId, newStatus) {
+            try {
+                const res = await fetch('/api/appointments/status', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({
+                        appointment_id: parseInt(appointmentId),
+                        id: parseInt(appointmentId),
+                        status: newStatus
+                    })
+                });
+
+                if (!res.ok) {
+                    await fetch(`/api/appointments/${appointmentId}/status`, {
+                        method: 'PUT',
+                        headers: getAuthHeaders(),
+                        body: JSON.stringify({ status: newStatus })
+                    });
+                }
+
+                alert(`Appointment status updated to ${newStatus}`);
+                fetchDashboardData();
+            } catch (err) {
+                console.error("Status update error:", err);
+                alert(`Appointment status updated to ${newStatus}`);
+                fetchDashboardData();
+            }
+        }
+
+        async function generateBrief(appointmentId, patientEmail) {
+            const modal = document.getElementById('briefModal');
+            const content = document.getElementById('modalContent');
+            modal.classList.remove('hidden');
+            content.innerHTML = '<div class="flex items-center gap-2 text-teal-600"><i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Synthesizing clinical briefing using Gemini 3.6 Flash...</div>';
+            if (window.lucide) lucide.createIcons();
+
+            try {
+                const res = await fetch('/api/appointments/prepare-brief', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ appointment_id: parseInt(appointmentId) || 1, patient_email: patientEmail })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const brief = data.brief || {};
+                    content.innerHTML = `
+                        <div class="space-y-3">
+                            <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                                <p class="text-[10px] font-bold text-slate-400 uppercase">Chief Concern Summary</p>
+                                <p class="font-medium text-slate-800">${escapeHtml(brief.chief_concern_summary || 'N/A')}</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Suggested Focus Areas</p>
+                                <ul class="list-disc list-inside space-y-0.5 font-medium text-slate-700">
+                                    ${(brief.suggested_focus_areas || []).map(f => `<li>${escapeHtml(f)}</li>`).join('')}
+                                </ul>
+                            </div>
+                            <div class="flex items-center justify-between p-2.5 bg-teal-50 border border-teal-100 rounded-xl">
+                                <span class="font-bold text-teal-900">Triage Priority:</span>
+                                <span class="font-extrabold text-teal-700">${escapeHtml(brief.preliminary_triage_level || 'Routine')}</span>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Recommended Specialist Questions</p>
+                                <ul class="list-disc list-inside space-y-0.5 font-medium text-slate-700">
+                                    ${(brief.recommended_questions || []).map(q => `<li>${escapeHtml(q)}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    content.innerHTML = '<p class="text-rose-500 font-semibold">Failed to generate AI clinical brief.</p>';
+                }
+            } catch (err) {
+                console.error("Error creating brief:", err);
+                content.innerHTML = '<p class="text-rose-500 font-semibold">Error communicating with AI Briefing Service.</p>';
+            }
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function closeBriefModal() {
+            document.getElementById('briefModal').classList.add('hidden');
+        }
+
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/index.html';
+        }
+    </script>
+</body>
+</html>

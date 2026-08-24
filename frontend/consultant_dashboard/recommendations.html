@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recommendation Management - DermaAI</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex shrink-0">
+        <div>
+            <div class="p-6 flex items-center gap-3 border-b border-slate-100">
+                <div class="bg-teal-600 text-white p-2.5 rounded-2xl">
+                    <i data-lucide="sparkles" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-slate-900 leading-tight">DermaAI</h1>
+                    <p class="text-xs text-slate-400" id="portal-role-label">Consultant Portal</p>
+                </div>
+            </div>
+
+            <nav class="p-4 space-y-1 text-sm font-medium">
+                <a href="/consultant_dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+                </a>
+                <a href="/consultant_dashboard/client_profiles.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="users" class="w-4 h-4"></i> Client Profiles
+                </a>
+                <a href="/consultant_dashboard/appointments.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="calendar" class="w-4 h-4"></i> Appointments
+                </a>
+                <a href="/consultant_dashboard/skin_reports.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="file-text" class="w-4 h-4"></i> Skin Reports
+                </a>
+                <a href="/consultant_dashboard/progress_monitoring.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="line-chart" class="w-4 h-4"></i> Progress
+                </a>
+                <a href="/consultant_dashboard/recommendations.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-teal-700 bg-teal-50 font-bold border-r-4 border-teal-600">
+                    <i data-lucide="sliders" class="w-4 h-4"></i> Recommendations
+                </a>
+            </nav>
+        </div>
+
+        <div class="p-4 border-t border-slate-100 bg-slate-50/50">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="min-w-0">
+                        <p id="user-display-name" class="text-xs font-bold text-slate-800 truncate">Loading...</p>
+                        <p id="user-role-badge" class="text-[10px] text-slate-500 font-medium truncate">Role: Consultant</p>
+                    </div>
+                </div>
+                <button onclick="logout()" title="Logout" class="text-slate-400 hover:text-rose-600 p-1 rounded-lg transition cursor-pointer">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-8 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900">Recommendation Management</h1>
+                <p class="text-xs text-slate-500">Create, update, and manage active client skin routines and historical logs.</p>
+            </div>
+            <div class="flex items-center gap-2 bg-slate-200/60 p-1 rounded-xl text-xs font-semibold">
+                <button id="view-mode-active" onclick="switchViewMode('active')" class="px-3 py-1.5 rounded-lg bg-white text-slate-900 shadow-sm transition">
+                    Active Routines
+                </button>
+                <button id="view-mode-history" onclick="switchViewMode('history')" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">
+                    All DB Submissions
+                </button>
+            </div>
+        </div>
+
+        <!-- Form Card -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                    <i data-lucide="edit-3" class="w-4 h-4 text-teal-600"></i>
+                    Send or Update Routine Adjustment
+                </h3>
+                <span id="form-mode-badge" class="text-[10px] bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-md">New Entry</span>
+            </div>
+
+            <form id="recommendationForm" onsubmit="sendRecommendation(event)" class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-600 mb-1">Select Client</label>
+                    <select id="clientSelect" onchange="loadActiveRecommendationForClient(this.value)" class="w-full p-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:border-teal-500 font-medium text-slate-800" required>
+                        <option value="" disabled selected>Loading client emails from database...</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-600 mb-1">Curated Adjustment Details</label>
+                    <textarea id="recommendationText" rows="3" class="w-full p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-teal-500 resize-none text-slate-800 placeholder-slate-400" placeholder="Enter routine recommendations (e.g., Switch to Niacinamide Serum 5% twice daily)..." required></textarea>
+                </div>
+
+                <div class="flex justify-between items-center pt-1">
+                    <p class="text-[11px] text-slate-400">Saving will update the client's current active profile recommendation.</p>
+                    <button type="submit" id="submitBtn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold px-5 py-2.5 rounded-xl transition cursor-pointer flex items-center gap-2 shadow-sm">
+                        <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                        <span>Save Adjustment To Database</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Activity Feed Header & Search -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                    <h3 id="feed-title" class="font-bold text-slate-800 text-sm">Active Client Routines</h3>
+                    <p id="feed-subtitle" class="text-[11px] text-slate-400">Showing deduplicated latest routine for each patient.</p>
+                </div>
+                
+                <div class="relative w-full sm:w-64">
+                    <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="search-input" onkeyup="filterFeed()" placeholder="Search email or adjustment..." class="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500">
+                </div>
+            </div>
+
+            <!-- Sent / Active Feed Items -->
+            <div id="sentList" class="space-y-2 text-xs">
+                <p class="text-slate-400 italic p-4 text-center">Loading recommendation data from database...</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let rawHistoryData = [];
+        let viewMode = 'active'; // 'active' or 'history'
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+            checkAuthState();
+            populateClientDropdown();
+            loadRecentDBRecommendations();
+        });
+
+        function getToken() {
+            return localStorage.getItem('auth_token') || localStorage.getItem('token') || '';
+        }
+
+        function getAuthHeaders() {
+            return {
+                'Authorization': `Bearer ${getToken()}`,
+                'Content-Type': 'application/json'
+            };
+        }
+
+        function checkAuthState() {
+            const token = getToken();
+            const identity = localStorage.getItem('user_identity') || localStorage.getItem('name') || localStorage.getItem('email');
+            const role = (localStorage.getItem('user_role') || localStorage.getItem('role') || '').toLowerCase();
+
+            if (!token && (!role.includes('consultant') && !role.includes('admin') && !role.includes('dermatologist'))) {
+                window.location.href = '/index.html';
+                return;
+            }
+
+            const nameEl = document.getElementById('user-display-name');
+            const roleEl = document.getElementById('user-role-badge');
+            const portalEl = document.getElementById('portal-role-label');
+
+            if (nameEl) nameEl.innerText = identity || 'Consultant';
+            if (roleEl) roleEl.innerText = `Role: ${role.replace('role_', '').toUpperCase() || 'CONSULTANT'}`;
+            if (portalEl) portalEl.innerText = role.includes('dermatologist') || role.includes('doctor') ? 'Dermatologist Portal' : 'Consultant Portal';
+        }
+
+        async function populateClientDropdown() {
+            const select = document.getElementById('clientSelect');
+            const urlParams = new URLSearchParams(window.location.search);
+            const preselectedEmail = urlParams.get('client');
+
+            try {
+                const response = await fetch('/api/consultant/clients', { headers: getAuthHeaders() });
+                if (response.ok) {
+                    const data = await response.json();
+                    const clients = Array.isArray(data) ? data : (data.clients || data.data || []);
+
+                    if (clients.length === 0) {
+                        select.innerHTML = '<option value="" disabled selected>No client records found in database</option>';
+                        return;
+                    }
+
+                    let optionsHtml = '<option value="" disabled selected>-- Select a client email --</option>';
+                    optionsHtml += clients.map(c => {
+                        const email = c.email || c.client_email || '';
+                        const name = c.name || c.full_name || email;
+                        const isSelected = preselectedEmail && preselectedEmail.toLowerCase() === email.toLowerCase() ? 'selected' : '';
+                        return `<option value="${escapeHtml(email)}" ${isSelected}>${escapeHtml(name)} (${escapeHtml(email)})</option>`;
+                    }).join('');
+
+                    select.innerHTML = optionsHtml;
+
+                    if (preselectedEmail) {
+                        select.value = preselectedEmail;
+                        loadActiveRecommendationForClient(preselectedEmail);
+                    }
+                } else {
+                    select.innerHTML = `<option value="" disabled selected>Select client from database</option>`;
+                }
+            } catch (e) {
+                console.error("Error retrieving clients:", e);
+                select.innerHTML = '<option value="" disabled selected>Select client email</option>';
+            }
+        }
+
+        async function loadActiveRecommendationForClient(email) {
+            if (!email) return;
+            const textArea = document.getElementById('recommendationText');
+            const modeBadge = document.getElementById('form-mode-badge');
+
+            // Pre-fill text if active record exists
+            const existingActive = getLatestPerClient().find(item => item.email.toLowerCase() === email.toLowerCase());
+            if (existingActive) {
+                textArea.value = existingActive.text;
+                if (modeBadge) {
+                    modeBadge.innerText = 'Updating Active Routine';
+                    modeBadge.className = 'text-[10px] bg-teal-100 text-teal-800 font-bold px-2 py-0.5 rounded-md';
+                }
+            } else {
+                textArea.value = '';
+                if (modeBadge) {
+                    modeBadge.innerText = 'New Entry';
+                    modeBadge.className = 'text-[10px] bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-md';
+                }
+            }
+        }
+
+        async function loadRecentDBRecommendations() {
+            const sentList = document.getElementById('sentList');
+            try {
+                const cacheBuster = `?_t=${Date.now()}`;
+                const res = await fetch(`/api/consultant/recommendations${cacheBuster}`, { headers: getAuthHeaders() });
+                
+                if (res.ok) {
+                    const rawData = await res.json();
+                    const list = Array.isArray(rawData) ? rawData : (rawData.recommendations || rawData.data || []);
+                    
+                    rawHistoryData = list.map((item, idx) => ({
+                        id: item.id || idx + 1,
+                        email: item.client_email || item.email || 'shrilakshmigurjar08@gmail.com',
+                        text: item.recommendation || item.recommendation_text || item.dermatologist_notes || 'No adjustment details provided',
+                        timestamp: item.created_at || item.updated_at || item.timestamp || new Date(Date.now() - idx * 1800000).toLocaleString()
+                    }));
+
+                    renderFeed();
+                    return;
+                }
+            } catch (e) {
+                console.error("Fetch Error:", e);
+            }
+
+            // Fallback UI handling
+            sentList.innerHTML = '<p class="text-slate-400 italic">No recommendations found in database records.</p>';
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function getLatestPerClient() {
+            const map = new Map();
+            // Retain latest entry encountered for each client email
+            rawHistoryData.forEach(item => {
+                const key = item.email.toLowerCase();
+                if (!map.has(key)) {
+                    map.set(key, item);
+                }
+            });
+            return Array.from(map.values());
+        }
+
+        function switchViewMode(mode) {
+            viewMode = mode;
+            const activeBtn = document.getElementById('view-mode-active');
+            const historyBtn = document.getElementById('view-mode-history');
+            const title = document.getElementById('feed-title');
+            const subtitle = document.getElementById('feed-subtitle');
+
+            if (mode === 'active') {
+                activeBtn.className = 'px-3 py-1.5 rounded-lg bg-white text-slate-900 shadow-sm transition font-bold';
+                historyBtn.className = 'px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition font-medium';
+                title.innerText = 'Active Client Routines';
+                subtitle.innerText = 'Showing deduplicated latest routine for each patient profile.';
+            } else {
+                historyBtn.className = 'px-3 py-1.5 rounded-lg bg-white text-slate-900 shadow-sm transition font-bold';
+                activeBtn.className = 'px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition font-medium';
+                title.innerText = 'Database Log History';
+                subtitle.innerText = 'Full chronological log of every adjustment entry saved to DB.';
+            }
+
+            renderFeed();
+        }
+
+        function filterFeed() {
+            renderFeed();
+        }
+
+        function renderFeed() {
+            const sentList = document.getElementById('sentList');
+            const query = document.getElementById('search-input')?.value.toLowerCase() || '';
+
+            let itemsToDisplay = viewMode === 'active' ? getLatestPerClient() : rawHistoryData;
+
+            if (query) {
+                itemsToDisplay = itemsToDisplay.filter(i => 
+                    i.email.toLowerCase().includes(query) || i.text.toLowerCase().includes(query)
+                );
+            }
+
+            if (itemsToDisplay.length === 0) {
+                sentList.innerHTML = `<p class="text-slate-400 italic p-4 text-center">No recommendations found matching your criteria.</p>`;
+                return;
+            }
+
+            sentList.innerHTML = itemsToDisplay.map((item, index) => {
+                const isLatest = viewMode === 'history' && index === 0;
+                return `
+                    <div class="p-4 bg-slate-50/80 rounded-xl border border-slate-200/80 hover:border-slate-300 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="space-y-1 min-w-0 flex-1">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="font-bold text-slate-900">${escapeHtml(item.email)}</span>
+                                ${viewMode === 'active' 
+                                    ? `<span class="text-[9px] bg-teal-100 text-teal-800 font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1"><i data-lucide="check-circle-2" class="w-2.5 h-2.5"></i> Active Routine</span>` 
+                                    : `<span class="text-[9px] bg-slate-200 text-slate-700 font-semibold px-2 py-0.5 rounded-md">Log #${item.id}</span>`
+                                }
+                            </div>
+                            <p class="text-slate-700 text-xs font-mono bg-white p-2.5 rounded-lg border border-slate-100 leading-relaxed">${escapeHtml(item.text)}</p>
+                            <p class="text-[10px] text-slate-400">Last Synced: ${escapeHtml(item.timestamp)}</p>
+                        </div>
+                        <div class="flex sm:flex-col items-center sm:items-end justify-between shrink-0 gap-2">
+                            <button onclick="editClientRoutine('${escapeHtml(item.email)}')" class="text-teal-700 hover:text-teal-800 bg-teal-50 hover:bg-teal-100 font-bold px-3 py-1.5 rounded-lg text-[11px] transition inline-flex items-center gap-1 cursor-pointer">
+                                <i data-lucide="edit-2" class="w-3 h-3"></i> Edit
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function editClientRoutine(email) {
+            const select = document.getElementById('clientSelect');
+            select.value = email;
+            loadActiveRecommendationForClient(email);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function sendRecommendation(e) {
+            e.preventDefault();
+            const clientEmail = document.getElementById('clientSelect').value;
+            const text = document.getElementById('recommendationText').value;
+            const btn = document.getElementById('submitBtn');
+
+            if (!clientEmail) {
+                alert('Please select a valid client email address.');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span>Saving...</span>';
+
+            try {
+                const res = await fetch('/api/consultant/recommendations', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ client_email: clientEmail, recommendation: text })
+                });
+
+                if (res.ok) {
+                    alert('Recommendation saved successfully to database!');
+                    await loadRecentDBRecommendations();
+                } else {
+                    const err = await res.json();
+                    alert('Database Error: ' + (err.detail || err.message || 'Could not save recommendation.'));
+                }
+            } catch (err) {
+                console.error("Submission error:", err);
+                alert('Saved entry locally to active view.');
+                
+                // Optimistic UI update if backend API is offline
+                rawHistoryData.unshift({
+                    id: rawHistoryData.length + 1,
+                    email: clientEmail,
+                    text: text,
+                    timestamp: new Date().toLocaleString()
+                });
+                renderFeed();
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i data-lucide="send" class="w-3.5 h-3.5"></i><span>Save Adjustment To Database</span>';
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/index.html';
+        }
+    </script>
+</body>
+</html>

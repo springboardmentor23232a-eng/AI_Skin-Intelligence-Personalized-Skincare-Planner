@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Approvals - Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between hidden md:flex shrink-0">
+        <div>
+            <div class="p-6 flex items-center gap-3 border-b border-slate-800">
+                <div class="bg-teal-500 text-slate-950 p-2.5 rounded-2xl font-bold">
+                    <i data-lucide="shield-check" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-white leading-tight">DermaAI</h1>
+                    <p class="text-[10px] font-bold text-teal-400 uppercase">Admin Portal</p>
+                </div>
+            </div>
+            <nav class="p-4 space-y-1 text-sm font-medium">
+                <a href="/admin.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/40 transition">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Overview
+                </a>
+                <a href="/admin_dashboard/account_approvals.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-teal-400 bg-slate-800/60 font-bold border-r-4 border-teal-500">
+                    <i data-lucide="user-check" class="w-4 h-4"></i> Account Approvals
+                </a>
+                <a href="/admin_dashboard/user_management.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/40 transition">
+                    <i data-lucide="users" class="w-4 h-4"></i> User Management
+                </a>
+                <a href="/admin_dashboard/system_reports.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/40 transition">
+                    <i data-lucide="activity" class="w-4 h-4"></i> System Reports
+                </a>
+                <a href="/admin_dashboard/platform_settings.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/40 transition">
+                    <i data-lucide="settings" class="w-4 h-4"></i> Platform Settings
+                </a>
+                <a href="/admin_dashboard/recommendation_monitoring.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/40 transition">
+                    <i data-lucide="sliders" class="w-4 h-4"></i> Recommendation Monitoring
+                </a>
+            </nav>
+        </div>
+        <div class="p-4 border-t border-slate-800 bg-slate-950/50">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="min-w-0">
+                        <p id="admin-display-name" class="text-xs font-bold text-white truncate">Administrator</p>
+                        <p class="text-[10px] text-teal-400 font-medium truncate">Role: Admin</p>
+                    </div>
+                </div>
+                <button onclick="logout()" title="Logout" class="text-slate-400 hover:text-rose-500 p-1 rounded-lg transition cursor-pointer">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-8 space-y-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900">Pending Account Approvals</h1>
+                <p class="text-xs text-slate-500">Review requested professional accounts from database</p>
+            </div>
+            <button onclick="fetchApprovals()" class="bg-teal-600 hover:bg-teal-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-2 cursor-pointer shadow-sm">
+                <i data-lucide="refresh-cw" class="w-4 h-4"></i> Refresh
+            </button>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-slate-50 text-slate-600 uppercase font-bold border-b">
+                        <tr>
+                            <th class="p-3">Name</th>
+                            <th class="p-3">Email</th>
+                            <th class="p-3">Role</th>
+                            <th class="p-3 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="approvals-table" class="divide-y divide-slate-100">
+                        <tr>
+                            <td colspan="4" class="p-8 text-center text-slate-400 italic">
+                                <i data-lucide="loader" class="w-5 h-5 animate-spin mx-auto mb-2 text-teal-600"></i>
+                                Loading pending account registrations...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+            checkAuthState();
+            fetchApprovals();
+        });
+
+        function getToken() {
+            return localStorage.getItem('auth_token') || localStorage.getItem('token') || '';
+        }
+
+        function getAuthHeaders() {
+            return {
+                'Authorization': `Bearer ${getToken()}`,
+                'Content-Type': 'application/json'
+            };
+        }
+
+        function checkAuthState() {
+            const token = getToken();
+            const identity = localStorage.getItem('user_identity') || localStorage.getItem('name') || localStorage.getItem('email');
+            const role = (localStorage.getItem('user_role') || localStorage.getItem('role') || '').toLowerCase();
+
+            if (!token || !role.includes('admin')) {
+                window.location.href = '/index.html';
+                return;
+            }
+
+            const displayNameElem = document.getElementById('admin-display-name');
+            if (displayNameElem) displayNameElem.innerText = identity || 'Administrator';
+        }
+
+        async function fetchApprovals() {
+            const table = document.getElementById('approvals-table');
+            try {
+                const cacheBuster = `?_t=${Date.now()}`;
+                const res = await fetch(`/api/admin/users${cacheBuster}`, { headers: getAuthHeaders() });
+                
+                if (!res.ok) {
+                    if (res.status === 401 || res.status === 403) {
+                        logout();
+                        return;
+                    }
+                    throw new Error(`Database fetch error (HTTP ${res.status})`);
+                }
+
+                const data = await res.json();
+                const users = Array.isArray(data) ? data : (data.users || data.data || []);
+                
+                const pending = users.filter(u => (u.status || '').toLowerCase() === 'pending');
+
+                if (!pending || pending.length === 0) {
+                    table.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400 italic">No pending account requests found in database.</td></tr>`;
+                    if (window.lucide) lucide.createIcons();
+                    return;
+                }
+
+                table.innerHTML = pending.map(u => {
+                    const email = u.email || 'N/A';
+                    const name = u.fullname || u.full_name || u.name || (email.includes('@') ? email.split('@')[0] : 'User');
+                    const role = u.role || 'Unassigned';
+
+                    return `
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="p-3 font-bold text-slate-800">${escapeHtml(name)}</td>
+                            <td class="p-3 text-slate-600">${escapeHtml(email)}</td>
+                            <td class="p-3 uppercase font-bold text-teal-600 text-[10px] tracking-wide">${escapeHtml(role)}</td>
+                            <td class="p-3 text-right space-x-2">
+                                <button onclick="updateStatus('${escapeHtml(email)}', 'approved', this)" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg transition cursor-pointer text-xs shadow-sm">Approve</button>
+                                <button onclick="updateStatus('${escapeHtml(email)}', 'rejected', this)" class="bg-rose-600 hover:bg-rose-500 text-white font-bold px-3 py-1.5 rounded-lg transition cursor-pointer text-xs shadow-sm">Reject</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error("Error fetching approval requests:", err);
+                table.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-rose-500 font-semibold">${escapeHtml(err.message || 'Failed to connect to backend service.')}</td></tr>`;
+            }
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        async function updateStatus(email, action, btnElement) {
+            if (!confirm(`Are you sure you want to set account (${email}) to ${action.toUpperCase()}?`)) {
+                return;
+            }
+
+            if (btnElement) {
+                btnElement.disabled = true;
+                btnElement.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+
+            try {
+                const res = await fetch('/api/admin/update-status', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ email, action })
+                });
+                
+                if (res.ok) {
+                    fetchApprovals();
+                } else {
+                    const result = await res.json();
+                    alert(result.detail || result.message || 'Failed to update account status.');
+                    if (btnElement) {
+                        btnElement.disabled = false;
+                        btnElement.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }
+                }
+            } catch (err) {
+                console.error("Status update error:", err);
+                alert('Could not connect to the database server.');
+                if (btnElement) {
+                    btnElement.disabled = false;
+                    btnElement.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            }
+        }
+
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/index.html';
+        }
+    </script>
+</body>
+</html>

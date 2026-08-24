@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DermaAI - Skin Intelligence</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Identity Services Library -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f172a; }
+        .hero-gradient { background: radial-gradient(circle at 50% -20%, #115e59 0%, #0f172a 70%); }
+    </style>
+</head>
+<body class="text-slate-100 antialiased flex flex-col min-h-screen">
+
+    <!-- Navigation Header -->
+    <header class="fixed top-0 left-0 right-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-teal-500 text-slate-900 p-2.5 rounded-2xl font-bold shadow-lg shadow-teal-500/20">
+                    <i data-lucide="sparkles" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <span class="font-extrabold text-xl tracking-tight text-white">DermaAI</span>
+                    <span class="text-[10px] font-bold text-teal-400 block tracking-wider uppercase">Skin Intelligence</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-gradient pt-36 pb-20 px-6 flex-1 flex flex-col justify-center relative overflow-hidden">
+        <div class="max-w-4xl mx-auto text-center space-y-8 relative z-10">
+            <h1 class="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-tight">
+                Personalized Skincare Routine Driven by 
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-cyan-400">Real-Time Data</span>
+            </h1>
+            <p class="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto font-normal leading-relaxed">
+                Transform your skincare health using AI models that evaluate skin profiles, lifestyle factors, and ingredient synergy.
+            </p>
+            <div class="flex justify-center gap-4">
+                <button onclick="openModal('register')" class="border border-slate-700 bg-slate-800/80 hover:bg-slate-800 text-slate-200 font-bold px-5 py-2.5 rounded-xl text-xs transition cursor-pointer">
+                    Register
+                </button>
+                <button onclick="openModal('login')" class="bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-lg shadow-teal-500/20 cursor-pointer">
+                    Sign In
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-8 bg-slate-950 border-t border-slate-800 text-xs text-slate-500 mt-auto">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+                <div class="bg-teal-500 text-slate-950 p-1.5 rounded-lg font-bold">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i>
+                </div>
+                <span class="text-slate-300 font-bold text-sm">DermaAI Intelligence Platform</span>
+            </div>
+            <p>© 2026 DermaAI Platform. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Authentication Modal Container -->
+    <div id="auth-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4" onclick="handleBackdropClick(event)">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 space-y-4 relative shadow-2xl" onclick="event.stopPropagation()">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white cursor-pointer">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <!-- Notification Messages -->
+            <div id="error-msg" class="hidden p-2.5 bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs rounded-xl text-center font-medium"></div>
+            <div id="success-msg" class="hidden p-2.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs rounded-xl text-center font-medium"></div>
+
+            <!-- LOGIN FORM -->
+            <div id="login-section">
+                <div class="text-center space-y-1 mb-4">
+                    <h2 class="text-xl font-bold text-white">Sign In to DermaAI</h2>
+                    <p class="text-xs text-slate-400">Choose a role and enter credentials</p>
+                </div>
+                <form id="login-form" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Select Role</label>
+                        <select id="roleSelect" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-teal-500">
+                            <option value="user">User</option>
+                            <option value="consultant">Consultant</option>
+                            <option value="dermatologist">Dermatologist</option>
+                            <option value="admin">Administrator</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Email Address</label>
+                        <input type="email" id="email" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-teal-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Password</label>
+                        <input type="password" id="password" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-teal-500">
+                    </div>
+                    <button type="submit" class="w-full bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition cursor-pointer">
+                        Sign In
+                    </button>
+                </form>
+
+                <!-- DIVIDER -->
+                <div class="relative my-4">
+                    <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-800"></div></div>
+                    <div class="relative flex justify-center text-[10px] uppercase"><span class="bg-slate-900 px-2 text-slate-500">Or continue with</span></div>
+                </div>
+
+                <!-- GOOGLE SIGN-IN BUTTON CONTAINER -->
+                <div class="flex justify-center">
+                    <div id="g_id_onload"
+                        data-client_id="680095467315-59h797sp8tinmglr3qnctq8qoi3s9clh.apps.googleusercontent.com"
+                        data-callback="handleGoogleCredentialResponse"
+                        data-auto_prompt="false">
+                    </div>
+                    <div class="g_id_signin"
+                        data-type="standard"
+                        data-shape="rectangular"
+                        data-theme="outline"
+                        data-text="signin_with"
+                        data-size="medium"
+                        data-logo_alignment="left">
+                    </div>
+                </div>
+
+                <p class="text-xs text-center text-slate-400 mt-4">
+                    Don't have an account? <a href="#" onclick="switchTab('register')" class="text-teal-400 hover:underline font-bold">Register here</a>
+                </p>
+            </div>
+
+            <!-- REGISTER FORM -->
+            <div id="register-section" class="hidden">
+                <div class="text-center space-y-1 mb-4">
+                    <h2 class="text-xl font-bold text-white">Create Account</h2>
+                    <p class="text-xs text-slate-400">Register as User, Consultant or Dermatologist</p>
+                </div>
+                <form id="register-form" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Full Name</label>
+                        <input type="text" id="regFullName" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-teal-500" placeholder="e.g. Dr. Sarah Jenkins">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Select Role</label>
+                        <select id="regRoleSelect" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-teal-500">
+                            <option value="user">User</option>
+                            <option value="consultant">Consultant</option>
+                            <option value="dermatologist">Dermatologist</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Email Address</label>
+                        <input type="email" id="regEmail" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-teal-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Password</label>
+                        <input type="password" id="regPassword" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-teal-500">
+                    </div>
+                    <button type="submit" class="w-full bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition mt-2 cursor-pointer">
+                        Register Account
+                    </button>
+                </form>
+
+                <!-- DIVIDER -->
+                <div class="relative my-4">
+                    <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-800"></div></div>
+                    <div class="relative flex justify-center text-[10px] uppercase"><span class="bg-slate-900 px-2 text-slate-500">Or Register with</span></div>
+                </div>
+
+                <!-- GOOGLE REGISTER BUTTON -->
+                <div class="flex justify-center">
+                    <div class="g_id_signin"
+                        data-type="standard"
+                        data-shape="rectangular"
+                        data-theme="outline"
+                        data-text="signup_with"
+                        data-size="medium"
+                        data-logo_alignment="left">
+                    </div>
+                </div>
+
+                <p class="text-xs text-center text-slate-400 mt-4">
+                    Already registered? <a href="#" onclick="switchTab('login')" class="text-teal-400 hover:underline font-bold">Sign In</a>
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+    lucide.createIcons();
+
+    let activeTab = 'login';
+
+    function openModal(tab = 'login') {
+        document.getElementById('auth-modal').classList.remove('hidden');
+        switchTab(tab);
+    }
+
+    function closeModal() {
+        document.getElementById('auth-modal').classList.add('hidden');
+        clearAlerts();
+    }
+
+    function handleBackdropClick(event) {
+        if (event.target.id === 'auth-modal') {
+            closeModal();
+        }
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeModal();
+    });
+
+    function switchTab(tab) {
+        activeTab = tab;
+        clearAlerts();
+        if (tab === 'login') {
+            document.getElementById('login-section').classList.remove('hidden');
+            document.getElementById('register-section').classList.add('hidden');
+        } else {
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('register-section').classList.remove('hidden');
+        }
+    }
+
+    function showError(msg) {
+        const errDiv = document.getElementById('error-msg');
+        errDiv.innerText = msg;
+        errDiv.classList.remove('hidden');
+        document.getElementById('success-msg').classList.add('hidden');
+    }
+
+    function showSuccess(msg) {
+        const succDiv = document.getElementById('success-msg');
+        succDiv.innerText = msg;
+        succDiv.classList.remove('hidden');
+        document.getElementById('error-msg').classList.add('hidden');
+    }
+
+    function clearAlerts() {
+        document.getElementById('error-msg').classList.add('hidden');
+        document.getElementById('success-msg').classList.add('hidden');
+    }
+
+    // --- GOOGLE OAUTH RESPONSE HANDLER ---
+    async function handleGoogleCredentialResponse(response) {
+        const action = activeTab; 
+        const role = (action === 'register') 
+            ? document.getElementById('regRoleSelect').value.toLowerCase() 
+            : document.getElementById('roleSelect').value.toLowerCase();
+
+        try {
+            const apiRes = await fetch('/api/auth/google', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    id_token: response.credential, 
+                    role: role,
+                    action: action
+                })
+            });
+
+            const result = await apiRes.json();
+
+            if (apiRes.ok) {
+                if (result.status === 'pending') {
+                    showSuccess('Google Registration Successful! Account is pending Admin approval.');
+                } else {
+                    showSuccess('Signed in successfully with Google!');
+                    setTimeout(() => {
+                        loginSuccess(result.token, result.name, result.role, result.email);
+                    }, 1000);
+                }
+            } else {
+                showError(result.detail || 'Google authentication failed');
+            }
+        } catch (err) {
+            showError('Could not connect to FastAPI server.');
+        }
+    }
+
+    // Register Form Handler
+    document.getElementById('register-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fullname = document.getElementById('regFullName').value;
+        const role = document.getElementById('regRoleSelect').value.toLowerCase();
+        const email = document.getElementById('regEmail').value;
+        const password = document.getElementById('regPassword').value;
+
+        try {
+            const response = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fullname, role, email, password })
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                if (result.status === 'pending') {
+                    showSuccess('Registration submitted! Awaiting admin approval.');
+                } else {
+                    showSuccess('Registration successful! You can now sign in.');
+                    setTimeout(() => switchTab('login'), 1500);
+                }
+            } else {
+                showError(result.detail || 'Registration failed');
+            }
+        } catch (err) {
+            showError('Could not connect to FastAPI server.');
+        }
+    });
+
+    // Login Handler
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const role = document.getElementById('roleSelect').value.toLowerCase();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        try {
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ role, email, password })
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                loginSuccess(result.token, result.name, result.role, result.email);
+            } else {
+                showError(result.detail || 'Login failed');
+            }
+        } catch (err) {
+            showError('Could not connect to FastAPI server.');
+        }
+    });
+
+    function loginSuccess(token, identity, role, email) {
+        localStorage.setItem('auth_token', token);
+        localStorage.setItem('user_identity', identity);
+        localStorage.setItem('user_role', role);
+        localStorage.setItem('user_email', email);
+
+        const roleLower = String(role).toLowerCase();
+        if (roleLower === 'user') {
+            window.location.href = 'user_dashboard.html';
+        } else if (roleLower === 'consultant') {
+            window.location.href = 'consultant_dashboard.html';
+        } else if (roleLower === 'dermatologist') {
+            window.location.href = 'dermatologist_dashboard.html';
+        } else if (roleLower === 'admin') {
+            window.location.href = 'admin.html';
+        }
+    }
+    </script>
+</body>
+</html>

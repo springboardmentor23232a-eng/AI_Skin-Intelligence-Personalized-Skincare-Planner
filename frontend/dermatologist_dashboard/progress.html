@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Progress - DermaAI</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex shrink-0">
+        <div>
+            <div class="p-6 flex items-center gap-3 border-b border-slate-100">
+                <div class="bg-teal-600 text-white p-2.5 rounded-2xl shadow-sm">
+                    <i data-lucide="sparkles" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-slate-900 leading-tight">DermaAI</h1>
+                    <p class="text-xs text-teal-600 font-semibold">Doctor Portal</p>
+                </div>
+            </div>
+
+            <nav class="p-4 space-y-1 text-sm font-medium">
+                <a href="/dermatologist_dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+                </a>
+                <a href="/dermatologist_dashboard/patient_insights.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="users" class="w-4 h-4"></i> Patients
+                </a>
+                <a href="/dermatologist_dashboard/skin_condition_report.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="file-text" class="w-4 h-4"></i> Reports
+                </a>
+                <a href="/dermatologist_dashboard/progress.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-teal-700 bg-teal-50 font-bold border-r-4 border-teal-600">
+                    <i data-lucide="line-chart" class="w-4 h-4"></i> Progress Tracking
+                </a>
+                <a href="/dermatologist_dashboard/treatment_recommendations.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="sliders" class="w-4 h-4"></i> Treatments
+                </a>
+            </nav>
+        </div>
+
+        <div class="p-4 border-t border-slate-100 bg-slate-50/50">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="min-w-0">
+                        <p id="user-display-name" class="text-xs font-bold text-slate-800 truncate">Loading...</p>
+                        <p class="text-[10px] text-teal-600 font-semibold truncate">Role: Dermatologist</p>
+                    </div>
+                </div>
+                <button onclick="logout()" title="Logout" class="text-slate-400 hover:text-rose-600 p-1 rounded-lg transition cursor-pointer">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-8 space-y-6">
+        
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900">Patient Progress Tracking</h1>
+                <p class="text-sm text-slate-500">Monitor recovery trends, routine adherence, and treatment responses live from database.</p>
+            </div>
+            <a href="/dermatologist_dashboard/treatment_recommendations.html" class="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm transition">
+                <i data-lucide="plus" class="w-4 h-4"></i> Adjust Treatment
+            </a>
+        </div>
+
+        <!-- Overview KPIs -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Active Tracked Patients</p>
+                    <h2 id="kpi-total" class="text-2xl font-extrabold text-slate-900 mt-0.5">0</h2>
+                </div>
+                <div class="p-3 bg-teal-50 text-teal-600 rounded-xl">
+                    <i data-lucide="users" class="w-5 h-5"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Avg Improvement</p>
+                    <h2 id="kpi-avg-improvement" class="text-2xl font-extrabold text-emerald-600 mt-0.5">0%</h2>
+                </div>
+                <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+                    <i data-lucide="trending-up" class="w-5 h-5"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Needs Review</p>
+                    <h2 id="kpi-review-needed" class="text-2xl font-extrabold text-amber-600 mt-0.5">0</h2>
+                </div>
+                <div class="p-3 bg-amber-50 text-amber-600 rounded-xl">
+                    <i data-lucide="alert-circle" class="w-5 h-5"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter & Search Controls -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row gap-3">
+            <div class="relative flex-1">
+                <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input type="text" id="searchInput" placeholder="Search patient name or skin condition..." onkeyup="filterProgress()" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-teal-500">
+            </div>
+
+            <select id="statusFilter" onchange="filterProgress()" class="px-3 py-2 border border-slate-200 rounded-xl bg-white text-xs font-semibold text-slate-700 focus:outline-none focus:border-teal-500">
+                <option value="">All Progress Statuses</option>
+                <option value="Improving">Improving</option>
+                <option value="Stable">Stable</option>
+                <option value="Needs Review">Needs Review</option>
+            </select>
+        </div>
+
+        <!-- Progress Cards List -->
+        <div id="progress-container" class="space-y-4">
+            <div class="text-center py-12 bg-white rounded-2xl border border-slate-200">
+                <i data-lucide="loader" class="w-6 h-6 text-teal-600 animate-spin mx-auto mb-2"></i>
+                <p class="text-xs text-slate-400">Loading patient progress updates from database...</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let allProgressData = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+            checkAuthState();
+            fetchProgressData();
+        });
+
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function getToken() {
+            return localStorage.getItem('auth_token') || localStorage.getItem('token') || '';
+        }
+
+        function getAuthHeaders() {
+            return {
+                'Authorization': `Bearer ${getToken()}`,
+                'Content-Type': 'application/json'
+            };
+        }
+
+        function checkAuthState() {
+            const token = getToken();
+            const identity = localStorage.getItem('user_identity') || localStorage.getItem('name') || localStorage.getItem('email');
+            const role = (localStorage.getItem('user_role') || localStorage.getItem('role') || '').toLowerCase();
+            
+            if (!token || (role !== 'dermatologist' && role !== 'doctor' && role !== 'admin')) {
+                window.location.href = '/index.html';
+            } else {
+                document.getElementById('user-display-name').innerText = identity || 'Dermatologist';
+            }
+        }
+
+        async function fetchProgressData() {
+            try {
+                let res = await fetch('/api/dermatologist/progress', { headers: getAuthHeaders() });
+                if (!res.ok) {
+                    res = await fetch('/api/dermatologist/reports', { headers: getAuthHeaders() });
+                }
+
+                if (res.ok) {
+                    const data = await res.json();
+                    allProgressData = Array.isArray(data) ? data : (data.progress || data.patients || data.reports || data.data || []);
+                    renderProgress(allProgressData);
+                } else {
+                    renderError("Unable to fetch patient progress records from database.");
+                }
+            } catch (e) {
+                console.error("Fetch error:", e);
+                renderError("Network error connecting to database server.");
+            }
+        }
+
+        function renderError(message) {
+            const container = document.getElementById('progress-container');
+            container.innerHTML = `
+                <div class="text-center py-12 bg-white rounded-2xl border border-slate-200">
+                    <i data-lucide="alert-circle" class="w-8 h-8 text-rose-500 mx-auto mb-2"></i>
+                    <p class="text-xs font-semibold text-slate-700">${escapeHtml(message)}</p>
+                </div>
+            `;
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function calculateKPIs(data) {
+            document.getElementById('kpi-total').innerText = data.length;
+
+            const reviewCount = data.filter(d => {
+                const st = (d.status || '').toLowerCase();
+                return st.includes('review') || st.includes('attention') || d.needs_review === true;
+            }).length;
+            document.getElementById('kpi-review-needed').innerText = reviewCount;
+
+            if (data.length === 0) {
+                document.getElementById('kpi-avg-improvement').innerText = '0%';
+                return;
+            }
+
+            let totalDelta = 0;
+            data.forEach(p => {
+                const start = Number(p.start_score || p.initial_score || 50);
+                const current = Number(p.current_score || p.score || p.health_score || 50);
+                totalDelta += (current - start);
+            });
+
+            const avgDelta = Math.round(totalDelta / data.length);
+            document.getElementById('kpi-avg-improvement').innerText = avgDelta >= 0 ? `+${avgDelta}%` : `${avgDelta}%`;
+        }
+
+        function renderProgress(records) {
+            const container = document.getElementById('progress-container');
+            calculateKPIs(records);
+
+            if (!records || records.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 bg-white rounded-2xl border border-slate-200">
+                        <i data-lucide="user-x" class="w-8 h-8 text-slate-300 mx-auto mb-2"></i>
+                        <p class="text-xs font-semibold text-slate-600">No patient progress records found in database.</p>
+                    </div>
+                `;
+                if (window.lucide) lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = records.map(p => {
+                const name = p.name || p.patient_name || p.full_name || 'Patient';
+                const email = p.email || p.patient_email || '';
+                const condition = p.condition || p.concern || p.primary_concern || 'General Care';
+                const status = p.status || (p.needs_review ? 'Needs Review' : 'Improving');
+                
+                const startScore = Number(p.start_score || p.initial_score || 50);
+                const currentScore = Number(p.current_score || p.score || p.health_score || 50);
+                const progressDelta = currentScore - startScore;
+
+                const treatmentText = p.treatment || p.treatment_plan || (p.routine_am ? 'Custom Regimen Prescribed' : 'Standard Routine');
+                const notesText = p.notes || p.ai_summary || p.observations || 'No clinical observations recorded.';
+                const timelineText = p.week || p.timeline || 'Ongoing';
+                const checkinText = p.last_checkin || (p.updated_at ? new Date(p.updated_at).toLocaleDateString() : 'Recent');
+
+                // Status Badge Styling
+                let statusBadge = 'bg-teal-50 text-teal-700 border-teal-200';
+                if (status === 'Needs Review') statusBadge = 'bg-amber-50 text-amber-700 border-amber-200';
+                if (status === 'Stable') statusBadge = 'bg-slate-100 text-slate-700 border-slate-200';
+
+                return `
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition space-y-4">
+                        
+                        <!-- Header Bar -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h3 class="font-bold text-slate-900 text-base">${escapeHtml(name)}</h3>
+                                    <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${statusBadge}">${escapeHtml(status)}</span>
+                                </div>
+                                <p class="text-xs text-slate-400 mt-0.5">Condition: <strong class="text-slate-700 font-semibold">${escapeHtml(condition)}</strong> • Timeline: ${escapeHtml(timelineText)}</p>
+                            </div>
+
+                            <div class="flex items-center gap-3">
+                                <div class="text-right">
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase">Skin Health Score</p>
+                                    <p class="text-sm font-extrabold text-slate-800">${startScore} <span class="text-slate-300">→</span> <span class="text-teal-600">${currentScore}/100</span> <span class="text-xs text-emerald-600 font-bold">(${progressDelta >= 0 ? '+' + progressDelta : progressDelta})</span></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar & Clinical Text Details -->
+                        <div class="space-y-3">
+                            <div>
+                                <div class="flex justify-between text-xs font-semibold mb-1">
+                                    <span class="text-slate-500">Overall Recovery Trajectory</span>
+                                    <span class="text-teal-600 font-bold">${currentScore}%</span>
+                                </div>
+                                <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden border border-slate-100">
+                                    <div class="bg-teal-600 h-full rounded-full transition-all duration-500" style="width: ${Math.min(100, Math.max(0, currentScore))}%"></div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100 text-xs text-slate-600">
+                                    <strong class="font-bold text-slate-800 block mb-1">Current Routine / Regimen</strong>
+                                    <p class="text-slate-700">${escapeHtml(treatmentText)}</p>
+                                </div>
+                                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100 text-xs text-slate-600">
+                                    <strong class="font-bold text-slate-800 block mb-1">Latest Clinical Observations</strong>
+                                    <p class="text-slate-700">${escapeHtml(notesText)}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Toolbar -->
+                        <div class="pt-2 border-t border-slate-100 flex flex-wrap justify-between items-center gap-2">
+                            <span class="text-[11px] text-slate-400">Last check-in: <strong class="text-slate-600">${escapeHtml(checkinText)}</strong></span>
+
+                            <div class="flex gap-2">
+                                <a href="/dermatologist_dashboard/skin_condition_report.html?patient=${encodeURIComponent(email)}" class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">
+                                    View Scan Report
+                                </a>
+                                <a href="/dermatologist_dashboard/treatment_recommendations.html?patient=${encodeURIComponent(email)}" class="px-3.5 py-1.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl transition">
+                                    Adjust Treatment
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                `;
+            }).join('');
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function filterProgress() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const status = document.getElementById('statusFilter').value;
+
+            const filtered = allProgressData.filter(p => {
+                const name = (p.name || p.patient_name || '').toLowerCase();
+                const condition = (p.condition || p.concern || '').toLowerCase();
+                const pStatus = p.status || (p.needs_review ? 'Needs Review' : 'Improving');
+
+                const matchesQuery = name.includes(query) || condition.includes(query);
+                const matchesStatus = !status || pStatus === status;
+
+                return matchesQuery && matchesStatus;
+            });
+
+            renderProgress(filtered);
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/index.html';
+        }
+    </script>
+</body>
+</html>

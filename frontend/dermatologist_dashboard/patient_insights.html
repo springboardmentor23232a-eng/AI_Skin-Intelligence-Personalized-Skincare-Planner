@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Insights - DermaAI</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex shrink-0">
+        <div>
+            <div class="p-6 flex items-center gap-3 border-b border-slate-100">
+                <div class="bg-teal-600 text-white p-2.5 rounded-2xl shadow-sm">
+                    <i data-lucide="sparkles" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-slate-900 leading-tight">DermaAI</h1>
+                    <p class="text-xs text-teal-600 font-semibold">Doctor Portal</p>
+                </div>
+            </div>
+
+            <nav class="p-4 space-y-1 text-sm font-medium">
+                <a href="/dermatologist_dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+                </a>
+                <a href="/dermatologist_dashboard/patient_insights.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-teal-700 bg-teal-50 font-bold border-r-4 border-teal-600">
+                    <i data-lucide="users" class="w-4 h-4"></i> Patient Insights
+                </a>
+                <a href="/dermatologist_dashboard/skin_condition_report.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="file-text" class="w-4 h-4"></i> Reports
+                </a>
+                <a href="/dermatologist_dashboard/progress.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="line-chart" class="w-4 h-4"></i> Progress
+                </a>
+                <a href="/dermatologist_dashboard/treatment_recommendations.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="sliders" class="w-4 h-4"></i> Treatments
+                </a>
+            </nav>
+        </div>
+
+        <div class="p-4 border-t border-slate-100 bg-slate-50/50">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="min-w-0">
+                        <p id="user-display-name" class="text-xs font-bold text-slate-800 truncate">Loading...</p>
+                        <p class="text-[10px] text-teal-600 font-semibold truncate">Role: Dermatologist</p>
+                    </div>
+                </div>
+                <button onclick="logout()" title="Logout" class="text-slate-400 hover:text-rose-600 p-1 rounded-lg transition cursor-pointer">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-8 space-y-6">
+        
+        <!-- Clinical Header -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900">Patient Insights</h1>
+                <p class="text-sm text-slate-500">In-depth AI assessments, barrier health, health scores, and active regimens live from database.</p>
+            </div>
+            <a href="/dermatologist_dashboard/treatment_recommendations.html" class="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm transition">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i> Prescribe New Treatment
+            </a>
+        </div>
+
+        <!-- KPI Summary Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Patients</p>
+                    <h2 id="kpi-total" class="text-2xl font-extrabold text-slate-900 mt-0.5">0</h2>
+                </div>
+                <div class="p-2.5 bg-slate-100 text-slate-600 rounded-xl">
+                    <i data-lucide="users" class="w-5 h-5"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Active Intake Scans</p>
+                    <h2 id="kpi-active-scans" class="text-2xl font-extrabold text-emerald-600 mt-0.5">0</h2>
+                </div>
+                <div class="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl">
+                    <i data-lucide="check-circle" class="w-5 h-5"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Allergies Reported</p>
+                    <h2 id="kpi-allergies" class="text-2xl font-extrabold text-amber-600 mt-0.5">0</h2>
+                </div>
+                <div class="p-2.5 bg-amber-50 text-amber-600 rounded-xl">
+                    <i data-lucide="shield-alert" class="w-5 h-5"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Avg Health Index</p>
+                    <h2 id="kpi-avg-score" class="text-2xl font-extrabold text-teal-600 mt-0.5">--</h2>
+                </div>
+                <div class="p-2.5 bg-teal-50 text-teal-600 rounded-xl">
+                    <i data-lucide="activity" class="w-5 h-5"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row gap-3">
+            <div class="relative flex-1">
+                <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input type="text" id="searchInput" placeholder="Search patient name, email, or concern..." onkeyup="filterPatients()" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-teal-500 font-medium">
+            </div>
+
+            <select id="fitzpatrickFilter" onchange="filterPatients()" class="px-3 py-2 border border-slate-200 rounded-xl bg-white text-xs font-semibold text-slate-700 focus:outline-none focus:border-teal-500">
+                <option value="">All Intake Statuses</option>
+                <option value="assessed">Assessed Profiles Only</option>
+                <option value="pending">Awaiting Assessment</option>
+            </select>
+        </div>
+
+        <!-- Detailed Patient Insights Stream -->
+        <div id="patients-container" class="space-y-6">
+            <div class="text-center py-12 bg-white rounded-2xl border border-slate-200">
+                <i data-lucide="loader" class="w-6 h-6 text-teal-600 animate-spin mx-auto mb-2"></i>
+                <p class="text-xs text-slate-400">Loading patient clinical profiles from database...</p>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        let uniquePatientsData = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+            checkAuthState();
+            fetchPatientInsights();
+        });
+
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function getToken() {
+            return localStorage.getItem('auth_token') || localStorage.getItem('token') || '';
+        }
+
+        function getAuthHeaders() {
+            return {
+                'Authorization': `Bearer ${getToken()}`,
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache, no-store, must-revalidate'
+            };
+        }
+
+        function checkAuthState() {
+            const token = getToken();
+            const identity = localStorage.getItem('user_identity') || localStorage.getItem('name') || localStorage.getItem('email');
+            const role = (localStorage.getItem('user_role') || localStorage.getItem('role') || '').toLowerCase();
+            
+            if (!token || (!role.includes('dermatologist') && !role.includes('doctor') && !role.includes('admin'))) {
+                window.location.href = '/index.html';
+            } else {
+                document.getElementById('user-display-name').innerText = identity || 'Dermatologist';
+            }
+        }
+
+        async function fetchPatientInsights() {
+            try {
+                const cacheBuster = `?_t=${Date.now()}`;
+                const res = await fetch(`/api/dermatologist/reports${cacheBuster}`, { 
+                    headers: getAuthHeaders(),
+                    cache: 'no-store' 
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    const rawList = Array.isArray(data) ? data : (data.reports || data.data || data.patients || []);
+                    processUniquePatients(rawList);
+                } else {
+                    renderError("Unable to fetch patient insights from database.");
+                }
+            } catch (err) {
+                console.error("Fetch error:", err);
+                renderError("Network error connecting to database server.");
+            }
+        }
+
+        function processUniquePatients(rawList) {
+            const groupedMap = {};
+
+            rawList.forEach(item => {
+                const email = (item.email || item.client_email || item.patient_email || item.user_email || '').toLowerCase();
+                if (!email) return;
+                if (!groupedMap[email]) {
+                    groupedMap[email] = [];
+                }
+                groupedMap[email].push(item);
+            });
+
+            uniquePatientsData = Object.keys(groupedMap).map(email => {
+                const records = groupedMap[email];
+                records.sort((a, b) => new Date(b.updated_at || b.created_at || 0) - new Date(a.updated_at || a.created_at || 0));
+                return records[0];
+            });
+
+            renderPatientInsights(uniquePatientsData);
+        }
+
+        function renderError(message) {
+            const container = document.getElementById('patients-container');
+            container.innerHTML = `
+                <div class="text-center py-12 bg-white rounded-2xl border border-slate-200">
+                    <i data-lucide="alert-circle" class="w-8 h-8 text-rose-500 mx-auto mb-2"></i>
+                    <p class="text-xs font-semibold text-slate-700">${escapeHtml(message)}</p>
+                </div>
+            `;
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function updateKPIs(list) {
+            document.getElementById('kpi-total').innerText = list.length;
+
+            const assessedPatients = list.filter(p => p.has_assessment && p.score !== null && p.score !== undefined);
+            document.getElementById('kpi-active-scans').innerText = assessedPatients.length;
+
+            const allergies = list.filter(p => {
+                const alg = (p.allergies || p.allergen_flags || '').toLowerCase();
+                return alg && !alg.includes('none') && alg.trim() !== '';
+            }).length;
+            document.getElementById('kpi-allergies').innerText = allergies;
+
+            const scores = assessedPatients.map(p => Number(p.score)).filter(s => !isNaN(s) && s > 0);
+            const avgScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
+            document.getElementById('kpi-avg-score').innerText = avgScore !== null ? `${avgScore}/100` : '--';
+        }
+
+        function extractRoutineSteps(routineData) {
+            if (!routineData) return [];
+            if (Array.isArray(routineData)) {
+                return routineData.map(step => {
+                    if (typeof step === 'string') return step;
+                    return step.product_recommendation || step.product || step.name || 'Clinical Step';
+                });
+            }
+            if (typeof routineData === 'string') {
+                try {
+                    const parsed = JSON.parse(routineData);
+                    if (Array.isArray(parsed)) {
+                        return parsed.map(step => typeof step === 'string' ? step : (step.product_recommendation || step.product || 'Step'));
+                    }
+                } catch (e) {
+                    return [routineData];
+                }
+            }
+            return [];
+        }
+
+        function renderPatientInsights(patients) {
+            const container = document.getElementById('patients-container');
+            updateKPIs(patients);
+
+            if (!patients || patients.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 bg-white rounded-2xl border border-slate-200">
+                        <i data-lucide="user-x" class="w-8 h-8 text-slate-300 mx-auto mb-2"></i>
+                        <p class="text-xs font-semibold text-slate-600">No patient insight records found in database.</p>
+                    </div>
+                `;
+                if (window.lucide) lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = patients.map(p => {
+                const patientName = p.client_name || p.patient_name || p.name || p.full_name || 'Patient';
+                const email = p.email || p.client_email || p.patient_email || '';
+                const hasAssessment = Boolean(p.has_assessment && p.score !== null && p.score !== undefined);
+                const scoreDisplay = hasAssessment ? `${p.score}/100` : '<span class="text-amber-500 text-sm">Pending</span>';
+                
+                let concernText = hasAssessment ? 'General Maintenance' : 'No evaluation submitted';
+                if (Array.isArray(p.concerns) && p.concerns.length > 0) concernText = p.concerns.join(', ');
+                else if (typeof p.concerns === 'string' && p.concerns.trim()) concernText = p.concerns.replace(/[{}]/g, '');
+                else if (p.concern || p.primary_concern) concernText = p.concern || p.primary_concern;
+
+                const amSteps = extractRoutineSteps(p.routine_am || (p.routine && p.routine.am));
+                const pmSteps = extractRoutineSteps(p.routine_pm || (p.routine && p.routine.pm));
+
+                const amListHtml = amSteps.length > 0 
+                    ? amSteps.map(step => `<li>${escapeHtml(step)}</li>`).join('')
+                    : '<li class="italic text-slate-400">No AM routine assigned</li>';
+
+                const pmListHtml = pmSteps.length > 0 
+                    ? pmSteps.map(step => `<li>${escapeHtml(step)}</li>`).join('')
+                    : '<li class="italic text-slate-400">No PM routine assigned</li>';
+
+                const lifestyleText = hasAssessment 
+                    ? `${p.sleep_quality || 'Good'} sleep • ${p.water_intake || 2.0}L water • ${p.environment || 'Urban'}`
+                    : 'Intake questionnaire pending';
+
+                const badgeHtml = hasAssessment
+                    ? `<span class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200">Assessed Profile</span>`
+                    : `<span class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">Awaiting Intake Assessment</span>`;
+
+                const summaryText = hasAssessment
+                    ? (p.recommendation || p.dermatologist_notes || 'Intake assessment recorded. Patient is progressing with barrier safe formulations.')
+                    : 'Patient has created an account but has not yet submitted their clinical skin evaluation.';
+
+                return `
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5 hover:border-teal-500/50 transition">
+                        
+                        <!-- Top Bar -->
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-4 gap-3">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h3 class="font-bold text-slate-900 text-base">${escapeHtml(patientName)}</h3>
+                                    ${badgeHtml}
+                                </div>
+                                <p class="text-xs text-slate-400 mt-0.5 font-mono">${escapeHtml(email)} • ${hasAssessment ? 'Last Assessed: ' + (p.updated_at ? new Date(p.updated_at).toLocaleDateString() : 'Recent') : '<span class="text-amber-600 font-semibold">Intake Scan Pending</span>'}</p>
+                            </div>
+                            
+                            <a href="/dermatologist_dashboard/treatment_recommendations.html?patient=${encodeURIComponent(email)}" class="bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition">
+                                <i data-lucide="plus-circle" class="w-4 h-4"></i> Prescribe Treatment
+                            </a>
+                        </div>
+
+                        <!-- 4 Metric Cards -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                            <div class="p-3 bg-slate-50 border border-slate-100 rounded-xl space-y-0.5">
+                                <span class="font-bold text-slate-400 uppercase tracking-wider text-[10px]">Health Index Score</span>
+                                <p class="text-lg font-extrabold text-teal-600">${scoreDisplay}</p>
+                            </div>
+                            <div class="p-3 bg-slate-50 border border-slate-100 rounded-xl space-y-0.5">
+                                <span class="font-bold text-slate-400 uppercase tracking-wider text-[10px]">Primary Indication</span>
+                                <p class="text-xs font-semibold text-slate-800 truncate">${escapeHtml(concernText)}</p>
+                            </div>
+                            <div class="p-3 bg-slate-50 border border-slate-100 rounded-xl space-y-0.5">
+                                <span class="font-bold text-slate-400 uppercase tracking-wider text-[10px]">Inflammation Index</span>
+                                <p class="text-xs font-semibold ${hasAssessment ? 'text-amber-600' : 'text-slate-400'}">${hasAssessment ? escapeHtml(p.inflammation_level || 'Low / Controlled') : 'Pending Scan'}</p>
+                            </div>
+                            <div class="p-3 bg-slate-50 border border-slate-100 rounded-xl space-y-0.5">
+                                <span class="font-bold text-slate-400 uppercase tracking-wider text-[10px]">Barrier Integrity</span>
+                                <p class="text-xs font-semibold text-slate-700">${hasAssessment ? escapeHtml(p.barrier_status || p.barrier_health || 'Healthy') : 'Pending Scan'}</p>
+                            </div>
+                        </div>
+
+                        <!-- AI Clinical Analysis -->
+                        <div class="p-4 bg-slate-50/80 rounded-xl border border-slate-100 text-xs space-y-2">
+                            <div class="flex items-center gap-1.5 font-bold text-slate-800">
+                                <i data-lucide="sparkles" class="w-4 h-4 text-teal-600"></i>
+                                <span>Diagnostic Clinical Summary:</span>
+                            </div>
+                            <p class="text-slate-600 leading-relaxed">${escapeHtml(summaryText)}</p>
+                            <div class="flex flex-wrap gap-4 pt-1 text-[11px] text-slate-500 font-medium border-t border-slate-200/60 mt-2">
+                                <span><strong>Skin Type:</strong> ${escapeHtml(p.skin_type || 'Not Specified')}</span>
+                                <span>•</span>
+                                <span class="${(p.allergies && !p.allergies.toLowerCase().includes('none')) ? 'text-amber-700 font-bold' : ''}"><strong>Allergies:</strong> ${escapeHtml(p.allergies || 'None')}</span>
+                                <span>•</span>
+                                <span><strong>Lifestyle Factors:</strong> ${escapeHtml(lifestyleText)}</span>
+                            </div>
+                        </div>
+
+                        <!-- Prescribed Regimen -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs pt-1">
+                            <div class="p-3.5 border border-amber-200/80 bg-amber-50/30 rounded-xl space-y-2">
+                                <div class="flex items-center gap-1.5 font-bold text-amber-900 border-b border-amber-200/60 pb-1.5">
+                                    <i data-lucide="sun" class="w-4 h-4 text-amber-500"></i>
+                                    <span>Morning Routine (AM)</span>
+                                </div>
+                                <ul class="space-y-1 text-slate-700 list-disc list-inside">
+                                    ${amListHtml}
+                                </ul>
+                            </div>
+
+                            <div class="p-3.5 border border-indigo-200/80 bg-indigo-50/30 rounded-xl space-y-2">
+                                <div class="flex items-center gap-1.5 font-bold text-indigo-900 border-b border-indigo-200/60 pb-1.5">
+                                    <i data-lucide="moon" class="w-4 h-4 text-indigo-500"></i>
+                                    <span>Evening Routine (PM)</span>
+                                </div>
+                                <ul class="space-y-1 text-slate-700 list-disc list-inside">
+                                    ${pmListHtml}
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+                `;
+            }).join('');
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function filterPatients() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const fitz = document.getElementById('fitzpatrickFilter').value.toLowerCase();
+
+            const filtered = uniquePatientsData.filter(p => {
+                const name = (p.client_name || p.patient_name || p.name || '').toLowerCase();
+                const email = (p.email || p.client_email || p.patient_email || '').toLowerCase();
+                const concern = String(p.concerns || p.concern || '').toLowerCase();
+
+                const matchesQuery = name.includes(query) || email.includes(query) || concern.includes(query);
+                
+                let matchesStatus = true;
+                if (fitz === 'assessed') {
+                    matchesStatus = Boolean(p.has_assessment);
+                } else if (fitz === 'pending') {
+                    matchesStatus = !p.has_assessment;
+                }
+
+                return matchesQuery && matchesStatus;
+            });
+
+            renderPatientInsights(filtered);
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/index.html';
+        }
+    </script>
+</body>
+</html>

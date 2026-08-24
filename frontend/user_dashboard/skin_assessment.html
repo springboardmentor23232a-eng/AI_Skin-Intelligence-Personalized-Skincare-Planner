@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skin Profile Assessment - DermaAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        
+        .face-guide-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 220px;
+            height: 280px;
+            border: 2px dashed rgba(20, 184, 166, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex shrink-0">
+        <div>
+            <div class="p-6 flex items-center gap-3 border-b border-slate-100">
+                <div class="bg-teal-600 text-white p-2.5 rounded-2xl"><i data-lucide="sparkles" class="w-5 h-5"></i></div>
+                <div><h1 class="font-bold text-slate-900 leading-tight">DermaAI</h1><p class="text-xs text-slate-400">User Dashboard</p></div>
+            </div>
+            <nav class="p-4 space-y-1 text-sm font-medium">
+                <a href="/user_dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+                </a>
+                <a href="/user_dashboard/skin_assessment.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-teal-700 bg-teal-50 font-bold border-r-4 border-teal-600">
+                    <i data-lucide="scan-face" class="w-4 h-4"></i> Skin Assessment
+                </a>
+                <a href="/user_dashboard/routine_planner.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="calendar" class="w-4 h-4"></i> Routine Planner
+                </a>
+                <a href="/user_dashboard/product_recommendations.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="sliders" class="w-4 h-4"></i> Product Recommendations
+                </a>
+                <a href="/user_dashboard/ingredient_intelligence.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="flask-conical" class="w-4 h-4"></i> Ingredient Scanner
+                </a>
+                <a href="/user_dashboard/assessment_history.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="history" class="w-4 h-4"></i> Assessment History
+                </a>
+                <a href="/user_dashboard/appointments.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="video" class="w-4 h-4"></i> Appointments
+                </a>
+                <a href="/user_dashboard/progress.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="activity" class="w-4 h-4"></i> Progress
+                </a>
+                <a href="/user_dashboard/risk_analysis.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="shield-alert" class="w-4 h-4"></i> Risk Analysis
+                </a>
+                <a href="/user_dashboard/checklist.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="list-check" class="w-4 h-4"></i> Checklist
+                </a>
+            </nav>
+        </div>
+        <div class="p-4 border-t border-slate-100 bg-slate-50/50">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="min-w-0">
+                        <p id="user-display-name" class="text-xs font-bold text-slate-800 truncate">Loading...</p>
+                        <p class="text-[10px] text-slate-500 font-medium truncate">Role: User</p>
+                    </div>
+                </div>
+                <button onclick="logout()" title="Logout" class="text-slate-400 hover:text-rose-600 p-1 rounded-lg transition cursor-pointer">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-8 space-y-6">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900">Skin Profile & Assessment Engine</h1>
+            <p class="text-sm text-slate-500">Choose your assessment method: Image Submission with Multi-Modal Fusion or Manual Questionnaire.</p>
+        </div>
+
+        <!-- Global Alert Message Banner -->
+        <div id="status-alert" class="hidden p-4 rounded-xl text-xs font-medium transition-all duration-300"></div>
+
+        <!-- Selection View Mode -->
+        <div id="selection-view" class="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl">
+            <div onclick="selectMode('image')" class="bg-white p-8 rounded-2xl border-2 border-slate-200 hover:border-teal-600 shadow-sm transition cursor-pointer space-y-3 group">
+                <div class="w-12 h-12 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center group-hover:bg-teal-600 group-hover:text-white transition">
+                    <i data-lucide="camera" class="w-6 h-6"></i>
+                </div>
+                <h3 class="font-bold text-slate-900 text-base">Image Submission (Upload or Webcam)</h3>
+                <p class="text-xs text-slate-500">Submit facial photograph + daily lifestyle metrics for multi-modal ML model analysis.</p>
+            </div>
+
+            <div onclick="selectMode('form')" class="bg-white p-8 rounded-2xl border-2 border-slate-200 hover:border-teal-600 shadow-sm transition cursor-pointer space-y-3 group">
+                <div class="w-12 h-12 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center group-hover:bg-teal-600 group-hover:text-white transition">
+                    <i data-lucide="file-text" class="w-6 h-6"></i>
+                </div>
+                <h3 class="font-bold text-slate-900 text-base">Fill in the Form</h3>
+                <p class="text-xs text-slate-500">Manually specify your skin type, concerns, sensitivities, and lifestyle parameters.</p>
+            </div>
+        </div>
+
+        <!-- IMAGE SUBMISSION VIEW -->
+        <div id="image-assessment-view" class="space-y-6 max-w-2xl hidden">
+            <div class="flex items-center justify-between pb-2 border-b">
+                <button type="button" onclick="backToSelection()" class="text-xs font-bold text-teal-600 flex items-center gap-1 hover:underline">
+                    <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> Back to options
+                </button>
+                <span class="text-[10px] font-bold px-2.5 py-1 bg-teal-100 text-teal-800 rounded-full uppercase">Multi-Modal ML Analysis</span>
+            </div>
+
+            <div class="flex gap-2">
+                <button type="button" onclick="setImageSubMode('file')" id="btn-sub-file" class="px-4 py-2 rounded-xl text-xs font-bold bg-teal-600 text-white transition shadow-sm">📁 Upload Image File</button>
+                <button type="button" onclick="setImageSubMode('webcam')" id="btn-sub-webcam" class="px-4 py-2 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-200 transition shadow-sm">📷 Live Webcam Capture</button>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div id="container-file-upload" class="space-y-2">
+                    <label class="block font-semibold text-slate-700 text-xs">Upload Facial Photograph</label>
+                    <input type="file" id="imageFile" accept="image/*" onchange="previewFile(event)" class="w-full border border-slate-300 rounded-xl p-2 bg-slate-50 text-xs">
+                    <div id="file-preview-container" class="hidden mt-2">
+                        <img id="file-preview" class="w-32 h-32 object-cover rounded-xl border border-slate-200 shadow-sm" alt="Preview">
+                    </div>
+                </div>
+
+                <div id="container-webcam-capture" class="space-y-2 hidden">
+                    <label class="block font-semibold text-slate-700 text-xs">Live Alignment Stream (Center Face in Guide)</label>
+                    <div class="relative w-full bg-slate-900 rounded-xl overflow-hidden border border-slate-300">
+                        <video id="webcam-video" autoplay playsinline class="w-full aspect-video object-cover"></video>
+                        <div id="face-guide" class="face-guide-overlay"></div>
+                        <canvas id="webcam-canvas" class="hidden"></canvas>
+                    </div>
+                    <div class="flex items-center justify-between pt-1">
+                        <button type="button" onclick="captureWebcam()" class="px-4 py-2 bg-teal-600 text-white rounded-xl text-xs font-semibold hover:bg-teal-700 transition flex items-center gap-1.5">
+                            <i data-lucide="camera" class="w-4 h-4"></i> Capture Frame
+                        </button>
+                        <p id="webcam-status" class="text-xs text-emerald-600 font-bold hidden flex items-center gap-1">
+                            <i data-lucide="check-circle" class="w-4 h-4"></i> Photo Captured & Preprocessed
+                        </p>
+                    </div>
+                </div>
+
+                <div class="border-t pt-4 space-y-3">
+                    <h3 class="font-bold text-slate-800 text-xs uppercase tracking-wider">Associated Lifestyle Metrics for Model Fusion</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Water Intake (L)</label>
+                            <input type="number" step="0.5" id="img-water" value="2.5" class="w-full border rounded-xl p-2 bg-slate-50">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Sleep (Hours)</label>
+                            <input type="number" step="0.5" id="img-sleep" value="7.5" class="w-full border rounded-xl p-2 bg-slate-50">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Sun Exposure</label>
+                            <select id="img-sun" class="w-full border rounded-xl p-2 bg-slate-50">
+                                <option value="Moderate" selected>Moderate UV</option>
+                                <option value="High">High UV</option>
+                                <option value="Low">Low / Indoor</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Environment</label>
+                            <select id="img-environment" class="w-full border rounded-xl p-2 bg-slate-50">
+                                <option value="Urban" selected>Urban / Polluted</option>
+                                <option value="Suburban">Suburban</option>
+                                <option value="Rural">Rural / Clean</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Stress Level (1-10)</label>
+                            <input type="number" id="img-stress" min="1" max="10" value="5" class="w-full border rounded-xl p-2 bg-slate-50">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Skin Type</label>
+                            <select id="img-skin-type" class="w-full border rounded-xl p-2 bg-slate-50">
+                                <option value="Combination" selected>Combination</option>
+                                <option value="Oily">Oily</option>
+                                <option value="Dry">Dry</option>
+                                <option value="Sensitive">Sensitive</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-2">
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-1">Known Allergies</label>
+                        <input type="text" id="img-allergies" placeholder="e.g. Fragrance, Nuts" class="w-full border rounded-xl p-2 bg-slate-50">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-1">Known Sensitivities</label>
+                        <input type="text" id="img-sensitivities" placeholder="e.g. AHA, High Retinol" class="w-full border rounded-xl p-2 bg-slate-50">
+                    </div>
+                </div>
+
+                <button type="button" id="btn-analyze-image" onclick="submitImageAssessment()" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-xl text-xs shadow-lg shadow-teal-600/20 transition cursor-pointer flex items-center justify-center gap-2">
+                    <i data-lucide="cpu" class="w-4 h-4"></i> Run Multi-Modal ML Analysis
+                </button>
+            </div>
+        </div>
+
+        <!-- MANUAL FORM ASSESSMENT VIEW -->
+        <form id="assessment-form" onsubmit="saveFormAssessment(event)" class="space-y-6 max-w-4xl hidden">
+            <div class="flex items-center justify-between pb-2 border-b">
+                <button type="button" onclick="backToSelection()" class="text-xs font-bold text-teal-600 flex items-center gap-1 hover:underline">
+                    <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> Back to options
+                </button>
+                <span class="text-[10px] font-bold px-2.5 py-1 bg-teal-100 text-teal-800 rounded-full uppercase">Manual Form Evaluation</span>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <h2 class="text-sm font-bold text-teal-700 uppercase tracking-wider">1. Skin Profile Parameters</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Skin Type</label>
+                        <select id="skinType" class="w-full border rounded-xl p-2.5 bg-slate-50">
+                            <option value="Oily">Oily</option>
+                            <option value="Dry">Dry</option>
+                            <option value="Combination" selected>Combination</option>
+                            <option value="Sensitive">Sensitive</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Age Group</label>
+                        <select id="ageGroup" class="w-full border rounded-xl p-2.5 bg-slate-50">
+                            <option value="18-24">18-24</option>
+                            <option value="25-36" selected>25-36</option>
+                            <option value="37-45">37-45</option>
+                            <option value="45+">45+</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-2">Skin Concerns (Select All Applicable)</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+                        <label class="flex items-center gap-2 p-2.5 border rounded-xl bg-slate-50 cursor-pointer hover:bg-slate-100">
+                            <input type="checkbox" name="concerns" value="Acne" checked class="rounded text-teal-600"> Acne / Breakouts
+                        </label>
+                        <label class="flex items-center gap-2 p-2.5 border rounded-xl bg-slate-50 cursor-pointer hover:bg-slate-100">
+                            <input type="checkbox" name="concerns" value="Hyperpigmentation" class="rounded text-teal-600"> Hyperpigmentation
+                        </label>
+                        <label class="flex items-center gap-2 p-2.5 border rounded-xl bg-slate-50 cursor-pointer hover:bg-slate-100">
+                            <input type="checkbox" name="concerns" value="Dark Spots" checked class="rounded text-teal-600"> Dark Spots
+                        </label>
+                        <label class="flex items-center gap-2 p-2.5 border rounded-xl bg-slate-50 cursor-pointer hover:bg-slate-100">
+                            <input type="checkbox" name="concerns" value="Dry Skin" class="rounded text-teal-600"> Dry Skin
+                        </label>
+                        <label class="flex items-center gap-2 p-2.5 border rounded-xl bg-slate-50 cursor-pointer hover:bg-slate-100">
+                            <input type="checkbox" name="concerns" value="Oily Skin" class="rounded text-teal-600"> Oily Skin
+                        </label>
+                        <label class="flex items-center gap-2 p-2.5 border rounded-xl bg-slate-50 cursor-pointer hover:bg-slate-100">
+                            <input type="checkbox" name="concerns" value="Sensitive Skin" class="rounded text-teal-600"> Sensitive Skin
+                        </label>
+                        <label class="flex items-center gap-2 p-2.5 border rounded-xl bg-slate-50 cursor-pointer hover:bg-slate-100">
+                            <input type="checkbox" name="concerns" value="Wrinkles" class="rounded text-teal-600"> Wrinkles
+                        </label>
+                        <label class="flex items-center gap-2 p-2.5 border rounded-xl bg-slate-50 cursor-pointer hover:bg-slate-100">
+                            <input type="checkbox" name="concerns" value="Fine Lines" class="rounded text-teal-600"> Fine Lines
+                        </label>
+                        <label class="flex items-center gap-2 p-2.5 border rounded-xl bg-slate-50 cursor-pointer hover:bg-slate-100">
+                            <input type="checkbox" name="concerns" value="Redness" class="rounded text-teal-600"> Redness / Inflammation
+                        </label>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Known Allergies</label>
+                        <input type="text" id="allergies" class="w-full border border-slate-300 rounded-xl p-2.5 bg-slate-50" placeholder="e.g. Fragrance, Nuts">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Sensitivities / Reactivity</label>
+                        <input type="text" id="sensitivities" class="w-full border border-slate-300 rounded-xl p-2.5 bg-slate-50" placeholder="e.g. High Retinol, AHA">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <h2 class="text-sm font-bold text-teal-700 uppercase tracking-wider">2. Lifestyle & Environment Tracking</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 text-xs">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Water Intake (Liters)</label>
+                        <input type="number" step="0.5" id="waterIntake" value="2.5" class="w-full border rounded-xl p-2.5 bg-slate-50">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Sleep Pattern (Hours)</label>
+                        <input type="number" step="0.5" id="sleepQuality" value="7.5" class="w-full border rounded-xl p-2.5 bg-slate-50">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Sun Exposure</label>
+                        <select id="sunExposure" class="w-full border rounded-xl p-2.5 bg-slate-50">
+                            <option value="Moderate" selected>Moderate UV</option>
+                            <option value="High">High UV</option>
+                            <option value="Low">Low / Indoor</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Environment</label>
+                        <select id="environment" class="w-full border rounded-xl p-2.5 bg-slate-50">
+                            <option value="Urban" selected>Urban / Polluted</option>
+                            <option value="Suburban">Suburban</option>
+                            <option value="Rural">Rural / Clean</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs mt-2">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Stress Level (1 - 10)</label>
+                        <input type="number" id="stressLevel" min="1" max="10" value="5" class="w-full border rounded-xl p-2.5 bg-slate-50">
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" id="submit-form-btn" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-xl text-xs shadow-lg transition cursor-pointer flex items-center justify-center gap-2">
+                <i data-lucide="check-circle" class="w-4 h-4"></i> Evaluate & Save Skin Profile
+            </button>
+        </form>
+    </main>
+
+<script>
+    lucide.createIcons();
+    let imageSubMode = 'file';
+    let webcamStream = null;
+    let capturedBlob = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
+        const userEmail = localStorage.getItem('user_email') || localStorage.getItem('email');
+        const rawUserId = localStorage.getItem('user_id');
+        const userId = rawUserId ? parseInt(rawUserId, 10) : null;
+
+        // Resilient session check preventing immediate forced redirect on missing integer ID alone
+        if (!token || (!userEmail && (userId === null || isNaN(userId)))) {
+            console.warn("Authentication session missing. Redirecting to login page.");
+            window.location.href = '/index.html';
+            return;
+        }
+
+        // Normalize token and email in localStorage
+        if (token) {
+            localStorage.setItem('token', token);
+            localStorage.setItem('auth_token', token);
+        }
+        if (userEmail) {
+            localStorage.setItem('user_email', userEmail);
+            localStorage.setItem('email', userEmail);
+        }
+
+        const displayName = localStorage.getItem('user_identity') || userEmail || 'User';
+        document.getElementById('user-display-name').innerText = displayName;
+    });
+
+    function formatErrorMessage(detail) {
+        if (!detail) return "An error occurred during assessment processing.";
+        if (typeof detail === 'string') return detail;
+        if (Array.isArray(detail)) {
+            return detail.map(err => {
+                const field = Array.isArray(err.loc) ? err.loc.filter(x => x !== 'body').join('.') : '';
+                return field ? `${field}: ${err.msg}` : err.msg;
+            }).join(' | ');
+        }
+        if (typeof detail === 'object') return JSON.stringify(detail);
+        return String(detail);
+    }
+
+    function showAlert(message, type = 'error') {
+        const alertBox = document.getElementById('status-alert');
+        alertBox.classList.remove('hidden', 'bg-rose-100', 'text-rose-800', 'bg-teal-100', 'text-teal-800');
+        if (type === 'error') {
+            alertBox.classList.add('bg-rose-100', 'text-rose-800');
+        } else {
+            alertBox.classList.add('bg-teal-100', 'text-teal-800');
+        }
+        alertBox.innerText = message;
+        alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function previewFile(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('file-preview').src = e.target.result;
+                document.getElementById('file-preview-container').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function parseApproximateAge(ageGroupStr) {
+        if (!ageGroupStr) return 28;
+        if (ageGroupStr.includes('18')) return 21;
+        if (ageGroupStr.includes('25')) return 30;
+        if (ageGroupStr.includes('37')) return 40;
+        if (ageGroupStr.includes('45')) return 50;
+        return 28;
+    }
+
+    function selectMode(mode) {
+        document.getElementById('selection-view').classList.add('hidden');
+        if (mode === 'image') {
+            document.getElementById('image-assessment-view').classList.remove('hidden');
+            setImageSubMode('file');
+        } else {
+            document.getElementById('assessment-form').classList.remove('hidden');
+            stopWebcam();
+        }
+    }
+
+    function backToSelection() {
+        stopWebcam();
+        document.getElementById('image-assessment-view').classList.add('hidden');
+        document.getElementById('assessment-form').classList.add('hidden');
+        document.getElementById('selection-view').classList.remove('hidden');
+    }
+
+    function setImageSubMode(sub) {
+        imageSubMode = sub;
+        if (sub === 'file') {
+            document.getElementById('btn-sub-file').className = "px-4 py-2 rounded-xl text-xs font-bold bg-teal-600 text-white transition shadow-sm";
+            document.getElementById('btn-sub-webcam').className = "px-4 py-2 rounded-xl text-xs font-bold bg-white text-slate-600 border transition shadow-sm";
+            document.getElementById('container-file-upload').classList.remove('hidden');
+            document.getElementById('container-webcam-capture').classList.add('hidden');
+            stopWebcam();
+        } else {
+            document.getElementById('btn-sub-webcam').className = "px-4 py-2 rounded-xl text-xs font-bold bg-teal-600 text-white transition shadow-sm";
+            document.getElementById('btn-sub-file').className = "px-4 py-2 rounded-xl text-xs font-bold bg-white text-slate-600 border transition shadow-sm";
+            document.getElementById('container-webcam-capture').classList.remove('hidden');
+            document.getElementById('container-file-upload').classList.add('hidden');
+            startWebcam();
+        }
+    }
+
+    async function startWebcam() {
+        try {
+            const video = document.getElementById('webcam-video');
+            webcamStream = await navigator.mediaDevices.getUserMedia({ 
+                video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "user" } 
+            });
+            video.srcObject = webcamStream;
+        } catch (err) {
+            showAlert("Could not access camera. Please ensure webcam permissions are enabled.");
+        }
+    }
+
+    function stopWebcam() {
+        if (webcamStream) {
+            webcamStream.getTracks().forEach(t => t.stop());
+            webcamStream = null;
+        }
+        const video = document.getElementById('webcam-video');
+        if (video) video.srcObject = null;
+    }
+
+    function captureWebcam() {
+        const video = document.getElementById('webcam-video');
+        if (!video.videoWidth) {
+            showAlert("Webcam feed initializing... Please wait.");
+            return;
+        }
+
+        const maxDimension = 1024;
+        let width = video.videoWidth;
+        let height = video.videoHeight;
+
+        if (width > maxDimension) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+        }
+
+        const canvas = document.getElementById('webcam-canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, width, height);
+
+        canvas.toBlob((blob) => {
+            capturedBlob = blob;
+            document.getElementById('webcam-status').classList.remove('hidden');
+        }, 'image/jpeg', 0.85);
+    }
+
+    function createPlaceholderImageFile() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 1;
+        canvas.height = 1;
+        return new Promise((resolve) => {
+            canvas.toBlob((blob) => {
+                const file = new File([blob], "placeholder.png", { type: "image/png" });
+                resolve(file);
+            }, "image/png");
+        });
+    }
+
+    async function submitImageAssessment() {
+        const btn = document.getElementById('btn-analyze-image');
+        btn.disabled = true;
+        btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Processing Model Fusion Pipeline...`;
+        lucide.createIcons();
+
+        const userEmail = localStorage.getItem('user_email') || localStorage.getItem('email');
+        const rawUserId = localStorage.getItem('user_id');
+        const userId = rawUserId ? parseInt(rawUserId, 10) : null;
+        const userStoredAge = localStorage.getItem('user_age');
+
+        if (!userEmail) {
+            showAlert("Session expired or invalid user session. Please log in again.");
+            resetButton(btn, "Run Multi-Modal ML Analysis", "cpu");
+            return;
+        }
+
+        const dynamicAge = userStoredAge ? parseInt(userStoredAge) : parseApproximateAge('25-36');
+        const skinTypeVal = document.getElementById('img-skin-type').value;
+
+        const formData = new FormData();
+        if (userId) formData.append('user_id', userId);
+        formData.append('email', userEmail);
+        formData.append('user_email', userEmail);
+        formData.append('age', dynamicAge);
+        formData.append('age_group', '25-36');
+        formData.append('skin_type', skinTypeVal);
+        formData.append('primary_skin_type', skinTypeVal);
+        formData.append('water_intake', parseFloat(document.getElementById('img-water').value) || 2.5);
+        formData.append('sleep', parseFloat(document.getElementById('img-sleep').value) || 7.5);
+        formData.append('sleep_hours', parseFloat(document.getElementById('img-sleep').value) || 7.5);
+        formData.append('sun_exposure', document.getElementById('img-sun').value);
+        formData.append('environment', document.getElementById('img-environment').value);
+        formData.append('stress_level', parseFloat(document.getElementById('img-stress').value) || 5);
+        formData.append('allergies', document.getElementById('img-allergies').value || '');
+        formData.append('sensitivities', document.getElementById('img-sensitivities').value || '');
+
+        if (imageSubMode === 'file') {
+            const fileInput = document.getElementById('imageFile');
+            if (fileInput.files && fileInput.files[0]) {
+                formData.append('image_file', fileInput.files[0]);
+            } else {
+                showAlert('Please select an image file to upload.');
+                resetButton(btn, "Run Multi-Modal ML Analysis", "cpu");
+                return;
+            }
+        } else {
+            if (capturedBlob) {
+                formData.append('image_file', capturedBlob, 'webcam_capture.jpg');
+            } else {
+                showAlert('Please capture a photo from your webcam first.');
+                resetButton(btn, "Run Multi-Modal ML Analysis", "cpu");
+                return;
+            }
+        }
+
+        try {
+            const token = localStorage.getItem('auth_token') || localStorage.getItem('token') || '';
+            const response = await fetch('/assessment', { 
+                method: 'POST', 
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData 
+            });
+            
+            const json = await response.json();
+            if (!response.ok) {
+                throw new Error(formatErrorMessage(json.detail || json.message));
+            }
+
+            stopWebcam();
+            
+            const healthScore = json.data?.assessment?.skin_health_score ?? json.skin_health_score;
+            const message = healthScore ? `Multi-modal analysis complete! Skin Health Index: ${healthScore}/100` : `Multi-modal analysis complete!`;
+            
+            showAlert(message, 'success');
+            setTimeout(() => { window.location.href = '/user_dashboard.html'; }, 1200);
+        } catch (err) {
+            console.error("Assessment Error:", err);
+            showAlert(`Assessment Error: ${err.message}`);
+            resetButton(btn, "Run Multi-Modal ML Analysis", "cpu");
+        }
+    }
+
+    async function saveFormAssessment(e) {
+        e.preventDefault();
+        const btn = document.getElementById('submit-form-btn');
+        btn.disabled = true;
+        btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Evaluating Profile Vectors...`;
+        lucide.createIcons();
+
+        const userEmail = localStorage.getItem('user_email') || localStorage.getItem('email');
+        const rawUserId = localStorage.getItem('user_id');
+        const userId = rawUserId ? parseInt(rawUserId, 10) : null;
+
+        if (!userEmail) {
+            showAlert("Session expired or invalid user session. Please log in again.");
+            resetButton(btn, "Evaluate & Save Skin Profile", "check-circle");
+            return;
+        }
+
+        const selectedAgeGroup = document.getElementById('ageGroup').value;
+        const calculatedAge = parseApproximateAge(selectedAgeGroup);
+        const skinTypeVal = document.getElementById('skinType').value;
+
+        const formData = new FormData();
+        if (userId) formData.append('user_id', userId);
+        formData.append('email', userEmail);
+        formData.append('user_email', userEmail);
+        formData.append('age', calculatedAge);
+        formData.append('age_group', selectedAgeGroup);
+        formData.append('skin_type', skinTypeVal);
+        formData.append('primary_skin_type', skinTypeVal);
+        formData.append('water_intake', parseFloat(document.getElementById('waterIntake').value) || 2.5);
+        formData.append('sleep', parseFloat(document.getElementById('sleepQuality').value) || 7.5);
+        formData.append('sleep_hours', parseFloat(document.getElementById('sleepQuality').value) || 7.5);
+        formData.append('sun_exposure', document.getElementById('sunExposure').value);
+        formData.append('environment', document.getElementById('environment').value);
+        formData.append('stress_level', parseFloat(document.getElementById('stressLevel').value) || 5);
+
+        const checkedConcerns = Array.from(document.querySelectorAll('input[name="concerns"]:checked')).map(cb => cb.value);
+        formData.append('concerns', JSON.stringify(checkedConcerns));
+        formData.append('concerns_list', JSON.stringify(checkedConcerns));
+        formData.append('allergies', document.getElementById('allergies').value || '');
+        formData.append('sensitivities', document.getElementById('sensitivities').value || '');
+
+        const placeholderFile = await createPlaceholderImageFile();
+        formData.append('image_file', placeholderFile);
+
+        try {
+            const token = localStorage.getItem('auth_token') || localStorage.getItem('token') || '';
+            const response = await fetch('/assessment', { 
+                method: 'POST', 
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData 
+            });
+            
+            const json = await response.json();
+            if (response.ok) {
+                const healthScore = json.data?.assessment?.skin_health_score ?? json.skin_health_score;
+                const message = healthScore ? `Evaluation complete! Score: ${healthScore}/100` : `Evaluation complete!`;
+                showAlert(message, 'success');
+                setTimeout(() => { window.location.href = '/user_dashboard.html'; }, 1200);
+            } else {
+                throw new Error(formatErrorMessage(json.detail || json.message));
+            }
+        } catch (err) {
+            console.error("Form Evaluation Error:", err);
+            showAlert(`Error: ${err.message}`);
+            resetButton(btn, "Evaluate & Save Skin Profile", "check-circle");
+        }
+    }
+
+    function resetButton(btn, text, icon = 'cpu') {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="${icon}" class="w-4 h-4"></i> ${text}`;
+        lucide.createIcons();
+    }
+
+    function logout() {
+        stopWebcam();
+        localStorage.clear();
+        window.location.href = '/index.html';
+    }
+
+    window.addEventListener('beforeunload', () => {
+        stopWebcam();
+    });
+</script>
+</body>
+</html>

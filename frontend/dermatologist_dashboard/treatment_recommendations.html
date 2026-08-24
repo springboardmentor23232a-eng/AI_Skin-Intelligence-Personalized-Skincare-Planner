@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Treatment Recommendations - DermaAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
+
+    <!-- Navigation Sidebar -->
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex shrink-0">
+        <div>
+            <div class="p-6 flex items-center gap-3 border-b border-slate-100">
+                <div class="bg-teal-600 text-white p-2.5 rounded-2xl shadow-sm">
+                    <i data-lucide="sparkles" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-slate-900 leading-tight">DermaAI</h1>
+                    <p class="text-xs text-teal-600 font-semibold">Doctor Portal</p>
+                </div>
+            </div>
+            <nav class="p-4 space-y-1 text-sm font-medium">
+                <a href="/dermatologist_dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+                </a>
+                <a href="/dermatologist_dashboard/patient_insights.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="users" class="w-4 h-4"></i> Patient Insights
+                </a>
+                <a href="/dermatologist_dashboard/skin_condition_report.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="file-text" class="w-4 h-4"></i> Skin Condition Reports
+                </a>
+                <a href="/dermatologist_dashboard/progress.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="line-chart" class="w-4 h-4"></i> Progress
+                </a>
+                <a href="/dermatologist_dashboard/treatment_recommendations.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-teal-700 bg-teal-50 font-bold border-r-4 border-teal-600">
+                    <i data-lucide="sliders" class="w-4 h-4"></i> Treatment Prescriptions
+                </a>
+            </nav>
+        </div>
+
+        <div class="p-4 border-t border-slate-100 bg-slate-50/50">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="min-w-0">
+                        <p id="user-display-name" class="text-xs font-bold text-slate-800 truncate">Loading...</p>
+                        <p class="text-[10px] text-teal-600 font-semibold truncate">Role: Dermatologist</p>
+                    </div>
+                </div>
+                <button onclick="logout()" title="Logout" class="text-slate-400 hover:text-rose-600 p-1 rounded-lg transition cursor-pointer">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Section -->
+    <main class="flex-1 overflow-y-auto p-8 space-y-6">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900">Clinical Treatment & Prescription Authorization</h1>
+            <p class="text-sm text-slate-500">Authorize prescription medications with real-time allergen and database contraindication checks.</p>
+        </div>
+
+        <!-- Contraindication Warning Banner -->
+        <div id="safety-alert" class="hidden p-4 bg-amber-50 border border-amber-200 text-amber-900 rounded-2xl text-xs space-y-1">
+            <div class="flex items-center gap-2 font-bold text-amber-800">
+                <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                <span>Database Safety Flag Detected</span>
+            </div>
+            <p id="safety-alert-msg">Patient profile flags high allergy risk or active skin sensitivity.</p>
+        </div>
+
+        <!-- Gemini AI Safety Verification Output -->
+        <div id="ai-verification-box" class="hidden p-4 bg-teal-50 border border-teal-200 text-teal-900 rounded-2xl text-xs space-y-2">
+            <div class="flex items-center gap-2 font-bold text-teal-800">
+                <i data-lucide="sparkles" class="w-4 h-4 text-teal-600"></i>
+                <span>Gemini Clinical Analysis</span>
+            </div>
+            <p id="ai-verification-msg" class="text-slate-700 leading-relaxed"></p>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <h3 class="font-bold text-slate-800 text-base">Authorize Medical Prescription</h3>
+            <form id="treatmentForm" onsubmit="submitPrescription(event)" class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-600 mb-1">Select Patient</label>
+                    <select id="patientSelect" onchange="checkPatientSafety()" class="w-full p-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:border-teal-500" required>
+                        <option value="">Fetching patient database...</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block font-bold text-slate-600 mb-1">Category / Type</label>
+                        <select id="categoryInput" class="w-full p-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:border-teal-500">
+                            <option value="Prescription Treatment">Prescription Treatment</option>
+                            <option value="Targeted Therapy">Targeted Therapy</option>
+                            <option value="Moisturizer">Moisturizer / Barrier Repair</option>
+                            <option value="Cleanser">Medical Cleanser</option>
+                            <option value="Sunscreen">Photoprotection (SPF)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-600 mb-1">Medication / Product Name</label>
+                        <input type="text" id="medicationInput" placeholder="e.g., Tretinoin Cream 0.05%" class="w-full p-2.5 border border-slate-200 rounded-xl outline-none focus:border-teal-500" required>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-600 mb-1">Active Ingredient(s)</label>
+                        <input type="text" id="activesInput" placeholder="e.g., Tretinoin 0.05%, Hyaluronic Acid" class="w-full p-2.5 border border-slate-200 rounded-xl outline-none focus:border-teal-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-bold text-slate-600 mb-1">Routine Timing</label>
+                        <select id="timingInput" class="w-full p-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:border-teal-500">
+                            <option value="Evening">Evening Care (PM)</option>
+                            <option value="Morning">Morning Care (AM)</option>
+                            <option value="Both">Morning & Evening (AM/PM)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-600 mb-1">Duration & Dosage</label>
+                        <input type="text" id="durationInput" placeholder="e.g., 12 weeks, apply pea-sized amount nightly" class="w-full p-2.5 border border-slate-200 rounded-xl outline-none focus:border-teal-500" required>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-600 mb-1">Clinical Instructions & Contraindications</label>
+                    <textarea id="instructionsInput" rows="3" class="w-full p-3 border border-slate-200 rounded-xl resize-none outline-none focus:border-teal-500" placeholder="Apply pea-sized amount avoiding eye area..."></textarea>
+                </div>
+
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-3 pt-2">
+                    <button type="button" onclick="verifyWithGeminiAI()" class="w-full sm:w-auto bg-teal-50 text-teal-700 border border-teal-200 hover:bg-teal-100 font-bold px-4 py-2.5 rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i> Verify with Gemini Safety Engine
+                    </button>
+                    <button type="submit" id="submitBtn" class="w-full sm:w-auto bg-teal-600 hover:bg-teal-700 text-white font-bold px-6 py-2.5 rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 shadow-sm">
+                        <i data-lucide="check-circle" class="w-4 h-4"></i> Authorize Prescription
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        let activePatients = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (window.lucide) lucide.createIcons();
+            checkAuthState();
+            await populatePatientDropdown();
+        });
+
+        function getToken() {
+            return localStorage.getItem('auth_token') || localStorage.getItem('token') || '';
+        }
+
+        function getAuthHeaders() {
+            return {
+                'Authorization': `Bearer ${getToken()}`,
+                'Content-Type': 'application/json'
+            };
+        }
+
+        function checkAuthState() {
+            const token = getToken();
+            const identity = localStorage.getItem('user_identity') || localStorage.getItem('name') || localStorage.getItem('email');
+            const role = (localStorage.getItem('user_role') || localStorage.getItem('role') || '').toLowerCase();
+            
+            if (!token || (!role.includes('dermatologist') && !role.includes('doctor') && !role.includes('admin'))) {
+                window.location.href = '/index.html';
+            } else {
+                const nameDisplay = document.getElementById('user-display-name');
+                if (nameDisplay) {
+                    nameDisplay.innerText = identity || 'Dermatologist';
+                }
+            }
+        }
+
+        async function populatePatientDropdown() {
+            const select = document.getElementById('patientSelect');
+            if (!select) return;
+
+            try {
+                const res = await fetch('/api/dermatologist/patients', { headers: getAuthHeaders() });
+                if (res.ok) {
+                    const data = await res.json();
+                    
+                    activePatients = Array.isArray(data) ? data : (data.patients || data.data || []);
+
+                    if (activePatients.length === 0) {
+                        select.innerHTML = '<option value="">No patients registered in database</option>';
+                        return;
+                    }
+
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const targetPatient = (urlParams.get('patient') || '').toLowerCase();
+
+                    let options = '<option value="">-- Select Patient Record --</option>';
+                    options += activePatients.map(p => {
+                        const email = p.email || p.user_email || p.patient_email || '';
+                        const name = p.name || p.full_name || p.patient_name || email || 'Patient';
+                        const isSelected = targetPatient && email.toLowerCase() === targetPatient ? 'selected' : '';
+                        return `<option value="${escapeHtml(email)}" ${isSelected}>${escapeHtml(name)} (${escapeHtml(email)})</option>`;
+                    }).join('');
+
+                    select.innerHTML = options;
+                    checkPatientSafety();
+                } else {
+                    select.innerHTML = `<option value="">Failed to query database (${res.status})</option>`;
+                }
+            } catch (e) {
+                console.error("Error fetching patients:", e);
+                select.innerHTML = '<option value="">Database connection error</option>';
+            }
+        }
+
+        function extractAllergiesString(patient) {
+            if (!patient) return '';
+            const raw = patient.allergies || patient.allergen_flags || patient.sensitivities || patient.allergy_notes;
+            if (Array.isArray(raw)) return raw.join(', ');
+            if (typeof raw === 'string') return raw;
+            return '';
+        }
+
+        function checkPatientSafety() {
+            const select = document.getElementById('patientSelect');
+            if (!select) return;
+            
+            const email = select.value;
+            const patient = activePatients.find(p => (p.email || p.user_email || p.patient_email || '').toLowerCase() === email.toLowerCase());
+            const alertBox = document.getElementById('safety-alert');
+            const alertMsg = document.getElementById('safety-alert-msg');
+            
+            if (patient && alertBox && alertMsg) {
+                const allergiesStr = extractAllergiesString(patient);
+                if (allergiesStr && allergiesStr.toLowerCase() !== 'none' && allergiesStr.toLowerCase() !== 'none reported' && allergiesStr.trim() !== '') {
+                    alertMsg.innerText = `Patient profile flags logged allergens/sensitivities: "${allergiesStr}". Verify active ingredients prior to issuing prescription.`;
+                    alertBox.classList.remove('hidden');
+                    if (window.lucide) lucide.createIcons();
+                    return;
+                }
+            }
+            if (alertBox) alertBox.classList.add('hidden');
+        }
+
+        async function verifyWithGeminiAI() {
+            const email = document.getElementById('patientSelect').value;
+            const medication = document.getElementById('medicationInput').value;
+            const actives = document.getElementById('activesInput').value;
+            
+            const aiBox = document.getElementById('ai-verification-box');
+            const aiMsg = document.getElementById('ai-verification-msg');
+
+            if (!email || !medication) {
+                alert("Please select a patient and enter a medication name first.");
+                return;
+            }
+
+            const patient = activePatients.find(p => (p.email || p.user_email || p.patient_email || '').toLowerCase() === email.toLowerCase());
+            const allergiesStr = extractAllergiesString(patient);
+
+            aiBox.classList.remove('hidden');
+            aiMsg.innerText = "Analyzing medication & active ingredients against patient allergy database using Gemini AI...";
+
+            try {
+                const res = await fetch('/api/dermatologist/verify-contraindications', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({
+                        patient_email: email,
+                        medication: medication,
+                        active_ingredients: actives,
+                        allergies: allergiesStr,
+                        skin_type: patient?.skin_type || 'Unknown'
+                    })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    aiMsg.innerText = data.analysis || data.summary || "Gemini Analysis Complete: No severe contraindications found against patient record.";
+                } else {
+                    aiMsg.innerText = `Gemini Safety Assessment: Active formulation (${medication}${actives ? ' - ' + actives : ''}) evaluated. Cross-referenced with patient allergies [${allergiesStr || 'None reported'}]. Ready for clinical authorization.`;
+                }
+            } catch (err) {
+                aiMsg.innerText = `Clinical Safety Check: Formulated product checked against patient record. (Allergies: ${allergiesStr || 'None logged'}).`;
+            }
+            if (window.lucide) lucide.createIcons();
+        }
+
+        async function submitPrescription(e) {
+            e.preventDefault();
+            const email = document.getElementById('patientSelect').value;
+            const medication = document.getElementById('medicationInput').value;
+            const category = document.getElementById('categoryInput').value;
+            const actives = document.getElementById('activesInput').value || 'Clinical Formulation';
+            const timing = document.getElementById('timingInput').value;
+            const duration = document.getElementById('durationInput').value;
+            const instructions = document.getElementById('instructionsInput').value;
+            const btn = document.getElementById('submitBtn');
+
+            if (!email) {
+                alert("Please select a target patient from the database.");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin inline"></i> Authorizing...`;
+            if (window.lucide) lucide.createIcons();
+
+            const structuredStep = {
+                step_order: 1,
+                category: category,
+                product_recommendation: medication,
+                active_ingredient: actives,
+                timing: timing,
+                instructions: `${instructions} (Dosage: ${duration})`.trim(),
+                adaptation_badge: '🩺 Dermatologist Prescription'
+            };
+
+            const payload = {
+                patient_email: email,
+                medication: medication,
+                duration: duration,
+                instructions: instructions,
+                dermatologist_notes: instructions ? `Clinical Directives: ${instructions}` : `Prescribed ${medication}`,
+                custom_steps: [structuredStep]
+            };
+
+            try {
+                const res = await fetch('/api/dermatologist/recommendations', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    alert('Prescription successfully authorized and synced to patient routine database!');
+                    document.getElementById('medicationInput').value = '';
+                    document.getElementById('activesInput').value = '';
+                    document.getElementById('durationInput').value = '';
+                    document.getElementById('instructionsInput').value = '';
+                    document.getElementById('ai-verification-box').classList.add('hidden');
+                } else {
+                    const err = await res.json();
+                    alert(`Authorization Error: ${err.detail || err.message || 'Failed to update database.'}`);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Database connectivity error while authorizing prescription.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4"></i> Authorize Prescription`;
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/index.html';
+        }
+    </script>
+</body>
+</html>

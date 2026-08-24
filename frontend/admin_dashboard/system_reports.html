@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Reports - Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between hidden md:flex shrink-0">
+        <div>
+            <div class="p-6 flex items-center gap-3 border-b border-slate-800">
+                <div class="bg-teal-500 text-slate-950 p-2.5 rounded-2xl font-bold">
+                    <i data-lucide="shield-check" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-white leading-tight">DermaAI</h1>
+                    <p class="text-[10px] font-bold text-teal-400 uppercase">Admin Portal</p>
+                </div>
+            </div>
+            <nav class="p-4 space-y-1 text-sm font-medium">
+                <a href="/admin.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/40 transition">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Overview
+                </a>
+                <a href="/admin_dashboard/account_approvals.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/40 transition">
+                    <i data-lucide="user-check" class="w-4 h-4"></i> Account Approvals
+                </a>
+                <a href="/admin_dashboard/user_management.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/40 transition">
+                    <i data-lucide="users" class="w-4 h-4"></i> User Management
+                </a>
+                <a href="/admin_dashboard/system_reports.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-teal-400 bg-slate-800/60 font-bold border-r-4 border-teal-500">
+                    <i data-lucide="activity" class="w-4 h-4"></i> System Reports
+                </a>
+                <a href="/admin_dashboard/platform_settings.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/40 transition">
+                    <i data-lucide="settings" class="w-4 h-4"></i> Platform Settings
+                </a>
+                <a href="/admin_dashboard/recommendation_monitoring.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/40 transition">
+                    <i data-lucide="sliders" class="w-4 h-4"></i> Recommendation Monitoring
+                </a>
+            </nav>
+        </div>
+        <div class="p-4 border-t border-slate-800 bg-slate-950/50">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="min-w-0">
+                        <p id="admin-display-name" class="text-xs font-bold text-white truncate">Administrator</p>
+                        <p class="text-[10px] text-teal-400 font-medium truncate">Role: Admin</p>
+                    </div>
+                </div>
+                <button onclick="logout()" title="Logout" class="text-slate-400 hover:text-rose-500 p-1 rounded-lg transition cursor-pointer">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Workspace -->
+    <main class="flex-1 overflow-y-auto p-8 space-y-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900">System Reports & Logs</h1>
+                <p class="text-xs text-slate-500">Live system health metrics and database operation logs</p>
+            </div>
+            <button onclick="fetchSystemMetrics()" class="bg-teal-600 hover:bg-teal-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-2 cursor-pointer shadow-sm">
+                <i data-lucide="refresh-cw" class="w-4 h-4"></i> Refresh Status
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <p class="text-xs font-bold text-slate-400">Database Engine Status</p>
+                <p id="db-status" class="text-xl font-bold text-slate-400 mt-1">Connecting...</p>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <p class="text-xs font-bold text-slate-400">Error Rate</p>
+                <p id="error-rate" class="text-xl font-bold text-slate-400 mt-1">--</p>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <p class="text-xs font-bold text-slate-400">API Response Speed</p>
+                <p id="api-speed" class="text-xl font-bold text-slate-400 mt-1">--</p>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+            <div class="flex items-center justify-between">
+                <h2 class="text-sm font-bold text-slate-800">Recent Server Logs</h2>
+                <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-semibold">Live Feed</span>
+            </div>
+            <div id="logs-container" class="bg-slate-900 text-slate-300 p-4 rounded-xl text-xs font-mono space-y-1.5 max-h-80 overflow-y-auto">
+                <p class="text-slate-500">[SYSTEM] Connecting to database logs endpoint...</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+            checkAuthState();
+            fetchSystemMetrics();
+        });
+
+        function getToken() {
+            return localStorage.getItem('auth_token') || localStorage.getItem('token') || '';
+        }
+
+        function getAuthHeaders() {
+            return {
+                'Authorization': `Bearer ${getToken()}`,
+                'Content-Type': 'application/json'
+            };
+        }
+
+        function checkAuthState() {
+            const token = getToken();
+            const identity = localStorage.getItem('user_identity') || localStorage.getItem('name') || localStorage.getItem('email');
+            const role = (localStorage.getItem('user_role') || localStorage.getItem('role') || '').toLowerCase();
+
+            if (!token || !role.includes('admin')) {
+                window.location.href = '/index.html';
+                return;
+            }
+
+            const displayNameElem = document.getElementById('admin-display-name');
+            if (displayNameElem) displayNameElem.innerText = identity || 'Administrator';
+        }
+
+        async function fetchSystemMetrics() {
+            const logsContainer = document.getElementById('logs-container');
+            const dbStatusElem = document.getElementById('db-status');
+            const errorRateElem = document.getElementById('error-rate');
+            const apiSpeedElem = document.getElementById('api-speed');
+
+            try {
+                const cacheBuster = `?_t=${Date.now()}`;
+                const res = await fetch(`/api/admin/system-health${cacheBuster}`, { headers: getAuthHeaders() });
+                
+                if (!res.ok) {
+                    if (res.status === 401 || res.status === 403) {
+                        logout();
+                        return;
+                    }
+                    throw new Error(`Database service returned HTTP ${res.status}`);
+                }
+
+                const data = await res.json();
+                
+                dbStatusElem.innerText = data.db_status || data.database_status || 'Operational';
+                dbStatusElem.className = 'text-xl font-bold text-emerald-600 mt-1';
+
+                errorRateElem.innerText = data.error_rate !== undefined ? `${data.error_rate}%` : 'N/A';
+                errorRateElem.className = 'text-xl font-bold text-slate-800 mt-1';
+
+                apiSpeedElem.innerText = data.api_speed || data.latency || 'N/A';
+                apiSpeedElem.className = 'text-xl font-bold text-teal-600 mt-1';
+
+                const rawLogs = data.logs || data.logs_feed || data.data;
+
+                if (!rawLogs || (Array.isArray(rawLogs) && rawLogs.length === 0)) {
+                    logsContainer.innerHTML = `<p class="text-slate-500">[SYSTEM] No log entries available in database.</p>`;
+                    return;
+                }
+
+                if (Array.isArray(rawLogs)) {
+                    logsContainer.innerHTML = rawLogs.map(log => `<p class="text-slate-300">${escapeHtml(log)}</p>`).join('');
+                } else if (typeof rawLogs === 'string') {
+                    logsContainer.innerHTML = `<p class="text-slate-300">${escapeHtml(rawLogs)}</p>`;
+                }
+            } catch (err) {
+                console.error("System metrics fetch failed:", err);
+                dbStatusElem.innerText = 'Database Offline';
+                dbStatusElem.className = 'text-xl font-bold text-rose-600 mt-1';
+                
+                errorRateElem.innerText = 'N/A';
+                apiSpeedElem.innerText = 'N/A';
+
+                logsContainer.innerHTML = `
+                    <p class="text-rose-400 font-bold">[DATABASE ERROR] ${escapeHtml(err.message)}</p>
+                    <p class="text-slate-500">[SYSTEM] Unable to fetch live system logs. Ensure backend API service is running.</p>
+                `;
+            }
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/index.html';
+        }
+    </script>
+</body>
+</html>

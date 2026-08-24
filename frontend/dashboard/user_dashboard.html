@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - DermaAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col md:flex-row h-screen overflow-hidden">
+
+    <!-- Mobile Top Navigation Bar -->
+    <header class="bg-white border-b border-slate-200 p-4 flex items-center justify-between md:hidden shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="bg-teal-600 text-white p-2 rounded-xl shadow-md">
+                <i data-lucide="sparkles" class="w-4 h-4"></i>
+            </div>
+            <h1 class="font-bold text-slate-900 text-base">DermaAI</h1>
+        </div>
+        <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="p-2 text-slate-600 hover:text-teal-600 focus:outline-none">
+            <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+    </header>
+
+    <!-- Sidebar Navigation (Desktop & Mobile Drawer) -->
+    <aside id="sidebar-menu" class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex shrink-0 absolute md:relative z-50 top-0 left-0 h-full shadow-lg md:shadow-none">
+        <div>
+            <div class="p-6 flex items-center justify-between md:justify-start gap-3 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="bg-teal-600 text-white p-2.5 rounded-2xl shadow-lg shadow-teal-600/20">
+                        <i data-lucide="sparkles" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-slate-900 leading-tight">DermaAI</h1>
+                        <p class="text-xs text-slate-400">User Dashboard</p>
+                    </div>
+                </div>
+                <button onclick="toggleMobileMenu()" class="md:hidden text-slate-400 hover:text-slate-600 p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <nav class="p-4 space-y-1 text-sm font-medium overflow-y-auto max-h-[calc(100vh-160px)] md:max-h-none">
+                <a href="/user_dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-teal-700 bg-teal-50 font-bold border-r-4 border-teal-600">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+                </a>
+                <a href="/user_dashboard/skin_assessment.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="scan-face" class="w-4 h-4"></i> Skin Assessment
+                </a>
+                <a href="/user_dashboard/routine_planner.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="calendar" class="w-4 h-4"></i> Routine Planner
+                </a>
+                <a href="/user_dashboard/product_recommendations.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="sliders" class="w-4 h-4"></i> Product Recommendations
+                </a>
+                <a href="/user_dashboard/ingredient_intelligence.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="flask-conical" class="w-4 h-4"></i> Ingredient Scanner
+                </a>
+                <a href="/user_dashboard/assessment_history.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="history" class="w-4 h-4"></i> Assessment History
+                </a>
+                <a href="/user_dashboard/appointments.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="video" class="w-4 h-4"></i> Appointments
+                </a>
+                <a href="/user_dashboard/progress.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="activity" class="w-4 h-4"></i> Progress
+                </a>
+                <a href="/user_dashboard/risk_analysis.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="shield-alert" class="w-4 h-4"></i> Risk Analysis
+                </a>
+                <a href="/user_dashboard/checklist.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="list-check" class="w-4 h-4"></i> Checklist
+                </a>
+            </nav>
+        </div>
+
+        <div class="p-4 border-t border-slate-100 bg-slate-50/50 shrink-0">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="min-w-0">
+                        <p id="user-display-name" class="text-xs font-bold text-slate-800 truncate">Loading...</p>
+                        <p class="text-[10px] text-slate-500 font-medium truncate">Role: User</p>
+                    </div>
+                </div>
+                <button onclick="logout()" title="Logout" class="text-slate-400 hover:text-rose-600 p-1 rounded-lg transition cursor-pointer">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900">Skin Intelligence Dashboard</h1>
+                <p class="text-sm text-slate-500">Real-time skin health evaluations and prioritized insights.</p>
+            </div>
+            <a href="/user_dashboard/skin_assessment.html" id="btn-assessment" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md shadow-teal-600/20 transition">
+                <i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i> <span id="btn-assessment-text">Take Assessment</span>
+            </a>
+        </div>
+
+        <!-- UI Feedback Banner for API Errors -->
+        <div id="status-banner" class="hidden p-4 rounded-xl text-xs font-medium bg-rose-50 border border-rose-200 text-rose-700 flex items-center justify-between">
+            <span id="status-banner-text">Unable to load recent assessment data from server.</span>
+            <button onclick="initDashboard()" class="text-rose-700 underline font-bold hover:text-rose-900">Retry</button>
+        </div>
+
+        <!-- 1. Skin Assessment Engine Metrics -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Skin Health Score -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2 flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Skin Health Score</span>
+                        <i data-lucide="heart-pulse" class="w-4 h-4 text-teal-600"></i>
+                    </div>
+                    <p class="text-4xl font-extrabold text-slate-300" id="dash-score">-- <span class="text-sm font-normal text-slate-400">/ 100</span></p>
+                </div>
+                <p class="text-xs text-slate-400 mt-auto pt-2" id="dash-score-desc">Requires completed assessment.</p>
+            </div>
+
+            <!-- Skin Type, Demographics & Allergies -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2 flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Skin Profile</span>
+                        <i data-lucide="user" class="w-4 h-4 text-teal-600"></i>
+                    </div>
+                    <p class="text-xl font-bold text-slate-400 capitalize" id="dash-skin-type">Not Assessed</p>
+                    <p class="text-xs text-slate-400" id="dash-demographics">Evaluation Status: Pending</p>
+                </div>
+                <!-- Dynamic Allergies & Sensitivities Injection -->
+                <div id="dash-allergies" class="pt-3 flex flex-wrap gap-1.5 mt-auto"></div>
+            </div>
+
+            <!-- Risk Factor Analysis -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2 flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Risk Factors</span>
+                        <i data-lucide="shield-alert" class="w-4 h-4 text-slate-400" id="dash-risk-icon"></i>
+                    </div>
+                    <p class="text-xl font-bold text-slate-400" id="dash-risk-level">Pending Assessment</p>
+                </div>
+                <p class="text-xs text-slate-400 mt-auto pt-2 leading-relaxed" id="dash-risk-desc">No risk factors evaluated yet.</p>
+            </div>
+        </div>
+
+        <!-- 2. Concern Prioritization & Lifestyle Tracking -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Prioritized Concerns -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Concern Prioritization</span>
+                <div id="dash-concerns" class="space-y-2.5">
+                    <p class="text-xs text-slate-400 italic">No concerns selected. Please complete the skin assessment.</p>
+                </div>
+            </div>
+
+            <!-- Lifestyle & Environmental Tracking Summary -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Lifestyle & Environment</span>
+                <div class="grid grid-cols-2 gap-3 text-xs">
+                    <div class="p-3.5 bg-slate-50 border border-slate-100 rounded-xl space-y-1">
+                        <span class="text-slate-400">Sleep Pattern</span>
+                        <p class="font-bold text-slate-400" id="dash-sleep">--</p>
+                    </div>
+                    <div class="p-3.5 bg-slate-50 border border-slate-100 rounded-xl space-y-1">
+                        <span class="text-slate-400">Hydration</span>
+                        <p class="font-bold text-slate-400" id="dash-water">--</p>
+                    </div>
+                    <div class="p-3.5 bg-slate-50 border border-slate-100 rounded-xl space-y-1">
+                        <span class="text-slate-400">Sun Exposure</span>
+                        <p class="font-bold text-slate-400 capitalize" id="dash-env">--</p>
+                    </div>
+                    <div class="p-3.5 bg-slate-50 border border-slate-100 rounded-xl space-y-1">
+                        <span class="text-slate-400">Consistency</span>
+                        <p class="font-bold text-slate-400 truncate" id="dash-consistency">--</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Active Routine Preview -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <div class="flex justify-between items-center">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Active Personal Routine</span>
+                <a href="/user_dashboard/routine_planner.html" class="text-xs font-bold text-teal-600 hover:underline flex items-center gap-1">
+                    View Full Routine &rarr;
+                </a>
+            </div>
+            <div id="dash-routine-container">
+                <p class="text-xs text-slate-400 italic">Complete assessment to generate a tailored routine.</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+        document.addEventListener('DOMContentLoaded', initDashboard);
+
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar-menu');
+            sidebar.classList.toggle('hidden');
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/index.html';
+        }
+
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function checkAuthState() {
+            const token = localStorage.getItem('auth_token');
+            const identity = localStorage.getItem('user_identity') || localStorage.getItem('user_email') || localStorage.getItem('email');
+            const role = (localStorage.getItem('user_role') || 'user').toLowerCase();
+            
+            if (!token || role !== 'user') {
+                window.location.href = '/index.html';
+            } else {
+                document.getElementById('user-display-name').innerText = escapeHtml(identity) || 'User';
+            }
+        }
+
+        async function initDashboard() {
+            checkAuthState();
+            document.getElementById('status-banner').classList.add('hidden');
+            await fetchAssessmentFromEngine();
+        }
+
+        async function fetchAssessmentFromEngine() {
+            const token = localStorage.getItem('auth_token');
+            const email = localStorage.getItem('user_email') || localStorage.getItem('email') || localStorage.getItem('user_identity');
+            const userId = localStorage.getItem('user_id');
+            
+            if (!token) return;
+
+            try {
+                const params = new URLSearchParams();
+                if (userId && userId !== 'undefined' && userId !== 'null') {
+                    params.append('userId', userId);
+                    params.append('user_id', userId);
+                }
+                if (email && email !== 'undefined' && email !== 'null') {
+                    params.append('email', email);
+                    params.append('user_email', email);
+                }
+
+                const res = await fetch(`/api/assessment/history?${params.toString()}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!res.ok) {
+                    throw new Error(`HTTP Error status ${res.status}`);
+                }
+
+                const json = await res.json();
+                const historyList = Array.isArray(json) ? json : (json.data || json.history || []);
+
+                if (!historyList || historyList.length === 0) {
+                    document.getElementById('btn-assessment-text').innerText = 'Take Assessment';
+                    return;
+                }
+
+                const latest = historyList[0];
+                const assessment = latest.assessment || latest;
+                const riskRaw = latest.risk_factor || latest.risk || [];
+                const risk = Array.isArray(riskRaw) ? (riskRaw[0] || {}) : riskRaw;
+                const concerns = latest.concerns || latest.skin_concerns || [];
+                const lifestyle = latest.lifestyle || {};
+                const routine = latest.routine || null;
+
+                document.getElementById('btn-assessment-text').innerText = 'Retake Assessment';
+
+                // Health Score Card update
+                const score = assessment.skin_health_score ?? assessment.score;
+                if (score !== undefined && score !== null) {
+                    document.getElementById('dash-score').className = 'text-4xl font-extrabold text-teal-600';
+                    document.getElementById('dash-score').innerHTML = `${escapeHtml(score)} <span class="text-sm font-normal text-slate-400">/ 100</span>`;
+                }
+                if (assessment.overall_condition) {
+                    document.getElementById('dash-score-desc').innerText = assessment.overall_condition;
+                }
+
+                // Skin Profile & Demographics
+                document.getElementById('dash-skin-type').className = 'text-xl font-bold text-slate-800 capitalize';
+                document.getElementById('dash-skin-type').innerText = lifestyle.skin_type ? `${lifestyle.skin_type} Skin` : (assessment.skin_type ? `${assessment.skin_type} Skin` : `Completed (${assessment.assessment_date || 'Recent'})`);
+                
+                if (assessment.demographics) {
+                    document.getElementById('dash-demographics').innerText = `Profile: ${assessment.demographics}`;
+                } else if (assessment.assessment_date) {
+                    document.getElementById('dash-demographics').innerText = `Evaluation Date: ${new Date(assessment.assessment_date).toLocaleDateString()}`;
+                }
+
+                // Inject Allergies and Sensitivities directly into the Skin Profile card
+                const allergiesStr = (lifestyle.allergies && lifestyle.allergies.toLowerCase() !== 'none') ? lifestyle.allergies : '';
+                const sensStr = (lifestyle.sensitivities && lifestyle.sensitivities.toLowerCase() !== 'none') ? lifestyle.sensitivities : '';
+                let badgesHtml = '';
+                
+                if (allergiesStr) {
+                    badgesHtml += `<span class="px-2.5 py-1 bg-rose-50 text-rose-700 rounded-md text-[10px] font-bold border border-rose-100 flex items-center gap-1"><i data-lucide="shield-alert" class="w-3 h-3"></i> Allergies: ${escapeHtml(allergiesStr)}</span>`;
+                }
+                if (sensStr) {
+                    badgesHtml += `<span class="px-2.5 py-1 bg-amber-50 text-amber-700 rounded-md text-[10px] font-bold border border-amber-100 flex items-center gap-1"><i data-lucide="alert-circle" class="w-3 h-3"></i> Sensitivities: ${escapeHtml(sensStr)}</span>`;
+                }
+                if (!badgesHtml) {
+                    badgesHtml = `<span class="px-2.5 py-1 bg-slate-50 text-slate-500 rounded-md text-[10px] font-bold border border-slate-200">No known allergies logged</span>`;
+                }
+                document.getElementById('dash-allergies').innerHTML = badgesHtml;
+
+                // Risk Factor Card update
+                const riskEl = document.getElementById('dash-risk-level');
+                const riskDesc = document.getElementById('dash-risk-desc');
+                const riskIcon = document.getElementById('dash-risk-icon');
+
+                const riskLevel = risk.risk_level || risk.level || 'Low';
+                riskEl.innerText = `${riskLevel} Risk`;
+                
+                if (riskLevel.toLowerCase() === 'high') {
+                    riskEl.className = 'text-xl font-bold text-rose-600';
+                    riskIcon.className = 'w-4 h-4 text-rose-600';
+                } else if (riskLevel.toLowerCase() === 'medium' || riskLevel.toLowerCase() === 'moderate') {
+                    riskEl.className = 'text-xl font-bold text-amber-600';
+                    riskIcon.className = 'w-4 h-4 text-amber-500';
+                } else {
+                    riskEl.className = 'text-xl font-bold text-emerald-600';
+                    riskIcon.className = 'w-4 h-4 text-emerald-600';
+                }
+                riskDesc.innerText = risk.description || risk.risk_name || 'Skin parameters evaluated within baseline ranges.';
+
+                // Prioritized Concerns List Rendering (Matched to UI screenshot standards)
+                const concernsContainer = document.getElementById('dash-concerns');
+                concernsContainer.innerHTML = '';
+                if (!concerns || concerns.length === 0) {
+                    concernsContainer.innerHTML = '<p class="text-xs text-slate-400 italic">No primary concerns registered.</p>';
+                } else {
+                    concerns.forEach((c, idx) => {
+                        const displayPriority = (c.priority && c.priority <= 10) ? c.priority : (idx + 1);
+                        const priorityBadge = idx === 0 ? 'bg-rose-100 text-rose-700' : 'bg-slate-200/60 text-slate-700';
+                        const concernName = typeof c === 'string' ? c : (c.concern_name || c.name || 'Unspecified Concern');
+                        const severity = c.severity ? ` (${c.severity})` : '';
+
+                        concernsContainer.innerHTML += `
+                            <div class="p-3.5 bg-slate-50 rounded-xl flex items-center justify-between text-xs border border-slate-100/50">
+                                <span class="font-bold text-slate-800">${escapeHtml(concernName)}${escapeHtml(severity)}</span>
+                                <span class="text-[10px] font-bold px-2.5 py-1 rounded-lg ${priorityBadge}">Priority ${escapeHtml(displayPriority)}</span>
+                            </div>
+                        `;
+                    });
+                }
+
+                // Lifestyle Metrics Preview
+                document.getElementById('dash-sleep').className = 'font-bold text-slate-800';
+                const sleepVal = lifestyle.sleep_quality || lifestyle.sleep_pattern || lifestyle.sleep;
+                document.getElementById('dash-sleep').innerText = sleepVal ? escapeHtml(sleepVal) : 'N/A';
+
+                document.getElementById('dash-water').className = 'font-bold text-slate-800';
+                const waterVal = lifestyle.hydration ?? lifestyle.water_intake;
+                document.getElementById('dash-water').innerText = waterVal !== undefined && waterVal !== null ? `${escapeHtml(waterVal)}` : 'N/A';
+
+                document.getElementById('dash-env').className = 'font-bold text-slate-800 capitalize';
+                const envVal = lifestyle.environment || lifestyle.sun_exposure;
+                document.getElementById('dash-env').innerText = envVal ? escapeHtml(envVal) : 'N/A';
+
+                document.getElementById('dash-consistency').className = 'font-bold text-teal-600 truncate';
+                const consistencyVal = lifestyle.consistency || lifestyle.adherence_rate || lifestyle.adherence;
+                document.getElementById('dash-consistency').innerText = consistencyVal ? escapeHtml(consistencyVal) : 'N/A';
+
+                // Active Routine Preview Rendering
+                const routineContainer = document.getElementById('dash-routine-container');
+                let steps = [];
+
+                if (routine) {
+                    if (Array.isArray(routine)) {
+                        steps = routine;
+                    } else if (routine.steps && Array.isArray(routine.steps)) {
+                        steps = routine.steps;
+                    } else if (routine.dermatologist_steps && Array.isArray(routine.dermatologist_steps)) {
+                        steps = routine.dermatologist_steps;
+                    }
+                }
+
+                if (!steps || steps.length === 0) {
+                    routineContainer.innerHTML = '<p class="text-xs text-slate-400 italic">No active routine steps generated yet.</p>';
+                } else {
+                    const amSteps = steps.filter(s => (s.timing || '').toLowerCase() === 'morning' || (s.timing || '').toLowerCase() === 'am');
+                    const pmSteps = steps.filter(s => (s.timing || '').toLowerCase() === 'evening' || (s.timing || '').toLowerCase() === 'pm');
+
+                    let routineHtml = '<div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">';
+                    
+                    routineHtml += `<div class="p-4 bg-amber-50/50 rounded-xl border border-amber-100 space-y-2">
+                        <div class="flex items-center gap-2 font-bold text-amber-800">
+                            <i data-lucide="sun" class="w-4 h-4 text-amber-600"></i> Morning Routine
+                        </div>`;
+                    if (amSteps.length > 0) {
+                        amSteps.forEach(s => {
+                            routineHtml += `
+                                <div class="p-2.5 bg-white rounded-lg border border-amber-100">
+                                    <p class="font-bold text-slate-800">${escapeHtml(s.product_recommendation || s.product || s.category)}</p>
+                                    <p class="text-[11px] text-slate-500">${escapeHtml(s.active_ingredient || s.instructions || '')}</p>
+                                </div>`;
+                        });
+                    } else {
+                        routineHtml += '<p class="text-slate-400 italic">No morning steps configured.</p>';
+                    }
+                    routineHtml += '</div>';
+
+                    routineHtml += `<div class="p-4 bg-indigo-50/50 rounded-xl border border-indigo-100 space-y-2">
+                        <div class="flex items-center gap-2 font-bold text-indigo-800">
+                            <i data-lucide="moon" class="w-4 h-4 text-indigo-600"></i> Evening Routine
+                        </div>`;
+                    if (pmSteps.length > 0) {
+                        pmSteps.forEach(s => {
+                            routineHtml += `
+                                <div class="p-2.5 bg-white rounded-lg border border-indigo-100">
+                                    <p class="font-bold text-slate-800">${escapeHtml(s.product_recommendation || s.product || s.category)}</p>
+                                    <p class="text-[11px] text-slate-500">${escapeHtml(s.active_ingredient || s.instructions || '')}</p>
+                                </div>`;
+                        });
+                    } else {
+                        routineHtml += '<p class="text-slate-400 italic">No evening steps configured.</p>';
+                    }
+                    routineHtml += '</div></div>';
+
+                    routineContainer.innerHTML = routineHtml;
+                }
+                lucide.createIcons();
+
+            } catch (err) {
+                console.error("Dashboard engine fetch failure:", err);
+                document.getElementById('status-banner').classList.remove('hidden');
+                document.getElementById('status-banner-text').innerText = `Failed to sync assessment dashboard: ${err.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

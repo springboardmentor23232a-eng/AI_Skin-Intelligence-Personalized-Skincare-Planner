@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skin Condition Reports - DermaAI</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- html2pdf.js for Client-Side PDF Download -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex shrink-0">
+        <div>
+            <div class="p-6 flex items-center gap-3 border-b border-slate-100">
+                <div class="bg-teal-600 text-white p-2.5 rounded-2xl shadow-sm">
+                    <i data-lucide="sparkles" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-slate-900 leading-tight">DermaAI</h1>
+                    <p class="text-xs text-teal-600 font-semibold">Doctor Portal</p>
+                </div>
+            </div>
+
+            <nav class="p-4 space-y-1 text-sm font-medium">
+                <a href="/dermatologist_dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+                </a>
+                <a href="/dermatologist_dashboard/patient_insights.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="users" class="w-4 h-4"></i> Patient Insights
+                </a>
+                <a href="/dermatologist_dashboard/skin_condition_report.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-teal-700 bg-teal-50 font-bold border-r-4 border-teal-600">
+                    <i data-lucide="file-text" class="w-4 h-4"></i> Skin Condition Reports
+                </a>
+                <a href="/dermatologist_dashboard/progress.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="line-chart" class="w-4 h-4"></i> Progress
+                </a>
+                <a href="/dermatologist_dashboard/treatment_recommendations.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="sliders" class="w-4 h-4"></i> Treatments
+                </a>
+            </nav>
+        </div>
+
+        <div class="p-4 border-t border-slate-100 bg-slate-50/50">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="min-w-0">
+                        <p id="user-display-name" class="text-xs font-bold text-slate-800 truncate">Loading...</p>
+                        <p class="text-[10px] text-teal-600 font-semibold truncate">Role: Dermatologist</p>
+                    </div>
+                </div>
+                <button onclick="logout()" title="Logout" class="text-slate-400 hover:text-rose-600 p-1 rounded-lg transition cursor-pointer">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main View -->
+    <main class="flex-1 overflow-y-auto p-8 space-y-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900">Patient Skin Assessments</h1>
+                <p class="text-sm text-slate-500">View updated patient diagnostic records, clinical findings, and treatment plans from database.</p>
+            </div>
+        </div>
+
+        <!-- Reports Container -->
+        <div id="reports-container" class="space-y-6">
+            <div class="bg-white p-8 rounded-2xl border border-slate-200 text-center text-slate-500 text-sm flex items-center justify-center gap-2">
+                <i data-lucide="loader" class="w-5 h-5 animate-spin text-teal-600"></i> Fetching patient records from database...
+            </div>
+        </div>
+    </main>
+
+    <!-- Interactive Routine Planner Modal -->
+    <div id="personalize-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 space-y-5 shadow-2xl my-8 max-h-[90vh] flex flex-col">
+            
+            <div class="flex justify-between items-start border-b border-slate-100 pb-3">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="calendar" class="w-5 h-5 text-teal-600"></i>
+                        Patient Routine Planner
+                    </h3>
+                    <p id="modal-patient-email" class="text-xs font-semibold text-teal-600 mt-0.5"></p>
+                </div>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-5 text-xs overflow-y-auto pr-1 flex-1">
+                <div>
+                    <label class="font-bold text-slate-800 block mb-1">Dermatologist Directions / Clinical Notes</label>
+                    <textarea id="dr-notes" class="w-full border border-slate-200 rounded-xl p-3 outline-none focus:border-teal-500 h-20 text-xs" placeholder="e.g., Introduce Azelaic Acid gradually. Ensure daily application of broad-spectrum SPF 50+."></textarea>
+                </div>
+
+                <div class="p-4 bg-slate-50/80 border border-slate-200 rounded-2xl space-y-3">
+                    <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+                        <span class="font-bold text-slate-900 flex items-center gap-1.5 text-xs">
+                            <i data-lucide="sun" class="w-4 h-4 text-amber-500"></i> Morning (AM) Regimen
+                        </span>
+                        <button type="button" onclick="addStep('am')" class="inline-flex items-center gap-1 bg-teal-50 border border-teal-200 text-teal-700 hover:bg-teal-100 font-bold px-2.5 py-1 rounded-lg transition text-[11px] cursor-pointer">
+                            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add AM Product
+                        </button>
+                    </div>
+
+                    <div id="am-steps-container" class="space-y-2.5"></div>
+                </div>
+
+                <div class="p-4 bg-slate-50/80 border border-slate-200 rounded-2xl space-y-3">
+                    <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+                        <span class="font-bold text-slate-900 flex items-center gap-1.5 text-xs">
+                            <i data-lucide="moon" class="w-4 h-4 text-indigo-500"></i> Evening (PM) Regimen
+                        </span>
+                        <button type="button" onclick="addStep('pm')" class="inline-flex items-center gap-1 bg-teal-50 border border-teal-200 text-teal-700 hover:bg-teal-100 font-bold px-2.5 py-1 rounded-lg transition text-[11px] cursor-pointer">
+                            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add PM Product
+                        </button>
+                    </div>
+
+                    <div id="pm-steps-container" class="space-y-2.5"></div>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-3 border-t border-slate-100 shrink-0">
+                <button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 text-xs font-bold hover:bg-slate-200 transition">Cancel</button>
+                <button onclick="submitPersonalizedRoutine()" class="px-5 py-2 rounded-xl bg-teal-600 text-white text-xs font-bold hover:bg-teal-700 shadow-sm transition flex items-center gap-1.5">
+                    <i data-lucide="check" class="w-4 h-4"></i> Sync to Patient Routine Planner
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedPatientEmail = null;
+        let allReportsCache = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+            checkAuthState();
+            fetchClinicalReports();
+        });
+
+        function getToken() {
+            return localStorage.getItem('auth_token') || localStorage.getItem('token') || '';
+        }
+
+        function getAuthHeaders() {
+            return {
+                'Authorization': `Bearer ${getToken()}`,
+                'Content-Type': 'application/json'
+            };
+        }
+
+        function checkAuthState() {
+            const token = getToken();
+            const identity = localStorage.getItem('user_identity') || localStorage.getItem('name') || localStorage.getItem('email');
+            const role = (localStorage.getItem('user_role') || localStorage.getItem('role') || '').toLowerCase();
+            
+            if (!token || (role !== 'dermatologist' && role !== 'doctor' && role !== 'admin')) {
+                window.location.href = '/index.html';
+            } else {
+                document.getElementById('user-display-name').innerText = identity || 'Dermatologist';
+            }
+        }
+
+        function formatStepText(step) {
+            if (typeof step === 'string') return step;
+            if (typeof step === 'object' && step !== null) {
+                const prod = step.product_recommendation || step.product || '';
+                const active = step.active_ingredient || step.active || '';
+                const inst = step.instructions || '';
+                return `${prod}${active ? ' (' + active + ')' : ''}${inst ? ' - ' + inst : ''}`;
+            }
+            return '';
+        }
+
+        async function fetchClinicalReports() {
+            const container = document.getElementById('reports-container');
+            try {
+                const res = await fetch('/api/dermatologist/reports', { headers: getAuthHeaders() });
+                if (res.ok) {
+                    const data = await res.json();
+                    allReportsCache = Array.isArray(data) ? data : (data.reports || data.data || []);
+                    
+                    if (allReportsCache.length === 0) {
+                        container.innerHTML = `
+                            <div class="bg-white p-8 rounded-2xl border border-slate-200 text-center space-y-2">
+                                <p class="text-sm font-semibold text-slate-700">No patient reports found in database.</p>
+                                <p class="text-xs text-slate-400">New assessments submitted by patients will appear here automatically.</p>
+                            </div>`;
+                    } else {
+                        renderReports(allReportsCache);
+                    }
+                } else {
+                    container.innerHTML = `
+                        <div class="bg-white p-8 rounded-2xl border border-rose-100 text-center space-y-2">
+                            <p class="text-sm font-semibold text-rose-600">Failed to load reports from server (${res.status}).</p>
+                            <button onclick="fetchClinicalReports()" class="text-xs text-teal-600 font-bold hover:underline">Retry</button>
+                        </div>`;
+                }
+            } catch (err) {
+                console.error("Fetch reports error:", err);
+                container.innerHTML = `
+                    <div class="bg-white p-8 rounded-2xl border border-rose-100 text-center space-y-2">
+                        <p class="text-sm font-semibold text-rose-600">Database connection error.</p>
+                        <button onclick="fetchClinicalReports()" class="text-xs text-teal-600 font-bold hover:underline">Retry Connection</button>
+                    </div>`;
+            }
+        }
+
+        function renderReports(reports) {
+            const container = document.getElementById('reports-container');
+            if (!reports || reports.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-400">No clinical reports available in database.</p>';
+                return;
+            }
+
+            container.innerHTML = reports.map(r => {
+                const reportId = r.report_id || r.id || r._id || 'N/A';
+                const patientName = r.patient_name || r.name || r.email || 'Patient';
+                const email = r.patient_email || r.email || '';
+                
+                let concernText = 'General Evaluation';
+                if (r.concern) concernText = r.concern;
+                else if (r.concerns && Array.isArray(r.concerns)) concernText = r.concerns.join(', ');
+                else if (r.primary_concern) concernText = r.primary_concern;
+
+                const amSteps = Array.isArray(r.routine_am) ? r.routine_am : [];
+                const pmSteps = Array.isArray(r.routine_pm) ? r.routine_pm : [];
+
+                return `
+                    <div id="report-card-${reportId}" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-3 gap-3">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h3 class="font-bold text-slate-900 text-base">Patient: ${patientName}</h3>
+                                    <span class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200">
+                                        ${r.fitzpatrick || 'Fitzpatrick N/A'}
+                                    </span>
+                                </div>
+                                <p class="text-xs text-slate-400 mt-0.5">Report ID: #CR-${reportId} • ${email} • Updated: ${r.updated_at ? new Date(r.updated_at).toLocaleDateString() : 'Recent'}</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="downloadOfficialBackendPDF('${reportId}', event)" class="bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 cursor-pointer shadow-sm transition">
+                                    <i data-lucide="file-down" class="w-4 h-4"></i> Download Full Assessment PDF
+                                </button>
+                                <button onclick="openPersonalizeModal('${email}')" class="bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 font-bold text-xs px-3.5 py-2 rounded-xl cursor-pointer transition flex items-center gap-1">
+                                    <i data-lucide="sliders" class="w-4 h-4"></i> Edit Routine
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                            <div class="p-3 bg-slate-50 border border-slate-100 rounded-xl space-y-0.5">
+                                <span class="font-bold text-slate-400 uppercase tracking-wider text-[10px]">Health Index Score</span>
+                                <p class="text-lg font-extrabold text-teal-600">${r.score || r.health_score || 'N/A'}/100</p>
+                            </div>
+                            <div class="p-3 bg-slate-50 border border-slate-100 rounded-xl space-y-0.5">
+                                <span class="font-bold text-slate-400 uppercase tracking-wider text-[10px]">Primary Indication</span>
+                                <p class="text-xs font-semibold text-slate-800 truncate">${concernText}</p>
+                            </div>
+                            <div class="p-3 bg-slate-50 border border-slate-100 rounded-xl space-y-0.5">
+                                <span class="font-bold text-slate-400 uppercase tracking-wider text-[10px]">Inflammation Index</span>
+                                <p class="text-xs font-semibold text-amber-600">${r.inflammation_level || 'Normal'}</p>
+                            </div>
+                            <div class="p-3 bg-slate-50 border border-slate-100 rounded-xl space-y-0.5">
+                                <span class="font-bold text-slate-400 uppercase tracking-wider text-[10px]">Barrier Integrity</span>
+                                <p class="text-xs font-semibold text-slate-700">${r.barrier_health || 'Intact'}</p>
+                            </div>
+                        </div>
+
+                        <div class="p-3.5 bg-slate-50/80 rounded-xl border border-slate-100 text-xs space-y-1">
+                            <div class="flex items-center gap-1.5 font-bold text-slate-800">
+                                <i data-lucide="sparkles" class="w-4 h-4 text-teal-600"></i>
+                                <span>AI Diagnostic Summary:</span>
+                            </div>
+                            <p class="text-slate-600 leading-relaxed">${r.ai_summary || 'No diagnostic summary recorded.'}</p>
+                            <div class="flex flex-wrap gap-4 pt-1 text-[11px] text-slate-500 font-medium">
+                                <span><strong>Type:</strong> ${r.skin_type || 'N/A'}</span>
+                                <span>•</span>
+                                <span><strong>Allergies:</strong> ${r.allergies || 'None'}</span>
+                                <span>•</span>
+                                <span><strong>Lifestyle:</strong> ${r.sleep_water || 'N/A'}</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs pt-1">
+                            <div class="p-3.5 border border-amber-200/80 bg-amber-50/30 rounded-xl space-y-2">
+                                <div class="flex items-center gap-1.5 font-bold text-amber-900 border-b border-amber-200/60 pb-1.5">
+                                    <i data-lucide="sun" class="w-4 h-4 text-amber-500"></i>
+                                    <span>Morning (AM) Routine</span>
+                                </div>
+                                <ul class="space-y-1 text-slate-700 list-disc list-inside">
+                                    ${amSteps.length > 0 
+                                        ? amSteps.map(step => `<li>${formatStepText(step)}</li>`).join('') 
+                                        : '<li class="italic text-slate-400">No AM routine assigned</li>'}
+                                </ul>
+                            </div>
+
+                            <div class="p-3.5 border border-indigo-200/80 bg-indigo-50/30 rounded-xl space-y-2">
+                                <div class="flex items-center gap-1.5 font-bold text-indigo-900 border-b border-indigo-200/60 pb-1.5">
+                                    <i data-lucide="moon" class="w-4 h-4 text-indigo-500"></i>
+                                    <span>Evening (PM) Routine</span>
+                                </div>
+                                <ul class="space-y-1 text-slate-700 list-disc list-inside">
+                                    ${pmSteps.length > 0 
+                                        ? pmSteps.map(step => `<li>${formatStepText(step)}</li>`).join('') 
+                                        : '<li class="italic text-slate-400">No PM routine assigned</li>'}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        async function downloadOfficialBackendPDF(assessmentId, evt) {
+            const btn = evt ? evt.currentTarget : null;
+            let originalText = "";
+            if (btn) {
+                originalText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin inline"></i> Generating PDF...`;
+                if (window.lucide) lucide.createIcons();
+            }
+
+            try {
+                const response = await fetch(`/api/dermatologist/export-pdf/${assessmentId}`, {
+                    method: 'GET',
+                    headers: getAuthHeaders()
+                });
+
+                if (response.ok) {
+                    const pdfBlob = await response.blob();
+                    if (pdfBlob.size > 0) {
+                        triggerBlobDownload(pdfBlob, `DermaAI_Clinical_Report_${assessmentId}.pdf`);
+                        return;
+                    }
+                }
+                generateClientPDF(assessmentId);
+            } catch (err) {
+                console.warn("Backend PDF fetch failed, using client fallback:", err);
+                generateClientPDF(assessmentId);
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                    if (window.lucide) lucide.createIcons();
+                }
+            }
+        }
+
+        function triggerBlobDownload(blob, filename) {
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(downloadUrl);
+        }
+
+        function generateClientPDF(assessmentId) {
+            const reportData = allReportsCache.find(r => (r.report_id || r.id || '') == assessmentId);
+
+            if (!reportData) {
+                alert("Cannot generate PDF: Report data not found in cache.");
+                return;
+            }
+
+            const amSteps = Array.isArray(reportData.routine_am) ? reportData.routine_am : [];
+            const pmSteps = Array.isArray(reportData.routine_pm) ? reportData.routine_pm : [];
+
+            const pdfContainer = document.createElement('div');
+            pdfContainer.className = 'p-8 bg-white text-slate-800 font-sans space-y-6';
+            pdfContainer.style.width = '750px';
+
+            pdfContainer.innerHTML = `
+                <div style="border-bottom: 2px solid #0d9488; padding-bottom: 12px; margin-bottom: 20px;">
+                    <h1 style="font-size: 24px; font-weight: bold; color: #0f766e;">DermaAI Clinical Diagnostic Report</h1>
+                    <p style="font-size: 12px; color: #64748b;">Official Medical Record • Report ID: #CR-${assessmentId} • Date: ${new Date().toLocaleDateString()}</p>
+                </div>
+
+                <div style="background-color: #f8fafc; padding: 15px; border-radius: 8px; font-size: 12px; line-height: 1.8;">
+                    <h3 style="font-size: 14px; font-weight: bold; color: #0f766e; margin-bottom: 8px;">Skin Assessment Overview</h3>
+                    <p><strong>Patient Name:</strong> ${reportData.patient_name || 'Patient'} (${reportData.patient_email || ''})</p>
+                    <p><strong>Primary Concern:</strong> ${reportData.concern || reportData.primary_concern || 'Evaluation'}</p>
+                    <p><strong>Fitzpatrick Skin Type:</strong> ${reportData.fitzpatrick || 'N/A'} | <strong>Skin Classification:</strong> ${reportData.skin_type || 'N/A'}</p>
+                    <p><strong>Health Score:</strong> ${reportData.score || 'N/A'}/100 | <strong>Inflammation Level:</strong> ${reportData.inflammation_level || 'N/A'}</p>
+                    <p><strong>Allergies / Flags:</strong> ${reportData.allergies || 'None'}</p>
+                </div>
+
+                <div style="font-size: 12px; color: #334155; line-height: 1.6;">
+                    <h3 style="font-weight: bold; color: #0f766e; margin-bottom: 5px;">AI Assessment & Diagnostic Notes</h3>
+                    <p style="background: #f1f5f9; padding: 10px; border-radius: 6px;">${reportData.ai_summary || 'Standard skin health verified.'}</p>
+                </div>
+
+                <div style="font-size: 12px; color: #334155;">
+                    <h3 style="font-weight: bold; color: #0f766e; margin-bottom: 8px;">AI / Dermatologist Care Plan</h3>
+                    
+                    <div style="display: flex; gap: 20px;">
+                        <div style="flex: 1; background-color: #fffbeb; padding: 12px; border-radius: 6px; border: 1px solid #fef3c7;">
+                            <strong style="color: #b45309;">Morning (AM) Routine:</strong>
+                            <ul style="margin-top: 6px; padding-left: 15px;">
+                                ${amSteps.map(s => `<li>${formatStepText(s)}</li>`).join('')}
+                            </ul>
+                        </div>
+
+                        <div style="flex: 1; background-color: #eef2ff; padding: 12px; border-radius: 6px; border: 1px solid #e0e7ff;">
+                            <strong style="color: #4338ca;">Evening (PM) Routine:</strong>
+                            <ul style="margin-top: 6px; padding-left: 15px;">
+                                ${pmSteps.map(s => `<li>${formatStepText(s)}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 40px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 10px; color: #94a3b8; text-align: center;">
+                    Generated securely by DermaAI Dermatologist Platform.
+                </div>
+            `;
+
+            const opt = {
+                margin:       10,
+                filename:     `DermaAI_Clinical_Report_${assessmentId}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(pdfContainer).save().catch(err => {
+                alert("PDF generation failed: " + err.message);
+            });
+        }
+
+        function openPersonalizeModal(email) {
+            if (!email) {
+                alert("No patient email associated with this report.");
+                return;
+            }
+            selectedPatientEmail = email;
+            document.getElementById('modal-patient-email').innerText = `Target Patient: ${email}`;
+
+            document.getElementById('am-steps-container').innerHTML = '';
+            document.getElementById('pm-steps-container').innerHTML = '';
+
+            const patientRecord = allReportsCache.find(r => (r.patient_email || r.email) === email);
+
+            if (patientRecord) {
+                document.getElementById('dr-notes').value = patientRecord.dermatologist_notes || '';
+
+                if (Array.isArray(patientRecord.routine_am)) {
+                    patientRecord.routine_am.forEach(step => {
+                        if (typeof step === 'string') {
+                            addStep('am', { product: step });
+                        } else {
+                            addStep('am', {
+                                product: step.product_recommendation || step.product || '',
+                                active: step.active_ingredient || step.active || '',
+                                instructions: step.instructions || ''
+                            });
+                        }
+                    });
+                }
+
+                if (Array.isArray(patientRecord.routine_pm)) {
+                    patientRecord.routine_pm.forEach(step => {
+                        if (typeof step === 'string') {
+                            addStep('pm', { product: step });
+                        } else {
+                            addStep('pm', {
+                                product: step.product_recommendation || step.product || '',
+                                active: step.active_ingredient || step.active || '',
+                                instructions: step.instructions || ''
+                            });
+                        }
+                    });
+                }
+            }
+
+            document.getElementById('personalize-modal').classList.remove('hidden');
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function closeModal() {
+            document.getElementById('personalize-modal').classList.add('hidden');
+        }
+
+        function addStep(timing, data = {}) {
+            const containerId = timing === 'am' ? 'am-steps-container' : 'pm-steps-container';
+            const container = document.getElementById(containerId);
+
+            const rowId = 'step-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+            const row = document.createElement('div');
+            row.className = `p-3 bg-white border border-slate-200 rounded-xl space-y-2 relative shadow-xs ${timing}-step-row`;
+            row.id = rowId;
+
+            row.innerHTML = `
+                <div class="flex justify-between items-center">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-teal-700">Product Item</span>
+                    <button type="button" onclick="removeStep('${rowId}')" class="text-slate-400 hover:text-rose-600 transition text-[11px] font-bold flex items-center gap-0.5 cursor-pointer">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Remove
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <input type="text" class="step-product w-full p-2 border border-slate-200 rounded-lg outline-none text-xs focus:border-teal-500" placeholder="Product (e.g. Gentle Cleanser)" value="${data.product || ''}">
+                    <input type="text" class="step-active w-full p-2 border border-slate-200 rounded-lg outline-none text-xs focus:border-teal-500" placeholder="Active (e.g. Niacinamide 5%)" value="${data.active || ''}">
+                </div>
+                <input type="text" class="step-instructions w-full p-2 border border-slate-200 rounded-lg outline-none text-xs focus:border-teal-500" placeholder="Instructions (e.g. Apply AM & PM daily)" value="${data.instructions || ''}">
+            `;
+
+            container.appendChild(row);
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function removeStep(rowId) {
+            const row = document.getElementById(rowId);
+            if (row) row.remove();
+        }
+
+        async function submitPersonalizedRoutine() {
+            const amRows = document.querySelectorAll('.am-step-row');
+            const amSteps = Array.from(amRows).map((row, index) => ({
+                step_order: index + 1,
+                timing: "Morning",
+                category: "AM Prescription",
+                product_recommendation: row.querySelector('.step-product').value || "Cleanser",
+                active_ingredient: row.querySelector('.step-active').value || "",
+                instructions: row.querySelector('.step-instructions').value || "Apply in morning.",
+                adaptation_badge: "Dermatologist Customized"
+            }));
+
+            const pmRows = document.querySelectorAll('.pm-step-row');
+            const pmSteps = Array.from(pmRows).map((row, index) => ({
+                step_order: index + 1,
+                timing: "Evening",
+                category: "PM Prescription",
+                product_recommendation: row.querySelector('.step-product').value || "Treatment",
+                active_ingredient: row.querySelector('.step-active').value || "",
+                instructions: row.querySelector('.step-instructions').value || "Apply at night.",
+                adaptation_badge: "Dermatologist Customized"
+            }));
+
+            const allSteps = [...amSteps, ...pmSteps];
+
+            if (allSteps.length === 0) {
+                alert("Please add at least one routine product item.");
+                return;
+            }
+
+            const payload = {
+                patient_email: selectedPatientEmail,
+                dermatologist_notes: document.getElementById('dr-notes').value || "Routine personalized by dermatologist.",
+                custom_steps: allSteps
+            };
+
+            try {
+                const res = await fetch('/api/dermatologist/personalize-routine', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    alert('Routine Planner updated successfully! Synced to patient database.');
+                    closeModal();
+                    fetchClinicalReports();
+                } else {
+                    alert('Failed to update patient Routine Planner.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Connection error submitting routine to database.');
+            }
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/index.html';
+        }
+    </script>
+</body>
+</html>

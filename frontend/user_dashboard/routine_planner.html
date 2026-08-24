@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Routine Planner - DermaAI</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex shrink-0">
+        <div>
+            <div class="p-6 flex items-center gap-3 border-b border-slate-100">
+                <div class="bg-teal-600 text-white p-2.5 rounded-2xl"><i data-lucide="sparkles" class="w-5 h-5"></i></div>
+                <div><h1 class="font-bold text-slate-900 leading-tight">DermaAI</h1><p class="text-xs text-slate-400">User Dashboard</p></div>
+            </div>
+            <nav class="p-4 space-y-1 text-sm font-medium">
+                <a href="/user_dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard</a>
+                <a href="/user_dashboard/skin_assessment.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="scan-face" class="w-4 h-4"></i> Skin Assessment</a>
+                <a href="/user_dashboard/routine_planner.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-teal-700 bg-teal-50 font-bold border-r-4 border-teal-600"><i data-lucide="calendar" class="w-4 h-4"></i> Routine Planner</a>
+                <a href="/user_dashboard/product_recommendations.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="sliders" class="w-4 h-4"></i> Product Recommendations</a>
+                <a href="/user_dashboard/ingredient_intelligence.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="flask-conical" class="w-4 h-4"></i> Ingredient Scanner</a>
+                <a href="/user_dashboard/assessment_history.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="history" class="w-4 h-4"></i> Assessment History</a>
+                <a href="/user_dashboard/appointments.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="video" class="w-4 h-4"></i> Appointments</a>
+                <a href="/user_dashboard/progress.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="activity" class="w-4 h-4"></i> Progress</a>
+                <a href="/user_dashboard/risk_analysis.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="shield-alert" class="w-4 h-4"></i> Risk Analysis</a>
+                <a href="/user_dashboard/checklist.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="list-check" class="w-4 h-4"></i> Checklist</a>
+            </nav>
+        </div>
+        <div class="p-4 border-t border-slate-100 bg-slate-50/50">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="min-w-0">
+                        <p id="user-display-name" class="text-xs font-bold text-slate-800 truncate">Loading Account...</p>
+                        <p class="text-[10px] text-slate-500 font-medium truncate">Role: Patient / User</p>
+                    </div>
+                </div>
+                <button onclick="logout()" title="Logout" class="text-slate-400 hover:text-rose-600 p-1 rounded-lg transition cursor-pointer">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Stream -->
+    <main class="flex-1 overflow-y-auto p-8 space-y-8">
+        
+        <!-- Top Header & Global Actions -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900">Personalized Skincare Routine</h1>
+                <p class="text-sm text-slate-500">Integrated Dermatologist Clinical Regimen & Adaptive AI System</p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="openFeedbackModal()" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition shadow-sm cursor-pointer flex items-center gap-1.5">
+                    <i data-lucide="message-square-plus" class="w-4 h-4"></i> Feedback & Adapt AI Routine
+                </button>
+                <button onclick="syncCarePlan()" class="bg-teal-600 hover:bg-teal-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition shadow-sm cursor-pointer flex items-center gap-1.5">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i> Sync Care Plan
+                </button>
+            </div>
+        </div>
+
+        <!-- Toast Notification Alert Banner -->
+        <div id="notification-toast" class="hidden transition-all duration-300 transform p-4 bg-emerald-600 text-white rounded-2xl shadow-lg flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-emerald-700 rounded-xl"><i data-lucide="bell" class="w-5 h-5 text-white"></i></div>
+                <div>
+                    <h4 class="font-bold text-xs uppercase tracking-wide">Routine Adapted & Updated</h4>
+                    <p id="notification-message" class="text-xs text-emerald-100">Your AI routine was dynamically updated based on your feedback.</p>
+                </div>
+            </div>
+            <button onclick="closeNotification()" class="text-emerald-200 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+
+        <!-- Expanded Profile Context Section -->
+        <section id="profile-context-section">
+            <div id="context-banner" class="hidden p-5 bg-teal-900 text-white rounded-2xl shadow-sm space-y-4">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2.5 bg-teal-800/80 rounded-xl shrink-0"><i data-lucide="user-check" class="w-6 h-6 text-teal-300"></i></div>
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-teal-300">Active Skin Assessment Context</span>
+                            <h2 id="context-text" class="font-bold text-base tracking-wide">Loading profile context...</h2>
+                        </div>
+                    </div>
+                    <div id="allergy-badge" class="flex flex-wrap gap-2 shrink-0"></div>
+                </div>
+
+        </section>
+
+        <!-- DERMATOLOGIST & CONSULTANT RECOMMENDATIONS CONTAINER -->
+        <section id="dermatologist-recommendations" class="space-y-4">
+            <div id="derm-header-banner" class="hidden p-5 bg-teal-900 text-white rounded-2xl shadow-sm space-y-3 border border-teal-800">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <div class="p-2 bg-teal-800 rounded-xl"><i data-lucide="stethoscope" class="w-5 h-5 text-teal-300"></i></div>
+                        <div>
+                            <h2 class="font-bold text-base text-white">Dermatologist & Consultant Recommendations</h2>
+                            <p class="text-xs text-teal-200">Prescribed & personalized directly by your assigned skincare specialists</p>
+                        </div>
+                    </div>
+                    <span id="derm-status-badge" class="bg-teal-700 text-teal-100 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                        Verified Protocol
+                    </span>
+                </div>
+
+                <div class="p-3 bg-teal-950/60 rounded-xl border border-teal-800/80">
+                    <p class="text-xs font-semibold text-teal-300">Clinician Advice & Directives:</p>
+                    <div id="clinician-notes-text" class="text-xs text-teal-100 italic mt-0.5 space-y-1">
+                        Fetching consultant & dermatologist recommendations from clinical backend...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dermatologist & Consultant Prescription Cards Container -->
+            <div id="dermatologist-steps-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Clinical Steps & Prescribed Cards Dynamically Injected Here -->
+            </div>
+
+            <!-- Empty State Fallback -->
+            <div id="derm-empty-state" class="p-6 bg-white border border-dashed border-slate-300 rounded-2xl text-center space-y-2">
+                <i data-lucide="user-check" class="w-8 h-8 text-slate-300 mx-auto"></i>
+                <h3 class="font-bold text-slate-700 text-sm">No Active Clinical Recommendation</h3>
+                <p class="text-xs text-slate-400 max-w-md mx-auto">Your clinicians have not published an active prescription or personalized routine record to your user profile yet.</p>
+            </div>
+        </section>
+
+        <!-- Visual Divider -->
+        <div class="relative my-6">
+            <div class="absolute inset-0 flex items-center" aria-hidden="true"><div class="w-full border-t border-slate-300"></div></div>
+            <div class="relative flex justify-center text-xs uppercase">
+                <span class="bg-slate-50 px-4 text-slate-400 font-bold tracking-widest flex items-center gap-2">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-teal-600"></i>
+                </span>
+            </div>
+        </div>
+
+        <!-- AI GENERATED ROUTINE & FEEDBACK ADAPTATION ENGINE -->
+        <section id="second-half-ai" class="space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                <div class="flex items-center gap-2">
+                    <div class="p-2 bg-indigo-50 text-indigo-600 rounded-xl"><i data-lucide="bot" class="w-5 h-5"></i></div>
+                    <div>
+                        <h2 class="font-bold text-slate-900 text-lg">AI Generated Dynamic Routine</h2>
+                        <p class="text-xs text-slate-400">Generated according to skin profile, biometric feedback, & consultant recommendations</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Context Banners for AI -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div id="adaptation-banner" class="p-4 bg-teal-50 border border-teal-200 text-teal-900 rounded-2xl text-xs space-y-1">
+                    <strong>AI Adaptation Note:</strong> Loading dynamic adjustments...
+                </div>
+                <div id="seasonal-banner" class="p-4 bg-amber-50 border border-amber-200 text-amber-900 rounded-2xl text-xs space-y-1">
+                    <strong>Seasonal Focus:</strong> Loading seasonal recommendations...
+                </div>
+            </div>
+
+            <!-- Morning and Evening AI Routines -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Morning AI Regimen -->
+                <div class="p-6 bg-white border border-slate-200 rounded-2xl space-y-4 shadow-sm">
+                    <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
+                        <i data-lucide="sun" class="w-5 h-5 text-amber-500"></i>
+                        <h3 class="font-bold text-slate-800 text-base">Morning AI Regimen</h3>
+                    </div>
+                    <div id="morning-container" class="space-y-4 text-xs">
+                        <p class="text-slate-400">Fetching morning steps from database...</p>
+                    </div>
+                </div>
+
+                <!-- Evening AI Regimen -->
+                <div class="p-6 bg-white border border-slate-200 rounded-2xl space-y-4 shadow-sm">
+                    <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
+                        <i data-lucide="moon" class="w-5 h-5 text-indigo-600"></i>
+                        <h3 class="font-bold text-slate-800 text-base">Evening AI Regimen</h3>
+                    </div>
+                    <div id="evening-container" class="space-y-4 text-xs">
+                        <p class="text-slate-400">Fetching evening steps from database...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Weekly Treatment Plan -->
+            <div class="p-6 bg-white border border-slate-200 rounded-2xl space-y-4 shadow-sm">
+                <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <i data-lucide="calendar-check" class="w-5 h-5 text-emerald-600"></i>
+                    <h3 class="font-bold text-slate-800 text-base">Weekly Targeted Treatments</h3>
+                </div>
+                <div id="weekly-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                    <p class="text-slate-400">Fetching weekly plan from database...</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL 1: USER FEEDBACK FORM FOR ROUTINE ADAPTATION -->
+    <div id="feedback-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="sliders" class="w-4 h-4 text-teal-600"></i> Routine Feedback & Adaptation
+                </h3>
+                <button onclick="closeFeedbackModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            
+            <form id="feedback-form" onsubmit="submitFeedbackAndRegenerate(event)" class="space-y-3 text-xs">
+                <div>
+                    <label class="font-semibold block text-slate-700 mb-1">Did you experience any allergies, tightness, or redness?</label>
+                    <input type="text" id="fb-allergies" placeholder="e.g., Redness from 2% Salicylic Acid, tightness on cheeks" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-teal-500 bg-slate-50">
+                </div>
+                <div>
+                    <label class="font-semibold block text-slate-700 mb-1">Disliked or Unavailable Products?</label>
+                    <input type="text" id="fb-disliked" placeholder="e.g., Heavy creams feel sticky, out of stock cleanser" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-teal-500 bg-slate-50">
+                </div>
+                <div>
+                    <label class="font-semibold block text-slate-700 mb-1">How does your skin feel currently?</label>
+                    <select id="fb-condition" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-teal-500 bg-slate-50">
+                        <option value="Balanced">Balanced & Healthy</option>
+                        <option value="Dry/Tight">Dry / Tight</option>
+                        <option value="Oily/Breakout">Oily / Experiencing Breakouts</option>
+                        <option value="Sensitive/Irritated">Sensitive / Irritated</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="font-semibold block text-slate-700 mb-1">Additional Notes for AI Model</label>
+                    <textarea id="fb-notes" placeholder="e.g., Need simpler steps for morning rush..." class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-teal-500 bg-slate-50 h-20"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-3">
+                    <button type="button" onclick="closeFeedbackModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 text-xs font-bold">Cancel</button>
+                    <button type="submit" id="btn-submit-feedback" class="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold flex items-center gap-1.5">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Adapt AI Routine Now
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: PRODUCT SWAP ENGINE FOR UNAVAILABLE ITEMS -->
+    <div id="swap-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="arrow-right-left" class="w-4 h-4 text-teal-600"></i> Swap Product Alternative
+                </h3>
+                <button onclick="closeSwapModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            
+            <p class="text-xs text-slate-500">Requesting a real-world, clinical over-the-counter alternative formulation from AI:</p>
+            
+            <div id="swap-options-container" class="space-y-2 text-xs">
+                <!-- Alternative products injected dynamically -->
+            </div>
+
+            <div class="flex justify-end pt-2">
+                <button onclick="closeSwapModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 text-xs font-bold">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        const API_BASE_URL = window.location.origin;
+        let latestConsultantData = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+            const token = localStorage.getItem('auth_token');
+            const email = localStorage.getItem('user_email');
+            
+            if (!token || !email) {
+                logout();
+                return;
+            }
+
+            const identity = localStorage.getItem('user_identity') || localStorage.getItem('user_name') || email;
+            document.getElementById('user-display-name').innerText = escapeHtml(identity);
+            
+            syncCarePlan();
+        });
+
+        window.addEventListener('focus', () => {
+            syncCarePlan();
+        });
+
+        function getTargetUserEmail() {
+            return localStorage.getItem('user_email') || null;
+        }
+
+        function getAuthHeaders() {
+            const token = localStorage.getItem('auth_token') || '';
+            return {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache, no-store, must-revalidate'
+            };
+        }
+
+        async function syncCarePlan() {
+            const email = getTargetUserEmail();
+            if (!email) {
+                logout();
+                return;
+            }
+            const consultantData = await fetchConsultantRecommendations();
+            await fetchActiveRoutine(consultantData);
+        }
+
+        function openFeedbackModal() { document.getElementById('feedback-modal').classList.remove('hidden'); }
+        function closeFeedbackModal() { document.getElementById('feedback-modal').classList.add('hidden'); }
+        function openSwapModal() { document.getElementById('swap-modal').classList.remove('hidden'); }
+        function closeSwapModal() { document.getElementById('swap-modal').classList.add('hidden'); }
+
+        function triggerNotification(msg) {
+            const toast = document.getElementById('notification-toast');
+            document.getElementById('notification-message').innerText = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => { toast.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+        }
+
+        function closeNotification() {
+            document.getElementById('notification-toast').classList.add('hidden');
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // ====================================================================
+        // CLINICAL & DERMATOLOGIST RECOMMENDATIONS FETCHING ENGINE
+        // ====================================================================
+        async function fetchConsultantRecommendations() {
+            const email = getTargetUserEmail();
+            if (!email) return null;
+
+            const cacheBuster = `&_t=${Date.now()}`;
+            let consultantRecs = [];
+            let dermRecs = [];
+            let hasVerifiedOverride = false;
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/user/recommendations?email=${encodeURIComponent(email)}${cacheBuster}`, {
+                    headers: getAuthHeaders(),
+                    cache: 'no-store'
+                });
+
+                if (res.status === 401) {
+                    logout();
+                    return null;
+                }
+
+                if (res.ok) {
+                    const json = await res.json();
+                    consultantRecs = json.consultant_recommendations || [];
+                    dermRecs = json.dermatologist_prescriptions || [];
+                    
+                    if (consultantRecs.length > 0 || dermRecs.length > 0) {
+                        hasVerifiedOverride = true;
+                    }
+                }
+            } catch (e) {
+                console.warn("Clinical recommendations check error:", e);
+            }
+
+            const verifiedData = {
+                has_override: hasVerifiedOverride,
+                consultant: consultantRecs,
+                dermatologist: dermRecs
+            };
+
+            latestConsultantData = verifiedData;
+            renderConsultantRecommendations(verifiedData);
+            return verifiedData;
+        }
+
+        function renderConsultantRecommendations(data) {
+            const dermContainer = document.getElementById('dermatologist-steps-container');
+            const dermEmptyState = document.getElementById('derm-empty-state');
+            const clinicianNotes = document.getElementById('clinician-notes-text');
+            const dermHeaderBanner = document.getElementById('derm-header-banner');
+            
+            if (!dermContainer) return;
+
+            if (!data || !data.has_override) {
+                dermContainer.innerHTML = '';
+                if (dermHeaderBanner) dermHeaderBanner.classList.add('hidden');
+                if (dermEmptyState) dermEmptyState.classList.remove('hidden');
+                if (clinicianNotes) clinicianNotes.innerText = "";
+                if (window.lucide) lucide.createIcons();
+                return;
+            }
+
+            if (dermHeaderBanner) dermHeaderBanner.classList.remove('hidden');
+            if (dermEmptyState) dermEmptyState.classList.add('hidden');
+
+            // 1. Display Consultant Notes
+            if (data.consultant && data.consultant.length > 0) {
+                const latestConsult = data.consultant[0];
+                const text = latestConsult.text || latestConsult.recommendation || latestConsult.recommendation_text || "";
+                if (clinicianNotes) {
+                    clinicianNotes.innerHTML = escapeHtml(text);
+                }
+            } else {
+                if (clinicianNotes) {
+                    clinicianNotes.innerHTML = "Prescription directives formulated by your assigned clinical team. Follow step sequencing strictly.";
+                }
+            }
+
+            // 2. Display Dermatologist Steps
+            if (data.dermatologist && data.dermatologist.length > 0) {
+                let allSteps = [];
+                data.dermatologist.forEach(d => {
+                    let stepsArr = [];
+                    if (typeof d.custom_steps === 'string') {
+                        try { stepsArr = JSON.parse(d.custom_steps); } catch(e) {}
+                    } else if (Array.isArray(d.custom_steps)) {
+                        stepsArr = d.custom_steps;
+                    }
+                    
+                    if (stepsArr.length > 0) {
+                        allSteps = allSteps.concat(stepsArr);
+                    } else if (d.medication) {
+                        allSteps.push({
+                            step_order: 1,
+                            category: 'Prescription Treatment',
+                            product: d.medication,
+                            active_ingredient: 'Clinical Formulation',
+                            instructions: d.instructions || d.duration || 'Apply as directed',
+                            timing: 'Evening',
+                            adaptation_badge: '🩺 Dermatologist Prescription'
+                        });
+                    }
+                });
+
+                if (allSteps.length > 0) {
+                    dermContainer.innerHTML = allSteps.map((s, idx) => {
+                        const normalizedStep = {
+                            step_order: s.step_order ?? s.STEP_ORDER ?? idx + 1,
+                            category: s.category ?? s.CATEGORY ?? s.type ?? (s.timing ? `${s.timing} Care` : 'Clinical Step'),
+                            product: s.product ?? s.PRODUCT ?? s.product_recommendation ?? s.PRODUCT_RECOMMENDATION ?? s.product_name ?? s.medication ?? 'Prescribed Product',
+                            active_ingredient: s.active_ingredient ?? s.ACTIVE_INGREDIENT ?? 'Clinician Prescribed',
+                            instructions: s.instructions ?? s.INSTRUCTIONS ?? s.usage ?? 'Apply strictly as directed by your clinician.',
+                            timing: s.timing ?? s.TIMING ?? 'Clinical Step',
+                            adaptation_badge: s.adaptation_badge || '🩺 Dermatologist Prescription'
+                        };
+                        return renderStepCard(normalizedStep, normalizedStep.timing, true);
+                    }).join('');
+                } else {
+                    dermContainer.innerHTML = '';
+                }
+            } else {
+                dermContainer.innerHTML = '';
+            }
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        // ====================================================================
+        // DATABASE AI ROUTINE FETCH & AI GENERATION TRIGGER
+        // ====================================================================
+        async function fetchActiveRoutine(consultantData) {
+            const email = getTargetUserEmail();
+            if (!email) return;
+
+            // 1. Update Detailed Context Banner with Profile Insights
+            try {
+                const res = await fetch(`/api/assessment/history?email=${encodeURIComponent(email)}`, {headers: getAuthHeaders()});
+                if(res.ok) {
+                    const data = await res.json();
+                    const list = Array.isArray(data) ? data : (data.data || []);
+                    if(list.length > 0) {
+                        const latest = list[0];
+                        const ls = latest.lifestyle || {};
+                        const st = ls.skin_type || 'Unknown';
+                        
+                        let alg = ls.allergies || '';
+                        let sens = ls.sensitivities || '';
+                        
+                        // LocalStorage Fallback if backend allergies/sens are missing
+                        if(!alg || alg.toLowerCase() === 'none' || alg === '[]') {
+                            try { alg = JSON.parse(localStorage.getItem('user_allergies')||'[]').join(', ') || 'None'; } catch(e){}
+                        }
+                        if(!sens || sens.toLowerCase() === 'none' || sens === '[]') {
+                            try { sens = JSON.parse(localStorage.getItem('user_sensitivities')||'[]').join(', ') || 'None'; } catch(e){}
+                        }
+
+                        // Concerns mapping
+                        let concernsList = latest.concerns || latest.skin_concerns || [];
+                        if (!concernsList || concernsList.length === 0) {
+                            try { concernsList = JSON.parse(localStorage.getItem('user_concerns') || '[]'); } catch(e) {}
+                        }
+                        let concernText = "General Maintenance";
+                        if (concernsList.length > 0) {
+                            concernText = concernsList.map(c => typeof c === 'string' ? c : (c.concern_name || c.name || 'Concern')).join(', ');
+                        }
+                        
+                        document.getElementById('context-banner').classList.remove('hidden');
+                        document.getElementById('context-text').innerText = `${escapeHtml(localStorage.getItem('user_identity') || 'User')}'s Profile: ${escapeHtml(st)} Skin`;
+                        
+                        document.getElementById('context-concerns').innerText = escapeHtml(concernText);
+                        document.getElementById('context-sensitivities').innerText = escapeHtml(sens);
+                        
+                        const sleep = ls.sleep_quality || 'Good';
+                        const water = ls.hydration || ls.water_intake || '2.0 L/day';
+                        const env = ls.environment || ls.sun_exposure || 'Urban';
+                        document.getElementById('context-lifestyle').innerText = `${escapeHtml(sleep)} sleep • ${escapeHtml(water)} water • ${escapeHtml(env)}`;
+                        
+                        document.getElementById('context-adherence').innerText = escapeHtml(ls.consistency || ls.adherence_rate || 'N/A');
+                        
+                        const allergyBadge = document.getElementById('allergy-badge');
+                        
+                        let badgesHtml = '';
+                        if (alg && alg.toLowerCase() !== 'none' && alg.trim() !== '') {
+                            badgesHtml += `<span class="bg-rose-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="shield-alert" class="w-3.5 h-3.5"></i> Allergies: ${escapeHtml(alg)}</span>`;
+                        } else {
+                            badgesHtml += `<span class="bg-teal-800 text-teal-100 text-[10px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i> No Allergies Declared</span>`;
+                        }
+                        allergyBadge.innerHTML = badgesHtml;
+                    }
+                }
+            } catch(e) { console.error("Profile context fetch error:", e); }
+
+            // 2. Fetch the Active AI Routine
+            let loadedResult = null;
+            const cacheBuster = `&_t=${Date.now()}`;
+
+            const endpoints = [
+                `/api/routine/active?user_email=${encodeURIComponent(email)}${cacheBuster}`,
+                `/routine/active?user_email=${encodeURIComponent(email)}${cacheBuster}`
+            ];
+
+            for (const ep of endpoints) {
+                try {
+                    const res = await fetch(`${API_BASE_URL}${ep}`, { headers: getAuthHeaders(), cache: 'no-store' });
+                    if (res.status === 401) {
+                        logout();
+                        return;
+                    }
+                    if (res.ok) {
+                        const result = await res.json();
+                        if (result && (result.data || result.morning_routine || result.MORNING_ROUTINE || result.status === "success")) {
+                            loadedResult = result;
+                            break;
+                        }
+                    }
+                } catch (e) {
+                    console.warn(`Database routine endpoint check error: ${ep}`);
+                }
+            }
+
+            if (loadedResult) {
+                renderAIRoutinePage(loadedResult);
+            } else {
+                renderEmptyAIRoutineState();
+            }
+        }
+
+        async function submitFeedbackAndRegenerate(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-submit-feedback');
+            btn.disabled = true;
+            btn.innerHTML = `<i data-lucide="loader" class="w-3.5 h-3.5 animate-spin"></i> Re-calibrating...`;
+            if (window.lucide) lucide.createIcons();
+
+            const email = getTargetUserEmail();
+            const feedback = {
+                user_email: email,
+                is_routine_effective: true,
+                allergies_experienced: document.getElementById('fb-allergies').value || null,
+                products_disliked: document.getElementById('fb-disliked').value || null,
+                user_notes: document.getElementById('fb-notes').value || null
+            };
+
+            closeFeedbackModal();
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/routine/generate?user_email=${encodeURIComponent(email)}`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(feedback)
+                });
+
+                if (res.status === 401) {
+                    logout();
+                    return;
+                }
+
+                if (res.ok) {
+                    triggerNotification("AI Routine regenerated based on your feedback.");
+                    await fetchActiveRoutine(latestConsultantData);
+                } else {
+                    triggerNotification("Error updating routine in database.");
+                }
+            } catch (err) {
+                console.error("Feedback submission error:", err);
+                triggerNotification("Failed to connect to backend for AI regeneration.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Adapt AI Routine Now`;
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+
+        function renderAIRoutinePage(result) {
+            const data = result.data || result || {};
+            
+            const summary = data.adaptation_summary || data.ADAPTATION_SUMMARY || "Routine dynamically calibrated from active database profile.";
+            const seasonal = data.seasonal_recommendation || data.SEASONAL_RECOMMENDATION || "Maintain core barrier protection and daily sunscreen application.";
+
+            document.getElementById('adaptation-banner').innerHTML = `<strong>AI Adaptation Note:</strong> ${escapeHtml(summary)}`;
+            document.getElementById('seasonal-banner').innerHTML = `<strong>Seasonal Focus:</strong> ${escapeHtml(seasonal)}`;
+
+            const morningSteps = data.morning_routine || data.MORNING_ROUTINE || [];
+            const eveningSteps = data.evening_routine || data.EVENING_ROUTINE || [];
+            const weeklySteps = data.weekly_treatment_plan || data.WEEKLY_TREATMENT_PLAN || [];
+
+            document.getElementById('morning-container').innerHTML = morningSteps.length > 0 
+                ? morningSteps.map(s => renderStepCard(s, 'Morning', Boolean(s.is_clinical_override))).join('') 
+                : '<p class="text-slate-400">No morning routine steps generated in database.</p>';
+
+            document.getElementById('evening-container').innerHTML = eveningSteps.length > 0 
+                ? eveningSteps.map(s => renderStepCard(s, 'Evening', Boolean(s.is_clinical_override))).join('') 
+                : '<p class="text-slate-400">No evening routine steps generated in database.</p>';
+
+            document.getElementById('weekly-container').innerHTML = weeklySteps.length > 0 
+                ? weeklySteps.map(w => {
+                    const day = w.day ?? w.DAY ?? 'Weekly';
+                    const category = w.category ?? w.CATEGORY ?? 'Targeted Treatment';
+                    const treatmentType = w.treatment_type ?? w.TREATMENT_TYPE ?? w.product ?? w.PRODUCT ?? 'Treatment';
+                    const product = w.product ?? w.PRODUCT ?? 'Treatment Product';
+                    const instructions = w.instructions ?? w.INSTRUCTIONS ?? 'Apply as directed.';
+                    return `
+                        <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
+                            <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">${escapeHtml(day)} &bull; ${escapeHtml(category)}</span>
+                            <h4 class="font-bold text-slate-800 text-sm mt-1">${escapeHtml(treatmentType)}</h4>
+                            <p class="text-teal-700 font-semibold text-[11px]">Recommended Product: ${escapeHtml(product)}</p>
+                            <p class="text-slate-500">${escapeHtml(instructions)}</p>
+                        </div>
+                    `;
+                }).join('') 
+                : '<p class="text-slate-400">No weekly treatments found in database.</p>';
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function renderEmptyAIRoutineState() {
+            document.getElementById('adaptation-banner').innerHTML = `<strong>AI Adaptation Note:</strong> No active database profile found.`;
+            document.getElementById('seasonal-banner').innerHTML = `<strong>Seasonal Focus:</strong> Complete your skin assessment to generate an AI plan.`;
+            document.getElementById('morning-container').innerHTML = '<p class="text-slate-400">No morning steps found in database.</p>';
+            document.getElementById('evening-container').innerHTML = '<p class="text-slate-400">No evening steps found in database.</p>';
+            document.getElementById('weekly-container').innerHTML = '<p class="text-slate-400">No weekly plan found in database.</p>';
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function renderStepCard(s, timing, isClinical) {
+            const cardBg = isClinical ? "bg-teal-50/70 border-teal-200" : "bg-slate-50/60 border-slate-200";
+            const badgeText = s.adaptation_badge || s.ADAPTATION_BADGE || (isClinical ? '🩺 Clinician Prescribed' : 'AI Formulated');
+            const isSwapped = badgeText.includes("Swapped") || s.is_adapted || s.IS_ADAPTED;
+            const productName = s.product ?? s.PRODUCT ?? s.product_recommendation ?? s.PRODUCT_RECOMMENDATION ?? s.name ?? 'Recommended Product';
+            const stepOrder = s.step_order ?? s.STEP_ORDER ?? 1;
+            const category = s.category ?? s.CATEGORY ?? 'Step';
+            const activeIngredient = s.active_ingredient ?? s.ACTIVE_INGREDIENT ?? 'Actives';
+            const instructions = s.instructions ?? s.INSTRUCTIONS ?? 'Apply gently according to recommendations.';
+
+            return `
+                <div class="border p-4 rounded-xl space-y-2.5 ${cardBg} relative transition hover:border-teal-400">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" class="w-4 h-4 text-teal-600 rounded border-slate-300 cursor-pointer">
+                            <span class="font-bold px-2 py-0.5 rounded text-[10px] ${timing === 'Morning' ? 'bg-amber-100 text-amber-800' : timing === 'Evening' ? 'bg-indigo-100 text-indigo-800' : 'bg-teal-800 text-teal-100'}">
+                                Step ${escapeHtml(String(stepOrder))}: ${escapeHtml(category)}
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            ${isSwapped ? `<span class="bg-indigo-100 text-indigo-800 border border-indigo-200 px-2 py-0.5 rounded-full text-[9px] font-bold">⚡ Swapped</span>` : ''}
+                            <span class="border px-2 py-0.5 rounded-full text-[9px] font-semibold ${getBadgeStyle(badgeText, isClinical)}">
+                                ${escapeHtml(badgeText)}
+                            </span>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-900 text-sm mt-0.5">${escapeHtml(productName)}</h4>
+                        <p class="text-teal-700 font-semibold text-[11px]">Active Ingredient: ${escapeHtml(activeIngredient)}</p>
+                    </div>
+                    <p class="text-slate-600 leading-relaxed text-[11px]">${escapeHtml(instructions)}</p>
+                    
+                    <div class="pt-2 border-t border-slate-200/60 flex justify-between items-center text-[10px]">
+                        <span class="text-slate-400">Product out of stock or unavailable?</span>
+                        <button onclick="triggerProductSwap('${escapeHtml(productName)}', '${escapeHtml(category)}', '${escapeHtml(activeIngredient)}')" class="text-teal-700 hover:text-teal-900 font-bold hover:underline flex items-center gap-1 cursor-pointer">
+                            <i data-lucide="arrow-right-left" class="w-3 h-3"></i> Swap Product
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function triggerProductSwap(productName, category, activeIngredient) {
+            const container = document.getElementById('swap-options-container');
+            const email = getTargetUserEmail();
+            
+            container.innerHTML = `<div class="p-4 text-center text-teal-600 space-y-2"><i data-lucide="loader" class="w-6 h-6 animate-spin mx-auto"></i><p class="text-xs">Formulating AI clinical replacement for ${escapeHtml(productName)}...</p></div>`;
+            openSwapModal();
+            if (window.lucide) lucide.createIcons();
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/routine/swap-product`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({
+                        user_email: email,
+                        current_product: productName,
+                        current_active: activeIngredient || "",
+                        category: category,
+                        swap_reason: "Alternative requested by user"
+                    })
+                });
+
+                if (res.status === 401) {
+                    logout();
+                    return;
+                }
+
+                if (res.ok) {
+                    const json = await res.json();
+                    const swapped = json.data;
+
+                    container.innerHTML = `
+                        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+                            <div class="border-b pb-2">
+                                <p class="text-[10px] text-slate-400 uppercase font-bold">Current Product</p>
+                                <p class="font-bold text-slate-800 text-xs">${escapeHtml(productName)}</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-teal-700 uppercase font-bold">AI Recommended Formulation</p>
+                                <h4 class="font-bold text-slate-900 text-sm mt-0.5">${escapeHtml(swapped.product)}</h4>
+                                <p class="text-[11px] text-teal-700 font-semibold">Active: ${escapeHtml(swapped.active_ingredient)}</p>
+                                <p class="text-[11px] text-slate-600 mt-1">${escapeHtml(swapped.instructions)}</p>
+                            </div>
+                            <div class="p-2.5 bg-teal-50 border border-teal-100 rounded-lg text-[11px] text-teal-900">
+                                <strong>Rationale:</strong> ${escapeHtml(swapped.reason_for_swap)}
+                            </div>
+                            <button onclick="applySwap('${escapeHtml(swapped.product)}', '${escapeHtml(productName)}')" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 rounded-xl text-xs transition">
+                                Apply This Replacement
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = `<p class="text-xs text-rose-500">Could not generate alternative with AI.</p>`;
+                }
+            } catch (err) {
+                container.innerHTML = `<p class="text-xs text-rose-500">Network error requesting AI product swap.</p>`;
+            }
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        async function applySwap(newProduct, oldProduct) {
+            closeSwapModal();
+            triggerNotification(`Swapped product! Replaced "${oldProduct}" with "${newProduct}".`);
+            await syncCarePlan();
+        }
+
+        function getBadgeStyle(badge, isClinical) {
+            if (isClinical || badge.includes("Prescription")) return "bg-teal-700 text-white font-bold border-teal-800";
+            if (badge.includes("Swapped")) return "bg-indigo-100 text-indigo-800 border-indigo-200 font-bold";
+            if (badge === "De-escalated") return "bg-amber-100 text-amber-800 border-amber-300";
+            if (badge === "Allergy-Safe Replacement") return "bg-rose-100 text-rose-800 border-rose-300";
+            return "bg-slate-100 text-slate-700 border-slate-200";
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/index.html';
+        }
+    </script>
+</body>
+</html>
