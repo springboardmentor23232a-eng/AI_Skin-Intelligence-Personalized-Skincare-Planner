@@ -328,3 +328,229 @@ class ImageScanResponse(BaseModel):
     generated_routine: Optional[dict] = None
 
 
+# --- Module 5: Ingredient Intelligence Schemas ---
+
+class IngredientCategoryEnum(str, Enum):
+    RETINOIDS = "Retinoids"
+    NIACINAMIDE = "Niacinamide"
+    VITAMIN_C = "Vitamin C"
+    HYALURONIC_ACID = "Hyaluronic Acid"
+    SALICYLIC_ACID = "Salicylic Acid"
+    CERAMIDES = "Ceramides"
+    PEPTIDES = "Peptides"
+    AHAS_BHAS = "AHAs/BHAs"
+
+class IngredientSchema(BaseModel):
+    id: int
+    name: str
+    chemical_name: Optional[str] = None
+    category: str
+    description: str
+    primary_benefit: str
+    recommended_conc_range: str
+    comedogenicity_rating: int
+    irritant_rating: int
+    target_skin_types: List[str] = []
+    suitable_concerns: List[str] = []
+    avoid_concerns: List[str] = []
+    usage_tips: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+class IngredientAnalysisRequest(BaseModel):
+    ingredient_names: List[str]
+    skin_type: Optional[str] = "Combination"
+    sensitivities: Optional[List[str]] = []
+    allergies: Optional[List[str]] = []
+    active_concerns: Optional[List[str]] = []
+
+class IngredientSuitabilityItem(BaseModel):
+    ingredient: str
+    category: str
+    status: str # "Highly Beneficial", "Suitable", "Use with Caution", "Avoid / Unsuitable"
+    safety_score: float # 0 - 100
+    reason: str
+    primary_benefit: str
+    usage_tips: str
+
+class IngredientInteractionItem(BaseModel):
+    ingredient_a: str
+    ingredient_b: str
+    interaction_type: str # Conflict, Synergy, Caution
+    severity: str # Low, Moderate, High, Severe, Synergistic
+    description: str
+    recommendation: str
+
+class IngredientAnalysisResponse(BaseModel):
+    success: bool = True
+    overall_safety_rating: str # Safe, Caution Required, High Risk
+    safety_score: float # 0 - 100
+    analyzed_count: int
+    flagged_allergens: List[str] = []
+    suitability_breakdown: List[IngredientSuitabilityItem]
+    interactions: List[IngredientInteractionItem]
+    synergies: List[IngredientInteractionItem]
+    recommendations: List[str]
+
+class IngredientEducationResponse(BaseModel):
+    success: bool = True
+    total_categories: int
+    categories: List[dict]
+
+
+# --- Module 6: Product Recommendation Engine Schemas ---
+
+class ProductCategoryEnum(str, Enum):
+    FACE_WASH = "Face Wash"
+    MOISTURIZER = "Moisturizer"
+    SUNSCREEN = "Sunscreen"
+    SERUM = "Serum"
+    TONER = "Toner"
+    TREATMENT = "Treatment Products"
+    FACE_MASKS = "Face Masks"
+
+class BudgetTierEnum(str, Enum):
+    BUDGET = "Budget" # Under $20
+    MID_RANGE = "Mid-Range" # $20 - $50
+    PREMIUM = "Premium" # $50+
+
+class ProductSchema(BaseModel):
+    id: int
+    name: str
+    brand: str
+    category: str
+    price: float
+    budget_tier: str
+    rating: float
+    key_active_ingredients: List[str]
+    full_ingredient_list: List[str]
+    target_concerns: List[str]
+    suitable_skin_types: List[str]
+    comedogenic_level: int = 0
+    image_url: Optional[str] = None
+    buy_url: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+class ProductRecommendationItem(BaseModel):
+    product: ProductSchema
+    suitability_score: float # 0 - 100%
+    match_tier: str # "Top Match", "Great Choice", "Compatible"
+    reason: str
+    badge: str
+    pros: List[str]
+    cons: List[str]
+
+class ProductRecommendationRequest(BaseModel):
+    user_id: Optional[int] = 1
+    assessment_id: Optional[int] = None
+    category: Optional[str] = None # Filter by product category
+    budget_tier: Optional[str] = None # Budget, Mid-Range, Premium
+    max_price: Optional[float] = None
+    skin_type: Optional[str] = "Combination"
+    active_concerns: Optional[List[str]] = []
+    allergies: Optional[List[str]] = []
+    limit: int = 10
+
+class ProductRecommendationResponse(BaseModel):
+    success: bool = True
+    user_id: int
+    total_found: int
+    category_filter: Optional[str] = None
+    budget_filter: Optional[str] = None
+    recommendations: List[ProductRecommendationItem]
+
+class ProductComparisonRequest(BaseModel):
+    product_ids: List[int]
+    user_id: Optional[int] = 1
+
+class ProductComparisonItem(BaseModel):
+    product: ProductSchema
+    suitability_score: float
+    key_actives: List[str]
+    target_concerns: List[str]
+    allergen_safe: bool
+    price_formatted: str
+    pros: List[str]
+
+class ProductComparisonResponse(BaseModel):
+    success: bool = True
+    products_compared: int
+    comparison_matrix: List[ProductComparisonItem]
+    winner_recommendation: Optional[str] = None
+
+class AlternativeProductResponse(BaseModel):
+    success: bool = True
+    original_product_id: int
+    original_product_name: str
+    issue_flagged: str
+    safer_alternatives: List[ProductRecommendationItem]
+
+
+# --- Module 7: Skin Health Scoring Engine Schemas ---
+
+class WeightedScoreBreakdownItem(BaseModel):
+    category: str
+    score: float # 0 - 100
+    weight: float # e.g. 0.35, 0.20, 0.15, 0.20, 0.10
+    weight_label: str # "35%", "20%", "15%", "20%", "10%"
+    weighted_contribution: float
+    status: str # "Optimal", "Good", "Moderate", "Needs Attention"
+    color: str # CSS Hex color
+
+class WeightedSkinHealthScoreRequest(BaseModel):
+    user_id: Optional[int] = 1
+    skin_condition_score: float = 75.0 # 35% weight
+    lifestyle_habits_score: float = 80.0 # 20% weight
+    sleep_quality_score: float = 70.0 # 15% weight
+    routine_consistency_score: float = 85.0 # 20% weight
+    hydration_level_score: float = 80.0 # 10% weight
+
+class WeightedSkinHealthScoreResponse(BaseModel):
+    success: bool = True
+    user_id: int
+    overall_skin_health_score: float # Formula: 0.35*Cond + 0.20*Life + 0.15*Sleep + 0.20*Cons + 0.10*Hydr
+    grade: str # e.g. "Optimal Barrier (A+)", "Good (Improving)"
+    formula_used: str
+    breakdown: List[WeightedScoreBreakdownItem]
+    insights: List[str]
+    improvement_recommendations: List[str]
+
+class RoutineAdherenceLogRequest(BaseModel):
+    user_id: Optional[int] = 1
+    routine_type: str # Morning, Evening, Weekly
+    steps_completed: int
+    total_steps: int
+    notes: Optional[str] = None
+
+class RoutineAdherenceLogResponse(BaseModel):
+    success: bool = True
+    user_id: int
+    log_date: str
+    routine_type: str
+    steps_completed: int
+    total_steps: int
+    adherence_percentage: float
+    consistency_score_boost: float
+    message: str
+
+class ScoreTrendItem(BaseModel):
+    date: str
+    overall_score: float
+    condition_score: float
+    lifestyle_score: float
+    sleep_score: float
+    routine_consistency: float
+    hydration_score: float
+
+class ScoreTrendResponse(BaseModel):
+    success: bool = True
+    user_id: int
+    current_score: float
+    previous_score: float
+    score_delta: float # e.g. +4.5
+    trend_status: str # "Improving", "Stable", "Declining"
+    improvement_velocity: str
+    timeline: List[ScoreTrendItem]
+
+

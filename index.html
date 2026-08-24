@@ -189,7 +189,7 @@
   </div>
 
   <!-- Interactive Skin Assessment Survey Modal -->
-  <div id="assessment-modal" class="modal-backdrop">
+  <div id="assessment-modal" class="modal-overlay hidden">
     <div class="modal-card">
       <div class="modal-header">
         <div>
@@ -316,7 +316,7 @@
   </div>
 
   <!-- Interactive Ingredient Safety Checker Modal -->
-  <div id="ingredient-modal" class="modal-backdrop">
+  <div id="ingredient-modal" class="modal-overlay hidden">
     <div class="modal-card">
       <div class="modal-header">
         <div>
@@ -354,8 +354,9 @@
         <!-- Injected dynamically -->
       </div>
     </div>
+  </div>
   <!-- User Account & Profile Settings Modal -->
-  <div id="user-settings-modal" class="modal-backdrop">
+  <div id="user-settings-modal" class="modal-overlay hidden">
     <div class="modal-card" style="max-width: 580px;">
       <div class="modal-header">
         <div>
@@ -440,19 +441,20 @@
     </div>
   </div>
 
-  <!-- ML PHOTO UPLOAD & LIVE WEBCAM SCAN MODAL -->
+  <!-- ML PHOTO UPLOAD & LIVE WEBCAM SCAN MODAL WITH ANIMATED PROGRESS BAR & RESULTS -->
   <div id="photo-scan-modal" class="modal-overlay hidden">
-    <div class="modal-card" style="max-width: 620px; max-height: 90vh; overflow-y: auto;">
-      <div class="modal-header">
+    <div class="modal-card" style="max-width: 660px; max-height: 92vh; overflow-y: auto; background: #FFFFFF; padding: 1.5rem; border-radius: var(--radius-md);">
+      <div class="modal-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 0.75rem; margin-bottom: 1rem;">
         <div>
-          <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem;">ML Skin Analyzer & Disease Classifier</h3>
-          <p class="text-muted" style="font-size: 0.8rem;">Upload photo or capture live webcam feed for optical biomarker analysis</p>
+          <span class="section-tag-pill" style="font-size: 0.7rem; padding: 0.15rem 0.6rem; background: rgba(197, 155, 39, 0.12); color: var(--gold-primary);">OPTICAL BIOMARKER & LESION CLASSIFIER</span>
+          <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-top: 0.2rem;">ML Skin Analyzer & Diagnostic Engine</h3>
+          <p class="text-muted" style="font-size: 0.8rem; margin: 0;">Upload photo or capture live webcam feed for optical biomarker analysis</p>
         </div>
         <button class="modal-close" onclick="window.app.closeModal('photo-scan-modal')">&times;</button>
       </div>
 
       <!-- Mode Switcher Tabs -->
-      <div style="display: flex; gap: 0.5rem; background: #FAF9F6; padding: 0.3rem; border-radius: 20px; border: 1px solid var(--border-light); margin-bottom: 1.25rem;">
+      <div id="scan-mode-tabs" style="display: flex; gap: 0.5rem; background: #FAF9F6; padding: 0.3rem; border-radius: 20px; border: 1px solid var(--border-light); margin-bottom: 1.25rem;">
         <button id="scan-tab-webcam" class="tab-btn active" style="flex: 1; text-align: center; font-size: 0.82rem; padding: 0.4rem;" onclick="window.app.switchScanTab('webcam')">📷 Live Webcam Capture</button>
         <button id="scan-tab-file" class="tab-btn" style="flex: 1; text-align: center; font-size: 0.82rem; padding: 0.4rem;" onclick="window.app.switchScanTab('file')">📁 Photo File Upload</button>
       </div>
@@ -460,9 +462,9 @@
       <!-- Live Webcam Mode View -->
       <div id="scan-view-webcam">
         <div style="position: relative; background: #111; border-radius: var(--radius-sm); overflow: hidden; text-align: center; margin-bottom: 0.85rem; border: 1px solid var(--border-light);">
-          <video id="webcam-video" autoplay playsinline style="width: 100%; height: 260px; object-fit: cover; background: #000;"></video>
+          <video id="webcam-video" autoplay playsinline style="width: 100%; height: 240px; object-fit: cover; background: #000;"></video>
           <canvas id="webcam-canvas" style="display: none;"></canvas>
-          <img id="webcam-preview-img" style="display: none; width: 100%; height: 260px; object-fit: cover;" />
+          <img id="webcam-preview-img" style="display: none; width: 100%; height: 240px; object-fit: cover;" />
           <div id="webcam-status-overlay" style="position: absolute; bottom: 8px; left: 8px; right: 8px; background: rgba(0,0,0,0.65); color: #fff; padding: 0.35rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; text-align: center;">
             Click "Start Camera" to align your face in frame
           </div>
@@ -481,115 +483,119 @@
 
       <!-- Photo File Mode View -->
       <div id="scan-view-file" class="hidden">
-        <div id="file-drop-zone" onclick="document.getElementById('photo-file-input').click()" style="border: 2px dashed var(--gold-primary); border-radius: var(--radius-sm); padding: 2rem; text-align: center; background: #FAF9F6; cursor: pointer; margin-bottom: 1rem; transition: var(--transition);">
-          <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">📸</div>
-          <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.2rem;">Click to Upload Skin Photo</h4>
+        <div id="file-drop-zone" onclick="document.getElementById('photo-file-input').click()" style="border: 2px dashed var(--gold-primary); border-radius: var(--radius-sm); padding: 1.8rem; text-align: center; background: #FAF9F6; cursor: pointer; margin-bottom: 1rem; transition: var(--transition);">
+          <div style="font-size: 2.2rem; margin-bottom: 0.4rem;">📸</div>
+          <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.2rem;">Click to Select & Upload Skin Photo</h4>
           <p class="text-muted" style="font-size: 0.8rem; margin: 0;">Supports JPG, PNG, WEBP (Clear facial lighting recommended)</p>
           <input type="file" id="photo-file-input" accept="image/*" style="display: none;" onchange="window.app.handleFileSelect(event)">
         </div>
 
         <div id="file-preview-container" class="hidden" style="margin-bottom: 1rem; text-align: center;">
-          <img id="file-preview-img" style="max-width: 100%; max-height: 240px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); object-fit: contain;" />
+          <img id="file-preview-img" style="max-width: 100%; max-height: 220px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); object-fit: contain;" />
         </div>
 
         <button id="btn-analyze-file" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-weight: 700;" onclick="window.app.submitFileForMLAnalysis()" disabled>
           ✨ Run ML Diagnostic Classifier Scan
         </button>
       </div>
-    </div>
-  </div>
 
-  <!-- STANDALONE ML SCAN RESULTS DIAGNOSTIC DIALOG BOX MODAL -->
-  <div id="scan-results-dialog" class="modal-overlay hidden">
-    <div class="modal-card" style="max-width: 680px; max-height: 92vh; overflow-y: auto; background: #FFFFFF; padding: 1.75rem;">
-      <div class="modal-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 1rem; margin-bottom: 1.25rem;">
-        <div>
-          <span class="section-tag-pill" style="font-size: 0.7rem; padding: 0.15rem 0.6rem; background: rgba(46, 125, 50, 0.1); color: var(--accent-emerald);">AI CLINICAL DIAGNOSTIC SCAN REPORT</span>
-          <h3 style="font-family: 'Playfair Display', serif; font-size: 1.35rem; margin-top: 0.25rem;">ML Facial Skin & Disease Analysis</h3>
-          <p class="text-muted" style="font-size: 0.8rem; margin: 0;">Multi-task optical biomarker extraction & lesion binary classification results</p>
+      <!-- ANIMATED SCAN ANALYSIS PROGRESS BAR CONTAINER -->
+      <div id="scan-progress-container" class="hidden" style="margin-top: 1.25rem; padding: 1.2rem; background: #FAF9F6; border: 1px solid var(--border-gold); border-radius: var(--radius-sm);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <span id="scan-progress-status" style="font-size: 0.82rem; font-weight: 700; color: var(--gold-primary);">⚡ Initializing ML Neural Scanner...</span>
+          <span id="scan-progress-percent" style="font-size: 0.88rem; font-weight: 800; color: var(--text-primary);">0%</span>
         </div>
-        <button class="modal-close" onclick="window.app.closeModal('scan-results-dialog')">&times;</button>
+        <div style="height: 10px; background: rgba(0,0,0,0.08); border-radius: 6px; overflow: hidden; margin-bottom: 0.5rem;">
+          <div id="scan-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--gold-primary), var(--accent-emerald)); border-radius: 6px; transition: width 0.2s ease;"></div>
+        </div>
+        <small class="text-muted" style="font-size: 0.75rem; display: block; text-align: center;">Extracting optical biomarkers and skin health indicators...</small>
       </div>
 
-      <!-- Scanned Image Thumbnail & Key Biomarkers Hero Card -->
-      <div style="display: grid; grid-template-columns: 160px 1fr; gap: 1.25rem; background: linear-gradient(135deg, #FAF9F6, #F4F1EA); border: 1px solid var(--border-gold); border-radius: var(--radius-sm); padding: 1.2rem; margin-bottom: 1.25rem; align-items: center;">
-        <div style="text-align: center;">
-          <img id="res-dialog-snapshot" style="width: 140px; height: 140px; object-fit: cover; border-radius: var(--radius-sm); border: 2px solid var(--gold-primary); box-shadow: 0 4px 12px rgba(0,0,0,0.1);" src="assets/sample_face.jpg" alt="Scanned Skin Photo" />
-          <small class="text-muted" style="display: block; font-size: 0.72rem; margin-top: 0.35rem; font-weight: 600;">Scanned Photo Frame</small>
-        </div>
-        <div>
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-            <span id="res-dialog-type-badge" class="badge badge-accent" style="font-size: 0.78rem;">Combination Skin</span>
-            <span id="res-dialog-score-badge" style="font-size: 1.3rem; font-weight: 800; color: var(--gold-primary);">78.5 / 100</span>
+      <!-- EMBEDDED DIAGNOSTIC RESULTS CONTAINER (Inside the Dialog Box) -->
+      <div id="dialog-scan-results-box" class="hidden" style="margin-top: 1.25rem; border-top: 1px solid var(--border-light); padding-top: 1.25rem;">
+        <!-- Results Hero Header -->
+        <div style="display: grid; grid-template-columns: 130px 1fr; gap: 1rem; background: linear-gradient(135deg, #FAF9F6, #F4F1EA); border: 1px solid var(--border-gold); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1rem; align-items: center;">
+          <div style="text-align: center;">
+            <img id="res-dialog-snapshot" style="width: 110px; height: 110px; object-fit: cover; border-radius: var(--radius-sm); border: 2px solid var(--gold-primary); box-shadow: 0 4px 10px rgba(0,0,0,0.1);" src="assets/hero_skin_scan.png" alt="Scanned Skin Photo" />
+            <small class="text-muted" style="display: block; font-size: 0.7rem; margin-top: 0.25rem; font-weight: 600;">Scanned Photo</small>
           </div>
-          <h4 id="res-dialog-skin-type" style="font-family: 'Playfair Display', serif; font-size: 1.15rem; margin: 0 0 0.35rem 0;">Detected Skin Type: Combination</h4>
-          <div id="res-dialog-lesion-card" style="padding: 0.6rem 0.85rem; background: #FFFFFF; border: 1px solid rgba(46, 125, 50, 0.3); border-radius: 6px; margin-top: 0.4rem;">
-            <small style="font-size: 0.7rem; font-weight: 800; color: var(--accent-emerald); text-transform: uppercase; letter-spacing: 0.05em;">ISIC Binary Lesion Screening:</small>
-            <div id="res-dialog-lesion-text" style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary); margin-top: 0.1rem;">Benign (Safe / Low Risk)</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Biomarkers Meter Grid -->
-      <div style="margin-bottom: 1.25rem;">
-        <h5 style="font-size: 0.8rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 0.75rem;">Quantitative Optical Biomarkers</h5>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem;">
-          <div style="padding: 0.75rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm);">
-            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.3rem;">
-              <span>💧 Hydration</span>
-              <span id="res-meter-hydr-val" style="color: #0284C7;">68%</span>
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+              <span id="res-dialog-type-badge" class="badge badge-accent" style="font-size: 0.75rem;">Combination Skin</span>
+              <span id="res-dialog-score-badge" style="font-size: 1.2rem; font-weight: 800; color: var(--gold-primary);">78.5 / 100</span>
             </div>
-            <div style="height: 6px; background: rgba(0,0,0,0.06); border-radius: 4px; overflow: hidden;">
-              <div id="res-meter-hydr-bar" style="width: 68%; height: 100%; background: #0284C7; border-radius: 4px;"></div>
-            </div>
-          </div>
-
-          <div style="padding: 0.75rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm);">
-            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.3rem;">
-              <span>✨ Oiliness / Sebum</span>
-              <span id="res-meter-oil-val" style="color: #D97706;">58%</span>
-            </div>
-            <div style="height: 6px; background: rgba(0,0,0,0.06); border-radius: 4px; overflow: hidden;">
-              <div id="res-meter-oil-bar" style="width: 58%; height: 100%; background: #D97706; border-radius: 4px;"></div>
-            </div>
-          </div>
-
-          <div style="padding: 0.75rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm);">
-            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.3rem;">
-              <span>🔴 Sensitivity / Erythema</span>
-              <span id="res-meter-sens-val" style="color: #DC2626;">22%</span>
-            </div>
-            <div style="height: 6px; background: rgba(0,0,0,0.06); border-radius: 4px; overflow: hidden;">
-              <div id="res-meter-sens-bar" style="width: 22%; height: 100%; background: #DC2626; border-radius: 4px;"></div>
-            </div>
-          </div>
-
-          <div style="padding: 0.75rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm);">
-            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.3rem;">
-              <span>🫧 Acne Severity</span>
-              <span id="res-meter-acne-val" style="color: #C59B27;">18%</span>
-            </div>
-            <div style="height: 6px; background: rgba(0,0,0,0.06); border-radius: 4px; overflow: hidden;">
-              <div id="res-meter-acne-bar" style="width: 18%; height: 100%; background: #C59B27; border-radius: 4px;"></div>
+            <h4 id="res-dialog-skin-type" style="font-family: 'Playfair Display', serif; font-size: 1.1rem; margin: 0 0 0.3rem 0;">Detected Skin Type: Combination</h4>
+            <div id="res-dialog-lesion-card" style="padding: 0.5rem 0.75rem; background: #FFFFFF; border: 1px solid rgba(46, 125, 50, 0.3); border-radius: 6px; margin-top: 0.3rem;">
+              <small style="font-size: 0.68rem; font-weight: 800; color: var(--accent-emerald); text-transform: uppercase; letter-spacing: 0.05em;">ISIC Binary Lesion Screening:</small>
+              <div id="res-dialog-lesion-text" style="font-size: 0.82rem; font-weight: 700; color: var(--text-primary); margin-top: 0.1rem;">Benign (Safe / Low Risk)</div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Disease & Condition Diagnostic List -->
-      <div style="margin-bottom: 1.5rem;">
-        <h5 style="font-size: 0.8rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 0.75rem;">Detected Dermatological Diseases & Conditions</h5>
-        <div id="res-dialog-conditions-list" style="display: flex; flex-direction: column; gap: 0.5rem;"></div>
-      </div>
+        <!-- Quantitative Biomarkers Meters -->
+        <div style="margin-bottom: 1rem;">
+          <h5 style="font-size: 0.78rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 0.6rem;">Quantitative Optical Biomarkers</h5>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.65rem;">
+            <div style="padding: 0.65rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm);">
+              <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.25rem;">
+                <span>💧 Hydration</span>
+                <span id="res-meter-hydr-val" style="color: #0284C7;">68%</span>
+              </div>
+              <div style="height: 5px; background: rgba(0,0,0,0.06); border-radius: 4px; overflow: hidden;">
+                <div id="res-meter-hydr-bar" style="width: 68%; height: 100%; background: #0284C7; border-radius: 4px;"></div>
+              </div>
+            </div>
 
-      <!-- Action Buttons -->
-      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-        <button class="btn btn-primary" style="flex: 1; padding: 0.75rem; font-weight: 700;" onclick="window.app.applyScanResultsToDashboard()">
-          🔄 Apply Diagnostic Results & Auto-Update Routine
-        </button>
-        <button class="btn btn-outline" style="padding: 0.75rem 1.25rem;" onclick="window.app.closeModal('scan-results-dialog')">
-          Close Dialog
-        </button>
+            <div style="padding: 0.65rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm);">
+              <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.25rem;">
+                <span>✨ Oiliness</span>
+                <span id="res-meter-oil-val" style="color: #D97706;">58%</span>
+              </div>
+              <div style="height: 5px; background: rgba(0,0,0,0.06); border-radius: 4px; overflow: hidden;">
+                <div id="res-meter-oil-bar" style="width: 58%; height: 100%; background: #D97706; border-radius: 4px;"></div>
+              </div>
+            </div>
+
+            <div style="padding: 0.65rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm);">
+              <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.25rem;">
+                <span>🔴 Sensitivity</span>
+                <span id="res-meter-sens-val" style="color: #DC2626;">22%</span>
+              </div>
+              <div style="height: 5px; background: rgba(0,0,0,0.06); border-radius: 4px; overflow: hidden;">
+                <div id="res-meter-sens-bar" style="width: 22%; height: 100%; background: #DC2626; border-radius: 4px;"></div>
+              </div>
+            </div>
+
+            <div style="padding: 0.65rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm);">
+              <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.25rem;">
+                <span>🫧 Acne</span>
+                <span id="res-meter-acne-val" style="color: #C59B27;">18%</span>
+              </div>
+              <div style="height: 5px; background: rgba(0,0,0,0.06); border-radius: 4px; overflow: hidden;">
+                <div id="res-meter-acne-bar" style="width: 18%; height: 100%; background: #C59B27; border-radius: 4px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detected Conditions List -->
+        <div style="margin-bottom: 1.25rem;">
+          <h5 style="font-size: 0.78rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 0.5rem;">Detected Skin Conditions</h5>
+          <div id="res-dialog-conditions-list" style="display: flex; flex-direction: column; gap: 0.4rem;"></div>
+        </div>
+
+        <!-- TWO MANDATORY ACTION BUTTONS: UPLOAD & RE-ANALYZE (Plus Apply Results) -->
+        <div style="display: flex; gap: 0.65rem; flex-wrap: wrap; margin-top: 1rem;">
+          <button id="btn-dialog-upload" class="btn btn-outline" style="flex: 1; font-weight: 700; font-size: 0.82rem; padding: 0.65rem;" onclick="document.getElementById('photo-file-input').click(); window.app.switchScanTab('file');">
+            📤 UPLOAD NEW PHOTO
+          </button>
+          <button id="btn-dialog-reanalyze" class="btn btn-gold" style="flex: 1; font-weight: 700; font-size: 0.82rem; padding: 0.65rem; background: var(--gold-primary); color: #fff; border: none;" onclick="window.app.reAnalyzeCurrentScan()">
+            🔄 RE-ANALYZE SCAN
+          </button>
+          <button class="btn btn-primary" style="flex: 1.2; font-weight: 700; font-size: 0.82rem; padding: 0.65rem;" onclick="window.app.applyScanResultsToDashboard()">
+            ✨ Apply to Dashboard
+          </button>
+        </div>
       </div>
     </div>
   </div>

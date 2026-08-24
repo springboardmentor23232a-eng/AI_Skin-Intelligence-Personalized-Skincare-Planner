@@ -391,24 +391,37 @@ export function renderUserDashboard() {
 
   return `
     <div class="dashboard-wrapper">
-      <!-- HEADER BANNER -->
+      <!-- HEADER BANNER WITH PROFESSIONAL ACTION TOOLBAR -->
       <div class="dashboard-header" style="background: #FFFFFF; padding: 1.5rem 1.75rem; border-radius: var(--radius-md); border: 1px solid var(--border-light); box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 1.5rem;">
-        <div>
-          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
-            <span class="section-tag-pill" style="font-size: 0.7rem; padding: 0.15rem 0.6rem;">CLINICAL DERMATOLOGY DASHBOARD</span>
-            <span class="badge badge-success" style="font-size: 0.75rem;">🟢 Telemetry Active</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem;">
+              <span class="section-tag-pill" style="font-size: 0.7rem; padding: 0.15rem 0.65rem; background: rgba(197, 155, 39, 0.12); color: var(--gold-primary);">CLINICAL DERMATOLOGY DASHBOARD</span>
+              <span class="badge badge-success" style="font-size: 0.75rem;">🟢 Telemetry Active</span>
+            </div>
+            <h2 style="font-family: 'Playfair Display', serif; font-size: 1.65rem; color: var(--text-primary); margin-bottom: 0.2rem;">
+              Patient Profile: <strong>${data.profile.name}</strong>
+            </h2>
+            <p class="text-muted" style="font-size: 0.88rem; margin: 0;">
+              Skin Classification: <strong>${data.profile.skinType}</strong> &nbsp;|&nbsp; Age Demographic: <strong>${data.profile.ageGroup}</strong> &nbsp;|&nbsp; Barrier Status: <span style="color: var(--accent-emerald); font-weight: 700;">Balanced Equilibrium</span>
+            </p>
           </div>
-          <h2 style="font-family: 'Playfair Display', serif; font-size: 1.65rem; color: var(--text-primary); margin-bottom: 0.2rem;">
-            Patient Profile: <strong>${data.profile.name}</strong>
-          </h2>
-          <p class="text-muted" style="font-size: 0.88rem; margin: 0;">
-            Skin Classification: <strong>${data.profile.skinType}</strong> &nbsp;|&nbsp; Age Demographic: <strong>${data.profile.ageGroup}</strong> &nbsp;|&nbsp; Barrier Status: <span style="color: var(--accent-emerald); font-weight: 700;">Balanced Equilibrium</span>
-          </p>
+          <div>
+            <button class="btn btn-outline btn-sm" style="font-size: 0.8rem; padding: 0.55rem 1rem; border-radius: var(--radius-sm);" onclick="window.app.openModal('user-settings-modal')">⚙️ Account Settings</button>
+          </div>
         </div>
-        <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
-          <button class="btn btn-gold btn-sm" style="font-size: 0.8rem; padding: 0.6rem 1.1rem; background: var(--gold-primary); color: #fff; border: none; border-radius: var(--radius-sm); font-weight: 700; cursor: pointer;" onclick="window.app.openModal('photo-scan-modal')">📸 ML Photo & Webcam Analyzer</button>
-          <button class="btn btn-primary btn-sm" style="font-size: 0.8rem; padding: 0.6rem 1.1rem;" onclick="window.app.openModal('assessment-modal')">Clinical Assessment Survey</button>
-          <button class="btn btn-outline btn-sm" style="font-size: 0.8rem; padding: 0.6rem 1.1rem;" onclick="window.app.openModal('ingredient-modal')">Ingredient Safety</button>
+
+        <!-- DEDICATED PROFESSIONAL ACTION BAR GRID -->
+        <div style="margin-top: 1.25rem; padding-top: 1.1rem; border-top: 1px solid var(--border-light); display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.85rem;">
+          <button class="btn btn-gold" style="padding: 0.75rem 1.1rem; background: var(--gold-primary); color: #FFFFFF; border: none; border-radius: var(--radius-sm); font-weight: 700; font-size: 0.83rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; box-shadow: 0 4px 12px rgba(197, 155, 39, 0.25); transition: var(--transition);" onclick="window.app.openModal('photo-scan-modal')">
+            📸 ML Photo & Live Webcam Analyzer
+          </button>
+          <button class="btn btn-primary" style="padding: 0.75rem 1.1rem; background: var(--text-primary); color: #FFFFFF; border: none; border-radius: var(--radius-sm); font-weight: 700; font-size: 0.83rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: var(--transition);" onclick="window.app.openModal('assessment-modal')">
+            📋 Clinical Assessment Survey
+          </button>
+          <button class="btn btn-outline" style="padding: 0.75rem 1.1rem; background: #FAF9F6; color: var(--text-primary); border: 1px solid var(--border-gold); border-radius: var(--radius-sm); font-weight: 700; font-size: 0.83rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: var(--transition);" onclick="window.app.openModal('ingredient-modal')">
+            🧪 Ingredient Safety & Clash Checker
+          </button>
         </div>
       </div>
 
@@ -700,7 +713,7 @@ export function renderUserDashboard() {
         
         <div class="products-grid">
           ${data.recommendedProducts.map(p => `
-            <div class="product-card" style="background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 1.1rem; display: flex; flex-direction: column; justify-space-between;">
+            <div class="product-card" style="background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 1.1rem; display: flex; flex-direction: column; justify-content: space-between;">
               <div>
                 <div class="product-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                   <span class="badge badge-accent" style="font-size: 0.75rem;">${p.badge}</span>
@@ -716,9 +729,108 @@ export function renderUserDashboard() {
                 </div>
                 <p class="product-reason" style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.4;">💡 ${p.reason}</p>
               </div>
-              <button class="btn btn-sm btn-primary" style="width: 100%; margin-top: 1rem; font-size: 0.78rem;" onclick="window.app.addProductToRoutine('${p.name}', '${p.category}')">+ Add to Morning Routine</button>
+              <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                <button class="btn btn-sm btn-primary" style="flex: 1; font-size: 0.78rem;" onclick="window.app.addProductToRoutine('${p.name}', '${p.category}')">+ Add to Routine</button>
+                <button class="btn btn-sm btn-outline" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;" onclick="window.app.viewSaferAlternatives('${p.id}')" title="Find Alternative Products">🛡️ Alt</button>
+              </div>
             </div>
           `).join('')}
+        </div>
+      </div>
+
+      <!-- MODULE 5: INGREDIENT INTELLIGENCE HUB -->
+      <div class="glass-card section-margin" style="background: #FFFFFF; padding: 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--border-light); margin-top: 1.5rem;">
+        <div class="card-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 0.85rem; margin-bottom: 1rem;">
+          <div>
+            <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem;">Ingredient Intelligence Hub</h3>
+            <p class="text-muted" style="font-size: 0.8rem; margin-top: 0.1rem;">Analyze ingredient lists, detect clashes, synergies & check safety against active allergies</p>
+          </div>
+          <span class="badge badge-success" style="font-weight: 600;">8 Categories Loaded</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem;">
+          <!-- Analyzer Tool -->
+          <div style="padding: 1.1rem; background: #FAF9F6; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+            <h4 style="font-family: 'Playfair Display', serif; font-size: 1.05rem; margin-bottom: 0.35rem;">🧪 Ingredient Safety & Clash Analyzer</h4>
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.75rem;">Type or paste formulation ingredients separated by commas:</p>
+            
+            <textarea id="ui-ingredient-input" class="form-control" rows="3" style="font-size: 0.85rem; margin-bottom: 0.75rem;" placeholder="e.g. Retinol, Glycolic Acid, Niacinamide, Hyaluronic Acid, Fragrance (Parfum)"></textarea>
+            
+            <button class="btn btn-sm btn-primary" style="width: 100%; font-size: 0.82rem;" onclick="window.app.analyzeIngredientsFromUI()">Run Ingredient Analysis 🔬</button>
+
+            <!-- Analysis Output Box -->
+            <div id="ui-ingredient-output" style="margin-top: 1rem; display: none; padding: 0.85rem; background: #FFFFFF; border-radius: var(--radius-sm); border: 1px solid var(--border-gold);">
+            </div>
+          </div>
+
+          <!-- Ingredient Library Dictionary -->
+          <div style="padding: 1.1rem; background: #FAF9F6; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+            <h4 style="font-family: 'Playfair Display', serif; font-size: 1.05rem; margin-bottom: 0.35rem;">📚 8 Core Ingredient Categories Library</h4>
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.75rem;">Clinical benefits & target concentrations:</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 260px; overflow-y: auto; padding-right: 0.25rem;">
+              <div style="padding: 0.5rem 0.75rem; background: #FFF; border-radius: 4px; border-left: 3px solid var(--gold-primary);">
+                <strong style="font-size: 0.82rem;">1. Retinoids</strong> <small style="color: var(--text-muted);">(0.1% - 1.0%)</small>
+                <div style="font-size: 0.78rem; color: var(--text-muted);">Cellular turnover, fine lines & acne clearance.</div>
+              </div>
+              <div style="padding: 0.5rem 0.75rem; background: #FFF; border-radius: 4px; border-left: 3px solid var(--accent-emerald);">
+                <strong style="font-size: 0.82rem;">2. Niacinamide</strong> <small style="color: var(--text-muted);">(2.0% - 10.0%)</small>
+                <div style="font-size: 0.78rem; color: var(--text-muted);">Barrier repair, sebum balance & redness reduction.</div>
+              </div>
+              <div style="padding: 0.5rem 0.75rem; background: #FFF; border-radius: 4px; border-left: 3px solid var(--accent-amber);">
+                <strong style="font-size: 0.82rem;">3. Vitamin C</strong> <small style="color: var(--text-muted);">(10.0% - 20.0%)</small>
+                <div style="font-size: 0.78rem; color: var(--text-muted);">Antioxidant protection & radiance brightening.</div>
+              </div>
+              <div style="padding: 0.5rem 0.75rem; background: #FFF; border-radius: 4px; border-left: 3px solid var(--accent-rose);">
+                <strong style="font-size: 0.82rem;">4. Hyaluronic Acid</strong> <small style="color: var(--text-muted);">(1.0% - 2.0%)</small>
+                <div style="font-size: 0.78rem; color: var(--text-muted);">Deep surface hydration & plumping fine lines.</div>
+              </div>
+              <div style="padding: 0.5rem 0.75rem; background: #FFF; border-radius: 4px; border-left: 3px solid var(--gold-primary);">
+                <strong style="font-size: 0.82rem;">5. Salicylic Acid (BHA)</strong> <small style="color: var(--text-muted);">(0.5% - 2.0%)</small>
+                <div style="font-size: 0.78rem; color: var(--text-muted);">Pore exfoliation & blackhead dissolution.</div>
+              </div>
+              <div style="padding: 0.5rem 0.75rem; background: #FFF; border-radius: 4px; border-left: 3px solid var(--accent-emerald);">
+                <strong style="font-size: 0.82rem;">6. Ceramides (NP/AP/EOP)</strong> <small style="color: var(--text-muted);">(1.0% - 5.0%)</small>
+                <div style="font-size: 0.78rem; color: var(--text-muted);">Intercellular lipid seal & moisture retention.</div>
+              </div>
+              <div style="padding: 0.5rem 0.75rem; background: #FFF; border-radius: 4px; border-left: 3px solid var(--accent-amber);">
+                <strong style="font-size: 0.82rem;">7. Peptides (Matrixyl 3000)</strong> <small style="color: var(--text-muted);">(3.0% - 8.0%)</small>
+                <div style="font-size: 0.78rem; color: var(--text-muted);">Collagen & elastin structural firmness boost.</div>
+              </div>
+              <div style="padding: 0.5rem 0.75rem; background: #FFF; border-radius: 4px; border-left: 3px solid var(--accent-rose);">
+                <strong style="font-size: 0.82rem;">8. AHAs/BHAs (Glycolic/Lactic)</strong> <small style="color: var(--text-muted);">(5.0% - 10.0%)</small>
+                <div style="font-size: 0.78rem; color: var(--text-muted);">Surface cell desmosome dissolving for texture glow.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODULE 6 & 7: ADVANCED PRODUCT COMPARISON & SCORING ENGINE -->
+      <div class="glass-card section-margin" style="background: #FFFFFF; padding: 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--border-light); margin-top: 1.5rem;">
+        <div class="card-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 0.85rem; margin-bottom: 1rem;">
+          <div>
+            <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem;">Skin Health Scoring Engine (35/20/15/20/10 Model)</h3>
+            <p class="text-muted" style="font-size: 0.8rem; margin-top: 0.1rem;">Explicit weighted skin health formula & daily routine adherence tracker</p>
+          </div>
+          <button class="btn btn-sm btn-primary" style="font-size: 0.78rem; padding: 0.4rem 0.85rem;" onclick="window.app.logRoutineAdherenceFromUI()">✅ Log Routine Completion (+2.5 pts)</button>
+        </div>
+
+        <div style="padding: 1.1rem; background: linear-gradient(135deg, rgba(197, 155, 39, 0.08), rgba(46, 125, 50, 0.05)); border-radius: var(--radius-sm); border: 1px solid var(--border-gold); margin-bottom: 1rem;">
+          <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.35rem;">Weighted Formula Computation:</h4>
+          <div style="font-size: 0.85rem; font-family: monospace; color: var(--gold-primary); font-weight: 700;">
+            Skin Health Score = (Condition × 35%) + (Lifestyle × 20%) + (Sleep × 15%) + (Consistency × 20%) + (Hydration × 10%)
+          </div>
+          <div style="display: flex; gap: 1rem; margin-top: 0.75rem; flex-wrap: wrap; font-size: 0.82rem;">
+            <div><strong>Condition (35%):</strong> 75.0 pts &rarr; <span style="color: var(--accent-emerald);">26.25 contribution</span></div>
+            <div><strong>Lifestyle (20%):</strong> 80.0 pts &rarr; <span style="color: var(--accent-emerald);">16.00 contribution</span></div>
+            <div><strong>Sleep (15%):</strong> 70.0 pts &rarr; <span style="color: var(--accent-emerald);">10.50 contribution</span></div>
+            <div><strong>Consistency (20%):</strong> 85.0 pts &rarr; <span style="color: var(--accent-emerald);">17.00 contribution</span></div>
+            <div><strong>Hydration (10%):</strong> 80.0 pts &rarr; <span style="color: var(--accent-emerald);">8.00 contribution</span></div>
+          </div>
+          <div style="margin-top: 0.65rem; font-size: 0.95rem; font-weight: 800; color: var(--text-primary);">
+            Overall Weighted Score: <span style="color: var(--accent-emerald); font-size: 1.1rem;">77.8 / 100</span> (Grade: Good - Improving)
+          </div>
         </div>
       </div>
     </div>

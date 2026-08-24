@@ -108,3 +108,82 @@ class SkinRoutine(Base):
     # Relationship back to assessment
     assessment = relationship("SkinAssessment", back_populates="routines")
 
+
+class Ingredient(Base):
+    __tablename__ = "ingredients"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    name = Column(String(150), unique=True, nullable=False, index=True)
+    chemical_name = Column(String(200), nullable=True)
+    category = Column(String(100), nullable=False, index=True) # Retinoids, Niacinamide, Vitamin C, Hyaluronic Acid, Salicylic Acid, Ceramides, Peptides, AHAs/BHAs
+    description = Column(Text, nullable=False)
+    primary_benefit = Column(Text, nullable=False)
+    recommended_conc_range = Column(String(50), default="0.5% - 5%")
+    comedogenicity_rating = Column(Integer, default=0) # 0 to 5
+    irritant_rating = Column(Integer, default=0)       # 0 to 5
+    target_skin_types = Column(JSON, default=list)
+    suitable_concerns = Column(JSON, default=list)
+    avoid_concerns = Column(JSON, default=list)
+    usage_tips = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+
+class IngredientInteraction(Base):
+    __tablename__ = "ingredient_interactions"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    ingredient_a = Column(String(150), nullable=False, index=True)
+    ingredient_b = Column(String(150), nullable=False, index=True)
+    interaction_type = Column(String(50), nullable=False) # Conflict, Synergy, Caution
+    severity = Column(String(50), default="Moderate")     # Low, Moderate, High, Severe, Synergistic
+    description = Column(Text, nullable=False)
+    recommendation = Column(Text, nullable=False)
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+
+class Product(Base):
+    __tablename__ = "products"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    name = Column(String(200), nullable=False)
+    brand = Column(String(150), nullable=False)
+    category = Column(String(100), nullable=False, index=True) # Face Wash, Moisturizer, Sunscreen, Serum, Toner, Treatment Products, Face Masks
+    price = Column(Float, nullable=False)
+    budget_tier = Column(String(50), nullable=False, index=True) # Budget, Mid-Range, Premium
+    rating = Column(Float, default=4.5)
+    key_active_ingredients = Column(JSON, nullable=False)
+    full_ingredient_list = Column(JSON, nullable=False)
+    target_concerns = Column(JSON, nullable=False)
+    suitable_skin_types = Column(JSON, nullable=False)
+    comedogenic_level = Column(Integer, default=0)
+    image_url = Column(Text, nullable=True)
+    buy_url = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+
+class ProductRecommendation(Base):
+    __tablename__ = "product_recommendations"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, index=True, nullable=False)
+    assessment_id = Column(Integer, ForeignKey("skin_assessments.id", ondelete="CASCADE"), nullable=True)
+    product_id = Column(Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
+    suitability_score = Column(Float, nullable=False) # 0 to 100
+    recommendation_reason = Column(Text, nullable=True)
+    match_tier = Column(String(50), default="High Match")
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+
+class RoutineAdherenceLog(Base):
+    __tablename__ = "routine_adherence_logs"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, index=True, nullable=False)
+    log_date = Column(DateTime(timezone=True), default=utc_now, nullable=False, index=True)
+    routine_type = Column(String(50), nullable=False) # Morning, Evening, Weekly
+    steps_completed = Column(Integer, default=0)
+    total_steps = Column(Integer, default=4)
+    adherence_percentage = Column(Float, default=100.0)
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+

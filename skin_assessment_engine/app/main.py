@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import engine, Base
 import app.models # Register all ORM models with Base
-from app.routers import assessment, health, routine
+from app.routers import assessment, health, routine, ingredient, product, scoring
 
 # Create DB tables automatically on startup
 Base.metadata.create_all(bind=engine)
@@ -13,16 +13,15 @@ app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
     description="""
-    ## PanaceaAI Skin Intelligence & Routine Engine (Modules 3 & 4)
+    ## PanaceaAI Skin Intelligence Engine (Modules 3, 4, 5, 6, 7)
     
-    API for analyzing skin profiles, calculating Skin Health Scores (0-100),
-    identifying skin concerns, evaluating risk factors, and generating personalized routines.
+    Complete API for skin assessments, personalized routine generation, ingredient intelligence,
+    product recommendation & comparison, and weighted skin health scoring.
     
-    ### Routine Generator Endpoints
-    * **POST** `/routine/generate` - Generate personalized AM/PM, weekly & seasonal routine
-    * **GET** `/routine/user/{user_id}` - Retrieve active user routine
-    * **GET** `/routine/{id}` - Fetch specific routine details
-    * **POST** `/routine/adapt` - Trigger adaptive routine update on skin score changes
+    ### Key Endpoints:
+    * **Module 5**: `/ingredient/analyze`, `/ingredient/categories`, `/ingredient/{name}`
+    * **Module 6**: `/product/recommend`, `/product/compare`, `/product/alternatives/{id}`
+    * **Module 7**: `/scoring/calculate`, `/scoring/trend/{user_id}`, `/scoring/adherence`
     """,
     docs_url="/docs",
     redoc_url="/redoc"
@@ -37,7 +36,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount Routers (Supports /assessment, /routine, and /api/v1 prefix)
+# Mount Routers
 app.include_router(assessment.router, prefix="/assessment")
 app.include_router(assessment.router, prefix="/api/v1/assessment")
 app.include_router(assessment.router, prefix="/api/assessment")
@@ -45,6 +44,18 @@ app.include_router(assessment.router, prefix="/api/assessment")
 app.include_router(routine.router, prefix="/routine")
 app.include_router(routine.router, prefix="/api/v1/routine")
 app.include_router(routine.router, prefix="/api/routine")
+
+app.include_router(ingredient.router, prefix="/ingredient")
+app.include_router(ingredient.router, prefix="/api/v1/ingredient")
+app.include_router(ingredient.router, prefix="/api/ingredient")
+
+app.include_router(product.router, prefix="/product")
+app.include_router(product.router, prefix="/api/v1/product")
+app.include_router(product.router, prefix="/api/product")
+
+app.include_router(scoring.router, prefix="/scoring")
+app.include_router(scoring.router, prefix="/api/v1/scoring")
+app.include_router(scoring.router, prefix="/api/scoring")
 
 app.include_router(health.router)
 
@@ -54,12 +65,6 @@ def root():
         "message": "Welcome to PanaceaAI Skin Intelligence Engine API",
         "docs": "/docs",
         "health": "/health",
-        "endpoints": [
-            "POST /assessment",
-            "GET /assessment",
-            "POST /routine/generate",
-            "GET /routine/user/{user_id}",
-            "POST /routine/adapt"
-        ]
+        "modules": ["Module 3: Skin Assessment", "Module 4: Personalized Routine Generator", "Module 5: Ingredient Intelligence", "Module 6: Product Recommendation Engine", "Module 7: Skin Health Scoring Engine"]
     }
 

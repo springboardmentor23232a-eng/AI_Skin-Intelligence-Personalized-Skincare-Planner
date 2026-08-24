@@ -45,8 +45,18 @@ const registerLimiter = rateLimit({
   }
 });
 
-// Serve static frontend files
-app.use(express.static(rootDir));
+// Serve static frontend files with no-cache headers for instant client updates
+app.use(express.static(rootDir, {
+  etag: false,
+  lastModified: false,
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.js') || filePath.endsWith('.css') || filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    }
+  }
+}));
 
 // API Route Mounts with rate limiting
 app.use('/api/auth/login', authLimiter);

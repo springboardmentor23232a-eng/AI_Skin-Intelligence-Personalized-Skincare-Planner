@@ -348,9 +348,80 @@ class ApiClient {
   /**
    * GET /health — Check Assessment Engine health & DB connectivity.
    */
-  async getAssessmentEngineHealth() {
-    return await this.assessmentRequest('/health', {
+  /**
+   * Module 5: POST /ingredient/analyze
+   */
+  async analyzeIngredients(payload) {
+    return await this.assessmentRequest('/ingredient/analyze', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  }
+
+  /**
+   * Module 5: GET /ingredient/categories
+   */
+  async getIngredientCategories() {
+    return await this.assessmentRequest('/ingredient/categories', {
       method: 'GET'
+    });
+  }
+
+  /**
+   * Module 6: POST /product/recommend
+   */
+  async getRecommendedProducts(payload) {
+    return await this.assessmentRequest('/product/recommend', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  }
+
+  /**
+   * Module 6: POST /product/compare
+   */
+  async compareProducts(productIds) {
+    return await this.assessmentRequest('/product/compare', {
+      method: 'POST',
+      body: JSON.stringify({ product_ids: productIds })
+    });
+  }
+
+  /**
+   * Module 6: GET /product/alternatives/{productId}
+   */
+  async getAlternativeProducts(productId) {
+    return await this.assessmentRequest(`/product/alternatives/${productId}`, {
+      method: 'GET'
+    });
+  }
+
+  /**
+   * Module 7: POST /scoring/calculate
+   */
+  async calculateSkinHealthScore(payload) {
+    return await this.assessmentRequest('/scoring/calculate', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  }
+
+  /**
+   * Module 7: GET /scoring/trend/{userId}
+   */
+  async getScoreTrend(userId = 1) {
+    return await this.assessmentRequest(`/scoring/trend/${userId}`, {
+      method: 'GET'
+    });
+  }
+
+  /**
+   * Module 7: POST /scoring/adherence
+   */
+  async logRoutineAdherence(payload) {
+    return await this.assessmentRequest('/scoring/adherence', {
+      method: 'POST',
+      body: JSON.stringify(payload)
     });
   }
 }

@@ -109,3 +109,86 @@ BEFORE UPDATE ON skin_assessments
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
+-- 5. Ingredient Intelligence Module Tables (Module 5)
+CREATE TABLE IF NOT EXISTS ingredients (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(150) NOT NULL UNIQUE,
+    chemical_name VARCHAR(200),
+    category VARCHAR(100) NOT NULL, -- Retinoids, Niacinamide, Vitamin C, Hyaluronic Acid, Salicylic Acid, Ceramides, Peptides, AHAs/BHAs
+    description TEXT NOT NULL,
+    primary_benefit TEXT NOT NULL,
+    recommended_conc_range VARCHAR(50) DEFAULT '0.5% - 5%',
+    comedogenicity_rating INT DEFAULT 0 CHECK (comedogenicity_rating >= 0 AND comedogenicity_rating <= 5),
+    irritant_rating INT DEFAULT 0 CHECK (irritant_rating >= 0 AND irritant_rating <= 5),
+    target_skin_types JSONB DEFAULT '["All"]',
+    suitable_concerns JSONB DEFAULT '[]',
+    avoid_concerns JSONB DEFAULT '[]',
+    usage_tips TEXT,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_ingredients_category ON ingredients(category);
+
+CREATE TABLE IF NOT EXISTS ingredient_interactions (
+    id SERIAL PRIMARY KEY,
+    ingredient_a VARCHAR(150) NOT NULL,
+    ingredient_b VARCHAR(150) NOT NULL,
+    interaction_type VARCHAR(50) NOT NULL CHECK (interaction_type IN ('Conflict', 'Synergy', 'Caution')),
+    severity VARCHAR(50) DEFAULT 'Moderate' CHECK (severity IN ('Low', 'Moderate', 'High', 'Severe', 'Synergistic')),
+    description TEXT NOT NULL,
+    recommendation TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_ingredient_interactions_pair ON ingredient_interactions(ingredient_a, ingredient_b);
+
+-- 6. Product Recommendation Engine Tables (Module 6)
+CREATE TABLE IF NOT EXISTS products (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(200) NOT NULL,
+    brand VARCHAR(150) NOT NULL,
+    category VARCHAR(100) NOT NULL, -- Face Wash, Moisturizer, Sunscreen, Serum, Toner, Treatment Products, Face Masks
+    price NUMERIC(10, 2) NOT NULL,
+    budget_tier VARCHAR(50) NOT NULL CHECK (budget_tier IN ('Budget', 'Mid-Range', 'Premium')),
+    rating NUMERIC(3, 2) DEFAULT 4.5 CHECK (rating >= 0 AND rating <= 5.0),
+    key_active_ingredients JSONB NOT NULL,
+    full_ingredient_list JSONB NOT NULL,
+    target_concerns JSONB NOT NULL,
+    suitable_skin_types JSONB NOT NULL,
+    comedogenic_level INT DEFAULT 0,
+    image_url TEXT,
+    buy_url TEXT,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_products_category ON products(category);
+CREATE INDEX IF NOT EXISTS idx_products_budget ON products(budget_tier);
+
+CREATE TABLE IF NOT EXISTS product_recommendations (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    assessment_id INT REFERENCES skin_assessments(id) ON DELETE CASCADE,
+    product_id INT REFERENCES products(id) ON DELETE CASCADE,
+    suitability_score NUMERIC(5, 2) NOT NULL CHECK (suitability_score >= 0 AND suitability_score <= 100),
+    recommendation_reason TEXT,
+    match_tier VARCHAR(50) DEFAULT 'High Match',
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_product_recs_user ON product_recommendations(user_id);
+
+-- 7. Routine Adherence & Scoring History Table (Module 7)
+CREATE TABLE IF NOT EXISTS routine_adherence_logs (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    log_date DATE DEFAULT CURRENT_DATE NOT NULL,
+    routine_type VARCHAR(50) NOT NULL CHECK (routine_type IN ('Morning', 'Evening', 'Weekly')),
+    steps_completed INT NOT NULL DEFAULT 0,
+    total_steps INT NOT NULL DEFAULT 4,
+    adherence_percentage NUMERIC(5, 2) DEFAULT 100.0,
+    notes TEXT,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_routine_adherence_user ON routine_adherence_logs(user_id, log_date);
+
