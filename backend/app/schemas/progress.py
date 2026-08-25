@@ -20,3 +20,14 @@ class ProgressLogOut(ProgressLogCreate):
 
     class Config:
         from_attributes = True
+class ProgressPhotoOut(BaseModel):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    assessment_id: Optional[uuid.UUID] = None
+    photo_url: str
+    photo_type: str
+    skin_health_score: Optional[float] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

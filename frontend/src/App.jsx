@@ -10,11 +10,17 @@ import Assessment from './pages/Assessment'
 import Routine from './pages/Routine'
 import Products from './pages/Products'
 import Progress from './pages/Progress'
+import Notifications from './pages/Notifications'
 import Admin from './pages/Admin'
 import Consultant from './pages/Consultant'
 import ClientDetail from './pages/ClientDetail'
 import OAuthCallback from './pages/OAuthCallback'
 import MainLayout from "./layouts/MainLayout";
+import Consultation from './pages/Consultation'
+import ConsultantAppointments from './pages/ConsultantAppointments'
+import ProviderDashboard from './pages/ProviderDashboard'
+import Settings from './pages/Settings'
+import IngredientIntelligence from './pages/IngredientIntelligence'
 
 export default function App() {
   return (
@@ -84,6 +90,16 @@ export default function App() {
     </ProtectedRoute>
   }
 />
+<Route
+  path="/appointments"
+  element={
+    <ProtectedRoute roles={["user"]}>
+      <MainLayout>
+        <Consultation />
+      </MainLayout>
+    </ProtectedRoute>
+  }
+/>
         <Route
   path="/admin"
   element={
@@ -94,12 +110,63 @@ export default function App() {
     </ProtectedRoute>
   }
 />
+<Route
+  path="/provider-dashboard"
+  element={
+    <ProtectedRoute roles={["consultant", "dermatologist"]}>
+      <MainLayout>
+        <ProviderDashboard />
+      </MainLayout>
+    </ProtectedRoute>
+  }
+/>
         <Route
   path="/clients"
   element={
-    <ProtectedRoute roles={["consultant", "dermatologist", "admin"]}>
+    <ProtectedRoute
+      roles={["consultant", "dermatologist", "admin"]}
+    >
       <MainLayout>
         <Consultant />
+      </MainLayout>
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/consultant"
+  element={
+    <ProtectedRoute
+      roles={["consultant", "dermatologist", "admin"]}
+    >
+      <MainLayout>
+        <ConsultantAppointments />
+      </MainLayout>
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/consultation"
+  element={
+    <ProtectedRoute roles={["user"]}>
+      <MainLayout>
+        <Consultation />
+      </MainLayout>
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/notifications"
+  element={
+    <ProtectedRoute
+      roles={[
+        "user",
+        "consultant",
+        "dermatologist",
+        "admin",
+      ]}
+    >
+      <MainLayout>
+        <Notifications />
       </MainLayout>
     </ProtectedRoute>
   }
@@ -114,6 +181,36 @@ export default function App() {
     </ProtectedRoute>
   }
 />
+<Route
+  path="/settings"
+  element={
+    <ProtectedRoute
+      roles={[
+        "user",
+        "consultant",
+        "dermatologist",
+        "admin",
+      ]}
+    >
+      <MainLayout>
+        <Settings />
+      </MainLayout>
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/ingredients"
+  element={
+    <ProtectedRoute
+      roles={["user"]}
+    >
+      <MainLayout>
+        <IngredientIntelligence />
+      </MainLayout>
+    </ProtectedRoute>
+  }
+/>
+
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </>

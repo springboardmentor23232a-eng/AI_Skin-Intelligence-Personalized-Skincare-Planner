@@ -1,0 +1,8 @@
+workspace:
+  id: 7277b3e1-f03d-42e8-875c-c5a7a6d7ee3f
+cloudResources:
+  collections:
+    ../postman/collections/Skin Assessment Engine - Module 3: c3922542-cb51-43e0-8365-9d16119c1128
+localResources:
+  specs:
+    - ../postman/specs/Skin Assessment Engine - Module 3 API/Skin Assessment Engine - Module 3 API.yaml

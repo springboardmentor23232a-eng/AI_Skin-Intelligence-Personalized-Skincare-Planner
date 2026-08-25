@@ -164,6 +164,32 @@ SEVERITY_NOTES = {
         "dermatological evaluation."
     ),
 }
+# ---------------------------------------------------------------------------
+# Age Group Rules
+# ---------------------------------------------------------------------------
+
+AGE_GROUP_RULES = {
+    "teen": {
+        "note": "Prioritize gentle cleansing, acne prevention, hydration and daily sun protection.",
+        "avoid": ["Retinoid"],
+    },
+    "20s": {
+        "note": "Focus on prevention, hydration, skin barrier support and consistent sun protection.",
+        "avoid": [],
+    },
+    "30s": {
+        "note": "Focus on prevention, pigmentation control, hydration and early skin-aging support.",
+        "avoid": [],
+    },
+    "40s": {
+        "note": "Focus on hydration, pigmentation management, barrier support and skin-aging concerns.",
+        "avoid": [],
+    },
+    "50+": {
+        "note": "Prioritize hydration, barrier support, pigmentation management and mature-skin care.",
+        "avoid": [],
+    },
+}
 
 
 # ---------------------------------------------------------------------------
@@ -201,6 +227,15 @@ def _normalize_single(value: str) -> str:
         .lower()
         .replace(" ", "_")
     )
+def _age_group_note(age_group: Optional[str]) -> str:
+    age_key = _normalize_single(age_group or "")
+
+    rule = AGE_GROUP_RULES.get(age_key)
+
+    if not rule:
+        return ""
+
+    return rule["note"]
 
 
 def _has_sensitive_profile(
@@ -1078,6 +1113,7 @@ def generate_full_routine(
     sleep_hours: Optional[float] = None,
     water_intake_liters: Optional[float] = None,
     month: Optional[int] = None,
+    age_group: Optional[str] = None,
 ) -> dict:
 
     concerns = _normalize_values(concerns)
@@ -1221,10 +1257,11 @@ def generate_full_routine(
     # -------------------------------------------------------
     # Final notes
     # -------------------------------------------------------
-
+    age_note = _age_group_note(age_group)
     notes_parts = [
         score_note,
         severity_note,
+        age_note,
         seasonal_recommendation(
             season,
             skin_type,

@@ -68,11 +68,14 @@ def _risk_factors(profile: SkinProfile) -> list:
     return risks
 
 
+
 @router.post("/run", response_model=AssessmentOut)
 def run_assessment(
+    age: int | None = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    # Get user's skin profile
     profile = (
         db.query(SkinProfile)
         .filter(SkinProfile.user_id == current_user.id)
@@ -85,19 +88,23 @@ def run_assessment(
             detail="Create a skin profile before running an assessment.",
         )
 
+    # Get concerns from skin profile
     concerns = profile.skin_concerns or []
 
+    # Calculate severity for each concern
     severity = {
         concern: _estimate_severity(concern, concerns)
         for concern in concerns
     }
 
+    # Severity ranking
     severity_rank = {
         "mild": 0,
         "moderate": 1,
         "severe": 2,
     }
 
+    # Prioritize concerns
     prioritized = sorted(
         concerns,
         key=lambda concern: severity_rank.get(
@@ -107,6 +114,7 @@ def run_assessment(
         reverse=True,
     )
 
+    # Calculate overall condition score
     from app.services.scoring_service import score_skin_condition
 
     condition_score = score_skin_condition(
@@ -114,16 +122,26 @@ def run_assessment(
         severity,
     )
 
-    # Create main assessment
+    # ---------------------------------------------------------
+    # CREATE MAIN ASSESSMENT
+    # ---------------------------------------------------------
+
     assessment = SkinAssessment(
         user_id=current_user.id,
         condition_score=condition_score,
+        age=age,
     )
 
+    # IMPORTANT:
+    # Add assessment to session and flush it so that
+    # assessment.id is generated before creating child records.
     db.add(assessment)
     db.flush()
 
-    # Create individual concern records
+    # ---------------------------------------------------------
+    # CREATE CONCERN RECORDS
+    # ---------------------------------------------------------
+
     for index, concern in enumerate(prioritized, start=1):
         db.add(
             SkinConcern(
@@ -134,7 +152,10 @@ def run_assessment(
             )
         )
 
-    # Create individual risk factor records
+    # ---------------------------------------------------------
+    # CREATE RISK FACTOR RECORDS
+    # ---------------------------------------------------------
+
     risks = _risk_factors(profile)
 
     for risk in risks:
@@ -146,6 +167,10 @@ def run_assessment(
                 risk_level=risk["risk_level"],
             )
         )
+
+    # ---------------------------------------------------------
+    # SAVE EVERYTHING
+    # ---------------------------------------------------------
 
     db.commit()
     db.refresh(assessment)

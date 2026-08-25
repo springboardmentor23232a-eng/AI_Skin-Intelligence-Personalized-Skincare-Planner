@@ -19,19 +19,20 @@ export default function Login() {
 console.log(loggedInUser);
 
     switch (loggedInUser.role) {
-      case "admin":
-        navigate("/admin");
-        break;
+  case "admin":
+    navigate("/admin");
+    break;
 
-      case "consultant":
-      case "dermatologist":
-        navigate("/clients");
-        break;
+  case "consultant":
+  case "dermatologist":
+    navigate("/provider-dashboard");
+    break;
 
-      default:
-        navigate("/dashboard");
-        break;
-    }
+  case "user":
+  default:
+    navigate("/dashboard");
+    break;
+}
   } catch (err) {
     setError(err.response?.data?.detail || "Login failed");
   }

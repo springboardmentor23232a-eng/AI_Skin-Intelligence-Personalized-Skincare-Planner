@@ -22,3 +22,11 @@ frontend/dist/
 # OS junk
 .DS_Store
 Thumbs.db
+# Uploaded user files
+backend/uploads/
+
+# Temporary report backups
+backend/app/routers/reports_backup.py
+backend/app/routers/reports_v2_backup.py
+backend/app/routers/reports_v3_backup.py
+backend/app/routers/reports_v4_backup.py

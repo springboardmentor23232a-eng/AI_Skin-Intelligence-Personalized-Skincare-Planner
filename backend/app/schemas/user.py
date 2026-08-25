@@ -1,11 +1,14 @@
 import uuid
 from datetime import datetime
-from typing import Optional
 
 from pydantic import BaseModel, EmailStr
 
 from app.models.user import UserRole
 
+
+# =========================================================
+# REGISTER
+# =========================================================
 
 class UserCreate(BaseModel):
     full_name: str
@@ -14,10 +17,18 @@ class UserCreate(BaseModel):
     role: UserRole = UserRole.user
 
 
+# =========================================================
+# LOGIN
+# =========================================================
+
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
+
+# =========================================================
+# USER RESPONSE
+# =========================================================
 
 class UserOut(BaseModel):
     id: uuid.UUID
@@ -30,6 +41,29 @@ class UserOut(BaseModel):
     class Config:
         from_attributes = True
 
+
+# =========================================================
+# UPDATE ACCOUNT
+# =========================================================
+
+class UserUpdate(BaseModel):
+    full_name: str
+    email: EmailStr
+
+
+# =========================================================
+# CHANGE PASSWORD
+# =========================================================
+
+class ChangePassword(BaseModel):
+    current_password: str
+    new_password: str
+    confirm_password: str
+
+
+# =========================================================
+# TOKEN
+# =========================================================
 
 class Token(BaseModel):
     access_token: str

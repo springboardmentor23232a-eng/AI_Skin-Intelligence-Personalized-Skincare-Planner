@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.core.config import settings
 from app.database import Base, engine
@@ -17,6 +18,8 @@ from app.models import (
     notification,
     recommendation,
     checklist,
+    routine_history,
+    appointment,
 )
 
 from app.routers import (
@@ -37,12 +40,23 @@ from app.routers import (
     checklist as checklist_router,
     oauth as oauth_router,
     ml,
+    consultant as consultant_router,
+    consultant,
 )
 
 app = FastAPI(
     title="AI Skin Intelligence & Personalized Skincare Planner API",
     description="Personalized skincare routines, ingredient intelligence, product recommendations, and progress tracking.",
     version="1.0.0",
+)
+import os
+
+os.makedirs("/app/uploads", exist_ok=True)
+
+app.mount(
+    "/uploads",
+    StaticFiles(directory="/app/uploads"),
+    name="uploads",
 )
 
 app.add_middleware(
@@ -76,6 +90,7 @@ app.include_router(recommendations.router)
 app.include_router(checklist_router.router)
 app.include_router(oauth_router.router)
 app.include_router(ml.router)
+app.include_router(consultant_router.router)
 
 
 @app.get("/")

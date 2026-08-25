@@ -20,6 +20,7 @@ class RiskFactorOut(BaseModel):
     risk_name: str
     description: str | None = None
     risk_level: str | None = None
+    age: int | None = None
 
     model_config = ConfigDict(from_attributes=True)
 

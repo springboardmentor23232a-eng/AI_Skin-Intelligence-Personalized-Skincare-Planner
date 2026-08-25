@@ -1,9 +1,9 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime, Float, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
+from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer
 
 from app.database import Base
 
@@ -24,6 +24,8 @@ class SkinAssessment(Base):
     )
 
     condition_score = Column(Float)
+
+    age = Column(Integer, nullable=True)
 
     created_at = Column(
         DateTime,

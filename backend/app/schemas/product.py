@@ -22,12 +22,25 @@ class ProductOut(BaseModel):
     name: str
     brand: Optional[str]
     category: Optional[str]
+
     key_ingredients: List[str]
     suitable_skin_types: List[str]
+    age_groups: List[str]
     targets_concerns: List[str]
+
     price: float
     description: Optional[str]
+
     suitability_score: Optional[float] = None
+
+    purchase_url: Optional[str] = None
+    retailer: Optional[str] = None
+
+    rating: float = 0.0
+    review_count: int = 0
+    is_bestseller: bool = False
+
+    image_url: Optional[str] = None
 
     class Config:
         from_attributes = True
