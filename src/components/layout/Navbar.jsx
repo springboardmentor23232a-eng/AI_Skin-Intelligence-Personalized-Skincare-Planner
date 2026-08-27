@@ -26,17 +26,15 @@ export function Navbar() {
       return items;
     }
 
-    if (rawRole === 'admin') {
-      // Administrator has complete platform access to all dashboards
-      return [
-        { label: 'Home', href: '/' },
-        { label: 'User Dashboard', href: '/dashboard/user' },
-        { label: 'Consultant Dashboard', href: '/dashboard/consultant' },
-        { label: 'Dermatologist Dashboard', href: '/dashboard/dermatologist' },
-        { label: 'Admin Console', href: '/dashboard/admin' },
-        
-      ];
-    }
+    if (rawRole === 'admin') { 
+  return [ 
+    { label: 'Home', href: '/' }, 
+    { label: 'User Dashboard', href: '/dashboard/user' }, 
+    { label: 'Consultant Dashboard', href: '/dashboard/consultant' }, 
+    { label: 'Dermatologist Dashboard', href: '/dashboard/dermatologist' }, 
+    { label: 'Admin Console', href: '/dashboard/admin' }, 
+  ]; 
+}
 
     if (rawRole === 'consultant') {
   items.push({
@@ -48,11 +46,14 @@ export function Navbar() {
     label: 'Dermatologist Portal',
     href: '/dashboard/dermatologist'
   });
-} else {
-  items.push({
-    label: 'User Dashboard',
-    href: '/dashboard/user'
-  });
+} else { 
+  items.push(
+    { 
+      label: 'User Dashboard', 
+      href: '/dashboard/user' 
+    },
+    
+  ); 
 }
 
 

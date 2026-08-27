@@ -19,6 +19,7 @@ import {
   ShieldAlert,
   TrendingUp,
   User,
+  FlaskConical,
 } from 'lucide-react';
 
 export default function UserOverviewPage() {
@@ -130,6 +131,17 @@ useEffect(() => {
           <Sparkles className="w-4 h-4 text-emerald-400" />
           <span className="text-sm font-medium">Skin Assessment</span>
         </Link>
+        
+        <Link
+      to="/dashboard/user/ingredients"
+      className="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-900/80 border border-transparent hover:border-slate-800 transition-all"
+    >
+      <FlaskConical className="w-4 h-4 text-cyan-400" />
+      <span className="text-sm font-medium">
+        Ingredient Intelligence
+      </span>
+    </Link>
+
 
         <Link
           to="/dashboard/user/routine"
