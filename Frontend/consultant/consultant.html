@@ -3,11 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Consultant Dashboard | Skincare Planner</title>
+    <title>Consultant Dashboard | AI Skin Intelligence</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="consultant.css?v=7" />
+    <link rel="stylesheet" href="consultant.css?v=20.0" />
   </head>
   <body class="consultant-body">
 
@@ -30,23 +30,315 @@
       </div>
     </div>
 
-    <!-- Profile detail modal -->
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Comprehensive Client Dossier Modal -->
     <div id="profileModal" class="profile-modal hidden">
-      <div class="profile-modal-backdrop"></div>
-      <div class="profile-modal-card">
-        <button id="closeProfileModal" class="profile-modal-close">&times;</button>
-        <h2 id="modalClientName" class="profile-modal-name">Client Profile</h2>
-        <p id="modalClientEmail" class="profile-modal-email"></p>
-        <div id="modalClientImageWrapper" class="client-image-wrapper hidden">
-          <p class="modal-image-title">Skin Photo Scan</p>
-          <img id="modalClientImage" src="" alt="Client Skin Photo" class="modal-client-img" />
+      <div class="profile-modal-backdrop" id="modalBackdrop"></div>
+      <div class="profile-modal-card dossier-card">
+        <div class="dossier-header">
+          <div class="dossier-header-left">
+            <div class="dossier-avatar" id="modalClientAvatar">U</div>
+            <div>
+              <div class="dossier-name-row">
+                <h2 id="modalClientName" class="profile-modal-name">Client Name</h2>
+                <span id="modalClientScoreBadge" class="score-pill">Score: --</span>
+                <span id="modalClientRiskBadge" class="risk-pill low">Low Risk</span>
+              </div>
+              <p id="modalClientEmail" class="profile-modal-email">client@example.com</p>
+            </div>
+          </div>
+          <button id="closeProfileModal" class="profile-modal-close" aria-label="Close modal">&times;</button>
         </div>
-        <div class="profile-modal-grid" id="modalProfileGrid">
-          <!-- filled dynamically -->
+
+        <!-- Dossier Navigation Tabs -->
+        <div class="dossier-nav-tabs">
+          <button class="dossier-tab-btn active" data-dossier-tab="profile">
+            <span>📋</span> Profile & Lifestyle
+          </button>
+          <button class="dossier-tab-btn" data-dossier-tab="scores">
+            <span>📊</span> AI Score & Risks
+          </button>
+          <button class="dossier-tab-btn" data-dossier-tab="routine">
+            <span>🧴</span> Skincare Routine
+          </button>
+          <button class="dossier-tab-btn" data-dossier-tab="history">
+            <span>📜</span> Assessment History
+          </button>
+          <button class="dossier-tab-btn" data-dossier-tab="adherence">
+            <span>📈</span> Check-in & Adherence
+          </button>
+        </div>
+
+        <!-- Dossier Tab Contents -->
+        <div class="dossier-content-area">
+
+          <!-- ── TAB 1: Profile & Lifestyle ── -->
+          <div id="dossierTab-profile" class="dossier-tab-pane active">
+            <div class="dossier-grid-two-col">
+              <div class="dossier-col-main">
+                <h3 class="dossier-section-heading">Skin Profile Assessment Details</h3>
+                <div class="profile-modal-grid" id="modalProfileGrid">
+                  <!-- dynamically filled -->
+                </div>
+              </div>
+              <div class="dossier-col-side">
+                <h3 class="dossier-section-heading">Skin Photo Scan</h3>
+                <div id="modalClientImageWrapper" class="client-image-wrapper">
+                  <img id="modalClientImage" src="" alt="Client Skin Photo" class="modal-client-img" />
+                  <p id="noImageText" class="no-image-text hidden">No skin photo scan uploaded yet</p>
+                </div>
+                <div class="meta-info-box">
+                  <div class="meta-row">
+                    <span class="meta-label">Client ID:</span>
+                    <span class="meta-val" id="modalClientId">--</span>
+                  </div>
+                  <div class="meta-row">
+                    <span class="meta-label">Registered:</span>
+                    <span class="meta-val" id="modalClientRegistered">--</span>
+                  </div>
+                  <div class="meta-row">
+                    <span class="meta-label">Assigned:</span>
+                    <span class="meta-val" id="modalClientAssigned">--</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── TAB 2: AI Score & Risks ── -->
+          <div id="dossierTab-scores" class="dossier-tab-pane">
+            <div class="score-overview-banner">
+              <div class="score-gauge-box">
+                <div class="score-number-large" id="modalTabScoreVal">--</div>
+                <div class="score-label-sub">AI Health Score</div>
+              </div>
+              <div class="score-meta-details">
+                <div class="score-category-tag" id="modalTabCategoryTag">Category: --</div>
+                <p class="score-description-text" id="modalTabScoreDesc">
+                  Calculated based on dermatological profile, lifestyle factors, reported skin concerns, and environmental stressors.
+                </p>
+              </div>
+            </div>
+
+            <h3 class="dossier-section-heading mt-4">Identified Risk Factors</h3>
+            <div id="modalRisksContainer" class="dossier-risks-list">
+              <!-- filled dynamically -->
+            </div>
+
+            <h3 class="dossier-section-heading mt-4">Prioritized Skin Concerns</h3>
+            <div id="modalPrioritiesContainer" class="dossier-priorities-list">
+              <!-- filled dynamically -->
+            </div>
+          </div>
+
+          <!-- ── TAB 3: Skincare Routine ── -->
+          <div id="dossierTab-routine" class="dossier-tab-pane">
+            <div class="routine-management-bar">
+              <div>
+                <span class="routine-season-pill" id="modalRoutineSeason">☀️ Summer Routine</span>
+                <span class="routine-steps-count" id="modalRoutineStepCount">0 Total Steps</span>
+              </div>
+              <button class="btn-primary-small" id="btnAddClientStep">
+                <span>➕</span> Add Custom Step
+              </button>
+            </div>
+
+            <div id="modalRoutineSummaryBanner" class="routine-adaptation-box hidden">
+              <strong>Adaptive Intelligence Summary:</strong>
+              <p id="modalRoutineSummaryText"></p>
+            </div>
+
+            <div class="routine-times-grid">
+              <!-- Morning Routine -->
+              <div class="routine-time-block">
+                <h4 class="routine-time-heading morning">
+                  <span>☀️</span> Morning Routine
+                </h4>
+                <div id="modalMorningStepsList" class="steps-compact-list">
+                  <p class="empty-compact-msg">No morning steps recorded.</p>
+                </div>
+              </div>
+
+              <!-- Evening Routine -->
+              <div class="routine-time-block">
+                <h4 class="routine-time-heading evening">
+                  <span>🌙</span> Evening Routine
+                </h4>
+                <div id="modalEveningStepsList" class="steps-compact-list">
+                  <p class="empty-compact-msg">No evening steps recorded.</p>
+                </div>
+              </div>
+
+              <!-- Weekly Routine -->
+              <div class="routine-time-block">
+                <h4 class="routine-time-heading weekly">
+                  <span>✨</span> Weekly Treatments
+                </h4>
+                <div id="modalWeeklyStepsList" class="steps-compact-list">
+                  <p class="empty-compact-msg">No weekly treatments recorded.</p>
+                </div>
+              </div>
+            </div>
+
+            <h4 class="dossier-section-heading mt-4">Seasonal Recommendations</h4>
+            <div id="modalSeasonalRecsList" class="seasonal-compact-grid">
+              <!-- filled dynamically -->
+            </div>
+          </div>
+
+          <!-- ── TAB 4: Assessment History ── -->
+          <div id="dossierTab-history" class="dossier-tab-pane">
+            <div class="history-header-row">
+              <h3 class="dossier-section-heading">Historical Assessment Sessions</h3>
+              <span class="history-count-badge" id="modalHistoryCountBadge">0 Sessions Logged</span>
+            </div>
+            <div id="modalAssessmentHistoryList" class="history-timeline-list">
+              <!-- filled dynamically -->
+            </div>
+          </div>
+
+          <!-- ── TAB 5: Check-in & Adherence ── -->
+          <div id="dossierTab-adherence" class="dossier-tab-pane">
+            <div class="adherence-kpis-grid">
+              <div class="adherence-kpi-card">
+                <span class="adherence-kpi-label">Routine Adherence</span>
+                <span class="adherence-kpi-val" id="modalAdherencePct">0%</span>
+              </div>
+              <div class="adherence-kpi-card">
+                <span class="adherence-kpi-label">Active Streak</span>
+                <span class="adherence-kpi-val" id="modalAdherenceStreak">0 Days</span>
+              </div>
+              <div class="adherence-kpi-card">
+                <span class="adherence-kpi-label">Total Days Tracked</span>
+                <span class="adherence-kpi-val" id="modalAdherenceTotalDays">0</span>
+              </div>
+              <div class="adherence-kpi-card">
+                <span class="adherence-kpi-label">Morning Completions</span>
+                <span class="adherence-kpi-val" id="modalAdherenceMorning">0</span>
+              </div>
+            </div>
+
+            <h3 class="dossier-section-heading mt-4">Recent Daily Check-in Log</h3>
+            <div id="modalCheckinLogTable" class="checkin-log-wrapper">
+              <!-- filled dynamically -->
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
 
+    <!-- Routine Step Create / Edit Modal -->
+    <div id="stepModal" class="profile-modal hidden">
+      <div class="profile-modal-backdrop" id="stepModalBackdrop"></div>
+      <div class="profile-modal-card step-modal-card">
+        <div class="modal-card-header">
+          <h2 id="stepModalTitle" class="profile-modal-name">Add Routine Step</h2>
+          <button id="btnCloseStepModal" class="profile-modal-close">&times;</button>
+        </div>
+        <form id="stepForm" class="step-form">
+          <input type="hidden" id="stepModalId" value="" />
+          <input type="hidden" id="stepModalClientId" value="" />
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="stepFormTimeOfDay">Routine Time *</label>
+              <select id="stepFormTimeOfDay" required class="form-input">
+                <option value="morning">Morning</option>
+                <option value="evening">Evening</option>
+                <option value="weekly">Weekly Treatment</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="stepFormCategory">Category *</label>
+              <select id="stepFormCategory" required class="form-input">
+                <option value="cleansing">Cleansing</option>
+                <option value="exfoliation">Exfoliation</option>
+                <option value="treatment">Treatment / Serum</option>
+                <option value="moisturizing">Moisturizing</option>
+                <option value="sun_protection">Sun Protection</option>
+                <option value="night_care">Night Care</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="stepFormTitle">Step Title *</label>
+            <input type="text" id="stepFormTitle" required placeholder="e.g. Niacinamide 10% Barrier Serum" class="form-input" />
+          </div>
+
+          <div class="form-group">
+            <label for="stepFormDescription">Instructions & Application Method</label>
+            <textarea id="stepFormDescription" rows="2" placeholder="Apply 3-4 drops to clean skin before heavier creams..." class="form-input"></textarea>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="stepFormIngredients">Active Ingredients</label>
+              <input type="text" id="stepFormIngredients" placeholder="e.g. Niacinamide, Zinc PCA, Hyaluronic Acid" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label for="stepFormFrequency">Frequency</label>
+              <input type="text" id="stepFormFrequency" placeholder="e.g. Daily, 2-3x / week" class="form-input" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="stepFormCaution">Caution & Specialist Notes</label>
+            <input type="text" id="stepFormCaution" placeholder="e.g. Avoid combining with direct Vitamin C" class="form-input" />
+          </div>
+
+          <div class="step-form-actions">
+            <button type="button" id="btnCancelStepModal" class="btn-secondary">Cancel</button>
+            <button type="submit" class="btn-primary" id="btnSaveStep">Save Step</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Recommendation Quick Assign Modal -->
+    <div id="assignRecModal" class="profile-modal hidden">
+      <div class="profile-modal-backdrop" id="recModalBackdrop"></div>
+      <div class="profile-modal-card step-modal-card">
+        <div class="modal-card-header">
+          <h2 id="assignRecModalTitle" class="profile-modal-name">Assign Recommendation</h2>
+          <button id="btnCloseRecModal" class="profile-modal-close">&times;</button>
+        </div>
+        <form id="assignRecForm" class="step-form">
+          <input type="hidden" id="recModalItemName" value="" />
+          <input type="hidden" id="recModalCategory" value="treatment" />
+          <input type="hidden" id="recModalTimeOfDay" value="morning" />
+          <input type="hidden" id="recModalActives" value="" />
+
+          <div class="form-group">
+            <label for="recModalClientSelect">Select Client *</label>
+            <select id="recModalClientSelect" required class="form-input">
+              <option value="">— Select an assigned client —</option>
+            </select>
+          </div>
+
+          <div class="rec-preview-box">
+            <h4 id="recPreviewTitle" class="rec-preview-title">Product / Treatment Name</h4>
+            <p id="recPreviewDesc" class="rec-preview-desc"></p>
+            <p id="recPreviewActives" class="rec-preview-actives"></p>
+          </div>
+
+          <div class="form-group">
+            <label for="recModalTip">Custom Specialist Instructions (Optional)</label>
+            <textarea id="recModalTip" rows="2" placeholder="e.g. Introduce gradually every other night..." class="form-input"></textarea>
+          </div>
+
+          <div class="step-form-actions">
+            <button type="button" id="btnCancelRecModal" class="btn-secondary">Cancel</button>
+            <button type="submit" class="btn-primary" id="btnConfirmAssignRec">Confirm Assignment</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Main Dashboard Layout -->
     <div class="dashboard-layout">
       <!-- Mobile Top Header -->
       <header class="mobile-header">
@@ -79,15 +371,20 @@
 
         <nav class="sidebar-nav">
           <a href="#clients" class="nav-item active" id="navClients" data-section="clients">
+            <span class="nav-icon">👥</span>
             <span>Clients</span>
+            <span class="nav-count-badge" id="sidebarClientCount">0</span>
           </a>
           <a href="#reports" class="nav-item" id="navReports" data-section="reports">
-            <span>Reports</span>
+            <span class="nav-icon">📊</span>
+            <span>Assessment Reports</span>
           </a>
           <a href="#progress" class="nav-item" id="navProgress" data-section="progress">
-            <span>Progress</span>
+            <span class="nav-icon">📈</span>
+            <span>Progress Tracking</span>
           </a>
           <a href="#recommendations" class="nav-item" id="navRecommendations" data-section="recommendations">
+            <span class="nav-icon">💡</span>
             <span>Recommendations</span>
           </a>
         </nav>
@@ -97,7 +394,7 @@
             <div class="avatar-circle">C</div>
             <div class="user-details truncate">
               <span id="sidebarConsultantName" class="user-name truncate">Consultant</span>
-              <span class="user-role">Specialist</span>
+              <span class="user-role">Dermatological Specialist</span>
             </div>
           </div>
           <a href="../index.html" class="sidebar-logout-btn" id="headerLogout" title="Logout">
@@ -112,88 +409,165 @@
         <header class="topbar">
           <div>
             <h1 id="pageTitle" class="page-title">Client Profiles</h1>
-            <p id="pageSubtitle" class="page-subtitle">Your assigned clients</p>
+            <p id="pageSubtitle" class="page-subtitle">Complete real-time details of your assigned clients</p>
+          </div>
+          <div class="topbar-actions">
+            <button id="btnRefreshData" class="btn-refresh" title="Refresh client data">
+              <span>🔄</span> Refresh
+            </button>
           </div>
         </header>
 
         <!-- Main Content Area -->
         <main class="content">
+
           <!-- ── CLIENTS section ── -->
           <section id="section-clients" class="section active panel clients-panel">
             <div class="panel-heading-group">
-              <p class="panel-label">Client Profiles</p>
-              <h1 class="panel-title">Your assigned clients</h1>
+              <div>
+                <p class="panel-label">Assigned Clients Reports</p>
+                <h2 class="panel-title">Client Profiles & Real-time Skin Diagnostics</h2>
+              </div>
             </div>
-            <div class="client-search-row">
-              <input id="clientSearch" type="search" class="client-search" placeholder="Search clients" />
-              <button type="button" class="search-btn" id="clientSearchBtn">Search</button>
+
+            <!-- Search & Filters -->
+            <div class="client-controls-row">
+              <div class="client-search-box">
+                <input id="clientSearch" type="search" class="client-search" placeholder="Search by name, email, skin type, concerns..." />
+                <button type="button" class="search-btn" id="clientSearchBtn">Search</button>
+              </div>
+              <div class="filter-pills-row">
+                <button class="filter-pill active" data-filter="all">All Clients</button>
+                <button class="filter-pill" data-filter="high-risk">High Risks</button>
+                <button class="filter-pill" data-filter="good-score">Score 80+</button>
+                <button class="filter-pill" data-filter="needs-assessment">Needs Survey</button>
+              </div>
             </div>
+
             <div id="assignedClientsGrid" class="client-grid">
-              <p class="empty-clients-msg">Loading clients…</p>
+              <p class="empty-clients-msg">Loading assigned clients…</p>
             </div>
           </section>
 
           <!-- ── REPORTS section ── -->
           <section id="section-reports" class="section panel reports-panel">
             <div class="panel-heading-group">
-              <p class="panel-label">Skin Assessment Reports</p>
-              <h2 class="panel-title">Recent client assessments</h2>
+              <div>
+                <p class="panel-label">Dermatological Analytics</p>
+                <h2 class="panel-title">Recent Client Skin Assessment Sessions</h2>
+              </div>
             </div>
+
+            <div class="reports-filter-bar">
+              <select id="reportClientFilter" class="report-select">
+                <option value="all">All Assigned Clients</option>
+              </select>
+              <select id="reportRiskFilter" class="report-select">
+                <option value="all">All Risk Levels</option>
+                <option value="Critical">Critical Risk</option>
+                <option value="High">High Risk</option>
+                <option value="Medium">Medium Risk</option>
+                <option value="Low">Low Risk</option>
+              </select>
+            </div>
+
             <div id="reportList" class="report-list">
-              <p class="empty-clients-msg">Assign clients to see their reports.</p>
+              <p class="empty-clients-msg">Loading assessment reports…</p>
             </div>
           </section>
 
           <!-- ── PROGRESS section ── -->
           <section id="section-progress" class="section panel progress-panel">
             <div class="panel-heading-group">
-              <p class="panel-label">Progress Monitoring</p>
-              <h2 class="panel-title">Track client improvements</h2>
+              <div>
+                <p class="panel-label">Performance & Adherence Analytics</p>
+                <h2 class="panel-title">Track Client Health Trends & Habit Consistency</h2>
+              </div>
             </div>
+
             <div class="progress-summary">
               <div class="progress-item">
-                <h3>Average improvement</h3>
-                <p class="progress-value">72%</p>
+                <h3>Average Health Score</h3>
+                <p class="progress-value" id="kpiAvgScore">--</p>
               </div>
               <div class="progress-item">
-                <h3>Weekly consultations</h3>
-                <p class="progress-value">3</p>
+                <h3>Routine Adherence Rate</h3>
+                <p class="progress-value" id="kpiAvgAdherence">--%</p>
               </div>
               <div class="progress-item">
-                <h3>Follow-up tasks</h3>
-                <p class="progress-value">6</p>
+                <h3>Assessed Clients</h3>
+                <p class="progress-value" id="kpiAssessedClients">0 / 0</p>
               </div>
+              <div class="progress-item alert-kpi">
+                <h3>High Risk Alerts</h3>
+                <p class="progress-value" id="kpiHighRisks">0</p>
+              </div>
+            </div>
+
+            <h3 class="panel-subheading mt-6">Client Progress & Adherence Matrix</h3>
+            <div class="table-responsive">
+              <table class="progress-table">
+                <thead>
+                  <tr>
+                    <th>Client</th>
+                    <th>Skin Type</th>
+                    <th>Initial Score</th>
+                    <th>Current Score</th>
+                    <th>Trend</th>
+                    <th>Adherence</th>
+                    <th>Streak</th>
+                    <th>Risk Level</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="progressTableBody">
+                  <tr>
+                    <td colspan="9" class="text-center py-4 text-slate-500">Loading progress matrix...</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </section>
 
           <!-- ── RECOMMENDATIONS section ── -->
           <section id="section-recommendations" class="section panel recommendations-panel">
             <div class="panel-heading-group">
-              <p class="panel-label">Recommendation Management</p>
-              <h2 class="panel-title">Assigned routines and products</h2>
+              <div>
+                <p class="panel-label">Prescriptive Care Management</p>
+                <h2 class="panel-title">Assign Targeted Formulas & Treatments to Client Routines</h2>
+              </div>
             </div>
-            <div class="recommendation-grid">
-              <article class="recommendation-card">
-                <h3>Renewal Serum</h3>
-                <p>Assign to clients with dry or aging skin.</p>
-                <button class="assign-btn">Assign</button>
-              </article>
-              <article class="recommendation-card">
-                <h3>Balance Cleanser</h3>
-                <p>Good for oil control and sensitive skin.</p>
-                <button class="assign-btn">Assign</button>
-              </article>
-              <article class="recommendation-card">
-                <h3>Barrier Cream</h3>
-                <p>Recommended after assessments of compromised skin.</p>
-                <button class="assign-btn">Assign</button>
-              </article>
+
+            <div class="recommendations-intro-banner">
+              <p>
+                Browse clinical dermatological formulas across all 7 product categories (Face Wash, Moisturizer, Sunscreen, Serum, Toner, Treatment Products, Face Masks) and assign them directly to your client's active regimen.
+              </p>
+            </div>
+
+            <!-- Category & Search Bar in Consultant Recommendations -->
+            <div class="consultant-rec-toolbar" style="display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+              <div class="consultant-cat-tabs" style="display: flex; gap: 0.4rem; overflow-x: auto; padding-bottom: 0.25rem;">
+                <button type="button" class="cons-cat-btn active" data-cat="all" style="padding: 0.4rem 0.85rem; border-radius: 9999px; border: 1px solid #cbd5e1; font-size: 0.75rem; font-weight: 600; background: #0f172a; color: #fff; cursor: pointer;">All Categories</button>
+                <button type="button" class="cons-cat-btn" data-cat="face_wash" style="padding: 0.4rem 0.85rem; border-radius: 9999px; border: 1px solid #e2e8f0; font-size: 0.75rem; font-weight: 600; background: #fff; color: #475569; cursor: pointer;">🧼 Face Wash</button>
+                <button type="button" class="cons-cat-btn" data-cat="moisturizer" style="padding: 0.4rem 0.85rem; border-radius: 9999px; border: 1px solid #e2e8f0; font-size: 0.75rem; font-weight: 600; background: #fff; color: #475569; cursor: pointer;">🧴 Moisturizer</button>
+                <button type="button" class="cons-cat-btn" data-cat="sunscreen" style="padding: 0.4rem 0.85rem; border-radius: 9999px; border: 1px solid #e2e8f0; font-size: 0.75rem; font-weight: 600; background: #fff; color: #475569; cursor: pointer;">☀️ Sunscreen</button>
+                <button type="button" class="cons-cat-btn" data-cat="serum" style="padding: 0.4rem 0.85rem; border-radius: 9999px; border: 1px solid #e2e8f0; font-size: 0.75rem; font-weight: 600; background: #fff; color: #475569; cursor: pointer;">💧 Serum</button>
+                <button type="button" class="cons-cat-btn" data-cat="toner" style="padding: 0.4rem 0.85rem; border-radius: 9999px; border: 1px solid #e2e8f0; font-size: 0.75rem; font-weight: 600; background: #fff; color: #475569; cursor: pointer;">🌿 Toner</button>
+                <button type="button" class="cons-cat-btn" data-cat="treatment_products" style="padding: 0.4rem 0.85rem; border-radius: 9999px; border: 1px solid #e2e8f0; font-size: 0.75rem; font-weight: 600; background: #fff; color: #475569; cursor: pointer;">🎯 Treatment</button>
+                <button type="button" class="cons-cat-btn" data-cat="face_masks" style="padding: 0.4rem 0.85rem; border-radius: 9999px; border: 1px solid #e2e8f0; font-size: 0.75rem; font-weight: 600; background: #fff; color: #475569; cursor: pointer;">✨ Face Masks</button>
+              </div>
+              <input type="text" id="consProductSearchInput" placeholder="Search formulas or actives..." style="padding: 0.4rem 0.85rem; border-radius: 0.75rem; border: 1px solid #cbd5e1; font-size: 0.75rem; min-width: 220px; outline: none;" />
+            </div>
+
+            <div class="recommendation-grid" id="curatedRecommendationsGrid">
+              <!-- populated dynamically -->
             </div>
           </section>
+
         </main>
       </div>
     </div>
 
-    <script src="consultant.js?v=6"></script>
+    <script src="consultant.js?v=20.0"></script>
   </body>
 </html>

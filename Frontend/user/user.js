@@ -3,6 +3,29 @@ const profileForm = document.getElementById('profileForm');
 const profileStatus = document.getElementById('profileStatus');
 const resetProfileBtn = document.getElementById('resetProfileBtn');
 
+const PRESET_FORMULAS = {
+  brightening: "Water/Aqua/Eau, Niacinamide 5%, 3-O-Ethyl Ascorbic Acid, Sodium Hyaluronate, Glycerin, Ferulic Acid, Tocopherol, Panthenol, Phenoxyethanol",
+  antiaging: "Aqua, Microencapsulated Retinol 0.5%, Ceramide NP, Ceramide AP, Ceramide EOP, Phytosphingosine, Palmitoyl Tripeptide-1, Palmitoyl Tetrapeptide-7, Hyaluronic Acid, Squalane, Cholesterol",
+  acne: "Water, Salicylic Acid 2%, Salix Alba (Willow) Bark Extract, Niacinamide, Zinc PCA, Centella Asiatica Extract, Sodium Hyaluronate, Allantoin",
+  barrier: "Aqua, Ceramide NP, Ceramide AP, Ceramide EOP, Phytosphingosine, Cholesterol, Squalane, Panthenol, Glycerin, Sodium Hyaluronate, Madecassoside",
+  clash: "Aqua, Retinol 1%, Glycolic Acid 10%, Salicylic Acid 2%, L-Ascorbic Acid 15%, Alcohol Denat, Fragrance/Parfum, Linalool, Limonene, Sodium Lauryl Sulfate"
+};
+
+let cachedIngredientCategories = [];
+let isIngredientModuleInitialized = false;
+
+let productCatalog = [];
+let activeProductCategory = 'all';
+let activeProductBudget = 'all';
+let activeProductConcern = 'all';
+let isAllergySafeOnly = false;
+let productSearchTerm = '';
+let productSortBy = 'suitability_desc';
+let compareSelectedProducts = [];
+let currentDetailProdObj = null;
+let currentBudgetRoutineData = null;
+let isRecEngineInitialized = false;
+
 const fetchSkinProfile = async (token) => {
   try {
     const response = await fetch('/user/profile', {
@@ -457,9 +480,10 @@ const fetchUserProfile = async (token, fallbackEmail) => {
         const handle = fallbackEmail.split('@')[0];
         displayName = handle.charAt(0).toUpperCase() + handle.slice(1);
       }
-      const greetingEl = document.getElementById('welcomeGreeting');
-      if (greetingEl) {
-        greetingEl.textContent = `Welcome, ${displayName || 'User'}`;
+      const initial = (displayName || fallbackEmail || 'U').charAt(0).toUpperCase();
+      const avatarEl = document.getElementById('userAvatarInitial');
+      if (avatarEl) {
+        avatarEl.textContent = initial;
       }
       const sidebarNameEl = document.getElementById('sidebarUserName');
       if (sidebarNameEl) {
@@ -503,6 +527,13 @@ const verifySession = async () => {
   await fetchSkinProfile(token);
 };
 
+const clearUserSession = (e) => {
+  if (e) e.preventDefault();
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('user_role');
+  window.location.href = '../index.html';
+};
+
 const checkAccountStatus = async (token, email) => {
   const overlay = document.getElementById('statusOverlay');
   const titleEl = document.getElementById('statusTitle');
@@ -541,11 +572,7 @@ const checkAccountStatus = async (token, email) => {
   }
 
   if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('user_role');
-      window.location.href = '../index.html';
-    });
+    logoutBtn.addEventListener('click', clearUserSession);
   }
 };
 
@@ -569,14 +596,11 @@ if (clearChecklist) {
   });
 }
 
-if (logoutButton) {
-  logoutButton.addEventListener('click', (event) => {
-    event.preventDefault();
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('user_role');
-    window.location.href = '../index.html';
-  });
-}
+// Bind all sidebar and header logout buttons
+document.getElementById('logoutBtn')?.addEventListener('click', clearUserSession);
+document.querySelectorAll('.sidebar-logout-btn, .logout-btn').forEach(btn => {
+  btn.addEventListener('click', clearUserSession);
+});
 
 // --- Skin Image Upload Management ---
 let selectedFile = null;
@@ -775,6 +799,7 @@ const sections = {
   upload: { el: document.getElementById('section-profile'), nav: document.getElementById('navProfile'), title: 'Skin Profile & Scan', sub: 'Upload a skin photo for AI scan analysis, fill out your assessment survey, or both' },
   score: { el: document.getElementById('section-score'), nav: document.getElementById('navScore'), title: 'AI Skin Health Score', sub: 'ML-predicted skin health score and analysis' },
   routine: { el: document.getElementById('section-routine'), nav: document.getElementById('navRoutine'), title: 'Personalized Routine', sub: 'Today’s suggested skincare steps' },
+  ingredients: { el: document.getElementById('section-ingredients'), nav: document.getElementById('navIngredients'), title: 'Ingredient Intelligence Module', sub: 'Deep INCI formula analysis, skin suitability assessment, biochemical conflict detection & active education' },
   recommendations: { el: document.getElementById('section-recommendations'), nav: document.getElementById('navRecommendations'), title: 'Recommended Products', sub: 'Targeted products for your skin condition' },
   progress: { el: document.getElementById('section-progress'), nav: document.getElementById('navProgress'), title: 'Progress Tracking', sub: 'Skin goals you’re working toward' },
   history: { el: document.getElementById('section-history'), nav: document.getElementById('navHistory'), title: 'Assessment History', sub: 'Complete historical log of AI skin health evaluations, risks, and prioritized concerns' },
@@ -807,6 +832,12 @@ const showSection = (key) => {
     fetchUserRoutine();
     fetchRoutineCheckin();
   }
+  if (targetKey === 'ingredients') {
+    initIngredientIntelligence();
+  }
+  if (targetKey === 'recommendations') {
+    initProductRecommendationEngine();
+  }
 };
 
 // Bind navigation clicks
@@ -834,11 +865,15 @@ const initSectionFromHash = () => {
 window.addEventListener('hashchange', initSectionFromHash);
 
 // --- Boot ---
+bindRoutineEvents();
+initIngredientIntelligence();
+initProductRecommendationEngine();
 updateChecklistStatus();
 verifySession();
 initSectionFromHash();
 fetchUserRoutine();
 fetchRoutineCheckin();
+
 
 // ── ROUTINE MANAGEMENT JS ──
 let currentRoutineData = null;
@@ -979,9 +1014,9 @@ function bindStepCardEvents() {
 function openEditStepModal(stepId) {
   if (!currentRoutineData) return;
   const allSteps = [
-    ...currentRoutineData.morning_steps,
-    ...currentRoutineData.evening_steps,
-    ...currentRoutineData.weekly_steps,
+    ...(currentRoutineData.morning_steps || []),
+    ...(currentRoutineData.evening_steps || []),
+    ...(currentRoutineData.weekly_steps || []),
   ];
   const step = allSteps.find(s => s.id === stepId);
   if (!step) return;
@@ -1133,7 +1168,7 @@ async function toggleCheckin(timeOfDay) {
 }
 
 // Bind Routine UI Event Listeners
-document.addEventListener('DOMContentLoaded', () => {
+function bindRoutineEvents() {
   // Tabs
   document.querySelectorAll('.routine-tab').forEach(tab => {
     tab.addEventListener('click', (e) => {
@@ -1152,16 +1187,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Regenerate Button
   const btnRegen = document.getElementById('btnRegenerateRoutine');
-  if (btnRegen) btnRegen.addEventListener('click', () => regenerateRoutine());
+  if (btnRegen) {
+    btnRegen.replaceWith(btnRegen.cloneNode(true));
+    document.getElementById('btnRegenerateRoutine')?.addEventListener('click', () => regenerateRoutine());
+  }
 
   // Add Step Button
   const btnAddStep = document.getElementById('btnAddRoutineStep');
   if (btnAddStep) {
-    btnAddStep.addEventListener('click', () => {
-      document.getElementById('stepModalTitle').textContent = 'Add Custom Routine Step';
-      document.getElementById('stepModalId').value = '';
-      document.getElementById('stepForm').reset();
-      document.getElementById('stepModal').classList.remove('hidden');
+    btnAddStep.replaceWith(btnAddStep.cloneNode(true));
+    document.getElementById('btnAddRoutineStep')?.addEventListener('click', () => {
+      const titleEl = document.getElementById('stepModalTitle');
+      const idEl = document.getElementById('stepModalId');
+      const formEl = document.getElementById('stepForm');
+      const modalEl = document.getElementById('stepModal');
+      if (titleEl) titleEl.textContent = 'Add Custom Routine Step';
+      if (idEl) idEl.value = '';
+      if (formEl) formEl.reset();
+      if (modalEl) modalEl.classList.remove('hidden');
     });
   }
 
@@ -1183,15 +1226,15 @@ document.addEventListener('DOMContentLoaded', () => {
       const token = localStorage.getItem('access_token');
       if (!token) return;
 
-      const stepId = document.getElementById('stepModalId').value;
+      const stepId = document.getElementById('stepModalId')?.value;
       const payload = {
-        time_of_day: document.getElementById('stepFormTimeOfDay').value,
-        category: document.getElementById('stepFormCategory').value,
-        step_title: document.getElementById('stepFormTitle').value,
-        description: document.getElementById('stepFormDescription').value,
-        active_ingredients: document.getElementById('stepFormIngredients').value,
-        frequency: document.getElementById('stepFormFrequency').value,
-        caution_notes: document.getElementById('stepFormCaution').value,
+        time_of_day: document.getElementById('stepFormTimeOfDay')?.value || 'morning',
+        category: document.getElementById('stepFormCategory')?.value || 'cleansing',
+        step_title: document.getElementById('stepFormTitle')?.value || '',
+        description: document.getElementById('stepFormDescription')?.value || '',
+        active_ingredients: document.getElementById('stepFormIngredients')?.value || '',
+        frequency: document.getElementById('stepFormFrequency')?.value || 'Daily',
+        caution_notes: document.getElementById('stepFormCaution')?.value || '',
       };
 
       try {
@@ -1229,6 +1272,1864 @@ document.addEventListener('DOMContentLoaded', () => {
   // Checkin Buttons
   const btnM = document.getElementById('btnCheckinMorning');
   const btnE = document.getElementById('btnCheckinEvening');
-  if (btnM) btnM.addEventListener('click', () => toggleCheckin('morning'));
-  if (btnE) btnE.addEventListener('click', () => toggleCheckin('evening'));
-});
+  if (btnM) {
+    btnM.replaceWith(btnM.cloneNode(true));
+    document.getElementById('btnCheckinMorning')?.addEventListener('click', () => toggleCheckin('morning'));
+  }
+  if (btnE) {
+    btnE.replaceWith(btnE.cloneNode(true));
+    document.getElementById('btnCheckinEvening')?.addEventListener('click', () => toggleCheckin('evening'));
+  }
+}
+
+
+// ============================================================================
+// FEATURE 5: INGREDIENT INTELLIGENCE MODULE CONTROLLER
+// ============================================================================
+
+function initIngredientIntelligence() {
+  if (isIngredientModuleInitialized) return;
+  isIngredientModuleInitialized = true;
+
+  bindIngredientSubTabs();
+  bindFormulaAnalyzerEvents();
+  bindMatrixEvents();
+  bindEducationHubEvents();
+
+  // Pre-load default formula if empty
+  const inputEl = document.getElementById('ingredientInputText');
+  if (inputEl && !inputEl.value.trim()) {
+    inputEl.value = PRESET_FORMULAS.brightening;
+    updateIngredientDraftTokenCount();
+  }
+
+  // Load 8 Core Pillars
+  loadIngredientCategoriesCatalog();
+}
+
+// ── SUB-TAB NAVIGATION ──
+function bindIngredientSubTabs() {
+  const tabBtns = document.querySelectorAll('.ingredient-tab-btn');
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const targetTab = btn.dataset.tab;
+      document.getElementById('tabContentFormula')?.classList.toggle('active', targetTab === 'formula');
+      document.getElementById('tabContentMatrix')?.classList.toggle('active', targetTab === 'matrix');
+      document.getElementById('tabContentEducation')?.classList.toggle('active', targetTab === 'education');
+    });
+  });
+}
+
+// ── DRAFT TOKEN COUNTER ──
+function updateIngredientDraftTokenCount() {
+  const inputEl = document.getElementById('ingredientInputText');
+  const countBadge = document.getElementById('ingredientTokenCountBadge');
+  if (!inputEl || !countBadge) return;
+
+  const raw = inputEl.value.trim();
+  if (!raw) {
+    countBadge.textContent = '0 ingredients recognized in draft';
+    return;
+  }
+
+  const tokens = raw.split(/[,;|\n]/).map(t => t.trim()).filter(t => t.length >= 2);
+  countBadge.textContent = `${tokens.length} ingredient token${tokens.length === 1 ? '' : 's'} recognized in draft`;
+}
+
+// ── FORMULA ANALYZER EVENTS ──
+function bindFormulaAnalyzerEvents() {
+  const inputEl = document.getElementById('ingredientInputText');
+  const btnAnalyze = document.getElementById('btnAnalyzeIngredients');
+  const btnClear = document.getElementById('btnClearIngredients');
+
+  if (inputEl) {
+    inputEl.addEventListener('input', updateIngredientDraftTokenCount);
+  }
+
+  if (btnClear) {
+    btnClear.addEventListener('click', () => {
+      if (inputEl) inputEl.value = '';
+      updateIngredientDraftTokenCount();
+      document.getElementById('ingredientResultsContainer')?.classList.add('hidden');
+      document.getElementById('ingredientErrorState')?.classList.add('hidden');
+    });
+  }
+
+  if (btnAnalyze) {
+    btnAnalyze.addEventListener('click', () => runFormulaAnalysis());
+  }
+
+  // Preset Buttons
+  document.querySelectorAll('.preset-formula-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const presetKey = e.currentTarget.dataset.preset;
+      if (PRESET_FORMULAS[presetKey] && inputEl) {
+        inputEl.value = PRESET_FORMULAS[presetKey];
+        updateIngredientDraftTokenCount();
+        runFormulaAnalysis();
+      }
+    });
+  });
+}
+
+// ── RUN FORMULA ANALYSIS (API CALL) ──
+async function runFormulaAnalysis() {
+  const inputEl = document.getElementById('ingredientInputText');
+  const loadingEl = document.getElementById('ingredientLoadingState');
+  const errorEl = document.getElementById('ingredientErrorState');
+  const errorMsg = document.getElementById('ingredientErrorMsg');
+  const resultsContainer = document.getElementById('ingredientResultsContainer');
+
+  const text = inputEl ? inputEl.value.trim() : '';
+  if (!text) {
+    if (errorEl && errorMsg) {
+      errorMsg.textContent = 'Please enter or paste an ingredient list to analyze.';
+      errorEl.classList.remove('hidden');
+    }
+    return;
+  }
+
+  if (errorEl) errorEl.classList.add('hidden');
+  if (resultsContainer) resultsContainer.classList.add('hidden');
+  if (loadingEl) loadingEl.classList.remove('hidden');
+
+  const token = localStorage.getItem('access_token');
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  try {
+    const res = await fetch('/api/ingredients/analyze', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ ingredients_text: text })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || 'Failed to analyze formulation.');
+    }
+
+    const data = await res.json();
+    renderFormulaAnalysisResults(data);
+
+    if (loadingEl) loadingEl.classList.add('hidden');
+    if (resultsContainer) resultsContainer.classList.remove('hidden');
+  } catch (err) {
+    if (loadingEl) loadingEl.classList.add('hidden');
+    if (errorEl && errorMsg) {
+      errorMsg.textContent = err.message || 'An unexpected error occurred during ingredient analysis.';
+      errorEl.classList.remove('hidden');
+    }
+    console.error('Ingredient analysis error:', err);
+  }
+}
+
+// ── RENDER FORMULA RESULTS ──
+function renderFormulaAnalysisResults(data) {
+  const suitability = data.suitability_assessment || {};
+  const allergy = data.allergy_assessment || {};
+  const interactions = data.interaction_assessment || {};
+  const analysis = data.analysis || {};
+
+  // 1. Suitability Match Score & Rating
+  const scoreNum = suitability.suitability_score || 0;
+  const ratingText = suitability.rating || 'Evaluated';
+  const badgeEl = document.getElementById('suitabilityRatingBadge');
+  const scoreEl = document.getElementById('suitabilityScoreNum');
+  const gaugeEl = document.getElementById('suitabilityGaugeRing');
+
+  if (scoreEl) scoreEl.textContent = `${scoreNum}%`;
+  if (badgeEl) {
+    badgeEl.textContent = ratingText;
+    if (scoreNum >= 85) {
+      badgeEl.className = 'px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300';
+      if (gaugeEl) gaugeEl.className = 'w-20 h-20 rounded-full border-4 border-emerald-500 flex items-center justify-center';
+    } else if (scoreNum >= 70) {
+      badgeEl.className = 'px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-300';
+      if (gaugeEl) gaugeEl.className = 'w-20 h-20 rounded-full border-4 border-indigo-500 flex items-center justify-center';
+    } else if (scoreNum >= 50) {
+      badgeEl.className = 'px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300';
+      if (gaugeEl) gaugeEl.className = 'w-20 h-20 rounded-full border-4 border-amber-500 flex items-center justify-center';
+    } else {
+      badgeEl.className = 'px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300';
+      if (gaugeEl) gaugeEl.className = 'w-20 h-20 rounded-full border-4 border-rose-500 flex items-center justify-center';
+    }
+  }
+
+  // 2. Allergy & Irritation Card
+  const allergyIconBox = document.getElementById('allergyStatusIconBox');
+  const allergyDesc = document.getElementById('allergyStatusDesc');
+  const allergyAlertBadge = document.getElementById('allergyAlertCountBadge');
+
+  if (allergy.has_critical_allergy) {
+    if (allergyIconBox) {
+      allergyIconBox.innerHTML = `<span class="text-2xl">🚨</span><span class="font-bold text-sm text-rose-600 dark:text-rose-400">Critical Allergen Conflict</span>`;
+    }
+    if (allergyDesc) allergyDesc.textContent = allergy.safety_summary || 'Formula conflicts with your medical allergy profile.';
+    if (allergyAlertBadge) {
+      allergyAlertBadge.textContent = `${allergy.total_alerts_count} Critical Conflict(s)`;
+      allergyAlertBadge.className = 'self-start text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300';
+    }
+  } else if (allergy.total_alerts_count > 0) {
+    if (allergyIconBox) {
+      allergyIconBox.innerHTML = `<span class="text-2xl">⚠️</span><span class="font-bold text-sm text-amber-600 dark:text-amber-400">Irritants / Scent Flagged</span>`;
+    }
+    if (allergyDesc) allergyDesc.textContent = allergy.safety_summary || 'Contains potential skin sensitizers.';
+    if (allergyAlertBadge) {
+      allergyAlertBadge.textContent = `${allergy.total_alerts_count} Flagged Item(s)`;
+      allergyAlertBadge.className = 'self-start text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300';
+    }
+  } else {
+    if (allergyIconBox) {
+      allergyIconBox.innerHTML = `<span class="text-2xl">🛡️</span><span class="font-bold text-sm text-emerald-600 dark:text-emerald-400">Allergy Safe</span>`;
+    }
+    if (allergyDesc) allergyDesc.textContent = 'No known allergens, sensitizing fragrances, or harsh drying alcohols detected.';
+    if (allergyAlertBadge) {
+      allergyAlertBadge.textContent = '0 Allergens Flagged';
+      allergyAlertBadge.className = 'self-start text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300';
+    }
+  }
+
+  // 3. Comedogenic Rating
+  const comedoNum = document.getElementById('comedogenicScoreNum');
+  const comedoLabel = document.getElementById('comedogenicRiskLabel');
+  if (comedoNum) comedoNum.textContent = analysis.max_comedogenic_rating || 0;
+  if (comedoLabel) comedoLabel.textContent = analysis.comedogenic_risk || 'Non-Comedogenic';
+
+  // 4. Identified Actives & Irritation
+  const activesNum = document.getElementById('identifiedActivesNum');
+  const totalNum = document.getElementById('totalIngredientsNum');
+  const catDetectedCount = document.getElementById('activeCategoriesDetectedCount');
+  const irritationBadge = document.getElementById('formulaIrritationBadge');
+
+  if (activesNum) activesNum.textContent = analysis.identified_actives_count || 0;
+  if (totalNum) totalNum.textContent = `of ${analysis.total_ingredients_count || 0} items`;
+  if (catDetectedCount) catDetectedCount.textContent = `${(analysis.detected_categories || []).length} Core Pillars Detected`;
+  if (irritationBadge) irritationBadge.textContent = analysis.irritation_risk || 'Low / Gentle';
+
+  // 5. Suitability Summary, Pros & Cautions
+  const sumSentence = document.getElementById('suitabilitySummarySentence');
+  if (sumSentence) sumSentence.textContent = suitability.summary || 'Personalized analysis computed based on your active skin profile.';
+
+  const prosList = document.getElementById('suitabilityProsList');
+  if (prosList) {
+    if (suitability.pros && suitability.pros.length > 0) {
+      prosList.innerHTML = suitability.pros.map(p => `
+        <li class="flex items-start gap-2">
+          <span class="text-emerald-500 font-bold">✓</span>
+          <span>${escapeHtml(p)}</span>
+        </li>
+      `).join('');
+    } else {
+      prosList.innerHTML = `<li class="text-slate-400 italic">No specific active synergies highlighted for your selected concerns.</li>`;
+    }
+  }
+
+  const cautionsList = document.getElementById('suitabilityCautionsList');
+  if (cautionsList) {
+    if (suitability.cautions && suitability.cautions.length > 0) {
+      cautionsList.innerHTML = suitability.cautions.map(c => `
+        <li class="flex items-start gap-2 text-amber-700 dark:text-amber-400">
+          <span class="font-bold">!</span>
+          <span>${escapeHtml(c)}</span>
+        </li>
+      `).join('');
+    } else {
+      cautionsList.innerHTML = `<li class="text-emerald-600 dark:text-emerald-400">No active formulation contraindications noted.</li>`;
+    }
+  }
+
+  // Allergy Alerts List
+  const allergyAlertsContainer = document.getElementById('allergyAlertsContainer');
+  if (allergyAlertsContainer) {
+    if (allergy.alerts && allergy.alerts.length > 0) {
+      allergyAlertsContainer.innerHTML = allergy.alerts.map(a => `
+        <div class="p-3 rounded-xl ${a.severity === 'Critical' ? 'bg-rose-50 border border-rose-200 text-rose-800 dark:bg-rose-950/40 dark:border-rose-800/80 dark:text-rose-200' : 'bg-amber-50 border border-amber-200 text-amber-800 dark:bg-amber-950/40 dark:border-amber-800/80 dark:text-amber-200'} text-xs">
+          <div class="flex items-center justify-between font-bold">
+            <span>${escapeHtml(a.ingredient)}</span>
+            <span class="px-2 py-0.5 rounded text-[10px] uppercase font-black ${a.severity === 'Critical' ? 'bg-rose-200 text-rose-900' : 'bg-amber-200 text-amber-900'}">${escapeHtml(a.type)}</span>
+          </div>
+          <p class="mt-1 opacity-90">${escapeHtml(a.message)}</p>
+        </div>
+      `).join('');
+    } else {
+      allergyAlertsContainer.innerHTML = `
+        <div class="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 text-xs text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
+          <span>🛡️</span>
+          <span>Zero medical allergen conflicts detected in this product formula.</span>
+        </div>
+      `;
+    }
+  }
+
+  // 6. Biochemical Interactions Box (Conflicts & Synergies)
+  const conflictsBox = document.getElementById('formulaConflictsBox');
+  const synergiesBox = document.getElementById('formulaSynergiesBox');
+  const routineAdviceEl = document.getElementById('formulaRoutineAdviceText');
+  const statusBadge = document.getElementById('interactionBadgeStatus');
+
+  if (interactions.has_conflicts) {
+    if (statusBadge) {
+      statusBadge.textContent = `⚠️ ${interactions.conflict_count} Conflict(s) Detected`;
+      statusBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300';
+    }
+    if (conflictsBox) {
+      conflictsBox.innerHTML = `
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400">Chemical Conflicts / Routine Separation Required</div>
+        ${interactions.conflicts.map(c => `
+          <div class="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/60 flex flex-col gap-1 text-xs">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-rose-900 dark:text-rose-200">${escapeHtml(c.title)}</span>
+              <span class="px-2 py-0.5 rounded bg-rose-200 text-rose-900 font-bold text-[10px] uppercase">${escapeHtml(c.severity)} Severity</span>
+            </div>
+            <p class="text-rose-800 dark:text-rose-300">${escapeHtml(c.explanation)}</p>
+            <div class="mt-1 pt-1.5 border-t border-rose-200/60 dark:border-rose-800/40 text-rose-900 dark:text-rose-100 font-semibold flex items-center gap-1.5">
+              <span>💡 Action:</span>
+              <span>${escapeHtml(c.recommendation)}</span>
+            </div>
+          </div>
+        `).join('')}
+      `;
+    }
+  } else {
+    if (conflictsBox) conflictsBox.innerHTML = '';
+  }
+
+  if (interactions.has_synergies) {
+    if (!interactions.has_conflicts && statusBadge) {
+      statusBadge.textContent = `✨ ${interactions.synergy_count} Synergy Boost(s)`;
+      statusBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300';
+    }
+    if (synergiesBox) {
+      synergiesBox.innerHTML = `
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Clinically Synergistic Power Combos</div>
+        ${interactions.synergies.map(s => `
+          <div class="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 flex flex-col gap-1 text-xs">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-emerald-900 dark:text-emerald-200">${escapeHtml(s.title)}</span>
+              <span class="px-2 py-0.5 rounded bg-emerald-200 text-emerald-900 font-bold text-[10px] uppercase">Synergy Boost</span>
+            </div>
+            <p class="text-emerald-800 dark:text-emerald-300">${escapeHtml(s.explanation)}</p>
+            <div class="mt-1 pt-1.5 border-t border-emerald-200/60 dark:border-emerald-800/40 text-emerald-900 dark:text-emerald-100 font-semibold flex items-center gap-1.5">
+              <span>🌟 Recommended Usage:</span>
+              <span>${escapeHtml(s.recommendation)}</span>
+            </div>
+          </div>
+        `).join('')}
+      `;
+    }
+  } else {
+    if (synergiesBox) synergiesBox.innerHTML = '';
+  }
+
+  if (!interactions.has_conflicts && !interactions.has_synergies) {
+    if (statusBadge) {
+      statusBadge.textContent = 'Formula Stable & Compatible';
+      statusBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-800';
+    }
+  }
+
+  if (routineAdviceEl) {
+    if (interactions.routine_advice && interactions.routine_advice.length > 0) {
+      routineAdviceEl.textContent = interactions.routine_advice.join(' ');
+    } else {
+      routineAdviceEl.textContent = 'Apply consistently according to product type. Maintain regular sunscreen protection.';
+    }
+  }
+
+  // 7. Detected Core Categories Grid
+  const categoriesGrid = document.getElementById('detectedCategoriesGrid');
+  if (categoriesGrid) {
+    const details = analysis.detected_category_details || [];
+    if (details.length > 0) {
+      categoriesGrid.innerHTML = details.map(cat => `
+        <div class="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-indigo-500 cursor-pointer transition flex flex-col justify-between shadow-xs" onclick="openIngredientEducationModal('${cat.id}')">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">${cat.icon || '✨'}</span>
+            <span class="font-bold text-xs text-slate-800 dark:text-slate-100">${escapeHtml(cat.name)}</span>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-2 line-clamp-2">${escapeHtml(cat.tagline)}</p>
+          <span class="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 mt-2 flex items-center gap-1">
+            View Science Dossier →
+          </span>
+        </div>
+      `).join('');
+    } else {
+      categoriesGrid.innerHTML = `
+        <div class="col-span-full p-4 text-center text-xs text-slate-400 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-800">
+          No core active pillars detected (carrier formula, humectants or soothing base).
+        </div>
+      `;
+    }
+  }
+
+  // 8. Full INCI Table
+  const tableBody = document.getElementById('inciTableBody');
+  const tableBadge = document.getElementById('inciTableCountBadge');
+  if (tableBadge) tableBadge.textContent = `${analysis.matched_ingredients?.length || 0} ingredients`;
+
+  if (tableBody && analysis.matched_ingredients) {
+    tableBody.innerHTML = analysis.matched_ingredients.map(item => `
+      <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+        <td class="py-2.5 px-3 font-semibold text-slate-900 dark:text-slate-100">
+          ${escapeHtml(item.canonical_name)}
+          ${item.raw_token && item.raw_token.toLowerCase() !== item.canonical_name.toLowerCase() ? `<span class="block text-[10px] text-slate-400 font-normal">INCI: ${escapeHtml(item.raw_token)}</span>` : ''}
+        </td>
+        <td class="py-2.5 px-3">
+          ${item.category && item.category !== 'other' ? `
+            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300">
+              ${escapeHtml(item.category.replace('_', ' ').toUpperCase())}
+            </span>
+          ` : '<span class="text-slate-400 text-xs">Formulation Base</span>'}
+        </td>
+        <td class="py-2.5 px-3 text-slate-600 dark:text-slate-300 text-xs">
+          ${(item.functions || []).slice(0, 2).map(f => escapeHtml(f)).join(', ') || 'Formulation agent'}
+        </td>
+        <td class="py-2.5 px-3">
+          <span class="font-bold ${item.comedogenic_rating >= 3 ? 'text-rose-600' : item.comedogenic_rating >= 1 ? 'text-amber-600' : 'text-emerald-600'}">
+            ${item.comedogenic_rating}/5
+          </span>
+        </td>
+        <td class="py-2.5 px-3">
+          <span class="text-xs ${item.irritation_potential?.includes('High') ? 'text-rose-600 font-bold' : item.irritation_potential?.includes('Medium') ? 'text-amber-600' : 'text-slate-500'}">
+            ${escapeHtml(item.irritation_potential || 'Low')}
+          </span>
+        </td>
+      </tr>
+    `).join('');
+  }
+}
+
+
+// ── TAB 2: ACTIVE INTERACTION & CONFLICT MATRIX LOGIC ──
+function bindMatrixEvents() {
+  const chipsContainer = document.getElementById('matrixActiveChipsContainer');
+  const btnReset = document.getElementById('btnResetMatrixSelection');
+
+  if (chipsContainer) {
+    chipsContainer.addEventListener('change', () => runMatrixEvaluation());
+  }
+
+  if (btnReset) {
+    btnReset.addEventListener('click', () => {
+      document.querySelectorAll('.matrix-checkbox').forEach(cb => {
+        cb.checked = false;
+        const chip = cb.closest('.matrix-chip');
+        chip?.classList.remove('border-indigo-600', 'bg-indigo-50', 'text-indigo-700', 'dark:bg-indigo-950/40', 'dark:border-indigo-500');
+      });
+      updateMatrixSelectedCount();
+      renderMatrixEmptyState();
+    });
+  }
+}
+
+function updateMatrixSelectedCount() {
+  const checkboxes = document.querySelectorAll('.matrix-checkbox:checked');
+  const countText = document.getElementById('matrixSelectedCountText');
+  if (countText) {
+    countText.textContent = `${checkboxes.length} active${checkboxes.length === 1 ? '' : 's'} selected ${checkboxes.length < 2 ? '(select at least 2)' : ''}`;
+  }
+}
+
+async function runMatrixEvaluation() {
+  const checkboxes = document.querySelectorAll('.matrix-checkbox:checked');
+  updateMatrixSelectedCount();
+
+  // Update chip styles
+  document.querySelectorAll('.matrix-checkbox').forEach(cb => {
+    const chip = cb.closest('.matrix-chip');
+    if (cb.checked) {
+      chip?.classList.add('border-indigo-600', 'bg-indigo-50', 'text-indigo-700', 'dark:bg-indigo-950/40', 'dark:border-indigo-500');
+    } else {
+      chip?.classList.remove('border-indigo-600', 'bg-indigo-50', 'text-indigo-700', 'dark:bg-indigo-950/40', 'dark:border-indigo-500');
+    }
+  });
+
+  const selectedActives = Array.from(checkboxes).map(cb => cb.value);
+  const reportBox = document.getElementById('matrixReportBox');
+
+  if (selectedActives.length < 2) {
+    renderMatrixEmptyState();
+    return;
+  }
+
+  if (reportBox) {
+    reportBox.innerHTML = `
+      <div class="p-6 text-center bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700">
+        <div class="inline-block animate-spin w-6 h-6 border-3 border-indigo-600 border-t-transparent rounded-full mb-2"></div>
+        <p class="text-xs text-slate-500">Evaluating biochemical pairwise compatibility...</p>
+      </div>
+    `;
+  }
+
+  try {
+    const res = await fetch('/api/ingredients/interactions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ingredients: selectedActives })
+    });
+
+    if (!res.ok) throw new Error('Failed to evaluate active interactions.');
+
+    const data = await res.json();
+    renderMatrixResults(data, selectedActives);
+  } catch (err) {
+    if (reportBox) {
+      reportBox.innerHTML = `
+        <div class="p-4 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 text-sm">
+          ${escapeHtml(err.message || 'Error checking active interaction compatibility.')}
+        </div>
+      `;
+    }
+  }
+}
+
+function renderMatrixEmptyState() {
+  const reportBox = document.getElementById('matrixReportBox');
+  if (reportBox) {
+    reportBox.innerHTML = `
+      <div class="p-8 text-center bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700">
+        <span class="text-3xl">🧪</span>
+        <p class="text-sm font-semibold text-slate-700 dark:text-slate-200 mt-2">Select 2 or more ingredients above to calculate biochemical compatibility.</p>
+        <p class="text-xs text-slate-400 mt-1">Try testing Retinoids + Glycolic Acid or Vitamin C + Ferulic Acid.</p>
+      </div>
+    `;
+  }
+}
+
+function renderMatrixResults(data, selectedActives) {
+  const reportBox = document.getElementById('matrixReportBox');
+  if (!reportBox) return;
+
+  const conflicts = data.conflicts || [];
+  const synergies = data.synergies || [];
+  const routineAdvice = data.routine_advice || [];
+
+  let statusHeader = '';
+  if (conflicts.length > 0) {
+    statusHeader = `
+      <div class="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">⚠️</span>
+          <div>
+            <h4 class="font-bold text-sm text-rose-900 dark:text-rose-200">Active Conflict Warning</h4>
+            <p class="text-xs text-rose-700 dark:text-rose-300">Chemical collision or over-exfoliation hazard detected between selected actives.</p>
+          </div>
+        </div>
+        <span class="px-2.5 py-1 rounded-full text-xs font-black bg-rose-200 text-rose-900">${conflicts.length} Conflict(s)</span>
+      </div>
+    `;
+  } else if (synergies.length > 0) {
+    statusHeader = `
+      <div class="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">✨</span>
+          <div>
+            <h4 class="font-bold text-sm text-emerald-900 dark:text-emerald-200">Synergistic Power Combination</h4>
+            <p class="text-xs text-emerald-700 dark:text-emerald-300">Selected actives amplify efficacy, stability, or barrier protection together.</p>
+          </div>
+        </div>
+        <span class="px-2.5 py-1 rounded-full text-xs font-black bg-emerald-200 text-emerald-900">${synergies.length} Synergy Boost(s)</span>
+      </div>
+    `;
+  } else {
+    statusHeader = `
+      <div class="p-4 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">✅</span>
+          <div>
+            <h4 class="font-bold text-sm text-indigo-900 dark:text-indigo-200">Compatible & Safe Combination</h4>
+            <p class="text-xs text-indigo-700 dark:text-indigo-300">No known biochemical conflicts or degradation risks between selected actives.</p>
+          </div>
+        </div>
+        <span class="px-2.5 py-1 rounded-full text-xs font-black bg-indigo-200 text-indigo-900">Safe to Pair</span>
+      </div>
+    `;
+  }
+
+  const conflictsHtml = conflicts.length > 0 ? `
+    <div class="flex flex-col gap-3">
+      <span class="text-xs font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400">Detailed Chemical Conflict Breakdown</span>
+      ${conflicts.map(c => `
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-800 shadow-sm flex flex-col gap-1.5 text-xs">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-sm text-rose-900 dark:text-rose-200">${escapeHtml(c.title)}</span>
+            <span class="px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-bold text-[10px] uppercase">${escapeHtml(c.severity)} Severity</span>
+          </div>
+          <p class="text-slate-600 dark:text-slate-300 text-xs">${escapeHtml(c.explanation)}</p>
+          <div class="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800 text-rose-800 dark:text-rose-300 font-semibold flex items-center gap-2">
+            <span>🛡️ Clinical Separation Guidance:</span>
+            <span>${escapeHtml(c.recommendation)}</span>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  ` : '';
+
+  const synergiesHtml = synergies.length > 0 ? `
+    <div class="flex flex-col gap-3">
+      <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Synergistic Pairings</span>
+      ${synergies.map(s => `
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-emerald-200 dark:border-emerald-800 shadow-sm flex flex-col gap-1.5 text-xs">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-sm text-emerald-900 dark:text-emerald-200">${escapeHtml(s.title)}</span>
+            <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold text-[10px] uppercase">Synergy</span>
+          </div>
+          <p class="text-slate-600 dark:text-slate-300 text-xs">${escapeHtml(s.explanation)}</p>
+          <div class="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800 text-emerald-800 dark:text-emerald-300 font-semibold flex items-center gap-2">
+            <span>🌟 How to Pair:</span>
+            <span>${escapeHtml(s.recommendation)}</span>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  ` : '';
+
+  const adviceHtml = routineAdvice.length > 0 ? `
+    <div class="p-4 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900 text-xs md:text-sm text-indigo-900 dark:text-indigo-200 flex items-center gap-2.5">
+      <span class="text-xl">💡</span>
+      <span>${escapeHtml(routineAdvice.join(' '))}</span>
+    </div>
+  ` : '';
+
+  reportBox.innerHTML = `
+    ${statusHeader}
+    ${conflictsHtml}
+    ${synergiesHtml}
+    ${adviceHtml}
+  `;
+}
+
+
+// ── TAB 3: 8 CORE PILLARS & EDUCATION HUB ──
+async function loadIngredientCategoriesCatalog() {
+  const container = document.getElementById('educationCategoriesGrid');
+  if (!container) return;
+
+  try {
+    const res = await fetch('/api/ingredients/categories');
+    if (!res.ok) throw new Error('Failed to load ingredient categories.');
+
+    const data = await res.json();
+    cachedIngredientCategories = data;
+    renderEducationCategories(data);
+  } catch (err) {
+    container.innerHTML = `
+      <div class="col-span-full p-8 text-center text-xs text-rose-500 bg-rose-50 rounded-xl">
+        Error loading ingredient catalog.
+      </div>
+    `;
+    console.error('Error loading ingredient categories:', err);
+  }
+}
+
+function renderEducationCategories(categories) {
+  const container = document.getElementById('educationCategoriesGrid');
+  if (!container) return;
+
+  if (!categories || categories.length === 0) {
+    container.innerHTML = `
+      <div class="col-span-full text-center py-10 px-4 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700">
+        <span class="text-3xl">🔍</span>
+        <p class="text-sm font-semibold text-slate-700 dark:text-slate-200 mt-2">No matching ingredient pillars found.</p>
+        <p class="text-xs text-slate-400 mt-1">Try searching Retinoids, Vitamin C, Salicylic Acid, Hyaluronic Acid, or Ceramides.</p>
+        <button type="button" class="mt-3 px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition" onclick="document.getElementById('eduSearchInput').value=''; renderEducationCategories(cachedIngredientCategories);">
+          Clear Search Filter
+        </button>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = categories.map(cat => `
+    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-indigo-400 transition flex flex-col justify-between group">
+      <div>
+        <div class="flex items-center justify-between">
+          <span class="text-3xl p-2.5 bg-indigo-50 dark:bg-indigo-950/40 rounded-xl">${cat.icon || '🧬'}</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+            ${escapeHtml(cat.best_time || 'AM & PM')}
+          </span>
+        </div>
+        
+        <h4 class="font-bold text-base text-slate-800 dark:text-slate-100 mt-3 group-hover:text-indigo-600 transition">
+          ${escapeHtml(cat.name)}
+        </h4>
+        <p class="text-xs text-indigo-600 dark:text-indigo-400 font-medium mt-0.5 line-clamp-1">
+          ${escapeHtml(cat.tagline)}
+        </p>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 line-clamp-3 leading-relaxed">
+          ${escapeHtml(cat.summary)}
+        </p>
+
+        <!-- Benefits Chips -->
+        <div class="flex flex-wrap gap-1 mt-3">
+          ${(cat.primary_benefits || []).slice(0, 2).map(b => `
+            <span class="px-2 py-0.5 rounded text-[10px] bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-100 dark:border-slate-700">
+              ${escapeHtml(b)}
+            </span>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <span class="text-[11px] text-slate-400 font-mono">pH ${escapeHtml(cat.optimal_ph || '5.5')}</span>
+        <button type="button" class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 transition flex items-center gap-1" onclick="openIngredientEducationModal('${cat.id}')">
+          <span>Science Dossier</span>
+          <span>→</span>
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function bindEducationHubEvents() {
+  const searchInput = document.getElementById('eduSearchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      if (!q) {
+        renderEducationCategories(cachedIngredientCategories);
+        return;
+      }
+      const filtered = cachedIngredientCategories.filter(cat => {
+        return (
+          cat.name.toLowerCase().includes(q) ||
+          cat.tagline.toLowerCase().includes(q) ||
+          cat.summary.toLowerCase().includes(q) ||
+          (cat.key_ingredients || []).some(k => k.toLowerCase().includes(q)) ||
+          (cat.primary_benefits || []).some(b => b.toLowerCase().includes(q))
+        );
+      });
+      renderEducationCategories(filtered);
+    });
+  }
+
+  // Modal close handlers
+  const modal = document.getElementById('ingredientDetailModal');
+  const backdrop = document.getElementById('ingredientModalBackdrop');
+  const btnClose = document.getElementById('btnCloseIngredientModal');
+  const hideModal = () => modal?.classList.add('hidden');
+
+  if (backdrop) backdrop.addEventListener('click', hideModal);
+  if (btnClose) btnClose.addEventListener('click', hideModal);
+}
+
+// ── OPEN INGREDIENT EDUCATION MODAL ──
+async function openIngredientEducationModal(identifier) {
+  const modal = document.getElementById('ingredientDetailModal');
+  const iconEl = document.getElementById('eduModalIcon');
+  const titleEl = document.getElementById('eduModalTitle');
+  const taglineEl = document.getElementById('eduModalTagline');
+  const bodyEl = document.getElementById('eduModalBody');
+
+  if (!modal || !bodyEl) return;
+
+  modal.classList.remove('hidden');
+  bodyEl.innerHTML = `
+    <div class="py-12 text-center">
+      <div class="inline-block animate-spin w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full mb-2"></div>
+      <p class="text-xs text-slate-500">Loading dermatological science dossier...</p>
+    </div>
+  `;
+
+  try {
+    const res = await fetch(`/api/ingredients/education/${encodeURIComponent(identifier)}`);
+    if (!res.ok) throw new Error('Educational dossier not found.');
+
+    const data = await res.json();
+    const isCategory = data.type === 'category';
+    const d = data.details || {};
+    const catInfo = data.category_info || {};
+
+    if (iconEl) iconEl.textContent = d.icon || catInfo.icon || '🧬';
+    if (titleEl) titleEl.textContent = d.name || d.canonical_name || identifier;
+    if (taglineEl) taglineEl.textContent = d.tagline || catInfo.tagline || (d.functions ? d.functions.join(' • ') : 'Active Skincare Profile');
+
+    let membersHtml = '';
+    if (isCategory && d.key_ingredients) {
+      membersHtml = `
+        <div class="flex flex-col gap-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Recognized Active Ingredients & Forms</span>
+          <div class="flex flex-wrap gap-2">
+            ${d.key_ingredients.map(k => `
+              <span class="px-3 py-1 rounded-lg text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                ${escapeHtml(k)}
+              </span>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    let benefitsHtml = '';
+    const benefitsList = d.primary_benefits || d.functions || catInfo.primary_benefits;
+    if (benefitsList && benefitsList.length > 0) {
+      benefitsHtml = `
+        <div class="flex flex-col gap-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Primary Dermatological Benefits</span>
+          <ul class="flex flex-col gap-1.5 text-xs md:text-sm text-slate-700 dark:text-slate-300">
+            ${benefitsList.map(b => `
+              <li class="flex items-start gap-2">
+                <span class="text-indigo-500 font-bold">✓</span>
+                <span>${escapeHtml(b)}</span>
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+      `;
+    }
+
+    let safetyGridHtml = `
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex flex-col">
+          <span class="text-[10px] text-slate-400 font-bold uppercase">Best Time</span>
+          <span class="text-xs font-bold text-slate-800 dark:text-slate-100 mt-0.5">${escapeHtml(d.best_time || d.time_of_day || catInfo.best_time || 'AM & PM')}</span>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex flex-col">
+          <span class="text-[10px] text-slate-400 font-bold uppercase">Optimal pH</span>
+          <span class="text-xs font-bold text-slate-800 dark:text-slate-100 mt-0.5">${escapeHtml(d.optimal_ph || d.ph_range || catInfo.optimal_ph || '5.5 - 6.5')}</span>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex flex-col">
+          <span class="text-[10px] text-slate-400 font-bold uppercase">Skin Types</span>
+          <span class="text-xs font-bold text-slate-800 dark:text-slate-100 mt-0.5">${escapeHtml((d.skin_types || d.suitable_types || catInfo.skin_types || []).slice(0, 2).join(', ') || 'All Types')}</span>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex flex-col">
+          <span class="text-[10px] text-slate-400 font-bold uppercase">Comedogenicity</span>
+          <span class="text-xs font-bold text-emerald-600 mt-0.5">${d.comedogenic_rating !== undefined ? d.comedogenic_rating + '/5' : '0/5 (Safe)'}</span>
+        </div>
+      </div>
+    `;
+
+    let tipsHtml = '';
+    const tipsContent = d.usage_tips || catInfo.usage_tips;
+    if (tipsContent) {
+      tipsHtml = `
+        <div class="p-4 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900 flex flex-col gap-1 text-xs">
+          <span class="font-bold text-indigo-900 dark:text-indigo-200">💡 Dermatologist Application Tip</span>
+          <p class="text-indigo-800 dark:text-indigo-300 leading-relaxed">${escapeHtml(tipsContent)}</p>
+        </div>
+      `;
+    }
+
+    let contraindicationsHtml = '';
+    const doNotMix = d.do_not_mix_with || catInfo.do_not_mix_with;
+    if (doNotMix && doNotMix.length > 0) {
+      contraindicationsHtml = `
+        <div class="p-4 rounded-xl bg-rose-50/70 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 flex flex-col gap-1 text-xs">
+          <span class="font-bold text-rose-900 dark:text-rose-200">⚠️ Direct Contraindications & Conflicts</span>
+          <p class="text-rose-800 dark:text-rose-300">Do NOT directly combine in the same routine step with: <strong>${escapeHtml(doNotMix.join(', '))}</strong>.</p>
+        </div>
+      `;
+    }
+
+    let synergiesHtml = '';
+    const synergiesList = d.synergies || catInfo.synergies;
+    if (synergiesList && synergiesList.length > 0) {
+      synergiesHtml = `
+        <div class="p-4 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 flex flex-col gap-1 text-xs">
+          <span class="font-bold text-emerald-900 dark:text-emerald-200">✨ Synergistic Power Pairings</span>
+          <p class="text-emerald-800 dark:text-emerald-300">Pairs exceptionally well with: <strong>${escapeHtml(synergiesList.join(', '))}</strong>.</p>
+        </div>
+      `;
+    }
+
+    bodyEl.innerHTML = `
+      <p class="text-slate-600 dark:text-slate-300 leading-relaxed text-xs md:text-sm">
+        ${escapeHtml(d.summary || catInfo.summary || (d.functions ? d.functions.join(', ') : ''))}
+      </p>
+      ${safetyGridHtml}
+      ${membersHtml}
+      ${benefitsHtml}
+      ${tipsHtml}
+      ${contraindicationsHtml}
+      ${synergiesHtml}
+    `;
+  } catch (err) {
+    bodyEl.innerHTML = `
+      <div class="p-4 rounded-xl bg-rose-50 text-rose-700 text-xs">
+        Failed to load ingredient dossier: ${escapeHtml(err.message)}
+      </div>
+    `;
+  }
+}
+
+// Attach global functions to window
+window.openIngredientEducationModal = openIngredientEducationModal;
+window.runFormulaAnalysis = runFormulaAnalysis;
+window.renderEducationCategories = renderEducationCategories;
+
+
+// ─────────────────────────────────────────────────────────────
+// Feature 6: Product Recommendation Engine JS Logic
+// ─────────────────────────────────────────────────────────────
+
+function initProductRecommendationEngine() {
+  if (isRecEngineInitialized) {
+    fetchProductCatalog();
+    return;
+  }
+  isRecEngineInitialized = true;
+
+  // 1. Category Tabs
+  document.querySelectorAll('.prod-cat-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.prod-cat-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      activeProductCategory = tab.dataset.category || 'all';
+      renderProductGrid();
+    });
+  });
+
+  // 2. Budget Tier Buttons
+  document.querySelectorAll('.budget-filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.budget-filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeProductBudget = btn.dataset.budget || 'all';
+      renderProductGrid();
+    });
+  });
+
+  // 3. Search Input
+  const searchInput = document.getElementById('productSearchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      productSearchTerm = e.target.value.trim().toLowerCase();
+      renderProductGrid();
+    });
+  }
+
+  // 4. Concern Dropdown
+  const concernSelect = document.getElementById('filterConcernSelect');
+  if (concernSelect) {
+    concernSelect.addEventListener('change', (e) => {
+      activeProductConcern = e.target.value;
+      renderProductGrid();
+    });
+  }
+
+  // 5. Allergy Safe Checkbox
+  const chkAllergy = document.getElementById('chkAllergySafeOnly');
+  if (chkAllergy) {
+    chkAllergy.addEventListener('change', (e) => {
+      isAllergySafeOnly = e.target.checked;
+      renderProductGrid();
+    });
+  }
+
+  // 6. Sort By Dropdown
+  const sortSelect = document.getElementById('sortProductsSelect');
+  if (sortSelect) {
+    sortSelect.addEventListener('change', (e) => {
+      productSortBy = e.target.value;
+      renderProductGrid();
+    });
+  }
+
+  // 7. Modals: Detail Modal Closures
+  const btnCloseDetail = document.getElementById('btnCloseProductDetailModal');
+  const detailBackdrop = document.getElementById('productDetailModalBackdrop');
+  if (btnCloseDetail) btnCloseDetail.addEventListener('click', () => toggleProductDetailModal(false));
+  if (detailBackdrop) detailBackdrop.addEventListener('click', () => toggleProductDetailModal(false));
+
+  const btnAnalyzeINCI = document.getElementById('btnAnalyzeProductInINCI');
+  if (btnAnalyzeINCI) {
+    btnAnalyzeINCI.addEventListener('click', () => {
+      if (currentDetailProdObj && currentDetailProdObj.full_inci) {
+        toggleProductDetailModal(false);
+        analyzeProductInINCIEngine(currentDetailProdObj.full_inci);
+      }
+    });
+  }
+
+  const btnAddDetailToRoutine = document.getElementById('btnAddDetailProductToRoutine');
+  if (btnAddDetailToRoutine) {
+    btnAddDetailToRoutine.addEventListener('click', () => {
+      if (currentDetailProdObj) {
+        addProductToRoutineDirect(currentDetailProdObj.id, currentDetailProdObj.time_of_day ? currentDetailProdObj.time_of_day.split(' ')[0] : 'morning');
+        toggleProductDetailModal(false);
+      }
+    });
+  }
+
+  const btnToggleCompareDetail = document.getElementById('btnToggleCompareDetail');
+  if (btnToggleCompareDetail) {
+    btnToggleCompareDetail.addEventListener('click', () => {
+      if (currentDetailProdObj) {
+        toggleCompareItem(currentDetailProdObj);
+        updateDetailCompareButtonText();
+      }
+    });
+  }
+
+  // 8. Modals: Comparison Modal
+  const btnOpenCompare = document.getElementById('btnOpenCompareModal');
+  const btnLaunchCompare = document.getElementById('btnLaunchCompareModal');
+  const btnCloseCompare = document.getElementById('btnCloseCompareModal');
+  const btnCloseCompareBtn = document.getElementById('btnCloseCompareModalBtn');
+  const compareBackdrop = document.getElementById('productCompareModalBackdrop');
+  const btnClearCompare = document.getElementById('btnClearCompareTray');
+  const btnClearCompareModal = document.getElementById('btnClearCompareFromModal');
+
+  if (btnOpenCompare) btnOpenCompare.addEventListener('click', () => openCompareModal());
+  if (btnLaunchCompare) btnLaunchCompare.addEventListener('click', () => openCompareModal());
+  if (btnCloseCompare) btnCloseCompare.addEventListener('click', () => toggleCompareModal(false));
+  if (btnCloseCompareBtn) btnCloseCompareBtn.addEventListener('click', () => toggleCompareModal(false));
+  if (compareBackdrop) compareBackdrop.addEventListener('click', () => toggleCompareModal(false));
+  if (btnClearCompare) btnClearCompare.addEventListener('click', () => clearCompareTray());
+  if (btnClearCompareModal) {
+    btnClearCompareModal.addEventListener('click', () => {
+      clearCompareTray();
+      toggleCompareModal(false);
+    });
+  }
+
+  // 9. Modals: Budget Routine Optimizer Modal
+  const btnOpenBudget = document.getElementById('btnOpenBudgetRoutineModal');
+  const btnCloseBudget = document.getElementById('btnCloseBudgetRoutineModal');
+  const btnCancelBudget = document.getElementById('btnCancelBudgetRoutine');
+  const budgetBackdrop = document.getElementById('budgetRoutineModalBackdrop');
+  const budgetSlider = document.getElementById('budgetRangeSlider');
+  const btnApplyBudget = document.getElementById('btnApplyBudgetRoutine');
+
+  if (btnOpenBudget) btnOpenBudget.addEventListener('click', () => openBudgetRoutineModal());
+  if (btnCloseBudget) btnCloseBudget.addEventListener('click', () => toggleBudgetRoutineModal(false));
+  if (btnCancelBudget) btnCancelBudget.addEventListener('click', () => toggleBudgetRoutineModal(false));
+  if (budgetBackdrop) budgetBackdrop.addEventListener('click', () => toggleBudgetRoutineModal(false));
+
+  if (budgetSlider) {
+    budgetSlider.addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      const displayEl = document.getElementById('budgetSliderDisplay');
+      if (displayEl) displayEl.textContent = `₹${val.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+      recalculateBudgetRoutine();
+    });
+  }
+
+  document.querySelectorAll('input[name="budgetScope"]').forEach(radio => {
+    radio.addEventListener('change', () => recalculateBudgetRoutine());
+  });
+
+  document.querySelectorAll('.budget-preset-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const presetVal = parseFloat(chip.dataset.preset || '5000');
+      if (budgetSlider) {
+        budgetSlider.value = presetVal;
+        const displayEl = document.getElementById('budgetSliderDisplay');
+        if (displayEl) displayEl.textContent = `₹${presetVal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        recalculateBudgetRoutine();
+      }
+    });
+  });
+
+  if (btnApplyBudget) {
+    btnApplyBudget.addEventListener('click', () => applyBudgetRoutineSteps());
+  }
+
+  fetchProductCatalog();
+}
+
+async function fetchProductCatalog() {
+  const token = localStorage.getItem('access_token');
+  const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+  try {
+    const res = await fetch('/api/products/catalog', { headers });
+    if (!res.ok) throw new Error('Failed to fetch product catalog');
+    const data = await res.json();
+    productCatalog = data.products || [];
+
+    // Update profile summary chips in banner
+    if (data.user_context) {
+      const u = data.user_context;
+      const elType = document.getElementById('recProfileSkinType');
+      const elConcerns = document.getElementById('recProfileConcerns');
+      const elScore = document.getElementById('recProfileHealthScore');
+      const elSeason = document.getElementById('recProfileSeason');
+
+      if (elType) elType.textContent = `${u.skin_type || 'Normal'} Skin`;
+      if (elConcerns) elConcerns.textContent = u.concerns && u.concerns.length > 0 ? u.concerns.slice(0, 2).map(c => c.charAt(0).toUpperCase() + c.slice(1)).join(' • ') : 'Balanced Care';
+      if (elScore) elScore.textContent = `Score: ${u.health_score || 70}/100`;
+      if (elSeason) elSeason.textContent = `${u.season === 'Summer' ? '☀️' : u.season === 'Winter' ? '❄️' : '🌿'} ${u.season || 'Summer'}`;
+    }
+
+    updateCategoryCounts();
+    renderProductGrid();
+  } catch (err) {
+    console.error('Error fetching product catalog:', err);
+    const grid = document.getElementById('productsGrid');
+    if (grid) {
+      grid.innerHTML = `
+        <div class="col-span-full p-8 text-center bg-rose-50 border border-rose-200 rounded-2xl text-rose-700 text-sm">
+          Failed to load product recommendations: ${escapeHtml(err.message)}
+        </div>
+      `;
+    }
+  }
+}
+
+function updateCategoryCounts() {
+  const counts = {
+    all: productCatalog.length,
+    face_wash: 0,
+    moisturizer: 0,
+    sunscreen: 0,
+    serum: 0,
+    toner: 0,
+    treatment_products: 0,
+    face_masks: 0
+  };
+
+  productCatalog.forEach(p => {
+    if (counts[p.category] !== undefined) counts[p.category]++;
+  });
+
+  const catMap = {
+    all: 'catCountAll',
+    face_wash: 'catCountFaceWash',
+    moisturizer: 'catCountMoisturizer',
+    sunscreen: 'catCountSunscreen',
+    serum: 'catCountSerum',
+    toner: 'catCountToner',
+    treatment_products: 'catCountTreatment',
+    face_masks: 'catCountMasks'
+  };
+
+  Object.entries(catMap).forEach(([k, id]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = counts[k] || 0;
+  });
+}
+
+function renderProductGrid() {
+  const grid = document.getElementById('productsGrid');
+  if (!grid) return;
+
+  let filtered = [...productCatalog];
+
+  // 1. Category filter
+  if (activeProductCategory !== 'all') {
+    filtered = filtered.filter(p => p.category === activeProductCategory);
+  }
+
+  // 2. Budget tier filter
+  if (activeProductBudget !== 'all') {
+    filtered = filtered.filter(p => p.budget_tier === activeProductBudget);
+  }
+
+  // 3. Concern filter
+  if (activeProductConcern !== 'all') {
+    filtered = filtered.filter(p => {
+      const concerns = (p.target_concerns || []).map(c => c.toLowerCase());
+      return concerns.some(c => c.includes(activeProductConcern.toLowerCase()));
+    });
+  }
+
+  // 4. Allergy-Safe filter
+  if (isAllergySafeOnly) {
+    filtered = filtered.filter(p => !p.has_allergy_clash);
+  }
+
+  // 5. Search query
+  if (productSearchTerm) {
+    filtered = filtered.filter(p => {
+      const str = `${p.name} ${p.brand} ${(p.key_actives || []).join(' ')} ${(p.target_concerns || []).join(' ')} ${p.description || ''}`.toLowerCase();
+      return str.includes(productSearchTerm);
+    });
+  }
+
+  // 6. Sort
+  if (productSortBy === 'suitability_desc') {
+    filtered.sort((a, b) => b.suitability_score - a.suitability_score || b.rating - a.rating);
+  } else if (productSortBy === 'price_asc') {
+    filtered.sort((a, b) => a.price - b.price);
+  } else if (productSortBy === 'price_desc') {
+    filtered.sort((a, b) => b.price - a.price);
+  } else if (productSortBy === 'rating_desc') {
+    filtered.sort((a, b) => b.rating - a.rating);
+  }
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div class="col-span-full p-12 text-center bg-slate-50 dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700 rounded-2xl">
+        <span class="text-3xl">🔍</span>
+        <h4 class="font-bold text-slate-700 dark:text-slate-200 mt-2">No matching products found</h4>
+        <p class="text-xs text-slate-500 mt-1">Try resetting your filters or search terms.</p>
+      </div>
+    `;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(p => {
+    const isComparing = compareSelectedProducts.some(c => c.id === p.id);
+    const badgeClass = `badge-${p.badge_color || 'indigo'}`;
+    const categoryIconMap = {
+      face_wash: '🧼',
+      moisturizer: '🧴',
+      sunscreen: '☀️',
+      serum: '💧',
+      toner: '🌿',
+      treatment_products: '🎯',
+      face_masks: '✨'
+    };
+    const catIcon = categoryIconMap[p.category] || '🧴';
+
+    const activesHtml = (p.key_actives || []).slice(0, 3).map(act => `
+      <span class="active-ing-chip">${escapeHtml(act)}</span>
+    `).join('');
+
+    return `
+      <article class="product-card-rich" data-id="${p.id}">
+        <div>
+          <!-- Header Banner -->
+          <div class="product-card-header" style="background: ${p.gradient_bg || 'linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%)'};">
+            <span class="product-cat-tag">
+              <span>${catIcon}</span>
+              <span>${escapeHtml(p.category_name || 'Skincare')}</span>
+            </span>
+            <span class="product-suitability-badge ${badgeClass}">
+              <span>${p.has_allergy_clash ? '⚠️' : '🎯'}</span>
+              <span>${p.suitability_score}% Match</span>
+            </span>
+          </div>
+
+          <!-- Body -->
+          <div class="product-card-body">
+            <div>
+              <span class="product-brand-line">${escapeHtml(p.brand)}</span>
+              <h3 class="product-title-rich mt-0.5">${escapeHtml(p.name)}</h3>
+            </div>
+            
+            <p class="product-tagline-text line-clamp-2">${escapeHtml(p.tagline || p.description)}</p>
+
+            <!-- Key Actives -->
+            <div class="product-active-tags">
+              ${activesHtml}
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="product-card-footer">
+          <div class="product-price-block">
+            <span class="product-price-num">${p.price.toFixed(2)}</span>
+            <span class="product-volume-text">${escapeHtml(p.volume || '')} • ⭐ ${p.rating}</span>
+          </div>
+          
+          <div class="product-actions-group">
+            <button type="button" class="btn-card-action compare ${isComparing ? 'selected' : ''}" onclick="event.stopPropagation(); window.toggleCompareProduct('${p.id}')" title="Compare side-by-side">
+              <span>${isComparing ? '✓ Comparing' : '⚖️ Compare'}</span>
+            </button>
+            <button type="button" class="btn-card-action view" onclick="window.openProductDetailModal('${p.id}')" title="View details & alternatives">
+              <span>Details</span>
+            </button>
+            <button type="button" class="btn-card-action add-routine" onclick="event.stopPropagation(); window.quickAddProductToRoutine('${p.id}')" title="Add to routine">
+              <span>➕</span>
+            </button>
+          </div>
+        </div>
+      </article>
+    `;
+  }).join('');
+}
+
+// ── Detail Modal Handler ──
+function toggleProductDetailModal(show) {
+  const modal = document.getElementById('productDetailModal');
+  if (modal) modal.classList.toggle('hidden', !show);
+}
+
+async function openProductDetailModal(productId) {
+  const token = localStorage.getItem('access_token');
+  const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+  try {
+    const [resProd, resAlts] = await Promise.all([
+      fetch(`/api/products/${productId}`, { headers }),
+      fetch(`/api/products/${productId}/alternatives`, { headers })
+    ]);
+
+    if (!resProd.ok) throw new Error('Product not found');
+    const p = await resProd.json();
+    const altsData = resAlts.ok ? await resAlts.json() : {};
+
+    currentDetailProdObj = p;
+
+    // Header updates
+    const categoryIconMap = { face_wash: '🧼', moisturizer: '🧴', sunscreen: '☀️', serum: '💧', toner: '🌿', treatment_products: '🎯', face_masks: '✨' };
+    const catIconEl = document.getElementById('pDetailCategoryIcon');
+    const catNameEl = document.getElementById('pDetailCategoryName');
+    const nameEl = document.getElementById('pDetailName');
+    const brandEl = document.getElementById('pDetailBrand');
+
+    if (catIconEl) catIconEl.textContent = categoryIconMap[p.category] || '🧴';
+    if (catNameEl) catNameEl.textContent = p.category_name || 'Skincare';
+    if (nameEl) nameEl.textContent = p.name;
+    if (brandEl) brandEl.textContent = `${p.brand} • ${p.price.toFixed(2)} (${p.volume || ''}) • ⭐ ${p.rating} (${(p.review_count || 0).toLocaleString()} reviews)`;
+
+    updateDetailCompareButtonText();
+
+    // Body content
+    const bodyEl = document.getElementById('pDetailModalBody');
+    if (bodyEl) {
+      const badgeClass = `badge-${p.badge_color || 'indigo'}`;
+      
+      // Match reasons list
+      const reasonsHtml = (p.match_reasons || []).map(r => `
+        <li class="flex items-start gap-2 text-xs text-slate-700 dark:text-slate-300">
+          <span class="text-emerald-500 font-bold">✓</span>
+          <span>${escapeHtml(r)}</span>
+        </li>
+      `).join('');
+
+      // Caution alerts
+      let cautionHtml = '';
+      if (p.caution_alerts && p.caution_alerts.length > 0) {
+        cautionHtml = `
+          <div class="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 flex flex-col gap-1 text-xs">
+            <span class="font-bold text-amber-900 dark:text-amber-200">⚠️ Dermatological Caution Alerts:</span>
+            ${p.caution_alerts.map(c => `<p class="text-amber-800 dark:text-amber-300">• ${escapeHtml(c)}</p>`).join('')}
+          </div>
+        `;
+      }
+
+      // Benefits list
+      const benefitsHtml = (p.benefits || []).map(b => `
+        <li class="flex items-start gap-2 text-xs text-slate-600 dark:text-slate-300">
+          <span class="text-indigo-500">✦</span>
+          <span>${escapeHtml(b)}</span>
+        </li>
+      `).join('');
+
+      // Smart Alternatives Section
+      let altsHtml = '';
+      const dupes = altsData.budget_dupes || [];
+      const sens = altsData.sensitive_alternatives || [];
+      const upg = altsData.premium_upgrades || [];
+
+      if (dupes.length > 0 || sens.length > 0 || upg.length > 0) {
+        altsHtml = `
+          <div class="border-t border-slate-200 dark:border-slate-800 pt-5 flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+              <h4 class="font-bold text-slate-800 dark:text-slate-100 text-sm">💡 Smart Alternative Suggestions</h4>
+              <span class="text-[11px] text-slate-400">Click any card to inspect or swap</span>
+            </div>
+            
+            <div class="alternatives-grid">
+              ${dupes.slice(0, 1).map(d => `
+                <div class="alt-card cursor-pointer" onclick="window.openProductDetailModal('${d.id}')">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">💰 Budget Dupe</span>
+                    <span class="text-xs font-bold text-emerald-600">${d.price.toFixed(2)}</span>
+                  </div>
+                  <div>
+                    <h5 class="font-bold text-xs text-slate-800 dark:text-slate-100">${escapeHtml(d.name)}</h5>
+                    <span class="text-[11px] text-slate-500">${escapeHtml(d.brand)} • ${d.suitability_score}% Match</span>
+                  </div>
+                </div>
+              `).join('')}
+
+              ${sens.slice(0, 1).map(s => `
+                <div class="alt-card cursor-pointer" onclick="window.openProductDetailModal('${s.id}')">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-sky-100 text-sky-800">🛡️ Milder / Sensitive</span>
+                    <span class="text-xs font-bold text-slate-700 dark:text-slate-200">${s.price.toFixed(2)}</span>
+                  </div>
+                  <div>
+                    <h5 class="font-bold text-xs text-slate-800 dark:text-slate-100">${escapeHtml(s.name)}</h5>
+                    <span class="text-[11px] text-slate-500">${escapeHtml(s.brand)} • ${s.suitability_score}% Match</span>
+                  </div>
+                </div>
+              `).join('')}
+
+              ${upg.slice(0, 1).map(u => `
+                <div class="alt-card cursor-pointer" onclick="window.openProductDetailModal('${u.id}')">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800">⚡ Clinical Upgrade</span>
+                    <span class="text-xs font-bold text-indigo-600">${u.price.toFixed(2)}</span>
+                  </div>
+                  <div>
+                    <h5 class="font-bold text-xs text-slate-800 dark:text-slate-100">${escapeHtml(u.name)}</h5>
+                    <span class="text-[11px] text-slate-500">${escapeHtml(u.brand)} • ${u.suitability_score}% Match</span>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      bodyEl.innerHTML = `
+        <!-- Suitability Score Card -->
+        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="product-suitability-badge ${badgeClass} text-sm py-1 px-3">
+                ${p.has_allergy_clash ? '⚠️ Allergen Alert' : `🌟 ${p.suitability_score}% ${p.rating_tier || 'Match'}`}
+              </span>
+              <span class="text-xs text-slate-500 font-medium">${p.texture || ''} • ${p.finish || ''}</span>
+            </div>
+            <p class="text-xs text-slate-600 dark:text-slate-300 mt-2">${escapeHtml(p.tagline || p.description)}</p>
+          </div>
+          <div class="text-right shrink-0">
+            <span class="text-xs text-slate-400 font-semibold uppercase">Ideal Timing</span>
+            <p class="text-xs font-bold text-slate-800 dark:text-slate-200 mt-0.5">☀️ ${escapeHtml(p.time_of_day || 'Anytime')}</p>
+          </div>
+        </div>
+
+        ${cautionHtml}
+
+        <!-- Why It Works For Your Skin -->
+        <div class="flex flex-col gap-2">
+          <h4 class="font-bold text-slate-800 dark:text-slate-100 text-sm">🎯 Why It Matches Your Skin Profile</h4>
+          <ul class="flex flex-col gap-1.5 p-3.5 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/40">
+            ${reasonsHtml || '<li class="text-xs text-slate-500">Universal compatibility.</li>'}
+          </ul>
+        </div>
+
+        <!-- Clinical Benefits -->
+        <div class="flex flex-col gap-2">
+          <h4 class="font-bold text-slate-800 dark:text-slate-100 text-sm">✨ Key Dermatological Benefits</h4>
+          <ul class="flex flex-col gap-1.5">
+            ${benefitsHtml}
+          </ul>
+        </div>
+
+        <!-- How to Use -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 flex flex-col gap-1 text-xs">
+          <span class="font-bold text-slate-700 dark:text-slate-200">📖 Usage Instructions:</span>
+          <p class="text-slate-600 dark:text-slate-300 leading-relaxed">${escapeHtml(p.usage_instructions || 'Apply as directed in routine.')}</p>
+        </div>
+
+        <!-- Full INCI Formula -->
+        <div class="flex flex-col gap-1.5">
+          <span class="font-bold text-slate-700 dark:text-slate-200 text-xs">🧪 Full INCI Ingredient Formulation:</span>
+          <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-400 font-mono leading-relaxed max-h-24 overflow-y-auto">
+            ${escapeHtml(p.full_inci || 'INCI list not available.')}
+          </div>
+        </div>
+
+        ${altsHtml}
+      `;
+    }
+
+    toggleProductDetailModal(true);
+  } catch (err) {
+    alert(`Could not load product details: ${err.message}`);
+  }
+}
+
+function updateDetailCompareButtonText() {
+  const btn = document.getElementById('btnToggleCompareDetail');
+  if (!btn || !currentDetailProdObj) return;
+  const isComparing = compareSelectedProducts.some(c => c.id === currentDetailProdObj.id);
+  btn.innerHTML = `<span>⚖️</span> ${isComparing ? 'Remove from Compare' : 'Compare'}`;
+}
+
+// ── Compare Tray & Actions ──
+function toggleCompareProduct(productId) {
+  const prod = productCatalog.find(p => p.id === productId);
+  if (!prod) return;
+  toggleCompareItem(prod);
+}
+
+function toggleCompareItem(prod) {
+  const idx = compareSelectedProducts.findIndex(p => p.id === prod.id);
+  if (idx >= 0) {
+    compareSelectedProducts.splice(idx, 1);
+  } else {
+    if (compareSelectedProducts.length >= 3) {
+      alert('You can compare a maximum of 3 products at a time. Please remove one first.');
+      return;
+    }
+    compareSelectedProducts.push(prod);
+  }
+
+  updateCompareTrayUI();
+  renderProductGrid();
+}
+
+function updateCompareTrayUI() {
+  const count = compareSelectedProducts.length;
+  const trayCount = document.getElementById('compareTrayCount');
+  const traySelectedCount = document.getElementById('traySelectedCount');
+  const floatingTray = document.getElementById('floatingCompareTray');
+  const thumbsContainer = document.getElementById('trayProductThumbnails');
+
+  if (trayCount) trayCount.textContent = count;
+  if (traySelectedCount) traySelectedCount.textContent = count;
+
+  if (floatingTray) {
+    floatingTray.classList.toggle('hidden', count === 0);
+  }
+
+  if (thumbsContainer) {
+    thumbsContainer.innerHTML = compareSelectedProducts.map(p => `
+      <span class="tray-thumb">
+        <span>${escapeHtml(p.name.length > 18 ? p.name.substring(0, 16) + '...' : p.name)}</span>
+        <span class="tray-thumb-remove" onclick="window.toggleCompareProduct('${p.id}')">&times;</span>
+      </span>
+    `).join('');
+  }
+}
+
+function clearCompareTray() {
+  compareSelectedProducts = [];
+  updateCompareTrayUI();
+  renderProductGrid();
+}
+
+function toggleCompareModal(show) {
+  const modal = document.getElementById('productCompareModal');
+  if (modal) modal.classList.toggle('hidden', !show);
+}
+
+async function openCompareModal() {
+  if (compareSelectedProducts.length < 2) {
+    alert('Please select at least 2 products to compare side-by-side (click "⚖️ Compare" on product cards).');
+    return;
+  }
+
+  const token = localStorage.getItem('access_token');
+  const headers = token ? { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` } : { 'Content-Type': 'application/json' };
+
+  try {
+    const bodyEl = document.getElementById('compareModalBody');
+    if (bodyEl) {
+      bodyEl.innerHTML = `
+        <div class="p-12 text-center">
+          <div class="inline-block animate-spin w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full mb-3"></div>
+          <p class="text-sm font-semibold text-slate-600">Running comparative formulation analysis & generating AI verdict...</p>
+        </div>
+      `;
+    }
+
+    toggleCompareModal(true);
+
+    const res = await fetch('/api/products/compare', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        product_ids: compareSelectedProducts.map(p => p.id)
+      })
+    });
+
+    if (!res.ok) throw new Error('Failed to run comparison');
+    const compData = await res.json();
+
+    if (bodyEl) {
+      const items = compData.products || [];
+      const winner = compData.winner || items[0];
+      const verdict = compData.ai_verdict || {};
+
+      // AI Verdict Banner
+      const verdictHtml = `
+        <div class="ai-verdict-card">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🏆</span>
+            <h4 class="font-bold text-emerald-950 dark:text-emerald-100 text-sm md:text-base">${escapeHtml(verdict.title || 'AI Dermatological Verdict')}</h4>
+          </div>
+          <div class="text-xs text-emerald-900 dark:text-emerald-200 leading-relaxed flex flex-col gap-1 mt-1">
+            ${(verdict.paragraphs || [verdict.summary || '']).map(p => `<p>${p}</p>`).join('')}
+          </div>
+        </div>
+      `;
+
+      // Build Comparison Table HTML
+      const tableHeaders = items.map(p => `
+        <th class="${p.id === winner.id ? 'bg-indigo-50/80 dark:bg-indigo-950/40 font-black' : ''}">
+          <div class="flex flex-col gap-1">
+            ${p.id === winner.id ? '<span class="text-[10px] uppercase font-bold text-indigo-600 dark:text-indigo-400">👑 Best Match</span>' : ''}
+            <span class="text-xs font-bold text-slate-800 dark:text-slate-100">${escapeHtml(p.name)}</span>
+            <span class="text-[11px] text-slate-500 font-normal">${escapeHtml(p.brand)}</span>
+          </div>
+        </th>
+      `).join('');
+
+      const suitRows = items.map(p => `
+        <td class="${p.id === winner.id ? 'bg-indigo-50/40 dark:bg-indigo-950/20 font-bold' : ''}">
+          <span class="product-suitability-badge badge-${p.badge_color || 'indigo'} text-xs">
+            ${p.suitability_score}% Match
+          </span>
+        </td>
+      `).join('');
+
+      const priceRows = items.map(p => `
+        <td class="${p.id === winner.id ? 'bg-indigo-50/40 dark:bg-indigo-950/20 font-bold' : ''}">
+          <span class="text-sm font-bold text-slate-900 dark:text-slate-100">${p.price.toFixed(2)}</span>
+          <span class="text-[11px] text-slate-400 block">${escapeHtml(p.volume || '')}</span>
+        </td>
+      `).join('');
+
+      const catRows = items.map(p => `
+        <td class="${p.id === winner.id ? 'bg-indigo-50/40 dark:bg-indigo-950/20' : ''}">
+          ${escapeHtml(p.category_name || '')}
+        </td>
+      `).join('');
+
+      const activesRows = items.map(p => `
+        <td class="${p.id === winner.id ? 'bg-indigo-50/40 dark:bg-indigo-950/20' : ''}">
+          <div class="flex flex-wrap gap-1">
+            ${(p.key_actives || []).map(a => `<span class="active-ing-chip">${escapeHtml(a)}</span>`).join('')}
+          </div>
+        </td>
+      `).join('');
+
+      const concernsRows = items.map(p => `
+        <td class="${p.id === winner.id ? 'bg-indigo-50/40 dark:bg-indigo-950/20' : ''}">
+          <div class="flex flex-wrap gap-1">
+            ${(p.target_concerns || []).map(c => `<span class="px-1.5 py-0.5 rounded text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium">${escapeHtml(c)}</span>`).join('')}
+          </div>
+        </td>
+      `).join('');
+
+      const textureRows = items.map(p => `
+        <td class="${p.id === winner.id ? 'bg-indigo-50/40 dark:bg-indigo-950/20' : ''}">
+          <span class="text-xs text-slate-700 dark:text-slate-300">${escapeHtml(p.texture || 'Standard')} (${escapeHtml(p.finish || '')})</span>
+        </td>
+      `).join('');
+
+      const actionsRows = items.map(p => `
+        <td class="${p.id === winner.id ? 'bg-indigo-50/40 dark:bg-indigo-950/20' : ''}">
+          <button type="button" class="btn-routine-action primary text-xs py-1.5 px-3 w-full justify-center" onclick="window.quickAddProductToRoutine('${p.id}')">
+            <span>➕ Add to Routine</span>
+          </button>
+        </td>
+      `).join('');
+
+      bodyEl.innerHTML = `
+        ${verdictHtml}
+
+        <div class="comparison-table-wrapper">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Product Formula</th>
+                ${tableHeaders}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>Suitability Score</th>
+                ${suitRows}
+              </tr>
+              <tr>
+                <th>Price & Volume</th>
+                ${priceRows}
+              </tr>
+              <tr>
+                <th>Category</th>
+                ${catRows}
+              </tr>
+              <tr>
+                <th>Core Active Ingredients</th>
+                ${activesRows}
+              </tr>
+              <tr>
+                <th>Target Skin Concerns</th>
+                ${concernsRows}
+              </tr>
+              <tr>
+                <th>Texture & Finish</th>
+                ${textureRows}
+              </tr>
+              <tr>
+                <th>Action</th>
+                ${actionsRows}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+  } catch (err) {
+    const bodyEl = document.getElementById('compareModalBody');
+    if (bodyEl) {
+      bodyEl.innerHTML = `
+        <div class="p-8 rounded-xl bg-rose-50 text-rose-700 text-sm">
+          Comparison error: ${escapeHtml(err.message)}
+        </div>
+      `;
+    }
+  }
+}
+
+// ── Budget Routine Optimizer ──
+function toggleBudgetRoutineModal(show) {
+  const modal = document.getElementById('budgetRoutineModal');
+  if (modal) modal.classList.toggle('hidden', !show);
+}
+
+function openBudgetRoutineModal() {
+  toggleBudgetRoutineModal(true);
+  recalculateBudgetRoutine();
+}
+
+async function recalculateBudgetRoutine() {
+  const slider = document.getElementById('budgetRangeSlider');
+  const scopeRadio = document.querySelector('input[name="budgetScope"]:checked');
+  const maxBudget = slider ? parseFloat(slider.value) : 5000.0;
+  const scope = scopeRadio ? scopeRadio.value : 'essential';
+
+  const token = localStorage.getItem('access_token');
+  const headers = token ? { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` } : { 'Content-Type': 'application/json' };
+
+  try {
+    const res = await fetch('/api/products/budget-routine', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        max_budget: maxBudget,
+        routine_scope: scope
+      })
+    });
+
+    if (!res.ok) throw new Error('Budget optimization failed');
+    const data = await res.json();
+    currentBudgetRoutineData = data;
+
+    // Update KPI Displays
+    const totalCostEl = document.getElementById('bTotalCostDisplay');
+    const savingsEl = document.getElementById('bSavingsDisplay');
+    const avgScoreEl = document.getElementById('bAvgScoreDisplay');
+    const stepsCountEl = document.getElementById('bStepsCountDisplay');
+
+    if (totalCostEl) totalCostEl.textContent = `₹${data.total_cost.toFixed(2)}`;
+    if (savingsEl) savingsEl.textContent = `₹${data.savings.toFixed(2)}`;
+    if (avgScoreEl) avgScoreEl.textContent = `${data.average_suitability}%`;
+    if (stepsCountEl) stepsCountEl.textContent = `${data.steps_count} Steps`;
+
+    // Render items
+    const itemsContainer = document.getElementById('budgetRoutineItemsContainer');
+    if (itemsContainer) {
+      const categoryIconMap = { face_wash: '🧼', moisturizer: '🧴', sunscreen: '☀️', serum: '💧', toner: '🌿', treatment_products: '🎯', face_masks: '✨' };
+
+      itemsContainer.innerHTML = (data.routine_products || []).map((p, idx) => `
+        <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-3 shadow-xs">
+          <div class="flex items-center gap-2.5">
+            <span class="text-lg p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800">${categoryIconMap[p.category] || '🧴'}</span>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Step ${idx + 1} • ${escapeHtml(p.category_name)}</span>
+                <span class="px-1.5 py-0.2 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800">${p.suitability_score}% Match</span>
+              </div>
+              <h5 class="text-xs font-bold text-slate-800 dark:text-slate-100">${escapeHtml(p.name)}</h5>
+              <span class="text-[11px] text-slate-400">${escapeHtml(p.brand)}</span>
+            </div>
+          </div>
+          <div class="text-right shrink-0">
+            <span class="text-xs font-bold text-slate-900 dark:text-slate-100">${p.price.toFixed(2)}</span>
+            <span class="text-[10px] text-slate-400 block">${escapeHtml(p.volume || '')}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+  } catch (err) {
+    console.error('Error calculating budget routine:', err);
+  }
+}
+
+async function applyBudgetRoutineSteps() {
+  if (!currentBudgetRoutineData || !currentBudgetRoutineData.routine_products) return;
+  const token = localStorage.getItem('access_token');
+  if (!token) {
+    alert('Please log in to apply this routine.');
+    return;
+  }
+
+  const products = currentBudgetRoutineData.routine_products;
+  let successCount = 0;
+
+  for (const p of products) {
+    try {
+      const timeOfDay = (p.category === 'sunscreen' || p.category === 'face_wash') ? 'morning' : (p.category === 'face_masks' ? 'weekly' : 'morning');
+      const res = await fetch('/api/products/add-to-routine', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ product_id: p.id, time_of_day: timeOfDay })
+      });
+      if (res.ok) successCount++;
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  toggleBudgetRoutineModal(false);
+  alert(`✨ Success! All ${successCount} products from your optimized budget routine have been added to your care plan.`);
+  fetchUserRoutine();
+}
+
+async function quickAddProductToRoutine(productId) {
+  const token = localStorage.getItem('access_token');
+  if (!token) {
+    alert('Please log in to add products to your routine.');
+    return;
+  }
+
+  const prod = productCatalog.find(p => p.id === productId);
+  if (!prod) return;
+
+  const timeOfDay = prod.category === 'sunscreen' ? 'morning' : (prod.category === 'face_masks' ? 'weekly' : 'morning');
+
+  try {
+    const res = await fetch('/api/products/add-to-routine', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ product_id: productId, time_of_day: timeOfDay })
+    });
+    if (!res.ok) throw new Error('Could not add to routine');
+    const data = await res.json();
+    alert(`🎉 ${data.message}`);
+    fetchUserRoutine();
+  } catch (err) {
+    alert(`Failed to add product to routine: ${err.message}`);
+  }
+}
+
+function addProductToRoutineDirect(productId, timeOfDay) {
+  quickAddProductToRoutine(productId);
+}
+
+function analyzeProductInINCIEngine(inciText) {
+  showSection('ingredients');
+  const textarea = document.getElementById('ingredientInputText');
+  if (textarea) {
+    textarea.value = inciText;
+  }
+  // Switch to formula tab
+  const formulaTabBtn = document.querySelector('.ingredient-tab-btn[data-tab="formula"]');
+  if (formulaTabBtn) formulaTabBtn.click();
+  runFormulaAnalysis();
+}
+
+// Global window helpers for inline onclick and cross-component triggers
+window.openProductDetailModal = openProductDetailModal;
+window.toggleCompareProduct = toggleCompareProduct;
+window.quickAddProductToRoutine = quickAddProductToRoutine;
+window.addProductToRoutineDirect = addProductToRoutineDirect;
+window.analyzeProductInINCIEngine = analyzeProductInINCIEngine;
+window.openIngredientEducationModal = openIngredientEducationModal;
+window.renderEducationCategories = renderEducationCategories;
+window.openEditStepModal = openEditStepModal;
+window.deleteRoutineStep = deleteRoutineStep;
+window.regenerateRoutine = regenerateRoutine;
+window.toggleCheckin = toggleCheckin;
+window.toggleProductDetailModal = toggleProductDetailModal;
+window.toggleCompareModal = toggleCompareModal;
+window.toggleBudgetRoutineModal = toggleBudgetRoutineModal;
+window.openCompareModal = openCompareModal;
+window.openBudgetRoutineModal = openBudgetRoutineModal;
+window.clearCompareTray = clearCompareTray;
+window.recalculateBudgetRoutine = recalculateBudgetRoutine;
+window.applyBudgetRoutineSteps = applyBudgetRoutineSteps;
+window.runFormulaAnalysis = runFormulaAnalysis;
+window.runMatrixEvaluation = runMatrixEvaluation;
+window.showSection = showSection;
+window.saveSkinProfile = saveSkinProfile;
+
+
+
+

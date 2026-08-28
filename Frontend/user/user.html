@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>User Dashboard | Skincare Planner</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="user.css?v=9" />
+    <script>
+      tailwind.config = { darkMode: 'class' };
+    </script>
+    <link rel="stylesheet" href="user.css?v=20.0" />
   </head>
   <body class="user-body">
 
@@ -68,6 +71,9 @@
           <a href="#routine" class="nav-item" id="navRoutine" data-section="routine">
             <span>Routine</span>
           </a>
+          <a href="#ingredients" class="nav-item" id="navIngredients" data-section="ingredients">
+            <span>Ingredient Intelligence</span>
+          </a>
           <a href="#recommendations" class="nav-item" id="navRecommendations" data-section="recommendations">
             <span>Products</span>
           </a>
@@ -84,13 +90,13 @@
 
         <div class="sidebar-footer">
           <div class="user-info">
-            <div class="avatar-circle">U</div>
+            <div class="avatar-circle" id="userAvatarInitial">U</div>
             <div class="user-details truncate">
               <span id="sidebarUserName" class="user-name truncate">User</span>
               <span class="user-role">Member</span>
             </div>
           </div>
-          <a href="../index.html" class="sidebar-logout-btn" title="Logout">
+          <a href="../index.html" class="sidebar-logout-btn" id="logoutBtn" title="Logout">
             <span>Logout</span>
           </a>
         </div>
@@ -422,29 +428,158 @@
             </div>
           </section>
 
-          <!-- ── PRODUCTS section ── -->
-          <section id="section-recommendations" class="section panel recommendations-panel">
-            <div class="section-header">
-              <p class="section-label">Product Recommendations</p>
-              <h2 class="panel-heading">Suggested products for you</h2>
+          <!-- ── PRODUCT RECOMMENDATION ENGINE section ── -->
+          <section id="section-recommendations" class="section panel recommendations-panel flex flex-col gap-6">
+            
+            <!-- Section Header & Quick Tools -->
+            <div class="section-header flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
+              <div>
+                <p class="section-label text-xs uppercase tracking-wider font-bold text-indigo-600 dark:text-indigo-400">Feature 6 • AI Clinical Product Engine</p>
+                <h2 class="panel-heading text-2xl font-bold text-slate-800 dark:text-slate-100">Personalized Product Recommendations</h2>
+                <p class="text-sm text-slate-500 mt-1">Multi-factor dermatological matching across all 7 skincare categories with suitability scoring, budget optimization & alternatives.</p>
+              </div>
+              <div class="flex flex-wrap items-center gap-2.5">
+                <button type="button" id="btnOpenBudgetRoutineModal" class="btn-routine-action primary shadow-sm hover:shadow transition flex items-center gap-2">
+                  <span>💰</span> Build Budget Routine
+                </button>
+                <button type="button" id="btnOpenCompareModal" class="btn-routine-action secondary relative flex items-center gap-2">
+                  <span>⚖️</span> Compare (<span id="compareTrayCount">0</span>)
+                </button>
+              </div>
             </div>
-            <div class="product-grid">
-              <article class="product-card">
-                <h3>Hydration Serum</h3>
-                <p>Boost moisture and smooth fine lines with hyaluronic acid.</p>
-                <button class="product-btn">View details</button>
-              </article>
-              <article class="product-card">
-                <h3>Gentle Cleanser</h3>
-                <p>Maintain your skin barrier with a soothing daily cleanser.</p>
-                <button class="product-btn">View details</button>
-              </article>
-              <article class="product-card">
-                <h3>Broad-Spectrum SPF</h3>
-                <p>Protect against UV damage with lightweight daily sunscreen.</p>
-                <button class="product-btn">View details</button>
-              </article>
+
+            <!-- Profile Summary & Synergy Highlights Banner -->
+            <div class="recommendation-profile-banner p-4 rounded-2xl bg-gradient-to-r from-indigo-50 via-sky-50 to-emerald-50 dark:from-slate-800 dark:to-slate-850 border border-indigo-100/80 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="font-bold text-slate-700 dark:text-slate-200">Active Profile:</span>
+                <span id="recProfileSkinType" class="px-2.5 py-1 rounded-full font-semibold bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 border border-indigo-200/60 shadow-xs">Normal Skin</span>
+                <span id="recProfileConcerns" class="px-2.5 py-1 rounded-full font-semibold bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 shadow-xs">General Care</span>
+                <span id="recProfileHealthScore" class="px-2.5 py-1 rounded-full font-semibold bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 border border-emerald-200/60 shadow-xs">Score: 70/100</span>
+                <span id="recProfileSeason" class="px-2.5 py-1 rounded-full font-semibold bg-white dark:bg-slate-900 text-amber-700 dark:text-amber-400 border border-amber-200/60 shadow-xs">☀️ Summer</span>
+              </div>
+              <div class="flex items-center gap-2 text-slate-500">
+                <span class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                  Allergy Guard Active
+                </span>
+              </div>
             </div>
+
+            <!-- Category Navigation Tabs (All 7 Categories) -->
+            <div class="product-category-tabs flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin">
+              <button type="button" class="prod-cat-tab active" data-category="all">
+                <span class="tab-icon">✨</span>
+                <span>All Products</span>
+                <span class="tab-count" id="catCountAll">30</span>
+              </button>
+              <button type="button" class="prod-cat-tab" data-category="face_wash">
+                <span class="tab-icon">🧼</span>
+                <span>Face Wash</span>
+                <span class="tab-count" id="catCountFaceWash">5</span>
+              </button>
+              <button type="button" class="prod-cat-tab" data-category="moisturizer">
+                <span class="tab-icon">🧴</span>
+                <span>Moisturizer</span>
+                <span class="tab-count" id="catCountMoisturizer">4</span>
+              </button>
+              <button type="button" class="prod-cat-tab" data-category="sunscreen">
+                <span class="tab-icon">☀️</span>
+                <span>Sunscreen</span>
+                <span class="tab-count" id="catCountSunscreen">4</span>
+              </button>
+              <button type="button" class="prod-cat-tab" data-category="serum">
+                <span class="tab-icon">💧</span>
+                <span>Serum</span>
+                <span class="tab-count" id="catCountSerum">5</span>
+              </button>
+              <button type="button" class="prod-cat-tab" data-category="toner">
+                <span class="tab-icon">🌿</span>
+                <span>Toner</span>
+                <span class="tab-count" id="catCountToner">4</span>
+              </button>
+              <button type="button" class="prod-cat-tab" data-category="treatment_products">
+                <span class="tab-icon">🎯</span>
+                <span>Treatment Products</span>
+                <span class="tab-count" id="catCountTreatment">4</span>
+              </button>
+              <button type="button" class="prod-cat-tab" data-category="face_masks">
+                <span class="tab-icon">✨</span>
+                <span>Face Masks</span>
+                <span class="tab-count" id="catCountMasks">4</span>
+              </button>
+            </div>
+
+            <!-- Filter & Search Controls Bar -->
+            <div class="product-filters-toolbar bg-slate-50 dark:bg-slate-800/40 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 flex flex-col md:flex-row flex-wrap items-stretch md:items-center justify-between gap-3">
+              
+              <!-- Search Box -->
+              <div class="relative flex-1 min-w-[240px]">
+                <input type="text" id="productSearchInput" class="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition" placeholder="Search by name, brand, active ingredient..." />
+                <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              </div>
+
+              <!-- Budget Tier Buttons -->
+              <div class="flex items-center gap-1.5 p-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl">
+                <button type="button" class="budget-filter-btn active px-3 py-1.5 text-xs font-semibold rounded-lg transition" data-budget="all">All Tiers</button>
+                <button type="button" class="budget-filter-btn px-3 py-1.5 text-xs font-semibold rounded-lg transition" data-budget="budget" title="Under ₹1,200">💚 Budget (₹)</button>
+                <button type="button" class="budget-filter-btn px-3 py-1.5 text-xs font-semibold rounded-lg transition" data-budget="mid_range" title="₹1,200 - ₹2,500">💎 Mid (₹)</button>
+                <button type="button" class="budget-filter-btn px-3 py-1.5 text-xs font-semibold rounded-lg transition" data-budget="luxury" title="₹2,500 - ₹5,000">👑 Luxury (₹₹)</button>
+              </div>
+
+              <!-- Dropdown Filters & Toggles -->
+              <div class="flex flex-wrap items-center gap-2">
+                <!-- Concern Filter Dropdown -->
+                <select id="filterConcernSelect" class="px-3 py-2 rounded-xl text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 outline-none">
+                  <option value="all">All Concerns</option>
+                  <option value="Acne">Acne & Blemishes</option>
+                  <option value="Aging">Aging & Wrinkles</option>
+                  <option value="Hyperpigmentation">Hyperpigmentation</option>
+                  <option value="Redness">Redness & Rosacea</option>
+                  <option value="Dryness">Dryness & Barrier</option>
+                  <option value="Large Pores">Large Pores</option>
+                  <option value="Dullness">Dullness & Glow</option>
+                </select>
+
+                <!-- Allergy-Safe Only Checkbox -->
+                <label class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 cursor-pointer select-none">
+                  <input type="checkbox" id="chkAllergySafeOnly" class="rounded text-indigo-600 focus:ring-indigo-500" />
+                  <span>🛡️ Allergy Safe</span>
+                </label>
+
+                <!-- Sort By Dropdown -->
+                <select id="sortProductsSelect" class="px-3 py-2 rounded-xl text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 outline-none">
+                  <option value="suitability_desc">🌟 Highest Match %</option>
+                  <option value="price_asc">💵 Price: Low to High</option>
+                  <option value="price_desc">💎 Price: High to Low</option>
+                  <option value="rating_desc">⭐ Top Rated</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Dynamic Product Grid Container -->
+            <div id="productsGrid" class="product-recommendation-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div class="col-span-full p-12 text-center bg-slate-50 dark:bg-slate-800/30 rounded-2xl border border-slate-200 dark:border-slate-700">
+                <div class="inline-block animate-spin w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full mb-3"></div>
+                <p class="text-sm font-semibold text-slate-600 dark:text-slate-300">Calculating clinical suitability scores for your profile...</p>
+              </div>
+            </div>
+
+            <!-- Floating Comparison Tray (Sticky Bottom Drawer) -->
+            <div id="floatingCompareTray" class="floating-compare-tray hidden">
+              <div class="compare-tray-content">
+                <div class="flex items-center gap-3">
+                  <span class="font-bold text-sm text-slate-800 dark:text-slate-100">Comparing (<span id="traySelectedCount">0</span>/3):</span>
+                  <div id="trayProductThumbnails" class="flex items-center gap-2"></div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button type="button" id="btnClearCompareTray" class="px-3 py-1.5 text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">Clear</button>
+                  <button type="button" id="btnLaunchCompareModal" class="btn-routine-action primary text-xs py-2 px-4 shadow-sm">
+                    <span>⚖️</span> Compare Side-by-Side
+                  </button>
+                </div>
+              </div>
+            </div>
+
           </section>
 
           <!-- ── PROGRESS section ── -->
@@ -543,6 +678,373 @@
               </div>
             </div>
           </section>
+
+          <!-- ── INGREDIENT INTELLIGENCE MODULE section ── -->
+          <section id="section-ingredients" class="section panel ingredients-panel flex flex-col gap-6">
+            
+            <!-- Section Header -->
+            <div class="section-header flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-5">
+              <div>
+                <p class="section-label text-xs uppercase tracking-wider font-bold text-indigo-600">Feature 5 • Biochemical & Safety Engine</p>
+                <h2 class="panel-heading text-2xl font-bold text-slate-800">Ingredient Intelligence Module</h2>
+                <p class="text-sm text-slate-500 mt-1">Deep INCI formula analysis, skin suitability assessment, biochemical conflict detection & active ingredient education.</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                  <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
+                  Rule-Based INCI Graph
+                </span>
+              </div>
+            </div>
+
+            <!-- Sub-Tabs Navigation -->
+            <div class="ingredient-subtabs flex flex-wrap gap-2 p-1.5 bg-slate-100 dark:bg-slate-800 rounded-xl">
+              <button type="button" class="ingredient-tab-btn active flex-1 min-w-[140px] py-2.5 px-4 text-xs md:text-sm font-semibold rounded-lg transition-all" data-tab="formula">
+                🔬 Formula Analyzer
+              </button>
+              <button type="button" class="ingredient-tab-btn flex-1 min-w-[140px] py-2.5 px-4 text-xs md:text-sm font-semibold rounded-lg transition-all" data-tab="matrix">
+                ⚡ Interaction Matrix
+              </button>
+              <button type="button" class="ingredient-tab-btn flex-1 min-w-[140px] py-2.5 px-4 text-xs md:text-sm font-semibold rounded-lg transition-all" data-tab="education">
+                📚 8 Core Pillars & Education
+              </button>
+            </div>
+
+            <!-- ── TAB 1: PRODUCT FORMULA ANALYZER ── -->
+            <div id="tabContentFormula" class="ingredient-tab-content active flex flex-col gap-6">
+              
+              <!-- Quick Samples / Preset Formulations -->
+              <div class="bg-slate-50 dark:bg-slate-800/40 p-4 rounded-xl border border-slate-200 dark:border-slate-700/60 flex flex-col gap-2.5">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Quick Test Formulations</span>
+                  <span class="text-xs text-slate-400">Click to auto-fill formula</span>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                  <button type="button" class="preset-formula-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-indigo-400 transition" data-preset="brightening">
+                    ✨ Vitamin C + Niacinamide Glow
+                  </button>
+                  <button type="button" class="preset-formula-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-indigo-400 transition" data-preset="antiaging">
+                    🧬 Retinol + Ceramides + Peptides
+                  </button>
+                  <button type="button" class="preset-formula-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-indigo-400 transition" data-preset="acne">
+                    🌿 Salicylic Acid 2% BHA Clearing
+                  </button>
+                  <button type="button" class="preset-formula-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-indigo-400 transition" data-preset="barrier">
+                    🧱 Multi-Ceramide Barrier Shield
+                  </button>
+                  <button type="button" class="preset-formula-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-300 border border-rose-200 dark:border-rose-800 hover:border-rose-400 transition" data-preset="clash">
+                    ⚠️ High Conflict Test (Retinol + AHA + Fragrance)
+                  </button>
+                </div>
+              </div>
+
+              <!-- Input Area -->
+              <div class="flex flex-col gap-2">
+                <label for="ingredientInputText" class="text-sm font-semibold text-slate-700 dark:text-slate-200 flex items-center justify-between">
+                  <span>Paste Product INCI Ingredient List</span>
+                  <span class="text-xs text-slate-400 font-normal">Supports comma, semicolon, or line-separated list</span>
+                </label>
+                <textarea id="ingredientInputText" rows="4" class="w-full p-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition" placeholder="e.g. Water, Niacinamide, Salicylic Acid, Glycerin, Sodium Hyaluronate, Ceramide NP, Tocopherol, Parfum..."></textarea>
+                <div class="flex items-center justify-between pt-1">
+                  <span id="ingredientTokenCountBadge" class="text-xs text-slate-500">0 ingredients recognized in draft</span>
+                  <div class="flex gap-2">
+                    <button type="button" id="btnClearIngredients" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
+                      Clear
+                    </button>
+                    <button type="button" id="btnAnalyzeIngredients" class="px-5 py-2 rounded-xl text-xs md:text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm hover:shadow transition flex items-center gap-1.5">
+                      <span>Analyze Ingredients & Compatibility</span>
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Loading & Error States -->
+              <div id="ingredientLoadingState" class="hidden p-8 text-center bg-slate-50 rounded-2xl border border-slate-200">
+                <div class="inline-block animate-spin w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full mb-3"></div>
+                <p class="text-sm font-semibold text-slate-700">Tokenizing INCI formula & running biochemical conflict graph...</p>
+              </div>
+
+              <div id="ingredientErrorState" class="hidden p-4 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 text-sm">
+                <span id="ingredientErrorMsg">An error occurred during analysis.</span>
+              </div>
+
+              <!-- Full Analysis Output Container -->
+              <div id="ingredientResultsContainer" class="hidden flex flex-col gap-6">
+                
+                <!-- Top 4 Metrics Summary Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  
+                  <!-- Metric 1: Suitability Score Gauge -->
+                  <div class="metric-card p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col items-center text-center justify-between shadow-sm">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Skin Profile Match</span>
+                    <div class="relative my-3 flex items-center justify-center">
+                      <div id="suitabilityGaugeRing" class="w-20 h-20 rounded-full border-4 border-indigo-500 flex items-center justify-center">
+                        <span id="suitabilityScoreNum" class="text-2xl font-black text-indigo-600 dark:text-indigo-400">0%</span>
+                      </div>
+                    </div>
+                    <span id="suitabilityRatingBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-800">
+                      Calculating...
+                    </span>
+                  </div>
+
+                  <!-- Metric 2: Allergy & Safety Scan -->
+                  <div class="metric-card p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col justify-between shadow-sm">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Allergy & Irritants</span>
+                    <div class="my-2 flex flex-col gap-1">
+                      <div id="allergyStatusIconBox" class="flex items-center gap-2">
+                        <span class="text-2xl">🛡️</span>
+                        <span id="allergyStatusTitle" class="font-bold text-sm text-slate-800 dark:text-slate-100">Allergy Safe</span>
+                      </div>
+                      <p id="allergyStatusDesc" class="text-xs text-slate-500 mt-1 line-clamp-3">No conflicting allergens detected.</p>
+                    </div>
+                    <span id="allergyAlertCountBadge" class="self-start text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                      0 Alerts
+                    </span>
+                  </div>
+
+                  <!-- Metric 3: Comedogenic Rating -->
+                  <div class="metric-card p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col justify-between shadow-sm">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Pore Clogging (Comedogenicity)</span>
+                    <div class="my-2">
+                      <div class="flex items-baseline gap-1">
+                        <span id="comedogenicScoreNum" class="text-3xl font-black text-slate-800 dark:text-slate-100">0</span>
+                        <span class="text-xs text-slate-400 font-semibold">/ 5 Max</span>
+                      </div>
+                      <p id="comedogenicRiskLabel" class="text-xs font-medium text-emerald-600 dark:text-emerald-400 mt-1">Non-Comedogenic</p>
+                    </div>
+                    <span class="text-[11px] text-slate-400">Evaluated across all emollients</span>
+                  </div>
+
+                  <!-- Metric 4: Core Actives Identified -->
+                  <div class="metric-card p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col justify-between shadow-sm">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Identified Actives</span>
+                    <div class="my-2">
+                      <div class="flex items-baseline gap-1">
+                        <span id="identifiedActivesNum" class="text-3xl font-black text-slate-800 dark:text-slate-100">0</span>
+                        <span id="totalIngredientsNum" class="text-xs text-slate-400 font-semibold">of 0 items</span>
+                      </div>
+                      <p id="activeCategoriesDetectedCount" class="text-xs font-medium text-indigo-600 dark:text-indigo-400 mt-1">0 Core Pillars Detected</p>
+                    </div>
+                    <span id="formulaIrritationBadge" class="self-start text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                      Gentle / Low Irritation
+                    </span>
+                  </div>
+
+                </div>
+
+                <!-- Suitability Analysis Breakdown (Pros & Cautions) -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  
+                  <!-- Left: Suitability Pros & Matched Goals -->
+                  <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-4">
+                    <div class="flex items-center gap-2">
+                      <span class="text-emerald-500 text-lg">✅</span>
+                      <h3 class="font-bold text-base text-slate-800 dark:text-slate-100">Suitability For Your Skin</h3>
+                    </div>
+                    <p id="suitabilitySummarySentence" class="text-xs md:text-sm text-slate-600 dark:text-slate-300 italic bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
+                      Summary loading...
+                    </p>
+                    <div class="flex flex-col gap-2">
+                      <span class="text-xs font-bold uppercase text-slate-400 tracking-wider">Matched Benefits & Profile Fit</span>
+                      <ul id="suitabilityProsList" class="flex flex-col gap-2 text-xs md:text-sm text-slate-700 dark:text-slate-300">
+                        <!-- Pros dynamically injected -->
+                      </ul>
+                    </div>
+                  </div>
+
+                  <!-- Right: Safety Cautions & Allergy Alerts -->
+                  <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-4">
+                    <div class="flex items-center gap-2">
+                      <span class="text-amber-500 text-lg">⚠️</span>
+                      <h3 class="font-bold text-base text-slate-800 dark:text-slate-100">Cautions & Allergy Flags</h3>
+                    </div>
+                    <div id="allergyAlertsContainer" class="flex flex-col gap-2.5">
+                      <!-- Allergy warnings dynamically injected -->
+                    </div>
+                    <div class="flex flex-col gap-2 mt-2">
+                      <span class="text-xs font-bold uppercase text-slate-400 tracking-wider">Usage & Sensitization Cautions</span>
+                      <ul id="suitabilityCautionsList" class="flex flex-col gap-2 text-xs md:text-sm text-slate-700 dark:text-slate-300">
+                        <!-- Cautions dynamically injected -->
+                      </ul>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- Biochemical Interactions & Routine Placement Box -->
+                <div class="p-6 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-800/60 shadow-sm flex flex-col gap-4">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                      <span class="text-2xl">⚡</span>
+                      <div>
+                        <h3 class="font-bold text-base text-indigo-950 dark:text-indigo-200">Biochemical Interactions & Routine Placement</h3>
+                        <p class="text-xs text-indigo-700 dark:text-indigo-300">Analyzes active synergy vs. chemical conflict in this formulation</p>
+                      </div>
+                    </div>
+                    <span id="interactionBadgeStatus" class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-800">
+                      Analysis Complete
+                    </span>
+                  </div>
+
+                  <!-- Conflicts List -->
+                  <div id="formulaConflictsBox" class="flex flex-col gap-3">
+                    <!-- Conflicts dynamically injected -->
+                  </div>
+
+                  <!-- Synergies List -->
+                  <div id="formulaSynergiesBox" class="flex flex-col gap-3">
+                    <!-- Synergies dynamically injected -->
+                  </div>
+
+                  <!-- Routine Advice -->
+                  <div id="formulaRoutineAdviceBox" class="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-indigo-100 dark:border-indigo-900 flex items-center gap-3 text-xs md:text-sm text-indigo-900 dark:text-indigo-200">
+                    <span class="text-lg">💡</span>
+                    <span id="formulaRoutineAdviceText">Apply consistently according to recommended frequency.</span>
+                  </div>
+                </div>
+
+                <!-- Detected Core Categories Breakdown -->
+                <div class="flex flex-col gap-3">
+                  <div class="flex items-center justify-between">
+                    <h3 class="font-bold text-sm uppercase tracking-wider text-slate-500">Detected Active Categories (8 Core Pillars)</h3>
+                    <span class="text-xs text-slate-400">Click any category for science dossier</span>
+                  </div>
+                  <div id="detectedCategoriesGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                    <!-- Category pills dynamically injected -->
+                  </div>
+                </div>
+
+                <!-- Full INCI Ingredient Table / Roster -->
+                <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-4">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <h3 class="font-bold text-base text-slate-800 dark:text-slate-100">Complete INCI Ingredient Roster</h3>
+                      <p class="text-xs text-slate-400">Individual functional classification and safety parameters</p>
+                    </div>
+                    <span id="inciTableCountBadge" class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700">0 items</span>
+                  </div>
+
+                  <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs md:text-sm border-collapse">
+                      <thead>
+                        <tr class="border-b border-slate-200 dark:border-slate-800 text-slate-400 uppercase text-[11px]">
+                          <th class="py-2.5 px-3">Ingredient</th>
+                          <th class="py-2.5 px-3">Category</th>
+                          <th class="py-2.5 px-3">Primary Function</th>
+                          <th class="py-2.5 px-3">Comedogenic</th>
+                          <th class="py-2.5 px-3">Irritation</th>
+                        </tr>
+                      </thead>
+                      <tbody id="inciTableBody" class="divide-y divide-slate-100 dark:divide-slate-800/60 text-slate-700 dark:text-slate-200">
+                        <!-- INCI Rows injected -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+            <!-- ── TAB 2: ACTIVE INTERACTION & CONFLICT MATRIX ── -->
+            <div id="tabContentMatrix" class="ingredient-tab-content flex flex-col gap-6">
+              
+              <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-4">
+                <div>
+                  <h3 class="font-bold text-base text-slate-800 dark:text-slate-100">Select 2 or More Actives to Check Compatibility</h3>
+                  <p class="text-xs text-slate-500 mt-0.5">Test pairwise layering safety, chemical collisions, and synergistic boosts between active skincare pillars.</p>
+                </div>
+
+                <!-- Interactive Multi-Select Active Chips -->
+                <div id="matrixActiveChipsContainer" class="flex flex-wrap gap-2.5 pt-2">
+                  <label class="matrix-chip cursor-pointer select-none px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:border-indigo-400 transition flex items-center gap-2">
+                    <input type="checkbox" value="retinoids" class="matrix-checkbox hidden" />
+                    <span>🧬 Retinoids (Retinol)</span>
+                  </label>
+                  <label class="matrix-chip cursor-pointer select-none px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:border-indigo-400 transition flex items-center gap-2">
+                    <input type="checkbox" value="niacinamide" class="matrix-checkbox hidden" />
+                    <span>🛡️ Niacinamide (B3)</span>
+                  </label>
+                  <label class="matrix-chip cursor-pointer select-none px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:border-indigo-400 transition flex items-center gap-2">
+                    <input type="checkbox" value="ascorbic_acid" class="matrix-checkbox hidden" />
+                    <span>🍊 Pure Vitamin C (L-Ascorbic)</span>
+                  </label>
+                  <label class="matrix-chip cursor-pointer select-none px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:border-indigo-400 transition flex items-center gap-2">
+                    <input type="checkbox" value="hyaluronic_acid" class="matrix-checkbox hidden" />
+                    <span>💧 Hyaluronic Acid</span>
+                  </label>
+                  <label class="matrix-chip cursor-pointer select-none px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:border-indigo-400 transition flex items-center gap-2">
+                    <input type="checkbox" value="salicylic_acid" class="matrix-checkbox hidden" />
+                    <span>🌿 Salicylic Acid (BHA)</span>
+                  </label>
+                  <label class="matrix-chip cursor-pointer select-none px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:border-indigo-400 transition flex items-center gap-2">
+                    <input type="checkbox" value="ceramides" class="matrix-checkbox hidden" />
+                    <span>🧱 Ceramides</span>
+                  </label>
+                  <label class="matrix-chip cursor-pointer select-none px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:border-indigo-400 transition flex items-center gap-2">
+                    <input type="checkbox" value="peptides" class="matrix-checkbox hidden" />
+                    <span>🔗 Peptides (Matrixyl)</span>
+                  </label>
+                  <label class="matrix-chip cursor-pointer select-none px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:border-indigo-400 transition flex items-center gap-2">
+                    <input type="checkbox" value="glycolic_acid" class="matrix-checkbox hidden" />
+                    <span>✨ Glycolic Acid (AHA)</span>
+                  </label>
+                  <label class="matrix-chip cursor-pointer select-none px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:border-indigo-400 transition flex items-center gap-2">
+                    <input type="checkbox" value="copper_peptides" class="matrix-checkbox hidden" />
+                    <span>🧪 Copper Peptides (GHK-Cu)</span>
+                  </label>
+                  <label class="matrix-chip cursor-pointer select-none px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:border-indigo-400 transition flex items-center gap-2">
+                    <input type="checkbox" value="benzoyl_peroxide" class="matrix-checkbox hidden" />
+                    <span>🎯 Benzoyl Peroxide</span>
+                  </label>
+                  <label class="matrix-chip cursor-pointer select-none px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:border-indigo-400 transition flex items-center gap-2">
+                    <input type="checkbox" value="ferulic_acid" class="matrix-checkbox hidden" />
+                    <span>🍃 Ferulic Acid</span>
+                  </label>
+                </div>
+
+                <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
+                  <span id="matrixSelectedCountText" class="text-xs text-slate-500">0 actives selected (select at least 2)</span>
+                  <div class="flex gap-2">
+                    <button type="button" id="btnResetMatrixSelection" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
+                      Reset
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Matrix Compatibility Report Box -->
+              <div id="matrixReportBox" class="flex flex-col gap-4">
+                <div class="p-8 text-center bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700">
+                  <span class="text-3xl">🧪</span>
+                  <p class="text-sm font-semibold text-slate-700 dark:text-slate-200 mt-2">Select 2 or more ingredients above to calculate biochemical compatibility.</p>
+                  <p class="text-xs text-slate-400 mt-1">Try testing Retinoids + Glycolic Acid or Vitamin C + Ferulic Acid.</p>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- ── TAB 3: 8 CORE PILLARS & INGREDIENT EDUCATION HUB ── -->
+            <div id="tabContentEducation" class="ingredient-tab-content flex flex-col gap-6">
+              
+              <!-- Search & Filter Bar -->
+              <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div class="relative w-full sm:w-96">
+                  <input type="text" id="eduSearchInput" placeholder="Search Retinoids, Vitamin C, Salicylic..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" />
+                  <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </div>
+                <span class="text-xs font-semibold text-slate-500 shrink-0">8 Gold Standard Categories</span>
+              </div>
+
+              <!-- 8 Category Cards Grid -->
+              <div id="educationCategoriesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                <!-- 8 Cards dynamically rendered -->
+              </div>
+
+            </div>
+
+          </section>
         </main>
       </div>
     </div>
@@ -612,6 +1114,195 @@
       </div>
     </div>
 
-    <script src="user.js?v=12"></script>
+    <!-- Ingredient Education Detail Modal -->
+    <div id="ingredientDetailModal" class="routine-modal hidden">
+      <div class="routine-modal-backdrop" id="ingredientModalBackdrop"></div>
+      <div class="routine-modal-content !max-w-2xl max-h-[85vh] overflow-y-auto">
+        <div class="routine-modal-header sticky top-0 z-10 bg-white dark:bg-slate-900">
+          <div class="flex items-center gap-2">
+            <span id="eduModalIcon" class="text-2xl">🧬</span>
+            <div>
+              <h3 id="eduModalTitle" class="text-lg font-bold text-slate-800 dark:text-slate-100">Category Dossier</h3>
+              <p id="eduModalTagline" class="text-xs text-indigo-600 dark:text-indigo-400">Pillar overview</p>
+            </div>
+          </div>
+          <button id="btnCloseIngredientModal" class="modal-close-btn">&times;</button>
+        </div>
+        <div id="eduModalBody" class="p-6 flex flex-col gap-5 text-sm">
+          <!-- Dynamically populated dossier -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 1. PRODUCT DETAIL & CLINICAL SUITABILITY MODAL ── -->
+    <div id="productDetailModal" class="routine-modal hidden">
+      <div class="routine-modal-backdrop" id="productDetailModalBackdrop"></div>
+      <div class="routine-modal-content !max-w-3xl max-h-[90vh] overflow-y-auto">
+        <div class="routine-modal-header sticky top-0 z-10 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+          <div class="flex items-center gap-3">
+            <span id="pDetailCategoryIcon" class="text-2xl p-2 rounded-xl bg-indigo-50 dark:bg-slate-800">🧴</span>
+            <div>
+              <span id="pDetailCategoryName" class="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Moisturizer</span>
+              <h3 id="pDetailName" class="text-lg font-bold text-slate-800 dark:text-slate-100">Product Name</h3>
+              <p id="pDetailBrand" class="text-xs text-slate-500 font-medium">Brand Name • ₹0.00</p>
+            </div>
+          </div>
+          <button type="button" id="btnCloseProductDetailModal" class="modal-close-btn">&times;</button>
+        </div>
+
+        <div id="pDetailModalBody" class="p-6 flex flex-col gap-6 text-sm">
+          <!-- Dynamic Content Rendered in user.js -->
+        </div>
+
+        <div class="routine-modal-footer sticky bottom-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+          <button type="button" id="btnAnalyzeProductInINCI" class="secondary-btn flex items-center gap-1.5 text-xs py-2 px-3">
+            <span>🔬</span> Analyze INCI in Module
+          </button>
+          <div class="flex items-center gap-2">
+            <button type="button" id="btnToggleCompareDetail" class="secondary-btn text-xs py-2 px-3">
+              <span>⚖️</span> Compare
+            </button>
+            <button type="button" id="btnAddDetailProductToRoutine" class="primary-btn text-xs py-2 px-4">
+              <span>➕</span> Add to My Routine
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 2. SIDE-BY-SIDE PRODUCT COMPARISON MODAL ── -->
+    <div id="productCompareModal" class="routine-modal hidden">
+      <div class="routine-modal-backdrop" id="productCompareModalBackdrop"></div>
+      <div class="routine-modal-content !max-w-5xl max-h-[90vh] overflow-y-auto">
+        <div class="routine-modal-header sticky top-0 z-10 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+          <div class="flex items-center gap-2.5">
+            <span class="text-2xl">⚖️</span>
+            <div>
+              <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100">Side-by-Side Product Comparison</h3>
+              <p class="text-xs text-slate-500">Multi-metric dermatological analysis & automated AI verdict</p>
+            </div>
+          </div>
+          <button type="button" id="btnCloseCompareModal" class="modal-close-btn">&times;</button>
+        </div>
+
+        <div id="compareModalBody" class="p-6 flex flex-col gap-6 text-sm">
+          <!-- Dynamic Comparison Table & AI Verdict Rendered in user.js -->
+        </div>
+
+        <div class="routine-modal-footer bg-slate-50 dark:bg-slate-900/80 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+          <button type="button" id="btnClearCompareFromModal" class="secondary-btn text-xs">Reset Selected</button>
+          <button type="button" id="btnCloseCompareModalBtn" class="primary-btn text-xs">Done</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 3. INTERACTIVE BUDGET ROUTINE BUILDER MODAL ── -->
+    <div id="budgetRoutineModal" class="routine-modal hidden">
+      <div class="routine-modal-backdrop" id="budgetRoutineModalBackdrop"></div>
+      <div class="routine-modal-content !max-w-3xl max-h-[90vh] overflow-y-auto">
+        <div class="routine-modal-header sticky top-0 z-10 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+          <div class="flex items-center gap-2.5">
+            <span class="text-2xl">💰</span>
+            <div>
+              <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100">Build My Budget Skincare Routine</h3>
+              <p class="text-xs text-slate-500">Knapsack optimization: maximize clinical suitability within your price ceiling</p>
+            </div>
+          </div>
+          <button type="button" id="btnCloseBudgetRoutineModal" class="modal-close-btn">&times;</button>
+        </div>
+
+        <div class="p-6 flex flex-col gap-6 text-sm">
+          
+          <!-- Controls: Routine Scope & Target Budget Slider -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700">
+            
+            <!-- Scope Selector -->
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-bold uppercase tracking-wider text-slate-500">1. Select Routine Scope</label>
+              <div class="flex flex-col gap-1.5">
+                <label class="flex items-center gap-2 text-xs font-medium cursor-pointer p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-indigo-400">
+                  <input type="radio" name="budgetScope" value="essential" checked class="text-indigo-600" />
+                  <span>🧼 3-Step Essential (Wash + Cream + SPF)</span>
+                </label>
+                <label class="flex items-center gap-2 text-xs font-medium cursor-pointer p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-indigo-400">
+                  <input type="radio" name="budgetScope" value="balanced" class="text-indigo-600" />
+                  <span>💧 5-Step Balanced (+ Toner + Serum)</span>
+                </label>
+                <label class="flex items-center gap-2 text-xs font-medium cursor-pointer p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-indigo-400">
+                  <input type="radio" name="budgetScope" value="complete" class="text-indigo-600" />
+                  <span>✨ 7-Step Complete (All 7 Categories)</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Budget Slider -->
+            <div class="flex flex-col justify-between gap-2">
+              <div class="flex flex-col gap-1">
+                <label class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center justify-between">
+                  <span>2. Maximum Budget Target</span>
+                  <span id="budgetSliderDisplay" class="text-lg font-black text-indigo-600 dark:text-indigo-400">₹5,000.00</span>
+                </label>
+                <input type="range" id="budgetRangeSlider" min="2500" max="35000" step="500" value="5000" class="w-full accent-indigo-600 cursor-pointer" />
+                <div class="flex justify-between text-[10px] text-slate-400">
+                  <span>₹2,500 (Budget)</span>
+                  <span>₹15,000 (Balanced)</span>
+                  <span>₹35,000 (Luxury)</span>
+                </div>
+              </div>
+
+              <!-- Quick Presets -->
+              <div class="flex items-center gap-1.5 pt-2">
+                <span class="text-[11px] text-slate-400">Presets:</span>
+                <button type="button" class="budget-preset-chip px-2 py-1 rounded-md text-[11px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 font-semibold text-slate-600 dark:text-slate-300" data-preset="3000">₹3,000</button>
+                <button type="button" class="budget-preset-chip px-2 py-1 rounded-md text-[11px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 font-semibold text-slate-600 dark:text-slate-300" data-preset="6000">₹6,000</button>
+                <button type="button" class="budget-preset-chip px-2 py-1 rounded-md text-[11px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 font-semibold text-slate-600 dark:text-slate-300" data-preset="12000">₹12,000</button>
+                <button type="button" class="budget-preset-chip px-2 py-1 rounded-md text-[11px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 font-semibold text-slate-600 dark:text-slate-300" data-preset="25000">₹25,000</button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Optimization Metrics Summary Cards -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="p-3.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/60 text-center">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-500">Total Routine Cost</span>
+              <p id="bTotalCostDisplay" class="text-xl font-black text-indigo-700 dark:text-indigo-300 mt-0.5">₹0.00</p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/60 text-center">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-500">Savings from Budget</span>
+              <p id="bSavingsDisplay" class="text-xl font-black text-emerald-700 dark:text-emerald-300 mt-0.5">₹0.00</p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-sky-50 dark:bg-sky-950/30 border border-sky-100 dark:border-sky-900/60 text-center">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-sky-500">Avg Suitability</span>
+              <p id="bAvgScoreDisplay" class="text-xl font-black text-sky-700 dark:text-sky-300 mt-0.5">0%</p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900/60 text-center">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-amber-500">Included Steps</span>
+              <p id="bStepsCountDisplay" class="text-xl font-black text-amber-700 dark:text-amber-300 mt-0.5">3 Steps</p>
+            </div>
+          </div>
+
+          <!-- Optimized Routine Step-by-Step List -->
+          <div class="flex flex-col gap-2">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500">Optimized Product Combination</h4>
+            <div id="budgetRoutineItemsContainer" class="flex flex-col gap-2.5">
+              <!-- Dynamically populated in user.js -->
+            </div>
+          </div>
+
+        </div>
+
+        <div class="routine-modal-footer sticky bottom-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+          <button type="button" id="btnCancelBudgetRoutine" class="secondary-btn text-xs py-2 px-3">Close</button>
+          <button type="button" id="btnApplyBudgetRoutine" class="primary-btn text-xs py-2 px-5 font-bold shadow-sm">
+            <span>🌟</span> Apply All Steps to My Routine
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="user.js?v=20.0"></script>
   </body>
 </html>
+
+

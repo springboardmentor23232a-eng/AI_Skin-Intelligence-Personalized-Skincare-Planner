@@ -1,5 +1,5 @@
 import os
-from typing import Generator
+from typing import Generator, Optional
 from urllib.parse import quote_plus
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
@@ -7,13 +7,18 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 
 load_dotenv()
 
-user = os.getenv("DB_USER", "postgres")
-raw_password = os.getenv("DB_PASSWORD", "postgres")
+def _clean(val: Optional[str], default: str = "") -> str:
+    if val is None:
+        return default
+    return val.strip("'\" \t\r\n")
+
+user = _clean(os.getenv("DB_USER"), "postgres")
+raw_password = _clean(os.getenv("DB_PASSWORD"), "postgres")
 encoded_password = quote_plus(raw_password) if raw_password else ""
 
-host = os.getenv("DB_HOST", "localhost")
-port = os.getenv("DB_PORT", "5432")
-dbname = os.getenv("DB_NAME", "skin")
+host = _clean(os.getenv("DB_HOST"), "localhost")
+port = _clean(os.getenv("DB_PORT"), "5432")
+dbname = _clean(os.getenv("DB_NAME"), "skin")
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
