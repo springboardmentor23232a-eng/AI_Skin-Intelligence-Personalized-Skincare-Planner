@@ -177,3 +177,25 @@ class Ingredient(Base):
     irritation_level = Column(String(50), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+
+
+class Product(Base):
+    __tablename__ = "products"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(150), unique=True, index=True, nullable=False)
+    brand = Column(String(100), nullable=False)
+    category = Column(String(50), nullable=False) # Face Wash, Moisturizer, Sunscreen, Serum, Toner, Treatment Products, Face Masks
+    description = Column(String(500), nullable=False)
+    price = Column(Integer, nullable=False) # In INR
+    ingredients = Column(JSON, nullable=False) # List of ingredient names (strings)
+    suitable_skin_types = Column(JSON, nullable=False) # List of skin types
+    suitable_concerns = Column(JSON, nullable=False) # List of concerns
+    benefits = Column(JSON, nullable=False) # List of benefits
+    usage_guidance = Column(String(500), nullable=False)
+    precautions = Column(String(500), nullable=False)
+    irritation_level = Column(String(50), nullable=False) # Low, Medium, High
+    rating = Column(Float, default=4.5, nullable=False)
+    is_active = Column(Boolean, default=True, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)

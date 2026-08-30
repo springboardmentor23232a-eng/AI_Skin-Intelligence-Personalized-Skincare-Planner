@@ -216,3 +216,56 @@ class ProfileContextResponse(BaseModel):
     has_allergies: Optional[str] = None
     has_allergic_reaction: Optional[str] = None
 
+
+# --- Module 6: Product Recommendation Schemas ---
+
+class ProductResponse(BaseModel):
+    id: int
+    name: str
+    brand: str
+    category: str
+    description: str
+    price: int
+    ingredients: List[str]
+    suitable_skin_types: List[str]
+    suitable_concerns: List[str]
+    benefits: List[str]
+    usage_guidance: str
+    precautions: str
+    irritation_level: str
+    rating: float
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class ProductRecommendationResponse(BaseModel):
+    product: ProductResponse
+    suitability_score: int
+    match_reason: str
+    is_allergy_excluded: bool = False
+
+class ProductSuitabilityResponse(BaseModel):
+    product_id: int
+    product_name: str
+    suitability_score: int
+    match_reason: str
+    is_allergy_excluded: bool
+    warnings: List[str]
+    usage_guidance: str
+
+class ProductComparisonRequest(BaseModel):
+    product_ids: List[int]
+
+class ProductComparisonItem(BaseModel):
+    product: ProductResponse
+    suitability_score: int
+    match_reason: str
+    is_more_suitable: bool
+
+class ProductComparisonResponse(BaseModel):
+    comparison_results: List[ProductComparisonItem]
+    verdict: str
+
