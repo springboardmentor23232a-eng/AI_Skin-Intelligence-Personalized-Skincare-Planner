@@ -17,4 +17,7 @@ class Product(Base):
     reviews_count = Column(Integer, default=120)
     image_url = Column(Text, nullable=True)
     buy_url = Column(Text, nullable=True)
+    nykaa_url = Column(Text, nullable=True)
+    amazon_url = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+

@@ -123,14 +123,14 @@ CREATE TABLE IF NOT EXISTS ingredient_conflicts (
 );
 
 -- ====================================================
--- MODULE 6: PRODUCT RECOMMENDATION ENGINE SCHEMA
+-- PRODUCT RECOMMENDATION & COMPARISON ENGINE SCHEMA
 -- ====================================================
 
 CREATE TABLE IF NOT EXISTS products (
     id SERIAL PRIMARY KEY,
     brand VARCHAR(100) NOT NULL,
     name VARCHAR(150) NOT NULL,
-    category VARCHAR(50) NOT NULL, -- Cleanser, Serum, Moisturizer, Sunscreen, Exfoliant, Mask
+    category VARCHAR(50) NOT NULL, -- Facewash, Facemask, Serum, Moisturizer, Sunscreen, Exfoliant
     active_ingredients TEXT NOT NULL,
     target_skin_types VARCHAR(150) NOT NULL,
     target_concerns VARCHAR(255) NOT NULL,
@@ -139,8 +139,11 @@ CREATE TABLE IF NOT EXISTS products (
     reviews_count INT DEFAULT 120,
     image_url TEXT,
     buy_url TEXT,
+    nykaa_url TEXT,
+    amazon_url TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
 
 -- ====================================================
 -- MODULE 7: PROGRESS TRACKING & ANALYTICS SCHEMA

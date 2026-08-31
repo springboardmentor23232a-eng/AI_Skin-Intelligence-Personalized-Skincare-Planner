@@ -252,7 +252,7 @@ export const apiService = {
     }
   },
 
-  // Module 6: Product Recommendation Engine APIs
+  // Product Recommendation & Comparison Engine APIs
   getProducts: async (category = '') => {
     try {
       const res = await axiosInstance.get('/product', { params: { category } });
@@ -262,23 +262,48 @@ export const apiService = {
     }
   },
 
-  getMyProductRecommendations: async (category = '') => {
+  getMyProductRecommendations: async (paramsObj = {}) => {
     try {
-      const res = await axiosInstance.get('/product/recommendations/me', { params: { category } });
+      const params = typeof paramsObj === 'string' ? { category: paramsObj } : paramsObj;
+      const res = await axiosInstance.get('/product/recommendations/me', { params });
       return res.data;
     } catch (err) {
       throw err.response ? err.response.data : new Error(err.message);
     }
   },
 
-  getCustomProductRecommendations: async (data) => {
+  getCustomProductRecommendations: async (data, params = {}) => {
     try {
-      const res = await axiosInstance.post('/product/recommendations', data);
+      const res = await axiosInstance.post('/product/recommendations', data, { params });
       return res.data;
     } catch (err) {
       throw err.response ? err.response.data : new Error(err.message);
     }
   },
+
+  compareProducts: async (productIds, skinType = 'Combination', skinConcerns = []) => {
+    try {
+      const res = await axiosInstance.post('/product/compare', {
+        product_ids: productIds,
+        skin_type: skinType,
+        skin_concerns: skinConcerns
+      });
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  getProductAlternatives: async (productId) => {
+    try {
+      const res = await axiosInstance.get(`/product/${productId}/alternatives`);
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+
 
   // Module 7: Progress Tracking & Analytics APIs
   createProgressLog: async (logData) => {

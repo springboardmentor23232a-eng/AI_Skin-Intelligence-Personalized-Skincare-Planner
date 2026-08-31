@@ -37,7 +37,7 @@ const RECOMMENDED_PRODUCTS = [
   {
     id: "p1",
     brand: "La Roche-Posay",
-    name: "Effaclar Purifying Gel",
+    name: "Effaclar Purifying Gel Facewash",
     suitability: "For Oily & Acne Prone Skin",
     rating: "4.6",
     reviews: "890",
@@ -45,7 +45,8 @@ const RECOMMENDED_PRODUCTS = [
     oldPrice: "₹1,799",
     discount: "17% OFF",
     image: "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=300",
-    buyUrl: "https://www.laroche-posay.us"
+    nykaaUrl: "https://www.nykaa.com/search/result/?q=La%20Roche%20Posay%20Effaclar",
+    amazonUrl: "https://www.amazon.in/dp/B002P3L97E"
   },
   {
     id: "p2",
@@ -58,7 +59,8 @@ const RECOMMENDED_PRODUCTS = [
     oldPrice: "₹699",
     discount: "14% OFF",
     image: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=300",
-    buyUrl: "https://beminimalist.co"
+    nykaaUrl: "https://www.nykaa.com/minimalist-10percent-niacinamide-face-serum/p/1026026",
+    amazonUrl: "https://www.amazon.in/dp/B08F9MKW33"
   },
   {
     id: "p3",
@@ -71,7 +73,8 @@ const RECOMMENDED_PRODUCTS = [
     oldPrice: "₹1,650",
     discount: "21% OFF",
     image: "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=300",
-    buyUrl: "https://www.cerave.com"
+    nykaaUrl: "https://www.nykaa.com/cerave-moisturizing-cream/p/9274531",
+    amazonUrl: "https://www.amazon.in/dp/B000Q2RP7I"
   },
   {
     id: "p4",
@@ -84,9 +87,11 @@ const RECOMMENDED_PRODUCTS = [
     oldPrice: "₹499",
     discount: "20% OFF",
     image: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=300",
-    buyUrl: "https://www.dotandkey.com"
+    nykaaUrl: "https://www.nykaa.com/dot-key-watermelon-cooling-sunscreen-spf-50-pa/p/5012543",
+    amazonUrl: "https://www.amazon.in/dp/B09V7N72TL"
   }
 ];
+
 
 const UserDashboard = () => {
   const { user } = useAuth();
@@ -548,17 +553,25 @@ const UserDashboard = () => {
                     </div>
                   </div>
 
-                  <div className="product-card-footer">
-                    <div>
+                  <div className="product-card-footer" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '0.4rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span className="product-price">{p.price}</span>
-                      <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textDecoration: 'line-through', marginLeft: '0.35rem' }}>{p.oldPrice}</span>
-                      <span style={{ fontSize: '0.65rem', color: 'var(--danger)', fontWeight: 800, marginLeft: '0.35rem' }}>{p.discount}</span>
+                      <div>
+                        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textDecoration: 'line-through', marginRight: '0.3rem' }}>{p.oldPrice}</span>
+                        <span style={{ fontSize: '0.65rem', color: 'var(--danger)', fontWeight: 800 }}>{p.discount}</span>
+                      </div>
                     </div>
 
-                    <a href={p.buyUrl} target="_blank" rel="noreferrer" className="btn btn-primary" style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem' }}>
-                      View Product →
-                    </a>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.35rem' }}>
+                      <a href={p.nykaaUrl || "#"} target="_blank" rel="noreferrer" className="btn" style={{ padding: '0.3rem', fontSize: '0.7rem', fontWeight: 700, background: '#fc2779', color: '#fff', border: 'none', borderRadius: '6px', textAlign: 'center', textDecoration: 'none' }}>
+                        Nykaa 🛍️
+                      </a>
+                      <a href={p.amazonUrl || "#"} target="_blank" rel="noreferrer" className="btn" style={{ padding: '0.3rem', fontSize: '0.7rem', fontWeight: 700, background: '#ff9900', color: '#111', border: 'none', borderRadius: '6px', textAlign: 'center', textDecoration: 'none' }}>
+                        Amazon 📦
+                      </a>
+                    </div>
                   </div>
+
                 </div>
               ))}
             </div>
