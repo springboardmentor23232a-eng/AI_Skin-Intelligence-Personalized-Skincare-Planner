@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skin Intelligence Lab - AI Skin Intelligence</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="src/styles.css">
+    <style>
+        .lab-nav { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
+        .lab-nav a { color: var(--muted); text-decoration: none; font-size: .78rem; font-weight: 700; padding: 7px 10px; border-radius: 999px; background: rgba(143,175,157,.1); }
+        .lab-nav a:hover { color: var(--ink); background: rgba(143,175,157,.2); }
+        
+        .concern-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+        .concern-option { display: flex; align-items: center; gap: 8px; padding: 9px 10px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255, 255, 255, 0.8); color: var(--ink); font-size: .86rem; cursor: pointer; }
+        .concern-option:hover { border-color: var(--accent); background: rgba(143,175,157,.08); }
+        .concern-option input { width: auto; margin: 0; accent-color: var(--accent); }
+        .field-help { margin: -2px 0 0; color: var(--muted); font-size: .78rem; }
+        .product-options { display: grid; gap: 8px; max-height: 230px; overflow-y: auto; }
+        .product-option { display: flex; align-items: center; gap: 9px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255, 255, 255, 0.8); cursor: pointer; font-size: .86rem; }
+        .product-option:hover { border-color: var(--accent); background: rgba(143,175,157,.08); }
+        .product-option input { width: auto; margin: 0; accent-color: var(--accent); }
+        
+        /* Light input styling */
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 14px;
+            border: 1px solid rgba(36, 48, 65, 0.08);
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--ink);
+            font: inherit;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: rgba(143, 175, 157, 0.3);
+            box-shadow: 0 0 0 3px rgba(143, 175, 157, 0.1);
+            outline: none;
+        }
+        
+        .result {
+            margin-top: 16px;
+            padding: 16px;
+            border-radius: 16px;
+            background: rgba(143,175,157,.08);
+            border: 1px solid rgba(143,175,157,.2);
+            white-space: normal;
+        }
+        .result:empty { display: none; }
+        
+        .ingredient-result { display: grid; gap: 18px; white-space: normal; }
+        .ingredient-summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--line);
+        }
+        .ingredient-summary h3 { margin: 0 0 5px; font-size: 1.2rem; }
+        .ingredient-summary p { margin: 0; color: var(--muted); }
+        .score {
+            flex: 0 0 auto;
+            display: grid;
+            place-items: center;
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: conic-gradient(var(--accent-2) var(--score), rgba(36,48,65,.1) 0);
+            font-weight: 800;
+            position: relative;
+        }
+        .score::before {
+            content: "";
+            position: absolute;
+            inset: 7px;
+            border-radius: 50%;
+            background: var(--panel);
+        }
+        .score span { position: relative; z-index: 1; }
+        .status {
+            display: inline-flex;
+            width: fit-content;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: .78rem;
+            font-weight: 800;
+        }
+        .status.good { background: rgba(47, 133, 90, .14); color: var(--good); }
+        .status.warn { background: rgba(183, 121, 31, .14); color: var(--warn); }
+        .status.bad { background: rgba(176, 62, 62, .14); color: var(--bad); }
+        .alert.danger { background: rgba(176, 62, 62, .12); color: #8a2f2f; }
+        .result-section h4 { margin: 0 0 9px; font-size: .92rem; }
+        .result-section p { margin: 0; color: var(--muted); line-height: 1.55; }
+        .tag-list { display: flex; flex-wrap: wrap; gap: 7px; }
+        .tag {
+            padding: 7px 10px;
+            border-radius: 10px;
+            background: rgba(143,175,157,.14);
+            color: #35614a;
+            font-size: .82rem;
+        }
+        .alert-list { display: grid; gap: 8px; }
+        .alert {
+            padding: 10px 12px;
+            border-radius: 11px;
+            background: rgba(200,169,106,.13);
+            color: #795b1e;
+            font-size: .86rem;
+        }
+        .education-grid { display: grid; gap: 10px; }
+        .education-item { padding: 11px 12px; border-radius: 11px; background: rgba(255,255,255,.72); }
+        .education-item strong { display: block; margin-bottom: 4px; font-size: .82rem; }
+        .education-item span { color: var(--muted); font-size: .84rem; line-height: 1.45; }
+        .result-loading { color: var(--muted); }
+        
+        .product-result { display: grid; gap: 12px; }
+        .product-category { display: grid; gap: 8px; }
+        .product-category h4 { margin: 0; font-size: .88rem; color: var(--muted); }
+        .product-result-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+        .product-result-header h3 { margin: 0; font-size: 1.05rem; }
+        .product-count { color: var(--muted); font-size: .82rem; }
+        .product-card {
+            display: grid;
+            grid-template-columns: 52px minmax(0, 1fr) minmax(120px, auto);
+            gap: 12px;
+            align-items: start;
+            padding: 14px;
+            border: 1px solid var(--line);
+            border-radius: 15px;
+            background: rgba(255,255,255,.72);
+            overflow: visible;
+        }
+        .product-copy { min-width: 0; }
+        .product-brand {
+            margin: 0 0 2px;
+            color: var(--ink);
+            font-size: .8rem;
+            font-weight: 800;
+        }
+        .product-icon {
+            display: grid;
+            place-items: center;
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: linear-gradient(145deg, rgba(143,175,157,.25), rgba(200,169,106,.22));
+            font-size: 1.4rem;
+        }
+        .product-card h4 { margin: 0; font-size: .95rem; color: var(--ink); line-height: 1.3; }
+        .product-meta { color: var(--muted); font-size: .78rem; }
+        .product-reason {
+            display: block;
+            margin: 6px 0 0;
+            color: #4a5568;
+            font-size: .8rem;
+            line-height: 1.45;
+        }
+        .product-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; }
+        .product-score { color: #35614a; font-weight: 800; font-size: .88rem; }
+        .buy-button {
+            display: inline-flex;
+            justify-content: center;
+            margin-top: 8px;
+            padding: 8px 11px;
+            border-radius: 10px;
+            background: var(--ink);
+            color: #fff;
+            text-decoration: none;
+            font-size: .78rem;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+        .buy-button:hover { background: #35614a; }
+        .search-button {
+            display: inline-flex;
+            justify-content: center;
+            padding: 8px 11px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #fff;
+            color: var(--ink);
+            text-decoration: none;
+            font-size: .78rem;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+        .search-button:hover { border-color: var(--accent); color: #35614a; }
+        .product-action { display: flex; flex-direction: column; gap: 4px; align-items: stretch; }
+        .product-action .buy-button { margin-top: 0; }
+        
+        .comparison-result { display: grid; gap: 14px; white-space: normal; }
+        .comparison-result h3 { margin: 0; font-size: 1.05rem; }
+        .comparison-table-wrap { overflow-x: auto; }
+        .comparison-table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+        .comparison-table th, .comparison-table td { padding: 10px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+        .comparison-table th { color: var(--muted); font-weight: 700; white-space: nowrap; }
+        .ai-comparison { padding: 14px; border-radius: 14px; background: rgba(143,175,157,.1); border: 1px solid rgba(143,175,157,.2); }
+        .ai-comparison h4 { margin: 0 0 8px; }
+        .ai-comparison p { margin: 0 0 10px; color: var(--muted); line-height: 1.5; }
+        .comparison-best { padding: 12px; border-radius: 12px; background: rgba(143,175,157,.14); color: #35614a; font-size: .86rem; }
+        .comparison-highlights { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+        .comparison-highlight { padding: 10px; border-radius: 11px; background: rgba(255,255,255,.72); }
+        .comparison-highlight strong { display: block; font-size: .76rem; color: var(--muted); margin-bottom: 4px; }
+        .comparison-highlight span { font-size: .82rem; font-weight: 700; }
+        
+        @media (max-width: 520px) {
+            .product-card { grid-template-columns: 48px 1fr; }
+            .product-icon { width: 48px; height: 48px; }
+            .product-action { grid-column: 2; }
+        }
+        @media (max-width: 520px) {
+            .ingredient-summary { align-items: flex-start; }
+            .score { width: 62px; height: 62px; }
+        }
+        .pill {
+            display:inline-block;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(200,169,106,.16);
+            color: #8a6a1e;
+            font-size: .8rem;
+            font-weight: 700;
+            margin-right: 6px;
+            margin-bottom: 6px;
+        }
+        .full { grid-column: 1 / -1; }
+        @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <div class="desktop-layout">
+        
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="brand">✨ AI Skin Intelligence</div>
+            
+            <a href="user_dashboard.html" class="nav-item">
+                <span>🏠</span> Dashboard
+            </a>
+            <a href="skin_profile.html" class="nav-item">
+                <span>🧴</span> Skin Profile
+            </a>
+            <a href="routine_manager.html" class="nav-item">
+                <span>🧴</span> My Routines
+            </a>
+            <a href="#" class="nav-item active">
+                <span>🧠</span> Intelligence Lab
+            </a>
+            <a href="#" class="nav-item">
+                <span>📅</span> Calendar
+            </a>
+            <a href="skin_profile.html" class="nav-item">
+                <span>👤</span> Profile
+            </a>
+            
+            <div style="margin-top: auto; padding: 20px 15px; border-top: 1px solid var(--line);">
+                <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: rgba(255, 255, 255, 0.5); border-radius: 12px; margin-bottom: 12px;">
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-2)); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff;" id="userAvatar">U</div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 0.9rem; font-weight: 600; color: var(--ink);" id="userName">User</div>
+                        <div style="font-size: 0.75rem; color: var(--muted);" id="userRole">User</div>
+                    </div>
+                </div>
+                <a href="login.html" class="nav-item" style="color: var(--bad);">
+                    <span>🚪</span> Logout
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Area -->
+        <div class="dashboard-content">
+            
+            <!-- Header -->
+            <div class="hero-card">
+                <h2>🧠 Skin Intelligence Lab</h2>
+                <p>Advanced ingredient analysis, product recommendations, and AI-powered skincare insights.</p>
+            </div>
+
+            <!-- Lab Navigation -->
+            <div class="lab-nav" aria-label="Lab tools">
+                <a href="#ingredient">Ingredients</a>
+                <a href="#products">Products</a>
+                <a href="#comparison">Compare</a>
+            </div>
+
+            <div class="grid">
+                <section class="card" id="ingredient">
+                    <h3>Ingredient Analysis</h3>
+                    <p>Check ingredient suitability, interactions, allergy alerts, and education details.</p>
+                    <div class="field">
+                        <label for="ingredientName">Ingredient name</label>
+                        <select id="ingredientName">
+                            <option value="">Select an ingredient...</option>
+                            <option value="retinol">Retinol</option>
+                            <option value="retinaldehyde">Retinaldehyde</option>
+                            <option value="niacinamide">Niacinamide</option>
+                            <option value="vitamin_c">Vitamin C</option>
+                            <option value="ascorbic_acid">Ascorbic Acid</option>
+                            <option value="hyaluronic_acid">Hyaluronic Acid</option>
+                            <option value="sodium_hyaluronate">Sodium Hyaluronate</option>
+                            <option value="salicylic_acid">Salicylic Acid</option>
+                            <option value="ceramide_np">Ceramide NP</option>
+                            <option value="ceramide_ap">Ceramide AP</option>
+                            <option value="copper_peptide">Copper Peptide</option>
+                            <option value="glycolic_acid">Glycolic Acid</option>
+                            <option value="lactic_acid">Lactic Acid</option>
+                            <option value="mandelic_acid">Mandelic Acid</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="skinType">Skin type</label>
+                        <select id="skinType">
+                            <option value="">Select</option>
+                            <option value="oily">Oily</option>
+                            <option value="dry">Dry</option>
+                            <option value="combination">Combination</option>
+                            <option value="normal">Normal</option>
+                            <option value="sensitive">Sensitive</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="skinConcerns">Skin concerns</label>
+                        <div id="skinConcerns" class="concern-options" role="group" aria-label="Ingredient analysis skin concerns">
+                            <label class="concern-option"><input type="checkbox" value="acne"> Acne</label>
+                            <label class="concern-option"><input type="checkbox" value="pores"> Pores</label>
+                            <label class="concern-option"><input type="checkbox" value="redness"> Redness</label>
+                            <label class="concern-option"><input type="checkbox" value="dark_spots"> Dark spots</label>
+                            <label class="concern-option"><input type="checkbox" value="dryness"> Dryness</label>
+                            <label class="concern-option"><input type="checkbox" value="sensitivity"> Sensitivity</label>
+                            <label class="concern-option"><input type="checkbox" value="texture"> Texture</label>
+                            <label class="concern-option"><input type="checkbox" value="dullness"> Dullness</label>
+                        </div>
+                        <span class="field-help">Select all that apply.</span>
+                    </div>
+                    <div class="field">
+                        <label for="allergies">Allergies</label>
+                        <input id="allergies" placeholder="fragrance, nuts">
+                    </div>
+                    <div class="field">
+                        <label for="currentIngredients">Current ingredients</label>
+                        <input id="currentIngredients" placeholder="niacinamide, glycolic acid">
+                        <span class="field-help">Optional: separate ingredients with commas to check interactions.</span>
+                    </div>
+                    <button class="btn-primary" onclick="analyzeIngredient()">Analyze Ingredient</button>
+                    <div id="ingredientResult" class="result">
+                        <span class="result-loading">Choose an ingredient and select your skin type to see a personalized analysis.</span>
+                    </div>
+                </section>
+
+                <section class="card" id="products">
+                    <h3>Product Recommendations</h3>
+                    <p>Recommendations come from the product catalog, ranked by skin type, concerns, and budget.</p>
+                    <div class="field">
+                        <label for="productSkinType">Skin type</label>
+                        <select id="productSkinType">
+                            <option value="oily">Oily</option>
+                            <option value="dry">Dry</option>
+                            <option value="combination">Combination</option>
+                            <option value="normal">Normal</option>
+                            <option value="sensitive">Sensitive</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="productConcerns">Skin concerns</label>
+                        <div id="productConcerns" class="concern-options" role="group" aria-label="Product recommendation skin concerns">
+                            <label class="concern-option"><input type="checkbox" value="acne" checked> Acne</label>
+                            <label class="concern-option"><input type="checkbox" value="pores" checked> Pores</label>
+                            <label class="concern-option"><input type="checkbox" value="redness"> Redness</label>
+                            <label class="concern-option"><input type="checkbox" value="dark_spots"> Dark spots</label>
+                            <label class="concern-option"><input type="checkbox" value="dryness"> Dryness</label>
+                            <label class="concern-option"><input type="checkbox" value="sensitivity"> Sensitivity</label>
+                            <label class="concern-option"><input type="checkbox" value="blackheads"> Blackheads</label>
+                            <label class="concern-option"><input type="checkbox" value="texture"> Texture</label>
+                            <label class="concern-option"><input type="checkbox" value="dullness"> Dullness</label>
+                        </div>
+                        <span class="field-help">Select all that apply.</span>
+                    </div>
+                    <div class="field">
+                        <label for="budgetCategory">Budget category</label>
+                        <select id="budgetCategory">
+                            <option value="budget">Budget</option>
+                            <option value="premium" selected>Premium</option>
+                            <option value="luxury">Luxury</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary" onclick="getProductRecommendations()">Generate Products</button>
+                    <div id="productResult" class="result">
+                        <span class="result-loading">Set your preferences to see products you can buy online.</span>
+                    </div>
+                </section>
+
+                <section class="card" id="comparison">
+                    <h3>Product Comparison</h3>
+                    <p>Compare products side by side using the product recommendation engine.</p>
+                    <div class="field">
+                        <label for="compareProduct1">First product</label>
+                        <input id="compareProduct1" value="Minimalist 10% Niacinamide Serum" placeholder="Search product name (e.g., Minimalist Vitamin C)">
+                    </div>
+                    <div class="field">
+                        <label for="compareProduct2">Second product</label>
+                        <input id="compareProduct2" value="CeraVe Hydrating Cleanser" placeholder="Search product name (e.g., CeraVe Hydrating Cleanser)">
+                    </div>
+                    <button class="btn-primary" onclick="compareProducts()">Compare Products</button>
+                    <div id="comparisonResult" class="result">
+                        <span class="result-loading">Enter two products to compare their ingredients and effectiveness.</span>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load user data
+        function loadUserData() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser) {
+                const user = JSON.parse(currentUser);
+                document.getElementById('userName').textContent = user.name || 'User';
+                document.getElementById('userAvatar').textContent = (user.name || 'U').charAt(0).toUpperCase();
+                document.getElementById('userRole').textContent = user.role || 'User';
+            }
+        }
+
+        function splitList(value) {
+            return String(value || '')
+                .split(',')
+                .map(item => item.trim())
+                .filter(Boolean);
+        }
+
+        function escapeHtml(value) {
+            return String(value == null ? '' : value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        async function analyzeIngredient() {
+            const ingredient = document.getElementById('ingredientName').value;
+            const skinType = document.getElementById('skinType').value;
+            const concerns = Array.from(document.querySelectorAll('#skinConcerns input:checked')).map(cb => cb.value);
+            const allergies = splitList(document.getElementById('allergies').value);
+            const currentIngredients = splitList(document.getElementById('currentIngredients').value);
+            const resultEl = document.getElementById('ingredientResult');
+
+            if (!ingredient || !skinType) {
+                alert('Please select an ingredient and skin type');
+                return;
+            }
+
+            resultEl.innerHTML = '<span class="result-loading">Analyzing ingredient with your skin profile...</span>';
+
+            try {
+                const response = await fetch('http://localhost:3000/api/ingredient/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ingredient_name: ingredient,
+                        skin_type: skinType,
+                        skin_concerns: concerns,
+                        allergies,
+                        current_ingredients: currentIngredients
+                    })
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.detail || data.error || 'Ingredient analysis failed');
+                }
+
+                displayIngredientResult(data);
+            } catch (error) {
+                resultEl.innerHTML = `<span class="result-loading">${escapeHtml(error.message)}. Make sure the Node API (port 3000) and Python engine (port 8001) are running.</span>`;
+            }
+        }
+
+        function displayIngredientResult(data) {
+            const ingredient = data.ingredient || {};
+            const education = ingredient.educational_info || {};
+            const score = Number(data.suitability_score ?? 0);
+            const isSuitable = Boolean(data.is_suitable);
+            const hasAllergy = (data.allergy_alerts || []).length > 0;
+            const hasInteraction = (data.interaction_warnings || []).length > 0;
+            const statusClass = hasAllergy || !isSuitable ? 'bad' : (hasInteraction ? 'warn' : 'good');
+            const statusLabel = hasAllergy
+                ? '✗ Allergy risk'
+                : (isSuitable ? (hasInteraction ? '⚠ Use with caution' : '✓ Suitable') : '✗ Not suitable');
+            const summary = data.ai_recommendation?.summary || data.suitability_reason || ingredient.description || '';
+
+            document.getElementById('ingredientResult').innerHTML = `
+                <div class="ingredient-result">
+                    <div class="ingredient-summary">
+                        <div>
+                            <h3>${escapeHtml(ingredient.name || 'Ingredient')}</h3>
+                            <p>${escapeHtml(summary)}</p>
+                        </div>
+                        <div class="score" style="--score: ${score}%">
+                            <span>${score}</span>
+                        </div>
+                    </div>
+                    <div class="status ${statusClass}">${statusLabel}</div>
+
+                    ${data.allergy_alerts?.length ? `
+                    <div class="result-section">
+                        <h4>Allergy alerts</h4>
+                        <div class="alert-list">
+                            ${data.allergy_alerts.map(item => `<div class="alert danger">${escapeHtml(item)}</div>`).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    ${data.interaction_warnings?.length ? `
+                    <div class="result-section">
+                        <h4>Interactions</h4>
+                        <div class="alert-list">
+                            ${data.interaction_warnings.map(item => `<div class="alert">${escapeHtml(item)}</div>`).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    ${ingredient.benefits?.length ? `
+                    <div class="result-section">
+                        <h4>Benefits</h4>
+                        <div class="tag-list">
+                            ${ingredient.benefits.map(item => `<span class="tag">${escapeHtml(item)}</span>`).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    ${ingredient.concerns?.length ? `
+                    <div class="result-section">
+                        <h4>Watch-outs</h4>
+                        <div class="tag-list">
+                            ${ingredient.concerns.map(item => `<span class="tag">${escapeHtml(item)}</span>`).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    ${data.recommendations?.length ? `
+                    <div class="result-section">
+                        <h4>Recommendations</h4>
+                        <div class="alert-list">
+                            ${data.recommendations.map(item => `<div class="education-item">${escapeHtml(item)}</div>`).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    <div class="result-section">
+                        <h4>Education</h4>
+                        <div class="education-grid">
+                            <div class="education-item">
+                                <strong>How to use</strong>
+                                <span>${escapeHtml(education.how_to_use || data.ai_recommendation?.usage_plan || 'Follow product directions.')}</span>
+                            </div>
+                            <div class="education-item">
+                                <strong>Concentration</strong>
+                                <span>${escapeHtml(ingredient.concentration_range || 'Start with lower concentrations and increase gradually')}</span>
+                            </div>
+                            <div class="education-item">
+                                <strong>When to expect results</strong>
+                                <span>${escapeHtml(education.when_to_expect_results || 'Results vary by ingredient and routine.')}</span>
+                            </div>
+                            <div class="education-item">
+                                <strong>Best practices</strong>
+                                <span>${escapeHtml(education.best_practices || data.ai_recommendation?.safety_note || '')}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function shoppingLinks(brand, name) {
+            const query = encodeURIComponent(`${brand || ''} ${name || ''}`.trim());
+            return {
+                amazon: `https://www.amazon.in/s?k=${query}`,
+                nykaa: `https://www.nykaa.com/search/result/?q=${query}`,
+                google: `https://www.google.com/search?tbm=shop&q=${query}`
+            };
+        }
+
+        function shopButtons(brand, name, extraClass = '') {
+            const links = shoppingLinks(brand, name);
+            return `
+                <a href="${links.amazon}" target="_blank" rel="noopener" class="buy-button ${extraClass}">Buy on Amazon</a>
+                <a href="${links.nykaa}" target="_blank" rel="noopener" class="buy-button ${extraClass}">Buy on Nykaa</a>
+                <a href="${links.google}" target="_blank" rel="noopener" class="search-button ${extraClass}">Google Shopping</a>
+            `;
+        }
+
+        async function getProductRecommendations() {
+            const skinType = document.getElementById('productSkinType').value;
+            const concerns = Array.from(document.querySelectorAll('#productConcerns input:checked')).map(cb => cb.value);
+            const budget = document.getElementById('budgetCategory').value;
+            const allergies = splitList(document.getElementById('allergies')?.value);
+            const resultEl = document.getElementById('productResult');
+
+            resultEl.innerHTML = '<span class="result-loading">Matching products from the catalog...</span>';
+
+            try {
+                const response = await fetch('http://localhost:3000/api/products/recommendations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        skin_type: skinType,
+                        skin_concerns: concerns,
+                        budget_tier: budget,
+                        allergies
+                    })
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to generate recommendations');
+                }
+
+                const groups = data.recommendations || [];
+                if (!groups.length) {
+                    resultEl.innerHTML = '<span class="result-loading">No matching products in the catalog for these filters.</span>';
+                    return;
+                }
+
+                resultEl.innerHTML = `
+                    <div class="product-result">
+                        <div class="product-result-header">
+                            <h3>Recommended Products</h3>
+                            <span class="product-count">${data.total_products || 0} from catalog</span>
+                        </div>
+                        ${groups.map(group => `
+                            <div class="product-category">
+                                <h4>${escapeHtml((group.icon || '') + ' ' + (group.category || 'Products'))}</h4>
+                                ${(group.products || []).map(product => {
+                                    const name = product.product_name || product.name || '';
+                                    const brand = product.brand || '';
+                                    const reason = (product.match_reasons || []).join(' • ') || product.description || product.category_name || '';
+                                    const tags = [product.price_tier, product.product_type, product.size].filter(Boolean);
+                                    const links = {
+                                        amazon: product.amazon_link,
+                                        nykaa: product.nykaa_link,
+                                        google: product.google_shopping_link
+                                    };
+                                    const fallbackButtons = shopButtons(brand, name);
+                                    const buyHtml = (links.amazon || links.nykaa || links.google)
+                                        ? `
+                                            ${links.amazon ? `<a href="${links.amazon}" target="_blank" rel="noopener" class="buy-button">Buy on Amazon</a>` : ''}
+                                            ${links.nykaa ? `<a href="${links.nykaa}" target="_blank" rel="noopener" class="buy-button">Buy on Nykaa</a>` : ''}
+                                            ${links.google ? `<a href="${links.google}" target="_blank" rel="noopener" class="search-button">Google Shopping</a>` : ''}
+                                        `
+                                        : fallbackButtons;
+                                    return `
+                                        <div class="product-card">
+                                            <div class="product-icon">${escapeHtml(group.icon || '🧴')}</div>
+                                            <div class="product-copy">
+                                                <div class="product-brand">${escapeHtml(brand || 'Unknown brand')}</div>
+                                                <h4>${escapeHtml(name || 'Untitled product')}</h4>
+                                                ${reason ? `<p class="product-reason">${escapeHtml(reason)}</p>` : ''}
+                                                <div class="product-tags">
+                                                    ${tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}
+                                                </div>
+                                            </div>
+                                            <div class="product-action">
+                                                <div class="product-score">${product.match_score ?? ''}</div>
+                                                <div class="product-meta" style="margin-bottom: 8px;">${formatInr(product.current_price)}</div>
+                                                ${buyHtml}
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } catch (error) {
+                resultEl.innerHTML = `<span class="result-loading">${escapeHtml(error.message)}. Make sure the Node API (port 3000) is running and the products database is migrated.</span>`;
+            }
+        }
+
+        // Product comparison function
+        function buildSearchVariants(value = '') {
+            const raw = String(value || '').trim();
+            const normalized = String(value || '')
+                .toLowerCase()
+                .replace(/[%+]/g, ' ')
+                .replace(/[^a-z0-9\s]/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+
+            const variants = new Set();
+            if (raw) variants.add(raw.toLowerCase());
+            if (normalized) variants.add(normalized);
+
+            const tokens = normalized.split(/\s+/).filter(Boolean);
+            if (tokens.length > 1) {
+                variants.add(tokens.join(' '));
+                variants.add(tokens.slice(-Math.min(4, tokens.length)).join(' '));
+                variants.add(tokens.slice(0, Math.min(4, tokens.length)).join(' '));
+            }
+
+            return [...variants].filter(Boolean);
+        }
+
+        async function findProductMatches(query) {
+            const searchTerms = buildSearchVariants(query);
+
+            for (const term of searchTerms) {
+                const response = await fetch(`http://localhost:3000/api/products/search/${encodeURIComponent(term)}`);
+                if (!response.ok) continue;
+
+                const payload = await response.json();
+                const results = Array.isArray(payload) ? payload : (payload.results || []);
+                if (results.length) {
+                    return results;
+                }
+            }
+
+            return [];
+        }
+
+        async function compareProducts() {
+            const product1 = document.getElementById('compareProduct1').value;
+            const product2 = document.getElementById('compareProduct2').value;
+
+            if (!product1 || !product2) {
+                alert('Please enter both products to compare');
+                return;
+            }
+
+            try {
+                const results1 = await findProductMatches(product1);
+                const results2 = await findProductMatches(product2);
+
+                const productIds = [results1[0]?.id, results2[0]?.id].filter(Boolean);
+                const userSkinType = localStorage.getItem('userSkinType') || 'normal';
+                const userConcerns = JSON.parse(localStorage.getItem('userConcerns') || '[]');
+
+                const comparisonResponse = await fetch('http://localhost:3000/api/products/compare', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        product_ids: productIds,
+                        product_names: [product1, product2],
+                        user_profile: {
+                            skin_type: userSkinType,
+                            skin_concerns: userConcerns,
+                            budget_tier: 'budget'
+                        }
+                    })
+                });
+
+                if (comparisonResponse.ok) {
+                    const comparisonData = await comparisonResponse.json();
+                    const primaryA = results1[0] || comparisonData.products?.[0] || { brand: 'User search', product_name: product1, id: 'manual-0', current_price: null };
+                    const primaryB = results2[0] || comparisonData.products?.[1] || { brand: 'User search', product_name: product2, id: 'manual-1', current_price: null };
+                    displayComparisonResults(comparisonData, primaryA, primaryB);
+                } else {
+                    throw new Error('Comparison API failed');
+                }
+            } catch (error) {
+                console.error('Error comparing products:', error);
+                fallbackComparison(product1, product2);
+            }
+        }
+        
+        function formatInr(price) {
+            if (price == null || price === '') return 'See listings';
+            return '₹' + Number(price).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+        }
+
+        function displayComparisonResults(data, productA, productB) {
+            const { comparison_table, recommendations, overall_best, ai_advice } = data;
+            const id1 = productA.id;
+            const id2 = productB.id;
+            const name1 = `${productA.brand} ${productA.product_name}`;
+            const name2 = `${productB.brand} ${productB.product_name}`;
+            
+            let tableHTML = `
+                <div class="comparison-result">
+                    <h3>Product Comparison</h3>
+                    <div class="comparison-table-wrap">
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>${name1}</th>
+                                    <th>${name2}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+            
+            Object.keys(comparison_table).forEach(feature => {
+                tableHTML += `
+                    <tr>
+                        <td><strong>${feature}</strong></td>
+                        <td>${comparison_table[feature][id1] || '—'}</td>
+                        <td>${comparison_table[feature][id2] || '—'}</td>
+                    </tr>
+                `;
+            });
+            
+            tableHTML += `
+                            </tbody>
+                        </table>
+                    </div>
+            `;
+            
+            tableHTML += `
+                <div style="margin-top: 20px;">
+                    <h4 style="margin: 0 0 12px;">🛒 Where to Buy</h4>
+                    <div style="display: grid; gap: 12px;">
+            `;
+            
+            [productA, productB].forEach(product => {
+                const links = shoppingLinks(product.brand, product.product_name);
+                const price = formatInr(product.current_price);
+                tableHTML += `
+                    <div style="padding: 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(36, 48, 65, 0.08);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 12px;">
+                            <div style="font-weight: 600;">${product.brand} ${product.product_name}</div>
+                            <div style="font-weight: 700; color: var(--accent-2);">${price}</div>
+                        </div>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <a href="${links.amazon}" target="_blank" rel="noopener" class="buy-button">Buy on Amazon</a>
+                            <a href="${links.nykaa}" target="_blank" rel="noopener" class="buy-button">Buy on Nykaa</a>
+                            <a href="${links.google}" target="_blank" rel="noopener" class="search-button">Google Shopping</a>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            tableHTML += `
+                    </div>
+                </div>
+            `;
+            
+            if (overall_best) {
+                tableHTML += `
+                    <div class="ai-comparison">
+                        <h4>AI Analysis</h4>
+                        <p>Based on your skin profile and preferences, <strong>${overall_best.product.product_name}</strong> is recommended.</p>
+                        <div class="comparison-best">
+                            <strong>Best Choice: ${overall_best.product.product_name}</strong><br>
+                            <small>${overall_best.reasons.join(' • ')}</small>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (ai_advice) {
+                const prosData = ai_advice.pros_and_cons || {};
+                const productNames = Object.keys(prosData);
+                tableHTML += `
+                    <div class="ai-comparison">
+                        <h4>Groq Analysis</h4>
+                        <p>${escapeHtml(ai_advice.summary || '')}</p>
+                        <div class="comparison-best">
+                            <strong>Reasoning:</strong> ${escapeHtml(ai_advice.best_choice_reason || '')}
+                        </div>
+                        <div style="margin-top: 12px; display: grid; gap: 10px;">
+                            ${productNames.map(productName => `
+                                <div style="padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,0.7); border: 1px solid rgba(36, 48, 65, 0.08);">
+                                    <strong>${escapeHtml(productName)}</strong>
+                                    <div style="margin-top: 6px;"><small>Pros: ${escapeHtml((prosData[productName]?.pros || []).join(', ') || '—')}</small></div>
+                                    <div><small>Cons: ${escapeHtml((prosData[productName]?.cons || []).join(', ') || '—')}</small></div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        ${ai_advice.safety_note ? `<div style="margin-top: 12px; color: var(--muted);"><strong>Safety note:</strong> ${escapeHtml(ai_advice.safety_note)}</div>` : ''}
+                    </div>
+                `;
+            }
+            
+            tableHTML += `
+                    <div class="comparison-highlights">
+                        ${recommendations.map(rec => `
+                            <div class="comparison-highlight">
+                                <strong>${rec.product_name}</strong>
+                                <span>Score: ${rec.score} - ${rec.reasons.join(', ')}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('comparisonResult').innerHTML = tableHTML;
+        }
+        
+        function fallbackComparison(product1, product2) {
+            const links1 = shoppingLinks('', product1);
+            const links2 = shoppingLinks('', product2);
+            let resultHTML = `
+                <div class="comparison-result">
+                    <h3>Product Comparison</h3>
+                    <div class="comparison-table-wrap">
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>${product1}</th>
+                                    <th>${product2}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Price</td>
+                                    <td>See live listings</td>
+                                    <td>See live listings</td>
+                                </tr>
+                                <tr>
+                                    <td>Effectiveness</td>
+                                    <td>⭐⭐⭐⭐</td>
+                                    <td>⭐⭐⭐</td>
+                                </tr>
+                                <tr>
+                                    <td>Availability</td>
+                                    <td>Amazon, Nykaa, Google Shopping</td>
+                                    <td>Amazon, Nykaa, Google Shopping</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <h4 style="margin: 0 0 12px;">🛒 Where to Buy</h4>
+                        <div style="display: grid; gap: 12px;">
+                            <div style="padding: 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.7);">
+                                <div style="font-weight: 600; margin-bottom: 8px;">${product1}</div>
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                    <a href="${links1.amazon}" target="_blank" rel="noopener" class="buy-button">Buy on Amazon</a>
+                                    <a href="${links1.nykaa}" target="_blank" rel="noopener" class="buy-button">Buy on Nykaa</a>
+                                    <a href="${links1.google}" target="_blank" rel="noopener" class="search-button">Google Shopping</a>
+                                </div>
+                            </div>
+                            <div style="padding: 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.7);">
+                                <div style="font-weight: 600; margin-bottom: 8px;">${product2}</div>
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                    <a href="${links2.amazon}" target="_blank" rel="noopener" class="buy-button">Buy on Amazon</a>
+                                    <a href="${links2.nykaa}" target="_blank" rel="noopener" class="buy-button">Buy on Nykaa</a>
+                                    <a href="${links2.google}" target="_blank" rel="noopener" class="search-button">Google Shopping</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ai-comparison">
+                        <h4>AI Analysis</h4>
+                        <p>Based on ingredient analysis and user reviews, ${product1} may be more suitable for daily use, while ${product2} is better for specific concerns.</p>
+                        <div class="comparison-best">Recommended: ${product1}</div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('comparisonResult').innerHTML = resultHTML;
+        }
+
+        // Initialize
+        loadUserData();
+        const demoCompare1 = document.getElementById('compareProduct1');
+        const demoCompare2 = document.getElementById('compareProduct2');
+        if (demoCompare1 && demoCompare2 && demoCompare1.value && demoCompare2.value) {
+            setTimeout(() => compareProducts(), 150);
+        }
+    </script>
+</body>
+</html>

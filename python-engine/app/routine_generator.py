@@ -4,8 +4,12 @@ Handles AI-powered personalized skincare routine generation using Groq
 """
 import os
 from typing import List, Dict, Optional, Tuple
-from groq import Groq
 import json
+
+try:
+    from groq import Groq
+except ModuleNotFoundError:
+    Groq = None
 
 class RoutineGenerator:
     def __init__(self):
@@ -22,12 +26,16 @@ class RoutineGenerator:
             self.groq_api_key = "your_groq_api_key_here"
         
         if self.groq_api_key and self.groq_api_key != "your_groq_api_key_here":
-            try:
-                self.client = Groq(api_key=self.groq_api_key)
-                print("Groq AI client initialized successfully")
-            except Exception as e:
-                print(f"Warning: Failed to initialize Groq client: {e}")
+            if Groq is None:
                 self.client = None
+                print("Warning: Groq SDK not installed, AI features will use fallback recommendations")
+            else:
+                try:
+                    self.client = Groq(api_key=self.groq_api_key)
+                    print("Groq AI client initialized successfully")
+                except Exception as e:
+                    print(f"Warning: Failed to initialize Groq client: {e}")
+                    self.client = None
         else:
             self.client = None
             print("Warning: GROQ_API_KEY not found or invalid, AI features will use fallback recommendations")
@@ -603,7 +611,7 @@ class RoutineGenerator:
             prompt = self._build_ai_prompt(data)
             
             response = self.client.chat.completions.create(
-                model="llama-3.3-70b-versatile",  # Using Groq's Llama model
+                model="openai/gpt-oss-120b",
                 messages=[
                     {
                         "role": "system",

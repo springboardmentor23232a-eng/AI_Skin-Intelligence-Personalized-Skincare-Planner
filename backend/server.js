@@ -9,6 +9,8 @@ const usersRoutes      = require('./routes/users');
 const skinProfileRoutes = require('./routes/skinProfiles');
 const skinAssessmentRoutes = require('./routes/skinAssessment');
 const routineRoutes    = require('./routes/routines');
+const productsRoutes    = require('./routes/products');
+const ingredientRoutes  = require('./routes/ingredient');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -50,6 +52,12 @@ app.use('/api/skin',         skinAssessmentRoutes);
 
 // Skincare routine routes
 app.use('/api/routine',      routineRoutes);
+
+// Product recommendation routes
+app.use('/api/products',     productsRoutes);
+
+// Ingredient intelligence routes
+app.use('/api/ingredient',   ingredientRoutes);
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
@@ -98,5 +106,12 @@ app.listen(PORT, () => {
   console.log(`   POST   http://localhost:${PORT}/api/routine/routine/:routineId/regenerate`);
   console.log(`   POST   http://localhost:${PORT}/api/auth/login`);
   console.log(`   POST   http://localhost:${PORT}/api/auth/register`);
+  console.log(`   GET    http://localhost:${PORT}/api/products/categories`);
+  console.log(`   GET    http://localhost:${PORT}/api/products`);
+  console.log(`   POST   http://localhost:${PORT}/api/products/recommendations`);
+  console.log(`   POST   http://localhost:${PORT}/api/products/compare`);
+  console.log(`   GET    http://localhost:${PORT}/api/products/:productId`);
+  console.log(`   GET    http://localhost:${PORT}/api/products/search/:query`);
+  console.log(`   POST   http://localhost:${PORT}/api/ingredient/analyze`);
   console.log(`   GET    http://localhost:${PORT}/api/health\n`);
 });

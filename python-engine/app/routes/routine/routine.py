@@ -14,10 +14,16 @@ from app.schemas import (
     RoutineRequest, RoutineResponse, RoutineUpdateRequest,
     AIPersonalizationRequest, AIPersonalizationResponse
 )
-from app.routine_generator import RoutineGenerator
+
+try:
+    from app.routine_generator import RoutineGenerator
+    ROUTINE_GENERATOR_AVAILABLE = True
+except ModuleNotFoundError:
+    RoutineGenerator = None
+    ROUTINE_GENERATOR_AVAILABLE = False
 
 router = APIRouter()
-routine_generator = RoutineGenerator()
+routine_generator = RoutineGenerator() if ROUTINE_GENERATOR_AVAILABLE else None
 
 # Helper function to handle UUID conversion for SQLite
 def get_uuid(uuid_str):
@@ -29,6 +35,12 @@ def create_routine(routine: RoutineRequest, db: Session = Depends(get_db)):
     Create a new personalized skincare routine
     """
     try:
+        if routine_generator is None:
+            raise HTTPException(
+                status_code=503,
+                detail="Routine generator is unavailable because the Groq SDK is not installed."
+            )
+
         # Generate personalized routine
         routine_data = routine_generator.generate_routine(routine.dict())
         

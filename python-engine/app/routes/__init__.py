@@ -1,3 +1,1 @@
-from .assessment import router
-
-__all__ = ['router']
+# Routes package for API endpoints

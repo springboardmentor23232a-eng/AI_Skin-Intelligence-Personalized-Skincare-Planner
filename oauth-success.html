@@ -5,87 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OAuth Success - AI Skin Intelligence</title>
     <link rel="stylesheet" href="src/styles.css">
-    <style>
-        .oauth-success {
-            height: 100vh;
-            background-color: var(--card-bg);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
-        
-        .success-card {
-            background: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            border-radius: 24px;
-            padding: 40px;
-            text-align: center;
-            max-width: 400px;
-            width: 100%;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
-        }
-        
-        .success-icon {
-            font-size: 4rem;
-            margin-bottom: 20px;
-        }
-        
-        .success-card h1 {
-            font-size: 1.8rem;
-            margin-bottom: 10px;
-            color: var(--primary);
-        }
-        
-        .success-card p {
-            color: var(--text-muted);
-            margin-bottom: 30px;
-        }
-        
-        .redirect-btn {
-            background-color: var(--accent);
-            color: var(--white);
-            padding: 15px 30px;
-            border-radius: 40px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 1rem;
-            display: inline-block;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
-        }
-        
-        .redirect-btn:hover {
-            transform: translateY(-3px);
-        }
-        
-        .error-message {
-            background: rgba(255, 100, 100, 0.15);
-            border: 1px solid rgba(255, 100, 100, 0.4);
-            color: #ff8080;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-    </style>
 </head>
 <body>
-    <div class="oauth-success">
-        <div class="success-card">
+    <div class="splash-screen">
+        <div class="splash-card">
             <div id="loadingState">
-                <div class="success-icon">🔄</div>
+                <div style="font-size: 4rem; margin-bottom: 20px;">🔄</div>
                 <h1>Completing Sign In...</h1>
                 <p>Please wait while we set up your account.</p>
             </div>
             
             <div id="errorState" style="display: none;">
-                <div class="error-message">
+                <div class="banner error show">
                     <h2>Sign In Failed</h2>
                     <p id="errorMessage">An error occurred during sign in.</p>
                 </div>
-                <a href="login.html" class="redirect-btn">Try Again</a>
+                <a href="login.html" class="btn-primary" style="display: inline-block; text-decoration: none; margin-top: 20px;">Try Again</a>
             </div>
         </div>
     </div>

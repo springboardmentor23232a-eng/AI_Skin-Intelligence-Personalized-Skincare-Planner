@@ -7,286 +7,148 @@
     <meta name="description" content="Admin control panel for AI Skin Intelligence platform.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
-
-        :root {
-            --bg:       #FAF7F2;
-            --surface:  #FFFFFF;
-            --card:     #EADBC8;
-            --border:   rgba(45, 55, 72, 0.15);
-            --accent:   #8FAF9D;
-            --accent2:  #C8A96A;
-            --green:    #10d9a4;
-            --yellow:   #f5c542;
-            --red:      #f05252;
-            --text:     #2D3748;
-            --muted:    rgba(45, 55, 72, 0.7);
-            --radius:   14px;
-        }
-
-        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; }
-
-        /* ── Sidebar ── */
-        .sidebar {
-            width:240px; background:var(--surface); border-right:1px solid var(--border);
-            display:flex; flex-direction:column; padding:24px 0; position:fixed; height:100vh; z-index:100;
-            box-shadow: 2px 0 15px rgba(0,0,0,0.03);
-        }
-        .sidebar-logo { padding:0 24px 28px; border-bottom:1px solid var(--border); }
-        .sidebar-logo h2 { font-size:1rem; font-weight:700; letter-spacing:.05em; color:var(--text); }
-        .sidebar-logo p  { font-size:.7rem; color:var(--muted); margin-top:4px; }
-
-        .sidebar-nav { flex:1; padding:20px 12px; display:flex; flex-direction:column; gap:4px; }
-        .nav-item {
-            display:flex; align-items:center; gap:12px; padding:11px 14px; border-radius:10px;
-            color:var(--muted); font-size:.875rem; font-weight:500; cursor:pointer;
-            transition:.2s; border:none; background:transparent; width:100%; text-align:left;
-        }
-        .nav-item:hover   { background:rgba(143,175,157,0.15); color:var(--text); }
-        .nav-item.active  { background:var(--accent); color:var(--surface); }
-        .nav-icon         { font-size:1.1rem; width:20px; text-align:center; }
-
-        .sidebar-user { padding:16px 20px; border-top:1px solid var(--border); display:flex; align-items:center; gap:12px; }
-        .user-avatar  { width:36px; height:36px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.85rem; flex-shrink:0; color:var(--surface); }
-        .user-info    { flex:1; min-width:0; }
-        .user-name    { font-size:.8rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .user-role    { font-size:.7rem; color:var(--muted); }
-        .logout-btn   { background:none; border:none; color:var(--muted); cursor:pointer; font-size:1rem; padding:4px; border-radius:6px; transition:.2s; }
-        .logout-btn:hover { color:var(--red); }
-
-        /* ── Main ── */
-        .main { margin-left:240px; flex:1; padding:32px; }
-
-        .page-header { margin-bottom:32px; }
-        .page-header h1 { font-size:1.75rem; font-weight:800; }
-        .page-header p  { color:var(--muted); margin-top:6px; font-size:.9rem; }
-
-        /* ── Stat cards ── */
-        .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:32px; }
-        .stat-card {
-            background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
-            padding:22px; position:relative; overflow:hidden;
-        }
-        .stat-card::before { content:''; position:absolute; top:0; right:0; width:80px; height:80px; border-radius:50%; opacity:.08; }
-        .stat-card.purple::before { background:var(--accent); }
-        .stat-card.pink::before   { background:var(--accent2); }
-        .stat-card.green::before  { background:var(--green); }
-        .stat-card.yellow::before { background:var(--yellow); }
-        .stat-card.gold::before   { background:var(--accent2); }
-
-        .stat-icon  { font-size:1.5rem; margin-bottom:12px; }
-        .stat-value { font-size:2rem; font-weight:800; line-height:1; }
-        .stat-label { font-size:.8rem; color:var(--muted); margin-top:6px; }
-        .stat-badge { display:inline-block; padding:3px 8px; border-radius:20px; font-size:.7rem; font-weight:600; margin-top:8px; }
-        .badge-green  { background:rgba(16,217,164,.15); color:var(--green); }
-        .badge-yellow { background:rgba(245,197,66,.15); color:var(--yellow); }
-
-        /* ── Table card ── */
-        .table-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
-        .table-header { padding:20px 24px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); flex-wrap:wrap; gap:12px; }
-        .table-header h3 { font-size:1rem; font-weight:700; }
-
-        .table-controls { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-        .search-box { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px 14px; color:var(--text); font-family:inherit; font-size:.85rem; width:220px; }
-        .search-box:focus { outline:none; border-color:var(--accent); }
-        .filter-select { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px 14px; color:var(--text); font-family:inherit; font-size:.85rem; cursor:pointer; }
-
-        .refresh-btn { background:rgba(143,175,157,0.15); border:1px solid rgba(143,175,157,0.3); color:var(--accent); border-radius:8px; padding:8px 14px; font-family:inherit; font-size:.85rem; cursor:pointer; transition:.2s; }
-        .refresh-btn:hover { background:rgba(143,175,157,0.25); }
-
-        table { width:100%; border-collapse:collapse; }
-        thead th { padding:12px 24px; text-align:left; font-size:.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; background:rgba(45,55,72,.05); border-bottom:1px solid var(--border); }
-        tbody tr { border-bottom:1px solid rgba(45,55,72,.08); transition:.15s; }
-        tbody tr:hover { background:rgba(143,175,157,.08); }
-        tbody tr:last-child { border-bottom:none; }
-        tbody td { padding:14px 24px; font-size:.875rem; vertical-align:middle; }
-
-        .user-cell { display:flex; align-items:center; gap:12px; }
-        .row-avatar { width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.8rem; flex-shrink:0; }
-
-        .role-badge { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:20px; font-size:.75rem; font-weight:600; }
-        .role-admin      { background:rgba(143,175,157,.2); color:var(--accent); }
-        .role-consultant { background:rgba(200,169,106,.2); color:var(--accent2); }
-        .role-user       { background:rgba(16,217,164,.2); color:var(--green); }
-
-        .status-pill { display:inline-block; padding:3px 10px; border-radius:20px; font-size:.72rem; font-weight:600; }
-        .status-active   { background:rgba(16,217,164,.15); color:var(--green); }
-        .status-inactive { background:rgba(240,82,82,.15); color:var(--red); }
-
-        .provider-badge { font-size:.75rem; color:var(--muted); }
-
-        .action-btn { background:none; border:1px solid var(--border); color:var(--muted); border-radius:6px; padding:5px 10px; font-size:.75rem; cursor:pointer; transition:.2s; margin-right:4px; }
-        .action-btn:hover         { border-color:var(--accent); color:var(--accent); }
-        .action-btn.danger:hover  { border-color:var(--red); color:var(--red); }
-
-        .table-footer { padding:16px 24px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; color:var(--muted); font-size:.8rem; }
-
-        /* ── Loading/empty ── */
-        .table-loading { padding:60px; text-align:center; color:var(--muted); }
-        .spinner { display:inline-block; width:32px; height:32px; border:3px solid rgba(143,175,157,.2); border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; margin-bottom:12px; }
-        @keyframes spin { to { transform:rotate(360deg); } }
-
-        /* ── Token viewer ── */
-        .token-section { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:24px; margin-top:24px; }
-        .token-section h3 { font-size:1rem; font-weight:700; margin-bottom:16px; }
-        .token-box { background:rgba(45,55,72,.05); border:1px solid var(--border); border-radius:8px; padding:16px; font-family:'Courier New',monospace; font-size:.75rem; word-break:break-all; color:var(--accent); max-height:120px; overflow-y:auto; }
-        .token-label { font-size:.75rem; color:var(--muted); margin-bottom:6px; font-weight:600; }
-        .copy-btn { background:rgba(45,55,72,.05); border:1px solid var(--border); color:var(--muted); border-radius:6px; padding:6px 12px; font-size:.75rem; cursor:pointer; float:right; margin-top:-4px; transition:.2s; }
-        .copy-btn:hover { color:var(--text); }
-
-        /* ── Toast ── */
-        .toast { position:fixed; bottom:24px; right:24px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 20px; font-size:.875rem; opacity:0; transform:translateY(10px); transition:.3s; pointer-events:none; z-index:999; }
-        .toast.show { opacity:1; transform:translateY(0); }
-        .toast.success { border-left:3px solid var(--green); }
-        .toast.error   { border-left:3px solid var(--red); }
-
-        /* ── DB info panel ── */
-        .db-info { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-        .db-card { background:rgba(45,55,72,.05); border:1px solid var(--border); border-radius:10px; padding:16px; }
-        .db-card h4 { font-size:.8rem; color:var(--muted); margin-bottom:8px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; }
-        .db-card p  { font-size:.9rem; font-weight:500; }
-        .db-dot { display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--green); margin-right:6px; animation:pulse 2s infinite; }
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-    </style>
+    <link rel="stylesheet" href="src/styles.css">
 </head>
 <body>
 
-<!-- ══ Sidebar ══════════════════════════════════════════ -->
-<aside class="sidebar">
-    <div class="sidebar-logo">
-        <h2>AI SKIN INTELLIGENCE</h2>
-        <p>Admin Control Panel</p>
-    </div>
-    <nav class="sidebar-nav">
+<div class="desktop-layout">
+    
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="brand">✨ AI Skin Intelligence</div>
+        
         <button class="nav-item active" onclick="showSection('users')" id="nav-users">
-            <span class="nav-icon">👥</span> Users
+            <span>👥</span> Users
         </button>
         <button class="nav-item" onclick="showSection('skin-profiles')" id="nav-skin-profiles">
-            <span class="nav-icon">🧴</span> Skin Profiles
+            <span>🧴</span> Skin Profiles
         </button>
         <button class="nav-item" onclick="showSection('db')" id="nav-db">
-            <span class="nav-icon">🗄️</span> Database Info
+            <span>🗄️</span> Database Info
         </button>
         <button class="nav-item" onclick="showSection('token')" id="nav-token">
-            <span class="nav-icon">🔑</span> JWT Token
+            <span>🔑</span> JWT Token
         </button>
-    </nav>
-    <div class="sidebar-user">
-        <div class="user-avatar" id="adminAvatar">A</div>
-        <div class="user-info">
-            <div class="user-name" id="adminName">Admin</div>
-            <div class="user-role" id="adminRole">Administrator</div>
+        
+        <div style="margin-top: auto; padding: 20px 15px; border-top: 1px solid var(--line);">
+            <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: rgba(255, 255, 255, 0.5); border-radius: 12px; margin-bottom: 12px;">
+                <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-2)); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff;" id="adminAvatar">U</div>
+                <div style="flex: 1;">
+                    <div style="font-size: 0.9rem; font-weight: 600; color: var(--ink);" id="adminName">User</div>
+                    <div style="font-size: 0.75rem; color: var(--muted);" id="adminRole">Administrator</div>
+                </div>
+            </div>
+            <a href="login.html" class="nav-item" style="color: var(--bad);" onclick="localStorage.removeItem('accessToken'); localStorage.removeItem('currentUser');">
+                <span>🚪</span> Logout
+            </a>
         </div>
-        <button class="logout-btn" id="logoutBtn" title="Logout">⏻</button>
     </div>
-</aside>
 
-<!-- ══ Main Content ══════════════════════════════════════ -->
-<main class="main">
+    <!-- Main Dashboard Area -->
+    <div class="dashboard-content" style="padding: 32px;">
 
-    <!-- ── Users Section ── -->
+    <!-- Users Section -->
     <section id="section-users">
-        <div class="page-header">
+        <div style="margin-bottom: 32px;">
             <h1>👥 User Management</h1>
-            <p>View and manage all registered users in the PostgreSQL database</p>
+            <p style="color: var(--muted); margin-top: 6px; font-size: 0.9rem;">View and manage all registered users in the PostgreSQL database</p>
         </div>
 
         <!-- Stats -->
-        <div class="stats-grid">
-            <div class="stat-card purple">
+        <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 32px;">
+            <div class="stat-card">
                 <div class="stat-icon">👤</div>
                 <div class="stat-value" id="statTotal">—</div>
                 <div class="stat-label">Total Users</div>
-                <span class="stat-badge badge-green" id="statActive">— active</span>
+                <span class="tag" id="statActive" style="margin-top: 8px;">— active</span>
             </div>
-            <div class="stat-card pink">
+            <div class="stat-card">
                 <div class="stat-icon">🩺</div>
                 <div class="stat-value" id="statConsultants">—</div>
                 <div class="stat-label">Skincare Consultants</div>
             </div>
-            <div class="stat-card green">
+            <div class="stat-card">
                 <div class="stat-icon">✨</div>
                 <div class="stat-value" id="statUsers">—</div>
                 <div class="stat-label">Regular Users</div>
             </div>
-            <div class="stat-card yellow">
+            <div class="stat-card">
                 <div class="stat-icon">📅</div>
                 <div class="stat-value" id="statWeekly">—</div>
                 <div class="stat-label">New This Week</div>
-                <span class="stat-badge badge-yellow">7-day window</span>
+                <span class="tag warn" style="margin-top: 8px;">7-day window</span>
             </div>
         </div>
 
         <!-- Table -->
-        <div class="table-card">
-            <div class="table-header">
-                <h3>All Users</h3>
-                <div class="table-controls">
-                    <input class="search-box" type="text" id="searchInput" placeholder="🔍 Search name or email…">
-                    <select class="filter-select" id="roleFilter">
+        <div class="card">
+            <div style="padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); flex-wrap: wrap; gap: 12px;">
+                <h3 style="font-size: 1rem; font-weight: 700; margin: 0;">All Users</h3>
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <input style="background: rgba(255, 255, 255, 0.8); border: 1px solid var(--line); border-radius: 8px; padding: 8px 14px; color: var(--ink); font-family: inherit; font-size: 0.85rem; width: 220px;" type="text" id="searchInput" placeholder="🔍 Search name or email…">
+                    <select style="background: rgba(255, 255, 255, 0.8); border: 1px solid var(--line); border-radius: 8px; padding: 8px 14px; color: var(--ink); font-family: inherit; font-size: 0.85rem; cursor: pointer;" id="roleFilter">
                         <option value="">All Roles</option>
                         <option value="user">User</option>
                         <option value="consultant">Skincare Consultant</option>
                         <option value="admin">Admin</option>
                     </select>
-                    <button class="refresh-btn" onclick="loadUsers()">↻ Refresh</button>
+                    <button class="btn-secondary" onclick="loadUsers()">↻ Refresh</button>
                 </div>
             </div>
 
             <div id="tableBody">
-                <div class="table-loading">
+                <div class="loading-spinner">
                     <div class="spinner"></div>
                     <p>Loading users from database…</p>
                 </div>
             </div>
 
-            <div class="table-footer">
+            <div style="padding: 16px 24px; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: 0.8rem;">
                 <span id="tableInfo">—</span>
-                <div style="display:flex;gap:8px;">
-                    <button class="action-btn" onclick="changePage(-1)" id="prevBtn">← Prev</button>
-                    <button class="action-btn" onclick="changePage(1)"  id="nextBtn">Next →</button>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn-ghost" onclick="changePage(-1)" id="prevBtn" style="padding: 5px 10px; font-size: 0.75rem;">← Prev</button>
+                    <button class="btn-ghost" onclick="changePage(1)" id="nextBtn" style="padding: 5px 10px; font-size: 0.75rem;">Next →</button>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ── DB Info Section ── -->
-    <section id="section-db" style="display:none;">
-        <div class="page-header">
+    <!-- DB Info Section -->
+    <section id="section-db" style="display: none;">
+        <div style="margin-bottom: 32px;">
             <h1>🗄️ Database Info</h1>
-            <p>PostgreSQL connection details and table overview</p>
+            <p style="color: var(--muted); margin-top: 6px; font-size: 0.9rem;">PostgreSQL connection details and table overview</p>
         </div>
-        <div class="table-card" style="padding:24px;">
-            <div class="db-info">
-                <div class="db-card">
-                    <h4>Connection Status</h4>
-                    <p><span class="db-dot"></span>Connected</p>
+        <div class="card" style="padding: 24px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div style="background: rgba(36, 48, 65, 0.05); border: 1px solid var(--line); border-radius: 10px; padding: 16px;">
+                    <h4 style="font-size: 0.8rem; color: var(--muted); margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Connection Status</h4>
+                    <p style="font-size: 0.9rem; font-weight: 500;"><span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--good); margin-right: 6px; animation: pulse 2s infinite;"></span>Connected</p>
                 </div>
-                <div class="db-card">
-                    <h4>Database</h4>
-                    <p>skin_intelligence</p>
+                <div style="background: rgba(36, 48, 65, 0.05); border: 1px solid var(--line); border-radius: 10px; padding: 16px;">
+                    <h4 style="font-size: 0.8rem; color: var(--muted); margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Database</h4>
+                    <p style="font-size: 0.9rem; font-weight: 500;">skin_intelligence</p>
                 </div>
-                <div class="db-card">
-                    <h4>Host</h4>
-                    <p>localhost:5432</p>
+                <div style="background: rgba(36, 48, 65, 0.05); border: 1px solid var(--line); border-radius: 10px; padding: 16px;">
+                    <h4 style="font-size: 0.8rem; color: var(--muted); margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Host</h4>
+                    <p style="font-size: 0.9rem; font-weight: 500;">localhost:5432</p>
                 </div>
-                <div class="db-card">
-                    <h4>User</h4>
-                    <p>postgres</p>
+                <div style="background: rgba(36, 48, 65, 0.05); border: 1px solid var(--line); border-radius: 10px; padding: 16px;">
+                    <h4 style="font-size: 0.8rem; color: var(--muted); margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">User</h4>
+                    <p style="font-size: 0.9rem; font-weight: 500;">postgres</p>
                 </div>
-                <div class="db-card">
-                    <h4>Tables</h4>
-                    <p>users · refresh_tokens · skin_profiles</p>
+                <div style="background: rgba(36, 48, 65, 0.05); border: 1px solid var(--line); border-radius: 10px; padding: 16px;">
+                    <h4 style="font-size: 0.8rem; color: var(--muted); margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Tables</h4>
+                    <p style="font-size: 0.9rem; font-weight: 500;">users · refresh_tokens · skin_profiles</p>
                 </div>
-                <div class="db-card">
-                    <h4>ORM/Driver</h4>
-                    <p>pg (node-postgres)</p>
+                <div style="background: rgba(36, 48, 65, 0.05); border: 1px solid var(--line); border-radius: 10px; padding: 16px;">
+                    <h4 style="font-size: 0.8rem; color: var(--muted); margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">ORM/Driver</h4>
+                    <p style="font-size: 0.9rem; font-weight: 500;">pg (node-postgres)</p>
                 </div>
             </div>
-            <div style="margin-top:24px;padding:20px;background:rgba(0,0,0,.3);border-radius:10px;border:1px solid var(--border);">
-                <h4 style="font-size:.8rem;color:var(--muted);margin-bottom:12px;font-weight:600;text-transform:uppercase;">pgAdmin 4 — How to view data</h4>
-                <ol style="padding-left:20px;font-size:.875rem;line-height:2;color:#94a3b8;">
+            <div style="margin-top: 24px; padding: 20px; background: rgba(0,0,0,0.1); border-radius: 10px; border: 1px solid var(--line);">
+                <h4 style="font-size: 0.8rem; color: var(--muted); margin-bottom: 12px; font-weight: 600; text-transform: uppercase;">pgAdmin 4 — How to view data</h4>
+                <ol style="padding-left: 20px; font-size: 0.875rem; line-height: 2; color: var(--muted);">
                     <li>Open <strong>pgAdmin 4</strong> (Start Menu → pgAdmin 4)</li>
                     <li>Connect to <strong>localhost</strong> with user <strong>postgres</strong></li>
                     <li>Expand: <strong>Databases → skin_intelligence → Schemas → public → Tables</strong></li>
@@ -297,43 +159,43 @@
         </div>
     </section>
 
-    <!-- ── Skin Profiles Section ── -->
-    <section id="section-skin-profiles" style="display:none;">
-        <div class="page-header">
+    <!-- Skin Profiles Section -->
+    <section id="section-skin-profiles" style="display: none;">
+        <div style="margin-bottom: 32px;">
             <h1>🧴 Skin Profiles Overview</h1>
-            <p>View user skin profile data and tracking statistics</p>
+            <p style="color: var(--muted); margin-top: 6px; font-size: 0.9rem;">View user skin profile data and tracking statistics</p>
         </div>
         
-        <div class="stats-grid">
-            <div class="stat-card purple">
+        <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 32px;">
+            <div class="stat-card">
                 <div class="stat-icon">👤</div>
                 <div class="stat-value" id="totalProfiles">—</div>
                 <div class="stat-label">Total Profiles</div>
             </div>
-            <div class="stat-card pink">
+            <div class="stat-card">
                 <div class="stat-icon">🧴</div>
                 <div class="stat-value" id="oilySkin">—</div>
                 <div class="stat-label">Oily Skin</div>
             </div>
-            <div class="stat-card green">
+            <div class="stat-card">
                 <div class="stat-icon">💧</div>
                 <div class="stat-value" id="drySkin">—</div>
                 <div class="stat-label">Dry Skin</div>
             </div>
-            <div class="stat-card yellow">
+            <div class="stat-card">
                 <div class="stat-icon">⚖️</div>
                 <div class="stat-value" id="combinationSkin">—</div>
                 <div class="stat-label">Combination</div>
             </div>
         </div>
 
-        <div class="table-card" style="margin-top:24px;">
-            <div class="table-header">
-                <h3>Recent Skin Profiles</h3>
-                <button class="refresh-btn" onclick="loadSkinProfileStats()">↻ Refresh</button>
+        <div class="card" style="margin-top: 24px;">
+            <div style="padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line);">
+                <h3 style="font-size: 1rem; font-weight: 700; margin: 0;">Recent Skin Profiles</h3>
+                <button class="btn-secondary" onclick="loadSkinProfileStats()">↻ Refresh</button>
             </div>
             <div id="skinProfilesTable">
-                <div class="table-loading">
+                <div class="loading-spinner">
                     <div class="spinner"></div>
                     <p>Loading skin profile data…</p>
                 </div>
@@ -341,244 +203,275 @@
         </div>
     </section>
 
-    <!-- ── JWT Token Section ── -->
-    <section id="section-token" style="display:none;">
-        <div class="page-header">
+    <!-- JWT Token Section -->
+    <section id="section-token" style="display: none;">
+        <div style="margin-bottom: 32px;">
             <h1>🔑 JWT Token Viewer</h1>
-            <p>Inspect your current access token and decode its payload</p>
+            <p style="color: var(--muted); margin-top: 6px; font-size: 0.9rem;">Inspect your current access token and decode its payload</p>
         </div>
-        <div class="table-card" style="padding:24px;">
-            <div style="margin-bottom:24px;">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-                    <div class="token-label">Access Token (Bearer)</div>
-                    <button class="copy-btn" onclick="copyToken()">📋 Copy</button>
+        <div class="card" style="padding: 24px;">
+            <div style="margin-bottom: 24px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                    <div style="font-size: 0.75rem; color: var(--muted); margin-bottom: 6px; font-weight: 600;">Access Token (Bearer)</div>
+                    <button class="btn-ghost" onclick="copyToken()" style="padding: 6px 12px; font-size: 0.75rem;">📋 Copy</button>
                 </div>
-                <div class="token-box" id="tokenDisplay">Loading…</div>
+                <div style="background: rgba(36, 48, 65, 0.05); border: 1px solid var(--line); border-radius: 8px; padding: 16px; font-family: 'Courier New', monospace; font-size: 0.75rem; word-break: break-all; color: var(--accent); max-height: 120px; overflow-y: auto;" id="tokenDisplay">Loading…</div>
             </div>
-            <div style="margin-bottom:24px;">
-                <div class="token-label" style="margin-bottom:6px;">Decoded Payload</div>
-                <div class="token-box" id="payloadDisplay" style="color:#7c5cfc;">Loading…</div>
+            <div style="margin-bottom: 24px;">
+                <div style="font-size: 0.75rem; color: var(--muted); margin-bottom: 6px; font-weight: 600;">Decoded Payload</div>
+                <div style="background: rgba(36, 48, 65, 0.05); border: 1px solid var(--line); border-radius: 8px; padding: 16px; font-family: 'Courier New', monospace; font-size: 0.75rem; word-break: break-all; color: #7c5cfc;" id="payloadDisplay">Loading…</div>
             </div>
-            <div style="background:rgba(16,217,164,.05);border:1px solid rgba(16,217,164,.2);border-radius:10px;padding:16px;font-size:.85rem;color:#94a3b8;line-height:1.7;">
-                <strong style="color:var(--green);">💡 How to verify at jwt.io:</strong><br>
+            <div style="background: rgba(47, 58, 71, 0.05); border: 1px solid rgba(16, 217, 164, 0.2); border-radius: 10px; padding: 16px; font-size: 0.85rem; color: var(--muted); line-height: 1.7;">
+                <strong style="color: var(--good);">💡 How to verify at jwt.io:</strong><br>
                 1. Copy the token above<br>
-                2. Go to <a href="https://jwt.io" target="_blank" style="color:var(--accent);">jwt.io</a><br>
-                3. Paste in the Encoded box — you'll see the header, payload, and signature decoded live
+                2. Go to jwt.io<br>
+                3. Paste the token in the "Encoded" box<br>
+                4. The decoded payload will appear automatically
             </div>
         </div>
     </section>
 
-</main>
+    </div>
+</div>
 
+<!-- Toast Notification -->
 <div class="toast" id="toast"></div>
+
+<style>
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+    }
+
+    .toast {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        background: rgba(255, 250, 243, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 14px 20px;
+        font-size: 0.875rem;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: 0.3s;
+        pointer-events: none;
+        z-index: 999;
+    }
+
+    .toast.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .toast.success {
+        border-left: 3px solid var(--good);
+    }
+
+    .toast.error {
+        border-left: 3px solid var(--bad);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    thead th {
+        padding: 12px 24px;
+        text-align: left;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        background: rgba(36, 48, 65, 0.05);
+        border-bottom: 1px solid var(--line);
+    }
+
+    tbody tr {
+        border-bottom: 1px solid rgba(36, 48, 65, 0.08);
+        transition: 0.15s;
+    }
+
+    tbody tr:hover {
+        background: rgba(192, 138, 75, 0.08);
+    }
+
+    tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    tbody td {
+        padding: 14px 24px;
+        font-size: 0.875rem;
+        vertical-align: middle;
+    }
+
+    .user-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .row-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.8rem;
+        flex-shrink: 0;
+    }
+
+    .role-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .role-admin {
+        background: rgba(143, 175, 157, 0.2);
+        color: var(--accent-2);
+    }
+
+    .role-consultant {
+        background: rgba(200, 169, 106, 0.2);
+        color: var(--accent);
+    }
+
+    .role-user {
+        background: rgba(16, 217, 164, 0.2);
+        color: var(--good);
+    }
+
+    .status-pill {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.72rem;
+        font-weight: 600;
+    }
+
+    .status-active {
+        background: rgba(16, 217, 164, 0.15);
+        color: var(--good);
+    }
+
+    .status-inactive {
+        background: rgba(240, 82, 82, 0.15);
+        color: var(--bad);
+    }
+
+    .provider-badge {
+        font-size: 0.75rem;
+        color: var(--muted);
+    }
+
+    .action-btn {
+        background: none;
+        border: 1px solid var(--line);
+        color: var(--muted);
+        border-radius: 6px;
+        padding: 5px 10px;
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: 0.2s;
+        margin-right: 4px;
+    }
+
+    .action-btn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+    }
+
+    .action-btn.danger:hover {
+        border-color: var(--bad);
+        color: var(--bad);
+    }
+</style>
 
 <script src="src/script.js"></script>
 <script>
-const API = 'http://localhost:3000/api';
-let currentPage = 1;
-let totalUsers  = 0;
-const LIMIT = 10;
-let searchTimeout;
-
-// ── Init ──────────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  loadUsers();
-  loadStats();
-  showTokenInfo();
-  loadSkinProfileStats();
-});
-(async () => {
-    const user = await requireAuth(['admin']);
-    if (!user) return;
-
-    document.getElementById('adminName').textContent   = user.name;
-    document.getElementById('adminAvatar').textContent = user.name[0].toUpperCase();
-
-    loadStats();
-    loadUsers();
-    showTokenInfo();
-})();
-
-// ── Section navigation ────────────────────────────────────────────────────────
-function showSection(name) {
-    ['users','db','token'].forEach(s => {
-        document.getElementById(`section-${s}`).style.display = s === name ? 'block' : 'none';
-        document.getElementById(`nav-${s}`).classList.toggle('active', s === name);
-    });
-}
-
-// ── Stats ─────────────────────────────────────────────────────────────────────
-async function loadStats() {
-    try {
-        const res  = await apiFetch('/users/stats');
-        const data = await res.json();
-        if (!data.success) return;
-        const s = data.stats;
-        document.getElementById('statTotal').textContent       = s.total;
-        document.getElementById('statActive').textContent      = `${s.active} active`;
-        document.getElementById('statConsultants').textContent = s.byRole.consultant || 0;
-        document.getElementById('statUsers').textContent       = s.byRole.user || 0;
-        document.getElementById('statWeekly').textContent      = s.newThisWeek;
-    } catch(e) { console.error(e); }
-}
-
-// ── Users table ───────────────────────────────────────────────────────────────
-async function loadUsers() {
-    const search = document.getElementById('searchInput').value;
-    const role   = document.getElementById('roleFilter').value;
-    const params = new URLSearchParams({ page: currentPage, limit: LIMIT });
-    if (search) params.append('search', search);
-    if (role)   params.append('role', role);
-
-    document.getElementById('tableBody').innerHTML = `<div class="table-loading"><div class="spinner"></div><p>Fetching from PostgreSQL…</p></div>`;
-
-    try {
-        const res  = await apiFetch(`/users?${params}`);
-        const data = await res.json();
-        if (!data.success) { showToast(data.message, 'error'); return; }
-
-        totalUsers = data.total;
-        renderTable(data.users);
-        document.getElementById('tableInfo').textContent = `Showing ${(currentPage-1)*LIMIT+1}–${Math.min(currentPage*LIMIT,totalUsers)} of ${totalUsers} users`;
-        document.getElementById('prevBtn').disabled = currentPage <= 1;
-        document.getElementById('nextBtn').disabled = currentPage * LIMIT >= totalUsers;
-
-    } catch(e) {
-        document.getElementById('tableBody').innerHTML = `<div class="table-loading"><p style="color:var(--red);">❌ Could not reach API. Is the backend running?</p></div>`;
-    }
-}
-
-function renderTable(users) {
-    if (!users.length) {
-        document.getElementById('tableBody').innerHTML = `<div class="table-loading"><p>No users found.</p></div>`;
-        return;
-    }
-
-    const colors = ['#7c5cfc','#e879a0','#10d9a4','#f5c542','#38bdf8','#fb923c'];
-    const rows = users.map((u, i) => {
-        const color    = colors[i % colors.length];
-        const initial  = u.name[0].toUpperCase();
-        const roleCls  = `role-${u.role}`;
-        const statusCls = u.is_active ? 'status-active' : 'status-inactive';
-        const statusTxt = u.is_active ? 'Active' : 'Inactive';
-        const date      = new Date(u.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
-
-        return `<tr>
-            <td>
-                <div class="user-cell">
-                    <div class="row-avatar" style="background:${color}20;color:${color}">${initial}</div>
-                    <div>
-                        <div style="font-weight:600">${escapeHtml(u.name)}</div>
-                        <div style="font-size:.75rem;color:var(--muted)">${escapeHtml(u.email)}</div>
-                    </div>
-                </div>
-            </td>
-            <td><span class="role-badge ${roleCls}">${u.role}</span></td>
-            <td><span class="status-pill ${statusCls}">${statusTxt}</span></td>
-            <td><span class="provider-badge">${u.provider}</span></td>
-            <td style="color:var(--muted);font-size:.8rem">${date}</td>
-            <td>
-                <button class="action-btn" onclick="toggleUser('${u.id}','${escapeHtml(u.name)}',${u.is_active})">${u.is_active ? 'Deactivate' : 'Activate'}</button>
-                <button class="action-btn danger" onclick="deleteUser('${u.id}','${escapeHtml(u.name)}')">Delete</button>
-            </td>
-        </tr>`;
-    }).join('');
-
-    document.getElementById('tableBody').innerHTML = `
-        <table>
-            <thead>
-                <tr>
-                    <th>User</th><th>Role</th><th>Status</th><th>Provider</th><th>Joined</th><th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>${rows}</tbody>
-        </table>`;
-}
-
-function changePage(dir) {
-    currentPage = Math.max(1, currentPage + dir);
-    loadUsers();
-}
-
-// ── User actions ──────────────────────────────────────────────────────────────
-async function toggleUser(id, name, isActive) {
-    if (!confirm(`${isActive ? 'Deactivate' : 'Activate'} user "${name}"?`)) return;
-    try {
-        const res  = await apiFetch(`/users/${id}/toggle`, { method: 'PATCH' });
-        const data = await res.json();
-        if (data.success) { showToast(`${name} ${data.user.is_active ? 'activated' : 'deactivated'}`, 'success'); loadUsers(); loadStats(); }
-        else showToast(data.message, 'error');
-    } catch(e) { showToast('Server error', 'error'); }
-}
-
-async function deleteUser(id, name) {
-    if (!confirm(`Permanently delete user "${name}"?\n\nThis cannot be undone.`)) return;
-    try {
-        const res  = await apiFetch(`/users/${id}`, { method: 'DELETE' });
-        const data = await res.json();
-        if (data.success) { showToast(data.message, 'success'); loadUsers(); loadStats(); }
-        else showToast(data.message, 'error');
-    } catch(e) { showToast('Server error', 'error'); }
-}
-
-// ── JWT viewer ────────────────────────────────────────────────────────────────
-function showTokenInfo() {
-    const token = localStorage.getItem('accessToken');
-    if (!token) return;
-    document.getElementById('tokenDisplay').textContent = token;
-    try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        payload.exp_readable = new Date(payload.exp * 1000).toLocaleString();
-        payload.iat_readable = new Date(payload.iat * 1000).toLocaleString();
-        document.getElementById('payloadDisplay').textContent = JSON.stringify(payload, null, 2);
-    } catch(e) {}
-}
-
-function copyToken() {
-    const token = localStorage.getItem('accessToken');
-    navigator.clipboard.writeText(token).then(() => showToast('Token copied to clipboard!', 'success'));
-}
-
-// ── Search debounce ───────────────────────────────────────────────────────────
-document.getElementById('searchInput').addEventListener('input', () => {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => { currentPage=1; loadUsers(); }, 400);
-});
-document.getElementById('roleFilter').addEventListener('change', () => { currentPage=1; loadUsers(); });
-
-// ── Display admin name dynamically ───────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', function() {
-    const user = JSON.parse(localStorage.getItem('currentUser'));
-    if (user && user.name) {
-        const adminNameEl = document.getElementById('adminName');
-        if (adminNameEl) {
-            adminNameEl.textContent = user.name;
+    // Load admin data
+    function loadAdminData() {
+        const currentUser = localStorage.getItem('currentUser');
+        if (currentUser) {
+            const user = JSON.parse(currentUser);
+            document.getElementById('adminName').textContent = user.name || 'User';
+            document.getElementById('adminAvatar').textContent = (user.name || 'U').charAt(0).toUpperCase();
         }
+    }
+
+    // Show toast notification
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = `toast show ${type}`;
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+
+    // Copy token to clipboard
+    function copyToken() {
+        const token = localStorage.getItem('accessToken');
+        if (token) {
+            navigator.clipboard.writeText(token);
+            showToast('Token copied to clipboard!');
+        }
+    }
+
+    // Display JWT token
+    function displayToken() {
+        const token = localStorage.getItem('accessToken');
+        if (token) {
+            document.getElementById('tokenDisplay').textContent = token;
+            
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                document.getElementById('payloadDisplay').textContent = JSON.stringify(payload, null, 2);
+            } catch (e) {
+                document.getElementById('payloadDisplay').textContent = 'Unable to decode token';
+            }
+        } else {
+            document.getElementById('tokenDisplay').textContent = 'No token found';
+            document.getElementById('payloadDisplay').textContent = 'Please log in first';
+        }
+    }
+
+    // Section navigation
+    function showSection(sectionId) {
+        // Hide all sections
+        document.querySelectorAll('section').forEach(section => {
+            section.style.display = 'none';
+        });
         
-        const adminRoleEl = document.getElementById('adminRole');
-        if (adminRoleEl) {
-            adminRoleEl.textContent = user.role.charAt(0).toUpperCase() + user.role.slice(1);
-        }
+        // Show selected section
+        document.getElementById(`section-${sectionId}`).style.display = 'block';
         
-        const adminAvatarEl = document.getElementById('adminAvatar');
-        if (adminAvatarEl) {
-            const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-            adminAvatarEl.textContent = initials;
-        }
+        // Update nav items
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        document.getElementById(`nav-${sectionId}`).classList.add('active');
     }
-});
 
-// ── Toast ─────────────────────────────────────────────────────────────────────
-function showToast(msg, type='success') {
-    const t = document.getElementById('toast');
-    t.textContent = (type==='success'?'✓ ':'✗ ') + msg;
-    t.className = `toast ${type} show`;
-    setTimeout(() => t.classList.remove('show'), 3000);
-}
-
-function escapeHtml(str) {
-    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+    // Initialize
+    loadAdminData();
+    displayToken();
+    showSection('users');
+    loadAdminData();
+    displayToken();
+    loadUsers();
+    loadSkinProfileStats();
 </script>
 </body>
 </html>

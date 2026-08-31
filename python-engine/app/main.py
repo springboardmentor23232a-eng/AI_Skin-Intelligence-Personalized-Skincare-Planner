@@ -1,9 +1,14 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import init_db
-from app.routes.assessment import router as assessment_router
-from app.routes.skin_classifier import router as skin_classifier_router
-from app.routes.routine import router as routine_router
+from app.routes.assessment.assessment import router as assessment_router
+from app.routes.skin_classifier.skin_classifier import router as skin_classifier_router
+from app.routes.routine.routine import router as routine_router
+from app.routes.ingredient_intelligence.ingredient_intelligence import router as ingredient_intelligence_router
+from app.routes.product_recommendation.product_recommendation import router as product_recommendation_router
+from app.routes.progress_tracking.progress_tracking import router as progress_tracking_router
+from app.routes.analytics.analytics import router as analytics_router
+from app.routes.ml_recommendations import router as ml_recommendations_router
 
 # Create FastAPI app
 app = FastAPI(
@@ -25,6 +30,11 @@ app.add_middleware(
 app.include_router(assessment_router, prefix="/api", tags=["assessments"])
 app.include_router(skin_classifier_router, prefix="/api", tags=["skin-classifier"])
 app.include_router(routine_router, prefix="/api", tags=["routines"])
+app.include_router(ingredient_intelligence_router, prefix="/api", tags=["ingredient-intelligence"])
+app.include_router(product_recommendation_router, prefix="/api", tags=["product-recommendations"])
+app.include_router(progress_tracking_router, prefix="/api", tags=["progress-tracking"])
+app.include_router(analytics_router, prefix="/api", tags=["analytics"])
+app.include_router(ml_recommendations_router, prefix="/api", tags=["ml-recommendations"])
 
 # Startup event - Initialize database
 @app.on_event("startup")

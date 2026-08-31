@@ -1,0 +1,11 @@
+{
+  "training_samples": 1500,
+  "unique_users": 100,
+  "unique_products": 15,
+  "models_trained": {
+    "content_based": true,
+    "collaborative_filtering": true,
+    "hybrid": true
+  },
+  "product_database_size": 15
+}

@@ -8,7 +8,12 @@ import os
 import tempfile
 import uuid
 
-from app.engine.skin_classifier import get_classifier
+try:
+    from app.engine.skin_classifier import get_classifier
+    TENSORFLOW_AVAILABLE = True
+except ModuleNotFoundError:
+    get_classifier = None
+    TENSORFLOW_AVAILABLE = False
 
 router = APIRouter()
 
@@ -34,6 +39,12 @@ async def predict_skin_type(file: UploadFile = File(...)) -> Dict:
         )
     
     # Check if classifier is available
+    if not TENSORFLOW_AVAILABLE:
+        raise HTTPException(
+            status_code=503,
+            detail="Skin classifier is unavailable because TensorFlow is not installed."
+        )
+
     classifier = get_classifier()
     if classifier.model is None:
         raise HTTPException(
@@ -85,6 +96,16 @@ async def get_classifier_info() -> Dict:
         Dictionary with classifier information
     """
     try:
+        if not TENSORFLOW_AVAILABLE:
+            return {
+                "success": False,
+                "model_loaded": False,
+                "model_path": None,
+                "supported_classes": ['combination', 'dry', 'normal'],
+                "input_size": [224, 224],
+                "message": "Skin classifier is unavailable because TensorFlow is not installed."
+            }
+
         classifier = get_classifier()
         return {
             "success": True,
