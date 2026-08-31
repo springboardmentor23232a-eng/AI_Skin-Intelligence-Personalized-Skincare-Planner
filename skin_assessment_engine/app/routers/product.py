@@ -17,7 +17,7 @@ router = APIRouter(tags=["Module 6: Product Recommendation Engine"])
 def get_personalized_recommendations(payload: ProductRecommendationRequest):
     """
     Module 6: Generates personalized product recommendations with 0-100% suitability match scores.
-    Supports filtering by product category and budget tiers (Budget $, Mid-Range $$, Premium $$$).
+    Supports filtering by product category and budget tiers (Budget ₹, Mid-Range ₹₹, Premium ₹₹₹).
     """
     recs = recommendation_engine.recommend_products(
         category=payload.category,

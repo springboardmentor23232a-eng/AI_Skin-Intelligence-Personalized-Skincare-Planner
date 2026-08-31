@@ -11,7 +11,8 @@
     "test": "node test/dashboard.test.js",
     "test:server": "node test/server.test.js",
     "test:routine": "node test/routine.test.js",
-    "test:all": "node test/dashboard.test.js && node test/server.test.js && node test/routine.test.js"
+    "test:products": "node test/products.test.js",
+    "test:all": "node test/dashboard.test.js && node test/server.test.js && node test/routine.test.js && node test/products.test.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

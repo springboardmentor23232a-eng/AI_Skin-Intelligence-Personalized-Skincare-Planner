@@ -4,7 +4,18 @@
  */
 
 import { auth } from './auth.js';
-import { MOCK_USER_DATA, MOCK_CONSULTANT_DATA, MOCK_DERMATOLOGIST_DATA, MOCK_ADMIN_DATA, MOCK_ROLES } from './mockData.js';
+import {
+  MOCK_USER_DATA,
+  MOCK_CONSULTANT_DATA,
+  MOCK_DERMATOLOGIST_DATA,
+  MOCK_ADMIN_DATA,
+  MOCK_ROLES,
+  MASTER_PRODUCT_CATALOG,
+  calculateProductSuitability,
+  filterProductCatalog,
+  generateProductComparison,
+  getAlternativeProductsFor
+} from './mockData.js';
 
 export function renderLandingPage() {
   return `
@@ -234,7 +245,7 @@ export function renderLandingPage() {
         <div class="pricing-card-col reveal-right delay-2">
           <div class="pricing-box">
             <small style="text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.1em; color: var(--text-muted); font-weight: 700;">• CONSULTATIONS</small>
-            <div class="price-val">Starting at <span>$3</span></div>
+            <div class="price-val">Starting at <span>₹249</span></div>
             <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">per session. Get expert skincare guidance at an affordable price.</p>
 
             <button class="btn btn-primary" style="width: 100%; margin-bottom: 0.75rem;" onclick="window.app.selectRole('dermatologist')">CONSULT A DOCTOR</button>
@@ -379,48 +390,52 @@ export function renderLandingPage() {
 
 export function renderUserDashboard() {
   const data = MOCK_USER_DATA;
-  
+
   const totalSteps = data.routine.morning.length + data.routine.evening.length;
   const completedSteps = data.routine.morning.filter(s => s.completed).length + data.routine.evening.filter(s => s.completed).length;
   const routinePct = Math.round((completedSteps / totalSteps) * 100);
 
   // Default active concerns if not yet populated from API
-  const activeConcerns = data.profile.primaryConcerns && data.profile.primaryConcerns.length > 0 
-    ? data.profile.primaryConcerns 
+  const activeConcerns = data.profile.primaryConcerns && data.profile.primaryConcerns.length > 0
+    ? data.profile.primaryConcerns
     : ['Transepidermal Water Loss', 'Acne & Breakouts'];
 
   return `
     <div class="dashboard-wrapper">
-      <!-- HEADER BANNER WITH PROFESSIONAL ACTION TOOLBAR -->
+      <!-- DASHBOARD HEADER & QUICK ACTIONS -->
       <div class="dashboard-header" style="background: #FFFFFF; padding: 1.5rem 1.75rem; border-radius: var(--radius-md); border: 1px solid var(--border-light); box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 1.5rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
           <div>
-            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem;">
-              <span class="section-tag-pill" style="font-size: 0.7rem; padding: 0.15rem 0.65rem; background: rgba(197, 155, 39, 0.12); color: var(--gold-primary);">CLINICAL DERMATOLOGY DASHBOARD</span>
-              <span class="badge badge-success" style="font-size: 0.75rem;">🟢 Telemetry Active</span>
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+              <span class="section-tag-pill" style="font-size: 0.68rem; padding: 0.15rem 0.6rem; letter-spacing: 0.04em;">SKIN PROFILE</span>
+              <span class="badge badge-success" style="font-size: 0.72rem; font-weight: 600; padding: 0.15rem 0.55rem;">● Active</span>
             </div>
-            <h2 style="font-family: 'Playfair Display', serif; font-size: 1.65rem; color: var(--text-primary); margin-bottom: 0.2rem;">
-              Patient Profile: <strong>${data.profile.name}</strong>
+            <h2 style="font-family: 'Playfair Display', serif; font-size: 1.65rem; color: var(--text-primary); margin: 0 0 0.3rem 0;">
+              ${data.profile.name}
             </h2>
-            <p class="text-muted" style="font-size: 0.88rem; margin: 0;">
-              Skin Classification: <strong>${data.profile.skinType}</strong> &nbsp;|&nbsp; Age Demographic: <strong>${data.profile.ageGroup}</strong> &nbsp;|&nbsp; Barrier Status: <span style="color: var(--accent-emerald); font-weight: 700;">Balanced Equilibrium</span>
+            <p class="text-muted" style="font-size: 0.88rem; margin: 0; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+              <span><strong>${data.profile.skinType}</strong> Skin</span>
+              <span style="opacity: 0.4;">•</span>
+              <span>Age <strong>${data.profile.ageGroup}</strong></span>
+              <span style="opacity: 0.4;">•</span>
+              <span>Barrier: <strong style="color: var(--accent-emerald); font-weight: 600;">Healthy</strong></span>
             </p>
           </div>
           <div>
-            <button class="btn btn-outline btn-sm" style="font-size: 0.8rem; padding: 0.55rem 1rem; border-radius: var(--radius-sm);" onclick="window.app.openModal('user-settings-modal')">⚙️ Account Settings</button>
+            <button class="btn btn-outline btn-sm" style="font-size: 0.8rem; padding: 0.5rem 1rem; border-radius: var(--radius-sm);" onclick="window.app.openModal('user-settings-modal')">⚙️ Settings</button>
           </div>
         </div>
 
-        <!-- DEDICATED PROFESSIONAL ACTION BAR GRID -->
-        <div style="margin-top: 1.25rem; padding-top: 1.1rem; border-top: 1px solid var(--border-light); display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.85rem;">
-          <button class="btn btn-gold" style="padding: 0.75rem 1.1rem; background: var(--gold-primary); color: #FFFFFF; border: none; border-radius: var(--radius-sm); font-weight: 700; font-size: 0.83rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; box-shadow: 0 4px 12px rgba(197, 155, 39, 0.25); transition: var(--transition);" onclick="window.app.openModal('photo-scan-modal')">
-            📸 ML Photo & Live Webcam Analyzer
+        <!-- ACTION TOOLBAR -->
+        <div style="margin-top: 1.25rem; padding-top: 1.1rem; border-top: 1px solid var(--border-light); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.85rem;">
+          <button class="btn btn-gold" style="padding: 0.7rem 1rem; background: var(--gold-primary); color: #FFFFFF; border: none; border-radius: var(--radius-sm); font-weight: 700; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; box-shadow: 0 4px 12px rgba(197, 155, 39, 0.2); transition: var(--transition);" onclick="window.app.openModal('photo-scan-modal')">
+            📸 AI Skin Scan
           </button>
-          <button class="btn btn-primary" style="padding: 0.75rem 1.1rem; background: var(--text-primary); color: #FFFFFF; border: none; border-radius: var(--radius-sm); font-weight: 700; font-size: 0.83rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: var(--transition);" onclick="window.app.openModal('assessment-modal')">
-            📋 Clinical Assessment Survey
+          <button class="btn btn-primary" style="padding: 0.7rem 1rem; background: var(--text-primary); color: #FFFFFF; border: none; border-radius: var(--radius-sm); font-weight: 700; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: var(--transition);" onclick="window.app.openModal('assessment-modal')">
+            📋 Skin Assessment
           </button>
-          <button class="btn btn-outline" style="padding: 0.75rem 1.1rem; background: #FAF9F6; color: var(--text-primary); border: 1px solid var(--border-gold); border-radius: var(--radius-sm); font-weight: 700; font-size: 0.83rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: var(--transition);" onclick="window.app.openModal('ingredient-modal')">
-            🧪 Ingredient Safety & Clash Checker
+          <button class="btn btn-outline" style="padding: 0.7rem 1rem; background: #FAF9F6; color: var(--text-primary); border: 1px solid var(--border-gold); border-radius: var(--radius-sm); font-weight: 700; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: var(--transition);" onclick="window.app.openModal('ingredient-modal')">
+            🧪 Ingredient Safety
           </button>
         </div>
       </div>
@@ -479,9 +494,9 @@ export function renderUserDashboard() {
 
           <div class="score-breakdown-list" style="display: flex; flex-direction: column; gap: 0.85rem;">
             ${data.skinScore.breakdown.map(item => {
-              const statusColor = item.score >= 80 ? 'var(--accent-emerald)' : item.score >= 65 ? 'var(--gold-primary)' : 'var(--accent-amber)';
-              const statusText = item.score >= 80 ? 'Optimal' : item.score >= 65 ? 'Good' : 'Needs Attention';
-              return `
+    const statusColor = item.score >= 80 ? 'var(--accent-emerald)' : item.score >= 65 ? 'var(--gold-primary)' : 'var(--accent-amber)';
+    const statusText = item.score >= 80 ? 'Optimal' : item.score >= 65 ? 'Good' : 'Needs Attention';
+    return `
                 <div class="breakdown-item" style="padding: 0.65rem 0.85rem; background: #FAF9F6; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
                   <div class="breakdown-label" style="margin-bottom: 0.35rem; display: flex; justify-content: space-between; align-items: center;">
                     <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary);">${item.name} <small class="text-muted">(${item.weight})</small></span>
@@ -492,7 +507,7 @@ export function renderUserDashboard() {
                   </div>
                 </div>
               `;
-            }).join('')}
+  }).join('')}
           </div>
 
           <!-- Interactive Trackers -->
@@ -603,10 +618,10 @@ export function renderUserDashboard() {
             </div>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.85rem;">
               ${(data.routine.weeklyPlan || [
-                { day: 'Wednesday & Sunday', focus: 'BHA Chemical Exfoliation', category: '✨ Exfoliation', treatment_name: '2% Salicylic Acid Exfoliant Liquid', instructions: 'Pore clearing & smooth texture renewal.', icon: '✨' },
-                { day: 'Friday Evening', focus: 'Deep Moisture Sheet Mask', category: '💧 Treatment', treatment_name: 'Ceramide & Hyaluronic Sheet Mask', instructions: 'Intense moisture infusion for 15-20 min.', icon: '💧' },
-                { day: 'Saturday Morning', focus: 'Weekend Lip & Eye Ritual', category: '🌙 Night Care', treatment_name: 'Peptide Lip Butter & Cooling Eye Serum', instructions: 'Nourish delicate eye & lip zones.', icon: '🌙' }
-              ]).map((w, idx) => `
+      { day: 'Wednesday & Sunday', focus: 'BHA Chemical Exfoliation', category: '✨ Exfoliation', treatment_name: '2% Salicylic Acid Exfoliant Liquid', instructions: 'Pore clearing & smooth texture renewal.', icon: '✨' },
+      { day: 'Friday Evening', focus: 'Deep Moisture Sheet Mask', category: '💧 Treatment', treatment_name: 'Ceramide & Hyaluronic Sheet Mask', instructions: 'Intense moisture infusion for 15-20 min.', icon: '💧' },
+      { day: 'Saturday Morning', focus: 'Weekend Lip & Eye Ritual', category: '🌙 Night Care', treatment_name: 'Peptide Lip Butter & Cooling Eye Serum', instructions: 'Nourish delicate eye & lip zones.', icon: '🌙' }
+    ]).map((w, idx) => `
                 <div style="padding: 1rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm); position: relative;">
                   <button title="Remove treatment" onclick="event.stopPropagation(); window.app.deleteWeeklyItem(${idx})" style="position: absolute; top: 8px; right: 8px; background: transparent; border: none; font-size: 1.1rem; color: var(--text-muted); cursor: pointer;">&times;</button>
                   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem; padding-right: 1.5rem;">
@@ -634,9 +649,9 @@ export function renderUserDashboard() {
                 <h5 style="font-size: 0.82rem; font-weight: 700; text-transform: uppercase; color: #0F766E; margin-bottom: 0.35rem;">Recommended Adjustments:</h5>
                 <ul style="margin: 0; padding-left: 1.2rem; font-size: 0.82rem; color: var(--text-secondary);">
                   ${(data.routine.seasonalTips && data.routine.seasonalTips.routine_adjustments ? data.routine.seasonalTips.routine_adjustments : [
-                    'Switch heavy creams to lightweight oil-free gel moisturizers.',
-                    'Ensure daily SPF is 50+ and water/sweat resistant.'
-                  ]).map(tip => `<li style="margin-bottom: 0.25rem;">${tip}</li>`).join('')}
+      'Switch heavy creams to lightweight oil-free gel moisturizers.',
+      'Ensure daily SPF is 50+ and water/sweat resistant.'
+    ]).map(tip => `<li style="margin-bottom: 0.25rem;">${tip}</li>`).join('')}
                 </ul>
               </div>
 
@@ -701,40 +716,82 @@ export function renderUserDashboard() {
         </div>
       </div>
 
-      <!-- FORMULATED PRODUCTS CATALOG -->
+      <!-- FORMULATED PRODUCTS CATALOG (TOP AI MATCHES) -->
       <div class="glass-card section-margin" style="background: #FFFFFF; padding: 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--border-light); margin-top: 1.5rem;">
-        <div class="card-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 0.85rem; margin-bottom: 1rem;">
+        <div class="card-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 0.85rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
           <div>
             <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem;">AI Matched Skincare Products</h3>
-            <p class="text-muted" style="font-size: 0.8rem; margin-top: 0.1rem;">Clinical formulations tailored to your current skin classification</p>
+            <p class="text-muted" style="font-size: 0.8rem; margin-top: 0.1rem;">Top personalized clinical formulations matched to your current skin classification & biomarkers</p>
           </div>
-          <button class="btn btn-sm btn-outline" style="font-size: 0.78rem; padding: 0.4rem 0.85rem;" onclick="alert('Regimen matches re-evaluated against latest biomarker scores.')">🔄 Refresh Formulations</button>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-sm btn-primary" style="font-size: 0.8rem; padding: 0.45rem 1rem; font-weight: 700;" onclick="window.app.navigateToView('products')">
+              🛍️ Explore All Products (30+) &rarr;
+            </button>
+            <button class="btn btn-sm btn-outline" style="font-size: 0.78rem; padding: 0.4rem 0.85rem;" onclick="window.app.refreshDashboardFormulations()">
+              🔄 Re-Score Regimen
+            </button>
+          </div>
         </div>
         
-        <div class="products-grid">
-          ${data.recommendedProducts.map(p => `
-            <div class="product-card" style="background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 1.1rem; display: flex; flex-direction: column; justify-content: space-between;">
+        <div class="products-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;">
+          ${(data.recommendedProducts || []).map(p => `
+            <div class="product-card" style="background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 1.15rem; display: flex; flex-direction: column; justify-content: space-between; position: relative;">
               <div>
                 <div class="product-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                  <span class="badge badge-accent" style="font-size: 0.75rem;">${p.badge}</span>
-                  <span class="match-score" style="font-size: 0.82rem; font-weight: 700; color: var(--gold-primary);">${p.matchScore} Compatibility</span>
+                  <span class="badge badge-accent" style="font-size: 0.72rem; font-weight: 700;">${p.badge || 'Top Match'}</span>
+                  <span class="match-score" style="font-size: 0.82rem; font-weight: 800; color: var(--gold-primary); cursor: pointer;" onclick="window.app.openScoreBreakdownModal('${p.id}')" title="Click to view AI score calculation breakdown">
+                    ${p.matchScore || '95%'} Compatibility ℹ️
+                  </span>
                 </div>
-                <h4 class="product-name" style="font-family: 'Playfair Display', serif; font-size: 1.05rem; margin-bottom: 0.2rem;">${p.name}</h4>
-                <p class="product-cat" style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.65rem;">${p.category} &nbsp;•&nbsp; <strong>${p.price}</strong></p>
+                <div style="font-size: 0.72rem; text-transform: uppercase; font-weight: 700; color: var(--gold-primary); letter-spacing: 0.04em;">${p.brand || 'Clinically Formulated'}</div>
+                <h4 class="product-name" style="font-family: 'Playfair Display', serif; font-size: 1.02rem; margin: 0.15rem 0 0.35rem; line-height: 1.35;">${p.name}</h4>
+                <div style="display: flex; align-items: baseline; gap: 0.45rem; margin-bottom: 0.5rem;">
+                  <span style="font-size: 1.1rem; font-weight: 800; color: var(--text-primary);">${p.price}</span>
+                  ${p.mrp ? `<span style="font-size: 0.8rem; color: var(--text-muted); text-decoration: line-through;">${p.mrp}</span>` : ''}
+                  <span style="font-size: 0.75rem; color: var(--text-muted);">• ${p.category}</span>
+                </div>
                 <div class="product-ingredients" style="margin-bottom: 0.65rem;">
-                  <small style="color: var(--text-muted); font-size: 0.75rem; font-weight: 600;">Key Active Ingredients:</small>
-                  <div class="tag-cloud" style="margin-top: 0.25rem; display: flex; gap: 0.35rem; flex-wrap: wrap;">
-                    ${p.keyIngredients.map(ing => `<span class="tag" style="background: #FFFFFF; border: 1px solid var(--border-light); font-size: 0.72rem; padding: 0.15rem 0.45rem; border-radius: 4px; color: var(--text-primary);">${ing}</span>`).join('')}
+                  <small style="color: var(--text-muted); font-size: 0.73rem; font-weight: 600;">Key Active Ingredients:</small>
+                  <div class="tag-cloud" style="margin-top: 0.25rem; display: flex; gap: 0.3rem; flex-wrap: wrap;">
+                    ${(p.keyIngredients || []).map(ing => `<span class="tag" style="background: #FFFFFF; border: 1px solid var(--border-light); font-size: 0.7rem; padding: 0.15rem 0.4rem; border-radius: 4px; color: var(--text-primary);">${ing}</span>`).join('')}
                   </div>
                 </div>
-                <p class="product-reason" style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.4;">💡 ${p.reason}</p>
+                <p class="product-reason" style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 0.75rem;">💡 ${p.reason || 'Optimal formulation for skin condition'}</p>
+                
+                <!-- Direct E-Commerce Store Buy Buttons -->
+                <div style="margin-bottom: 0.75rem;">
+                  <small style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Direct E-Commerce Stores:</small>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.35rem; margin-top: 0.25rem;">
+                    <a href="${p.e_commerce_links?.amazon || `https://www.amazon.in/s?k=${encodeURIComponent(p.name)}`}" target="_blank" rel="noopener noreferrer" class="store-btn store-btn-amazon">
+                      Amazon ↗
+                    </a>
+                    <a href="${p.e_commerce_links?.nykaa || `https://www.nykaa.com/search/result/?q=${encodeURIComponent(p.name)}`}" target="_blank" rel="noopener noreferrer" class="store-btn store-btn-nykaa">
+                      Nykaa ↗
+                    </a>
+                    <a href="${p.e_commerce_links?.flipkart || `https://www.flipkart.com/search?q=${encodeURIComponent(p.name)}`}" target="_blank" rel="noopener noreferrer" class="store-btn store-btn-flipkart">
+                      Flipkart ↗
+                    </a>
+                  </div>
+                </div>
               </div>
-              <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
-                <button class="btn btn-sm btn-primary" style="flex: 1; font-size: 0.78rem;" onclick="window.app.addProductToRoutine('${p.name}', '${p.category}')">+ Add to Routine</button>
-                <button class="btn btn-sm btn-outline" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;" onclick="window.app.viewSaferAlternatives('${p.id}')" title="Find Alternative Products">🛡️ Alt</button>
+              <div style="display: flex; gap: 0.4rem; margin-top: 0.5rem;">
+                <button class="btn btn-sm btn-primary" style="flex: 1; font-size: 0.75rem;" onclick="window.app.addProductToRoutine('${p.name}', '${p.category}')">+ Add to Routine</button>
+                <button class="btn btn-sm btn-outline" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;" onclick="window.app.toggleCompareProduct('${p.id}')" title="Add to Compare">⚖️ Compare</button>
+                <button class="btn btn-sm btn-outline" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;" onclick="window.app.viewSaferAlternatives('${p.id}')" title="Find Dupes & Safer Alternatives">🛡️ Alt</button>
               </div>
             </div>
           `).join('')}
+        </div>
+
+        <!-- Full Catalog Navigation Prompt Banner -->
+        <div style="margin-top: 1.25rem; padding: 1rem 1.25rem; background: #FAF9F6; border: 1px solid var(--border-gold); border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+          <div>
+            <strong style="font-size: 0.9rem; color: var(--text-primary);">Looking for more formulations or specific budget ranges?</strong>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Explore 30+ cleansers, serums, sunscreens & barrier creams with search, sort, side-by-side comparison, and budget filters.</p>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="window.app.navigateToView('products')" style="font-weight: 700; padding: 0.5rem 1.2rem;">
+            🛍️ Open Full Products Catalog &rarr;
+          </button>
         </div>
       </div>
 
@@ -1071,19 +1128,19 @@ export function renderAdminDashboard(liveUsers = null) {
             </thead>
             <tbody>
               ${users.map(u => {
-                let badgeClass = 'badge-primary';
-                if (u.role === 'admin') badgeClass = 'badge-admin';
-                else if (u.role === 'dermatologist') badgeClass = 'badge-danger';
-                else if (u.role === 'consultant') badgeClass = 'badge-warning';
+    let badgeClass = 'badge-primary';
+    if (u.role === 'admin') badgeClass = 'badge-admin';
+    else if (u.role === 'dermatologist') badgeClass = 'badge-danger';
+    else if (u.role === 'consultant') badgeClass = 'badge-warning';
 
-                const isPending = (u.status === 'pending_approval');
-                const statusBadge = isPending
-                  ? `<span class="badge badge-warning" style="background: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.3);">⏳ Pending Approval</span>`
-                  : `<span class="badge badge-success" style="background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3);">🟢 Active / Approved</span>`;
+    const isPending = (u.status === 'pending_approval');
+    const statusBadge = isPending
+      ? `<span class="badge badge-warning" style="background: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.3);">⏳ Pending Approval</span>`
+      : `<span class="badge badge-success" style="background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3);">🟢 Active / Approved</span>`;
 
-                const regDate = u.created_at ? new Date(u.created_at).toLocaleDateString() : 'Active';
+    const regDate = u.created_at ? new Date(u.created_at).toLocaleDateString() : 'Active';
 
-                return `
+    return `
                   <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
                     <td style="padding: 0.75rem; font-weight: 600; color: var(--text-muted);">#${u.id}</td>
                     <td style="padding: 0.75rem; font-weight: 600; color: #fff;">
@@ -1112,7 +1169,7 @@ export function renderAdminDashboard(liveUsers = null) {
                     </td>
                   </tr>
                 `;
-              }).join('')}
+  }).join('')}
             </tbody>
           </table>
         </div>
@@ -1431,4 +1488,606 @@ export function renderUserSettingsPage() {
     </div>
   `;
 }
+
+// ════════════════════════════════════════════════════════════════
+// DEDICATED SKINCARE PRODUCTS EXPLORER & INTELLIGENCE MARKETPLACE
+// ════════════════════════════════════════════════════════════════
+
+export function renderProductsExplorerPage(options = {}, profile = MOCK_USER_DATA.profile) {
+  const currentOptions = {
+    query: options.query || '',
+    category: options.category || 'All',
+    budget_tier: options.budget_tier || 'All',
+    min_price: options.min_price || 0,
+    max_price: options.max_price || 5000,
+    skin_type: options.skin_type || profile.skinType || 'Combination',
+    target_concern: options.target_concern || 'All',
+    brand: options.brand || 'All',
+    min_score: options.min_score || 0,
+    sort_by: options.sort_by || 'match_desc'
+  };
+
+  const currentProfile = {
+    ...profile,
+    skinType: currentOptions.skin_type || profile.skinType
+  };
+
+  const filteredProducts = filterProductCatalog(currentOptions, currentProfile);
+  const selectedCompareIds = (typeof window !== 'undefined' && window.app) ? (window.app.selectedCompareProductIds || []) : [];
+
+  const categoriesList = [
+    'All',
+    'Face Wash',
+    'Serum',
+    'Moisturizer',
+    'Sunscreen',
+    'Toner & Essence',
+    'Exfoliant & Treatment',
+    'Face Mask',
+    'Eye & Lip Care'
+  ];
+
+  const brandsList = [
+    'All',
+    'Minimalist',
+    'CeraVe',
+    'The Derma Co',
+    'Aqualogica',
+    'Plum',
+    'Dot & Key',
+    'Cosrx',
+    "Paula's Choice",
+    'Cetaphil',
+    "Dr. Sheth's",
+    'Sebamed',
+    'Neutrogena',
+    'Bioderma',
+    'Beauty of Joseon',
+    'The Ordinary',
+    'Laneige'
+  ];
+
+  const concernsList = [
+    'All',
+    'Acne & Breakouts',
+    'Post-Inflammatory Hyperpigmentation',
+    'Redness',
+    'Barrier Impairment',
+    'Dryness',
+    'Fine Lines',
+    'Dullness',
+    'Sun Damage',
+    'Large Pores'
+  ];
+
+  const skinTypesList = [
+    'Combination',
+    'Oily',
+    'Sensitive',
+    'Dry',
+    'Normal',
+    'Acne-Prone'
+  ];
+
+  return `
+    <div class="products-explorer-container">
+      
+      <!-- HERO BANNER -->
+      <div class="products-hero-banner">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+          <div style="max-width: 750px;">
+            <div style="display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(197, 155, 39, 0.25); border: 1px solid var(--gold-primary); color: #FFDF70; padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 0.75rem;">
+              🛍️ AI Skincare Intelligence Marketplace
+            </div>
+            <h1 style="font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.65rem;">
+              Personalized Product Recommendations
+            </h1>
+            <p style="font-size: 0.95rem; color: #E2E8F0; line-height: 1.6; margin: 0;">
+              Every formulation is evaluated in real-time against your skin type, active concerns, and allergens.
+              Compare formulations side-by-side, find affordable budget dupes, and buy directly from verified e-commerce stores with live prices.
+            </p>
+          </div>
+
+          <div style="background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: var(--radius-sm); padding: 1rem 1.25rem; text-align: right; min-width: 220px;">
+            <small style="color: #CBD5E1; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Active Skin Profile</small>
+            <div style="font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 700; color: #FFDF70; margin: 0.2rem 0;">
+              ${currentProfile.skinType} Skin
+            </div>
+            <div style="font-size: 0.78rem; color: #94A3B8;">
+              Score: <strong style="color: #FFFFFF;">${MOCK_USER_DATA.skinScore.overall}/100</strong> • ${currentProfile.primaryConcerns?.length || 0} Concerns
+            </div>
+          </div>
+        </div>
+
+        <!-- SKIN PROFILE SIMULATOR / SWITCHER -->
+        <div class="skin-profile-pill-bar">
+          <span style="font-size: 0.8rem; font-weight: 700; color: #FFDF70;">🔬 Profile Simulator:</span>
+          ${skinTypesList.map(st => `
+            <button class="skin-profile-pill ${currentOptions.skin_type === st ? 'active' : ''}" onclick="window.app.updateProductFilter('skin_type', '${st}')" style="cursor: pointer; border: none;">
+              ${st === currentOptions.skin_type ? '✓ ' : ''}${st}
+            </button>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- MAIN EXPLORER LAYOUT -->
+      <div class="products-explorer-layout">
+        
+        <!-- LEFT FILTER SIDEBAR -->
+        <aside class="products-filter-sidebar">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-light);">
+            <h3 style="font-family: 'Playfair Display', serif; font-size: 1.15rem; margin: 0;">Filters</h3>
+            <button class="btn btn-sm btn-outline" style="font-size: 0.72rem; padding: 0.25rem 0.6rem;" onclick="window.app.resetProductFilters()">
+              Clear All
+            </button>
+          </div>
+
+          <!-- BUDGET & PRICE FILTER -->
+          <div class="filter-group">
+            <div class="filter-section-title">
+              <span>💰 Budget Range</span>
+              <small style="color: var(--gold-primary); font-size: 0.8rem; font-weight: 700;">Up to ₹${currentOptions.max_price}</small>
+            </div>
+
+            <!-- Quick Budget Tier Chips -->
+            <div class="budget-chips-grid" style="margin-bottom: 0.85rem;">
+              <button class="budget-chip-btn ${currentOptions.budget_tier === 'All' ? 'active' : ''}" onclick="window.app.updateProductFilter('budget_tier', 'All')">
+                All Budgets
+              </button>
+              <button class="budget-chip-btn ${currentOptions.budget_tier === 'Budget' ? 'active' : ''}" onclick="window.app.updateProductFilter('budget_tier', 'Budget')">
+                Under ₹600 🏷️
+              </button>
+              <button class="budget-chip-btn ${currentOptions.budget_tier === 'Mid-Range' ? 'active' : ''}" onclick="window.app.updateProductFilter('budget_tier', 'Mid-Range')">
+                ₹600 - ₹1.5k ✨
+              </button>
+              <button class="budget-chip-btn ${currentOptions.budget_tier === 'Premium' ? 'active' : ''}" onclick="window.app.updateProductFilter('budget_tier', 'Premium')">
+                ₹1.5k - ₹3k 💎
+              </button>
+            </div>
+
+            <!-- Dual Interactive Price Slider -->
+            <div class="range-slider-wrapper">
+              <label for="price-range-slider" style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.35rem;">
+                <span>₹200</span>
+                <span style="font-weight: 700; color: var(--text-primary);">Max: ₹<span id="price-slider-display">${currentOptions.max_price}</span></span>
+                <span>₹5,000</span>
+              </label>
+              <input type="range" id="price-range-slider" class="range-slider-input" min="300" max="5000" step="50" value="${currentOptions.max_price}" oninput="window.app.handlePriceSliderInput(this.value)" onchange="window.app.updateProductFilter('max_price', Number(this.value))">
+            </div>
+          </div>
+
+          <!-- CATEGORY FILTER -->
+          <div class="filter-group">
+            <div class="filter-section-title">
+              <span>🧴 Category</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.35rem; max-height: 200px; overflow-y: auto;">
+              ${categoriesList.map(cat => `
+                <label class="filter-checkbox-item">
+                  <input type="radio" name="product_cat_radio" value="${cat}" ${currentOptions.category === cat ? 'checked' : ''} onchange="window.app.updateProductFilter('category', '${cat}')" style="accent-color: var(--gold-primary);">
+                  <span>${cat}</span>
+                </label>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- TARGET SKIN CONCERN -->
+          <div class="filter-group">
+            <div class="filter-section-title">
+              <span>🎯 Target Concern</span>
+            </div>
+            <select class="form-control" style="font-size: 0.8rem; padding: 0.45rem;" onchange="window.app.updateProductFilter('target_concern', this.value)">
+              ${concernsList.map(cn => `
+                <option value="${cn}" ${currentOptions.target_concern === cn ? 'selected' : ''}>${cn}</option>
+              `).join('')}
+            </select>
+          </div>
+
+          <!-- MINIMUM SUITABILITY SCORE -->
+          <div class="filter-group">
+            <div class="filter-section-title">
+              <span>🌟 Match Score</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.35rem;">
+              <label class="filter-checkbox-item">
+                <input type="radio" name="min_score_radio" value="0" ${currentOptions.min_score === 0 ? 'checked' : ''} onchange="window.app.updateProductFilter('min_score', 0)" style="accent-color: var(--gold-primary);">
+                <span>All Compatibility Levels</span>
+              </label>
+              <label class="filter-checkbox-item">
+                <input type="radio" name="min_score_radio" value="90" ${currentOptions.min_score === 90 ? 'checked' : ''} onchange="window.app.updateProductFilter('min_score', 90)" style="accent-color: var(--gold-primary);">
+                <span>90%+ Top Matches Only 🌟</span>
+              </label>
+              <label class="filter-checkbox-item">
+                <input type="radio" name="min_score_radio" value="80" ${currentOptions.min_score === 80 ? 'checked' : ''} onchange="window.app.updateProductFilter('min_score', 80)" style="accent-color: var(--gold-primary);">
+                <span>80%+ Great Choices ✨</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- BRAND FILTER -->
+          <div class="filter-group">
+            <div class="filter-section-title">
+              <span>🏷️ Brand</span>
+            </div>
+            <select class="form-control" style="font-size: 0.8rem; padding: 0.45rem;" onchange="window.app.updateProductFilter('brand', this.value)">
+              ${brandsList.map(b => `
+                <option value="${b}" ${currentOptions.brand === b ? 'selected' : ''}>${b}</option>
+              `).join('')}
+            </select>
+          </div>
+
+        </aside>
+
+        <!-- RIGHT PRODUCTS MAIN AREA -->
+        <main class="products-main-content">
+          
+          <!-- CONTROL BAR -->
+          <div class="products-control-bar">
+            
+            <!-- Search Input -->
+            <div class="products-search-box">
+              <span class="products-search-icon">🔍</span>
+              <input type="text" id="products-search-input" placeholder="Search by name, brand, active ingredients (e.g. Niacinamide, CeraVe, Salicylic)..." value="${currentOptions.query}" oninput="window.app.handleProductSearchInput(this.value)">
+            </div>
+
+            <!-- Sort By Dropdown -->
+            <div class="sort-select-wrapper">
+              <label for="products-sort-select" style="font-weight: 600;">Sort By:</label>
+              <select id="products-sort-select" onchange="window.app.updateProductFilter('sort_by', this.value)">
+                <option value="match_desc" ${currentOptions.sort_by === 'match_desc' ? 'selected' : ''}>🌟 Highest AI Match Score</option>
+                <option value="price_asc" ${currentOptions.sort_by === 'price_asc' ? 'selected' : ''}>💵 Price: Low to High</option>
+                <option value="price_desc" ${currentOptions.sort_by === 'price_desc' ? 'selected' : ''}>💎 Price: High to Low</option>
+                <option value="rating_desc" ${currentOptions.sort_by === 'rating_desc' ? 'selected' : ''}>★ Highest Customer Rating</option>
+                <option value="popular_desc" ${currentOptions.sort_by === 'popular_desc' ? 'selected' : ''}>🔥 Most Popular / Best Sellers</option>
+              </select>
+            </div>
+
+            <!-- Count Stats -->
+            <div style="font-size: 0.82rem; font-weight: 700; color: var(--gold-primary);">
+              Showing ${filteredProducts.length} Verified Formulations
+            </div>
+          </div>
+
+          <!-- PRODUCTS GRID -->
+          ${filteredProducts.length === 0 ? `
+            <div style="background: #FFFFFF; border: 1px dashed var(--border-gold); border-radius: var(--radius-md); padding: 4rem 2rem; text-align: center;">
+              <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
+              <h3 style="font-family: 'Playfair Display', serif; font-size: 1.35rem; margin-bottom: 0.5rem;">No products match your active filters</h3>
+              <p class="text-muted" style="font-size: 0.9rem; max-width: 450px; margin: 0 auto 1.5rem;">Try relaxing your budget range, resetting category selections, or clearing your search term.</p>
+              <button class="btn btn-primary" onclick="window.app.resetProductFilters()">Reset All Filters</button>
+            </div>
+          ` : `
+            <div class="products-catalog-grid">
+              ${filteredProducts.map(p => {
+                const isSelectedForCompare = selectedCompareIds.includes(p.id);
+                const isHighMatch = p.suitability.score >= 90;
+                return `
+                  <div class="product-card-enhanced" id="product-card-${p.id}">
+                    <div>
+                      <!-- Image Container -->
+                      <div class="product-image-container">
+                        <img src="${p.image_url}" alt="${p.name}" loading="lazy">
+                        <span class="product-category-chip">${p.category}</span>
+                        <div class="product-score-badge-floating ${isHighMatch ? 'high-match' : ''}" onclick="window.app.openScoreBreakdownModal('${p.id}')" title="Click for score breakdown">
+                          <span>${isHighMatch ? '🌟' : '✨'}</span>
+                          <span>${p.suitability.scoreFormatted} Match</span>
+                        </div>
+                      </div>
+
+                      <!-- Body Content -->
+                      <div class="product-body-content">
+                        <div class="product-brand-name">${p.brand}</div>
+                        <h4 class="product-title" title="${p.name}">${p.name}</h4>
+
+                        <!-- Price Row -->
+                        <div class="product-price-row">
+                          <span class="product-price-current">₹${p.price}</span>
+                          ${p.mrp ? `<span class="product-price-mrp">₹${p.mrp}</span>` : ''}
+                          ${p.discount ? `<span class="product-discount-pill">${p.discount}</span>` : ''}
+                        </div>
+
+                        <!-- Rating Line -->
+                        <div class="product-rating-line">
+                          <span class="product-rating-star">★ ${p.rating}</span>
+                          <span>(${p.reviews_count.toLocaleString()} verified reviews)</span>
+                        </div>
+
+                        <!-- Active Ingredients -->
+                        <div class="product-actives-tags">
+                          ${(p.key_active_ingredients || []).slice(0, 3).map(act => `
+                            <span class="product-active-tag">${act}</span>
+                          `).join('')}
+                        </div>
+
+                        <p style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 0;">
+                          💡 ${p.suitability.reason}
+                        </p>
+                      </div>
+                    </div>
+
+                    <!-- Footer & Actions -->
+                    <div class="product-footer-actions">
+                      <!-- E-Commerce Live Purchase Links -->
+                      <div class="ecommerce-buttons-row">
+                        <a href="${p.e_commerce_links?.amazon || `https://www.amazon.in/s?k=${encodeURIComponent(p.name)}`}" target="_blank" rel="noopener noreferrer" class="store-btn store-btn-amazon" title="View on Amazon India">
+                          Amazon ↗
+                        </a>
+                        <a href="${p.e_commerce_links?.nykaa || `https://www.nykaa.com/search/result/?q=${encodeURIComponent(p.name)}`}" target="_blank" rel="noopener noreferrer" class="store-btn store-btn-nykaa" title="View on Nykaa">
+                          Nykaa ↗
+                        </a>
+                        <a href="${p.e_commerce_links?.flipkart || `https://www.flipkart.com/search?q=${encodeURIComponent(p.name)}`}" target="_blank" rel="noopener noreferrer" class="store-btn store-btn-flipkart" title="View on Flipkart">
+                          Flipkart ↗
+                        </a>
+                      </div>
+
+                      <!-- Routine & Utilities Row -->
+                      <div style="display: flex; gap: 0.4rem;">
+                        <button class="btn btn-sm btn-primary" style="flex: 1; font-size: 0.75rem; font-weight: 700;" onclick="window.app.addProductToRoutine('${p.name}', '${p.category}')">
+                          + Add to Routine
+                        </button>
+                        <button class="btn-compare-toggle ${isSelectedForCompare ? 'selected' : ''}" onclick="window.app.toggleCompareProduct(${p.id})" title="${isSelectedForCompare ? 'Remove from Compare' : 'Add to Compare'}">
+                          ${isSelectedForCompare ? '✓ In Compare' : '⚖️ Compare'}
+                        </button>
+                        <button class="btn-alt-suggestions" onclick="window.app.viewSaferAlternatives(${p.id})" title="Find Dupes & Safer Alternatives">
+                          🛡️ Dupes
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          `}
+
+        </main>
+      </div>
+
+    </div>
+  `;
+}
+
+// ════════════════════════════════════════════════════════════════
+// MODAL RENDERERS: Compare Matrix, Alternatives, Score Breakdown
+// ════════════════════════════════════════════════════════════════
+
+export function renderComparisonMatrix(comparisonData) {
+  if (!comparisonData || !comparisonData.success || !comparisonData.matrix || comparisonData.matrix.length === 0) {
+    return `<div style="padding: 2rem; text-align: center; color: var(--text-muted);">Please select at least 2 products to compare.</div>`;
+  }
+
+  const { matrix, winner } = comparisonData;
+
+  return `
+    <div>
+      ${winner ? `
+        <div class="compare-winner-banner">
+          <div style="font-size: 2rem;">🏆</div>
+          <div>
+            <strong style="font-size: 1rem; color: #8A6400;">AI Recommendation Winner</strong>
+            <p style="font-size: 0.85rem; color: var(--text-primary); margin: 0.2rem 0 0;">${winner.reason}</p>
+          </div>
+        </div>
+      ` : ''}
+
+      <div class="compare-table-wrapper">
+        <table class="compare-matrix-table">
+          <thead>
+            <tr>
+              <th>Feature / Specification</th>
+              ${matrix.map(m => `
+                <th class="compare-product-col-header" style="min-width: 220px;">
+                  <img src="${m.product.image_url}" alt="${m.product.name}" class="compare-product-img">
+                  <div style="font-size: 0.72rem; text-transform: uppercase; font-weight: 700; color: var(--gold-primary);">${m.product.brand}</div>
+                  <h5 style="font-family: 'Playfair Display', serif; font-size: 0.95rem; margin: 0.25rem 0 0.4rem; line-height: 1.3;">${m.product.name}</h5>
+                  <div style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.5rem;">${m.priceFormatted} <small style="font-size: 0.75rem; color: var(--text-muted); text-decoration: line-through;">${m.mrpFormatted}</small></div>
+                  
+                  <div style="display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.5rem;">
+                    <a href="${m.product.e_commerce_links?.amazon || '#'}" target="_blank" rel="noopener noreferrer" class="store-btn store-btn-amazon">Buy on Amazon ↗</a>
+                    <a href="${m.product.e_commerce_links?.nykaa || '#'}" target="_blank" rel="noopener noreferrer" class="store-btn store-btn-nykaa">Buy on Nykaa ↗</a>
+                    <button class="btn btn-sm btn-primary" style="font-size: 0.72rem; padding: 0.35rem;" onclick="window.app.addProductToRoutine('${m.product.name}', '${m.product.category}')">+ Add to Routine</button>
+                  </div>
+                </th>
+              `).join('')}
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>AI Match Compatibility</td>
+              ${matrix.map(m => `
+                <td>
+                  <span class="badge ${m.suitability.badgeClass}" style="font-size: 0.8rem; font-weight: 800;">${m.suitability.scoreFormatted}</span>
+                  <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">${m.suitability.badge}</div>
+                </td>
+              `).join('')}
+            </tr>
+            <tr>
+              <td>Key Active Ingredients</td>
+              ${matrix.map(m => `
+                <td style="font-weight: 600; color: var(--text-primary); font-size: 0.82rem;">${m.keyActives}</td>
+              `).join('')}
+            </tr>
+            <tr>
+              <td>Target Skin Concerns</td>
+              ${matrix.map(m => `
+                <td style="font-size: 0.8rem; color: var(--text-muted);">${m.concerns}</td>
+              `).join('')}
+            </tr>
+            <tr>
+              <td>Suitable Skin Types</td>
+              ${matrix.map(m => `
+                <td style="font-size: 0.8rem;">${m.skinTypes}</td>
+              `).join('')}
+            </tr>
+            <tr>
+              <td>Texture & Finish</td>
+              ${matrix.map(m => `
+                <td style="font-size: 0.8rem;">${m.texture}</td>
+              `).join('')}
+            </tr>
+            <tr>
+              <td>Comedogenic Safety</td>
+              ${matrix.map(m => `
+                <td style="font-size: 0.8rem; color: var(--accent-emerald); font-weight: 600;">${m.comedogenic}</td>
+              `).join('')}
+            </tr>
+            <tr>
+              <td>Fragrance & Allergen Status</td>
+              ${matrix.map(m => `
+                <td style="font-size: 0.8rem;">${m.fragranceFree}</td>
+              `).join('')}
+            </tr>
+            <tr>
+              <td>Rating & Reviews</td>
+              ${matrix.map(m => `
+                <td style="font-size: 0.8rem; font-weight: 700;">${m.ratingFormatted}</td>
+              `).join('')}
+            </tr>
+            <tr>
+              <td>Pros & Formulation Highlights</td>
+              ${matrix.map(m => `
+                <td>
+                  <ul style="padding-left: 1rem; margin: 0; font-size: 0.78rem; color: var(--text-muted);">
+                    ${m.pros.map(p => `<li>${p}</li>`).join('')}
+                  </ul>
+                </td>
+              `).join('')}
+            </tr>
+            <tr>
+              <td>Considerations</td>
+              ${matrix.map(m => `
+                <td>
+                  <ul style="padding-left: 1rem; margin: 0; font-size: 0.78rem; color: var(--text-muted);">
+                    ${m.cons.map(c => `<li>${c}</li>`).join('')}
+                  </ul>
+                </td>
+              `).join('')}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+export function renderAlternativesContent(alternativesData) {
+  if (!alternativesData || !alternativesData.success) {
+    return `<div style="padding: 2rem; text-align: center; color: var(--text-muted);">No alternative products found.</div>`;
+  }
+
+  const { originalProduct, budgetDupes, saferPicks, premiumUpgrades } = alternativesData;
+
+  function renderAltCard(prod, label, labelClass) {
+    return `
+      <div class="dupe-card">
+        <img src="${prod.image_url}" alt="${prod.name}">
+        <div class="dupe-info">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span class="badge ${labelClass}" style="font-size: 0.7rem;">${label}</span>
+            <span style="font-size: 0.8rem; font-weight: 800; color: var(--gold-primary);">${prod.suitability.scoreFormatted} Match</span>
+          </div>
+          <h5 style="font-family: 'Playfair Display', serif; font-size: 0.95rem; margin: 0.25rem 0 0.2rem;">${prod.name}</h5>
+          <div style="font-size: 0.85rem; font-weight: 800; color: var(--text-primary);">
+            ₹${prod.price} ${prod.mrp ? `<small style="font-size: 0.75rem; color: var(--text-muted); text-decoration: line-through;">₹${prod.mrp}</small>` : ''}
+            ${prod.discount ? `<span style="font-size: 0.7rem; color: var(--accent-emerald); font-weight: 700; margin-left: 0.35rem;">${prod.discount}</span>` : ''}
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
+            Actives: ${(prod.key_active_ingredients || []).join(', ')}
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 0.35rem; min-width: 110px;">
+          <a href="${prod.e_commerce_links?.amazon || '#'}" target="_blank" rel="noopener noreferrer" class="store-btn store-btn-amazon" style="font-size: 0.7rem; padding: 0.35rem;">Amazon ↗</a>
+          <a href="${prod.e_commerce_links?.nykaa || '#'}" target="_blank" rel="noopener noreferrer" class="store-btn store-btn-nykaa" style="font-size: 0.7rem; padding: 0.35rem;">Nykaa ↗</a>
+          <button class="btn btn-sm btn-primary" style="font-size: 0.7rem; padding: 0.35rem;" onclick="window.app.addProductToRoutine('${prod.name}', '${prod.category}')">+ Add</button>
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <div>
+      <!-- Original Product Header -->
+      <div style="background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 1rem;">
+        <img src="${originalProduct.image_url}" alt="${originalProduct.name}" style="width: 55px; height: 55px; object-fit: cover; border-radius: var(--radius-sm);">
+        <div style="flex: 1;">
+          <small style="text-transform: uppercase; font-weight: 700; color: var(--text-muted); font-size: 0.72rem;">Original Target Product</small>
+          <h4 style="font-family: 'Playfair Display', serif; font-size: 1rem; margin: 0.1rem 0;">${originalProduct.name}</h4>
+          <span style="font-size: 0.85rem; font-weight: 800; color: var(--text-primary);">₹${originalProduct.price}</span>
+          <span style="font-size: 0.8rem; color: var(--gold-primary); font-weight: 700; margin-left: 0.5rem;">• ${originalProduct.suitability.scoreFormatted} Match</span>
+        </div>
+        <button class="btn btn-sm btn-outline" onclick="window.app.shuffleAlternatives(${originalProduct.id})" style="font-size: 0.75rem;">
+          🔀 Shuffle Picks
+        </button>
+      </div>
+
+      <!-- 1. Budget Dupes -->
+      <div>
+        <h4 class="alt-section-title">
+          <span>💰 Affordable Budget Dupes</span>
+          <small style="font-size: 0.75rem; color: var(--accent-emerald); font-weight: 600;">(Same active ingredients, lower price point)</small>
+        </h4>
+        ${budgetDupes.length === 0 ? `<p class="text-muted" style="font-size: 0.8rem;">No cheaper formulation available in this category.</p>` : `
+          <div>${budgetDupes.map(p => renderAltCard(p, 'Budget Dupe 💰', 'badge-success')).join('')}</div>
+        `}
+      </div>
+
+      <!-- 2. Safer Fragrance-Free Picks -->
+      <div>
+        <h4 class="alt-section-title">
+          <span>🌿 Sensitive & Fragrance-Free Safer Picks</span>
+          <small style="font-size: 0.75rem; color: var(--accent-emerald); font-weight: 600;">(Zero allergens, gentle barrier care)</small>
+        </h4>
+        ${saferPicks.length === 0 ? `<p class="text-muted" style="font-size: 0.8rem;">All matched products meet sensitive criteria.</p>` : `
+          <div>${saferPicks.map(p => renderAltCard(p, 'Sensitive Safe 🌿', 'badge-accent')).join('')}</div>
+        `}
+      </div>
+
+      <!-- 3. Premium Upgrades -->
+      ${premiumUpgrades.length > 0 ? `
+        <div>
+          <h4 class="alt-section-title">
+            <span>⭐ High-Potency / Luxury Upgrades</span>
+            <small style="font-size: 0.75rem; color: var(--gold-primary); font-weight: 600;">(Clinical grade enhanced actives)</small>
+          </h4>
+          <div>${premiumUpgrades.map(p => renderAltCard(p, 'Premium Grade ⭐', 'badge-secondary')).join('')}</div>
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+export function renderSuitabilityBreakdown(scoreData) {
+  if (!scoreData) return `<div style="padding: 1rem; color: var(--text-muted);">No score data available.</div>`;
+
+  const { product, suitability } = scoreData;
+
+  return `
+    <div>
+      <div style="display: flex; align-items: center; gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-light); margin-bottom: 1.25rem;">
+        <div style="width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(135deg, #1E1B18 0%, #3D2D0B 100%); border: 2px solid var(--gold-primary); display: flex; align-items: center; justify-content: center; color: #FFDF70; font-family: 'Playfair Display', serif; font-size: 1.45rem; font-weight: 800; flex-shrink: 0;">
+          ${suitability.scoreFormatted}
+        </div>
+        <div>
+          <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--gold-primary);">${product.brand}</div>
+          <h4 style="font-family: 'Playfair Display', serif; font-size: 1.05rem; margin: 0.15rem 0 0.35rem;">${product.name}</h4>
+          <span class="badge ${suitability.badgeClass}" style="font-size: 0.75rem;">${suitability.badge}</span>
+        </div>
+      </div>
+
+      <h5 style="font-family: 'Playfair Display', serif; font-size: 0.95rem; margin-bottom: 0.65rem;">Score Calculation Factors:</h5>
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.25rem;">
+        ${(suitability.breakdown || []).map(b => `
+          <div style="display: flex; justify-content: space-between; align-items: center; background: #FAF9F6; border: 1px solid var(--border-light); padding: 0.5rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.8rem;">
+            <span>${b.item}</span>
+            <strong style="color: ${b.pts.startsWith('+') ? 'var(--accent-emerald)' : 'var(--accent-rose)'};">${b.pts} pts</strong>
+          </div>
+        `).join('')}
+      </div>
+
+      <div style="background: rgba(197, 155, 39, 0.08); border-left: 3px solid var(--gold-primary); padding: 0.75rem; border-radius: 4px; font-size: 0.82rem; color: var(--text-primary); line-height: 1.45;">
+        <strong>AI Verdict:</strong> ${suitability.reason}
+      </div>
+    </div>
+  `;
+}
+
 

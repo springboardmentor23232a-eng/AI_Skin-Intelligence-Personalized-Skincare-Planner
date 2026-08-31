@@ -410,9 +410,9 @@ class ProductCategoryEnum(str, Enum):
     FACE_MASKS = "Face Masks"
 
 class BudgetTierEnum(str, Enum):
-    BUDGET = "Budget" # Under $20
-    MID_RANGE = "Mid-Range" # $20 - $50
-    PREMIUM = "Premium" # $50+
+    BUDGET = "Budget" # Under ₹1,000
+    MID_RANGE = "Mid-Range" # ₹1,000 - ₹2,500
+    PREMIUM = "Premium" # ₹2,500+
 
 class ProductSchema(BaseModel):
     id: int

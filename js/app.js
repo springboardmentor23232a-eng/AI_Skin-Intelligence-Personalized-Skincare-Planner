@@ -4,7 +4,15 @@
 
 import { auth } from './auth.js';
 import { api } from './api.js';
-import { MOCK_USER_DATA, MOCK_ROLES } from './mockData.js';
+import {
+  MOCK_USER_DATA,
+  MOCK_ROLES,
+  MASTER_PRODUCT_CATALOG,
+  calculateProductSuitability,
+  filterProductCatalog,
+  generateProductComparison,
+  getAlternativeProductsFor
+} from './mockData.js';
 import {
   renderLandingPage,
   renderLoginPage,
@@ -12,7 +20,11 @@ import {
   renderConsultantDashboard,
   renderDermatologistDashboard,
   renderAdminDashboard,
-  renderUserSettingsPage
+  renderUserSettingsPage,
+  renderProductsExplorerPage,
+  renderComparisonMatrix,
+  renderAlternativesContent,
+  renderSuitabilityBreakdown
 } from './dashboards.js';
 
 class App {
@@ -26,7 +38,23 @@ class App {
     this.navRoleBadge = null;
     this.authBtn = null;
     this.loginModal = null;
-    this.currentView = 'home'; // 'home' or 'login'
+    this.currentView = 'home'; // 'home', 'landing', 'products', 'settings', etc.
+
+    // Product Explorer & Comparison State
+    this.productFilterState = {
+      query: '',
+      category: 'All',
+      budget_tier: 'All',
+      min_price: 0,
+      max_price: 5000,
+      skin_type: 'Combination',
+      target_concern: 'All',
+      brand: 'All',
+      min_score: 0,
+      sort_by: 'match_desc'
+    };
+    this.selectedCompareProductIds = [];
+    this.searchDebounceTimer = null;
 
     // Current Quote Index & Data List
     this.currentQuoteIndex = 0;
@@ -208,9 +236,14 @@ class App {
       }
     }
 
-    // View render dispatch: landing page vs active role dashboard vs user settings page
+    // View render dispatch: landing page vs products explorer vs active role dashboard vs user settings page
     if (this.currentView === 'settings') {
       this.mainContent.innerHTML = renderUserSettingsPage();
+    } else if (this.currentView === 'products' || this.currentView === 'catalog') {
+      const user = auth.getCurrentUser();
+      const profile = user?.profile || MOCK_USER_DATA.profile;
+      this.mainContent.innerHTML = renderProductsExplorerPage(this.productFilterState, profile);
+      this.updateCompareDock();
     } else if (this.currentView === 'landing' || !currentRole) {
       this.mainContent.innerHTML = renderLandingPage();
     } else if (currentRole === 'user') {
@@ -1473,19 +1506,201 @@ class App {
     }
   }
 
-  // Module 6: UI Handler for Safer Alternatives
-  async viewSaferAlternatives(productId) {
-    try {
-      const res = await api.getAlternativeProducts(productId);
-      if (res && res.success && res.safer_alternatives && res.safer_alternatives.length > 0) {
-        const altNames = res.safer_alternatives.map(a => `${a.product.name} (${a.suitability_score}% match)`).join('\n• ');
-        alert(`🛡️ Safer Alternatives Recommended:\n\n• ${altNames}`);
-      } else {
-        alert('✅ No ingredient clash or allergen risk detected for this product.');
+  // ════════════════════════════════════════════════════════════════
+  // NAVIGATION & VIEW CONTROLLER
+  // ════════════════════════════════════════════════════════════════
+
+  navigateToView(viewName) {
+    this.currentView = viewName;
+    const dropdown = document.getElementById('user-profile-dropdown');
+    if (dropdown) dropdown.classList.add('hidden');
+    this.render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  navigateToUserSettings(event) {
+    if (event) event.preventDefault();
+    this.navigateToView('settings');
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // PRODUCTS EXPLORER & FILTER STATE CONTROLLER
+  // ════════════════════════════════════════════════════════════════
+
+  updateProductFilter(key, value) {
+    this.productFilterState[key] = value;
+    this.render();
+  }
+
+  handleProductSearchInput(value) {
+    this.productFilterState.query = value;
+    clearTimeout(this.searchDebounceTimer);
+    this.searchDebounceTimer = setTimeout(() => {
+      this.render();
+      const input = document.getElementById('products-search-input');
+      if (input) {
+        input.focus();
+        input.setSelectionRange(input.value.length, input.value.length);
       }
-    } catch (err) {
-      alert('✅ Product formula is verified safe for your skin profile.');
+    }, 250);
+  }
+
+  handlePriceSliderInput(value) {
+    const display = document.getElementById('price-slider-display');
+    if (display) display.innerText = value;
+  }
+
+  resetProductFilters() {
+    this.productFilterState = {
+      query: '',
+      category: 'All',
+      budget_tier: 'All',
+      min_price: 0,
+      max_price: 5000,
+      skin_type: auth.getCurrentUser()?.profile?.skinType || 'Combination',
+      target_concern: 'All',
+      brand: 'All',
+      min_score: 0,
+      sort_by: 'match_desc'
+    };
+    this.render();
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // SIDE-BY-SIDE PRODUCT COMPARISON CONTROLLER (Flipkart/Amazon Style)
+  // ════════════════════════════════════════════════════════════════
+
+  toggleCompareProduct(productId) {
+    const id = Number(productId);
+    const idx = this.selectedCompareProductIds.indexOf(id);
+    if (idx > -1) {
+      this.selectedCompareProductIds.splice(idx, 1);
+    } else {
+      if (this.selectedCompareProductIds.length >= 4) {
+        alert('You can compare a maximum of 4 products side-by-side.');
+        return;
+      }
+      this.selectedCompareProductIds.push(id);
     }
+    this.updateCompareDock();
+    if (this.currentView === 'products' || this.currentView === 'catalog') {
+      this.render();
+    }
+  }
+
+  removeCompareProduct(productId) {
+    const id = Number(productId);
+    this.selectedCompareProductIds = this.selectedCompareProductIds.filter(i => i !== id);
+    this.updateCompareDock();
+    if (this.currentView === 'products' || this.currentView === 'catalog') {
+      this.render();
+    }
+  }
+
+  clearCompareSelection() {
+    this.selectedCompareProductIds = [];
+    this.updateCompareDock();
+    if (this.currentView === 'products' || this.currentView === 'catalog') {
+      this.render();
+    }
+  }
+
+  updateCompareDock() {
+    const dock = document.getElementById('compare-floating-dock');
+    const countEl = document.getElementById('compare-dock-count');
+    const thumbsEl = document.getElementById('compare-dock-thumbnails');
+    if (!dock || !countEl || !thumbsEl) return;
+
+    const count = this.selectedCompareProductIds.length;
+    countEl.innerText = count;
+
+    if (count === 0) {
+      dock.classList.remove('active');
+      thumbsEl.innerHTML = '';
+      return;
+    }
+
+    dock.classList.add('active');
+    const selectedProds = this.selectedCompareProductIds
+      .map(id => MASTER_PRODUCT_CATALOG.find(p => p.id === id))
+      .filter(Boolean);
+
+    thumbsEl.innerHTML = selectedProds.map(p => `
+      <div class="compare-dock-item" title="${p.name} (₹${p.price})">
+        <img src="${p.image_url}" alt="${p.name}">
+        <button class="remove-btn" onclick="window.app.removeCompareProduct(${p.id})" title="Remove">×</button>
+      </div>
+    `).join('');
+  }
+
+  async openCompareModal() {
+    if (this.selectedCompareProductIds.length < 2) {
+      alert('Please select at least 2 products to compare side-by-side.');
+      return;
+    }
+    const container = document.getElementById('product-compare-modal-content');
+    if (container) {
+      const user = auth.getCurrentUser();
+      const profile = user?.profile || MOCK_USER_DATA.profile;
+      const res = await api.compareProducts(this.selectedCompareProductIds, profile);
+      container.innerHTML = renderComparisonMatrix(res);
+      this.openModal('product-compare-modal');
+    }
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // ALTERNATIVE PRODUCTS & DUPE FINDER CONTROLLER
+  // ════════════════════════════════════════════════════════════════
+
+  async viewSaferAlternatives(productId) {
+    const id = Number(productId);
+    this.currentAlternativesProductId = id;
+    const container = document.getElementById('product-alternatives-modal-content');
+    if (container) {
+      const user = auth.getCurrentUser();
+      const profile = user?.profile || MOCK_USER_DATA.profile;
+      const res = await api.getAlternativeProducts(id, profile);
+      container.innerHTML = renderAlternativesContent(res);
+      this.openModal('product-alternatives-modal');
+    }
+  }
+
+  async shuffleAlternatives(productId) {
+    const id = Number(productId);
+    const container = document.getElementById('product-alternatives-modal-content');
+    if (container) {
+      const user = auth.getCurrentUser();
+      const profile = user?.profile || MOCK_USER_DATA.profile;
+      const res = await api.getAlternativeProducts(id, profile);
+      if (res.budgetDupes) res.budgetDupes.sort(() => Math.random() - 0.5);
+      if (res.saferPicks) res.saferPicks.sort(() => Math.random() - 0.5);
+      container.innerHTML = renderAlternativesContent(res);
+    }
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // SUITABILITY SCORE BREAKDOWN MODAL CONTROLLER
+  // ════════════════════════════════════════════════════════════════
+
+  openScoreBreakdownModal(productId) {
+    const id = Number(productId);
+    const prod = MASTER_PRODUCT_CATALOG.find(p => p.id === id);
+    if (!prod) return;
+
+    const user = auth.getCurrentUser();
+    const profile = user?.profile || MOCK_USER_DATA.profile;
+    const suitability = calculateProductSuitability(prod, profile);
+
+    const container = document.getElementById('suitability-breakdown-modal-content');
+    if (container) {
+      container.innerHTML = renderSuitabilityBreakdown({ product: prod, suitability });
+      this.openModal('suitability-breakdown-modal');
+    }
+  }
+
+  refreshDashboardFormulations() {
+    alert('Regimen matches re-evaluated against latest biomarker scores.');
+    this.render();
   }
 
   // Module 7: UI Handler for Routine Adherence Logging

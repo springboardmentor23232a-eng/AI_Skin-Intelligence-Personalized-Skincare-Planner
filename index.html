@@ -21,6 +21,7 @@
     </div>
 
     <nav class="center-nav-links">
+      <a href="javascript:void(0)" class="nav-link" onclick="window.app.navigateToView('products')">🛍️ Products</a>
       <a href="#main-content" class="nav-link">AI Scan</a>
       <a href="#consult-doctors" class="nav-link">Consult a Doctor</a>
       <a href="#how-it-works" class="nav-link">Ingredients</a>
@@ -50,6 +51,10 @@
             <button class="dropdown-item" onclick="window.app.navigateToView('dashboard')">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
               <span>Dashboard View</span>
+            </button>
+            <button class="dropdown-item" onclick="window.app.navigateToView('products')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+              <span>Explore All Products (30+)</span>
             </button>
             <button class="dropdown-item" onclick="window.app.navigateToView('landing')">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
@@ -708,6 +713,75 @@
           ➕ Add to Weekly Treatment Plan
         </button>
       </form>
+    </div>
+  </div>
+
+  <!-- FLOATING COMPARE DOCK (Flipkart / Amazon Style) -->
+  <div id="compare-floating-dock" class="compare-floating-dock">
+    <div class="compare-dock-thumbnails" id="compare-dock-thumbnails">
+      <!-- Injected dynamically by app.js -->
+    </div>
+    <div class="compare-dock-text">
+      <span id="compare-dock-count">0</span>/4 Products Selected
+    </div>
+    <div class="compare-dock-actions">
+      <button class="btn btn-sm btn-primary" onclick="window.app.openCompareModal()" style="font-weight: 700;">
+        ⚖️ Compare Now
+      </button>
+      <button class="btn btn-sm btn-outline" onclick="window.app.clearCompareSelection()" style="color: #F8FAFC; border-color: rgba(255,255,255,0.3); font-size: 0.75rem;">
+        Clear All
+      </button>
+    </div>
+  </div>
+
+  <!-- SIDE-BY-SIDE PRODUCT COMPARISON MODAL -->
+  <div id="product-compare-modal" class="modal-overlay hidden">
+    <div class="compare-modal-card">
+      <div class="modal-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 0.85rem; margin-bottom: 1rem;">
+        <div>
+          <h3 style="font-family: 'Playfair Display', serif; font-size: 1.35rem;">Side-by-Side Product Comparison</h3>
+          <p class="text-muted" style="font-size: 0.82rem; margin: 0;">Comprehensive clinical & formulation analysis compared against your skin profile</p>
+        </div>
+        <button class="modal-close" onclick="window.app.closeModal('product-compare-modal')">&times;</button>
+      </div>
+
+      <div id="product-compare-modal-content">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ALTERNATIVE PRODUCTS & DUPE FINDER MODAL -->
+  <div id="product-alternatives-modal" class="modal-overlay hidden">
+    <div class="alternatives-modal-card">
+      <div class="modal-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 0.85rem; margin-bottom: 1rem;">
+        <div>
+          <h3 style="font-family: 'Playfair Display', serif; font-size: 1.35rem;">Smart Alternatives & Dupes</h3>
+          <p class="text-muted" style="font-size: 0.82rem; margin: 0;">Dermatologist-approved budget dupes, safer fragrance-free formulas, and high-potency upgrades</p>
+        </div>
+        <button class="modal-close" onclick="window.app.closeModal('product-alternatives-modal')">&times;</button>
+      </div>
+
+      <div id="product-alternatives-modal-content">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- SUITABILITY SCORE BREAKDOWN MODAL -->
+  <div id="suitability-breakdown-modal" class="modal-overlay hidden">
+    <div class="modal-card" style="max-width: 540px; background: #FFFFFF; padding: 1.75rem;">
+      <div class="modal-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 0.85rem; margin-bottom: 1rem;">
+        <div>
+          <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem;">Compatibility Score Breakdown</h3>
+          <p class="text-muted" style="font-size: 0.8rem; margin: 0;">Explainable AI skin formulation biomarker scoring</p>
+        </div>
+        <button class="modal-close" onclick="window.app.closeModal('suitability-breakdown-modal')">&times;</button>
+      </div>
+
+      <div id="suitability-breakdown-modal-content">
+        <!-- Rendered dynamically by app.js -->
+      </div>
     </div>
   </div>
 

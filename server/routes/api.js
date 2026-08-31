@@ -2,6 +2,14 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import db from '../config/db.js';
 import { verifyToken, requireRole } from '../middleware/authMiddleware.js';
+import {
+  MASTER_PRODUCT_CATALOG,
+  calculateProductSuitability,
+  filterProductCatalog,
+  generateProductComparison,
+  getAlternativeProductsFor,
+  MOCK_USER_DATA
+} from '../../js/mockData.js';
 
 const router = Router();
 
@@ -518,60 +526,144 @@ router.get('/ingredient/categories', async (req, res) => {
 });
 
 /**
+ * @route   GET /api/products/catalog
+ * @desc    Module 6: Retrieve Master Products Catalog with Search, Sort, and Multi-Filter
+ */
+router.get('/products/catalog', async (req, res) => {
+  try {
+    const {
+      query,
+      category,
+      budget_tier,
+      min_price,
+      max_price,
+      skin_type,
+      target_concern,
+      brand,
+      min_score,
+      sort_by
+    } = req.query;
+
+    const profile = {
+      skinType: skin_type || MOCK_USER_DATA.profile.skinType,
+      primaryConcerns: target_concern && target_concern !== 'All' ? [target_concern] : MOCK_USER_DATA.profile.primaryConcerns,
+      allergies: MOCK_USER_DATA.profile.allergies,
+      sensitivities: MOCK_USER_DATA.profile.sensitivities
+    };
+
+    const results = filterProductCatalog({
+      query: query || '',
+      category: category || 'All',
+      budget_tier: budget_tier || 'All',
+      min_price: min_price ? Number(min_price) : 0,
+      max_price: max_price ? Number(max_price) : 10000,
+      skin_type: skin_type || 'All',
+      target_concern: target_concern || 'All',
+      brand: brand || 'All',
+      min_score: min_score ? Number(min_score) : 0,
+      sort_by: sort_by || 'match_desc'
+    }, profile);
+
+    return res.json({
+      success: true,
+      total_count: results.length,
+      products: results
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to retrieve products catalog.', error: err.message });
+  }
+});
+
+/**
  * @route   POST /api/product/recommend
  * @desc    Module 6: Product Recommendations with Suitability & Budget Tiers
  */
 router.post('/product/recommend', async (req, res) => {
-  const { category, budget_tier } = req.body;
-  return res.json({
-    success: true,
-    user_id: req.user ? req.user.id : 1,
-    total_found: 3,
-    category_filter: category || 'All',
-    budget_filter: budget_tier || 'All',
-    recommendations: [
-      {
-        product: {
-          id: 101,
-          name: 'DermaPure Barrier Repair Cream',
-          brand: 'DermaPure',
-          category: 'Moisturizer',
-          price: 18.99,
-          budget_tier: 'Budget',
-          rating: 4.9,
-          key_active_ingredients: ['Ceramides NP', 'Hyaluronic Acid'],
-          full_ingredient_list: ['Water', 'Glycerin', 'Ceramide NP'],
-          target_concerns: ['Barrier Impairment', 'Dryness'],
-          suitable_skin_types: ['Dry', 'Sensitive', 'Combination']
-        },
-        suitability_score: 96.0,
-        match_tier: 'Top Match 🌟',
-        reason: 'Optimal fit for sensitive barrier repair',
-        pros: ['Fragrance-free', 'Non-comedogenic'],
-        cons: ['Rich texture for heavy summer afternoons']
-      },
-      {
-        product: {
-          id: 102,
-          name: 'ShieldFluid Mineral Sunscreen SPF 50+',
-          brand: 'DermaPure',
-          category: 'Sunscreen',
-          price: 34.00,
-          budget_tier: 'Mid-Range',
-          rating: 4.9,
-          key_active_ingredients: ['Zinc Oxide 15%', 'Squalane'],
-          full_ingredient_list: ['Zinc Oxide', 'Squalane'],
-          target_concerns: ['Sun Damage', 'Dehydration'],
-          suitable_skin_types: ['Combination', 'Sensitive']
-        },
-        suitability_score: 92.0,
-        match_tier: 'Great Choice ✨',
-        reason: '100% Mineral UV protection safe for sensitive skin',
-        pros: ['Invisible fluid finish', 'Dermatologist favorite'],
-        cons: ['Slight mineral dewiness']
-      }
-    ]
-  });
+  try {
+    const {
+      category,
+      budget_tier,
+      min_price,
+      max_price,
+      skin_type,
+      active_concerns,
+      allergies,
+      limit = 10
+    } = req.body;
+
+    const profile = {
+      skinType: skin_type || MOCK_USER_DATA.profile.skinType,
+      primaryConcerns: active_concerns || MOCK_USER_DATA.profile.primaryConcerns,
+      allergies: allergies || MOCK_USER_DATA.profile.allergies,
+      sensitivities: MOCK_USER_DATA.profile.sensitivities
+    };
+
+    const results = filterProductCatalog({
+      category: category || 'All',
+      budget_tier: budget_tier || 'All',
+      min_price: min_price ? Number(min_price) : 0,
+      max_price: max_price ? Number(max_price) : 10000,
+      skin_type: skin_type || 'All',
+      sort_by: 'match_desc'
+    }, profile);
+
+    const recs = results.slice(0, limit).map(p => ({
+      product: p,
+      suitability_score: p.suitability.score,
+      match_tier: p.suitability.badge,
+      reason: p.suitability.reason,
+      pros: p.pros,
+      cons: p.cons
+    }));
+
+    return res.json({
+      success: true,
+      user_id: req.user ? req.user.id : 1,
+      total_found: recs.length,
+      category_filter: category || 'All',
+      budget_filter: budget_tier || 'All',
+      recommendations: recs
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to generate product recommendations.', error: err.message });
+  }
+});
+
+/**
+ * @route   POST /api/product/compare
+ * @desc    Module 6: Side-by-Side Product Comparison Matrix (Amazon / Flipkart Style)
+ */
+router.post('/product/compare', async (req, res) => {
+  try {
+    const { product_ids, skin_type } = req.body;
+    if (!product_ids || !Array.isArray(product_ids) || product_ids.length < 2) {
+      return res.status(400).json({ success: false, message: 'Provide at least 2 product IDs to compare.' });
+    }
+
+    const profile = {
+      ...MOCK_USER_DATA.profile,
+      skinType: skin_type || MOCK_USER_DATA.profile.skinType
+    };
+
+    const comparison = generateProductComparison(product_ids, profile);
+    return res.json(comparison);
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Product comparison failed.', error: err.message });
+  }
+});
+
+/**
+ * @route   GET /api/product/alternatives/:id
+ * @desc    Module 6: Categorized Budget Dupes & Safer Alternatives
+ */
+router.get('/api/product/alternatives/:id', async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const alternatives = getAlternativeProductsFor(productId, MOCK_USER_DATA.profile);
+    return res.json(alternatives);
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to fetch alternative products.', error: err.message });
+  }
 });
 
 /**

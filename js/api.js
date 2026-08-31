@@ -4,6 +4,14 @@
  * Enhanced with Module 3: Skin Assessment Engine Integration
  */
 
+import {
+  MASTER_PRODUCT_CATALOG,
+  filterProductCatalog,
+  generateProductComparison,
+  getAlternativeProductsFor,
+  MOCK_USER_DATA
+} from './mockData.js';
+
 const API_BASE_URL = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
 
 // Module 3: Skin Assessment Engine FastAPI Base URL
@@ -368,32 +376,95 @@ class ApiClient {
   }
 
   /**
+   * Module 6: GET /api/products/catalog — Search, sort, and filter complete master products catalog
+   */
+  async getProductCatalog(params = {}, profile = MOCK_USER_DATA.profile) {
+    try {
+      const queryStr = new URLSearchParams(params).toString();
+      const res = await this.request(`/api/products/catalog?${queryStr}`);
+      if (res && res.success && res.products) {
+        return res;
+      }
+    } catch (err) {
+      console.warn('[API Client] Products catalog request fallback to local dataset:', err.message);
+    }
+    const products = filterProductCatalog(params, profile);
+    return {
+      success: true,
+      total_count: products.length,
+      products
+    };
+  }
+
+  /**
    * Module 6: POST /product/recommend
    */
-  async getRecommendedProducts(payload) {
-    return await this.assessmentRequest('/product/recommend', {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    });
+  async getRecommendedProducts(payload = {}, profile = MOCK_USER_DATA.profile) {
+    try {
+      const res = await this.assessmentRequest('/product/recommend', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+      if (res && res.success && res.recommendations) {
+        return res;
+      }
+    } catch (err) {
+      console.warn('[API Client] Product recommendations fallback to local engine:', err.message);
+    }
+
+    const filtered = filterProductCatalog(payload, profile);
+    const recs = filtered.slice(0, payload.limit || 10).map(p => ({
+      product: p,
+      suitability_score: p.suitability.score,
+      match_tier: p.suitability.badge,
+      reason: p.suitability.reason,
+      pros: p.pros,
+      cons: p.cons
+    }));
+
+    return {
+      success: true,
+      user_id: 1,
+      total_found: recs.length,
+      category_filter: payload.category || 'All',
+      budget_filter: payload.budget_tier || 'All',
+      recommendations: recs
+    };
   }
 
   /**
    * Module 6: POST /product/compare
    */
-  async compareProducts(productIds) {
-    return await this.assessmentRequest('/product/compare', {
-      method: 'POST',
-      body: JSON.stringify({ product_ids: productIds })
-    });
+  async compareProducts(productIds, profile = MOCK_USER_DATA.profile) {
+    try {
+      const res = await this.assessmentRequest('/product/compare', {
+        method: 'POST',
+        body: JSON.stringify({ product_ids: productIds })
+      });
+      if (res && res.success && res.matrix) {
+        return res;
+      }
+    } catch (err) {
+      console.warn('[API Client] Product comparison fallback to local engine:', err.message);
+    }
+    return generateProductComparison(productIds, profile);
   }
 
   /**
    * Module 6: GET /product/alternatives/{productId}
    */
-  async getAlternativeProducts(productId) {
-    return await this.assessmentRequest(`/product/alternatives/${productId}`, {
-      method: 'GET'
-    });
+  async getAlternativeProducts(productId, profile = MOCK_USER_DATA.profile) {
+    try {
+      const res = await this.assessmentRequest(`/product/alternatives/${productId}`, {
+        method: 'GET'
+      });
+      if (res && res.success) {
+        return res;
+      }
+    } catch (err) {
+      console.warn('[API Client] Product alternatives fallback to local engine:', err.message);
+    }
+    return getAlternativeProductsFor(productId, profile);
   }
 
   /**
