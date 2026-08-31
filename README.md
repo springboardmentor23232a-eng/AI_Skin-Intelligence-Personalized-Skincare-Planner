@@ -1,4 +1,4 @@
-# 🌟 PanaceaAI — AI Skin Intelligence & Personalized Skincare Planner
+#  PanaceaAI — AI Skin Intelligence & Personalized Skincare Planner
 
 > **An AI-powered skincare platform offering multi-parameter skin health analysis, personalized skincare routine planning, role-based dashboards, and consultation management.**
 
