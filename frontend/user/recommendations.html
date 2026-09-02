@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="/css/style.css" />
   <link rel="stylesheet" href="/css/dashboard.css" />
   <link rel="stylesheet" href="/css/assessment.css" />
+  <link rel="stylesheet" href="/css/products.css" />
   <link rel="stylesheet" href="/css/responsive.css" />
 </head>
 <body>
@@ -36,13 +37,18 @@
           <div id="productsContainer" style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-top:1rem;"></div>
           <style>@media(max-width:640px){#productsContainer{grid-template-columns:1fr !important;}}</style>
         </div>
+
+        <!-- Module 6: Product Recommendation Engine (full catalog, scoring, budget, compare) -->
+        <div id="productCatalogRoot"></div>
       </div>
     </div>
   </div>
 
   <script type="module">
     import { initUserRecommendations } from '/js/user.js';
+    import { initProductCatalog } from '/js/products.js';
     initUserRecommendations();
+    initProductCatalog();
   </script>
 </body>
 </html>

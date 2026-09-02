@@ -1,0 +1,81 @@
+/* ==================== MODULE 7 — SKIN HEALTH SCORING ENGINE ==================== */
+/* Reuses .score-ring-large / .badge / .empty-state / CSS variables already
+   defined in style.css and dashboard.css. Adds only the component-bar rows
+   and layout needed for the weighted breakdown. */
+
+.shs-wrap {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.shs-ring-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-width: 180px;
+}
+
+.shs-trend {
+  font-size: var(--fs-xs);
+  margin-top: 0.5rem;
+  max-width: 200px;
+}
+
+.shs-rows-col {
+  flex: 1;
+  min-width: 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.shs-row-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+
+.shs-row-weight {
+  color: var(--color-text-tertiary);
+  font-weight: 600;
+  font-size: var(--fs-xs);
+}
+
+.shs-bar-track {
+  width: 100%;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-alt);
+  overflow: hidden;
+}
+
+.shs-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width var(--transition-slow);
+}
+
+.shs-row-score {
+  font-size: var(--fs-xs);
+  color: var(--color-text-secondary);
+  margin-top: 0.2rem;
+  text-align: right;
+}
+
+.shs-disclaimer {
+  font-size: var(--fs-xs);
+  color: var(--color-text-tertiary);
+  margin-top: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border-light);
+}
+
+@media (max-width: 640px) {
+  .shs-wrap { flex-direction: column; align-items: center; }
+  .shs-rows-col { width: 100%; }
+}

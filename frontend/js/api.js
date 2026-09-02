@@ -613,6 +613,40 @@ export const dataAPI = {
     return data || [];
   },
 
+  /* ---- Module 7: Skin Health Scores ---- */
+  async createSkinHealthScore(record) {
+    if (authAPI.isDemoMode()) {
+      const data = getDemoData();
+      const newRecord = { id: 'demo-score-' + Date.now(), ...record, score_date: record.score_date || new Date().toISOString(), created_at: new Date().toISOString() };
+      if (!data.skinHealthScores) data.skinHealthScores = [];
+      data.skinHealthScores.push(newRecord);
+      saveDemoData(data);
+      return newRecord;
+    }
+    const { data, error } = await supabase.from('skin_health_scores').insert(record).select().single();
+    if (error) throw error;
+    return data;
+  },
+
+  async getSkinHealthScores(userId) {
+    if (authAPI.isDemoMode()) {
+      const data = getDemoData();
+      let scores = data.skinHealthScores || [];
+      if (userId) scores = scores.filter(s => s.user_id === userId);
+      return scores.sort((a, b) => new Date(b.score_date) - new Date(a.score_date));
+    }
+    let query = supabase.from('skin_health_scores').select('*').order('score_date', { ascending: false });
+    if (userId) query = query.eq('user_id', userId);
+    const { data, error } = await query;
+    if (error) throw error;
+    return data || [];
+  },
+
+  async getLatestSkinHealthScore(userId) {
+    const scores = await this.getSkinHealthScores(userId);
+    return scores[0] || null;
+  },
+
   /* ---- Products ---- */
   async getProducts(category) {
     if (authAPI.isDemoMode()) {
@@ -1107,18 +1141,199 @@ export const googleAPI = {
   },
 };
 
+/* ==================== MODULE 6 — PRODUCT INTELLIGENCE ==================== */
+/* Transparent, rule-based suitability scoring shared by the AI-generated
+   product cards and the full product catalog. Kept deterministic (not an
+   LLM call) so every product in the catalog can be scored instantly and the
+   reasoning stays auditable. */
+
+const STRONG_ACTIVES = ['retinoid', 'retinol', 'salicylic acid', 'glycolic acid', 'aha', 'bha', 'vitamin c', 'benzoyl peroxide'];
+
+function normalizeList(list) {
+  return (Array.isArray(list) ? list : []).map(v => String(v).toLowerCase().trim()).filter(Boolean);
+}
+
+function textIncludesAny(haystack, needles) {
+  const h = (haystack || '').toLowerCase();
+  return needles.some(n => n && h.includes(n));
+}
+
+export const productIntelligence = {
+  /**
+   * Computes a transparent 0-100 suitability score for a single product
+   * against the current user's profile, concerns, and feedback history.
+   * Returns { score, label, reasons[], conflict, allergyConflict }.
+   */
+  computeSuitability(product, context = {}) {
+    const {
+      skinType = '',
+      sensitivity = '',
+      allergiesText = '',
+      concernNames = [],
+      previousIngredientIssues = '',
+      hasReportedIrritation = false,
+    } = context;
+
+    const reasons = [];
+    let score = 55;
+    let allergyConflict = false;
+    let softConflict = false;
+
+    const productSkinTypes = normalizeList(product.suitable_skin_types);
+    const productConcerns = normalizeList(product.suitable_concerns);
+    const productIngredients = normalizeList(product.key_ingredients);
+    const productAllergens = normalizeList(product.allergens);
+
+    // --- Skin type compatibility ---
+    if (skinType) {
+      const st = skinType.toLowerCase();
+      if (productSkinTypes.includes('all') || productSkinTypes.includes(st)) {
+        score += 18;
+        reasons.push(`Formulated for ${skinType.toLowerCase()} skin`);
+      } else if (productSkinTypes.length > 0) {
+        reasons.push(`Not specifically formulated for ${skinType.toLowerCase()} skin`);
+      }
+    }
+
+    // --- Concern compatibility (fuzzy match, e.g. "Visible Pores" ~ "Pores") ---
+    const matchedConcerns = concernNames.filter(c => {
+      const cl = c.toLowerCase();
+      return productConcerns.some(pc => pc.includes(cl) || cl.includes(pc));
+    });
+    if (matchedConcerns.length > 0) {
+      score += Math.min(matchedConcerns.length * 8, 24);
+      reasons.push(`Targets your ${matchedConcerns.join(', ').toLowerCase()} concern${matchedConcerns.length > 1 ? 's' : ''}`);
+    }
+
+    // --- Allergy conflict (hard negative) ---
+    const allergyTerms = (allergiesText || '')
+      .split(/[,;]/)
+      .map(a => a.trim().toLowerCase())
+      .filter(a => a && a !== 'none' && a !== 'n/a');
+
+    for (const term of allergyTerms) {
+      const hit = productAllergens.some(a => a.includes(term) || term.includes(a))
+        || productIngredients.some(i => i.includes(term) || term.includes(i));
+      if (hit) {
+        allergyConflict = true;
+        reasons.push(`Contains an ingredient matching your recorded allergy ("${term}")`);
+        break;
+      }
+    }
+
+    // --- Previous ingredient issues (soft negative) ---
+    if (previousIngredientIssues) {
+      const issueTerms = previousIngredientIssues.split(/[,;]/).map(t => t.trim().toLowerCase()).filter(Boolean);
+      const hit = issueTerms.some(term => productIngredients.some(i => i.includes(term) || term.includes(i)));
+      if (hit) {
+        softConflict = true;
+        score -= 20;
+        reasons.push('Contains an ingredient that previously caused you issues');
+      }
+    }
+
+    // --- Sensitivity / irritation risk from strong actives ---
+    const hasStrongActive = productIngredients.some(i => STRONG_ACTIVES.some(a => i.includes(a)));
+    const isHighSensitivity = ['high', 'very high'].includes((sensitivity || '').toLowerCase());
+    if (hasStrongActive && (isHighSensitivity || hasReportedIrritation) && !productSkinTypes.includes('sensitive') && !productSkinTypes.includes('all')) {
+      score -= 15;
+      softConflict = true;
+      reasons.push('Contains active ingredients that may increase irritation risk for sensitive skin');
+    }
+
+    // --- Clamp and finalize ---
+    score = Math.max(5, Math.min(score, 96));
+    if (allergyConflict) score = Math.min(score, 15);
+
+    let label = 'not_recommended';
+    if (!allergyConflict) {
+      if (score >= 82) label = 'excellent_match';
+      else if (score >= 62) label = 'good_match';
+      else if (score >= 40) label = 'use_with_caution';
+    }
+
+    if (reasons.length === 0) {
+      reasons.push('General suitability based on your available profile data');
+    }
+
+    return {
+      score: Math.round(score),
+      label,
+      reasons,
+      conflict: allergyConflict || softConflict,
+      allergyConflict,
+    };
+  },
+
+  /** Builds the shared scoring context from raw records already fetched elsewhere in the app. */
+  buildContext(userProfile, concerns, feedback) {
+    const concernNames = (concerns || []).map(c => c.concern_name).filter(Boolean);
+    const hasReportedIrritation = (feedback || []).some(f => f.experienced_irritation || f.experienced_burning || f.experienced_redness);
+    return {
+      skinType: userProfile?.skin_type || '',
+      sensitivity: userProfile?.skin_sensitivity || '',
+      allergiesText: userProfile?.allergies || '',
+      previousIngredientIssues: userProfile?.previous_ingredient_issues || '',
+      concernNames,
+      hasReportedIrritation,
+    };
+  },
+
+  /**
+   * Scores an entire catalog and organizes it into top picks per category,
+   * a flat list of conflicting products, and safe alternatives for each
+   * conflict (same category, no conflict, highest score).
+   */
+  organizeCatalog(products, context) {
+    const scored = (products || []).map(p => ({ product: p, result: this.computeSuitability(p, context) }));
+
+    const byCategory = {};
+    scored.forEach(entry => {
+      const cat = entry.product.category || 'Other';
+      if (!byCategory[cat]) byCategory[cat] = [];
+      byCategory[cat].push(entry);
+    });
+
+    Object.values(byCategory).forEach(list => list.sort((a, b) => b.result.score - a.result.score));
+
+    const conflicts = scored.filter(e => e.result.conflict);
+    const alternatives = [];
+    conflicts.forEach(({ product }) => {
+      const cat = product.category || 'Other';
+      const best = (byCategory[cat] || []).find(e => !e.result.conflict && e.product.id !== product.id);
+      if (best && !alternatives.some(a => a.alternative.product.id === best.product.id && a.for.id === product.id)) {
+        alternatives.push({ for: product, alternative: best });
+      }
+    });
+
+    return { scored, byCategory, conflicts, alternatives };
+  },
+};
+
 /* ==================== DEMO DATA HELPERS ==================== */
 
 function getDemoProducts() {
+  // Mirrors the real seeded catalog (supabase/migrations/*_module6_product_catalog.sql)
+  // so demo mode (no Supabase config) exercises the same Module 6 features.
   return [
-    { id: 'demo-prod-1', name: 'Gentle Skin Cleanser', brand: 'CeraVe', category: 'Cleanser', key_ingredients: ['Ceramides', 'Hyaluronic Acid'], description: 'Gentle non-foaming cleanser.', suitable_skin_types: ['Dry', 'Sensitive', 'Normal'], suitable_concerns: ['Dryness', 'Sensitivity'], price_range: '₹800-1,200', popularity: 95 },
-    { id: 'demo-prod-2', name: 'Salicylic Acid Cleanser', brand: 'La Roche-Posay', category: 'Cleanser', key_ingredients: ['Salicylic Acid'], description: 'Daily cleanser for acne-prone skin.', suitable_skin_types: ['Oily', 'Combination'], suitable_concerns: ['Acne', 'Oiliness'], price_range: '₹1,200-1,600', popularity: 88 },
-    { id: 'demo-prod-3', name: 'Hyaluronic Acid Serum', brand: 'The Ordinary', category: 'Serum', key_ingredients: ['Hyaluronic Acid'], description: 'Multi-depth hydration serum.', suitable_skin_types: ['Dry', 'Oily', 'Normal', 'Sensitive'], suitable_concerns: ['Dryness', 'Dehydration'], price_range: '₹550-750', popularity: 92 },
-    { id: 'demo-prod-4', name: 'Niacinamide 10% + Zinc 1%', brand: 'The Ordinary', category: 'Serum', key_ingredients: ['Niacinamide'], description: 'Blemish formula.', suitable_skin_types: ['Oily', 'Combination'], suitable_concerns: ['Oiliness', 'Pores'], price_range: '₹550-750', popularity: 90 },
-    { id: 'demo-prod-5', name: 'Vitamin C Serum 15%', brand: 'Mad Hippie', category: 'Serum', key_ingredients: ['Vitamin C'], description: 'Brightening serum.', suitable_skin_types: ['Normal', 'Mature'], suitable_concerns: ['Dullness', 'Hyperpigmentation'], price_range: '₹2,000-2,800', popularity: 85 },
-    { id: 'demo-prod-6', name: 'Retinol 0.3% Serum', brand: 'Paulas Choice', category: 'Treatment', key_ingredients: ['Retinoids'], description: 'Anti-aging retinol.', suitable_skin_types: ['Normal', 'Mature'], suitable_concerns: ['Aging', 'Fine Lines'], price_range: '₹2,500-3,200', popularity: 87 },
-    { id: 'demo-prod-7', name: 'Moisturizing Cream', brand: 'CeraVe', category: 'Moisturizer', key_ingredients: ['Ceramides', 'Hyaluronic Acid'], description: 'Barrier-restoring moisturizer.', suitable_skin_types: ['Dry', 'Sensitive'], suitable_concerns: ['Dryness', 'Barrier damage'], price_range: '₹1,200-1,800', popularity: 93 },
-    { id: 'demo-prod-8', name: 'Daily Sunscreen SPF 50', brand: 'EltaMD', category: 'Sunscreen', key_ingredients: ['Niacinamide'], description: 'Broad-spectrum SPF 50.', suitable_skin_types: ['All'], suitable_concerns: ['Sun damage'], price_range: '₹2,200-3,000', popularity: 89 },
+    { id: 'demo-prod-1', name: 'CeraVe Hydrating Facial Cleanser', brand: 'CeraVe', category: 'Face Wash', key_ingredients: ['Ceramides', 'Hyaluronic Acid', 'Glycerin'], description: 'Gentle non-foaming cleanser for dry and sensitive skin.', suitable_skin_types: ['Dry', 'Sensitive', 'Normal'], suitable_concerns: ['Dryness', 'Sensitivity'], price_range: '₹800-1,200', price_numeric: 1000, popularity: 95, image_url: 'https://images.unsplash.com/photo-1608248543803-ba4f208c93cb?w=400&q=80', rating: 4.5, tags: ['bestseller', 'highly_rated'], benefits: ['Gentle cleansing', 'Barrier support', 'Non-stripping'], allergens: [], how_to_use: 'Massage onto damp skin in circular motions. Rinse with lukewarm water.', amazon_url: 'https://www.amazon.in/s?k=CeraVe+Hydrating+Cleanser', nykaa_url: 'https://www.nykaa.com/search?q=CeraVe+Hydrating+Cleanser' },
+    { id: 'demo-prod-2', name: 'La Roche-Posay Effaclar Purifying Foaming Gel', brand: 'La Roche-Posay', category: 'Face Wash', key_ingredients: ['Zinc PCA', 'Salicylic Acid'], description: 'Foaming cleanser for oily and acne-prone skin.', suitable_skin_types: ['Oily', 'Combination'], suitable_concerns: ['Acne', 'Oiliness'], price_range: '₹1,200-1,600', price_numeric: 1400, popularity: 88, image_url: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&q=80', rating: 4.3, tags: ['bestseller'], benefits: ['Oil control', 'Deep clean', 'Non-comedogenic'], allergens: ['Salicylic Acid'], how_to_use: 'Massage onto damp skin morning and evening. Rinse thoroughly.', amazon_url: 'https://www.amazon.in/s?k=La+Roche+Posay+Effaclar', nykaa_url: 'https://www.nykaa.com/search?q=La+Roche+Posay+Effaclar' },
+    { id: 'demo-prod-3', name: 'Cetaphil Gentle Skin Cleanser', brand: 'Cetaphil', category: 'Face Wash', key_ingredients: ['Glycerin', 'Cetyl Alcohol'], description: 'Soap-free gentle cleanser for all skin types.', suitable_skin_types: ['All'], suitable_concerns: ['Sensitivity', 'Dryness'], price_range: '₹500-700', price_numeric: 600, popularity: 91, image_url: 'https://images.unsplash.com/photo-1608248543803-ba4f208c93cb?w=400&q=80', rating: 4.4, tags: ['budget_pick', 'highly_rated'], benefits: ['Gentle', 'Non-irritating', 'Soap-free'], allergens: [], how_to_use: 'Apply to skin and gently massage. Rinse or wipe off.', amazon_url: 'https://www.amazon.in/s?k=Cetaphil+Gentle+Cleanser', nykaa_url: 'https://www.nykaa.com/search?q=Cetaphil+Gentle+Cleanser' },
+    { id: 'demo-prod-4', name: 'CeraVe Moisturizing Cream', brand: 'CeraVe', category: 'Moisturizer', key_ingredients: ['Ceramides', 'Hyaluronic Acid'], description: 'Barrier-restoring moisturizer with ceramides.', suitable_skin_types: ['Dry', 'Sensitive', 'Normal'], suitable_concerns: ['Dryness', 'Barrier damage'], price_range: '₹1,200-1,800', price_numeric: 1500, popularity: 93, image_url: 'https://images.unsplash.com/photo-1608248543803-ba4f208c93cb?w=400&q=80', rating: 4.5, tags: ['bestseller', 'highly_rated'], benefits: ['Barrier repair', 'Deep hydration', 'Long-lasting'], allergens: [], how_to_use: 'Apply evenly to face and neck after serums. Use morning and evening.', amazon_url: 'https://www.amazon.in/s?k=CeraVe+Moisturizing+Cream', nykaa_url: 'https://www.nykaa.com/search?q=CeraVe+Moisturizing+Cream' },
+    { id: 'demo-prod-5', name: 'Neutrogena Hydro Boost Water Gel', brand: 'Neutrogena', category: 'Moisturizer', key_ingredients: ['Hyaluronic Acid'], description: 'Lightweight water gel moisturizer for oily and combination skin.', suitable_skin_types: ['Oily', 'Combination', 'Normal'], suitable_concerns: ['Dryness', 'Dehydration'], price_range: '₹700-900', price_numeric: 800, popularity: 89, image_url: 'https://images.unsplash.com/photo-1556228852-80b2e1c3b814?w=400&q=80', rating: 4.2, tags: ['budget_pick'], benefits: ['Lightweight hydration', 'Non-greasy', 'Fast-absorbing'], allergens: [], how_to_use: 'Apply to clean skin morning and evening.', amazon_url: 'https://www.amazon.in/s?k=Neutrogena+Hydro+Boost', nykaa_url: 'https://www.nykaa.com/search?q=Neutrogena+Hydro+Boost' },
+    { id: 'demo-prod-6', name: 'Minimalist 10% Vitamin B5 Gel Moisturizer', brand: 'Minimalist', category: 'Moisturizer', key_ingredients: ['Vitamin B5', 'Glycerin'], description: 'Lightweight gel moisturizer with panthenol.', suitable_skin_types: ['Oily', 'Combination', 'Sensitive'], suitable_concerns: ['Dryness', 'Sensitivity'], price_range: '₹299-399', price_numeric: 350, popularity: 85, image_url: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&q=80', rating: 4.1, tags: ['budget_pick'], benefits: ['Lightweight', 'Soothing', 'Non-comedogenic'], allergens: [], how_to_use: 'Apply a small amount to face and neck. Use twice daily.', amazon_url: 'https://www.amazon.in/s?k=Minimalist+Vitamin+B5+Moisturizer', nykaa_url: 'https://www.nykaa.com/search?q=Minimalist+Vitamin+B5' },
+    { id: 'demo-prod-7', name: 'EltaMD UV Clear Broad-Spectrum SPF 46', brand: 'EltaMD', category: 'Sunscreen', key_ingredients: ['Niacinamide', 'Zinc Oxide'], description: 'Lightweight non-comedogenic sunscreen for acne-prone skin.', suitable_skin_types: ['All'], suitable_concerns: ['Sun damage', 'Acne'], price_range: '₹2,200-3,000', price_numeric: 2600, popularity: 87, image_url: 'https://images.unsplash.com/photo-1556228852-80b2e1c3b814?w=400&q=80', rating: 4.4, tags: ['highly_rated'], benefits: ['Broad-spectrum', 'Non-comedogenic', 'Lightweight'], allergens: [], how_to_use: 'Apply generously as the last step of morning routine. Reapply every 2 hours outdoors.', amazon_url: 'https://www.amazon.in/s?k=EltaMD+UV+Clear', nykaa_url: 'https://www.nykaa.com/search?q=EltaMD+UV+Clear' },
+    { id: 'demo-prod-8', name: 'Minimalist SPF 50 Sunscreen', brand: 'Minimalist', category: 'Sunscreen', key_ingredients: ['UV Filters'], description: 'Lightweight matte finish sunscreen with SPF 50.', suitable_skin_types: ['Oily', 'Combination', 'Normal'], suitable_concerns: ['Sun damage'], price_range: '₹299-499', price_numeric: 400, popularity: 86, image_url: 'https://images.unsplash.com/photo-1556228852-80b2e1c3b814?w=400&q=80', rating: 4.0, tags: ['budget_pick'], benefits: ['SPF 50', 'Matte finish', 'Non-greasy'], allergens: [], how_to_use: 'Apply generously 15 minutes before sun exposure. Reapply every 2 hours.', amazon_url: 'https://www.amazon.in/s?k=Minimalist+SPF+50', nykaa_url: 'https://www.nykaa.com/search?q=Minimalist+SPF+50' },
+    { id: 'demo-prod-9', name: 'The Ordinary Niacinamide 10% + Zinc 1%', brand: 'The Ordinary', category: 'Serum', key_ingredients: ['Niacinamide', 'Zinc'], description: 'Regulates oil and minimizes pores.', suitable_skin_types: ['Oily', 'Combination'], suitable_concerns: ['Oiliness', 'Pores', 'Redness'], price_range: '₹550-750', price_numeric: 650, popularity: 90, image_url: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&q=80', rating: 4.2, tags: ['bestseller', 'budget_pick'], benefits: ['Oil control', 'Pore minimization', 'Redness reduction'], allergens: [], how_to_use: 'Apply a thin layer morning and/or evening before heavier creams.', amazon_url: 'https://www.amazon.in/s?k=Ordinary+Niacinamide', nykaa_url: 'https://www.nykaa.com/search?q=Ordinary+Niacinamide' },
+    { id: 'demo-prod-10', name: 'Mad Hippie Vitamin C Serum', brand: 'Mad Hippie', category: 'Serum', key_ingredients: ['Vitamin C', 'Ferulic Acid'], description: 'Antioxidant serum for brightening and protection.', suitable_skin_types: ['Normal', 'Mature', 'Combination'], suitable_concerns: ['Dullness', 'Pigmentation'], price_range: '₹2,000-2,800', price_numeric: 2400, popularity: 85, image_url: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&q=80', rating: 4.3, tags: ['highly_rated'], benefits: ['Brightening', 'Antioxidant', 'Fades spots'], allergens: ['Vitamin C'], how_to_use: 'Apply 3-4 drops to clean dry skin in the morning before moisturizer.', amazon_url: 'https://www.amazon.in/s?k=Mad+Hippie+Vitamin+C', nykaa_url: 'https://www.nykaa.com/search?q=Mad+Hippie+Vitamin+C' },
+    { id: 'demo-prod-11', name: 'The Ordinary Hyaluronic Acid 2% + B5', brand: 'The Ordinary', category: 'Serum', key_ingredients: ['Hyaluronic Acid', 'Vitamin B5'], description: 'Multi-depth hydration serum.', suitable_skin_types: ['All'], suitable_concerns: ['Dryness', 'Dehydration', 'Fine Lines'], price_range: '₹550-750', price_numeric: 650, popularity: 92, image_url: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&q=80', rating: 4.3, tags: ['bestseller', 'budget_pick'], benefits: ['Deep hydration', 'Plumping', 'Non-irritating'], allergens: [], how_to_use: 'Apply to damp skin before moisturizer, morning and/or evening.', amazon_url: 'https://www.amazon.in/s?k=Ordinary+Hyaluronic+Acid', nykaa_url: 'https://www.nykaa.com/search?q=Ordinary+Hyaluronic+Acid' },
+    { id: 'demo-prod-12', name: "Paula's Choice 2% BHA Liquid Exfoliant", brand: "Paula's Choice", category: 'Treatment', key_ingredients: ['Salicylic Acid'], description: 'Gentle BHA exfoliant for pore clearing.', suitable_skin_types: ['Oily', 'Combination', 'Normal'], suitable_concerns: ['Acne', 'Pores'], price_range: '₹1,800-2,500', price_numeric: 2100, popularity: 87, image_url: 'https://images.unsplash.com/photo-1556228578-8c89e6adf853?w=400&q=80', rating: 4.4, tags: ['bestseller', 'highly_rated'], benefits: ['Exfoliates pores', 'Clears acne', 'Smooths skin'], allergens: ['Salicylic Acid'], how_to_use: 'Apply with cotton pad after cleansing. Start 2x per week and increase gradually.', amazon_url: 'https://www.amazon.in/s?k=Paula+Choice+BHA', nykaa_url: 'https://www.nykaa.com/search?q=Paula+Choice+BHA' },
+    { id: 'demo-prod-13', name: 'Minimalist 0.3% Retinol Serum', brand: 'Minimalist', category: 'Treatment', key_ingredients: ['Retinoids'], description: 'Anti-aging retinol treatment.', suitable_skin_types: ['Normal', 'Mature'], suitable_concerns: ['Aging', 'Fine Lines'], price_range: '₹599-799', price_numeric: 700, popularity: 83, image_url: 'https://images.unsplash.com/photo-1591251770167-8c8f8b8d5b8e?w=400&q=80', rating: 4.1, tags: ['budget_pick'], benefits: ['Anti-aging', 'Smooths texture'], allergens: ['Retinoids'], how_to_use: 'Apply pea-sized amount 2-3 nights per week. Always follow with moisturizer.', amazon_url: 'https://www.amazon.in/s?k=Minimalist+Retinol', nykaa_url: 'https://www.nykaa.com/search?q=Minimalist+Retinol' },
+    { id: 'demo-prod-14', name: "Paula's Choice Enriched Calming Toner", brand: "Paula's Choice", category: 'Toner', key_ingredients: ['Ceramides', 'Glycerin'], description: 'Hydrating toner for dry and sensitive skin.', suitable_skin_types: ['Dry', 'Sensitive'], suitable_concerns: ['Dryness', 'Sensitivity'], price_range: '₹1,500-2,000', price_numeric: 1750, popularity: 80, image_url: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&q=80', rating: 4.2, tags: [], benefits: ['Hydrating', 'Soothing', 'Alcohol-free'], allergens: [], how_to_use: 'Apply after cleansing with a cotton pad or hands. Follow with serum.', amazon_url: 'https://www.amazon.in/s?k=Paula+Choice+Calming+Toner', nykaa_url: 'https://www.nykaa.com/search?q=Paula+Choice+Toner' },
+    { id: 'demo-prod-15', name: 'Plum Green Tea Alcohol-Free Toner', brand: 'Plum', category: 'Toner', key_ingredients: ['Green Tea', 'Glycerin'], description: 'Alcohol-free toner for oily and combination skin.', suitable_skin_types: ['Oily', 'Combination'], suitable_concerns: ['Oiliness', 'Acne'], price_range: '₹290-390', price_numeric: 340, popularity: 82, image_url: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&q=80', rating: 4.0, tags: ['budget_pick'], benefits: ['Oil control', 'Refreshing', 'Alcohol-free'], allergens: [], how_to_use: 'Apply after cleansing with a cotton pad. Use twice daily.', amazon_url: 'https://www.amazon.in/s?k=Plum+Green+Tea+Toner', nykaa_url: 'https://www.nykaa.com/search?q=Plum+Green+Tea+Toner' },
+    { id: 'demo-prod-16', name: 'The Ordinary Salicylic Acid 2% Masque', brand: 'The Ordinary', category: 'Face Mask', key_ingredients: ['Salicylic Acid', 'Charcoal'], description: 'Clarifying mask for congested and oily skin.', suitable_skin_types: ['Oily', 'Combination'], suitable_concerns: ['Acne', 'Oiliness'], price_range: '₹750-950', price_numeric: 850, popularity: 84, image_url: 'https://images.unsplash.com/photo-1556228578-8c89e6adf853?w=400&q=80', rating: 4.1, tags: [], benefits: ['Deep clean', 'Pore clearing', 'Oil control'], allergens: ['Salicylic Acid'], how_to_use: 'Apply thin layer to clean skin. Leave 10 minutes. Rinse. Use 1-2x per week.', amazon_url: 'https://www.amazon.in/s?k=Ordinary+Salicylic+Masque', nykaa_url: 'https://www.nykaa.com/search?q=Ordinary+Salicylic+Masque' },
+    { id: 'demo-prod-17', name: 'Cetaphil Pro Dermacontrol Purifying Clay Mask', brand: 'Cetaphil', category: 'Face Mask', key_ingredients: ['Clay', 'Niacinamide'], description: 'Purifying clay mask for oily skin.', suitable_skin_types: ['Oily', 'Combination'], suitable_concerns: ['Oiliness', 'Pores'], price_range: '₹600-800', price_numeric: 700, popularity: 81, image_url: 'https://images.unsplash.com/photo-1556228578-8c89e6adf853?w=400&q=80', rating: 4.0, tags: ['budget_pick'], benefits: ['Oil absorption', 'Pore refining', 'Gentle'], allergens: [], how_to_use: 'Apply to clean skin. Leave 10-15 minutes. Rinse. Use 1-2x per week.', amazon_url: 'https://www.amazon.in/s?k=Cetaphil+Clay+Mask', nykaa_url: 'https://www.nykaa.com/search?q=Cetaphil+Clay+Mask' },
+    { id: 'demo-prod-18', name: 'La Roche-Posay Anthelios SPF 50+', brand: 'La Roche-Posay', category: 'Sunscreen', key_ingredients: ['UV Filters', 'Antioxidants'], description: 'High protection sunscreen for sensitive skin.', suitable_skin_types: ['Sensitive', 'All'], suitable_concerns: ['Sun damage', 'Sensitivity'], price_range: '₹1,800-2,200', price_numeric: 2000, popularity: 84, image_url: 'https://images.unsplash.com/photo-1556228852-80b2e1c3b814?w=400&q=80', rating: 4.3, tags: ['highly_rated'], benefits: ['High SPF', 'Sensitive-safe', 'Non-greasy'], allergens: [], how_to_use: 'Apply generously to face and neck before sun exposure.', amazon_url: 'https://www.amazon.in/s?k=La+Roche+Posay+Anthelios', nykaa_url: 'https://www.nykaa.com/search?q=La+Roche+Posay+Anthelios' },
   ];
 }
 
