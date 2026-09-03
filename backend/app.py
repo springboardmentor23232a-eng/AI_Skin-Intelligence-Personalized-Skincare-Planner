@@ -1,4 +1,6 @@
 import os
+from dotenv import load_dotenv
+load_dotenv("keys.env")
 import json
 import ssl
 import time
@@ -73,6 +75,8 @@ try:
     from dermatologist_router import router as dermatologist_router
     from appointments_router import router as appointments_router
     from ingredient_router import router as ingredient_router
+    from product_router import router as product_router
+    from scoring_router import router as scoring_router
     HAS_ROUTERS = True
     print("✨ Sub-routers loaded successfully!")
 except ImportError as e:
@@ -95,6 +99,8 @@ if HAS_ROUTERS:
     app.include_router(dermatologist_router)
     app.include_router(appointments_router)
     app.include_router(ingredient_router)
+    app.include_router(product_router)
+    app.include_router(scoring_router)
 
 BASE_DIR = Path(__file__).resolve().parent
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "680095467315-59h797sp8tinmglr3qnctq8qoi3s9clh.apps.googleusercontent.com")
