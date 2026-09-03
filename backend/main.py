@@ -1,4 +1,6 @@
 import os
+from dotenv import load_dotenv
+load_dotenv("keys.env")
 import time
 import random
 import logging
@@ -20,7 +22,9 @@ from dermatologist_router import router as dermatologist_router
 from progress_router import router as progress_router
 from appointments_router import router as appointments_router
 from ingredient_router import router as ingredient_router
-
+from product_router import router as product_router
+from scoring_router import router as scoring_router
+    
 logger = logging.getLogger("uvicorn.error")
 
 # Model Configuration Constants
@@ -175,7 +179,8 @@ app.include_router(dermatologist_router)
 app.include_router(progress_router)
 app.include_router(appointments_router)
 app.include_router(ingredient_router)
-
+app.include_router(product_router)
+app.include_router(scoring_router)
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
