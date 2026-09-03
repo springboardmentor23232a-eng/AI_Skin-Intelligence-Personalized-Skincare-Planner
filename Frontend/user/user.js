@@ -72,6 +72,9 @@ const fetchSkinProfile = async (token) => {
       if (data.skin_health_score !== undefined) {
         updateScoreUI(data.skin_health_score);
       }
+      if (data.score_breakdown) {
+        renderScoreBreakdown(data.score_breakdown);
+      }
       if (data.risks !== undefined) {
         renderRiskMessages(data.risks);
       }
@@ -372,6 +375,114 @@ const updateScoreUI = (score) => {
   }
 };
 
+const renderScoreBreakdown = (breakdown) => {
+  const grid = document.getElementById('scoreBreakdownGrid');
+  const trendBanner = document.getElementById('scoreTrendBanner');
+  const modelBadge = document.getElementById('breakdownModelBadge');
+
+  if (!breakdown || !breakdown.sub_scores) {
+    if (grid) grid.innerHTML = '<p class="breakdown-placeholder-text">Complete your skin profile to see the detailed score breakdown across all factors.</p>';
+    if (trendBanner) trendBanner.classList.add('hidden');
+    return;
+  }
+
+  // Update model badge
+  if (modelBadge) {
+    if (breakdown.ml_score_used) {
+      modelBadge.textContent = 'ML + Weighted';
+      modelBadge.classList.add('ml-blended');
+    } else {
+      modelBadge.textContent = 'Weighted Model';
+      modelBadge.classList.remove('ml-blended');
+    }
+  }
+
+  // Update trend banner
+  if (trendBanner && breakdown.improvement) {
+    const imp = breakdown.improvement;
+    const trendIcon = document.getElementById('scoreTrendIcon');
+    const trendLabel = document.getElementById('scoreTrendLabel');
+    if (trendIcon) trendIcon.textContent = imp.icon || '📊';
+    if (trendLabel) trendLabel.textContent = imp.label || 'First Assessment';
+    trendBanner.className = `score-trend-banner trend-${imp.trend || 'baseline'}`;
+    trendBanner.classList.remove('hidden');
+  }
+
+  const sub = breakdown.sub_scores;
+  const weights = breakdown.weights || {};
+  const wc = breakdown.weighted_contributions || {};
+
+  const factors = [
+    { key: 'skin_condition', name: 'Skin Condition', icon: '🩺', iconClass: 'skin-condition', segClass: 'seg-skin' },
+    { key: 'lifestyle_habits', name: 'Lifestyle Habits', icon: '🏃', iconClass: 'lifestyle', segClass: 'seg-lifestyle' },
+    { key: 'sleep_quality', name: 'Sleep Quality', icon: '😴', iconClass: 'sleep', segClass: 'seg-sleep' },
+    { key: 'routine_consistency', name: 'Routine Consistency', icon: '📋', iconClass: 'routine', segClass: 'seg-routine' },
+    { key: 'hydration_level', name: 'Hydration Level', icon: '💧', iconClass: 'hydration', segClass: 'seg-hydration' },
+  ];
+
+  const getScoreClass = (val) => {
+    if (val >= 80) return 'excellent';
+    if (val >= 65) return 'good';
+    if (val >= 50) return 'fair';
+    return 'poor';
+  };
+
+  const finalScore = breakdown.final_score || 0;
+
+  let cardsHtml = factors.map(f => {
+    const score = sub[f.key] !== undefined ? sub[f.key] : 0;
+    const weight = weights[f.key] !== undefined ? weights[f.key] : 0;
+    const contrib = wc[f.key] !== undefined ? wc[f.key] : 0;
+    const cls = getScoreClass(score);
+
+    return `
+      <div class="factor-card">
+        <div class="factor-icon-wrap ${f.iconClass}">${f.icon}</div>
+        <div class="factor-info">
+          <div class="factor-top-row">
+            <span class="factor-name">${f.name}</span>
+            <span class="factor-weight-badge">${weight}% weight</span>
+          </div>
+          <div class="factor-progress-row">
+            <div class="factor-progress-bar">
+              <div class="factor-progress-fill ${cls}" style="width: ${score}%"></div>
+            </div>
+            <span class="factor-score-value">${score}</span>
+          </div>
+          <div class="factor-contribution">Contributes ${contrib} pts to final score</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Stacked total bar
+  const totalBarHtml = `
+    <div class="breakdown-total-bar">
+      <div class="total-bar-label-row">
+        <span class="total-bar-label">Weighted Total</span>
+        <span class="total-bar-value">${finalScore} / 100${breakdown.ml_score_used ? ' (ML blended)' : ''}</span>
+      </div>
+      <div class="total-stacked-bar">
+        ${factors.map(f => {
+          const contrib = wc[f.key] || 0;
+          return `<div class="total-stacked-segment ${f.segClass}" style="width: ${contrib}%" title="${f.name}: ${contrib} pts"></div>`;
+        }).join('')}
+      </div>
+      <div class="total-legend">
+        ${factors.map(f => {
+          const dotClass = f.segClass.replace('seg-', 'dot-');
+          const contrib = wc[f.key] || 0;
+          return `<span class="legend-item"><span class="legend-dot ${dotClass}"></span>${f.name} (${contrib})</span>`;
+        }).join('')}
+      </div>
+    </div>
+  `;
+
+  if (grid) {
+    grid.innerHTML = cardsHtml + totalBarHtml;
+  }
+};
+
 const saveSkinProfile = async (e) => {
   e.preventDefault();
   const token = localStorage.getItem('access_token');
@@ -412,9 +523,13 @@ const saveSkinProfile = async (e) => {
       const resData = await res.json().catch(() => ({}));
       if (resData.skin_health_score !== undefined && resData.skin_health_score !== null) {
         updateScoreUI(resData.skin_health_score);
-        profileStatus.textContent = `Skin Profile saved! ML-Calculated AI Health Score: ${resData.skin_health_score} / 100`;
+        profileStatus.textContent = `Skin Profile saved! Weighted AI Health Score: ${resData.skin_health_score} / 100`;
       } else {
         profileStatus.textContent = 'Skin Profile updated successfully!';
+      }
+
+      if (resData.score_breakdown) {
+        renderScoreBreakdown(resData.score_breakdown);
       }
 
       if (resData.risks !== undefined) {

@@ -44,6 +44,7 @@ from app.services.product_engine import (
 
 from ML_models.risk_engine import analyze_risks
 from ML_models.priority_concern import prioritize_concerns
+from ML_models.scoring_engine import calculate_weighted_skin_health_score
 
 
 # Automatically create database tables if missing
@@ -176,6 +177,16 @@ class AssessmentScoreResponse(BaseModel):
     skin_health_category: str
 
 
+class ScoreBreakdownResponse(BaseModel):
+    final_score: int
+    category: str
+    sub_scores: dict = {}
+    weighted_contributions: dict = {}
+    weights: dict = {}
+    improvement: dict = {}
+    ml_score_used: Optional[int] = None
+
+
 class AssessmentRisksResponse(BaseModel):
     risks: list[AssessmentRiskResponse] = []
 
@@ -267,6 +278,7 @@ class SkinProfileResponse(BaseModel):
     skin_health_score: Optional[int] = 0
     risks: Optional[list] = []
     priority_concerns: Optional[list] = []
+    score_breakdown: Optional[dict] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
@@ -427,13 +439,13 @@ def _norm_title(val: Optional[str], default: str = "") -> str:
     return val.strip().title()
 
 
-def calculate_skin_health_score(profile: SkinProfile) -> int:
-    """Predict skin health score (0-100) using ML model pipeline from user skin profile features."""
+def _get_ml_prediction(profile: SkinProfile) -> Optional[int]:
+    """Try to get ML model prediction. Returns None if model unavailable."""
     global ML_MODEL
     if not ML_MODEL:
         load_ml_model()
     if not ML_MODEL:
-        return 85
+        return None
 
     try:
         import pandas as pd
@@ -473,8 +485,62 @@ def calculate_skin_health_score(profile: SkinProfile) -> int:
         score_pred = ML_MODEL.predict(df_input)[0]
         return int(round(max(0, min(100, float(score_pred)))))
     except Exception as err:
-        print(f"Error calculating ML skin health score: {err}")
-        return 85
+        print(f"Warning: ML model prediction failed: {err}")
+        return None
+
+
+def get_score_breakdown(profile: SkinProfile, db: Session, previous_score: Optional[int] = None) -> dict:
+    """Compute the full weighted skin health score breakdown for a profile."""
+    concerns = [c.strip() for c in (profile.skin_concerns or "").split(",") if c.strip()]
+    habits = [h.strip() for h in (profile.lifestyle_habits or "").split(",") if h.strip()]
+    env = [e.strip() for e in (profile.environmental_exposure or "").split(",") if e.strip()]
+
+    # Combine lifestyle habits and environmental exposure factors for lifestyle/environment score
+    all_habits = habits + env
+
+    has_allergy = bool(profile.allergies and profile.allergies.strip().lower() not in ["", "none", "no", "n/a"])
+    has_sensitivity = bool(profile.sensitivities and profile.sensitivities.strip().lower() not in ["", "none", "no", "n/a"])
+
+    # Get routine adherence from check-in data
+    adherence_pct = 0.0
+    try:
+        stats = get_user_adherence_stats(profile.user_id, db)
+        adherence_pct = float(stats.get("adherence_percentage", 0))
+    except Exception:
+        adherence_pct = 0.0
+
+    # Try ML model prediction
+    ml_score = _get_ml_prediction(profile)
+
+    breakdown = calculate_weighted_skin_health_score(
+        skin_concerns=concerns,
+        skin_type=_norm_title(profile.skin_type, "Normal"),
+        has_allergy=has_allergy,
+        has_sensitivity=has_sensitivity,
+        lifestyle_habits=all_habits,
+        sleep_quality=_norm_title(profile.sleep_quality, "Average"),
+        water_intake=_norm_title(profile.water_intake, "Moderate"),
+        adherence_percentage=adherence_pct,
+        previous_score=previous_score,
+        ml_score=ml_score,
+    )
+    return breakdown
+
+
+def calculate_skin_health_score(profile: SkinProfile, db: Session = None) -> int:
+    """Calculate skin health score (0-100) using the weighted scoring model."""
+    if db is None:
+        # Fallback: try ML model only
+        ml = _get_ml_prediction(profile)
+        return ml if ml is not None else 65
+
+    try:
+        breakdown = get_score_breakdown(profile, db)
+        return breakdown["final_score"]
+    except Exception as err:
+        print(f"Error calculating weighted skin health score: {err}")
+        ml = _get_ml_prediction(profile)
+        return ml if ml is not None else 65
 
 
 def get_skin_risks(profile: Optional[SkinProfile]) -> list:
@@ -1096,13 +1162,33 @@ async def get_user_skin_profile(
     # If survey is submitted but score in DB is 0, update score in DB
     has_survey = bool(profile.skin_type or profile.age_group or profile.skin_concerns or profile.sleep_quality)
     if has_survey and (profile.skin_health_score is None or profile.skin_health_score == 0):
-        profile.skin_health_score = calculate_skin_health_score(profile)
+        profile.skin_health_score = calculate_skin_health_score(profile, db)
         db.commit()
         db.refresh(profile)
     
     profile.risks = get_skin_risks(profile)
     profile.priority_concerns = get_priority_concerns(profile)
-    return SkinProfileResponse.model_validate(profile)
+
+    # Compute score breakdown
+    breakdown = None
+    if has_survey:
+        try:
+            prev_score = None
+            prev_assessment = (
+                db.query(AssessmentHistory)
+                .filter(AssessmentHistory.user_id == user_record.id)
+                .order_by(AssessmentHistory.assessment_date.desc())
+                .offset(1).limit(1).first()
+            )
+            if prev_assessment:
+                prev_score = prev_assessment.skin_health_score
+            breakdown = get_score_breakdown(profile, db, previous_score=prev_score)
+        except Exception as e:
+            print(f"Warning: Could not compute score breakdown: {e}")
+
+    resp = SkinProfileResponse.model_validate(profile)
+    resp.score_breakdown = breakdown
+    return resp
 
 
 @app.post("/user/profile", response_model=SkinProfileResponse)
@@ -1142,10 +1228,10 @@ async def update_user_skin_profile(
     if profile_update.image_url is not None:
         profile.image_url = profile_update.image_url
     
-    # Predict score via ML model when survey is submitted and save to database
+    # Predict score via weighted scoring model when survey is submitted and save to database
     has_survey = bool(profile.skin_type or profile.age_group or profile.skin_concerns or profile.sleep_quality or profile.water_intake)
     if has_survey:
-        profile.skin_health_score = calculate_skin_health_score(profile)
+        profile.skin_health_score = calculate_skin_health_score(profile, db)
     else:
         profile.skin_health_score = 0
 
@@ -1157,7 +1243,26 @@ async def update_user_skin_profile(
     # Log assessment history session
     record_assessment_history(db, user_record.id, profile, trigger_source="survey_update")
 
-    return SkinProfileResponse.model_validate(profile)
+    # Compute score breakdown
+    breakdown = None
+    if has_survey:
+        try:
+            prev_score = None
+            prev_assessment = (
+                db.query(AssessmentHistory)
+                .filter(AssessmentHistory.user_id == user_record.id)
+                .order_by(AssessmentHistory.assessment_date.desc())
+                .offset(1).limit(1).first()
+            )
+            if prev_assessment:
+                prev_score = prev_assessment.skin_health_score
+            breakdown = get_score_breakdown(profile, db, previous_score=prev_score)
+        except Exception as e:
+            print(f"Warning: Could not compute score breakdown: {e}")
+
+    resp = SkinProfileResponse.model_validate(profile)
+    resp.score_breakdown = breakdown
+    return resp
 
 
 @app.get("/user/risks")
@@ -1512,6 +1617,47 @@ async def get_assessment_score(
     )
 
 
+@app.get("/user/score-breakdown", response_model=ScoreBreakdownResponse)
+async def get_user_score_breakdown(
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """GET /user/score-breakdown - Get detailed weighted score breakdown."""
+    if current_user.role != "user":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only users can access score breakdown",
+        )
+    user_record = db.query(User).filter(User.email == current_user.email).first()
+    if not user_record:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    profile = db.query(SkinProfile).filter(SkinProfile.user_id == user_record.id).first()
+    if not profile:
+        return ScoreBreakdownResponse(
+            final_score=0,
+            category="Not Assessed",
+            sub_scores={},
+            weighted_contributions={},
+            weights={},
+            improvement={"trend": "baseline", "change": 0, "label": "No assessment yet", "icon": "📊"},
+        )
+
+    # Get previous assessment score for improvement tracking
+    prev_score = None
+    prev_assessment = (
+        db.query(AssessmentHistory)
+        .filter(AssessmentHistory.user_id == user_record.id)
+        .order_by(AssessmentHistory.assessment_date.desc())
+        .offset(1).limit(1).first()
+    )
+    if prev_assessment:
+        prev_score = prev_assessment.skin_health_score
+
+    breakdown = get_score_breakdown(profile, db, previous_score=prev_score)
+    return ScoreBreakdownResponse(**breakdown)
+
+
 @app.get("/assessment/risks", response_model=AssessmentRisksResponse)
 async def get_assessment_risks(
     current_user: UserPayload = Depends(get_current_user),
@@ -1644,7 +1790,7 @@ async def upload_skin_image(
     if profile.skin_health_score is None or profile.skin_health_score == 0:
         has_survey = bool(profile.skin_type or profile.age_group or profile.skin_concerns or profile.sleep_quality)
         if has_survey:
-            profile.skin_health_score = calculate_skin_health_score(profile)
+            profile.skin_health_score = calculate_skin_health_score(profile, db)
 
     db.commit()
     db.refresh(profile)
@@ -1933,7 +2079,7 @@ def build_client_dossier(user: User, db: Session, assignment: Optional[Assignmen
 
     has_survey = bool(profile.skin_type or profile.age_group or profile.skin_concerns or profile.sleep_quality)
     if has_survey and (profile.skin_health_score is None or profile.skin_health_score == 0):
-        profile.skin_health_score = calculate_skin_health_score(profile)
+        profile.skin_health_score = calculate_skin_health_score(profile, db)
         db.commit()
         db.refresh(profile)
 

@@ -326,12 +326,35 @@
               <div>
                 <p class="section-label">AI Skin Health Score</p>
                 <h1 id="scoreValueTitle" class="panel-title">0 / 100</h1>
-                <p id="scoreDescriptionText" class="panel-copy">Complete and save your Skin Profile to calculate your ML-predicted AI Skin Health Score.</p>
+                <p id="scoreDescriptionText" class="panel-copy">Complete and save your Skin Profile to calculate your weighted AI Skin Health Score.</p>
               </div>
               <div class="score-ring">
                 <span id="scoreRingText" class="score-value">0%</span>
               </div>
             </div>
+
+            <!-- Improvement Trend Indicator -->
+            <div id="scoreTrendBanner" class="score-trend-banner hidden">
+              <span id="scoreTrendIcon" class="score-trend-icon">📊</span>
+              <span id="scoreTrendLabel" class="score-trend-label">First Assessment</span>
+            </div>
+
+            <!-- Weighted Score Breakdown Panel -->
+            <div id="scoreBreakdownPanel" class="score-breakdown-panel">
+              <div class="breakdown-header">
+                <div class="breakdown-title-wrapper">
+                  <svg class="breakdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                  </svg>
+                  <h3 class="breakdown-section-title">Weighted Score Breakdown</h3>
+                </div>
+                <span id="breakdownModelBadge" class="breakdown-model-badge">Weighted Model</span>
+              </div>
+              <div id="scoreBreakdownGrid" class="score-breakdown-grid">
+                <p class="breakdown-placeholder-text">Complete your skin profile to see the detailed score breakdown across all factors.</p>
+              </div>
+            </div>
+
 
             <!-- Risk Engine Messages Container -->
             <div id="riskSection" class="risk-section-container">
