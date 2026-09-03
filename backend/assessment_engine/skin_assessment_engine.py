@@ -1,3 +1,4 @@
+# skin_assessment_engine.py
 import io
 import re
 import os
@@ -372,9 +373,8 @@ class SkinAssessmentEngine:
                 fallback_model=FALLBACK_MODEL
             )
             
-            # UPGRADE: Add strict safety check to handle AI filters returning None[cite: 29]
             if not response or not hasattr(response, 'text') or not response.text:
-                print("⚠️ AI Safety Filter Triggered or Empty Response in Assessment. Falling back to dummy data.")
+                print("⚠️ AI Safety Filter Triggered or Empty Response in Assessment. Falling back to default data.")
                 return {
                     "diagnostic_summary": "Standard cosmetic assessment applied due to AI offline mode or safety filter intervention. Recommend manual review.",
                     "key_observations": ["Mild surface congestion detected", "Standard epidermal texture observed"],
@@ -596,6 +596,55 @@ async def create_assessment(
             if urow:
                 resolved_user_id = urow.get('id') or urow.get('ID')
 
+        # 1. UPSERT INTO SKIN_PROFILES (Persist baseline parameters)
+        extracted_concerns = [c["concern_name"] for c in analysis.get("concerns", [])] if analysis.get("concerns") else selected_concerns
+        cursor.execute(
+            """
+            INSERT INTO SKIN_PROFILES (
+                USER_ID, SKIN_TYPE, AGE_GROUP, WATER_INTAKE, SLEEP_QUALITY, 
+                ENVIRONMENT, ALLERGIES, SENSITIVITIES, CONCERNS, SCORE, UPDATED_AT
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
+            ON CONFLICT (USER_ID) DO UPDATE SET
+                SKIN_TYPE = EXCLUDED.SKIN_TYPE,
+                AGE_GROUP = EXCLUDED.AGE_GROUP,
+                WATER_INTAKE = EXCLUDED.WATER_INTAKE,
+                SLEEP_QUALITY = EXCLUDED.SLEEP_QUALITY,
+                ENVIRONMENT = EXCLUDED.ENVIRONMENT,
+                ALLERGIES = EXCLUDED.ALLERGIES,
+                SENSITIVITIES = EXCLUDED.SENSITIVITIES,
+                CONCERNS = EXCLUDED.CONCERNS,
+                SCORE = EXCLUDED.SCORE,
+                UPDATED_AT = CURRENT_TIMESTAMP;
+            """,
+            (
+                resolved_user_id,
+                primary_skin_type,
+                age_group,
+                water_intake,
+                str(sleep),
+                sun_exposure,
+                allergies or "",
+                sensitivities or "",
+                extracted_concerns,
+                analysis["skin_health_score"]
+            )
+        )
+
+        # 2. UPSERT INTO PROGRESS_LOGS (Persist today's daily log telemetry)
+        cursor.execute(
+            """
+            INSERT INTO PROGRESS_LOGS (USER_ID, LOG_DATE, WATER_INTAKE, SLEEP_HOURS, SKIN_FEELING_RATING)
+            VALUES (%s, CURRENT_DATE, %s, %s, %s)
+            ON CONFLICT (USER_ID, LOG_DATE) DO UPDATE SET
+                WATER_INTAKE = EXCLUDED.WATER_INTAKE,
+                SLEEP_HOURS = EXCLUDED.SLEEP_HOURS,
+                SKIN_FEELING_RATING = EXCLUDED.SKIN_FEELING_RATING;
+            """,
+            (resolved_user_id, water_intake, sleep, 5)
+        )
+
+        # 3. INSERT ASSESSMENT RECORD
         cursor.execute(
             """
             INSERT INTO SKINASSESSMENT (USER_ID, SKIN_HEALTH_SCORE, OVERALL_CONDITION, NOTES)
@@ -669,10 +718,7 @@ async def get_assessment_history(user_id: Optional[int] = Query(None), email: Op
 
     try:
         if not conn:
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE, 
-                detail="Database connection unavailable."
-            )
+            raise HTTPException(status_code=503, detail="Database connection unavailable.")
         cursor = conn.cursor()
 
         cursor.execute(
@@ -697,32 +743,45 @@ async def get_assessment_history(user_id: Optional[int] = Query(None), email: Op
             cursor.execute("SELECT * FROM RISKFACTOR WHERE ASSESSMENT_ID = %s;", (aid,))
             risk = cursor.fetchone()
 
+            # Select all profile lifestyle factors
             cursor.execute(
-                """SELECT sp.ALLERGIES, sp.SENSITIVITIES, sp.WATER_INTAKE 
+                """SELECT sp.SKIN_TYPE, sp.AGE_GROUP, sp.WATER_INTAKE, 
+                          sp.SLEEP_QUALITY, sp.ENVIRONMENT, sp.ALLERGIES, sp.SENSITIVITIES
                    FROM SKIN_PROFILES sp WHERE sp.USER_ID = %s;""",
                 (u_id,)
             )
             profile = cursor.fetchone() or {}
 
-            water_val = profile.get('water_intake') if 'water_intake' in profile else profile.get('WATER_INTAKE')
+            water_val = profile.get('water_intake') or profile.get('WATER_INTAKE')
             water_float = float(water_val) if water_val is not None else 2.5
 
-            risk_lvl = risk.get('risk_level') if risk and ('risk_level' in risk) else (risk.get('RISK_LEVEL') if risk else 'Low')
+            risk_lvl = risk.get('risk_level') or risk.get('RISK_LEVEL') if risk else 'Low'
 
             actions = compute_actionable_mitigation(
                 risk_level=risk_lvl or 'Low',
-                sun_exposure='Moderate',
+                sun_exposure=profile.get('environment') or profile.get('ENVIRONMENT') or 'Moderate',
                 water_intake=water_float,
                 allergies=profile.get('allergies') or profile.get('ALLERGIES') or '',
                 sensitivities=profile.get('sensitivities') or profile.get('SENSITIVITIES') or '',
                 concerns=concerns
             )
 
+            # Attach profile/lifestyle directly to match user_dashboard.html expectations
             history.append({
                 "assessment": asm,
                 "concerns": concerns,
                 "risk_factor": risk or {},
-                "action_items": actions
+                "action_items": actions,
+                "profile": profile,
+                "lifestyle": {
+                    "skin_type": profile.get('skin_type') or profile.get('SKIN_TYPE'),
+                    "age_group": profile.get('age_group') or profile.get('AGE_GROUP'),
+                    "water_intake": water_float,
+                    "sleep_quality": profile.get('sleep_quality') or profile.get('SLEEP_QUALITY') or '7.5',
+                    "environment": profile.get('environment') or profile.get('ENVIRONMENT') or 'Moderate UV',
+                    "allergies": profile.get('allergies') or profile.get('ALLERGIES') or '',
+                    "sensitivities": profile.get('sensitivities') or profile.get('SENSITIVITIES') or '',
+                }
             })
 
         return {"status": "success", "count": len(history), "data": history}
@@ -734,7 +793,6 @@ async def get_assessment_history(user_id: Optional[int] = Query(None), email: Op
         if cursor:
             cursor.close()
         release_db(conn)
-
 
 @router.delete("/assessment/{assessment_id}", status_code=status.HTTP_200_OK)
 async def delete_assessment(assessment_id: int):
