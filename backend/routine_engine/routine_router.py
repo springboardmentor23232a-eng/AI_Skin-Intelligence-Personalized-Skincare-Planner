@@ -238,6 +238,34 @@ async def get_active_hybrid_routine(
         except Exception:
             pass
 
+        # --- Fetch actual routine steps from the database ---
+        active_routine_id = None
+        db_adaptation_summary = None
+        db_routine_steps = []
+        try:
+            cursor.execute(
+                "SELECT id, adaptation_summary FROM ROUTINES WHERE USER_ID = %s AND IS_ACTIVE = TRUE ORDER BY ID DESC LIMIT 1;",
+                (user_id,)
+            )
+            ar_row = cursor.fetchone()
+            if ar_row:
+                ar_dict = _normalize_row(ar_row, ["id", "adaptation_summary"])
+                active_routine_id = ar_dict.get("id")
+                db_adaptation_summary = ar_dict.get("adaptation_summary")
+                
+                cursor.execute("""
+                    SELECT step_order, timing, category, product_recommendation AS product, 
+                           active_ingredient, instructions, adaptation_badge 
+                    FROM ROUTINE_STEPS 
+                    WHERE routine_id = %s 
+                    ORDER BY step_order ASC
+                """, (active_routine_id,))
+                fetched_steps = cursor.fetchall()
+                if fetched_steps:
+                    db_routine_steps = [_normalize_row(r, ["step_order", "timing", "category", "product", "active_ingredient", "instructions", "adaptation_badge"]) for r in fetched_steps]
+        except Exception as e:
+            pass
+
         # 3. Fetch Assessment Concerns & Deltas
         latest_concerns = []
         prev_concerns = []
@@ -323,6 +351,31 @@ async def get_active_hybrid_routine(
             clinical_steps=[s for s in dermatologist_steps if is_timing(s, "evening")],
             clinician_role="Dermatologist"
         )
+
+        # --- FIX: Intelligently merge AI Steps with DB User Added Steps ---
+        if db_routine_steps:
+            # Check if the DB contains a full routine (not just standalone "User Added" items)
+            non_user_steps = [s for s in db_routine_steps if "User Added" not in str(s.get("adaptation_badge", ""))]
+            
+            if len(non_user_steps) > 0:
+                # 1. DB has a full saved routine. Serve the DB exactly as is (includes User Added steps).
+                morning_combined = [s for s in db_routine_steps if is_timing(s, "Morning")]
+                evening_combined = [s for s in db_routine_steps if is_timing(s, "Evening")]
+                for s in morning_combined + evening_combined:
+                    s["is_clinical_override"] = "Dermatologist" in str(s.get("adaptation_badge", ""))
+                    s["recommendation_source"] = "Database Sync"
+                if db_adaptation_summary:
+                    generated.adaptation_summary = db_adaptation_summary
+            else:
+                # 2. DB ONLY has user-added standalone products. APPEND them to the live AI routine!
+                db_morning = [s for s in db_routine_steps if is_timing(s, "Morning")]
+                db_evening = [s for s in db_routine_steps if is_timing(s, "Evening")]
+                for s in db_morning + db_evening:
+                    s["is_clinical_override"] = False
+                    s["recommendation_source"] = "User Sync"
+                morning_combined.extend(db_morning)
+                evening_combined.extend(db_evening)
+        # ------------------------------------------------------------------------------
 
         return {
             "status": "success",
