@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Skin Health Scoring - DermaAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex shrink-0">
+        <div>
+            <div class="p-6 flex items-center gap-3 border-b border-slate-100">
+                <div class="bg-teal-600 text-white p-2.5 rounded-2xl"><i data-lucide="sparkles" class="w-5 h-5"></i></div>
+                <div><h1 class="font-bold">DermaAI</h1><p class="text-xs text-slate-400">User Dashboard</p></div>
+            </div>
+            <nav class="p-4 space-y-1 text-sm font-medium">
+                <a href="/user_dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard</a>
+                <a href="/user_dashboard/skin_assessment.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="scan-face" class="w-4 h-4"></i> Skin Assessment</a>
+                <a href="/user_dashboard/routine_planner.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="calendar" class="w-4 h-4"></i> Routine Planner</a>
+                <a href="/user_dashboard/product_recommendations.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="sliders" class="w-4 h-4"></i> Product Recommendations</a>
+                <a href="/user_dashboard/ingredient_intelligence.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="flask-conical" class="w-4 h-4"></i> Ingredient Scanner</a>
+                <a href="/user_dashboard/skin_health_scoring.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-teal-700 bg-teal-50 font-bold border-r-4 border-teal-600"><i data-lucide="activity" class="w-4 h-4"></i> Scoring Engine</a>
+                <a href="/user_dashboard/assessment_history.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="history" class="w-4 h-4"></i> Assessment History</a>
+                <a href="/user_dashboard/appointments.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="video" class="w-4 h-4"></i> Appointments</a>
+                <a href="/user_dashboard/progress.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="activity" class="w-4 h-4"></i> Progress</a>
+                <a href="/user_dashboard/risk_analysis.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="shield-alert" class="w-4 h-4"></i> Risk Analysis</a>
+                <a href="/user_dashboard/checklist.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="list-check" class="w-4 h-4"></i> Checklist</a>
+            </nav>
+        </div>
+        <div class="p-4 flex justify-between items-center border-t border-slate-100">
+            <span id="user-display" class="text-xs font-bold truncate">User</span>
+            <button onclick="localStorage.clear(); window.location='/index.html'" class="text-slate-400 hover:text-rose-600"><i data-lucide="log-out" class="w-4 h-4"></i></button>
+        </div>
+    </aside>
+
+    <main class="flex-1 overflow-y-auto p-8 space-y-6">
+        <!-- Top Bar -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-bold">Skin Health Score & Forecast</h1>
+                <p class="text-sm text-slate-500">Live 5-Pillar Weighted Score Engine & AI Trajectory Predictions.</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <a href="/user_dashboard/progress.html" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow-sm">
+                    <i data-lucide="check-square" class="w-3.5 h-3.5"></i> Log Today's Telemetry
+                </a>
+                <button id="btn-update-calc" onclick="fetchScoringData()" class="bg-teal-600 hover:bg-teal-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow-sm cursor-pointer">
+                    <i id="btn-icon" data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                    <span id="btn-text">Update Calculation</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Environmental Banner -->
+        <div id="env-banner" class="p-4 bg-slate-100 border border-slate-200 rounded-2xl flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-3">
+                <i data-lucide="globe" class="w-5 h-5 text-slate-500"></i>
+                <h3 id="env-text" class="font-bold text-slate-800 text-xs uppercase">Fetching Environment Data...</h3>
+            </div>
+            <span id="last-updated-text" class="text-[10px] text-slate-400 font-medium">Updated Just Now</span>
+        </div>
+
+        <!-- Top Section: Hero Score, AI Forecast, Horizontal Bar Rubric -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Hero Score -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-center text-center relative">
+                <div class="absolute top-4 right-4"><span id="vulnerability-badge" class="px-2 py-1 border border-teal-200 text-teal-700 bg-teal-50 rounded-full text-[10px] font-bold">Stable Baseline</span></div>
+                <h2 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Overall Skin Health</h2>
+                <div id="hero-ring" class="w-36 h-36 mx-auto rounded-full bg-slate-50 border-8 border-slate-200 flex items-center justify-center shadow-inner mt-2 transition-all">
+                    <span id="score-display" class="text-5xl font-black text-slate-900">--</span>
+                </div>
+                <div id="delta-display" class="mt-4 text-xs font-bold text-slate-400">Loading Telemetry...</div>
+                
+                <div class="mt-4 w-full pt-4 border-t border-slate-100 flex justify-between items-center text-xs">
+                    <span class="text-slate-400">Weakest Pillar:</span>
+                    <span id="weakest-pillar-display" class="font-bold text-slate-600 bg-slate-50 border border-slate-200 px-2 py-1 rounded">--</span>
+                </div>
+            </div>
+
+            <!-- AI Forecast -->
+            <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-md flex flex-col justify-center">
+                <div>
+                    <div class="flex justify-between items-center mb-6">
+                        <span class="text-[10px] font-bold text-teal-400 uppercase tracking-wide flex items-center gap-1.5"><i data-lucide="sparkles" class="w-3.5 h-3.5"></i> AI Forecast</span>
+                        <span class="bg-slate-800 text-[9px] px-2 py-0.5 rounded border border-slate-700 text-slate-300">Time-Series</span>
+                    </div>
+                    <div>
+                        <span id="forecast-score" class="text-6xl font-black">--</span> 
+                        <span class="text-sm text-slate-400">/100 Projected Next Week</span>
+                    </div>
+                    <p id="ai-insight-text" class="text-sm text-slate-300 mt-4 leading-relaxed">Analyzing trajectory...</p>
+                </div>
+            </div>
+
+            <!-- 5-Pillar Horizontal Bar Rubric -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
+                <h3 class="font-bold text-sm text-slate-400 uppercase tracking-wider mb-2">5-Pillar Rubric</h3>
+                <div class="flex-1 relative w-full h-full min-h-[200px] flex items-center justify-center">
+                    <canvas id="barChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Historical Progress Trend (Interactive 7-Day vs 30-Day) -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                <div>
+                    <h3 class="font-bold text-slate-800 text-sm">Historical Progress Trend</h3>
+                    <p id="trend-subtitle" class="text-xs text-slate-400">Showing 7-Day Velocity</p>
+                </div>
+                <div class="flex bg-slate-100 p-1 rounded-xl gap-1">
+                    <button id="btn-7d" onclick="switchTrendRange('7d')" class="px-3 py-1 text-[10px] font-bold rounded-lg bg-white text-teal-700 shadow-sm transition">7-Day</button>
+                    <button id="btn-30d" onclick="switchTrendRange('30d')" class="px-3 py-1 text-[10px] font-bold rounded-lg text-slate-500 hover:text-slate-800 transition">30-Day</button>
+                </div>
+            </div>
+            <div class="w-full h-48 relative">
+                <canvas id="lineChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Mathematical Weighting Breakdown -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <div>
+                <h3 class="font-bold text-slate-800 text-sm">Mathematical Weighting Breakdown</h3>
+                <p class="text-xs text-slate-400">Your final score is a weighted average of your diagnostic baseline, environmental factors, and daily routine adherence.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4" id="weighting-breakdown">
+                <!-- Injected via JavaScript -->
+            </div>
+        </div>
+
+        <!-- AI Clinical Insight & Plain-Language Action Plan Banner -->
+        <div class="p-6 bg-indigo-50 border border-indigo-100 rounded-2xl flex flex-col md:flex-row items-start gap-4 shadow-sm">
+            <div class="p-2.5 bg-indigo-600 text-white rounded-xl shrink-0"><i data-lucide="brain-circuit" class="w-6 h-6"></i></div>
+            <div class="flex-1 space-y-2">
+                <div class="flex items-center justify-between">
+                    <h4 class="font-bold text-indigo-900 text-xs uppercase tracking-wider">Clinical Barrier Mechanism</h4>
+                    <span class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest">Dermatological AI</span>
+                </div>
+                <p id="clinical-insight-long" class="text-xs text-indigo-950 leading-relaxed font-normal">Loading diagnostic...</p>
+                
+                <!-- Explicit Actionable Recommendation Box -->
+                <div class="mt-3 pt-3 border-t border-indigo-200/60 flex flex-col sm:flex-row sm:items-center gap-2">
+                    <span class="bg-indigo-600 text-white text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-md shrink-0 tracking-wide">Action for Today</span>
+                    <p id="clinical-action-text" class="text-xs font-semibold text-indigo-900 leading-snug">Loading action step...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let barInstance = null;
+        let lineInstance = null;
+        let activeRange = '7d';
+
+        let baseScores = { condition: 0, lifestyle: 0, consistency: 0, sleep: 0, hydration: 0 };
+        let history7d = [0, 0, 0, 0, 0, 0, 0];
+        let history30d = [];
+        let pillarExplanations = {};
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+            document.getElementById('user-display').innerText = localStorage.getItem('user_email') || 'User';
+            fetchScoringData();
+        });
+
+        function switchTrendRange(range) {
+            activeRange = range;
+            const btn7d = document.getElementById('btn-7d');
+            const btn30d = document.getElementById('btn-30d');
+            const subtitle = document.getElementById('trend-subtitle');
+
+            if (range === '7d') {
+                btn7d.className = "px-3 py-1 text-[10px] font-bold rounded-lg bg-white text-teal-700 shadow-sm transition";
+                btn30d.className = "px-3 py-1 text-[10px] font-bold rounded-lg text-slate-500 hover:text-slate-800 transition";
+                subtitle.innerText = "Showing 7-Day Velocity";
+                renderLineChart(history7d, ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Today']);
+            } else {
+                btn30d.className = "px-3 py-1 text-[10px] font-bold rounded-lg bg-white text-teal-700 shadow-sm transition";
+                btn7d.className = "px-3 py-1 text-[10px] font-bold rounded-lg text-slate-500 hover:text-slate-800 transition";
+                subtitle.innerText = "Showing 30-Day Rolling Adherence";
+                
+                const labels = history30d.map((_, idx) => (idx === history30d.length - 1 ? 'Today' : `D${idx + 1}`));
+                renderLineChart(history30d, labels);
+            }
+        }
+
+        function renderBreakdownCards(c, l, r, s, h, wc, wl, wr, ws, wh) {
+            const container = document.getElementById('weighting-breakdown');
+            if (!container) return;
+            const pillars = [
+                { name: 'CONDITION (35%)', raw: c, wt: wc, desc: pillarExplanations.Condition || "Clinical skin assessment baseline score." },
+                { name: 'LIFESTYLE (20%)', raw: l, wt: wl, desc: pillarExplanations.Lifestyle || "Rolling skin comfort & environment index." },
+                { name: 'CONSISTENCY (20%)', raw: r, wt: wr, desc: pillarExplanations.Consistency || "30-day AM & PM routine completion rate." },
+                { name: 'SLEEP (15%)', raw: s, wt: ws, desc: pillarExplanations.Sleep || "Restorative sleep quality vs 8.0 hr baseline." },
+                { name: 'HYDRATION (10%)', raw: h, wt: wh, desc: pillarExplanations.Hydration || "Daily fluid intake vs 3.0L cellular target." }
+            ];
+            container.innerHTML = pillars.map(p => `
+                <div class="p-4 bg-slate-50 border border-slate-100 rounded-xl flex flex-col justify-between h-full space-y-3">
+                    <div>
+                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">${p.name}</span>
+                        <div class="flex items-end justify-between mt-1">
+                            <span class="text-xl font-black text-slate-800">${Math.round(p.raw)}/100</span>
+                            <span class="text-xs font-bold text-teal-600">+${p.wt.toFixed(2)} pts</span>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-slate-500 leading-snug border-t border-slate-200/60 pt-2 font-medium">${p.desc}</p>
+                </div>
+            `).join('');
+        }
+
+        function renderLineChart(dataArr, labels) {
+            const ctx = document.getElementById('lineChart').getContext('2d');
+            if (lineInstance) lineInstance.destroy();
+
+            const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+            gradient.addColorStop(0, 'rgba(20, 184, 166, 0.35)');
+            gradient.addColorStop(1, 'rgba(20, 184, 166, 0.0)');
+
+            lineInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Overall Skin Health',
+                        data: dataArr,
+                        borderColor: '#14b8a6',
+                        backgroundColor: gradient,
+                        borderWidth: 2.5,
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: '#14b8a6',
+                        pointBorderWidth: 2,
+                        pointRadius: dataArr.length > 15 ? 2 : 4,
+                        pointHoverRadius: 6,
+                        fill: true,
+                        tension: 0.35
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            min: 0,
+                            max: 100,
+                            grid: { color: '#f1f5f9' },
+                            ticks: { font: { family: "'Plus Jakarta Sans', sans-serif", size: 10 }, color: '#94a3b8' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: "'Plus Jakarta Sans', sans-serif", size: 10 }, color: '#94a3b8' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            titleFont: { size: 11, family: "'Plus Jakarta Sans', sans-serif" },
+                            bodyFont: { size: 12, weight: 'bold', family: "'Plus Jakarta Sans', sans-serif" },
+                            padding: 10,
+                            displayColors: false,
+                            callbacks: { label: (ctx) => `Score: ${ctx.raw}/100` }
+                        }
+                    }
+                }
+            });
+        }
+
+        function calculateAndRender() {
+            const c = baseScores.condition;
+            const l = baseScores.lifestyle;
+            const r = baseScores.consistency;
+            const s = baseScores.sleep;
+            const h = baseScores.hydration;
+
+            const w_c = c * 0.35;
+            const w_l = l * 0.20;
+            const w_r = r * 0.20;
+            const w_s = s * 0.15;
+            const w_h = h * 0.10;
+
+            const total = Math.round(w_c + w_l + w_r + w_s + w_h);
+            document.getElementById('score-display').innerText = total;
+
+            const ringEl = document.getElementById('hero-ring');
+            const vulnBadge = document.getElementById('vulnerability-badge');
+            
+            if (total >= 80) {
+                ringEl.className = "w-36 h-36 mx-auto rounded-full bg-emerald-50 border-8 border-emerald-500 flex items-center justify-center shadow-inner mt-2 transition-all";
+                vulnBadge.innerText = "Optimal Barrier";
+                vulnBadge.className = "px-2 py-1 border border-emerald-200 text-emerald-700 bg-emerald-50 rounded-full text-[10px] font-bold";
+            } else if (total >= 60) {
+                ringEl.className = "w-36 h-36 mx-auto rounded-full bg-teal-50 border-8 border-teal-500 flex items-center justify-center shadow-inner mt-2 transition-all";
+                vulnBadge.innerText = "Mild Vulnerability";
+                vulnBadge.className = "px-2 py-1 border border-teal-200 text-teal-700 bg-teal-50 rounded-full text-[10px] font-bold";
+            } else {
+                ringEl.className = "w-36 h-36 mx-auto rounded-full bg-rose-50 border-8 border-rose-500 flex items-center justify-center shadow-inner mt-2 transition-all";
+                vulnBadge.innerText = "Compromised Barrier";
+                vulnBadge.className = "px-2 py-1 border border-rose-200 text-rose-700 bg-rose-50 rounded-full text-[10px] font-bold";
+            }
+
+            renderBreakdownCards(c, l, r, s, h, w_c, w_l, w_r, w_s, w_h);
+            switchTrendRange(activeRange);
+
+            // Determine Weakest Pillar
+            const pillarMap = { 'Condition': c, 'Lifestyle': l, 'Routine Consistency': r, 'Sleep': s, 'Hydration': h };
+            let weakestName = 'Condition';
+            let lowestScore = c;
+            
+            for (const [name, score] of Object.entries(pillarMap)) {
+                if (score < lowestScore) { lowestScore = score; weakestName = name; }
+            }
+            
+            const badgeColor = lowestScore < 50 ? 'text-rose-600 bg-rose-50 border-rose-200' : 'text-amber-600 bg-amber-50 border-amber-200';
+            document.getElementById('weakest-pillar-display').innerText = weakestName;
+            document.getElementById('weakest-pillar-display').className = `font-bold px-2 py-1 rounded border ${badgeColor}`;
+
+            // Horizontal Bar Rubric Chart
+            const ctx = document.getElementById('barChart').getContext('2d');
+            if (barInstance) barInstance.destroy();
+            
+            Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+
+            barInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Condition', 'Lifestyle', 'Consistency', 'Sleep', 'Hydration'],
+                    datasets: [{
+                        data: [c, l, r, s, h],
+                        backgroundColor: [
+                            'rgba(20, 184, 166, 0.85)', 'rgba(16, 185, 129, 0.85)', 
+                            'rgba(245, 158, 11, 0.85)', 'rgba(99, 102, 241, 0.85)', 
+                            'rgba(59, 130, 246, 0.85)'
+                        ],
+                        borderRadius: 4,
+                        barThickness: 16
+                    }]
+                },
+                options: { 
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { 
+                        x: { min: 0, max: 100, grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 }, color: '#94a3b8' } },
+                        y: { grid: { display: false }, ticks: { font: { size: 11, weight: 'bold' }, color: '#475569' } }
+                    }, 
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#0f172a', titleFont: { size: 11 },
+                            bodyFont: { size: 12, weight: 'bold' }, padding: 10, displayColors: false,
+                            callbacks: { label: (ctx) => ` Score: ${ctx.raw}/100` }
+                        }
+                    } 
+                }
+            });
+        }
+
+        async function fetchScoringData() {
+            const btn = document.getElementById('btn-update-calc');
+            const icon = document.getElementById('btn-icon');
+            const text = document.getElementById('btn-text');
+
+            btn.disabled = true;
+            icon.classList.add('animate-spin');
+            text.innerText = "Calculating...";
+
+            const email = localStorage.getItem('user_email') || '';
+            try {
+                const res = await fetch(`/api/scoring/current?email=${encodeURIComponent(email)}`);
+                if (res.ok) {
+                    const json = await res.json();
+                    
+                    baseScores.condition = json.raw.skin_condition;
+                    baseScores.lifestyle = json.raw.lifestyle;
+                    baseScores.consistency = json.raw.routine_consistency;
+                    baseScores.sleep = json.raw.sleep_quality;
+                    baseScores.hydration = json.raw.hydration;
+                    
+                    history7d = json.history_7d || [json.data.overall_score];
+                    history30d = json.history_30d || [json.data.overall_score];
+                    pillarExplanations = json.explanations || {};
+                    
+                    document.getElementById('env-text').innerText = json.data.env_alert;
+                    document.getElementById('forecast-score').innerText = json.data.predicted_next_week_score;
+                    
+                    const diagnosis = json.data.ai_insight || "Maintain routine adherence to stabilize your barrier.";
+                    const action = json.data.actionable_takeaway || "Complete both your AM and PM routine steps today to re-establish your baseline consistency.";
+
+                    document.getElementById('ai-insight-text').innerText = diagnosis;
+                    document.getElementById('clinical-insight-long').innerText = diagnosis;
+                    document.getElementById('clinical-action-text').innerText = action;
+
+                    const deltaEl = document.getElementById('delta-display');
+                    if (json.data.improvement_delta === 0) {
+                        deltaEl.innerHTML = `<span class="text-slate-500 font-bold">Stable Baseline</span>`;
+                    } else if (json.data.improvement_delta > 0) {
+                        deltaEl.innerHTML = `<span class="text-emerald-600 font-bold">+${json.data.improvement_delta} pts Improvement</span>`;
+                    } else {
+                        deltaEl.innerHTML = `<span class="text-rose-600 font-bold">${json.data.improvement_delta} pts Decline</span>`;
+                    }
+
+                    document.getElementById('last-updated-text').innerText = `Updated ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+                    calculateAndRender();
+                }
+            } catch (err) { 
+                console.error("Scoring fetch error:", err); 
+            } finally {
+                btn.disabled = false;
+                icon.classList.remove('animate-spin');
+                text.innerText = "Update Calculation";
+            }
+        }
+    </script>
+</body>
+</html>
