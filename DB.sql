@@ -1,3 +1,6 @@
+
+
+
 -- Enable UUID extension for ingredient intelligence
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
@@ -229,6 +232,35 @@ CREATE TABLE ingredient_interactions (
 );
 SELECT * FROM ingredient_interactions;
 
+-- MODULE 7: SKIN HEALTH SCORES & AUDIT SNAPSHOTS
+CREATE TABLE skin_health_scores (
+    id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(id) ON DELETE CASCADE,
+    overall_score INT NOT NULL CHECK (overall_score BETWEEN 0 AND 100),
+    improvement_delta DECIMAL(5, 2) DEFAULT 0.0,
+    focus_area VARCHAR(100),
+    score_category VARCHAR(50),
+    condition_score DECIMAL(5, 2) NOT NULL,
+    lifestyle_score DECIMAL(5, 2) NOT NULL,
+    routine_consistency_score DECIMAL(5, 2) NOT NULL,
+    sleep_score DECIMAL(5, 2) NOT NULL,
+    hydration_score DECIMAL(5, 2) NOT NULL,
+    predicted_next_week_score INT,
+    prediction_reason TEXT,
+    ai_insight TEXT,
+    requires_intervention BOOLEAN DEFAULT FALSE,
+    calculated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+SELECT * FROM skin_health_scores;
+
+ALTER TABLE PROGRESS_LOGS 
+ADD COLUMN WATER_INTAKE NUMERIC(3, 1) DEFAULT 2.5,
+ADD COLUMN SLEEP_HOURS NUMERIC(3, 1) DEFAULT 7.5,
+ADD COLUMN PHOTO_URL VARCHAR(500);
+
+ALTER TABLE skin_health_scores 
+ADD COLUMN actionable_takeaway TEXT;
+
 -- PERFORMANCE & AI QUERY OPTIMIZATION INDEXES
 CREATE INDEX idx_ingredients_inci ON ingredients_master(canonical_inci_name);
 CREATE INDEX idx_synonyms_name ON ingredient_synonyms(synonym_name);
@@ -239,3 +271,4 @@ CREATE INDEX idx_appointments_patient ON APPOINTMENTS(PATIENT_ID);
 CREATE INDEX idx_appointments_consultant ON APPOINTMENTS(CONSULTANT_ID);
 CREATE INDEX idx_skinassessment_user ON SKINASSESSMENT(USER_ID);
 CREATE INDEX idx_progress_logs_user_date ON PROGRESS_LOGS(USER_ID, LOG_DATE);
+CREATE INDEX idx_skin_health_scores_user ON skin_health_scores(user_id, calculated_at DESC);
