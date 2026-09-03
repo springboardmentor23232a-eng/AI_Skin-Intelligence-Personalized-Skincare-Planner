@@ -690,3 +690,59 @@ async def smart_adapt_routine(payload: SmartAdaptRequest):
         }
     except Exception as e:
         return fallback_response
+
+# ==========================================
+# 5. DAILY PROGRESS LOGGING ENDPOINT (POST)
+# ==========================================
+class DailyProgressPayload(BaseModel):
+    user_email: str
+    am_completed: Optional[bool] = None
+    pm_completed: Optional[bool] = None
+    skin_feeling_rating: Optional[int] = 5
+    notes: Optional[str] = "Frictionless UI Log"
+
+@router.post("/log-daily", status_code=status.HTTP_200_OK)
+@router.post("/api/progress/log-daily", status_code=status.HTTP_200_OK)
+async def log_daily_progress(payload: DailyProgressPayload):
+    conn = None
+    cursor = None
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        # Resolve User ID
+        cursor.execute("SELECT id FROM USERS WHERE LOWER(EMAIL) = LOWER(%s);", (payload.user_email.strip(),))
+        user = cursor.fetchone()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        user_id = user["id"] if isinstance(user, dict) else user[0]
+
+        # UPSERT logic utilizing the unique_user_daily_log constraint
+        upsert_query = """
+            INSERT INTO PROGRESS_LOGS (USER_ID, AM_COMPLETED, PM_COMPLETED, SKIN_FEELING_RATING, NOTES)
+            VALUES (%s, %s, %s, %s, %s)
+            ON CONFLICT (USER_ID, LOG_DATE) 
+            DO UPDATE SET 
+                AM_COMPLETED = COALESCE(EXCLUDED.AM_COMPLETED, PROGRESS_LOGS.AM_COMPLETED),
+                PM_COMPLETED = COALESCE(EXCLUDED.PM_COMPLETED, PROGRESS_LOGS.PM_COMPLETED),
+                SKIN_FEELING_RATING = EXCLUDED.SKIN_FEELING_RATING,
+                NOTES = EXCLUDED.NOTES;
+        """
+        cursor.execute(upsert_query, (
+            user_id, 
+            payload.am_completed, 
+            payload.pm_completed, 
+            payload.skin_feeling_rating, 
+            payload.notes
+        ))
+        conn.commit()
+
+        return {"status": "success", "message": "Daily routine logged successfully."}
+
+    except Exception as e:
+        if conn: conn.rollback()
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+    finally:
+        if cursor and hasattr(cursor, 'close'): cursor.close()
+        if conn: release_db(conn)
