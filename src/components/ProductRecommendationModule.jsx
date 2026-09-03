@@ -10,16 +10,13 @@ import {
   Check,
   Zap,
   X,
-  Award,
   DollarSign,
   SlidersHorizontal,
-  CheckCircle2,
   Tag,
   Info,
   Layers,
   RefreshCw,
-  Terminal,
-  Play
+  Terminal
 } from "lucide-react";
 
 const CATEGORIES = [

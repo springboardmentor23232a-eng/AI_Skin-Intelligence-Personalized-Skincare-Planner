@@ -349,6 +349,26 @@ export const apiService = {
     } catch (err) {
       throw err.response ? err.response.data : new Error(err.message);
     }
+  },
+
+  // Module 7: Skin Health Scoring Engine APIs
+  calculateSkinHealthScore: async (scoreInput) => {
+    try {
+      const res = await axiosInstance.post('/score/calculate', scoreInput);
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  getScoreSampleBreakdown: async () => {
+    try {
+      const res = await axiosInstance.get('/score/breakdown');
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
   }
 };
+
 

@@ -13,7 +13,9 @@ import IngredientIntelligenceModule from "../components/IngredientIntelligenceMo
 import ProductRecommendationModule from "../components/ProductRecommendationModule";
 import ProgressTrackingModule from "../components/ProgressTrackingModule";
 import SkincareAnalyticsModule from "../components/SkincareAnalyticsModule";
+import SkinHealthScoringModule from "../components/SkinHealthScoringModule";
 import { Sparkles, Sun, Droplets, Moon, Flame, Search, Bell, Star, Heart, CheckCircle, TrendingUp, Camera } from "lucide-react";
+
 
 const INITIAL_GOALS = [
   { id: "g1", title: "Drink Water", sub: "2.5 – 3 Liters daily", icon: <Droplets size={18} style={{ color: '#3B82F6' }} />, active: true, doneDays: 5, totalDays: 7, pct: 71, color: '#3B82F6' },
@@ -466,8 +468,13 @@ const UserDashboard = () => {
           {/* Module 6: Product Recommendation Engine Section */}
           <ProductRecommendationModule onToast={showToast} />
 
-          {/* Module 7: Progress Tracking System Section */}
+          {/* Skin Health Scoring Engine Section */}
+          <SkinHealthScoringModule onToast={showToast} />
+
+
+          {/* Progress Tracking System Section */}
           <ProgressTrackingModule onToast={showToast} />
+
 
           {/* Skincare Analytics Dashboard Section */}
           <SkincareAnalyticsModule onToast={showToast} />

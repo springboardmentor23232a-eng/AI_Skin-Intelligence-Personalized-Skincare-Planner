@@ -165,3 +165,27 @@ CREATE TABLE IF NOT EXISTS skin_progress_logs (
 
 CREATE INDEX IF NOT EXISTS idx_skin_progress_logs_user_id ON skin_progress_logs(user_id);
 CREATE INDEX IF NOT EXISTS idx_skin_progress_logs_log_date ON skin_progress_logs(log_date);
+
+-- ====================================================
+-- MODULE 7: SKIN HEALTH SCORING ENGINE SCHEMA
+-- ====================================================
+
+CREATE TABLE IF NOT EXISTS skin_health_scores (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    score_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    overall_score INT NOT NULL CHECK (overall_score BETWEEN 0 AND 100),
+    skin_condition_score INT NOT NULL CHECK (skin_condition_score BETWEEN 0 AND 100),
+    lifestyle_score INT NOT NULL CHECK (lifestyle_score BETWEEN 0 AND 100),
+    sleep_score INT NOT NULL CHECK (sleep_score BETWEEN 0 AND 100),
+    routine_consistency_score INT NOT NULL CHECK (routine_consistency_score BETWEEN 0 AND 100),
+    hydration_score INT NOT NULL CHECK (hydration_score BETWEEN 0 AND 100),
+    score_rating VARCHAR(50) NOT NULL,
+    improvement_delta INT DEFAULT 0,
+    improvement_pct DECIMAL(5, 2) DEFAULT 0.0,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_skin_health_scores_user_id ON skin_health_scores(user_id);
+

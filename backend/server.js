@@ -75,7 +75,8 @@ app.all([
   '/api/ingredient', '/api/ingredient/*',
   '/api/product', '/api/product/*',
   '/api/progress', '/api/progress/*',
-  '/api/analytics', '/api/analytics/*'
+  '/api/analytics', '/api/analytics/*',
+  '/api/score', '/api/score/*'
 ], async (req, res) => {
   const fastApiBase = process.env.FASTAPI_URL || 'http://localhost:8000';
   let targetUrl = `${fastApiBase}${req.originalUrl}`;
@@ -91,9 +92,12 @@ app.all([
     targetUrl = `${fastApiBase}${req.originalUrl.replace('/api/progress', '/progress')}`;
   } else if (req.originalUrl.startsWith('/api/analytics')) {
     targetUrl = `${fastApiBase}${req.originalUrl.replace('/api/analytics', '/analytics')}`;
+  } else if (req.originalUrl.startsWith('/api/score')) {
+    targetUrl = `${fastApiBase}${req.originalUrl.replace('/api/score', '/score')}`;
   } else if (req.originalUrl.startsWith('/api/ai')) {
     targetUrl = `${fastApiBase}${req.originalUrl}`;
   }
+
 
   try {
     const headers = { ...req.headers };

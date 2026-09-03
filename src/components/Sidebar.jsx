@@ -94,11 +94,18 @@ const Sidebar = () => {
                   </Link>
                 </li>
                 <li>
+                  <Link to="/user#scoring" className={`sidebar-item ${isActive("/user") && location.hash === "#scoring" ? "active" : ""}`}>
+                    <Award size={18} />
+                    <span>Skin Scoring Engine</span>
+                  </Link>
+                </li>
+                <li>
                   <Link to="/user#progress" className={`sidebar-item ${isActive("/user") && location.hash === "#progress" ? "active" : ""}`}>
                     <History size={18} />
                     <span>Daily Progress Tracker</span>
                   </Link>
                 </li>
+
                 <li>
                   <Link to="/user#analytics" className={`sidebar-item ${isActive("/user") && location.hash === "#analytics" ? "active" : ""}`}>
                     <Award size={18} />

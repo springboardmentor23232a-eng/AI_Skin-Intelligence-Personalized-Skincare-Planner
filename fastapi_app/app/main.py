@@ -12,8 +12,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from app.database import engine, Base, SessionLocal
 from app.routers import (
     assessment_router, routine_router, gemini_router,
-    ingredient_router, product_router, progress_router, analytics_router
+    ingredient_router, product_router, progress_router, analytics_router, scoring_router
 )
+
 from app.models.ingredient import Ingredient, IngredientConflict
 from app.models.product import Product
 
@@ -134,6 +135,7 @@ app.include_router(ingredient_router.router)
 app.include_router(product_router.router)
 app.include_router(progress_router.router)
 app.include_router(analytics_router.router)
+app.include_router(scoring_router.router)
 
 # Health Check & Root Info
 @app.get("/", tags=["Health & Info"])

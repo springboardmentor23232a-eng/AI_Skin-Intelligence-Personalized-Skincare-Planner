@@ -19,6 +19,9 @@ from app.schemas.progress import (
 from app.schemas.analytics import (
     ScoreDataPoint, ConcernDistribution, UserAnalyticsResponse, SystemAnalyticsResponse
 )
+from app.schemas.scoring import (
+    ScoreCalculationInput, SubScoreBreakdown, SkinImprovementScore, ScoreCalculationResponse
+)
 
 __all__ = [
     "SkinAssessmentInput", "AssessmentUpdate", "SkinAssessmentResponse",
@@ -28,5 +31,7 @@ __all__ = [
     "CompatibilityCheckInput", "CompatibilityCheckResponse",
     "ProductBase", "ProductCreate", "ProductResponse", "ProductMatchResponse",
     "SkinProgressLogCreate", "SkinProgressLogResponse", "ProgressStatsResponse",
-    "ScoreDataPoint", "ConcernDistribution", "UserAnalyticsResponse", "SystemAnalyticsResponse"
+    "ScoreDataPoint", "ConcernDistribution", "UserAnalyticsResponse", "SystemAnalyticsResponse",
+    "ScoreCalculationInput", "SubScoreBreakdown", "SkinImprovementScore", "ScoreCalculationResponse"
 ]
+
