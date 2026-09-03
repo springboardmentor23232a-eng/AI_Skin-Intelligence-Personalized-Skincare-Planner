@@ -5,6 +5,8 @@ if _backend_dir not in sys.path:
 import sys
 import os
 import secrets
+import io
+from PIL import Image
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, text
 
@@ -260,11 +262,41 @@ res_export_pdf = client.get("/api/reports/export?format=pdf", headers=headers)
 print(f"[OK] 32. Exported Clinical PDF report stream (Content-Type: {res_export_pdf.headers['content-type']})")
 assert res_export_pdf.status_code == 200
 
-# 13. Logout Test
+# 13. Export XLSX & Image Analysis Vision Tests
+res_export_xlsx = client.get("/api/reports/export?format=xlsx", headers=headers)
+print(f"[OK] 33. Exported XLSX Excel report stream (Content-Type: {res_export_xlsx.headers['content-type']})")
+assert res_export_xlsx.status_code == 200
+
+# Test Image Upload Analysis using PIL generated valid image
+img_io = io.BytesIO()
+test_img = Image.new("RGB", (200, 200), color=(255, 192, 203))
+test_img.save(img_io, format="JPEG", quality=90)
+sample_img_bytes = img_io.getvalue()
+
+res_img_upload = client.post(
+    "/api/image-analysis/upload",
+    headers=headers,
+    files={"file": ("test_skin.jpg", sample_img_bytes, "image/jpeg")}
+)
+print(f"[OK] 34. Image Analysis PyTorch Vision Upload Executed (Prediction: '{res_img_upload.json()['prediction']['predicted_category']}')")
+assert res_img_upload.status_code == 200
+assert "image_url" in res_img_upload.json()
+
+# Test 5-Factor Weighted Health Score Verification
+res_assess_weighted = client.post("/api/assessment", headers=headers, json={
+    "acne": 10, "hyperpigmentation": 10, "dryness": 10, "oiliness": 10,
+    "redness": 10, "sensitivity": 10, "wrinkles": 10, "fine_lines": 10,
+    "dark_spots": 10, "uneven_tone": 10
+})
+print(f"[OK] 35. Master 5-Factor Weighted Skin Health Score Calculated: {res_assess_weighted.json()['overall_score']}%")
+assert res_assess_weighted.status_code == 201
+assert res_assess_weighted.json()["overall_score"] >= 80
+
+# 14. Logout Test
 res_logout = client.post("/api/auth/logout")
-print(f"[OK] 33. Logout API Status: {res_logout.status_code}")
+print(f"[OK] 36. Logout API Status: {res_logout.status_code}")
 assert res_logout.status_code == 200
 
 print("\n" + "="*70)
-print("     ALL PHASES (1, 2, 3, 4, 5, 6 & 7) FULL E2E VERIFICATION PASSED 100%     ")
+print("     ALL PHASES (1 - 7) FULL E2E VERIFICATION PASSED 100% (36/36)     ")
 print("="*70)

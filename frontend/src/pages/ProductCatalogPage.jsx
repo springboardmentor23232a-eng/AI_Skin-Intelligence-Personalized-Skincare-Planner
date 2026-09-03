@@ -4,6 +4,8 @@ import Sidebar from "../components/Sidebar";
 import apiService from "../services/apiService";
 import { useTheme } from "../context/ThemeContext";
 
+import { formatINR, StorePurchaseButtons } from "./ProductRecommendationsPage";
+
 export default function ProductCatalogPage() {
   const { isDarkMode } = useTheme();
   const [products, setProducts] = useState([]);
@@ -12,7 +14,7 @@ export default function ProductCatalogPage() {
   const [selectedSkinType, setSelectedSkinType] = useState("All");
   const [selectedConcern, setSelectedConcern] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
-  const [maxPrice, setMaxPrice] = useState(200);
+  const [maxPriceINR, setMaxPriceINR] = useState(17000);
   const [activeModalProduct, setActiveModalProduct] = useState(null);
 
   const categories = ["All", "Cleanser", "Serum", "Moisturizer", "Sunscreen", "Treatment", "Toner"];
@@ -35,7 +37,7 @@ export default function ProductCatalogPage() {
       if (selectedSkinType !== "All") params.skin_type = selectedSkinType;
       if (selectedConcern !== "All") params.concern = selectedConcern;
       if (searchQuery) params.search = searchQuery;
-      if (maxPrice < 200) params.max_price = maxPrice;
+      if (maxPriceINR < 17000) params.max_price = maxPriceINR / 85;
 
       const data = await apiService.getProducts(params);
       setProducts(data);
@@ -49,14 +51,14 @@ export default function ProductCatalogPage() {
   useEffect(() => {
     fetchProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCategory, selectedSkinType, selectedConcern, searchQuery, maxPrice]);
+  }, [selectedCategory, selectedSkinType, selectedConcern, searchQuery, maxPriceINR]);
 
   const handleResetFilters = () => {
     setSelectedCategory("All");
     setSelectedSkinType("All");
     setSelectedConcern("All");
     setSearchQuery("");
-    setMaxPrice(200);
+    setMaxPriceINR(17000);
   };
 
   return (
@@ -148,15 +150,15 @@ export default function ProductCatalogPage() {
 
               {/* Price Slider */}
               <div className="col-md-2 col-6">
-                <label className="form-label small text-secondary fw-semibold">Max Price (${maxPrice})</label>
+                <label className="form-label small text-secondary fw-semibold">Max Price ({formatINR(maxPriceINR)})</label>
                 <input
                   type="range"
                   className="form-range mt-2"
-                  min="5"
-                  max="200"
-                  step="5"
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(Number(e.target.value))}
+                  min="400"
+                  max="17000"
+                  step="100"
+                  value={maxPriceINR}
+                  onChange={(e) => setMaxPriceINR(Number(e.target.value))}
                 />
               </div>
             </div>
@@ -203,7 +205,7 @@ export default function ProductCatalogPage() {
                         <span className="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-semibold">
                           {prod.category}
                         </span>
-                        <span className="fw-bold text-success fs-5">${prod.price.toFixed(2)}</span>
+                        <span className="fw-bold text-success fs-5">{formatINR(prod.price)}</span>
                       </div>
 
                       <div className="small text-uppercase fw-bold text-secondary mb-1">{prod.brand}</div>
@@ -267,15 +269,25 @@ export default function ProductCatalogPage() {
                     <h6 className="fw-bold text-primary mb-2">Usage Instructions</h6>
                     <p className="text-secondary small">{activeModalProduct.usage_instructions || "Apply as directed by dermatologist."}</p>
 
-                    <div className="d-flex align-items-center gap-3 mt-3 p-3 rounded-3 bg-primary bg-opacity-10">
+                    <div className="d-flex align-items-center gap-3 mt-3 p-3 rounded-3 bg-primary bg-opacity-10 mb-3">
                       <div>
                         <div className="small text-secondary">Market Price</div>
-                        <div className="fs-4 fw-bold text-success">${activeModalProduct.price.toFixed(2)}</div>
+                        <div className="fs-4 fw-bold text-success">{formatINR(activeModalProduct.price)}</div>
                       </div>
                       <div className="border-start border-secondary opacity-25 ps-3">
                         <div className="small text-secondary">Clinical Score</div>
                         <div className="fs-5 fw-bold text-warning">★ {activeModalProduct.rating} / 5</div>
                       </div>
+                    </div>
+
+                    <div className="mb-2">
+                      <div className="small text-secondary fw-semibold mb-1">Buy at Authorized Stores:</div>
+                      <StorePurchaseButtons
+                        purchaseLinks={activeModalProduct.purchase_links}
+                        fallbackUrl={activeModalProduct.purchase_url}
+                        price={activeModalProduct.price}
+                        size="sm"
+                      />
                     </div>
                   </div>
 

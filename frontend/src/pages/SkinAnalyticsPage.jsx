@@ -3,13 +3,15 @@ import Layout from "../components/Layout";
 import apiService from "../services/apiService";
 import Toast from "../components/Toast";
 import Skeleton from "../components/Skeleton";
+import SkinHealthScoreBreakdown from "../components/SkinHealthScoreBreakdown";
 
 function SkinAnalyticsPage() {
   const [trends, setTrends] = useState([]);
   const [progressEntries, setProgressEntries] = useState([]);
   const [selectedMetric, setSelectedMetric] = useState("overall_score");
-  const [photoUrl, setPhotoUrl] = useState("");
   const [notes, setNotes] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState({ message: "", type: "success" });
@@ -36,6 +38,21 @@ function SkinAnalyticsPage() {
     };
   }, []);
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setSelectedFile(null);
+      setPreviewUrl("");
+    }
+  };
+
   const handleAddProgress = async (e) => {
     e.preventDefault();
     if (!notes.trim()) {
@@ -44,13 +61,22 @@ function SkinAnalyticsPage() {
     }
     setSubmitting(true);
     try {
-      const payload = {
-        photo_url: photoUrl.trim() || null,
-        notes: notes.trim()
-      };
-      const newEntry = await apiService.createProgressEntry(payload);
+      let newEntry;
+      if (selectedFile) {
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+        formData.append("notes", notes.trim());
+        newEntry = await apiService.uploadProgressPhoto(formData);
+      } else {
+        const payload = {
+          photo_url: null,
+          notes: notes.trim()
+        };
+        newEntry = await apiService.createProgressEntry(payload);
+      }
       setProgressEntries((prev) => [newEntry, ...prev]);
-      setPhotoUrl("");
+      setSelectedFile(null);
+      setPreviewUrl("");
       setNotes("");
       setToast({ message: "📸 Progress entry saved to your skin timeline!", type: "success" });
     } catch (err) {
@@ -59,6 +85,14 @@ function SkinAnalyticsPage() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const getFullImageUrl = (url) => {
+    if (!url) return "";
+    if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) {
+      return url;
+    }
+    return `http://localhost:8000${url}`;
   };
 
   const renderLineChart = () => {
@@ -279,25 +313,28 @@ function SkinAnalyticsPage() {
       <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
         <div>
           <h2 className="fw-bold mb-1" style={{ color: "var(--text-primary)" }}>
-            Skin Health Analytics & Progress Diary
+            Skin Health Progress & Diary
           </h2>
           <p className="text-secondary small mb-0">
-            Monitor diagnostics trends and log before/after photos on your skin wellness journey
+            Monitor your health score trends and track visual progress on your skincare journey
           </p>
         </div>
       </div>
+
+      {/* Skin Health Overview */}
+      <SkinHealthScoreBreakdown />
 
       <div className="row g-4">
         {/* Left Side: Trends and Before/After comparison */}
         <div className="col-lg-8">
           {renderLineChart()}
 
-          {/* Before/After Photo Side-by-Side Comparison */}
+          {/* Visual Progress Timeline */}
           <div className="saas-card shadow-lg mb-4">
             <div className="saas-card-header border-bottom pb-3 mb-3">
               <div>
-                <h5 className="saas-card-title mb-0">Before & After Comparison</h5>
-                <span className="saas-card-subtitle">Visual improvement tracking</span>
+                <h5 className="saas-card-title mb-0">Visual Progress Timeline</h5>
+                <span className="saas-card-subtitle">Comparing earlier and recent skin photos</span>
               </div>
             </div>
 
@@ -307,7 +344,7 @@ function SkinAnalyticsPage() {
                   <div className="fw-semibold text-muted small mb-2">BEFORE ({new Date(oldestPhoto.logged_at).toLocaleDateString()})</div>
                   <div className="ratio ratio-4x3 rounded overflow-hidden border" style={{ borderColor: "var(--border-subtle)" }}>
                     <img
-                      src={oldestPhoto.photo_url}
+                      src={getFullImageUrl(oldestPhoto.photo_url)}
                       alt="Skin state before"
                       style={{ objectFit: "cover", width: "100%", height: "100%" }}
                       onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=300"; }}
@@ -319,7 +356,7 @@ function SkinAnalyticsPage() {
                   <div className="fw-semibold text-muted small mb-2">AFTER ({new Date(newestPhoto.logged_at).toLocaleDateString()})</div>
                   <div className="ratio ratio-4x3 rounded overflow-hidden border" style={{ borderColor: "var(--border-subtle)" }}>
                     <img
-                      src={newestPhoto.photo_url}
+                      src={getFullImageUrl(newestPhoto.photo_url)}
                       alt="Skin state after"
                       style={{ objectFit: "cover", width: "100%", height: "100%" }}
                       onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=300"; }}
@@ -330,7 +367,7 @@ function SkinAnalyticsPage() {
               </div>
             ) : (
               <div className="text-center py-5 text-muted border rounded" style={{ backgroundColor: "var(--bg-surface-elevated)", borderStyle: "dashed" }}>
-                📸 Add at least two progress entries with photo URLs to unlock Before/After visual comparison.
+                📸 Add at least two progress entries with photos to unlock Before/After visual comparison.
               </div>
             )}
           </div>
@@ -347,16 +384,24 @@ function SkinAnalyticsPage() {
               </div>
             </div>
 
-            <form onSubmit={handleAddProgress}>
+             <form onSubmit={handleAddProgress}>
               <div className="mb-3">
-                <label className="form-label small fw-semibold" style={{ color: "var(--text-primary)" }}>Photo URL (Optional)</label>
+                <label className="form-label small fw-semibold" style={{ color: "var(--text-primary)" }}>Select Image</label>
                 <input
-                  type="url"
-                  placeholder="https://example.com/photo.jpg"
-                  value={photoUrl}
-                  onChange={(e) => setPhotoUrl(e.target.value)}
+                  type="file"
+                  accept="image/png, image/jpeg, image/jpg, image/webp"
+                  onChange={handleFileChange}
                   className="form-control-saas"
                 />
+                {previewUrl && (
+                  <div className="mt-2 text-center border rounded p-1" style={{ backgroundColor: "var(--bg-surface-elevated)" }}>
+                    <img
+                      src={previewUrl}
+                      alt="Selected Preview"
+                      style={{ maxWidth: "100%", maxHeight: "150px", borderRadius: "6px", objectFit: "cover" }}
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="mb-3">
@@ -376,7 +421,7 @@ function SkinAnalyticsPage() {
                 disabled={submitting}
                 className="btn btn-saas w-100"
               >
-                {submitting ? "Saving Entry..." : "📸 Save Entry"}
+                {submitting ? "Saving Entry..." : "📸 Save Entry / Upload"}
               </button>
             </form>
           </div>
@@ -407,7 +452,7 @@ function SkinAnalyticsPage() {
                     {entry.photo_url && (
                       <div className="mb-2 rounded overflow-hidden border" style={{ maxHeight: "150px" }}>
                         <img
-                          src={entry.photo_url}
+                          src={getFullImageUrl(entry.photo_url)}
                           alt="Progress entry state"
                           style={{ objectFit: "cover", width: "100%", maxHeight: "150px" }}
                           onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=300"; }}

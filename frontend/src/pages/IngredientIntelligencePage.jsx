@@ -161,6 +161,15 @@ function IngredientIntelligencePage() {
               checkResult.is_safe ? "bg-success bg-opacity-10 border-success" : "bg-danger bg-opacity-10 border-danger"
             }`}
           >
+            {checkResult.user_allergy_conflicts && checkResult.user_allergy_conflicts.length > 0 && (
+              <div className="p-3 mb-3 rounded bg-warning bg-opacity-25 border border-warning text-warning-emphasis">
+                <h6 className="fw-bold mb-1">⚠️ PERSONAL PROFILE CONFLICT</h6>
+                <p className="small mb-0">
+                  The selected ingredient(s) <strong>{checkResult.user_allergy_conflicts.join(", ")}</strong> match an allergy or sensitivity stored in your personal skin profile.
+                </p>
+              </div>
+            )}
+
             <div className="d-flex align-items-center gap-2 mb-2">
               <span style={{ fontSize: "1.5rem" }}>{checkResult.is_safe ? "✅" : "⚠️"}</span>
               <h5 className={`fw-bold mb-0 ${checkResult.is_safe ? "text-success" : "text-danger"}`}>

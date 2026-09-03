@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.models import User, SkinProfile, SkinAssessment, Product, ProductRecommendation, Ingredient
 from app.auth import get_current_user
-from app.routes.phase3 import CORE_PRODUCTS_DATA
+from app.routes.phase3 import CORE_PRODUCTS_DATA, seed_products
 from app.schemas_phase3 import ProductResponse
 from app.schemas_phase4 import (
     RecommendationRequest,
@@ -74,10 +74,11 @@ def calculate_product_suitability(
 
     final_score = round(min(100.0, max(0.0, score)), 1)
 
-    # Determine Budget Tier
-    if product.price <= 20.0:
+    # Determine Budget Tier (INR: Low <= 1500, Medium 1500-4000, Premium > 4000)
+    inr_price = product.price * 85.0 if product.price < 300 else product.price
+    if inr_price <= 1500.0:
         budget_tier = "Low"
-    elif product.price <= 50.0:
+    elif inr_price <= 4000.0:
         budget_tier = "Medium"
     else:
         budget_tier = "Premium"
@@ -102,24 +103,9 @@ def generate_recommendations(
     profile = db.query(SkinProfile).filter(SkinProfile.user_id == current_user.id).first()
     assessment = db.query(SkinAssessment).filter(SkinAssessment.user_id == current_user.id).order_by(SkinAssessment.created_at.desc()).first()
 
-    # Ensure products database has records
-    if db.query(Product).count() == 0:
-        for data in CORE_PRODUCTS_DATA:
-            prod = Product(
-                brand=data["brand"],
-                name=data["name"],
-                category=data["category"],
-                price=data["price"],
-                rating=data["rating"],
-                active_ingredients=data["active_ingredients"],
-                suitable_skin_types=data["suitable_skin_types"],
-                suitable_concerns=data["suitable_concerns"],
-                description=data["description"],
-                usage_instructions=data["usage_instructions"],
-                image_url=data["image_url"]
-            )
-            db.add(prod)
-        db.commit()
+    # Ensure products database has records and verified purchase_urls
+    if db.query(Product).count() == 0 or db.query(Product).filter(Product.purchase_url.is_(None)).count() > 0:
+        seed_products(db)
 
     all_products = db.query(Product).all()
 
@@ -127,13 +113,14 @@ def generate_recommendations(
     for p in all_products:
         item = calculate_product_suitability(p, profile, assessment)
 
-        # Budget Tier Filter
+        # Budget Tier Filter matching INR specifications
         tier_filter = (payload.budget_tier or "ALL").upper()
-        if tier_filter == "LOW" and item.product.price > 20.0:
+        inr_p = item.product.price * 85.0 if item.product.price < 300 else item.product.price
+        if tier_filter == "LOW" and inr_p > 1500.0:
             continue
-        elif tier_filter == "MEDIUM" and (item.product.price <= 20.0 or item.product.price > 50.0):
+        elif tier_filter == "MEDIUM" and (inr_p <= 1500.0 or inr_p > 4000.0):
             continue
-        elif tier_filter == "PREMIUM" and item.product.price <= 50.0:
+        elif tier_filter == "PREMIUM" and inr_p <= 4000.0:
             continue
 
         evaluated_items.append(item)
@@ -168,6 +155,26 @@ def get_recommendation_history(
     sessions = db.query(ProductRecommendation).filter(
         ProductRecommendation.user_id == current_user.id
     ).order_by(ProductRecommendation.created_at.desc()).all()
+
+    # Dynamically enrich historical recommendation snapshots with live purchase_url and image_url
+    all_prods_map = {p.id: p for p in db.query(Product).all()}
+    for s in sessions:
+        if s.recommended_products:
+            updated_list = []
+            for item in s.recommended_products:
+                if isinstance(item, dict):
+                    p_data = item.get("product", {})
+                    p_id = p_data.get("id")
+                    if p_id and p_id in all_prods_map:
+                        live_p = all_prods_map[p_id]
+                        p_data["purchase_url"] = live_p.purchase_url or p_data.get("purchase_url")
+                        p_data["purchase_links"] = live_p.purchase_links or p_data.get("purchase_links", {})
+                        p_data["image_url"] = live_p.image_url or p_data.get("image_url")
+                        p_data["brand"] = live_p.brand
+                        item["product"] = p_data
+                updated_list.append(item)
+            s.recommended_products = updated_list
+
     return sessions
 
 
@@ -213,7 +220,9 @@ def compare_products(
                 suitable_concerns=p.suitable_concerns,
                 suitability_score=evaluated.suitability_score,
                 pros=pros,
-                warnings=evaluated.allergy_warnings
+                warnings=evaluated.allergy_warnings,
+                purchase_url=p.purchase_url,
+                purchase_links=p.purchase_links or {}
             )
         )
 
@@ -249,12 +258,13 @@ def get_product_alternatives(
     for cand in candidates:
         evaluated = calculate_product_suitability(cand, profile, assessment)
         diff = round(cand.price - target_prod.price, 2)
+        inr_diff = round((cand.price - target_prod.price) * (85.0 if cand.price < 300 else 1.0))
 
         reason_parts = []
-        if diff < 0:
-            reason_parts.append(f"Budget saver (${abs(diff):.2f} cheaper)")
-        elif diff > 0:
-            reason_parts.append(f"Premium alternative (+${diff:.2f})")
+        if inr_diff < 0:
+            reason_parts.append(f"Budget saver (₹{abs(inr_diff):,d} cheaper)")
+        elif inr_diff > 0:
+            reason_parts.append(f"Premium alternative (+₹{inr_diff:,d})")
         else:
             reason_parts.append("Same price point")
 

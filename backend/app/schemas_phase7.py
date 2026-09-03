@@ -51,3 +51,45 @@ class ReportSummaryResponse(BaseModel):
     consultation_history: Any
 
     model_config = ConfigDict(from_attributes=True)
+
+
+# ==========================================
+# 4. SKIN HEALTH SCORING ENGINE (PHASE 7)
+# ==========================================
+
+class SkinHealthFactorDetail(BaseModel):
+    name: str
+    score: float
+    weight: float
+    weighted_contribution: float
+    status: str
+    description: str
+
+
+class SkinHealthFactorsMap(BaseModel):
+    skin_condition: SkinHealthFactorDetail
+    lifestyle: SkinHealthFactorDetail
+    sleep_quality: SkinHealthFactorDetail
+    routine_consistency: SkinHealthFactorDetail
+    hydration: SkinHealthFactorDetail
+
+
+class SkinHealthScoreResponse(BaseModel):
+    overall_score: float
+    risk_level: str
+    status_label: str
+    interpretation: str
+    summary: str
+    factors: SkinHealthFactorsMap
+    weights_total: float
+    calculation_version: str
+    evaluated_at: str
+    disclaimer: str
+    profile_completeness: Optional[float] = None
+    confidence_level: Optional[str] = None
+    missing_items: Optional[List[str]] = None
+    skin_type_context: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+

@@ -39,6 +39,8 @@ class ProductComparisonItem(BaseModel):
     suitability_score: float
     pros: List[str]
     warnings: List[str]
+    purchase_url: Optional[str] = None
+    purchase_links: Optional[dict] = {}
 
 class ProductComparisonResponse(BaseModel):
     comparison: List[ProductComparisonItem]

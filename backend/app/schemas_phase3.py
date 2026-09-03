@@ -21,8 +21,16 @@ class SkincareRoutineResponse(BaseModel):
     steps: List[RoutineStepSchema]
     created_at: datetime
     updated_at: datetime
+    adapted_from_previous_assessment: Optional[bool] = False
+    adaptation_summary: Optional[str] = None
+    assessment_changes: Optional[dict] = None
 
     model_config = ConfigDict(from_attributes=True)
+
+class SkincareRoutineUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    steps: Optional[List[RoutineStepSchema]] = None
 
 class IngredientBase(BaseModel):
     name: str
@@ -62,6 +70,7 @@ class CompatibilityCheckResponse(BaseModel):
     is_safe: bool
     conflicts_found: List[ConflictDetail]
     recommendation: str
+    user_allergy_conflicts: Optional[List[str]] = []
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
@@ -78,6 +87,8 @@ class ProductBase(BaseModel):
     description: str
     usage_instructions: Optional[str] = None
     image_url: Optional[str] = None
+    purchase_url: Optional[str] = None
+    purchase_links: Optional[dict] = {}
 
 class ProductCreate(ProductBase):
     pass

@@ -82,7 +82,6 @@ ml/models/*.pt
 backend/uploads/
 backend/skin_db.db
 
-=======
 Thumbs.db
 
 # ==========================================

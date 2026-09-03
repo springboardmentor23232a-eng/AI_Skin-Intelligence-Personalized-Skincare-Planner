@@ -58,8 +58,11 @@ function Login() {
   };
 
   const handleGoogleError = () => {
-    setError("Google Sign-In was unsuccessful. Please try again.");
+    setError(
+      "Google Sign-In Error (401 invalid_client): The Google OAuth Client ID is not configured or not registered in Google Cloud Console. Please add a valid VITE_GOOGLE_CLIENT_ID in frontend/.env."
+    );
   };
+
 
   return (
     <div className="min-vh-100 d-flex flex-column" style={{ backgroundColor: "var(--bg-canvas)" }}>
@@ -71,12 +74,15 @@ function Login() {
             <div className="text-center mb-4">
               <div
                 className="rounded-circle mx-auto d-flex align-items-center justify-content-center text-white mb-3"
-                style={{ width: "48px", height: "48px", background: "var(--accent-gradient)" }}
+                style={{ width: "44px", height: "44px", background: "var(--accent-gradient)" }}
               >
-                🔐
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
               </div>
               <h2 className="fw-bold mb-1" style={{ color: "var(--text-primary)" }}>Welcome Back</h2>
-              <p className="text-secondary small">Access your AI Skin Intelligence workspace</p>
+              <p className="text-secondary small">Sign in to your personalized skin intelligence workspace</p>
             </div>
 
             {error && (
@@ -121,16 +127,29 @@ function Login() {
 
             <div className="text-center my-3 text-muted small">OR</div>
 
-            <div className="d-flex justify-content-center mb-4">
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={handleGoogleError}
-                useOneTap
-                theme="outline"
-                shape="pill"
-                size="large"
-                text="continue_with"
-              />
+            <div className="d-flex flex-column align-items-center mb-4">
+              {import.meta.env.VITE_GOOGLE_CLIENT_ID &&
+              !import.meta.env.VITE_GOOGLE_CLIENT_ID.includes("placeholder") &&
+              !import.meta.env.VITE_GOOGLE_CLIENT_ID.includes("your-google-client-id") &&
+              !import.meta.env.VITE_GOOGLE_CLIENT_ID.includes("your_google_client_id") ? (
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={handleGoogleError}
+                  useOneTap
+                  theme="outline"
+                  shape="pill"
+                  size="large"
+                  text="continue_with"
+                />
+              ) : (
+                <div
+                  className="alert alert-warning text-center small py-2 px-3 mb-2 w-100 rounded"
+                  style={{ fontSize: "0.8rem" }}
+                  role="alert"
+                >
+                  Google Sign-In is currently unavailable. Please sign in with your email and password.
+                </div>
+              )}
             </div>
 
             <div className="text-center small text-secondary">

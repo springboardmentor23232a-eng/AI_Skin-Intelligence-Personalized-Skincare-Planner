@@ -6,11 +6,18 @@ import "./index.css";
 import App from "./App.jsx";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "1083948572019-googleclientidplaceholder.apps.googleusercontent.com";
+const rawGoogleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+const googleClientId =
+  rawGoogleClientId &&
+  !rawGoogleClientId.includes("placeholder") &&
+  !rawGoogleClientId.includes("your-google-client-id") &&
+  !rawGoogleClientId.includes("your_google_client_id")
+    ? rawGoogleClientId
+    : "";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <GoogleOAuthProvider clientId={googleClientId}>
+    <GoogleOAuthProvider clientId={googleClientId || ""}>
       <BrowserRouter>
         <App />
       </BrowserRouter>

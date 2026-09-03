@@ -41,6 +41,7 @@ class SkinProgressPhotoResponse(BaseModel):
 class SkinHealthTrendPoint(BaseModel):
     logged_at: datetime
     overall_score: int
+    improvement_delta: Optional[int] = 0
     acne: int
     hyperpigmentation: int
     dryness: int

@@ -38,7 +38,7 @@ export const apiService = {
     return res.data;
   },
 
-  // Module 3: Skin Assessment APIs
+  // Module 3: Skin Assessment & Vision Analysis APIs
   createAssessment: async (data) => {
     const res = await apiClient.post("/assessment", data);
     return res.data;
@@ -54,6 +54,46 @@ export const apiService = {
     return res.data;
   },
 
+  // Phase 7: Skin Health Scoring Engine
+  getSkinHealthScore: async () => {
+    const res = await apiClient.get("/scoring/skin-health");
+    return res.data;
+  },
+
+  uploadImageAnalysis: async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await apiClient.post("/image-analysis/upload", formData, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
+    return res.data;
+  },
+
+  webcamImageAnalysis: async (base64Image, filename = "webcam_capture.png") => {
+    const formData = new FormData();
+    formData.append("image_data", base64Image);
+    formData.append("filename", filename);
+    const res = await apiClient.post("/image-analysis/webcam", formData, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
+    return res.data;
+  },
+
+  getImageAnalysisHistory: async () => {
+    const res = await apiClient.get("/image-analysis/history");
+    return res.data;
+  },
+
+  getImageAnalysisDetail: async (id) => {
+    const res = await apiClient.get(`/image-analysis/${id}`);
+    return res.data;
+  },
+
+  deleteImageAnalysis: async (id) => {
+    const res = await apiClient.delete(`/image-analysis/${id}`);
+    return res.data;
+  },
+
   // Module 4: Routine Generator APIs
   generateRoutines: async () => {
     const res = await apiClient.post("/routines/generate");
@@ -62,6 +102,11 @@ export const apiService = {
 
   getRoutines: async () => {
     const res = await apiClient.get("/routines");
+    return res.data;
+  },
+
+  updateRoutine: async (id, routineData) => {
+    const res = await apiClient.put(`/routines/${id}`, routineData);
     return res.data;
   },
 
@@ -159,6 +204,15 @@ export const apiService = {
 
   createProgressEntry: async (data) => {
     const res = await apiClient.post("/analytics/progress", data);
+    return res.data;
+  },
+
+  uploadProgressPhoto: async (formData) => {
+    const res = await apiClient.post("/analytics/progress/upload", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    });
     return res.data;
   },
 

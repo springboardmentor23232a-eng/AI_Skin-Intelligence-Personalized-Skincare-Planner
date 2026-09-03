@@ -58,6 +58,11 @@ def test_fastapi_ml_webcam_route():
     print("\n--- Testing FastAPI POST /api/image-analysis/webcam with Real PyTorch ML Model ---")
     db = SessionLocal()
     user = db.query(User).first()
+    if not user:
+        user = User(full_name="ML Test User", email="ml_test@skincare.com", password="Password123!", role="USER")
+        db.add(user)
+        db.commit()
+        db.refresh(user)
     token = create_access_token(data={"sub": user.email})
 
     db.close()

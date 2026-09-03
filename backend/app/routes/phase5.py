@@ -27,11 +27,15 @@ def get_skin_health_trends(
     ).order_by(SkinAssessment.created_at.asc()).all()
 
     trends = []
+    prev_score = None
     for a in assessments:
+        delta = (a.overall_score - prev_score) if prev_score is not None else 0
+        prev_score = a.overall_score
         trends.append(
             SkinHealthTrendPoint(
                 logged_at=a.created_at,
                 overall_score=a.overall_score,
+                improvement_delta=delta,
                 acne=a.acne,
                 hyperpigmentation=a.hyperpigmentation,
                 dryness=a.dryness,
@@ -149,3 +153,66 @@ def create_progress_entry(
     db.commit()
     db.refresh(new_entry)
     return new_entry
+
+
+import os
+import uuid
+from io import BytesIO
+from fastapi import UploadFile, File, Form, HTTPException
+from PIL import Image, ImageOps
+
+UPLOAD_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "uploads")
+ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
+
+def validate_and_save_progress_photo(file: UploadFile) -> str:
+    # Read bytes
+    file_bytes = file.file.read()
+    size = len(file_bytes)
+    if size > 10 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="File size exceeds maximum 10MB limit.")
+    
+    ext = os.path.splitext(file.filename.lower())[1]
+    if ext not in ALLOWED_EXTENSIONS:
+        raise HTTPException(status_code=400, detail="Unsupported file format. Please upload JPG, JPEG, PNG or WEBP.")
+    
+    try:
+        img = Image.open(BytesIO(file_bytes))
+        # verify image integrity
+        img.verify()
+        
+        # Re-open for resizing & saving
+        img = Image.open(BytesIO(file_bytes))
+        img = ImageOps.exif_transpose(img)
+        if img.mode != "RGB":
+            img = img.convert("RGB")
+        img.thumbnail((1200, 1200), Image.Resampling.LANCZOS)
+        
+        stored_name = f"{uuid.uuid4()}.jpg"
+        os.makedirs(UPLOAD_DIR, exist_ok=True)
+        dest_path = os.path.join(UPLOAD_DIR, stored_name)
+        img.save(dest_path, "JPEG", quality=85)
+        return f"/uploads/{stored_name}"
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Invalid or corrupted image file: {str(e)}")
+
+@router.post("/progress/upload", response_model=SkinProgressPhotoResponse, status_code=status.HTTP_201_CREATED)
+def upload_progress_entry(
+    file: UploadFile = File(...),
+    notes: Optional[str] = Form(None),
+    associated_assessment_id: Optional[int] = Form(None),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    photo_url = validate_and_save_progress_photo(file)
+    new_entry = SkinProgressPhoto(
+        user_id=current_user.id,
+        photo_url=photo_url,
+        notes=notes,
+        associated_assessment_id=associated_assessment_id,
+        logged_at=datetime.utcnow()
+    )
+    db.add(new_entry)
+    db.commit()
+    db.refresh(new_entry)
+    return new_entry
+

@@ -59,7 +59,9 @@ function Register() {
   };
 
   const handleGoogleError = () => {
-    setError("Google Sign-In was unsuccessful. Please try again.");
+    setError(
+      "Google Sign-In Error (401 invalid_client): The Google OAuth Client ID is not configured or not registered in Google Cloud Console. Please add a valid VITE_GOOGLE_CLIENT_ID in frontend/.env."
+    );
   };
 
   return (
@@ -72,9 +74,12 @@ function Register() {
             <div className="text-center mb-4">
               <div
                 className="rounded-circle mx-auto d-flex align-items-center justify-content-center text-white mb-3"
-                style={{ width: "48px", height: "48px", background: "var(--accent-gradient)" }}
+                style={{ width: "44px", height: "44px", background: "var(--accent-gradient)" }}
               >
-                ✨
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
               </div>
               <h2 className="fw-bold mb-1" style={{ color: "var(--text-primary)" }}>Create Account</h2>
               <p className="text-secondary small">Join AI Skin Intelligence Platform</p>
@@ -148,16 +153,29 @@ function Register() {
 
             <div className="text-center my-3 text-muted small">OR</div>
 
-            <div className="d-flex justify-content-center mb-4">
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={handleGoogleError}
-                useOneTap
-                theme="outline"
-                shape="pill"
-                size="large"
-                text="signup_with"
-              />
+            <div className="d-flex flex-column align-items-center mb-4">
+              {import.meta.env.VITE_GOOGLE_CLIENT_ID &&
+              !import.meta.env.VITE_GOOGLE_CLIENT_ID.includes("placeholder") &&
+              !import.meta.env.VITE_GOOGLE_CLIENT_ID.includes("your-google-client-id") &&
+              !import.meta.env.VITE_GOOGLE_CLIENT_ID.includes("your_google_client_id") ? (
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={handleGoogleError}
+                  useOneTap
+                  theme="outline"
+                  shape="pill"
+                  size="large"
+                  text="signup_with"
+                />
+              ) : (
+                <div
+                  className="alert alert-warning text-center small py-2 px-3 mb-2 w-100 rounded"
+                  style={{ fontSize: "0.8rem" }}
+                  role="alert"
+                >
+                  Google Sign-In is currently unavailable. Please create an account with your email and password.
+                </div>
+              )}
             </div>
 
             <div className="text-center small text-secondary">

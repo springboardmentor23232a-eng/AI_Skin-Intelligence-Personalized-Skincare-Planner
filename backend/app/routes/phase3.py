@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
@@ -6,6 +7,7 @@ from app.models import User, SkinProfile, SkinAssessment, SkincareRoutine, Ingre
 from app.auth import get_current_user
 from app.schemas_phase3 import (
     SkincareRoutineResponse,
+    SkincareRoutineUpdate,
     IngredientResponse,
     CompatibilityCheckRequest,
     CompatibilityCheckResponse,
@@ -218,6 +220,7 @@ def generate_routines(
 ):
     profile = db.query(SkinProfile).filter(SkinProfile.user_id == current_user.id).first()
     assessment = db.query(SkinAssessment).filter(SkinAssessment.user_id == current_user.id).order_by(SkinAssessment.created_at.desc()).first()
+    prev_assessment = db.query(SkinAssessment).filter(SkinAssessment.user_id == current_user.id).order_by(SkinAssessment.created_at.desc()).offset(1).first()
 
     skin_type = profile.skin_type if profile else "Combination"
     concerns = profile.concerns if profile and profile.concerns else ["Acne / Breakouts", "Hyperpigmentation"]
@@ -225,12 +228,65 @@ def generate_routines(
     water_intake = profile.water_intake if profile else 2.0
     uv = profile.uv_exposure if profile else "Moderate"
     climate = profile.climate if profile else "Temperate"
+    stress = profile.stress_level if profile else "Moderate"
+    sleep = profile.sleep_quality if profile else "Normal"
     score = assessment.overall_score if assessment else 80
     risk = assessment.risk_level if assessment else "Low Risk"
 
     # Wipe existing routines for fresh AI generation
     db.query(SkincareRoutine).filter(SkincareRoutine.user_id == current_user.id).delete()
     db.commit()
+
+    # Determine Assessment Adaptation Changes
+    adapted_flag = False
+    adaptation_summary = None
+    assessment_changes = None
+
+    evening_active_freq = "3 Times / Week (Mon, Wed, Fri)"
+    if prev_assessment and assessment:
+        adapted_flag = True
+        changes = []
+
+        acne_diff = assessment.acne - prev_assessment.acne
+        if acne_diff < 0:
+            changes.append(f"Acne severity improved ({prev_assessment.acne}% → {assessment.acne}%). Reduced targeted treatment frequency to 2x/week.")
+            evening_active_freq = "2 Times / Week (Mon, Thu)"
+        elif acne_diff > 0:
+            changes.append(f"Acne severity increased ({prev_assessment.acne}% → {assessment.acne}%). Increased active treatment attention to 3x/week.")
+            evening_active_freq = "3 Times / Week (Mon, Wed, Fri)"
+
+        sens_diff = assessment.sensitivity - prev_assessment.sensitivity
+        if sens_diff > 0:
+            changes.append(f"Sensitivity increased ({prev_assessment.sensitivity}% → {assessment.sensitivity}%). Prioritized gentle barrier repair steps.")
+
+        score_diff = assessment.overall_score - prev_assessment.overall_score
+        if score_diff > 0:
+            changes.append(f"Overall skin health score improved ({prev_assessment.overall_score}% → {assessment.overall_score}%). Preserving core routine components.")
+        elif score_diff < 0:
+            changes.append(f"Skin health score changed ({prev_assessment.overall_score}% → {assessment.overall_score}%). Flagged for supportive repair care.")
+
+        if not changes:
+            changes.append(f"No significant parameter shifts detected between recent assessments. Routine recalibrated for consistent maintenance.")
+
+        adaptation_summary = " ".join(changes)
+        assessment_changes = {
+            "acne": {"previous": prev_assessment.acne, "current": assessment.acne},
+            "sensitivity": {"previous": prev_assessment.sensitivity, "current": assessment.sensitivity},
+            "overall_score": {"previous": prev_assessment.overall_score, "current": assessment.overall_score}
+        }
+
+    # Lifestyle Advice Customization
+    spf_precaution = f"Essential for {uv} UV exposure and {climate} climate."
+    if uv in ["High", "Very High", "Extreme"]:
+        spf_precaution += " Strict reapplication every 2 hours mandatory for high solar radiation environment."
+
+    hydrating_benefits = f"Sustains moisture levels for {water_intake}L daily water target."
+    if water_intake < 2.0:
+        hydrating_benefits += " (Below 2.0L target: Added morning 500ml hydration booster advice)."
+
+    repair_benefits = "Restores stratum corneum integrity overnight and prevents transepidermal water loss."
+    if stress in ["High", "Very High"] or sleep in ["Poor", "Short", "Less than 6h"]:
+        repair_benefits += " Enhanced with cortisol-soothing lipid guidance for high stress / sleep recovery."
 
     # 1. MORNING ROUTINE
     morning_steps = [
@@ -262,7 +318,7 @@ def generate_routines(
             "frequency": "Daily (Every Morning)",
             "duration": "30 Seconds",
             "precautions": "Ensure skin is clean and serum is set.",
-            "expected_benefits": f"Sustains moisture levels for {water_intake}L daily water target."
+            "expected_benefits": hydrating_benefits
         },
         {
             "step_number": 4,
@@ -271,7 +327,7 @@ def generate_routines(
             "instructions": "Apply 2 finger lengths generously over face, ears, and neck 15 mins before sun exposure.",
             "frequency": "Daily (Reapply every 2 hours outdoors)",
             "duration": "1 Minute",
-            "precautions": f"Essential for {uv} UV exposure and {climate} climate.",
+            "precautions": spf_precaution,
             "expected_benefits": "Prevents hyperpigmentation darkening, photo-aging, and collagen breakdown."
         }
     ]
@@ -293,7 +349,7 @@ def generate_routines(
             "category": "Targeted Repair Active",
             "ingredient": "Retinol 0.3% OR Azelaic Acid 10% (Based on Concern)",
             "instructions": "Apply pea-sized amount to completely dry skin. Avoid delicate eye corners and lips.",
-            "frequency": "3 Times / Week (Mon, Wed, Fri)",
+            "frequency": evening_active_freq,
             "duration": "1 Minute",
             "precautions": "Do not mix with AHA/BHA in same night. Always use SPF next morning.",
             "expected_benefits": f"Targets primary concerns: {', '.join(concerns[:2])}. Accelerates cellular renewal."
@@ -306,7 +362,7 @@ def generate_routines(
             "frequency": "Daily (Every Evening)",
             "duration": "1 Minute",
             "precautions": "Use extra layer on dry or sensitive areas.",
-            "expected_benefits": "Restores stratum corneum integrity overnight and prevents transepidermal water loss."
+            "expected_benefits": repair_benefits
         }
     ]
 
@@ -415,6 +471,11 @@ def generate_routines(
     db.commit()
 
     created_routines = db.query(SkincareRoutine).filter(SkincareRoutine.user_id == current_user.id).all()
+    for r in created_routines:
+        r.adapted_from_previous_assessment = adapted_flag
+        r.adaptation_summary = adaptation_summary
+        r.assessment_changes = assessment_changes
+
     return created_routines
 
 @router.get("/routines", response_model=List[SkincareRoutineResponse])
@@ -423,6 +484,46 @@ def get_routines(
     db: Session = Depends(get_db)
 ):
     routines = db.query(SkincareRoutine).filter(SkincareRoutine.user_id == current_user.id).all()
+
+    # Attach assessment comparison metadata if available
+    assessment = db.query(SkinAssessment).filter(SkinAssessment.user_id == current_user.id).order_by(SkinAssessment.created_at.desc()).first()
+    prev_assessment = db.query(SkinAssessment).filter(SkinAssessment.user_id == current_user.id).order_by(SkinAssessment.created_at.desc()).offset(1).first()
+
+    adapted_flag = False
+    adaptation_summary = None
+    assessment_changes = None
+
+    if prev_assessment and assessment:
+        adapted_flag = True
+        changes = []
+        acne_diff = assessment.acne - prev_assessment.acne
+        if acne_diff < 0:
+            changes.append(f"Acne severity improved ({prev_assessment.acne}% → {assessment.acne}%). Reduced targeted treatment frequency to 2x/week.")
+        elif acne_diff > 0:
+            changes.append(f"Acne severity increased ({prev_assessment.acne}% → {assessment.acne}%). Increased active treatment attention to 3x/week.")
+
+        sens_diff = assessment.sensitivity - prev_assessment.sensitivity
+        if sens_diff > 0:
+            changes.append(f"Sensitivity increased ({prev_assessment.sensitivity}% → {assessment.sensitivity}%). Prioritized gentle barrier repair steps.")
+
+        score_diff = assessment.overall_score - prev_assessment.overall_score
+        if score_diff > 0:
+            changes.append(f"Overall skin health score improved ({prev_assessment.overall_score}% → {assessment.overall_score}%). Preserving core routine components.")
+        elif score_diff < 0:
+            changes.append(f"Skin health score changed ({prev_assessment.overall_score}% → {assessment.overall_score}%). Flagged for supportive repair care.")
+
+        adaptation_summary = " ".join(changes)
+        assessment_changes = {
+            "acne": {"previous": prev_assessment.acne, "current": assessment.acne},
+            "sensitivity": {"previous": prev_assessment.sensitivity, "current": assessment.sensitivity},
+            "overall_score": {"previous": prev_assessment.overall_score, "current": assessment.overall_score}
+        }
+
+    for r in routines:
+        r.adapted_from_previous_assessment = adapted_flag
+        r.adaptation_summary = adaptation_summary
+        r.assessment_changes = assessment_changes
+
     return routines
 
 @router.get("/routines/{routine_type}", response_model=SkincareRoutineResponse)
@@ -437,6 +538,36 @@ def get_routine_by_type(
     ).first()
     if not routine:
         raise HTTPException(status_code=404, detail=f"Routine type '{routine_type}' not found. Please click Generate Routine.")
+    return routine
+
+@router.put("/routines/{routine_id}", response_model=SkincareRoutineResponse)
+def update_routine(
+    routine_id: int,
+    payload: SkincareRoutineUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    routine = db.query(SkincareRoutine).filter(
+        SkincareRoutine.id == routine_id,
+        SkincareRoutine.user_id == current_user.id
+    ).first()
+
+    if not routine:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Routine not found or access denied."
+        )
+
+    if payload.title is not None:
+        routine.title = payload.title
+    if payload.description is not None:
+        routine.description = payload.description
+    if payload.steps is not None:
+        routine.steps = [step.model_dump() for step in payload.steps]
+
+    routine.updated_at = datetime.utcnow()
+    db.commit()
+    db.refresh(routine)
     return routine
 
 @router.delete("/routines/{routine_id}", status_code=status.HTTP_200_OK)
@@ -560,6 +691,17 @@ def check_ingredient_compatibility(
     else:
         recommendation = f"⚠️ Conflict Alert Detected! Found {len(conflicts)} unsafe interaction(s). Separate these active ingredients between Morning and Evening routines or alternate days."
 
+    # Personal Profile Allergy Matching (Phase C)
+    profile = db.query(SkinProfile).filter(SkinProfile.user_id == current_user.id).first()
+    user_allergy_conflicts = []
+    if profile:
+        allergies_text = f"{profile.allergies or ''} {profile.sensitivities or ''}".strip().lower()
+        if allergies_text and allergies_text != "none":
+            for ing in selected:
+                ing_lower = ing.lower()
+                if ing_lower in allergies_text or any(token in allergies_text for token in ing_lower.split() if len(token) > 3):
+                    user_allergy_conflicts.append(ing)
+
     audit_check = IngredientCompatibilityCheck(
         user_id=current_user.id,
         selected_ingredients=selected,
@@ -571,6 +713,7 @@ def check_ingredient_compatibility(
     db.commit()
     db.refresh(audit_check)
 
+    audit_check.user_allergy_conflicts = user_allergy_conflicts
     return audit_check
 
 
@@ -590,7 +733,14 @@ CORE_PRODUCTS_DATA = [
         "suitable_concerns": ["Dryness & Dehydration", "Sensitivity"],
         "description": "Non-foaming cleanser that removes dirt and makeup while preserving natural moisture barrier with essential ceramides.",
         "usage_instructions": "Massage onto wet skin morning and night, rinse with warm water.",
-        "image_url": "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=500&q=80"
+        "image_url": "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=500&q=80",
+        "purchase_url": "https://www.nykaa.com/cerave-hydrating-cleanser/p/11832049",
+        "purchase_links": {
+            "nykaa": "https://www.nykaa.com/cerave-hydrating-cleanser/p/11832049",
+            "purplle": "https://www.purplle.com/search?q=CeraVe+Hydrating+Facial+Cleanser",
+            "tira": "https://www.tirabeauty.com/search?q=CeraVe+Hydrating+Facial+Cleanser",
+            "amazon": "https://www.amazon.in/s?k=CeraVe+Hydrating+Facial+Cleanser"
+        }
     },
     {
         "brand": "La Roche-Posay",
@@ -603,7 +753,14 @@ CORE_PRODUCTS_DATA = [
         "suitable_concerns": ["Acne / Breakouts", "Oiliness & Enlarged Pores"],
         "description": "Gentle oil-free facial wash designed to cleanse impurities and diminish excess sebum without drying.",
         "usage_instructions": "Lather with warm water, gently massage into T-zone, and rinse completely.",
-        "image_url": "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=500&q=80"
+        "image_url": "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=500&q=80",
+        "purchase_url": "https://www.laroche-posay.us/our-products/face/face-wash/effaclar-purifying-foaming-gel-cleanser-3337872411991.html",
+        "purchase_links": {
+            "nykaa": "https://www.nykaa.com/la-roche-posay-effaclar-purifying-foaming-gel-cleanser/p/1036814",
+            "purplle": "https://www.purplle.com/search?q=La+Roche-Posay+Effaclar+Purifying+Foaming+Gel+Cleanser",
+            "tira": "https://www.tirabeauty.com/search?q=La+Roche-Posay+Effaclar+Purifying+Foaming+Gel+Cleanser",
+            "amazon": "https://www.amazon.in/s?k=La+Roche-Posay+Effaclar+Purifying+Foaming+Gel+Cleanser"
+        }
     },
     {
         "brand": "The Ordinary",
@@ -616,7 +773,14 @@ CORE_PRODUCTS_DATA = [
         "suitable_concerns": ["Acne / Breakouts", "Oiliness & Enlarged Pores", "Hyperpigmentation"],
         "description": "High-strength vitamin and mineral formula to reduce appearance of skin blemishes and congestion.",
         "usage_instructions": "Apply 3 drops to entire face morning and evening before heavy creams.",
-        "image_url": "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=500&q=80"
+        "image_url": "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=500&q=80",
+        "purchase_url": "https://www.nykaa.com/the-ordinary-niacinamide-10percent-plus-zinc-1percent/p/5003152",
+        "purchase_links": {
+            "nykaa": "https://www.nykaa.com/the-ordinary-niacinamide-10percent-plus-zinc-1percent/p/5003152",
+            "purplle": "https://www.purplle.com/search?q=The+Ordinary+Niacinamide+10+Zinc+1",
+            "tira": "https://www.tirabeauty.com/search?q=The+Ordinary+Niacinamide+10+Zinc+1",
+            "amazon": "https://www.amazon.in/s?k=The+Ordinary+Niacinamide+10%25+%2B+Zinc+1%25"
+        }
     },
     {
         "brand": "Paula's Choice",
@@ -629,7 +793,14 @@ CORE_PRODUCTS_DATA = [
         "suitable_concerns": ["Acne / Breakouts", "Oiliness & Enlarged Pores", "Uneven Texture"],
         "description": "Fluid leave-on exfoliant that unclogs pores, smooths wrinkles, and evens out skin tone rapidly.",
         "usage_instructions": "Apply once or twice daily after cleansing and toning with a cotton pad.",
-        "image_url": "https://images.unsplash.com/photo-1608248597262-838d78078696?w=500&q=80"
+        "image_url": "https://images.unsplash.com/photo-1608248597262-838d78078696?w=500&q=80",
+        "purchase_url": "https://www.nykaa.com/paula-s-choice-skin-perfecting-2-bha-liquid-exfoliant/p/993175",
+        "purchase_links": {
+            "nykaa": "https://www.nykaa.com/paula-s-choice-skin-perfecting-2-bha-liquid-exfoliant/p/993175",
+            "purplle": "https://www.purplle.com/search?q=Paula%27s+Choice+Skin+Perfecting+2%25+BHA",
+            "tira": "https://www.tirabeauty.com/search?q=Paula%27s+Choice+Skin+Perfecting+2%25+BHA",
+            "amazon": "https://www.amazon.in/s?k=Paula%27s+Choice+Skin+Perfecting+2%25+BHA+Liquid+Exfoliant"
+        }
     },
     {
         "brand": "SkinCeuticals",
@@ -642,7 +813,14 @@ CORE_PRODUCTS_DATA = [
         "suitable_concerns": ["Hyperpigmentation", "Dark Spots", "Fine Lines & Wrinkles"],
         "description": "Advanced antioxidant treatment that protects against environmental damage and brightens complexions.",
         "usage_instructions": "Apply 4-5 drops in the morning to dry face, neck, and chest under sunscreen.",
-        "image_url": "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=500&q=80"
+        "image_url": "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=500&q=80",
+        "purchase_url": "https://www.skinceuticals.com/skincare/facial-serums/c-e-ferulic-with-15-l-ascorbic-acid/635494263008.html",
+        "purchase_links": {
+            "nykaa": "https://www.nykaa.com/search/result/?q=SkinCeuticals+C+E+Ferulic",
+            "purplle": "https://www.purplle.com/search?q=SkinCeuticals+C+E+Ferulic",
+            "tira": "https://www.tirabeauty.com/search?q=SkinCeuticals+C+E+Ferulic",
+            "amazon": "https://www.amazon.in/s?k=SkinCeuticals+C+E+Ferulic"
+        }
     },
     {
         "brand": "Neutrogena",
@@ -655,7 +833,14 @@ CORE_PRODUCTS_DATA = [
         "suitable_concerns": ["Dryness & Dehydration"],
         "description": "Oil-free gel moisturizer that absorbs instantly to deliver long-lasting hydration.",
         "usage_instructions": "Apply smoothly over face and neck daily morning and night.",
-        "image_url": "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=500&q=80"
+        "image_url": "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=500&q=80",
+        "purchase_url": "https://www.nykaa.com/neutrogena-hydro-boost-water-gel/p/516248",
+        "purchase_links": {
+            "nykaa": "https://www.nykaa.com/neutrogena-hydro-boost-water-gel/p/516248",
+            "purplle": "https://www.purplle.com/search?q=Neutrogena+Hydro+Boost+Water+Gel",
+            "tira": "https://www.tirabeauty.com/search?q=Neutrogena+Hydro+Boost+Water+Gel",
+            "amazon": "https://www.amazon.in/s?k=Neutrogena+Hydro+Boost+Water+Gel"
+        }
     },
     {
         "brand": "EltaMD",
@@ -668,7 +853,14 @@ CORE_PRODUCTS_DATA = [
         "suitable_concerns": ["Acne / Breakouts", "Redness & Rosacea", "Sensitivity"],
         "description": "Dermatologist-recommended oil-free sunscreen that calms and protects sensitive, prone skin.",
         "usage_instructions": "Apply generously 15 minutes before sun exposure. Reapply at least every 2 hours.",
-        "image_url": "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=500&q=80"
+        "image_url": "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=500&q=80",
+        "purchase_url": "https://eltamd.com/products/uv-clear-broad-spectrum-spf-46",
+        "purchase_links": {
+            "nykaa": "https://www.nykaa.com/search/result/?q=EltaMD+UV+Clear+SPF+46",
+            "purplle": "https://www.purplle.com/search?q=EltaMD+UV+Clear+SPF+46",
+            "tira": "https://www.tirabeauty.com/search?q=EltaMD+UV+Clear+SPF+46",
+            "amazon": "https://www.amazon.in/s?k=EltaMD+UV+Clear+Broad-Spectrum+SPF+46"
+        }
     },
     {
         "brand": "The Inkey List",
@@ -681,7 +873,14 @@ CORE_PRODUCTS_DATA = [
         "suitable_concerns": ["Fine Lines & Wrinkles", "Uneven Texture", "Acne / Breakouts"],
         "description": "Slow-release Retinol formula that targets fine lines and wrinkles with minimal irritation risk.",
         "usage_instructions": "Use in the evening routine. Apply a pea-sized amount after cleansing.",
-        "image_url": "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=500&q=80"
+        "image_url": "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=500&q=80",
+        "purchase_url": "https://www.nykaa.com/the-inkey-list-retinol-serum/p/1325492",
+        "purchase_links": {
+            "nykaa": "https://www.nykaa.com/the-inkey-list-retinol-serum/p/1325492",
+            "purplle": "https://www.purplle.com/search?q=The+Inkey+List+Retinol+Serum",
+            "tira": "https://www.tirabeauty.com/search?q=The+Inkey+List+Retinol+Serum",
+            "amazon": "https://www.amazon.in/s?k=The+Inkey+List+Retinol+Serum"
+        }
     },
     {
         "brand": "COSRX",
@@ -694,10 +893,17 @@ CORE_PRODUCTS_DATA = [
         "suitable_concerns": ["Dryness & Dehydration", "Sensitivity", "Redness & Rosacea"],
         "description": "Lightweight hydrating essence that repairs damaged skin barrier and soothes redness.",
         "usage_instructions": "Pat onto damp face after cleansing and toning before applying heavy serums.",
-        "image_url": "https://images.unsplash.com/photo-1608248597262-838d78078696?w=500&q=80"
+        "image_url": "https://images.unsplash.com/photo-1608248597262-838d78078696?w=500&q=80",
+        "purchase_url": "https://www.nykaa.com/cosrx-advanced-snail-96-mucin-power-essence/p/852656",
+        "purchase_links": {
+            "nykaa": "https://www.nykaa.com/cosrx-advanced-snail-96-mucin-power-essence/p/852656",
+            "purplle": "https://www.purplle.com/search?q=COSRX+Advanced+Snail+96+Mucin+Power+Essence",
+            "tira": "https://www.tirabeauty.com/search?q=COSRX+Advanced+Snail+96+Mucin+Power+Essence",
+            "amazon": "https://www.amazon.in/s?k=COSRX+Advanced+Snail+96+Mucin+Power+Essence"
+        }
     },
     {
-        "brand": "Ordinary",
+        "brand": "The Ordinary",
         "name": "Glycolic Acid 7% Toning Solution",
         "category": "Toner",
         "price": 13.00,
@@ -707,7 +913,14 @@ CORE_PRODUCTS_DATA = [
         "suitable_concerns": ["Hyperpigmentation", "Uneven Texture", "Dark Spots"],
         "description": "Exfoliating toning solution that offers mild exfoliation for improved skin radiance.",
         "usage_instructions": "Use ideally in the evening, no more than once per day. Soak cotton pad and sweep across face.",
-        "image_url": "https://images.unsplash.com/photo-1608248597262-838d78078696?w=500&q=80"
+        "image_url": "https://images.unsplash.com/photo-1608248597262-838d78078696?w=500&q=80",
+        "purchase_url": "https://www.nykaa.com/the-ordinary-glycolic-acid-7percent-toning-solution/p/5003150",
+        "purchase_links": {
+            "nykaa": "https://www.nykaa.com/the-ordinary-glycolic-acid-7percent-toning-solution/p/5003150",
+            "purplle": "https://www.purplle.com/search?q=The+Ordinary+Glycolic+Acid+7%25",
+            "tira": "https://www.tirabeauty.com/search?q=The+Ordinary+Glycolic+Acid+7%25",
+            "amazon": "https://www.amazon.in/s?k=The+Ordinary+Glycolic+Acid+7%25+Toning+Solution"
+        }
     },
     {
         "brand": "La Roche-Posay",
@@ -720,10 +933,17 @@ CORE_PRODUCTS_DATA = [
         "suitable_concerns": ["Sensitivity", "Redness & Rosacea", "Dryness & Dehydration"],
         "description": "Multi-purpose therapeutic balm that soothes cracked, chapped skin and restores compromised skin barrier.",
         "usage_instructions": "Apply twice daily to clean dry skin. Can be applied to body, face, and lips.",
-        "image_url": "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=500&q=80"
+        "image_url": "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=500&q=80",
+        "purchase_url": "https://www.nykaa.com/la-roche-posay-cicaplast-baume-b5/p/23725",
+        "purchase_links": {
+            "nykaa": "https://www.nykaa.com/la-roche-posay-cicaplast-baume-b5/p/23725",
+            "purplle": "https://www.purplle.com/search?q=La+Roche-Posay+Cicaplast+Baume+B5",
+            "tira": "https://www.tirabeauty.com/search?q=La+Roche-Posay+Cicaplast+Baume+B5",
+            "amazon": "https://www.amazon.in/s?k=La+Roche-Posay+Cicaplast+Baume+B5"
+        }
     },
     {
-        "brand": "Ordinary",
+        "brand": "The Ordinary",
         "name": "Azelaic Acid Suspension 10%",
         "category": "Treatment",
         "price": 11.10,
@@ -733,7 +953,14 @@ CORE_PRODUCTS_DATA = [
         "suitable_concerns": ["Redness & Rosacea", "Acne / Breakouts", "Hyperpigmentation"],
         "description": "Multi-functional brightening cream formula that targets blemishes and evens out skin tone.",
         "usage_instructions": "Apply to face AM and/or PM to improve visible brightness and texture.",
-        "image_url": "https://images.unsplash.com/photo-1608248597262-838d78078696?w=500&q=80"
+        "image_url": "https://images.unsplash.com/photo-1608248597262-838d78078696?w=500&q=80",
+        "purchase_url": "https://www.nykaa.com/the-ordinary-azelaic-acid-suspension-10percent/p/5003158",
+        "purchase_links": {
+            "nykaa": "https://www.nykaa.com/the-ordinary-azelaic-acid-suspension-10percent/p/5003158",
+            "purplle": "https://www.purplle.com/search?q=The+Ordinary+Azelaic+Acid+Suspension",
+            "tira": "https://www.tirabeauty.com/search?q=The+Ordinary+Azelaic+Acid+Suspension",
+            "amazon": "https://www.amazon.in/s?k=The+Ordinary+Azelaic+Acid+Suspension+10%25"
+        }
     }
 ]
 
@@ -741,10 +968,10 @@ CORE_PRODUCTS_DATA = [
 @router.post("/products/seed", status_code=status.HTTP_201_CREATED)
 def seed_products(db: Session = Depends(get_db)):
     added = 0
+    updated = 0
     for data in CORE_PRODUCTS_DATA:
         existing = db.query(Product).filter(
-            Product.brand == data["brand"],
-            Product.name == data["name"]
+            (Product.name == data["name"]) | ((Product.brand == data["brand"]) & (Product.name == data["name"]))
         ).first()
         if not existing:
             prod = Product(
@@ -758,12 +985,28 @@ def seed_products(db: Session = Depends(get_db)):
                 suitable_concerns=data["suitable_concerns"],
                 description=data["description"],
                 usage_instructions=data["usage_instructions"],
-                image_url=data["image_url"]
+                image_url=data["image_url"],
+                purchase_url=data.get("purchase_url"),
+                purchase_links=data.get("purchase_links", {})
             )
             db.add(prod)
             added += 1
+        else:
+            existing.brand = data["brand"]
+            existing.category = data["category"]
+            existing.price = data["price"]
+            existing.rating = data["rating"]
+            existing.active_ingredients = data["active_ingredients"]
+            existing.suitable_skin_types = data["suitable_skin_types"]
+            existing.suitable_concerns = data["suitable_concerns"]
+            existing.description = data["description"]
+            existing.usage_instructions = data["usage_instructions"]
+            existing.image_url = data["image_url"]
+            existing.purchase_url = data.get("purchase_url")
+            existing.purchase_links = data.get("purchase_links", {})
+            updated += 1
     db.commit()
-    return {"message": f"Successfully seeded {added} products into PostgreSQL database"}
+    return {"message": f"Successfully seeded {added} new and updated {updated} products in PostgreSQL database"}
 
 
 @router.get("/products", response_model=List[ProductResponse])
@@ -775,24 +1018,9 @@ def get_products(
     max_price: Optional[float] = Query(None, description="Maximum price filter"),
     db: Session = Depends(get_db)
 ):
-    # Auto-seed if database products table is empty
+    # Auto-seed/sync if database products table is empty or missing purchase_urls
     if db.query(Product).count() == 0:
-        for data in CORE_PRODUCTS_DATA:
-            prod = Product(
-                brand=data["brand"],
-                name=data["name"],
-                category=data["category"],
-                price=data["price"],
-                rating=data["rating"],
-                active_ingredients=data["active_ingredients"],
-                suitable_skin_types=data["suitable_skin_types"],
-                suitable_concerns=data["suitable_concerns"],
-                description=data["description"],
-                usage_instructions=data["usage_instructions"],
-                image_url=data["image_url"]
-            )
-            db.add(prod)
-        db.commit()
+        seed_products(db)
 
     query = db.query(Product)
 

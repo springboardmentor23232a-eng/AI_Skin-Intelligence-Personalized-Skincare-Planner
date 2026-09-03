@@ -151,6 +151,8 @@ class Product(Base):
     description = Column(Text, nullable=False)
     usage_instructions = Column(Text, nullable=True)
     image_url = Column(String(500), nullable=True)
+    purchase_url = Column(String(1000), nullable=True)
+    purchase_links = Column(JSON, nullable=True, default={})
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
 

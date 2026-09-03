@@ -26,9 +26,12 @@ function Navbar() {
               className="rounded-circle d-flex align-items-center justify-content-center text-white"
               style={{ width: "32px", height: "32px", background: "var(--accent-gradient)" }}
             >
-              ✨
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 2a9 9 0 0 1 9 9c0 5-4 9-9 9s-9-4-9-9a9 9 0 0 1 9-9z" />
+                <path d="M12 6v6l4 2" />
+              </svg>
             </div>
-            <span style={{ color: "var(--text-primary)", fontSize: "1.1rem" }}>AI Skin Intelligence</span>
+            <span style={{ color: "var(--text-primary)", fontSize: "1.05rem", letterSpacing: "-0.2px" }}>Skin Intelligence</span>
           </Link>
         </div>
 
@@ -36,7 +39,7 @@ function Navbar() {
           <input
             type="text"
             className="form-control-saas"
-            placeholder="Search AI features, routines, logs..."
+            placeholder="Search routines, ingredients, guides..."
             style={{ fontSize: "0.85rem" }}
           />
         </div>

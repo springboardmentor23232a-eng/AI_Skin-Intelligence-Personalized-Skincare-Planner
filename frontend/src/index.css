@@ -7,81 +7,125 @@
 :root, [data-theme="light"] {
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   
-  /* Color Palette - Light Mode (Clean, Apple/Stripe aesthetic) */
-  --bg-canvas: #f8fafc;
+  /* Color Palette - Light Mode (Warm Alabaster, Botanical Sage & Premium Skincare Aesthetic) */
+  --bg-canvas: #faf9f6;
   --bg-surface: #ffffff;
-  --bg-surface-elevated: #f1f5f9;
-  --bg-overlay: rgba(15, 23, 42, 0.4);
+  --bg-surface-elevated: #f4f1ea;
+  --bg-overlay: rgba(28, 25, 23, 0.4);
   
-  --border-subtle: #e2e8f0;
-  --border-strong: #cbd5e1;
+  --border-subtle: #e6e2da;
+  --border-strong: #b8b1a3;
   
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
+  --text-primary: #1c1917;
+  --text-secondary: #44403c;
+  --text-muted: #78716c;
   --text-inverse: #ffffff;
   
-  --accent-primary: #0284c7;
-  --accent-hover: #0369a1;
-  --accent-gradient: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%);
-  --accent-subtle: #e0f2fe;
+  /* Botanical Sage & Terracotta Accents */
+  --accent-primary: #2d5a4c;
+  --accent-hover: #1e3f35;
+  --accent-gradient: linear-gradient(135deg, #2d5a4c 0%, #3e7b68 100%);
+  --accent-subtle: #e8f0ec;
+  --accent-secondary: #b46d50;
   
-  --success: #10b981;
-  --success-subtle: #d1fae5;
-  --warning: #f59e0b;
-  --warning-subtle: #fef3c7;
-  --danger: #ef4444;
-  --danger-subtle: #fee2e2;
-  --info: #6366f1;
-  --info-subtle: #e0e7ff;
+  --success: #2d6a4f;
+  --success-subtle: #e8f5ee;
+  --warning: #b45309;
+  --warning-subtle: #fef7ed;
+  --danger: #b91c1c;
+  --danger-subtle: #fef2f2;
+  --info: #3b5998;
+  --info-subtle: #f0f4fa;
+
+  /* Natural Beauty Badge Tokens */
+  --badge-primary-bg: #e8f0ec;
+  --badge-primary-text: #204439;
+  --badge-primary-border: #b8d4c7;
+
+  --badge-success-bg: #e8f5ee;
+  --badge-success-text: #1b4d3e;
+  --badge-success-border: #a3d9bc;
+
+  --badge-warning-bg: #fef7ed;
+  --badge-warning-text: #854d0e;
+  --badge-warning-border: #fed7aa;
+
+  --badge-danger-bg: #fef2f2;
+  --badge-danger-text: #991b1b;
+  --badge-danger-border: #fecaca;
+
+  --badge-info-bg: #f0f4fa;
+  --badge-info-text: #2c4373;
+  --badge-info-border: #c3d4ee;
   
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 2px 0 rgba(28, 25, 23, 0.04);
+  --shadow-md: 0 4px 8px -2px rgba(28, 25, 23, 0.06), 0 2px 4px -2px rgba(28, 25, 23, 0.04);
+  --shadow-lg: 0 10px 18px -4px rgba(28, 25, 23, 0.08), 0 4px 6px -3px rgba(28, 25, 23, 0.04);
+  --shadow-xl: 0 20px 25px -5px rgba(28, 25, 23, 0.1), 0 8px 10px -6px rgba(28, 25, 23, 0.04);
   
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;
   --radius-full: 9999px;
   
-  --sidebar-width: 260px;
+  --sidebar-width: 250px;
   --header-height: 64px;
 }
 
 [data-theme="dark"] {
-  /* Color Palette - Dark Mode (Linear/Vercel/Notion Dark aesthetic) */
-  --bg-canvas: #090d16;
-  --bg-surface: #111827;
-  --bg-surface-elevated: #1f2937;
-  --bg-overlay: rgba(0, 0, 0, 0.7);
+  /* Color Palette - Dark Mode (Warm Charcoal & Soft Sage) */
+  --bg-canvas: #121519;
+  --bg-surface: #181d24;
+  --bg-surface-elevated: #212730;
+  --bg-overlay: rgba(0, 0, 0, 0.75);
   
-  --border-subtle: #1f2937;
-  --border-strong: #374151;
+  --border-subtle: #29313d;
+  --border-strong: #414d5e;
   
-  --text-primary: #f9fafb;
-  --text-secondary: #9ca3af;
-  --text-muted: #6b7280;
-  --text-inverse: #0f172a;
+  --text-primary: #f5f5f4;
+  --text-secondary: #d6d3d1;
+  --text-muted: #a8a29e;
+  --text-inverse: #121519;
   
-  --accent-primary: #38bdf8;
-  --accent-hover: #0284c7;
-  --accent-gradient: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
-  --accent-subtle: rgba(56, 189, 248, 0.15);
+  --accent-primary: #52a188;
+  --accent-hover: #67b79d;
+  --accent-gradient: linear-gradient(135deg, #3d7a68 0%, #52a188 100%);
+  --accent-subtle: rgba(82, 161, 136, 0.16);
+  --accent-secondary: #d48b6d;
   
-  --success: #34d399;
-  --success-subtle: rgba(52, 211, 153, 0.15);
+  --success: #4ade80;
+  --success-subtle: rgba(74, 222, 128, 0.15);
   --warning: #fbbf24;
   --warning-subtle: rgba(251, 191, 36, 0.15);
   --danger: #f87171;
   --danger-subtle: rgba(248, 113, 113, 0.15);
-  --info: #818cf8;
-  --info-subtle: rgba(129, 140, 248, 0.15);
+  --info: #93c5fd;
+  --info-subtle: rgba(147, 197, 253, 0.15);
+
+  --badge-primary-bg: rgba(82, 161, 136, 0.16);
+  --badge-primary-text: #7ad1b7;
+  --badge-primary-border: rgba(82, 161, 136, 0.4);
+
+  --badge-success-bg: rgba(74, 222, 128, 0.16);
+  --badge-success-text: #86efac;
+  --badge-success-border: rgba(74, 222, 128, 0.4);
+
+  --badge-warning-bg: rgba(251, 191, 36, 0.16);
+  --badge-warning-text: #fde68a;
+  --badge-warning-border: rgba(251, 191, 36, 0.4);
+
+  --badge-danger-bg: rgba(248, 113, 113, 0.16);
+  --badge-danger-text: #fca5a5;
+  --badge-danger-border: rgba(248, 113, 113, 0.4);
+
+  --badge-info-bg: rgba(147, 197, 253, 0.16);
+  --badge-info-text: #bfdbfe;
+  --badge-info-border: rgba(147, 197, 253, 0.4);
   
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.35);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.45);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
 }
 
 /* =========================================================
@@ -92,7 +136,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 
 body {
@@ -139,11 +183,12 @@ body {
   border-radius: var(--radius-lg);
   padding: 24px;
   box-shadow: var(--shadow-sm);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .saas-card:hover {
   box-shadow: var(--shadow-md);
+  border-color: var(--border-strong);
 }
 
 .saas-card-header {
@@ -151,11 +196,13 @@ body {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .saas-card-title {
   font-size: 1.125rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-primary);
 }
 
@@ -174,6 +221,12 @@ body {
   align-items: center;
   gap: 16px;
   box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.stat-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
 }
 
 .stat-icon-wrapper {
@@ -186,6 +239,7 @@ body {
   font-size: 1.5rem;
   background-color: var(--accent-subtle);
   color: var(--accent-primary);
+  border: 1px solid var(--border-subtle);
 }
 
 .stat-info {
@@ -196,18 +250,18 @@ body {
 .stat-label {
   font-size: 0.875rem;
   color: var(--text-secondary);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .stat-value {
   font-size: 1.5rem;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--text-primary);
 }
 
 .stat-trend {
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 700;
   margin-top: 4px;
   display: inline-flex;
   align-items: center;
@@ -218,7 +272,7 @@ body {
 .stat-trend.negative { color: var(--danger); }
 
 /* =========================================================
-   BUTTONS & INPUTS
+   GLOBAL BUTTONS & INTERACTIVE CONTROLS
    ========================================================= */
 
 .btn-saas {
@@ -226,57 +280,308 @@ body {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px 18px;
+  padding: 10px 20px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  background: var(--accent-gradient);
+  color: #ffffff !important;
+  box-shadow: 0 2px 4px rgba(2, 132, 199, 0.25);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-decoration: none;
+  user-select: none;
+}
+
+.btn-saas:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+  color: #ffffff !important;
+}
+
+.btn-saas:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 1px 2px rgba(2, 132, 199, 0.2);
+}
+
+.btn-saas:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+.btn-saas:disabled,
+.btn-saas.disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+  pointer-events: none;
+}
+
+/* Secondary Button */
+.btn-saas-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 18px;
   font-size: 0.875rem;
   font-weight: 600;
   border-radius: var(--radius-md);
-  border: none;
+  background-color: var(--bg-surface-elevated);
+  color: var(--text-primary) !important;
+  border: 1.5px solid var(--border-strong);
   cursor: pointer;
-  background: var(--accent-gradient);
-  color: #ffffff;
   box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
   text-decoration: none;
 }
 
-.btn-saas:hover {
-  opacity: 0.92;
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
-  color: #ffffff;
-}
-
-.btn-saas-secondary {
-  background-color: var(--bg-surface-elevated);
-  color: var(--text-primary);
-  border: 1px solid var(--border-strong);
-}
-
 .btn-saas-secondary:hover {
   background-color: var(--border-subtle);
-  color: var(--text-primary);
+  border-color: var(--accent-primary);
+  color: var(--text-primary) !important;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
+.btn-saas-secondary:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.btn-saas-secondary:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+.btn-saas-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Outline Button */
 .btn-saas-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 18px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
   background: transparent;
-  color: var(--accent-primary);
-  border: 1px solid var(--accent-primary);
+  color: var(--accent-primary) !important;
+  border: 1.5px solid var(--accent-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
 }
 
 .btn-saas-outline:hover {
   background-color: var(--accent-subtle);
+  color: var(--accent-hover) !important;
+  border-color: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+.btn-saas-outline:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.btn-saas-outline:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* Status Action Buttons */
+.btn-saas-success {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.btn-saas-success:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+  color: #ffffff !important;
+}
+
+.btn-saas-warning {
+  background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.btn-saas-warning:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+  color: #ffffff !important;
 }
 
 .btn-saas-danger {
-  background-color: var(--danger);
-  color: #ffffff;
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
-
 .btn-saas-danger:hover {
-  background-color: #dc2626;
+  filter: brightness(1.08);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+  color: #ffffff !important;
 }
 
-/* Forms */
+.btn-saas-info {
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.btn-saas-info:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+  color: #ffffff !important;
+}
+
+/* =========================================================
+   HIGH-CONTRAST BADGES & STATUS INDICATORS
+   ========================================================= */
+
+.badge-saas {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.015em;
+  border: 1px solid transparent;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: all 0.15s ease;
+}
+
+.badge-saas:hover {
+  filter: brightness(0.96);
+}
+
+.badge-saas-primary {
+  background-color: var(--badge-primary-bg) !important;
+  color: var(--badge-primary-text) !important;
+  border-color: var(--badge-primary-border) !important;
+}
+
+.badge-saas-success {
+  background-color: var(--badge-success-bg) !important;
+  color: var(--badge-success-text) !important;
+  border-color: var(--badge-success-border) !important;
+}
+
+.badge-saas-warning {
+  background-color: var(--badge-warning-bg) !important;
+  color: var(--badge-warning-text) !important;
+  border-color: var(--badge-warning-border) !important;
+}
+
+.badge-saas-danger {
+  background-color: var(--badge-danger-bg) !important;
+  color: var(--badge-danger-text) !important;
+  border-color: var(--badge-danger-border) !important;
+}
+
+.badge-saas-info {
+  background-color: var(--badge-info-bg) !important;
+  color: var(--badge-info-text) !important;
+  border-color: var(--badge-info-border) !important;
+}
+
+/* =========================================================
+   BOOTSTRAP BUTTON & CONTROL ENHANCEMENTS
+   ========================================================= */
+
+.btn {
+  font-family: var(--font-family);
+  transition: all 0.2s ease;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--accent-primary) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 3px var(--accent-subtle) !important;
+}
+
+.btn-outline-primary {
+  color: var(--accent-primary) !important;
+  border-color: var(--accent-primary) !important;
+  border-width: 1.5px !important;
+  font-weight: 600;
+}
+.btn-outline-primary:hover {
+  background-color: var(--accent-primary) !important;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+}
+
+.btn-outline-secondary {
+  color: var(--text-secondary) !important;
+  border-color: var(--border-strong) !important;
+  border-width: 1.5px !important;
+  font-weight: 600;
+}
+.btn-outline-secondary:hover {
+  background-color: var(--border-subtle) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--text-primary) !important;
+}
+
+.btn-outline-success {
+  color: var(--success) !important;
+  border-color: var(--success) !important;
+  border-width: 1.5px !important;
+  font-weight: 600;
+}
+.btn-outline-success:hover {
+  background-color: var(--success) !important;
+  color: #ffffff !important;
+}
+
+.btn-outline-danger {
+  color: var(--danger) !important;
+  border-color: var(--danger) !important;
+  border-width: 1.5px !important;
+  font-weight: 600;
+}
+.btn-outline-danger:hover {
+  background-color: var(--danger) !important;
+  color: #ffffff !important;
+}
+
+.btn-outline-warning {
+  color: var(--warning) !important;
+  border-color: var(--warning) !important;
+  border-width: 1.5px !important;
+  font-weight: 600;
+}
+.btn-outline-warning:hover {
+  background-color: var(--warning) !important;
+  color: #ffffff !important;
+}
+
+.btn-outline-info {
+  color: var(--info) !important;
+  border-color: var(--info) !important;
+  border-width: 1.5px !important;
+  font-weight: 600;
+}
+.btn-outline-info:hover {
+  background-color: var(--info) !important;
+  color: #ffffff !important;
+}
+
+/* =========================================================
+   FORMS & INPUTS
+   ========================================================= */
+
 .form-label-saas {
   font-size: 0.875rem;
   font-weight: 600;
@@ -303,26 +608,6 @@ body {
 }
 
 /* =========================================================
-   BADGES & CHIPS
-   ========================================================= */
-
-.badge-saas {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 10px;
-  border-radius: var(--radius-full);
-  font-size: 0.75rem;
-  font-weight: 600;
-  line-height: 1;
-}
-
-.badge-saas-primary { background-color: var(--accent-subtle); color: var(--accent-primary); }
-.badge-saas-success { background-color: var(--success-subtle); color: var(--success); }
-.badge-saas-warning { background-color: var(--warning-subtle); color: var(--warning); }
-.badge-saas-danger  { background-color: var(--danger-subtle); color: var(--danger); }
-.badge-saas-info    { background-color: var(--info-subtle); color: var(--info); }
-
-/* =========================================================
    TABLES
    ========================================================= */
 
@@ -345,7 +630,7 @@ body {
   padding: 12px 16px;
   background-color: var(--bg-surface-elevated);
   color: var(--text-secondary);
-  font-weight: 600;
+  font-weight: 700;
   border-bottom: 1px solid var(--border-subtle);
 }
 

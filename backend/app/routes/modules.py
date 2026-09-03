@@ -2,7 +2,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.db.session import get_db
-from app.models import User, SkinProfile, SkinAssessment
+from app.models import User, SkinProfile, SkinAssessment, SkincareLog
 from app.auth import get_current_user
 from app.schemas_extended import (
     SkinProfileCreate,
@@ -11,6 +11,8 @@ from app.schemas_extended import (
     SkinAssessmentCreate,
     SkinAssessmentResponse
 )
+from app.schemas_phase7 import SkinHealthScoreResponse
+from app.services.skin_health_scoring import compute_skin_health_breakdown
 
 router = APIRouter(prefix="/api", tags=["modules"])
 
@@ -114,8 +116,7 @@ def create_assessment(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    # Weighted Health Calculation Algorithm
-    # Higher concern values reduce score
+    # 1. Base Assessment Score (35% Weight in Master Weighted Formula)
     avg_severity = (
         assessment_in.acne * 1.5 +
         assessment_in.hyperpigmentation * 1.2 +
@@ -129,14 +130,28 @@ def create_assessment(
         assessment_in.uneven_tone * 1.0
     ) / 11.0
 
-    overall_score = max(35, min(99, int(100 - avg_severity)))
+    raw_assessment_score = max(35, min(99, int(100 - avg_severity)))
 
-    if overall_score >= 80:
-        risk_level = "Low Risk"
-    elif overall_score >= 65:
-        risk_level = "Moderate Risk"
+    # Fetch User Profile & Skincare Log Adherence to apply 5-factor weighted scoring
+    user_profile = db.query(SkinProfile).filter(SkinProfile.user_id == current_user.id).first()
+    
+    if user_profile:
+        breakdown = compute_skin_health_breakdown(
+            db=db,
+            user=current_user,
+            assessment=assessment_in,
+            profile=user_profile
+        )
+        overall_score = max(35, min(99, int(round(breakdown["overall_score"]))))
+        risk_level = breakdown["risk_level"]
     else:
-        risk_level = "High Priority Alert"
+        overall_score = raw_assessment_score
+        if overall_score >= 80:
+            risk_level = "Low Risk"
+        elif overall_score >= 65:
+            risk_level = "Moderate Risk"
+        else:
+            risk_level = "High Priority Alert"
 
     # Identify top concern
     concern_dict = {
@@ -150,10 +165,26 @@ def create_assessment(
     }
     top_concern = max(concern_dict, key=concern_dict.get)
 
+    # Historical Skin Improvement Scoring Comparison
+    prev_assessment = db.query(SkinAssessment).filter(
+        SkinAssessment.user_id == current_user.id
+    ).order_by(SkinAssessment.created_at.desc()).first()
+
+    improvement_note = ""
+    if prev_assessment:
+        score_diff = overall_score - prev_assessment.overall_score
+        if score_diff > 0:
+            improvement_note = f" Skin health improved by +{score_diff}% compared to previous assessment."
+        elif score_diff < 0:
+            improvement_note = f" Skin health score shifted by {score_diff}% compared to previous assessment."
+        else:
+            improvement_note = " Skin health score is stable compared to previous assessment."
+
     summary = (
         f"Skin Health Score is {overall_score}% ({risk_level}). "
         f"Primary concern identified is {top_concern}. "
         f"Adaptive routine recommended focusing on barrier repair and hydration balance."
+        f"{improvement_note}"
     )
 
     assessment = SkinAssessment(
@@ -205,3 +236,24 @@ def get_assessment_detail(
             detail="Assessment record not found"
         )
     return assessment
+
+
+# =========================================================
+# PHASE 7: SKIN HEALTH SCORING ENGINE ENDPOINTS
+# =========================================================
+
+@router.get("/scoring/skin-health", response_model=SkinHealthScoreResponse)
+@router.get("/assessment/skin-health-score", response_model=SkinHealthScoreResponse)
+def get_skin_health_score(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Phase 7: Comprehensive 5-Factor Skin Health Scoring Engine
+    Calculates weighted composite:
+      35% Skin Condition + 20% Lifestyle + 15% Sleep + 20% Routine + 10% Hydration
+    Returns individual factor scores, weights, contributions, interpretations,
+    and medical wellness disclaimer with complete user data isolation.
+    """
+    return compute_skin_health_breakdown(db=db, user=current_user)
+

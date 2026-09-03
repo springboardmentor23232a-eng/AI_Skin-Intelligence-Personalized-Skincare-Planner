@@ -94,6 +94,11 @@ project-root/
 │   ├── experiments/              # Model iteration & performance logs
 │   └── requirements.txt          # Standalone ML pipeline dependencies
 │
+├── docs/                         # Project Documentation & Forensic Audits
+│   ├── audit/                    # Forensic project, UI, and API route audits
+│   ├── testing/                  # Baseline verification & requirement matrices
+│   └── milestones/               # Mentor demonstration & milestone checklists
+│
 ├── .gitignore                    # Git tracking ignore rules
 ├── LICENSE                       # Project license
 └── README.md                     # Comprehensive documentation

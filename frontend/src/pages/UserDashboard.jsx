@@ -146,15 +146,19 @@ function UserDashboard() {
       <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
         <div>
           <h2 className="fw-bold mb-1" style={{ color: "var(--text-primary)" }}>
-            Welcome back, {user?.full_name || "User"} 👋
+            Welcome back, {user?.full_name?.split(" ")[0] || "there"}
           </h2>
           <p className="text-secondary small mb-0">
-            Here is your daily skin health summary and routine overview.
+            Here is your daily skin wellness summary and routine overview.
           </p>
         </div>
         <div className="d-flex align-items-center gap-2">
-          <span className="badge badge-saas badge-saas-primary">Provider: {user?.provider || "LOCAL"}</span>
-          <span className="badge badge-saas badge-saas-success">Role: {user?.role}</span>
+          {profile?.skin_type && (
+            <span className="badge badge-saas badge-saas-primary">{profile.skin_type} Skin</span>
+          )}
+          {profile?.climate && (
+            <span className="badge badge-saas badge-saas-secondary">{profile.climate} Climate</span>
+          )}
         </div>
       </div>
 
@@ -162,10 +166,15 @@ function UserDashboard() {
       <div className="row g-3 mb-4">
         <div className="col-12 col-sm-6 col-lg-3">
           <div className="stat-card">
-            <div className="stat-icon-wrapper">✨</div>
+            <div className="stat-icon-wrapper" style={{ color: "var(--accent-primary)" }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v6l4 2" />
+              </svg>
+            </div>
             <div className="stat-info">
-              <span className="stat-label">Skin Health Score</span>
-              <span className="stat-value">{latestAssessment ? `${latestAssessment.overall_score}%` : "No Score"}</span>
+              <span className="stat-label">Skin Health</span>
+              <span className="stat-value">{latestAssessment ? `${latestAssessment.overall_score}/100` : "Pending"}</span>
               <span className="stat-trend positive">{latestAssessment ? latestAssessment.risk_level : "Take assessment"}</span>
             </div>
           </div>
@@ -173,33 +182,46 @@ function UserDashboard() {
 
         <div className="col-12 col-sm-6 col-lg-3">
           <div className="stat-card">
-            <div className="stat-icon-wrapper">💧</div>
+            <div className="stat-icon-wrapper" style={{ color: "var(--accent-primary)" }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+              </svg>
+            </div>
             <div className="stat-info">
               <span className="stat-label">Hydration Target</span>
               <span className="stat-value">{profile ? `${profile.water_intake} L` : "2.0 L"}</span>
-              <span className="stat-trend positive">{profile?.climate ? `${profile.climate} climate` : "Set in profile"}</span>
+              <span className="stat-trend positive">{profile?.climate ? `${profile.climate} climate` : "Daily intake target"}</span>
             </div>
           </div>
         </div>
 
         <div className="col-12 col-sm-6 col-lg-3">
           <div className="stat-card">
-            <div className="stat-icon-wrapper">⚡</div>
+            <div className="stat-icon-wrapper" style={{ color: "var(--accent-primary)" }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+              </svg>
+            </div>
             <div className="stat-info">
               <span className="stat-label">Routine Streak</span>
               <span className="stat-value">{streak} Days</span>
-              <span className="stat-trend positive">🔥 Consistent</span>
+              <span className="stat-trend positive">Active consistency</span>
             </div>
           </div>
         </div>
 
         <div className="col-12 col-sm-6 col-lg-3">
           <div className="stat-card">
-            <div className="stat-icon-wrapper">🛡️</div>
+            <div className="stat-icon-wrapper" style={{ color: "var(--accent-primary)" }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="4" />
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+              </svg>
+            </div>
             <div className="stat-info">
-              <span className="stat-label">UV Protection</span>
+              <span className="stat-label">UV Exposure</span>
               <span className="stat-value">{profile?.uv_exposure || "Moderate"}</span>
-              <span className="stat-trend positive">UV Exposure Level</span>
+              <span className="stat-trend positive">Sun barrier care</span>
             </div>
           </div>
         </div>
