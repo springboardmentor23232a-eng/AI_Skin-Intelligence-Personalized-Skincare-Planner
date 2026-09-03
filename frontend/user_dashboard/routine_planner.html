@@ -28,6 +28,7 @@
                 <a href="/user_dashboard/routine_planner.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-teal-700 bg-teal-50 font-bold border-r-4 border-teal-600"><i data-lucide="calendar" class="w-4 h-4"></i> Routine Planner</a>
                 <a href="/user_dashboard/product_recommendations.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="sliders" class="w-4 h-4"></i> Product Recommendations</a>
                 <a href="/user_dashboard/ingredient_intelligence.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="flask-conical" class="w-4 h-4"></i> Ingredient Scanner</a>
+                <a href="/user_dashboard/skin_health_scoring.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="activity" class="w-4 h-4"></i> Scoring Engine</a>
                 <a href="/user_dashboard/assessment_history.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="history" class="w-4 h-4"></i> Assessment History</a>
                 <a href="/user_dashboard/appointments.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="video" class="w-4 h-4"></i> Appointments</a>
                 <a href="/user_dashboard/progress.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="activity" class="w-4 h-4"></i> Progress</a>
@@ -94,7 +95,7 @@
                     </div>
                     <div id="allergy-badge" class="flex flex-wrap gap-2 shrink-0"></div>
                 </div>
-
+            </div>
         </section>
 
         <!-- DERMATOLOGIST & CONSULTANT RECOMMENDATIONS CONTAINER -->
@@ -170,9 +171,14 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Morning AI Regimen -->
                 <div class="p-6 bg-white border border-slate-200 rounded-2xl space-y-4 shadow-sm">
-                    <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
-                        <i data-lucide="sun" class="w-5 h-5 text-amber-500"></i>
-                        <h3 class="font-bold text-slate-800 text-base">Morning AI Regimen</h3>
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="sun" class="w-5 h-5 text-amber-500"></i>
+                            <h3 class="font-bold text-slate-800 text-base">Morning AI Regimen</h3>
+                        </div>
+                        <button onclick="logRoutineCompletion('am_completed')" class="bg-teal-50 border border-teal-200 text-teal-700 hover:bg-teal-100 font-bold px-3 py-1.5 rounded-lg text-xs transition shadow-sm cursor-pointer flex items-center gap-1.5">
+                            <i data-lucide="check-square" class="w-3.5 h-3.5"></i> Mark AM Complete
+                        </button>
                     </div>
                     <div id="morning-container" class="space-y-4 text-xs">
                         <p class="text-slate-400">Fetching morning steps from database...</p>
@@ -181,9 +187,14 @@
 
                 <!-- Evening AI Regimen -->
                 <div class="p-6 bg-white border border-slate-200 rounded-2xl space-y-4 shadow-sm">
-                    <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
-                        <i data-lucide="moon" class="w-5 h-5 text-indigo-600"></i>
-                        <h3 class="font-bold text-slate-800 text-base">Evening AI Regimen</h3>
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="moon" class="w-5 h-5 text-indigo-600"></i>
+                            <h3 class="font-bold text-slate-800 text-base">Evening AI Regimen</h3>
+                        </div>
+                        <button onclick="logRoutineCompletion('pm_completed')" class="bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 font-bold px-3 py-1.5 rounded-lg text-xs transition shadow-sm cursor-pointer flex items-center gap-1.5">
+                            <i data-lucide="check-square" class="w-3.5 h-3.5"></i> Mark PM Complete
+                        </button>
                     </div>
                     <div id="evening-container" class="space-y-4 text-xs">
                         <p class="text-slate-400">Fetching evening steps from database...</p>
@@ -344,6 +355,32 @@
                 .replace(/'/g, '&#039;');
         }
 
+        async function logRoutineCompletion(timing) {
+            const email = getTargetUserEmail();
+            if (!email) return;
+
+            try {
+                const res = await fetch('/api/progress/log-daily', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ 
+                        user_email: email, 
+                        [timing]: true 
+                    })
+                });
+
+                if (res.ok) {
+                    const timeText = timing === 'am_completed' ? 'Morning' : 'Evening';
+                    triggerNotification(`${timeText} Routine Marked as Complete! Score Updated.`);
+                } else {
+                    triggerNotification("Failed to mark routine complete in database.");
+                }
+            } catch (error) {
+                console.error("Routine completion log error:", error);
+                triggerNotification("Network error. Could not save routine progress.");
+            }
+        }
+
         // ====================================================================
         // CLINICAL & DERMATOLOGIST RECOMMENDATIONS FETCHING ENGINE
         // ====================================================================
@@ -494,7 +531,6 @@
                         let alg = ls.allergies || '';
                         let sens = ls.sensitivities || '';
                         
-                        // LocalStorage Fallback if backend allergies/sens are missing
                         if(!alg || alg.toLowerCase() === 'none' || alg === '[]') {
                             try { alg = JSON.parse(localStorage.getItem('user_allergies')||'[]').join(', ') || 'None'; } catch(e){}
                         }
@@ -502,7 +538,6 @@
                             try { sens = JSON.parse(localStorage.getItem('user_sensitivities')||'[]').join(', ') || 'None'; } catch(e){}
                         }
 
-                        // Concerns mapping
                         let concernsList = latest.concerns || latest.skin_concerns || [];
                         if (!concernsList || concernsList.length === 0) {
                             try { concernsList = JSON.parse(localStorage.getItem('user_concerns') || '[]'); } catch(e) {}
@@ -512,28 +547,38 @@
                             concernText = concernsList.map(c => typeof c === 'string' ? c : (c.concern_name || c.name || 'Concern')).join(', ');
                         }
                         
-                        document.getElementById('context-banner').classList.remove('hidden');
-                        document.getElementById('context-text').innerText = `${escapeHtml(localStorage.getItem('user_identity') || 'User')}'s Profile: ${escapeHtml(st)} Skin`;
+                        const contextBannerEl = document.getElementById('context-banner');
+                        if (contextBannerEl) contextBannerEl.classList.remove('hidden');
                         
-                        document.getElementById('context-concerns').innerText = escapeHtml(concernText);
-                        document.getElementById('context-sensitivities').innerText = escapeHtml(sens);
+                        const contextTextEl = document.getElementById('context-text');
+                        if (contextTextEl) contextTextEl.innerText = `${escapeHtml(localStorage.getItem('user_identity') || 'User')}'s Profile: ${escapeHtml(st)} Skin`;
+                        
+                        const contextConcernsEl = document.getElementById('context-concerns');
+                        if (contextConcernsEl) contextConcernsEl.innerText = escapeHtml(concernText);
+                        
+                        const contextSensitivitiesEl = document.getElementById('context-sensitivities');
+                        if (contextSensitivitiesEl) contextSensitivitiesEl.innerText = escapeHtml(sens);
                         
                         const sleep = ls.sleep_quality || 'Good';
                         const water = ls.hydration || ls.water_intake || '2.0 L/day';
                         const env = ls.environment || ls.sun_exposure || 'Urban';
-                        document.getElementById('context-lifestyle').innerText = `${escapeHtml(sleep)} sleep • ${escapeHtml(water)} water • ${escapeHtml(env)}`;
                         
-                        document.getElementById('context-adherence').innerText = escapeHtml(ls.consistency || ls.adherence_rate || 'N/A');
+                        const contextLifestyleEl = document.getElementById('context-lifestyle');
+                        if (contextLifestyleEl) contextLifestyleEl.innerText = `${escapeHtml(sleep)} sleep • ${escapeHtml(water)} water • ${escapeHtml(env)}`;
+                        
+                        const contextAdherenceEl = document.getElementById('context-adherence');
+                        if (contextAdherenceEl) contextAdherenceEl.innerText = escapeHtml(ls.consistency || ls.adherence_rate || 'N/A');
                         
                         const allergyBadge = document.getElementById('allergy-badge');
-                        
-                        let badgesHtml = '';
-                        if (alg && alg.toLowerCase() !== 'none' && alg.trim() !== '') {
-                            badgesHtml += `<span class="bg-rose-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="shield-alert" class="w-3.5 h-3.5"></i> Allergies: ${escapeHtml(alg)}</span>`;
-                        } else {
-                            badgesHtml += `<span class="bg-teal-800 text-teal-100 text-[10px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i> No Allergies Declared</span>`;
+                        if (allergyBadge) {
+                            let badgesHtml = '';
+                            if (alg && alg.toLowerCase() !== 'none' && alg.trim() !== '') {
+                                badgesHtml += `<span class="bg-rose-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="shield-alert" class="w-3.5 h-3.5"></i> Allergies: ${escapeHtml(alg)}</span>`;
+                            } else {
+                                badgesHtml += `<span class="bg-teal-800 text-teal-100 text-[10px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i> No Allergies Declared</span>`;
+                            }
+                            allergyBadge.innerHTML = badgesHtml;
                         }
-                        allergyBadge.innerHTML = badgesHtml;
                     }
                 }
             } catch(e) { console.error("Profile context fetch error:", e); }
@@ -625,48 +670,70 @@
             const summary = data.adaptation_summary || data.ADAPTATION_SUMMARY || "Routine dynamically calibrated from active database profile.";
             const seasonal = data.seasonal_recommendation || data.SEASONAL_RECOMMENDATION || "Maintain core barrier protection and daily sunscreen application.";
 
-            document.getElementById('adaptation-banner').innerHTML = `<strong>AI Adaptation Note:</strong> ${escapeHtml(summary)}`;
-            document.getElementById('seasonal-banner').innerHTML = `<strong>Seasonal Focus:</strong> ${escapeHtml(seasonal)}`;
+            const adaptationBannerEl = document.getElementById('adaptation-banner');
+            if (adaptationBannerEl) adaptationBannerEl.innerHTML = `<strong>AI Adaptation Note:</strong> ${escapeHtml(summary)}`;
+            
+            const seasonalBannerEl = document.getElementById('seasonal-banner');
+            if (seasonalBannerEl) seasonalBannerEl.innerHTML = `<strong>Seasonal Focus:</strong> ${escapeHtml(seasonal)}`;
 
             const morningSteps = data.morning_routine || data.MORNING_ROUTINE || [];
             const eveningSteps = data.evening_routine || data.EVENING_ROUTINE || [];
             const weeklySteps = data.weekly_treatment_plan || data.WEEKLY_TREATMENT_PLAN || [];
 
-            document.getElementById('morning-container').innerHTML = morningSteps.length > 0 
-                ? morningSteps.map(s => renderStepCard(s, 'Morning', Boolean(s.is_clinical_override))).join('') 
-                : '<p class="text-slate-400">No morning routine steps generated in database.</p>';
+            const morningContainerEl = document.getElementById('morning-container');
+            if (morningContainerEl) {
+                morningContainerEl.innerHTML = morningSteps.length > 0 
+                    ? morningSteps.map(s => renderStepCard(s, 'Morning', Boolean(s.is_clinical_override))).join('') 
+                    : '<p class="text-slate-400">No morning routine steps generated in database.</p>';
+            }
 
-            document.getElementById('evening-container').innerHTML = eveningSteps.length > 0 
-                ? eveningSteps.map(s => renderStepCard(s, 'Evening', Boolean(s.is_clinical_override))).join('') 
-                : '<p class="text-slate-400">No evening routine steps generated in database.</p>';
+            const eveningContainerEl = document.getElementById('evening-container');
+            if (eveningContainerEl) {
+                eveningContainerEl.innerHTML = eveningSteps.length > 0 
+                    ? eveningSteps.map(s => renderStepCard(s, 'Evening', Boolean(s.is_clinical_override))).join('') 
+                    : '<p class="text-slate-400">No evening routine steps generated in database.</p>';
+            }
 
-            document.getElementById('weekly-container').innerHTML = weeklySteps.length > 0 
-                ? weeklySteps.map(w => {
-                    const day = w.day ?? w.DAY ?? 'Weekly';
-                    const category = w.category ?? w.CATEGORY ?? 'Targeted Treatment';
-                    const treatmentType = w.treatment_type ?? w.TREATMENT_TYPE ?? w.product ?? w.PRODUCT ?? 'Treatment';
-                    const product = w.product ?? w.PRODUCT ?? 'Treatment Product';
-                    const instructions = w.instructions ?? w.INSTRUCTIONS ?? 'Apply as directed.';
-                    return `
-                        <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
-                            <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">${escapeHtml(day)} &bull; ${escapeHtml(category)}</span>
-                            <h4 class="font-bold text-slate-800 text-sm mt-1">${escapeHtml(treatmentType)}</h4>
-                            <p class="text-teal-700 font-semibold text-[11px]">Recommended Product: ${escapeHtml(product)}</p>
-                            <p class="text-slate-500">${escapeHtml(instructions)}</p>
-                        </div>
-                    `;
-                }).join('') 
-                : '<p class="text-slate-400">No weekly treatments found in database.</p>';
+            const weeklyContainerEl = document.getElementById('weekly-container');
+            if (weeklyContainerEl) {
+                weeklyContainerEl.innerHTML = weeklySteps.length > 0 
+                    ? weeklySteps.map(w => {
+                        const day = w.day ?? w.DAY ?? 'Weekly';
+                        const category = w.category ?? w.CATEGORY ?? 'Targeted Treatment';
+                        const treatmentType = w.treatment_type ?? w.TREATMENT_TYPE ?? w.product ?? w.PRODUCT ?? 'Treatment';
+                        const product = w.product ?? w.PRODUCT ?? 'Treatment Product';
+                        const instructions = w.instructions ?? w.INSTRUCTIONS ?? 'Apply as directed.';
+                        return `
+                            <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
+                                <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">${escapeHtml(day)} &bull; ${escapeHtml(category)}</span>
+                                <h4 class="font-bold text-slate-800 text-sm mt-1">${escapeHtml(treatmentType)}</h4>
+                                <p class="text-teal-700 font-semibold text-[11px]">Recommended Product: ${escapeHtml(product)}</p>
+                                <p class="text-slate-500">${escapeHtml(instructions)}</p>
+                            </div>
+                        `;
+                    }).join('') 
+                    : '<p class="text-slate-400">No weekly treatments found in database.</p>';
+            }
 
             if (window.lucide) lucide.createIcons();
         }
 
         function renderEmptyAIRoutineState() {
-            document.getElementById('adaptation-banner').innerHTML = `<strong>AI Adaptation Note:</strong> No active database profile found.`;
-            document.getElementById('seasonal-banner').innerHTML = `<strong>Seasonal Focus:</strong> Complete your skin assessment to generate an AI plan.`;
-            document.getElementById('morning-container').innerHTML = '<p class="text-slate-400">No morning steps found in database.</p>';
-            document.getElementById('evening-container').innerHTML = '<p class="text-slate-400">No evening steps found in database.</p>';
-            document.getElementById('weekly-container').innerHTML = '<p class="text-slate-400">No weekly plan found in database.</p>';
+            const adaptationBannerEl = document.getElementById('adaptation-banner');
+            if (adaptationBannerEl) adaptationBannerEl.innerHTML = `<strong>AI Adaptation Note:</strong> No active database profile found.`;
+            
+            const seasonalBannerEl = document.getElementById('seasonal-banner');
+            if (seasonalBannerEl) seasonalBannerEl.innerHTML = `<strong>Seasonal Focus:</strong> Complete your skin assessment to generate an AI plan.`;
+            
+            const morningContainerEl = document.getElementById('morning-container');
+            if (morningContainerEl) morningContainerEl.innerHTML = '<p class="text-slate-400">No morning steps found in database.</p>';
+            
+            const eveningContainerEl = document.getElementById('evening-container');
+            if (eveningContainerEl) eveningContainerEl.innerHTML = '<p class="text-slate-400">No evening steps found in database.</p>';
+            
+            const weeklyContainerEl = document.getElementById('weekly-container');
+            if (weeklyContainerEl) weeklyContainerEl.innerHTML = '<p class="text-slate-400">No weekly plan found in database.</p>';
+            
             if (window.lucide) lucide.createIcons();
         }
 
@@ -704,12 +771,19 @@
                     
                     <div class="pt-2 border-t border-slate-200/60 flex justify-between items-center text-[10px]">
                         <span class="text-slate-400">Product out of stock or unavailable?</span>
-                        <button onclick="triggerProductSwap('${escapeHtml(productName)}', '${escapeHtml(category)}', '${escapeHtml(activeIngredient)}')" class="text-teal-700 hover:text-teal-900 font-bold hover:underline flex items-center gap-1 cursor-pointer">
+                        <button data-product="${escapeHtml(productName)}" data-category="${escapeHtml(category)}" data-active="${escapeHtml(activeIngredient)}" onclick="handleSwapClick(this)" class="text-teal-700 hover:text-teal-900 font-bold hover:underline flex items-center gap-1 cursor-pointer">
                             <i data-lucide="arrow-right-left" class="w-3 h-3"></i> Swap Product
                         </button>
                     </div>
                 </div>
             `;
+        }
+
+        function handleSwapClick(btn) {
+            const prod = btn.getAttribute('data-product');
+            const cat = btn.getAttribute('data-category');
+            const act = btn.getAttribute('data-active');
+            triggerProductSwap(prod, cat, act);
         }
 
         async function triggerProductSwap(productName, category, activeIngredient) {
@@ -757,7 +831,8 @@
                             <div class="p-2.5 bg-teal-50 border border-teal-100 rounded-lg text-[11px] text-teal-900">
                                 <strong>Rationale:</strong> ${escapeHtml(swapped.reason_for_swap)}
                             </div>
-                            <button onclick="applySwap('${escapeHtml(swapped.product)}', '${escapeHtml(productName)}')" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 rounded-xl text-xs transition">
+                            
+                            <button data-new="${escapeHtml(swapped.product)}" data-old="${escapeHtml(productName)}" data-act="${escapeHtml(swapped.active_ingredient)}" data-inst="${escapeHtml(swapped.instructions)}" onclick="handleApplySwapClick(this)" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 rounded-xl text-xs transition">
                                 Apply This Replacement
                             </button>
                         </div>
@@ -772,10 +847,43 @@
             if (window.lucide) lucide.createIcons();
         }
 
-        async function applySwap(newProduct, oldProduct) {
+        function handleApplySwapClick(btn) {
+            const newProd = btn.getAttribute('data-new');
+            const oldProd = btn.getAttribute('data-old');
+            const act = btn.getAttribute('data-act');
+            const inst = btn.getAttribute('data-inst');
+            applySwap(newProd, oldProd, act, inst);
+        }
+
+        async function applySwap(newProduct, oldProduct, newActive, newInstructions) {
             closeSwapModal();
             triggerNotification(`Swapped product! Replaced "${oldProduct}" with "${newProduct}".`);
-            await syncCarePlan();
+
+            const cards = document.querySelectorAll('.border.p-4.rounded-xl');
+            cards.forEach(card => {
+                const title = card.querySelector('h4');
+                if (title && title.innerText.trim() === oldProduct.trim()) {
+                    
+                    title.innerText = newProduct;
+                    
+                    const activeP = card.querySelector('p.text-teal-700');
+                    if (activeP && newActive) activeP.innerText = 'Active Ingredient: ' + newActive;
+                    
+                    const instP = card.querySelector('p.text-slate-600.leading-relaxed');
+                    if (instP && newInstructions) instP.innerText = newInstructions;
+                    
+                    const badgeContainer = card.querySelector('.flex.items-center.gap-1');
+                    if (badgeContainer && !badgeContainer.innerHTML.includes('Swapped')) {
+                        badgeContainer.innerHTML = '<span class="bg-indigo-100 text-indigo-800 border border-indigo-200 px-2 py-0.5 rounded-full text-[9px] font-bold">⚡ Swapped</span> ' + badgeContainer.innerHTML;
+                    }
+                    
+                    const swapBtn = card.querySelector('button[data-product]');
+                    if (swapBtn) {
+                        swapBtn.setAttribute('data-product', newProduct);
+                        swapBtn.setAttribute('data-active', newActive);
+                    }
+                }
+            });
         }
 
         function getBadgeStyle(badge, isClinical) {
