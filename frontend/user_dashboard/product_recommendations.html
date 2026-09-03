@@ -4,94 +4,308 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Recommendations - DermaAI</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        
+        /* Custom Horizontal Scrollbar Styling */
+        .hide-scrollbar::-webkit-scrollbar {
+            height: 6px;
+        }
+        .hide-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        .hide-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .hide-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #0d9488;
+        }
+        
+        /* Toast Animation */
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .toast-animate { animation: slideUp 0.3s ease-out forwards; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
 
     <!-- Sidebar Navigation -->
-    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex shrink-0">
+    <aside id="sidebar-menu" class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex shrink-0 absolute md:relative z-50 top-0 left-0 h-full shadow-lg md:shadow-none">
         <div>
-            <div class="p-6 flex items-center gap-3 border-b border-slate-100">
-                <div class="bg-teal-600 text-white p-2.5 rounded-2xl"><i data-lucide="sparkles" class="w-5 h-5"></i></div>
-                <div><h1 class="font-bold text-slate-900 leading-tight">DermaAI</h1><p class="text-xs text-slate-400">User Dashboard</p></div>
+            <div class="p-6 flex items-center justify-between md:justify-start gap-3 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="bg-teal-600 text-white p-2.5 rounded-2xl shadow-lg shadow-teal-600/20">
+                        <i data-lucide="sparkles" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-slate-900 leading-tight">DermaAI</h1>
+                        <p class="text-xs text-slate-400">User Dashboard</p>
+                    </div>
+                </div>
             </div>
-            <nav class="p-4 space-y-1 text-sm font-medium">
-                <a href="/user_dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard</a>
-                <a href="/user_dashboard/skin_assessment.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="scan-face" class="w-4 h-4"></i> Skin Assessment</a>
-                <a href="/user_dashboard/routine_planner.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="calendar" class="w-4 h-4"></i> Routine Planner</a>
-                <a href="/user_dashboard/product_recommendations.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-teal-700 bg-teal-50 font-bold border-r-4 border-teal-600"><i data-lucide="sliders" class="w-4 h-4"></i> Product Recommendations</a>
-                <a href="/user_dashboard/ingredient_intelligence.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="flask-conical" class="w-4 h-4"></i> Ingredient Intelligence</a>
-                <a href="/user_dashboard/assessment_history.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="history" class="w-4 h-4"></i> Assessment History</a>
-                <a href="/user_dashboard/appointments.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="video" class="w-4 h-4"></i> Appointments</a>
-                <a href="/user_dashboard/progress.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="activity" class="w-4 h-4"></i> Progress</a>
-                <a href="/user_dashboard/risk_analysis.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="shield-alert" class="w-4 h-4"></i> Risk Analysis</a>
-                <a href="/user_dashboard/checklist.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="list-check" class="w-4 h-4"></i> Checklist</a>
+
+            <nav class="p-4 space-y-1 text-sm font-medium overflow-y-auto max-h-[calc(100vh-160px)] md:max-h-none">
+                <a href="/user_dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+                </a>
+                <a href="/user_dashboard/skin_assessment.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="scan-face" class="w-4 h-4"></i> Skin Assessment
+                </a>
+                <a href="/user_dashboard/routine_planner.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="calendar" class="w-4 h-4"></i> Routine Planner
+                </a>
+                <a href="/user_dashboard/product_recommendations.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-teal-700 bg-teal-50 font-bold border-r-4 border-teal-600">
+                    <i data-lucide="sliders" class="w-4 h-4"></i> Product Recommendations
+                </a>
+                <a href="/user_dashboard/ingredient_intelligence.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="flask-conical" class="w-4 h-4"></i> Ingredient Scanner
+                </a>
+                <a href="/user_dashboard/skin_health_scoring.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="activity" class="w-4 h-4"></i> Scoring Engine
+                </a>
+                <a href="/user_dashboard/assessment_history.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="history" class="w-4 h-4"></i> Assessment History
+                </a>
+                <a href="/user_dashboard/appointments.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="video" class="w-4 h-4"></i> Appointments
+                </a>
+                <a href="/user_dashboard/progress.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="activity" class="w-4 h-4"></i> Progress
+                </a>
+                <a href="/user_dashboard/risk_analysis.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="shield-alert" class="w-4 h-4"></i> Risk Analysis
+                </a>
+                <a href="/user_dashboard/checklist.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="list-check" class="w-4 h-4"></i> Checklist
+                </a>
             </nav>
         </div>
-        <div class="p-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
-            <div class="min-w-0">
-                <p id="user-display-name" class="text-xs font-bold text-slate-800 truncate">Loading...</p>
-                <p class="text-[10px] text-slate-400 font-medium">Role: User</p>
+
+        <div class="p-4 border-t border-slate-100 bg-slate-50/50 shrink-0">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="min-w-0">
+                        <p id="user-display-name" class="text-xs font-bold text-slate-800 truncate">Loading Account...</p>
+                        <p class="text-[10px] text-slate-500 font-medium truncate">Role: Patient / User</p>
+                    </div>
+                </div>
+                <button onclick="logout()" title="Logout" class="text-slate-400 hover:text-rose-600 p-1 rounded-lg transition cursor-pointer">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
             </div>
-            <button onclick="logout()" title="Logout" class="text-slate-400 hover:text-rose-600 p-1 cursor-pointer"><i data-lucide="log-out" class="w-4 h-4"></i></button>
         </div>
     </aside>
 
-    <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto p-8 space-y-6">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <!-- Main Content Stream -->
+    <main class="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6 relative">
+        
+        <!-- Header -->
+        <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
             <div>
-                <h1 class="text-2xl font-bold text-slate-900">Recommended Products & Active Treatments</h1>
-                <p class="text-sm text-slate-500">Matched dynamically to your active skincare routine steps and AI diagnosis.</p>
+                <h1 class="text-2xl font-bold text-slate-900">Personalized Product Engine</h1>
+                <p class="text-sm text-slate-500">AI-curated skincare products scored for your unique skin profile.</p>
             </div>
-            <a href="/user_dashboard/ingredient_intelligence.html" class="px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-2 self-start sm:self-auto shadow-sm">
-                <i data-lucide="flask-conical" class="w-4 h-4"></i> Open Ingredient Intelligence Module
-            </a>
+            
+            <div class="flex flex-wrap items-center gap-3 bg-white p-2 border border-slate-200 rounded-2xl shadow-sm">
+                
+                <!-- NEW STYLED AVOID INPUT -->
+                <div class="relative flex items-center pr-2 border-r border-slate-200">
+                    <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
+                        <i data-lucide="ban" class="w-3.5 h-3.5 text-rose-500"></i>
+                    </div>
+                    <input type="text" id="pref-avoid" placeholder="Avoid (e.g. silicone)" class="block w-40 pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 placeholder-slate-400 focus:outline-none focus:border-rose-400 focus:bg-white focus:ring-1 focus:ring-rose-400 transition">
+                </div>
+                
+                <div class="flex items-center gap-3 px-2 border-r border-slate-200">
+                    <label class="flex items-center gap-1.5 text-xs font-semibold text-slate-600 cursor-pointer">
+                        <input type="checkbox" id="pref-vegan" value="Vegan" class="w-3.5 h-3.5 text-teal-600 rounded border-slate-300 focus:ring-teal-600"> Vegan
+                    </label>
+                    <label class="flex items-center gap-1.5 text-xs font-semibold text-slate-600 cursor-pointer">
+                        <input type="checkbox" id="pref-cruelty" value="Cruelty-Free" class="w-3.5 h-3.5 text-teal-600 rounded border-slate-300 focus:ring-teal-600"> Cruelty-Free
+                    </label>
+                    <label class="flex items-center gap-1.5 text-xs font-semibold text-slate-600 cursor-pointer">
+                        <input type="checkbox" id="pref-fragrance" value="Fragrance-Free" class="w-3.5 h-3.5 text-teal-600 rounded border-slate-300 focus:ring-teal-600"> Frag-Free
+                    </label>
+                </div>
+                <select id="budget-filter" class="p-1.5 border-0 bg-transparent text-xs font-bold text-teal-700 outline-none cursor-pointer">
+                    <option value="Budget Friendly (Under ₹500)">Budget Friendly (Under ₹500)</option>
+                    <option value="Mid-Range (₹500 - ₹1500)" selected>Mid-Range (₹500 - ₹1500)</option>
+                    <option value="Luxury / Medical (Above ₹1500)">Luxury / Medical (Above ₹1500)</option>
+                </select>
+                <button onclick="fetchRecommendations()" class="bg-teal-600 hover:bg-teal-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition shadow-sm cursor-pointer flex items-center gap-1.5">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Find Matches
+                </button>
+            </div>
         </div>
 
-        <!-- Banner for Ingredient Safety Guidance -->
-        <div class="p-4 bg-teal-50 border border-teal-200 rounded-2xl flex items-center justify-between gap-4">
+        <!-- Context Banner -->
+        <div id="context-banner" class="hidden p-4 bg-teal-900 text-white rounded-2xl flex flex-col sm:flex-row md:items-center justify-between gap-4 shadow-sm">
             <div class="flex items-center gap-3">
-                <div class="p-2 bg-teal-600 text-white rounded-xl shrink-0"><i data-lucide="shield-check" class="w-5 h-5"></i></div>
-                <p class="text-xs text-teal-900 leading-snug">
-                    <b>Ingredient Safety Enabled:</b> Click <i>"Inspect Ingredients"</i> on any product card below to verify potential chemical clashes, check allergen flags, or learn about active ingredient categories.
-                </p>
+                <div class="p-2.5 bg-teal-800/80 rounded-xl shrink-0"><i data-lucide="sliders" class="w-5 h-5 text-teal-300"></i></div>
+                <div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-teal-300">AI Filtering Context</span>
+                    <h2 id="context-text" class="font-bold text-sm tracking-wide">Loading filter parameters...</h2>
+                </div>
             </div>
+            <div id="allergy-badge" class="flex flex-wrap gap-2 shrink-0"></div>
         </div>
 
-        <div id="recommendations-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-            <!-- Loading Skeletons -->
-            <div class="p-5 bg-white border border-slate-200 rounded-2xl animate-pulse space-y-3">
-                <div class="h-4 bg-slate-100 rounded w-1/2"></div>
-                <div class="h-3 bg-slate-100 rounded w-1/3"></div>
-                <div class="h-12 bg-slate-50 rounded-xl"></div>
-            </div>
-            <div class="p-5 bg-white border border-slate-200 rounded-2xl animate-pulse space-y-3">
-                <div class="h-4 bg-slate-100 rounded w-1/2"></div>
-                <div class="h-3 bg-slate-100 rounded w-1/3"></div>
-                <div class="h-12 bg-slate-50 rounded-xl"></div>
-            </div>
+        <!-- Strategy Summary -->
+        <p id="overall-strategy" class="text-sm text-slate-600 bg-indigo-50 border border-indigo-100 p-4 rounded-xl hidden leading-relaxed font-medium"></p>
+
+        <!-- Loader -->
+        <div id="loader" class="hidden py-16 text-center space-y-3">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mx-auto"></div>
+            <p class="text-xs font-semibold text-slate-500">Scanning product formulations and fetching live imagery...</p>
         </div>
+
+        <!-- Category Filters -->
+        <div id="category-tabs" class="flex flex-wrap gap-2 border-b border-slate-200 pb-2 hidden">
+            <!-- Dynamically populated -->
+        </div>
+
+        <!-- Master Products Wrapper -->
+        <div id="products-wrapper" class="space-y-8 hidden">
+            <div id="current-routine-container" class="hidden"></div>
+            <div id="products-container" class="space-y-8"></div>
+        </div>
+
+        <!-- Floating Buttons Area -->
+        <div class="fixed bottom-8 right-8 flex flex-col gap-3 z-40">
+            <!-- Dupe Finder Button -->
+            <button onclick="openDupeModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-full shadow-2xl transition-transform hover:scale-105 flex items-center justify-center gap-2 group cursor-pointer border-2 border-indigo-500">
+                <i data-lucide="search-code" class="w-5 h-5"></i>
+                <span class="text-xs font-bold pr-1 hidden group-hover:block transition-all">Find a Dupe</span>
+            </button>
+            
+            <!-- Compare Button -->
+            <button onclick="openCompareModal()" class="bg-slate-900 hover:bg-slate-800 text-white p-4 rounded-full shadow-2xl transition-transform hover:scale-105 flex items-center justify-center gap-2 group cursor-pointer border-2 border-slate-700">
+                <i data-lucide="git-compare" class="w-5 h-5"></i>
+                <span class="text-xs font-bold pr-1 hidden group-hover:block transition-all">Compare Multiple</span>
+            </button>
+        </div>
+
     </main>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            lucide.createIcons();
-            const token = localStorage.getItem('auth_token');
-            if (!token) {
-                logout();
-                return;
-            }
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" class="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-2"></div>
 
-            const userName = localStorage.getItem('user_identity') || localStorage.getItem('user_email') || 'User';
-            document.getElementById('user-display-name').innerText = escapeHtml(userName);
-            await loadRecommendations();
+    <!-- MULTI-PRODUCT COMPARISON MODAL -->
+    <div id="compare-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-4xl w-full p-6 space-y-5 shadow-2xl max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3 shrink-0">
+                <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="git-compare" class="w-5 h-5 text-teal-600"></i> AI Multi-Product Comparison
+                </h3>
+                <button onclick="closeCompareModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto pr-2 space-y-5 hide-scrollbar">
+                <p class="text-xs text-slate-500">Enter the products you want to compare below. The AI will cross-reference their INCI lists against your skin profile and allergies to determine the clinical winner.</p>
+                
+                <div id="compare-inputs-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">Product 1</label>
+                        <input type="text" class="comp-prod-input w-full border border-slate-200 rounded-xl p-3 outline-none focus:border-teal-500 bg-slate-50 text-sm font-semibold" placeholder="e.g., CeraVe Cleanser">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">Product 2</label>
+                        <input type="text" class="comp-prod-input w-full border border-slate-200 rounded-xl p-3 outline-none focus:border-teal-500 bg-slate-50 text-sm font-semibold" placeholder="e.g., Minimalist Salicylic Acid">
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <button onclick="addCompareField()" class="text-teal-600 text-xs font-bold flex items-center gap-1 hover:underline">
+                        <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Another Product
+                    </button>
+                    <button id="btn-run-compare" onclick="runComparison()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-6 py-2 rounded-xl text-xs transition shadow-sm cursor-pointer inline-flex items-center gap-2">
+                        <i data-lucide="zap" class="w-4 h-4"></i> Run Clinical Comparison
+                    </button>
+                </div>
+
+                <div id="compare-results" class="hidden space-y-4 pt-2">
+                    <div class="p-4 bg-teal-50 border border-teal-200 rounded-xl text-center shadow-sm">
+                        <p class="text-[10px] font-bold text-teal-700 uppercase tracking-widest mb-1">Recommended Winner</p>
+                        <h3 id="comp-winner" class="text-xl font-extrabold text-teal-900">--</h3>
+                    </div>
+                    <div id="comp-analysis-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-xs"></div>
+                    <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs shadow-sm">
+                        <h4 class="font-bold text-slate-800 mb-1">Clinical Verdict</h4>
+                        <p id="comp-verdict" class="text-slate-600 leading-relaxed">--</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DUPE FINDER MODAL -->
+    <div id="dupe-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3 shrink-0">
+                <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="search-code" class="w-5 h-5 text-indigo-600"></i> AI Dupe Finder
+                </h3>
+                <button onclick="closeDupeModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto pr-2 space-y-4 hide-scrollbar">
+                <p class="text-xs text-slate-500">Love a high-end luxury product but hate the price tag? Enter it below. The AI will reverse-engineer its formulation and find an affordable Indian drugstore alternative.</p>
+                
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">Luxury Product Name</label>
+                    <input type="text" id="dupe-input" class="w-full border border-slate-200 rounded-xl p-3 outline-none focus:border-indigo-500 bg-slate-50 text-sm font-semibold" placeholder="e.g., Paula's Choice 2% BHA Liquid Exfoliant">
+                </div>
+
+                <button id="btn-run-dupe" onclick="runDupeFinder()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-sm transition shadow-sm cursor-pointer inline-flex items-center justify-center gap-2">
+                    <i data-lucide="flask-conical" class="w-4 h-4"></i> Find Affordable Match
+                </button>
+
+                <div id="dupe-results" class="hidden space-y-4 pt-2 border-t border-slate-100">
+                    <div id="dupe-card-container" class="flex justify-center"></div>
+                    <div class="p-4 bg-indigo-50 border border-indigo-200 rounded-xl text-xs shadow-sm">
+                        <h4 class="font-bold text-indigo-900 mb-1">Chemical Similarity</h4>
+                        <p id="dupe-explanation" class="text-indigo-800 leading-relaxed font-medium">--</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if(window.lucide) lucide.createIcons();
+            checkAuthState();
+            fetchRecommendations();
         });
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/index.html';
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        }
+
+        function checkAuthState() {
+            const token = localStorage.getItem('auth_token');
+            const identity = localStorage.getItem('user_identity') || localStorage.getItem('email');
+            if (!token) {
+                window.location.href = '/index.html';
+            } else {
+                document.getElementById('user-display-name').innerText = escapeHtml(identity) || 'User';
+            }
+        }
 
         function getAuthHeaders() {
             const token = localStorage.getItem('auth_token') || '';
@@ -101,130 +315,549 @@
             };
         }
 
-        function escapeHtml(str) {
-            if (!str) return '';
-            return String(str)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#039;');
+        function showToast(message, isError = false) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bgColor = isError ? 'bg-rose-600' : 'bg-slate-900';
+            const icon = isError ? 'alert-circle' : 'check-circle';
+            
+            toast.className = `${bgColor} text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 text-sm font-bold toast-animate`;
+            toast.innerHTML = `<i data-lucide="${icon}" class="w-4 h-4"></i> ${escapeHtml(message)}`;
+            
+            container.appendChild(toast);
+            if(window.lucide) lucide.createIcons();
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(100%)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
         }
 
-        function slugifyIngredient(str) {
-            if (!str) return 'all';
-            return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        // --- NEW HELPER: Safely extracts data from the button click ---
+        function handleAddToRoutine(btn) {
+            const prodName = btn.getAttribute('data-add-prod');
+            const activeIng = btn.getAttribute('data-add-act');
+            const instructions = btn.getAttribute('data-add-inst');
+            addToRoutine(prodName, activeIng, instructions);
         }
 
-        async function loadRecommendations() {
-            const email = localStorage.getItem('user_email') || '';
-            const container = document.getElementById('recommendations-container');
-
+        // --- UPDATED: Now receives the active ingredients and instructions too ---
+        async function addToRoutine(productName, activeIngredient = "Custom Selection", instructions = "Use as directed by product label.") {
             try {
-                const res = await fetch(`/routine/generate?user_email=${encodeURIComponent(email)}`, {
+                const userEmail = localStorage.getItem('user_email') || '';
+                const res = await fetch('/api/products/routine/add', {
                     method: 'POST',
-                    headers: getAuthHeaders()
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ 
+                        product_name: productName, 
+                        user_email: userEmail,
+                        active_ingredient: activeIngredient,
+                        instructions: instructions,
+                        category: "Custom Step"
+                    })
                 });
-
-                if (res.status === 401) {
-                    logout();
-                    return;
-                }
-
-                if (!res.ok) {
-                    container.innerHTML = '<div class="p-6 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl col-span-2 text-xs font-semibold">Failed to load recommendations. Please complete a skin assessment scan first to generate your active routine.</div>';
-                    return;
-                }
-
-                const json = await res.json();
-                const payload = json.data || json.routine || json;
-                const morning = payload.morning_routine || payload.MORNING_ROUTINE || [];
-                const evening = payload.evening_routine || payload.EVENING_ROUTINE || [];
-
-                const productMap = new Map();
-
-                morning.forEach(s => {
-                    const prodName = s?.product || s?.PRODUCT || s?.product_name || s?.PRODUCT_NAME;
-                    if (s && prodName) {
-                        productMap.set(prodName, { 
-                            ...s, 
-                            productName: prodName,
-                            timing: 'Morning (AM)' 
-                        });
-                    }
-                });
-
-                evening.forEach(s => {
-                    const prodName = s?.product || s?.PRODUCT || s?.product_name || s?.PRODUCT_NAME;
-                    if (s && prodName) {
-                        if (productMap.has(prodName)) {
-                            const existing = productMap.get(prodName);
-                            existing.timing = 'Morning & Evening (AM/PM)';
-                        } else {
-                            productMap.set(prodName, { 
-                                ...s, 
-                                productName: prodName,
-                                timing: 'Evening (PM)' 
-                            });
-                        }
-                    }
-                });
-
-                const allProducts = Array.from(productMap.values());
-
-                if (allProducts.length > 0) {
-                    container.innerHTML = allProducts.map(s => {
-                        const prodName = s.productName || 'Recommended Product';
-                        const activeIng = s.active_ingredient || s.ACTIVE_INGREDIENT || s.active || 'N/A';
-                        const category = s.category || s.CATEGORY || s.step || 'General Care';
-                        const instructions = s.instructions || s.INSTRUCTIONS || s.usage_instructions || 'Apply as directed.';
-                        const activeSlug = slugifyIngredient(activeIng);
-
-                        return `
-                        <div class="p-5 bg-white border border-slate-200 rounded-2xl space-y-4 shadow-sm hover:border-teal-300 transition flex flex-col justify-between">
-                            <div class="space-y-3">
-                                <div class="flex justify-between items-start gap-2">
-                                    <div>
-                                        <h3 class="font-bold text-slate-800 text-sm">${escapeHtml(prodName)}</h3>
-                                        <div class="flex items-center gap-1.5 mt-1">
-                                            <span class="text-slate-500 text-[11px] font-medium">Active:</span>
-                                            <a href="/user_dashboard/ingredient_intelligence.html?category=${activeSlug}" class="text-teal-700 hover:text-teal-900 font-semibold text-[11px] underline flex items-center gap-0.5">
-                                                ${escapeHtml(activeIng)}
-                                                <i data-lucide="book-open" class="w-3 h-3"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <span class="bg-teal-50 text-teal-700 border border-teal-200 font-bold px-2.5 py-1 rounded-lg text-[10px] shrink-0">${escapeHtml(category)}</span>
-                                </div>
-                                <div class="text-slate-600 bg-slate-50 p-2.5 rounded-xl space-y-1">
-                                    <p><strong>Frequency:</strong> <span class="text-slate-800">${escapeHtml(s.timing)}</span></p>
-                                    <p><strong>Usage:</strong> ${escapeHtml(instructions)}</p>
-                                </div>
-                            </div>
-                            
-                            <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
-                                <span class="text-[10px] text-slate-400 font-medium">AI Safety Checked</span>
-                                <a href="/user_dashboard/ingredient_intelligence.html?product=${encodeURIComponent(prodName)}&active=${encodeURIComponent(activeIng)}" class="px-3 py-1.5 bg-slate-900 hover:bg-teal-700 text-white font-bold text-[11px] rounded-lg transition flex items-center gap-1.5">
-                                    <i data-lucide="flask-conical" class="w-3.5 h-3.5"></i> Inspect Ingredients
-                                </a>
-                            </div>
-                        </div>
-                        `;
-                    }).join('');
-                    lucide.createIcons();
+                
+                if (res.ok) {
+                    showToast(`Synced ${productName} to database!`);
                 } else {
-                    container.innerHTML = '<div class="p-6 bg-slate-100 border border-slate-200 text-slate-600 rounded-xl col-span-2 text-xs font-semibold">No recommended products found for your profile. Please complete a skin assessment scan first.</div>';
+                    showToast("Failed to sync to database.", true);
                 }
-            } catch (err) {
-                console.error("Error loading dynamic recommendations:", err);
-                container.innerHTML = '<div class="p-6 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl col-span-2 text-xs font-semibold">Unable to establish backend server connection to retrieve recommendations.</div>';
+            } catch (e) {
+                showToast("Network error syncing to routine.", true);
             }
         }
 
-        function logout() {
-            localStorage.clear();
-            window.location.href = '/index.html';
+        async function fetchActiveRoutineProducts(email) {
+            const container = document.getElementById('current-routine-container');
+            try {
+                const cacheBuster = `&_t=${Date.now()}`;
+                const res = await fetch(`/api/routine/active?user_email=${encodeURIComponent(email)}${cacheBuster}`, {
+                    headers: getAuthHeaders()
+                });
+                
+                if (res.ok) {
+                    const json = await res.json();
+                    const data = json.data || {};
+                    const am = data.morning_routine || [];
+                    const pm = data.evening_routine || [];
+                    
+                    const uniqueProducts = new Map();
+                    [...am, ...pm].forEach(step => {
+                        const prodName = step.product || step.product_recommendation;
+                        if (prodName && !uniqueProducts.has(prodName)) {
+                            uniqueProducts.set(prodName, step);
+                        }
+                    });
+                    
+                    const productsList = Array.from(uniqueProducts.values());
+                    
+                    if (productsList.length > 0) {
+                        const cardsHtml = productsList.map(p => {
+                            const prodName = p.product || p.product_recommendation || 'Product';
+                            const cat = p.category || 'Skincare Step';
+                            const active = p.active_ingredient || 'Active Formulation';
+                            const badge = p.adaptation_badge || 'Current Routine';
+                            const inst = p.instructions || 'Apply as directed in your routine.';
+                            
+                            const fallbackImg = `https://ui-avatars.com/api/?name=${encodeURIComponent(prodName)}&background=0f172a&color=fff&size=400&font-size=0.33&bold=true`;
+                            const imgUrl = `/api/products/image?q=${encodeURIComponent(prodName)}`;
+                            
+                            const queryStr = prodName;
+                            const amazonLink = `https://duckduckgo.com/?q=${encodeURIComponent('!ducky site:amazon.in ' + queryStr)}`;
+                            const nykaaLink = `https://duckduckgo.com/?q=${encodeURIComponent('!ducky site:nykaa.com ' + queryStr)}`;
+                            const flipkartLink = `https://duckduckgo.com/?q=${encodeURIComponent('!ducky site:flipkart.com ' + queryStr)}`;
+                            const myntraLink = `https://duckduckgo.com/?q=${encodeURIComponent('!ducky site:myntra.com ' + queryStr)}`;
+                            
+                            return `
+                                <div class="shrink-0 w-72 sm:w-80 bg-white border border-slate-200 rounded-2xl flex flex-col relative transition hover:shadow-lg overflow-hidden">
+                                    <div class="h-28 w-full bg-slate-100 relative">
+                                        <img src="${imgUrl}" onerror="this.onerror=null; this.src='${fallbackImg}';" referrerpolicy="no-referrer" class="w-full h-full object-contain p-2 bg-white transition duration-500" alt="Product Image">
+                                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
+                                        <div class="absolute top-0 right-0 bg-slate-800 text-white text-[9px] font-bold px-3 py-1 rounded-bl-xl tracking-wider z-10">
+                                            ${escapeHtml(badge)}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="p-5 pt-3 space-y-3 flex-1 flex flex-col">
+                                        <div>
+                                            <span class="text-[9px] uppercase tracking-wider font-bold text-slate-400 block mb-0.5">${escapeHtml(cat)}</span>
+                                            <h3 class="font-bold text-slate-900 text-sm leading-tight">${escapeHtml(prodName)}</h3>
+                                        </div>
+                                        <p class="text-[10px] text-teal-800 font-semibold flex items-center gap-1.5 bg-teal-50 w-fit px-2 py-1 rounded border border-teal-100">
+                                            <i data-lucide="flask-conical" class="w-3 h-3 text-teal-600"></i> ${escapeHtml(active)}
+                                        </p>
+                                        <p class="text-xs text-slate-600 leading-relaxed border-l-2 border-slate-200 pl-3 italic line-clamp-3">
+                                            ${escapeHtml(inst)}
+                                        </p>
+                                        <div class="mt-auto pt-4 border-t border-slate-100">
+                                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Find on:</span>
+                                            <div class="grid grid-cols-4 gap-1.5">
+                                                <a href="${amazonLink}" target="_blank" class="text-center bg-amber-500 hover:bg-amber-600 text-white font-bold py-1.5 rounded-lg text-[9px] transition uppercase tracking-wide shadow-sm">Amazon</a>
+                                                <a href="${nykaaLink}" target="_blank" class="text-center bg-rose-500 hover:bg-rose-600 text-white font-bold py-1.5 rounded-lg text-[9px] transition uppercase tracking-wide shadow-sm">Nykaa</a>
+                                                <a href="${flipkartLink}" target="_blank" class="text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-1.5 rounded-lg text-[9px] transition uppercase tracking-wide shadow-sm">Flipkart</a>
+                                                <a href="${myntraLink}" target="_blank" class="text-center bg-pink-600 hover:bg-pink-700 text-white font-bold py-1.5 rounded-lg text-[9px] transition uppercase tracking-wide shadow-sm">Myntra</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                        
+                        container.innerHTML = `
+                            <div class="space-y-3 product-card-section" data-category="Current Routine">
+                                <h2 class="font-bold text-slate-800 text-lg flex items-center gap-2 border-b border-slate-200 pb-2">
+                                    <i data-lucide="calendar-check" class="w-5 h-5 text-teal-600"></i> Currently in Your Routine
+                                </h2>
+                                <div class="flex overflow-x-auto gap-4 pb-4 snap-x hide-scrollbar px-1">
+                                    ${cardsHtml}
+                                </div>
+                            </div>
+                        `;
+                        container.classList.remove('hidden');
+                    } else {
+                        container.innerHTML = '';
+                        container.classList.add('hidden');
+                    }
+                }
+            } catch (e) {
+                console.error("Failed to fetch routine for products page:", e);
+                container.innerHTML = '';
+                container.classList.add('hidden');
+            }
         }
+
+        async function fetchRecommendations() {
+            const email = localStorage.getItem('user_email') || '';
+            const budget = document.getElementById('budget-filter').value;
+            const avoidInput = document.getElementById('pref-avoid').value;
+            
+            const prefs = [];
+            if(document.getElementById('pref-vegan').checked) prefs.push('Vegan');
+            if(document.getElementById('pref-cruelty').checked) prefs.push('Cruelty-Free');
+            if(document.getElementById('pref-fragrance').checked) prefs.push('Fragrance-Free');
+
+            const loader = document.getElementById('loader');
+            const wrapper = document.getElementById('products-wrapper');
+            const container = document.getElementById('products-container');
+            const strategyEl = document.getElementById('overall-strategy');
+            const contextBanner = document.getElementById('context-banner');
+            const tabsContainer = document.getElementById('category-tabs');
+
+            loader.classList.remove('hidden');
+            wrapper.classList.add('hidden');
+            strategyEl.classList.add('hidden');
+            tabsContainer.classList.add('hidden');
+
+            await fetchActiveRoutineProducts(email);
+
+            try {
+                const queryParams = new URLSearchParams({
+                    budget: budget,
+                    preferences: prefs.join(','),
+                    avoid: avoidInput,
+                    _t: Date.now()
+                });
+                
+                const res = await fetch(`/api/products/recommendations?${queryParams.toString()}`, {
+                    method: 'GET',
+                    headers: getAuthHeaders(),
+                    cache: 'no-store'
+                });
+
+                if (res.status === 401) { logout(); return; }
+
+                const json = await res.json();
+                
+                if (res.ok && !json.data.error) {
+                    const ctx = json.context;
+                    
+                    let budgetText = "Medium (₹500 - ₹1500)";
+                    if (ctx.budget.includes("Low") || ctx.budget.includes("Under")) budgetText = "Low (Under ₹500)";
+                    if (ctx.budget.includes("High") || ctx.budget.includes("Above")) budgetText = "High (Above ₹1500)";
+                    
+                    document.getElementById('context-text').innerText = `Optimizing for ${escapeHtml(ctx.skin_type)} Skin at ${escapeHtml(budgetText)} budget.`;
+                    
+                    let avoidHtml = "";
+                    if (ctx.allergies.length > 0 && ctx.allergies[0] !== "None") {
+                        avoidHtml += `<span class="bg-rose-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm"><i data-lucide="shield-alert" class="w-3.5 h-3.5"></i> Med Allergy: ${escapeHtml(ctx.allergies.join(", "))}</span>`;
+                    }
+                    if (ctx.avoid && ctx.avoid.trim() !== "") {
+                        avoidHtml += `<span class="bg-amber-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm"><i data-lucide="ban" class="w-3.5 h-3.5"></i> Avoiding: ${escapeHtml(ctx.avoid)}</span>`;
+                    }
+                    
+                    if(avoidHtml === "") {
+                        document.getElementById('allergy-badge').innerHTML = `<span class="bg-teal-800 text-teal-100 text-[10px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Unrestricted</span>`;
+                    } else {
+                        document.getElementById('allergy-badge').innerHTML = avoidHtml;
+                    }
+                    
+                    contextBanner.classList.remove('hidden');
+
+                    strategyEl.innerText = json.data.overall_strategy;
+                    strategyEl.classList.remove('hidden');
+
+                    const categories = json.data.categories || [];
+                    
+                    let tabsHtml = `<button onclick="filterCategory('All')" class="cat-tab px-4 py-1.5 rounded-full text-xs font-bold bg-teal-600 text-white transition">All Categories</button>`;
+                    
+                    if (!document.getElementById('current-routine-container').classList.contains('hidden')) {
+                        tabsHtml += `<button onclick="filterCategory('Current Routine')" class="cat-tab px-4 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">Current Routine</button>`;
+                    }
+                    
+                    tabsHtml += categories.map(c => `<button onclick="filterCategory('${escapeHtml(c.category)}')" class="cat-tab px-4 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">${escapeHtml(c.category)}</button>`).join('');
+                    
+                    tabsContainer.innerHTML = tabsHtml;
+                    tabsContainer.classList.remove('hidden');
+
+                    container.innerHTML = categories.map(cat => renderCategorySection(cat)).join('');
+                    wrapper.classList.remove('hidden');
+                } else {
+                    container.innerHTML = `<div class="p-4 bg-rose-50 text-rose-700 border border-rose-200 rounded-xl text-sm font-semibold">Engine Error: ${json.data.error || 'Failed to fetch recommendations'}</div>`;
+                    wrapper.classList.remove('hidden');
+                }
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = `<div class="p-4 bg-rose-50 text-rose-700 border border-rose-200 rounded-xl text-sm font-semibold">Network error connecting to Product Engine.</div>`;
+                wrapper.classList.remove('hidden');
+            } finally {
+                loader.classList.add('hidden');
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+
+        function renderCategorySection(cat) {
+            const recs = cat.recommendations || [];
+            if (!recs.length && cat.primary_recommendation) {
+                recs.push(cat.primary_recommendation);
+                if (cat.budget_alternative) recs.push(cat.budget_alternative);
+            }
+
+            const badges = ["PRIMARY MATCH", "PREMIUM UPGRADE", "DERMATOLOGIST PICK", "CLINICAL MATCH", "SPECIALTY OPTION"];
+            
+            const cardsHtml = recs.map((prod, idx) => {
+                const badge = badges[idx % badges.length] || "RECOMMENDATION";
+                return buildProductCardHTML(prod, badge);
+            }).join('');
+
+            return `
+                <div data-category="${escapeHtml(cat.category)}" class="product-card-section space-y-3">
+                    <h2 class="font-bold text-slate-800 text-lg flex items-center gap-2 border-b border-slate-200 pb-2">
+                        <i data-lucide="tag" class="w-5 h-5 text-teal-600"></i> ${escapeHtml(cat.category)}
+                    </h2>
+                    <div class="flex overflow-x-auto gap-4 pb-4 snap-x hide-scrollbar px-1">
+                        ${cardsHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        function buildProductCardHTML(prod, badgeText) {
+            const bdown = prod.score_breakdown || {
+                ingredient_safety: Math.round((prod.suitability_score || 80) * 0.4),
+                concern_targeting: Math.round((prod.suitability_score || 80) * 0.4),
+                skin_type_compatibility: Math.round((prod.suitability_score || 80) * 0.2),
+                total_score: prod.suitability_score || 80
+            };
+            
+            const totalScore = bdown.total_score;
+            let barColor = "bg-emerald-500";
+            let textColor = "text-emerald-600";
+            let badgeClass = "bg-teal-600 text-white";
+            
+            if (totalScore < 85) { barColor = "bg-amber-400"; textColor = "text-amber-600"; badgeClass="bg-amber-500 text-white"; }
+            if (totalScore < 70) { barColor = "bg-rose-500"; textColor = "text-rose-600"; badgeClass="bg-rose-500 text-white"; }
+            if (badgeText === "PRIMARY MATCH" || badgeText === "MATCH FOUND!") { badgeClass = "bg-slate-900 text-white"; }
+            
+            const priceVal = prod.price_estimate || prod.price_tier;
+            
+            const fallbackImg = `https://ui-avatars.com/api/?name=${encodeURIComponent(prod.brand)}&background=0D9488&color=fff&size=400&font-size=0.33&bold=true`;
+            const imgUrl = `/api/products/image?q=${encodeURIComponent(prod.brand + ' ' + prod.product_name)}`;
+            
+            const queryStr = (prod.brand || '') + ' ' + (prod.product_name || '');
+            const amazonLink = `https://duckduckgo.com/?q=${encodeURIComponent('!ducky site:amazon.in ' + queryStr)}`;
+            const nykaaLink = `https://duckduckgo.com/?q=${encodeURIComponent('!ducky site:nykaa.com ' + queryStr)}`;
+            const flipkartLink = `https://duckduckgo.com/?q=${encodeURIComponent('!ducky site:flipkart.com ' + queryStr)}`;
+            const myntraLink = `https://duckduckgo.com/?q=${encodeURIComponent('!ducky site:myntra.com ' + queryStr)}`;
+
+            const ethicalBadges = [];
+            if (prod.is_vegan) ethicalBadges.push('<span class="text-[9px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded flex items-center gap-1"><i data-lucide="leaf" class="w-3 h-3"></i> Vegan</span>');
+            if (prod.is_cruelty_free) ethicalBadges.push('<span class="text-[9px] font-bold text-purple-600 bg-purple-50 border border-purple-200 px-1.5 py-0.5 rounded flex items-center gap-1"><i data-lucide="rabbit" class="w-3 h-3"></i> Cruelty-Free</span>');
+
+            const concernTags = (prod.target_concerns || []).map(c => 
+                `<span class="text-[9px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-full flex items-center gap-1"><i data-lucide="target" class="w-2.5 h-2.5"></i> ${escapeHtml(c)}</span>`
+            ).join('');
+
+            const safetyW = bdown.ingredient_safety || 0;
+            const targetingW = bdown.concern_targeting || 0;
+            const synergyW = bdown.skin_type_compatibility || 0;
+
+            return `
+                <div class="shrink-0 w-[22rem] sm:w-[24rem] bg-white border border-slate-200 rounded-2xl flex flex-col justify-between relative transition hover:shadow-lg overflow-hidden group">
+                    <!-- Image Header Banner -->
+                    <div class="h-28 w-full bg-slate-100 relative">
+                        <img src="${imgUrl}" onerror="this.onerror=null; this.src='${fallbackImg}';" referrerpolicy="no-referrer" class="w-full h-full object-contain p-2 bg-white group-hover:scale-105 transition duration-500" alt="${escapeHtml(prod.brand)}">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
+                        <div class="absolute top-0 right-0 ${badgeClass} text-[9px] font-bold px-3 py-1 rounded-bl-xl tracking-wider shadow-md z-10">
+                            ${badgeText}
+                        </div>
+                        <div class="absolute bottom-3 left-4 right-4 text-white z-10 flex justify-between items-end">
+                            <div>
+                                <span class="text-[9px] uppercase tracking-widest font-bold text-white/80 block mb-0.5">${escapeHtml(prod.brand)}</span>
+                                <h3 class="font-extrabold text-white text-sm leading-tight truncate pr-2 shadow-sm">${escapeHtml(prod.product_name)}</h3>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 pt-4 space-y-3 flex-1 bg-white">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-2.5 mb-2">
+                            <span class="font-black text-slate-900 text-lg tracking-tight">${escapeHtml(priceVal)}</span>
+                            <div class="flex flex-col items-end">
+                                <span class="text-xs font-black ${textColor}">${totalScore} / 100</span>
+                                <span class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Clinical Match</span>
+                            </div>
+                        </div>
+
+                        <!-- CLINICAL SCORE BREAKDOWN CHART -->
+                        <div class="space-y-1.5 py-1">
+                            <div class="w-full h-1.5 bg-slate-100 rounded-full flex overflow-hidden">
+                                <div class="bg-emerald-400 h-full" style="width: ${safetyW}%" title="Ingredient Safety: ${safetyW}/40"></div>
+                                <div class="bg-teal-500 h-full" style="width: ${targetingW}%" title="Concern Targeting: ${targetingW}/40"></div>
+                                <div class="bg-indigo-500 h-full" style="width: ${synergyW}%" title="Skin Type Synergy: ${synergyW}/20"></div>
+                            </div>
+                            <div class="flex justify-between text-[8px] font-bold text-slate-500 uppercase tracking-wider">
+                                <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Safety ${safetyW}/40</span>
+                                <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span>Targeting ${targetingW}/40</span>
+                                <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>Synergy ${synergyW}/20</span>
+                            </div>
+                        </div>
+
+                        ${concernTags ? `<div class="flex flex-wrap gap-1.5 pt-0.5">${concernTags}</div>` : ''}
+
+                        <div class="flex flex-wrap gap-1.5">
+                            ${ethicalBadges.join('')}
+                        </div>
+                        
+                        <p class="text-[10px] text-teal-800 font-semibold flex items-center gap-1.5 bg-teal-50 w-fit px-2 py-1 rounded border border-teal-100">
+                            <i data-lucide="flask-conical" class="w-3 h-3 text-teal-600"></i> ${escapeHtml(prod.active_ingredients)}
+                        </p>
+                        
+                        <p class="text-xs text-slate-600 leading-relaxed border-l-2 border-slate-200 pl-3 italic line-clamp-2">
+                            ${escapeHtml(prod.reason_for_recommendation)}
+                        </p>
+                    </div>
+
+                    <div class="p-4 pt-0 bg-white space-y-2.5">
+                        <div class="flex justify-between items-center pb-2">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Sync To DB:</span>
+                            <!-- ⚠️ UPDATE: Safely passing Brand + Name, Actives, and Instructions using Data Attributes -->
+                            <button data-add-prod="${escapeHtml(prod.brand)} ${escapeHtml(prod.product_name)}" data-add-act="${escapeHtml(prod.active_ingredients)}" data-add-inst="${escapeHtml(prod.reason_for_recommendation)}" onclick="handleAddToRoutine(this)" class="px-3 py-1.5 bg-teal-50 hover:bg-teal-600 text-teal-700 hover:text-white border border-teal-200 hover:border-teal-600 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 transition cursor-pointer">
+                                <i data-lucide="plus" class="w-3 h-3"></i> Add to Routine
+                            </button>
+                        </div>
+
+                        <!-- 4-Button Retailer Grid (Smart Redirects) -->
+                        <div class="grid grid-cols-4 gap-1.5 border-t border-slate-100 pt-3">
+                            <a href="${amazonLink}" target="_blank" class="text-center bg-amber-500 hover:bg-amber-600 text-white font-bold py-1.5 rounded-lg text-[9px] transition uppercase tracking-wide shadow-sm">Amazon</a>
+                            <a href="${nykaaLink}" target="_blank" class="text-center bg-rose-500 hover:bg-rose-600 text-white font-bold py-1.5 rounded-lg text-[9px] transition uppercase tracking-wide shadow-sm">Nykaa</a>
+                            <a href="${flipkartLink}" target="_blank" class="text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-1.5 rounded-lg text-[9px] transition uppercase tracking-wide shadow-sm">Flipkart</a>
+                            <a href="${myntraLink}" target="_blank" class="text-center bg-pink-600 hover:bg-pink-700 text-white font-bold py-1.5 rounded-lg text-[9px] transition uppercase tracking-wide shadow-sm">Myntra</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function filterCategory(cat) {
+            document.querySelectorAll('.cat-tab').forEach(btn => {
+                btn.className = "cat-tab px-4 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition";
+                if(btn.innerText.trim() === cat) {
+                    btn.className = "cat-tab px-4 py-1.5 rounded-full text-xs font-bold bg-teal-600 text-white transition";
+                }
+            });
+
+            const sections = document.querySelectorAll('.product-card-section');
+            sections.forEach(section => {
+                if (cat === 'All Categories' || section.getAttribute('data-category') === cat) {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+        }
+
+        // --- Multi-Compare Logic ---
+        let compareInputCount = 2;
+
+        function openCompareModal() {
+            document.getElementById('compare-modal').classList.remove('hidden');
+        }
+
+        function closeCompareModal() {
+            document.getElementById('compare-modal').classList.add('hidden');
+            document.getElementById('compare-results').classList.add('hidden');
+            compareInputCount = 2;
+            document.getElementById('compare-inputs-container').innerHTML = `
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">Product 1</label>
+                    <input type="text" class="comp-prod-input w-full border border-slate-200 rounded-xl p-3 outline-none focus:border-teal-500 bg-slate-50 text-sm font-semibold" placeholder="e.g., CeraVe Cleanser">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">Product 2</label>
+                    <input type="text" class="comp-prod-input w-full border border-slate-200 rounded-xl p-3 outline-none focus:border-teal-500 bg-slate-50 text-sm font-semibold" placeholder="e.g., Minimalist Salicylic Acid">
+                </div>
+            `;
+        }
+
+        function addCompareField() {
+            compareInputCount++;
+            const container = document.getElementById('compare-inputs-container');
+            const newField = document.createElement('div');
+            newField.innerHTML = `
+                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">Product ${compareInputCount}</label>
+                <input type="text" class="comp-prod-input w-full border border-slate-200 rounded-xl p-3 outline-none focus:border-teal-500 bg-slate-50 text-sm font-semibold" placeholder="Add another product...">
+            `;
+            container.appendChild(newField);
+        }
+
+        async function runComparison() {
+            const inputs = document.querySelectorAll('.comp-prod-input');
+            const productNames = Array.from(inputs).map(i => i.value).filter(v => v.trim() !== '');
+            const btn = document.getElementById('btn-run-compare');
+
+            if (productNames.length < 2) { showToast("Enter at least two products to compare.", true); return; }
+
+            btn.disabled = true;
+            btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Analyzing...`;
+            if (window.lucide) lucide.createIcons();
+
+            try {
+                const res = await fetch('/api/products/compare', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ products: productNames, user_email: localStorage.getItem('user_email') || '' })
+                });
+
+                if (res.ok) {
+                    const json = await res.json();
+                    const data = json.data;
+
+                    document.getElementById('comp-winner').innerText = data.winner;
+                    document.getElementById('comp-verdict').innerText = data.clinical_verdict;
+                    
+                    const analysisGrid = document.getElementById('comp-analysis-grid');
+                    analysisGrid.innerHTML = (data.product_analyses || []).map(p => `
+                        <div class="p-4 bg-white border border-slate-200 rounded-xl shadow-sm">
+                            <h4 class="font-bold text-slate-800 mb-2 border-b pb-1">${escapeHtml(p.product_name)}</h4>
+                            <p class="text-slate-600 leading-relaxed">${escapeHtml(p.analysis)}</p>
+                        </div>
+                    `).join('');
+
+                    document.getElementById('compare-results').classList.remove('hidden');
+                } else {
+                    showToast("Failed to run comparison.", true);
+                }
+            } catch (e) {
+                showToast("Network error in Comparison Engine.", true);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i data-lucide="zap" class="w-4 h-4"></i> Run Clinical Comparison`;
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+
+        // --- Dupe Finder Logic ---
+        function openDupeModal() {
+            document.getElementById('dupe-modal').classList.remove('hidden');
+        }
+
+        function closeDupeModal() {
+            document.getElementById('dupe-modal').classList.add('hidden');
+            document.getElementById('dupe-results').classList.add('hidden');
+            document.getElementById('dupe-input').value = "";
+        }
+
+        async function runDupeFinder() {
+            const inputVal = document.getElementById('dupe-input').value;
+            const btn = document.getElementById('btn-run-dupe');
+
+            if (inputVal.trim() === '') { showToast("Enter a luxury product name.", true); return; }
+
+            btn.disabled = true;
+            btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Finding Match...`;
+            if (window.lucide) lucide.createIcons();
+
+            try {
+                const res = await fetch('/api/products/dupe', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ luxury_product: inputVal, user_email: localStorage.getItem('user_email') || '' })
+                });
+
+                if (res.ok) {
+                    const json = await res.json();
+                    const data = json.data;
+
+                    document.getElementById('dupe-explanation').innerText = data.similarity_explanation;
+                    
+                    const container = document.getElementById('dupe-card-container');
+                    container.innerHTML = buildProductCardHTML(data.dupe_recommendation, "MATCH FOUND!");
+
+                    document.getElementById('dupe-results').classList.remove('hidden');
+                    if (window.lucide) lucide.createIcons();
+                } else {
+                    showToast("Failed to find dupe.", true);
+                }
+            } catch (e) {
+                showToast("Network error in Dupe Engine.", true);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i data-lucide="flask-conical" class="w-4 h-4"></i> Find Affordable Match`;
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+
     </script>
 </body>
 </html>
