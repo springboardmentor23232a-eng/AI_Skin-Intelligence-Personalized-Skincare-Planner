@@ -70,6 +70,7 @@ The computational core translates user data (like images and ingredient lists) i
 │   ├── risk_analysis.html
 │   ├── routine_planner.html
 │   └── skin_assessment.html
+│   └── skin_health_scoring.html
 ├── admin.html                      # Root landing page for Admins
 ├── app.py                          # Application backend entry point
 ├── appointments_router.py          # API endpoints for appointments
@@ -82,9 +83,13 @@ The computational core translates user data (like images and ingredient lists) i
 ├── ingredient_router.py            # API endpoints for ingredient lookups
 ├── main.py                         # Secondary or alternative system entry point
 ├── ml_engine.py                    # Core Machine Learning prediction logic
+├── product_router.py               # API endpoints for product recommendation
+├── product_engine.py               # Computational engine for product recommendations
 ├── progress_router.py              # API endpoints for user tracking data
 ├── routine_engine.py               # Computational engine for skin routine builders
 ├── routine_router.py               # API endpoints for user routines
+├── scoring_engine.py               # Computational engine for skin health score
+├── scoring_router.py               # API endpoints for calculating skin health score
 ├── skin_assessment_engine.py       # Core image/data parsing for skin analysis
 ├── train_model.py                  # Script used to re-train the AI/ML weights
 └── user_dashboard.html             # Root landing page for Users
