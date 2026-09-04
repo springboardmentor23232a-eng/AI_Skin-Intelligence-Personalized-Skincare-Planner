@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { GlassCard } from '@/components/ui/GlassCard';
@@ -9,6 +9,7 @@ import { StatCard } from '@/components/dashboard/StatCard';
 import { QuickActionBar } from '@/components/dashboard/QuickActionBar';
 import { TrendBarChart } from '@/components/dashboard/TrendBarChart';
 import { ActivityFeedCard } from '@/components/dashboard/ActivityFeedCard';
+import { API_BASE_URL } from '@/lib/constants';
 import {
   Sparkles,
   Sun,
@@ -21,58 +22,22 @@ import {
   User,
   FlaskConical,
   ShoppingBag,
+  RefreshCw,
+  AlertCircle,
 } from 'lucide-react';
 
 export default function UserOverviewPage() {
-  const {
-  user,
-  isFirstTimeLogin,
-  fetchWithAuth,
-  } = useAuth();
+  const { user, isFirstTimeLogin, fetchWithAuth } = useAuth();
+
   const [latestAssessment, setLatestAssessment] = useState(null);
-const [assessmentLoading, setAssessmentLoading] = useState(true);
-useEffect(() => {
-  const loadLatestAssessment = async () => {
-    try {
-      setAssessmentLoading(true);
+  const [assessmentLoading, setAssessmentLoading] = useState(true);
 
-      const response = await fetchWithAuth(
-        'http://127.0.0.1:8000/assessment/history',
-        {
-          method: 'GET',
-        }
-      );
+  // Module 7: Skin Health Scoring Engine State
+  const [scoringSummary, setScoringSummary] = useState(null);
+  const [scoringLoading, setScoringLoading] = useState(true);
+  const [scoringError, setScoringError] = useState(null);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data?.detail || 'Unable to load assessment data.'
-        );
-      }
-
-      if (Array.isArray(data) && data.length > 0) {
-        const sorted = [...data].sort(
-          (a, b) =>
-            new Date(b.assessment_time) -
-            new Date(a.assessment_time)
-        );
-
-        setLatestAssessment(sorted[0]);
-      }
-    } catch (error) {
-      console.error(
-        'Failed to load latest assessment:',
-        error
-      );
-    } finally {
-      setAssessmentLoading(false);
-    }
-  };
-
-  loadLatestAssessment();
-}, []);
-
+  // Daily Skincare Routine Checklist
   const [checklist, setChecklist] = useState([
     { id: 1, text: 'Gentle Hydrating Cleanser', done: true },
     { id: 2, text: 'Vitamin C Brightening Serum', done: true },
@@ -80,10 +45,94 @@ useEffect(() => {
     { id: 4, text: 'Broad Spectrum SPF 50+ Sunscreen', done: false },
   ]);
 
-  const toggleItem = (id) => {
-    setChecklist((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, done: !item.done } : item))
+  // Load Latest Skin Assessment History
+  useEffect(() => {
+    const loadLatestAssessment = async () => {
+      try {
+        setAssessmentLoading(true);
+        const response = await fetchWithAuth(`${API_BASE_URL}/assessment/history`, {
+          method: 'GET',
+        });
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data?.detail || 'Unable to load assessment data.');
+        }
+
+        if (Array.isArray(data) && data.length > 0) {
+          const sorted = [...data].sort(
+            (a, b) => new Date(b.assessment_time) - new Date(a.assessment_time)
+          );
+          setLatestAssessment(sorted[0]);
+        }
+      } catch (error) {
+        console.error('Failed to load latest assessment:', error);
+      } finally {
+        setAssessmentLoading(false);
+      }
+    };
+
+    loadLatestAssessment();
+  }, [fetchWithAuth]);
+
+  // Module 7: Fetch Weighted Skin Health Score Summary
+  const loadScoringSummary = useCallback(async () => {
+    try {
+      setScoringLoading(true);
+      setScoringError(null);
+      const response = await fetchWithAuth(`${API_BASE_URL}/scoring/summary`, {
+        method: 'GET',
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data?.detail || 'Unable to load scoring summary.');
+      }
+
+      setScoringSummary(data);
+    } catch (error) {
+      console.error('Failed to load scoring summary:', error);
+      setScoringError(error.message || 'Unable to load skin health score.');
+    } finally {
+      setScoringLoading(false);
+    }
+  }, [fetchWithAuth]);
+
+  useEffect(() => {
+    loadScoringSummary();
+  }, [loadScoringSummary]);
+
+  // Toggle Checklist Item & Log Routine Adherence to Backend API
+  const toggleItem = async (id) => {
+    const nextChecklist = checklist.map((item) =>
+      item.id === id ? { ...item, done: !item.done } : item
     );
+    setChecklist(nextChecklist);
+
+    const completedCount = nextChecklist.filter((item) => item.done).length;
+    const totalCount = nextChecklist.length;
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    try {
+      const response = await fetchWithAuth(`${API_BASE_URL}/scoring/adherence/log`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          log_date: todayStr,
+          completed_count: completedCount,
+          total_count: totalCount,
+        }),
+      });
+
+      if (response.ok) {
+        // Silently reload scoring summary to update Routine Consistency factor score
+        loadScoringSummary();
+      }
+    } catch (err) {
+      console.error('Failed to log routine adherence:', err);
+    }
   };
 
   const quickActions = [
@@ -91,12 +140,41 @@ useEffect(() => {
     { label: 'Mark Night Routine Done', icon: Moon },
   ];
 
-  const trendData = [
-    { label: 'Week 1', value: 68 },
-    { label: 'Week 2', value: 72 },
-    { label: 'Week 3', value: 76 },
-    { label: 'Week 4', value: 82 },
-  ];
+  // Dynamic Trend Chart derived from Assessment Trend History or Fallback
+    // Format assessment dates for the progress chart
+  const formatAssessmentDate = (value, index) => {
+    if (!value) {
+      return `Assessment ${index + 1}`;
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return `Assessment ${index + 1}`;
+    }
+
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+    }).format(date);
+  };
+
+  // Dynamic Trend Chart derived from Assessment Trend History or Fallback
+  const trendData =
+    scoringSummary?.assessment_trend?.length > 0
+      ? scoringSummary.assessment_trend.map((item, idx) => ({
+          label: formatAssessmentDate(
+            item.assessment_time ?? item.date ?? item.created_at,
+            idx
+          ),
+          value: item.health_score,
+        }))
+      : [
+          { label: 'Week 1', value: 68 },
+          { label: 'Week 2', value: 72 },
+          { label: 'Week 3', value: 76 },
+          { label: 'Week 4', value: 82 },
+        ];
 
   const userActivities = [
     { title: 'Morning Routine Logged', description: '3 out of 4 steps checked off', time: '8:30 AM' },
@@ -104,300 +182,370 @@ useEffect(() => {
     { title: 'Sun Protection Reminder', description: 'Reapplied SPF 50 sunscreen', time: '2:00 PM' },
   ];
 
+  const overallScoreVal = scoringSummary?.overall_score ?? latestAssessment?.health_score ?? 0;
+  const categoryData = scoringSummary?.category;
+
   return (
-  <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-6">
-    
-    {/* LEFT SIDEBAR NAVIGATION */}
-    <aside className="lg:sticky lg:top-24 lg:self-start">
-      <GlassCard className="p-3 space-y-2">
-        
-        <div className="px-3 py-2 mb-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-            Navigation
-          </p>
+    <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-6">
+      {/* LEFT SIDEBAR NAVIGATION */}
+      <aside className="lg:sticky lg:top-24 lg:self-start">
+        <GlassCard className="p-3 space-y-2">
+          <div className="px-3 py-2 mb-2">
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              Navigation
+            </p>
+          </div>
+
+          <Link
+            to="/dashboard/user"
+            className="flex items-center gap-3 px-3 py-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 transition-all"
+          >
+            <Sparkles className="w-4 h-4" />
+            <span className="text-sm font-medium">Dashboard</span>
+          </Link>
+
+          <Link
+            to="/dashboard/user/assessment"
+            className="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-900/80 border border-transparent hover:border-slate-800 transition-all"
+          >
+            <Sparkles className="w-4 h-4 text-emerald-400" />
+            <span className="text-sm font-medium">Skin Assessment</span>
+          </Link>
+
+          <Link
+            to="/dashboard/user/ingredients"
+            className="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-900/80 border border-transparent hover:border-slate-800 transition-all"
+          >
+            <FlaskConical className="w-4 h-4 text-cyan-400" />
+            <span className="text-sm font-medium">Ingredient Intelligence</span>
+          </Link>
+
+          <Link
+            to="/dashboard/user/products"
+            className="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-900/80 border border-transparent hover:border-slate-800 transition-all"
+          >
+            <ShoppingBag className="w-4 h-4 text-emerald-400" />
+            <span className="text-sm font-medium">Products</span>
+          </Link>
+
+          <Link
+            to="/dashboard/user/routine"
+            className="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-900/80 border border-transparent hover:border-slate-800 transition-all"
+          >
+            <Sun className="w-4 h-4 text-amber-400" />
+            <span className="text-sm font-medium">Routine Planner</span>
+          </Link>
+
+          <Link
+            to="/dashboard/user/progress"
+            className="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-900/80 border border-transparent hover:border-slate-800 transition-all"
+          >
+            <TrendingUp className="w-4 h-4 text-cyan-400" />
+            <span className="text-sm font-medium">Progress Tracker</span>
+          </Link>
+
+          <Link
+            to="/profile"
+            className="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-900/80 border border-transparent hover:border-slate-800 transition-all"
+          >
+            <User className="w-4 h-4 text-emerald-400" />
+            <span className="text-sm font-medium">Profile</span>
+          </Link>
+        </GlassCard>
+      </aside>
+
+      {/* EXISTING DASHBOARD CONTENT */}
+      <div className="space-y-8">
+        {/* 1. WELCOME SECTION */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800/80 pb-6">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
+                {isFirstTimeLogin
+                  ? `Welcome ${user?.name ? user.name.split(' ')[0] : 'User'}`
+                  : `Welcome back, ${user?.name ? user.name.split(' ')[0] : 'User'}`}
+              </h1>
+              <Badge variant="emerald">Module 7 Dashboard</Badge>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-400">
+              Skin Profile:{' '}
+              <span className="text-slate-200 font-medium">
+                {latestAssessment?.predicted_skin_type || user?.skinType || 'Not assessed'}
+              </span>
+              {' • '}
+              Primary Concern:{' '}
+              <span className="text-slate-200 font-medium">
+                {latestAssessment?.vision_predicted_concern || 'Not assessed'}
+              </span>
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <QuickActionBar actions={quickActions} />
+          </div>
         </div>
 
-        <Link
-          to="/dashboard/user"
-          className="flex items-center gap-3 px-3 py-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 transition-all"
-        >
-          <Sparkles className="w-4 h-4" />
-          <span className="text-sm font-medium">Dashboard</span>
-        </Link>
-
-        <Link
-          to="/dashboard/user/assessment"
-          className="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-900/80 border border-transparent hover:border-slate-800 transition-all"
-        >
-          <Sparkles className="w-4 h-4 text-emerald-400" />
-          <span className="text-sm font-medium">Skin Assessment</span>
-        </Link>
-        
-        <Link
-          to="/dashboard/user/ingredients"
-          className="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-900/80 border border-transparent hover:border-slate-800 transition-all"
-        >
-          <FlaskConical className="w-4 h-4 text-cyan-400" />
-          <span className="text-sm font-medium">
-            Ingredient Intelligence
-          </span>
-        </Link>
-
-        <Link
-          to="/dashboard/user/products"
-          className="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-900/80 border border-transparent hover:border-slate-800 transition-all"
-        >
-          <ShoppingBag className="w-4 h-4 text-emerald-400" />
-          <span className="text-sm font-medium">Products</span>
-        </Link>
-
-
-        <Link
-          to="/dashboard/user/routine"
-          className="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-900/80 border border-transparent hover:border-slate-800 transition-all"
-        >
-          <Sun className="w-4 h-4 text-amber-400" />
-          <span className="text-sm font-medium">Routine Planner</span>
-        </Link>
-
-        <Link
-          to="/dashboard/user/progress"
-          className="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-900/80 border border-transparent hover:border-slate-800 transition-all"
-        >
-          <TrendingUp className="w-4 h-4 text-cyan-400" />
-          <span className="text-sm font-medium">Progress Tracker</span>
-        </Link>
-        <Link
-  to="/profile"
-  className="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-900/80 border border-transparent hover:border-slate-800 transition-all"
->
-  <User className="w-4 h-4 text-emerald-400" />
-  <span className="text-sm font-medium">Profile</span>
-</Link>
-      </GlassCard>
-    </aside>
-
-    {/* EXISTING DASHBOARD CONTENT */}
-    <div className="space-y-8">
-      {/* 1. WELCOME SECTION */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800/80 pb-6">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
-              {isFirstTimeLogin ? `Welcome ${user?.name ? user.name.split(' ')[0] : 'User'}` : `Welcome back, ${user?.name ? user.name.split(' ')[0] : 'User'}`}
-            </h1>
-            <Badge variant="emerald">User Prototype Dashboard</Badge>
-          </div>
-          <p className="text-xs sm:text-sm text-slate-400">
-  Skin Profile:{' '}
-  <span className="text-slate-200 font-medium">
-    {latestAssessment?.predicted_skin_type ||
-      user?.skinType ||
-      'Not assessed'}
-  </span>
-
-  {' • '}
-
-  Primary Concern:{' '}
-  <span className="text-slate-200 font-medium">
-    {latestAssessment?.vision_predicted_concern ||
-      'Not assessed'}
-  </span>
-</p>
+        {/* 2. FOUR SUMMARY STATISTIC CARDS */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard
+            title="Overall Skin Score"
+            value={
+              scoringLoading
+                ? '...'
+                : scoringSummary
+                ? `${scoringSummary.overall_score} / 100`
+                : latestAssessment
+                ? `${latestAssessment.health_score} / 100`
+                : 'No Data'
+            }
+            change={
+              categoryData?.label ||
+              latestAssessment?.overall_condition ||
+              'Complete assessment'
+            }
+            trend="up"
+            icon={Sparkles}
+            badgeColor="emerald"
+            description="5-factor weighted AI score"
+          />
+          <StatCard
+            title="Routine Consistency"
+            value={
+              scoringLoading
+                ? '...'
+                : scoringSummary?.breakdown?.routine_consistency !== undefined
+                ? `${scoringSummary.breakdown.routine_consistency}%`
+                : '80%'
+            }
+            change="Trailing 14-day log"
+            trend="up"
+            icon={ShieldCheck}
+            badgeColor="teal"
+            description="20% Weighted Score"
+          />
+          <StatCard
+            title="Hydration Intake"
+            value={
+              scoringLoading
+                ? '...'
+                : scoringSummary?.breakdown?.hydration_level !== undefined
+                ? `${scoringSummary.breakdown.hydration_level} / 100`
+                : '85 / 100'
+            }
+            change="10% Weighted"
+            trend="up"
+            icon={Droplets}
+            badgeColor="cyan"
+            description="Water intake & moisture"
+          />
+          <StatCard
+            title="Active Products"
+            value="4 Items"
+            change="Safe"
+            trend="up"
+            icon={ShieldAlert}
+            badgeColor="violet"
+            description="Sample skincare regimen"
+          />
         </div>
 
-        <div className="flex flex-wrap gap-3">
-          <QuickActionBar actions={quickActions} />
-       </div>
-      </div>
-      {/* 2. FOUR SUMMARY STATISTIC CARDS */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-  title="Overall Skin Score"
-  value={
-    assessmentLoading
-      ? '...'
-      : latestAssessment
-        ? `${latestAssessment.health_score} / 100`
-        : 'No Data'
-  }
-  change={
-    latestAssessment
-      ? latestAssessment.overall_condition
-      : 'Complete assessment'
-  }
-  trend="up"
-  icon={Sparkles}
-  badgeColor="emerald"
-  description="Latest AI assessment score"
-/>
-        <StatCard
-          title="Routine Consistency"
-          value="92%"
-          change="+8%"
-          trend="up"
-          icon={ShieldCheck}
-          badgeColor="teal"
-          description="14-day streak (Sample)"
-        />
-        <StatCard
-          title="Hydration Intake"
-          value="2.4 L / 2.5 L"
-          change="96%"
-          trend="up"
-          icon={Droplets}
-          badgeColor="cyan"
-          description="Daily target tracking"
-        />
-        <StatCard
-          title="Active Products"
-          value="4 Items"
-          change="Safe"
-          trend="up"
-          icon={ShieldAlert}
-          badgeColor="violet"
-          description="Sample skincare regimen"
-        />
-      </div>
-
-      {/* 3. HEALTH SCORE CARD & HEALTH FACTOR BREAKDOWN */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Health Score Card */}
-        <GlassCard glow className="flex flex-col items-center justify-center p-8 text-center space-y-4">
-          <ScoreGauge
-  score={latestAssessment?.health_score || 0}
-  size={180}
-  strokeWidth={14}
-/>
-          <div>
-            <h3 className="text-lg font-bold text-white">Health Score Overview</h3>
-            <p className="text-xs text-slate-400 mt-1">
-  {latestAssessment
-    ? `AI assessment indicates ${latestAssessment.overall_condition || 'your current skin condition'}.`
-    : 'Complete a skin assessment to calculate your health score.'}
-</p>
-          </div>
-        </GlassCard>
-
-        {/* Health Factor Breakdown Metrics */}
-        <GlassCard className="lg:col-span-2 space-y-6">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-emerald-400" /> Health Metrics Breakdown
-            </h3>
-            <span className="text-xs text-slate-400">Prototype Demo Data</span>
-          </div>
-
-          <div className="space-y-4">
-            <div className="space-y-1.5">
-  <div className="flex justify-between text-xs">
-    <span className="text-slate-300 font-medium">
-      Skin Condition Rating
-    </span>
-
-    <span className="text-emerald-400 font-bold">
-      {latestAssessment?.health_score ?? 0} / 100
-    </span>
-  </div>
-
-  <div className="w-full h-2.5 rounded-full bg-slate-800 overflow-hidden">
-    <div
-      className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400"
-      style={{
-        width: `${latestAssessment?.health_score ?? 0}%`,
-      }}
-    ></div>
-  </div>
-</div>
-
-            <div className="space-y-1.5">
-              <div className="flex justify-between text-xs">
-                <span className="text-slate-300 font-medium">Lifestyle Habits Score</span>
-                <span className="text-cyan-400 font-bold">78 / 100</span>
-              </div>
-              <div className="w-full h-2.5 rounded-full bg-slate-800 overflow-hidden">
-                <div className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-400" style={{ width: '78%' }}></div>
-              </div>
+        {/* Non-blocking scoring error alert banner */}
+        {scoringError && !scoringSummary && (
+          <GlassCard className="p-3 bg-amber-950/30 border-amber-500/30 flex items-center justify-between text-xs text-amber-300">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 text-amber-400" />
+              <span>{scoringError} Complete an assessment to see your full scoring engine breakdown.</span>
             </div>
+            <Button size="sm" onClick={loadScoringSummary} className="bg-amber-500/20 text-amber-300 hover:bg-amber-500/30">
+              <RefreshCw className="w-3 h-3 mr-1" /> Retry
+            </Button>
+          </GlassCard>
+        )}
 
-            <div className="space-y-1.5">
-              <div className="flex justify-between text-xs">
-                <span className="text-slate-300 font-medium">Routine Consistency</span>
-                <span className="text-teal-400 font-bold">90 / 100</span>
-              </div>
-              <div className="w-full h-2.5 rounded-full bg-slate-800 overflow-hidden">
-                <div className="h-full rounded-full bg-gradient-to-r from-teal-500 to-emerald-400" style={{ width: '90%' }}></div>
-              </div>
+        {/* 3. HEALTH SCORE CARD & HEALTH FACTOR BREAKDOWN */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Health Score Card */}
+          <GlassCard glow className="flex flex-col items-center justify-center p-8 text-center space-y-4">
+            <ScoreGauge score={overallScoreVal} size={180} strokeWidth={14} />
+            <div>
+              <h3 className="text-lg font-bold text-white">Health Score Overview</h3>
+              <p className="text-xs text-slate-400 mt-1">
+                {scoringSummary
+                  ? `Skin Health Category: ${scoringSummary.category?.label}`
+                  : latestAssessment
+                  ? `AI assessment indicates ${latestAssessment.overall_condition || 'your skin health condition'}.`
+                  : 'Complete a skin assessment to calculate your health score.'}
+              </p>
+              {categoryData && (
+                <div className="mt-3">
+                  <Badge variant="emerald" className={`px-3 py-1 font-bold text-xs ${categoryData.badge_class}`}>
+                    {categoryData.label}
+                  </Badge>
+                </div>
+              )}
             </div>
+          </GlassCard>
 
-            <div className="space-y-1.5">
-              <div className="flex justify-between text-xs">
-                <span className="text-slate-300 font-medium">Sleep Quality Score</span>
-                <span className="text-violet-400 font-bold">70 / 100</span>
-              </div>
-              <div className="w-full h-2.5 rounded-full bg-slate-800 overflow-hidden">
-                <div className="h-full rounded-full bg-gradient-to-r from-violet-500 to-purple-400" style={{ width: '70%' }}></div>
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <div className="flex justify-between text-xs">
-                <span className="text-slate-300 font-medium">Hydration Level</span>
-                <span className="text-sky-400 font-bold">85 / 100</span>
-              </div>
-              <div className="w-full h-2.5 rounded-full bg-slate-800 overflow-hidden">
-                <div className="h-full rounded-full bg-gradient-to-r from-sky-500 to-cyan-400" style={{ width: '85%' }}></div>
-              </div>
-            </div>
-          </div>
-        </GlassCard>
-      </div>
-
-      {/* 4. PROGRESS CHART, DAILY ROUTINE CHECKLIST & 5. ACTIVITY LOG */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          {/* Progress Chart */}
-          <TrendBarChart title="Monthly Progress Trend" badge="Demo Chart" data={trendData} height={190} />
-
-          {/* Daily Routine Checklist */}
-          <GlassCard className="space-y-4">
+          {/* Health Factor Breakdown Metrics */}
+          <GlassCard className="lg:col-span-2 space-y-6">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <Sun className="w-5 h-5 text-amber-400" /> Daily Skincare Routine Checklist
+                <Sparkles className="w-5 h-5 text-emerald-400" /> Health Metrics Breakdown
               </h3>
-              <Badge variant="amber">
-                {checklist.filter((i) => i.done).length} / {checklist.length} Completed
-              </Badge>
+              <span className="text-xs font-semibold text-emerald-400">
+                5-Factor Scoring Model
+              </span>
             </div>
 
-            <div className="space-y-2.5 text-xs">
-              {checklist.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => toggleItem(item.id)}
-                  className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all text-left ${
-                    item.done
-                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
-                      : 'bg-slate-900/80 border-slate-800 text-slate-300 hover:border-slate-700'
-                  }`}
-                >
-                  <span className={item.done ? 'line-through opacity-80' : ''}>{item.text}</span>
-                  <CheckCircle2
-                    className={`w-4 h-4 transition-transform ${
-                      item.done ? 'text-emerald-400 scale-110' : 'text-slate-600'
-                    }`}
-                  />
-                </button>
-              ))}
+            <div className="space-y-4">
+              {/* 1. Skin Condition Assessment (35%) */}
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-xs">
+                  <span className="text-slate-300 font-medium">
+                    Skin Condition Assessment <span className="text-slate-500">(35%)</span>
+                  </span>
+                  <span className="text-emerald-400 font-bold">
+                    {scoringSummary?.breakdown?.skin_condition ?? latestAssessment?.health_score ?? 0} / 100
+                  </span>
+                </div>
+                <div className="w-full h-2.5 rounded-full bg-slate-800 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-500"
+                    style={{
+                      width: `${scoringSummary?.breakdown?.skin_condition ?? latestAssessment?.health_score ?? 0}%`,
+                    }}
+                  ></div>
+                </div>
+              </div>
+
+              {/* 2. Lifestyle Habits (20%) */}
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-xs">
+                  <span className="text-slate-300 font-medium">
+                    Lifestyle Habits Score <span className="text-slate-500">(20%)</span>
+                  </span>
+                  <span className="text-cyan-400 font-bold">
+                    {scoringSummary?.breakdown?.lifestyle_habits ?? 75} / 100
+                  </span>
+                </div>
+                <div className="w-full h-2.5 rounded-full bg-slate-800 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-400 transition-all duration-500"
+                    style={{
+                      width: `${scoringSummary?.breakdown?.lifestyle_habits ?? 75}%`,
+                    }}
+                  ></div>
+                </div>
+              </div>
+
+              {/* 3. Routine Consistency (20%) */}
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-xs">
+                  <span className="text-slate-300 font-medium">
+                    Routine Consistency <span className="text-slate-500">(20%)</span>
+                  </span>
+                  <span className="text-teal-400 font-bold">
+                    {scoringSummary?.breakdown?.routine_consistency ?? 80} / 100
+                  </span>
+                </div>
+                <div className="w-full h-2.5 rounded-full bg-slate-800 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-teal-500 to-emerald-400 transition-all duration-500"
+                    style={{
+                      width: `${scoringSummary?.breakdown?.routine_consistency ?? 80}%`,
+                    }}
+                  ></div>
+                </div>
+              </div>
+
+              {/* 4. Sleep Quality (15%) */}
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-xs">
+                  <span className="text-slate-300 font-medium">
+                    Sleep Quality Score <span className="text-slate-500">(15%)</span>
+                  </span>
+                  <span className="text-violet-400 font-bold">
+                    {scoringSummary?.breakdown?.sleep_quality ?? 70} / 100
+                  </span>
+                </div>
+                <div className="w-full h-2.5 rounded-full bg-slate-800 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-violet-500 to-purple-400 transition-all duration-500"
+                    style={{
+                      width: `${scoringSummary?.breakdown?.sleep_quality ?? 70}%`,
+                    }}
+                  ></div>
+                </div>
+              </div>
+
+              {/* 5. Hydration Level (10%) */}
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-xs">
+                  <span className="text-slate-300 font-medium">
+                    Hydration Level <span className="text-slate-500">(10%)</span>
+                  </span>
+                  <span className="text-sky-400 font-bold">
+                    {scoringSummary?.breakdown?.hydration_level ?? 70} / 100
+                  </span>
+                </div>
+                <div className="w-full h-2.5 rounded-full bg-slate-800 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-sky-500 to-cyan-400 transition-all duration-500"
+                    style={{
+                      width: `${scoringSummary?.breakdown?.hydration_level ?? 70}%`,
+                    }}
+                  ></div>
+                </div>
+              </div>
             </div>
           </GlassCard>
         </div>
 
-        {/* Activity Log */}
-        <ActivityFeedCard title="Sample Activity Log" activities={userActivities} />
+        {/* 4. PROGRESS CHART, DAILY ROUTINE CHECKLIST & 5. ACTIVITY LOG */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            {/* Progress Chart */}
+            <TrendBarChart title="Assessment History Progress Trend" badge="Health Score History" data={trendData} height={190} />
+
+            {/* Daily Routine Checklist */}
+            <GlassCard className="space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <Sun className="w-5 h-5 text-amber-400" /> Daily Skincare Routine Checklist
+                </h3>
+                <Badge variant="amber">
+                  {checklist.filter((i) => i.done).length} / {checklist.length} Completed
+                </Badge>
+              </div>
+
+              <div className="space-y-2.5 text-xs">
+                {checklist.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => toggleItem(item.id)}
+                    className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all text-left ${
+                      item.done
+                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                        : 'bg-slate-900/80 border-slate-800 text-slate-300 hover:border-slate-700'
+                    }`}
+                  >
+                    <span className={item.done ? 'line-through opacity-80' : ''}>{item.text}</span>
+                    <CheckCircle2
+                      className={`w-4 h-4 transition-transform ${
+                        item.done ? 'text-emerald-400 scale-110' : 'text-slate-600'
+                      }`}
+                    />
+                  </button>
+                ))}
+              </div>
+            </GlassCard>
+          </div>
+
+          {/* Activity Log */}
+          <ActivityFeedCard title="Sample Activity Log" activities={userActivities} />
+        </div>
       </div>
     </div>
-  </div>
   );
 }
 

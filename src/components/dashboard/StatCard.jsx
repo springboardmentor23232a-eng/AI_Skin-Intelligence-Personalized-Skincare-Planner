@@ -7,15 +7,17 @@ export function StatCard({ title, value, change, trend = 'up', icon: Icon, badge
 
   return (
     <GlassCard className="space-y-3 flex flex-col justify-between">
-      <div className="flex items-start justify-between">
-        <div className="space-y-1">
+      <div className="flex items-start justify-between gap-2">
+        <div className="space-y-1.5 min-w-0 flex-1">
           <span className="text-xs font-semibold text-slate-400 block">{title}</span>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">{value}</span>
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white tracking-tight whitespace-nowrap">
+              {value}
+            </span>
             {change && (
               <span
                 className={cn(
-                  'text-xs font-bold px-1.5 py-0.5 rounded-md border',
+                  'text-xs font-bold px-1.5 py-0.5 rounded-md border shrink-0 whitespace-nowrap',
                   isPositive
                     ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
                     : 'bg-rose-500/10 text-rose-400 border-rose-500/30'

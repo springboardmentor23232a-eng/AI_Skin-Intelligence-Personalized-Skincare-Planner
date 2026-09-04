@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Float
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Float, Date
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.sql import func
 from app.database import Base
@@ -38,7 +38,6 @@ class Assessment(Base):
     humidity = Column(Float, nullable=True)
     temperature = Column(Float, nullable=True)
 
-# Lifestyle & personalization inputs
     # Lifestyle & personalization inputs
     sleep_hours = Column(Float, nullable=True)
     sleep_quality = Column(String, nullable=True)
@@ -90,6 +89,35 @@ class Routine(Base):
 
     # Stores the complete generated/customized routine
     routine_data = Column(JSONB, nullable=False)
+
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False
+    )
+
+    updated_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False
+    )
+
+class RoutineLog(Base):
+    __tablename__ = "routine_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    user_id = Column(
+        Integer,
+        ForeignKey("users.id"),
+        nullable=False,
+        index=True
+    )
+
+    log_date = Column(Date, nullable=False, index=True)
+    completed_count = Column(Integer, nullable=False, default=0)
+    total_count = Column(Integer, nullable=False, default=0)
 
     created_at = Column(
         DateTime(timezone=True),

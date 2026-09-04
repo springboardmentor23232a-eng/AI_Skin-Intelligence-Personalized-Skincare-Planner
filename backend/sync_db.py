@@ -1,5 +1,5 @@
 from app.database import engine, Base
-from app.models import User
+from app.models import User, RoutineLog
 from sqlalchemy import inspect, text
 
 def sync_database():
