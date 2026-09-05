@@ -78,23 +78,30 @@
 
             <!-- Score Cards -->
             <div class="stats-grid">
-                <div class="stat-card">
+                <div class="stat-card" style="grid-column: span 2;">
                     <div class="stat-icon">🌟</div>
-                    <div class="stat-value" id="dashboardHealthScore">--</div>
-                    <div class="stat-label">Skin Health Score</div>
-                    <div class="tag" style="margin-top: 8px;">Based on latest assessment</div>
+                    <div class="stat-value" id="dashboardOverallHealthScore">--</div>
+                    <div class="stat-label">Overall Skin Health Score</div>
+                    <div class="tag" style="margin-top: 8px;" id="dashboardScoreCategory">Complete assessment</div>
+                    <div id="dashboardScoreTrend" style="font-size: 0.8rem; color: var(--muted); margin-top: 4px;"></div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon">💧</div>
-                    <div class="stat-value" id="dashboardHydrationScore">--</div>
-                    <div class="stat-label">Hydration Score</div>
-                    <div class="tag" style="margin-top: 8px;">Based on water intake</div>
+                    <div class="stat-icon">�</div>
+                    <div class="stat-value" id="dashboardComponentScores">--</div>
+                    <div class="stat-label">Component Scores</div>
+                    <div class="tag" style="margin-top: 8px;">View breakdown</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon">🎯</div>
-                    <div class="stat-value" id="dashboardPriorityScore">--</div>
-                    <div class="stat-label">Priority Level</div>
-                    <div class="tag warn" style="margin-top: 8px;" id="dashboardPriorityText">Complete assessment</div>
+            </div>
+
+            <!-- Component Score Breakdown -->
+            <div class="card" style="margin-top: 28px;" id="componentBreakdownCard">
+                <h3>📊 Skin Health Score Breakdown</h3>
+                <p style="color: var(--muted); margin-bottom: 16px;">Complete a skin assessment to see your comprehensive score breakdown</p>
+                <div id="componentScoresContainer">
+                    <div class="loading-spinner">
+                        <div class="spinner"></div>
+                        <p>Loading component scores...</p>
+                    </div>
                 </div>
             </div>
 
@@ -458,6 +465,36 @@
         .tracking-btn:hover {
             background: var(--accent-2);
         }
+
+        .component-score-card {
+            padding: 16px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(36, 48, 65, 0.08);
+        }
+        .component-label {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-bottom: 8px;
+        }
+        .component-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+        .component-bar {
+            height: 8px;
+            background: rgba(36, 48, 65, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .component-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
     </style>
 
     <script>
@@ -493,6 +530,75 @@
                 document.getElementById('userName').textContent = user.name || 'User';
                 document.getElementById('userAvatar').textContent = (user.name || 'U').charAt(0).toUpperCase();
                 document.getElementById('userRole').textContent = user.role || 'User';
+                return user; // Return user object for use in other functions
+            }
+            return null;
+        }
+
+        // Get current user ID
+        function getCurrentUserId() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser) {
+                const user = JSON.parse(currentUser);
+                return user.id || user._id || user.email; // Try different ID fields
+            }
+            return 'demo_user'; // Fallback for testing
+        }
+
+        // Update dashboard with comprehensive score from database
+        function updateDashboardWithComprehensiveScore(profile) {
+            const overallScoreEl = document.getElementById('dashboardOverallHealthScore');
+            const categoryEl = document.getElementById('dashboardScoreCategory');
+            const trendEl = document.getElementById('dashboardScoreTrend');
+            const container = document.getElementById('componentScoresContainer');
+            
+            if (profile.comprehensive_score_value) {
+                overallScoreEl.textContent = profile.comprehensive_score_value.toFixed(1) + '/100';
+                categoryEl.textContent = profile.comprehensive_category || 'Good';
+                trendEl.textContent = '➡️ Latest score';
+                
+                // Display component breakdown
+                if (profile.comprehensive_components) {
+                    container.innerHTML = `
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 16px;">
+                            <div class="component-score-card">
+                                <div class="component-label">Skin Condition (35%)</div>
+                                <div class="component-value">${profile.comprehensive_components.condition?.toFixed(1) || 0}/100</div>
+                                <div class="component-bar">
+                                    <div class="component-bar-fill" style="width: ${profile.comprehensive_components.condition || 0}%"></div>
+                                </div>
+                            </div>
+                            <div class="component-score-card">
+                                <div class="component-label">Lifestyle (20%)</div>
+                                <div class="component-value">${profile.comprehensive_components.lifestyle?.toFixed(1) || 0}/100</div>
+                                <div class="component-bar">
+                                    <div class="component-bar-fill" style="width: ${profile.comprehensive_components.lifestyle || 0}%"></div>
+                                </div>
+                            </div>
+                            <div class="component-score-card">
+                                <div class="component-label">Sleep Quality (15%)</div>
+                                <div class="component-value">${profile.comprehensive_components.sleep?.toFixed(1) || 0}/100</div>
+                                <div class="component-bar">
+                                    <div class="component-bar-fill" style="width: ${profile.comprehensive_components.sleep || 0}%"></div>
+                                </div>
+                            </div>
+                            <div class="component-score-card">
+                                <div class="component-label">Routine Consistency (20%)</div>
+                                <div class="component-value">${profile.comprehensive_components.routine?.toFixed(1) || 0}/100</div>
+                                <div class="component-bar">
+                                    <div class="component-bar-fill" style="width: ${profile.comprehensive_components.routine || 0}%"></div>
+                                </div>
+                            </div>
+                            <div class="component-score-card">
+                                <div class="component-label">Hydration (10%)</div>
+                                <div class="component-value">${profile.comprehensive_components.hydration?.toFixed(1) || 0}/100</div>
+                                <div class="component-bar">
+                                    <div class="component-bar-fill" style="width: ${profile.comprehensive_components.hydration || 0}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
             }
         }
 
@@ -506,11 +612,34 @@
                         'Authorization': `Bearer ${token}`
                     }
                 });
-                
+
                 if (response.ok) {
-                    const profiles = await response.json();
+                    const profileResponse = await response.json();
+                    const profiles = profileResponse.profile ? [profileResponse.profile] : [];
                     if (profiles.length > 0) {
                         const latestProfile = profiles[0];
+                        
+                        // If profile has comprehensive score data, use it for the dashboard
+                        if (latestProfile.comprehensive_score_value) {
+                            updateDashboardWithComprehensiveScore(latestProfile);
+                        } else {
+                            // Show "no data" message for comprehensive score section
+                            const overallScoreEl = document.getElementById('dashboardOverallHealthScore');
+                            const categoryEl = document.getElementById('dashboardScoreCategory');
+                            const trendEl = document.getElementById('dashboardScoreTrend');
+                            const componentContainer = document.getElementById('componentScoresContainer');
+                            
+                            overallScoreEl.textContent = '--';
+                            categoryEl.textContent = 'No data';
+                            trendEl.textContent = '';
+                            componentContainer.innerHTML = `
+                                <div style="text-align: center; padding: 20px; color: var(--muted);">
+                                    <p>No comprehensive score available.</p>
+                                    <p style="font-size: 0.85rem;">Complete a skin assessment to generate your comprehensive score.</p>
+                                </div>
+                            `;
+                        }
+                        
                         container.innerHTML = `
                             <div class="card" style="margin-bottom: 16px;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
@@ -538,6 +667,20 @@
                         container.innerHTML = `
                             <div class="no-assessments">
                                 <p>No assessments yet. <a href="skin_profile.html" style="color: var(--accent);">Complete your first assessment</a></p>
+                            </div>
+                        `;
+                        
+                        // Clear comprehensive score section when no assessments
+                        const overallScoreEl = document.getElementById('dashboardOverallHealthScore');
+                        const categoryEl = document.getElementById('dashboardScoreCategory');
+                        const componentContainer = document.getElementById('componentScoresContainer');
+                        
+                        overallScoreEl.textContent = '--';
+                        categoryEl.textContent = 'No data';
+                        componentContainer.innerHTML = `
+                            <div style="text-align: center; padding: 20px; color: var(--muted);">
+                                <p>No comprehensive score available.</p>
+                                <p style="font-size: 0.85rem;">Complete a skin assessment to generate your comprehensive score.</p>
                             </div>
                         `;
                     }
@@ -618,6 +761,239 @@
             } catch (error) {
                 console.error('Error loading recommendations:', error);
                 container.innerHTML = `<p style="color: var(--muted);">Unable to load recommendations.</p>`;
+            }
+        }
+
+        
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Update overall score display
+                    overallScoreEl.textContent = data.overall_score.toFixed(1) + '/100';
+                    categoryEl.textContent = data.category;
+                    
+                    // Update trend if available
+                    if (data.improvement && data.improvement.trend) {
+                        const trendEmoji = data.improvement.trend === 'Improving' ? '📈' : 
+                                          data.improvement.trend === 'Declining' ? '📉' : '➡️';
+                        trendEl.textContent = `${trendEmoji} ${data.improvement.trend}`;
+                        if (data.improvement.percentage_change) {
+                            trendEl.textContent += ` (${data.improvement.percentage_change.toFixed(1)}%)`;
+                        }
+                    }
+                    
+                    // Display component scores
+                    container.innerHTML = `
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 16px;">
+                            <div class="component-score-card">
+                                <div class="component-label">Skin Condition (35%)</div>
+                                <div class="component-value">${data.components.condition.toFixed(1)}/100</div>
+                                <div class="component-bar">
+                                    <div class="component-bar-fill" style="width: ${data.components.condition}%"></div>
+                                </div>
+                            </div>
+                            <div class="component-score-card">
+                                <div class="component-label">Lifestyle (20%)</div>
+                                <div class="component-value">${data.components.lifestyle.toFixed(1)}/100</div>
+                                <div class="component-bar">
+                                    <div class="component-bar-fill" style="width: ${data.components.lifestyle}%"></div>
+                                </div>
+                            </div>
+                            <div class="component-score-card">
+                                <div class="component-label">Sleep Quality (15%)</div>
+                                <div class="component-value">${data.components.sleep.toFixed(1)}/100</div>
+                                <div class="component-bar">
+                                    <div class="component-bar-fill" style="width: ${data.components.sleep}%"></div>
+                                </div>
+                            </div>
+                            <div class="component-score-card">
+                                <div class="component-label">Routine Consistency (20%)</div>
+                                <div class="component-value">${data.components.routine.toFixed(1)}/100</div>
+                                <div class="component-bar">
+                                    <div class="component-bar-fill" style="width: ${data.components.routine}%"></div>
+                                </div>
+                            </div>
+                            <div class="component-score-card">
+                                <div class="component-label">Hydration (10%)</div>
+                                <div class="component-value">${data.components.hydration.toFixed(1)}/100</div>
+                                <div class="component-bar">
+                                    <div class="component-bar-fill" style="width: ${data.components.hydration}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Add CSS for component score cards
+                    if (!document.getElementById('componentScoreStyles')) {
+                        const style = document.createElement('style');
+                        style.id = 'componentScoreStyles';
+                        style.textContent = `
+                            .component-score-card {
+                                padding: 16px;
+                                border-radius: 12px;
+                                background: rgba(255, 255, 255, 0.7);
+                                border: 1px solid rgba(36, 48, 65, 0.08);
+                            }
+                            .component-label {
+                                font-size: 0.85rem;
+                                color: var(--muted);
+                                margin-bottom: 8px;
+                            }
+                            .component-value {
+                                font-size: 1.5rem;
+                                font-weight: 700;
+                                color: var(--accent);
+                                margin-bottom: 8px;
+                            }
+                            .component-bar {
+                                height: 8px;
+                                background: rgba(36, 48, 65, 0.1);
+                                border-radius: 4px;
+                                overflow: hidden;
+                            }
+                            .component-bar-fill {
+                                height: 100%;
+                                background: linear-gradient(90deg, var(--accent), var(--accent-2));
+                                border-radius: 4px;
+                                transition: width 0.3s ease;
+                            }
+                        `;
+                        document.head.appendChild(style);
+                    }
+                    
+                } else if (response.status === 404) {
+                    // No score exists yet - show message
+                    console.log('No score found for user:', userId);
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 20px; color: var(--muted);">
+                            <p>No skin health scores available yet.</p>
+                            <p style="font-size: 0.85rem;">Complete a skin assessment to generate your scores.</p>
+                        </div>
+                    `;
+                    overallScoreEl.textContent = '--';
+                    categoryEl.textContent = 'No data';
+                } else {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 20px; color: var(--muted);">
+                            <p>No skin health scores available yet.</p>
+                            <p style="font-size: 0.85rem;">Complete a skin assessment to generate your scores.</p>
+                        </div>
+                    `;
+                    overallScoreEl.textContent = '--';
+                    categoryEl.textContent = 'No data';
+                }
+
+                        if (createResponse.ok) {
+                            const data = await createResponse.json();
+                            overallScoreEl.textContent = data.overall_score.toFixed(1) + '/100';
+                            categoryEl.textContent = data.category;
+                            trendEl.textContent = '➡️ New score';
+                            
+                            container.innerHTML = `
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 16px;">
+                                    <div class="component-score-card">
+                                        <div class="component-label">Skin Condition (35%)</div>
+                                        <div class="component-value">${data.components.condition.toFixed(1)}/100</div>
+                                        <div class="component-bar">
+                                            <div class="component-bar-fill" style="width: ${data.components.condition}%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="component-score-card">
+                                        <div class="component-label">Lifestyle (20%)</div>
+                                        <div class="component-value">${data.components.lifestyle.toFixed(1)}/100</div>
+                                        <div class="component-bar">
+                                            <div class="component-bar-fill" style="width: ${data.components.lifestyle}%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="component-score-card">
+                                        <div class="component-label">Sleep Quality (15%)</div>
+                                        <div class="component-value">${data.components.sleep.toFixed(1)}/100</div>
+                                        <div class="component-bar">
+                                            <div class="component-bar-fill" style="width: ${data.components.sleep}%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="component-score-card">
+                                        <div class="component-label">Routine Consistency (20%)</div>
+                                        <div class="component-value">${data.components.routine.toFixed(1)}/100</div>
+                                        <div class="component-bar">
+                                            <div class="component-bar-fill" style="width: ${data.components.routine}%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="component-score-card">
+                                        <div class="component-label">Hydration (10%)</div>
+                                        <div class="component-value">${data.components.hydration.toFixed(1)}/100</div>
+                                        <div class="component-bar">
+                                            <div class="component-bar-fill" style="width: ${data.components.hydration}%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            
+                            // Add CSS if not already added
+                            if (!document.getElementById('componentScoreStyles')) {
+                                const style = document.createElement('style');
+                                style.id = 'componentScoreStyles';
+                                style.textContent = `
+                                    .component-score-card {
+                                        padding: 16px;
+                                        border-radius: 12px;
+                                        background: rgba(255, 255, 255, 0.7);
+                                        border: 1px solid rgba(36, 48, 65, 0.08);
+                                    }
+                                    .component-label {
+                                        font-size: 0.85rem;
+                                        color: var(--muted);
+                                        margin-bottom: 8px;
+                                    }
+                                    .component-value {
+                                        font-size: 1.5rem;
+                                        font-weight: 700;
+                                        color: var(--accent);
+                                        margin-bottom: 8px;
+                                    }
+                                    .component-bar {
+                                        height: 8px;
+                                        background: rgba(36, 48, 65, 0.1);
+                                        border-radius: 4px;
+                                        overflow: hidden;
+                                    }
+                                    .component-bar-fill {
+                                        height: 100%;
+                                        background: linear-gradient(90deg, var(--accent), var(--accent-2));
+                                        border-radius: 4px;
+                                        transition: width 0.3s ease;
+                                    }
+                                `;
+                                document.head.appendChild(style);
+                            }
+                        }
+                    } catch (createError) {
+                        console.error('Error creating demo score:', createError);
+                        container.innerHTML = `
+                            <div style="text-align: center; padding: 20px; color: var(--muted);">
+                                <p>No skin health scores available yet.</p>
+                                <p style="font-size: 0.85rem;">Complete an assessment to generate your scores.</p>
+                            </div>
+                        `;
+                        overallScoreEl.textContent = '--';
+                        categoryEl.textContent = 'No data';
+                    }
+                } else {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 20px; color: var(--muted);">
+                            <p>No skin health scores available yet.</p>
+                            <p style="font-size: 0.85rem;">Complete an assessment to generate your scores.</p>
+                        </div>
+                    `;
+                    overallScoreEl.textContent = '--';
+                    categoryEl.textContent = 'No data';
+                }
+            } catch (error) {
+                console.error('Error loading skin health scores:', error);
+                container.innerHTML = `<p style="color: var(--muted);">Unable to load skin health scores.</p>`;
+                overallScoreEl.textContent = '--';
+                categoryEl.textContent = 'Error';
             }
         }
 

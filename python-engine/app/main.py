@@ -9,6 +9,7 @@ from app.routes.product_recommendation.product_recommendation import router as p
 from app.routes.progress_tracking.progress_tracking import router as progress_tracking_router
 from app.routes.analytics.analytics import router as analytics_router
 from app.routes.ml_recommendations import router as ml_recommendations_router
+from app.routes.skin_health import router as skin_health_router
 
 # Create FastAPI app
 app = FastAPI(
@@ -35,6 +36,7 @@ app.include_router(product_recommendation_router, prefix="/api", tags=["product-
 app.include_router(progress_tracking_router, prefix="/api", tags=["progress-tracking"])
 app.include_router(analytics_router, prefix="/api", tags=["analytics"])
 app.include_router(ml_recommendations_router, prefix="/api", tags=["ml-recommendations"])
+app.include_router(skin_health_router, prefix="/api", tags=["skin-health"])
 
 # Startup event - Initialize database
 @app.on_event("startup")

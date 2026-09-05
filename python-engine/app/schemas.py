@@ -346,3 +346,46 @@ class DashboardResponse(BaseModel):
     quick_stats: dict
     personalized_insights: List[str]
     recommended_actions: List[str]
+
+# Skin Health Scoring Schemas
+class SkinHealthScoreRequest(BaseModel):
+    user_id: str
+    assessment_id: Optional[str] = None
+    # Component data for calculation
+    condition_data: Optional[dict] = None  # Skin assessment data
+    lifestyle_data: Optional[dict] = None  # Lifestyle factors
+    sleep_data: Optional[dict] = None  # Sleep tracking data
+    routine_data: Optional[dict] = None  # Routine adherence data
+    hydration_data: Optional[dict] = None  # Hydration tracking data
+
+class ComponentScores(BaseModel):
+    condition: float
+    lifestyle: float
+    sleep: float
+    routine: float
+    hydration: float
+
+class ImprovementMetrics(BaseModel):
+    absolute_change: Optional[float] = None
+    percentage_change: Optional[float] = None
+    trend: Optional[str] = None  # Improving, Stable, Declining
+
+class SkinHealthScoreResponse(BaseModel):
+    id: str
+    user_id: str
+    assessment_id: Optional[str] = None
+    overall_score: float
+    category: str
+    components: ComponentScores
+    improvement: ImprovementMetrics
+    calculation_details: Optional[dict] = None
+    is_complete: Optional[bool] = False
+    created_at: datetime
+
+class SkinHealthScoreHistoryResponse(BaseModel):
+    user_id: str
+    scores: List[SkinHealthScoreResponse]
+    total_count: int
+    average_score: Optional[float] = None
+    best_score: Optional[float] = None
+    worst_score: Optional[float] = None

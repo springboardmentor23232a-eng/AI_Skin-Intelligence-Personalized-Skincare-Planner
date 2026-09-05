@@ -29,6 +29,8 @@ const upload = multer({
 
 // Python API base URL
 const PYTHON_API_URL = 'http://localhost:8001/api';
+console.log('=== ROUTE FILE LOADED V2 ===');
+console.log('PYTHON_API_URL:', PYTHON_API_URL);
 
 // Add CORS headers to all responses
 router.use((req, res, next) => {
@@ -182,6 +184,94 @@ router.get('/classifier-info', async (req, res) => {
     } catch (error) {
         console.error('Error calling Python API:', error.message);
         res.status(500).json({ error: 'Failed to get classifier info' });
+    }
+});
+
+// Skin Health Scoring Routes
+// Calculate comprehensive skin health score
+router.post('/skin-health/calculate', async (req, res) => {
+    try {
+        console.log('=== CALCULATE ENDPOINT CALLED ===');
+        console.log('Received skin health score calculation request:', req.body);
+        // Hardcoded URL to avoid caching issues
+        const targetUrl = 'http://localhost:8001/api/skin-health/calculate';
+        console.log('Full URL:', targetUrl);
+        const response = await axios.post(targetUrl, req.body);
+        console.log('Python API response:', response.data);
+        res.json(response.data);
+    } catch (error) {
+        console.error('=== ERROR IN CALCULATE ===');
+        console.error('Error calling Python API:', error.message);
+        console.error('Error code:', error.code);
+        console.error('Error config:', error.config);
+        if (error.response) {
+            console.error('Python API error response:', error.response.data);
+            res.status(error.response.status).json(error.response.data);
+        } else {
+            res.status(500).json({ error: 'Failed to calculate skin health score: ' + error.message });
+        }
+    }
+});
+
+// Get current skin health score
+router.get('/skin-health/current', async (req, res) => {
+    try {
+        // Forward authorization header to Python backend
+        const headers = { ...req.headers };
+        const params = {
+            user_id: req.query.user_id || 'demo_user'
+        };
+        const response = await axios.get('http://localhost:8001/api/skin-health/current', { headers, params });
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error calling Python API:', error.message);
+        if (error.response) {
+            res.status(error.response.status).json(error.response.data);
+        } else {
+            res.status(500).json({ error: 'Failed to get current skin health score' });
+        }
+    }
+});
+
+// Get skin health score history
+router.get('/skin-health/history', async (req, res) => {
+    try {
+        // Forward authorization header to Python backend
+        const headers = { ...req.headers };
+        const params = {
+            user_id: req.query.user_id || 'demo_user',
+            skip: req.query.skip || 0,
+            limit: req.query.limit || 100
+        };
+        const response = await axios.get('http://localhost:8001/api/skin-health/history', { headers, params });
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error calling Python API:', error.message);
+        if (error.response) {
+            res.status(error.response.status).json(error.response.data);
+        } else {
+            res.status(500).json({ error: 'Failed to get skin health score history' });
+        }
+    }
+});
+
+// Get skin health trend
+router.get('/skin-health/trend', async (req, res) => {
+    try {
+        // Forward authorization header to Python backend
+        const headers = { ...req.headers };
+        const params = {
+            user_id: req.query.user_id || 'demo_user'
+        };
+        const response = await axios.get('http://localhost:8001/api/skin-health/trend', { headers, params });
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error calling Python API:', error.message);
+        if (error.response) {
+            res.status(error.response.status).json(error.response.data);
+        } else {
+            res.status(500).json({ error: 'Failed to get skin health trend' });
+        }
     }
 });
 

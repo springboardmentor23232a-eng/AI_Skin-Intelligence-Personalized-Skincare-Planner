@@ -6,7 +6,7 @@ import uuid
 import os
 
 from app.database import get_db
-from app.models import SkinAssessment, SkinConcern, RiskFactor, USE_SQLITE
+from app.models import SkinAssessment, SkinConcern, RiskFactor, SkinHealthScore, USE_SQLITE
 from app.schemas import (
     AssessmentRequest, AssessmentResponse, AssessmentUpdate,
     ConcernResponse, RiskFactorResponse, HistoryResponse
@@ -41,8 +41,10 @@ def create_assessment(assessment: AssessmentRequest, db: Session = Depends(get_d
     priority = prioritize_concerns(concerns)
 
     # Create the assessment record
+    # TODO: Get user_id from JWT token after auth implementation
+    # For now, using a placeholder - this should be replaced with authenticated user ID
     db_assessment = SkinAssessment(
-        user_id=get_uuid('00000000-0000-0000-0000-000000000001'),  # TODO: Get from JWT token after auth implementation
+        user_id=get_uuid('00000000-0000-0000-0000-000000000001'),  # SECURITY: Replace with authenticated user ID
         skin_health_score=score,
         overall_condition=overall_condition,
         concerns=concerns,  # Store as JSON directly
@@ -76,6 +78,54 @@ def create_assessment(assessment: AssessmentRequest, db: Session = Depends(get_d
 
     db.commit()
     db.refresh(db_assessment)
+
+    # Automatically calculate comprehensive skin health score
+    try:
+        from app.engine.skin_health_scoring import scoring_engine
+        from app.models import SkinHealthScore
+        
+        # Prepare assessment data for comprehensive scoring
+        comprehensive_data = assessment_data.copy()
+        comprehensive_data['skin_health_score'] = score
+        
+        # Try to get real routine adherence data from the last 7 days
+        # TODO: Implement proper routine adherence tracking query
+        # For now, we use a default since routine tracking is not fully integrated
+        routine_data = {'completed_tasks': 0, 'expected_tasks': 0}  # PLACEHOLDER: Replace with real routine data
+        
+        # Calculate comprehensive score
+        score_result = scoring_engine.calculate_comprehensive_score(
+            user_id=str(db_assessment.user_id),
+            assessment_data=comprehensive_data,
+            routine_data=routine_data,
+            previous_score=None
+        )
+        
+        if 'error' not in score_result:
+            # Create comprehensive score record
+            db_comprehensive_score = SkinHealthScore(
+                user_id=db_assessment.user_id,
+                assessment_id=db_assessment.id,
+                condition_score=score_result['condition_score'],
+                lifestyle_score=score_result['lifestyle_score'],
+                sleep_score=score_result['sleep_score'],
+                routine_score=score_result['routine_score'],
+                hydration_score=score_result['hydration_score'],
+                overall_score=score_result['overall_score'],
+                category=score_result['category'],
+                previous_score=None,
+                absolute_change=score_result['improvement']['absolute_change'],
+                percentage_change=score_result['improvement']['percentage_change'],
+                trend=score_result['improvement']['trend'],
+                calculation_details=score_result['calculation_details']
+            )
+            
+            db.add(db_comprehensive_score)
+            db.commit()
+            
+    except Exception as e:
+        # Log error but don't fail the assessment creation
+        print(f"Warning: Could not calculate comprehensive skin health score: {e}")
 
     return AssessmentResponse(
         id=str(db_assessment.id),

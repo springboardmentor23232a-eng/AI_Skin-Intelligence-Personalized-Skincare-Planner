@@ -1,4 +1,4 @@
-require('dotenv').config({ path: '.env.backup' });
+require('dotenv').config();
 const express      = require('express');
 const cors         = require('cors');
 const cookieParser = require('cookie-parser');
@@ -113,5 +113,10 @@ app.listen(PORT, () => {
   console.log(`   GET    http://localhost:${PORT}/api/products/:productId`);
   console.log(`   GET    http://localhost:${PORT}/api/products/search/:query`);
   console.log(`   POST   http://localhost:${PORT}/api/ingredient/analyze`);
+  console.log(`   POST   http://localhost:${PORT}/api/skin/skin-health/calculate`);
+  console.log(`   GET    http://localhost:${PORT}/api/skin/skin-health/current`);
+  console.log(`   GET    http://localhost:${PORT}/api/skin/skin-health/history`);
+  console.log(`   GET    http://localhost:${PORT}/api/skin/skin-health/trend`);
+  console.log(`   POST   http://localhost:${PORT}/api/skin/assessment`);
   console.log(`   GET    http://localhost:${PORT}/api/health\n`);
 });

@@ -224,6 +224,18 @@
                                 <label class="option"><input type="radio" name="stress_level" value="high"><span>High</span></label>
                             </div>
                         </div>
+
+                        <div class="field">
+                            <label>Exercise frequency (minutes per day)</label>
+                            <div class="range-row">
+                                <input id="exercise_frequency" name="exercise_frequency" type="range" min="0" max="120" value="30" step="5">
+                                <div class="range-meta">
+                                    <span>0 min</span>
+                                    <span id="exerciseLabel">30 min</span>
+                                    <span>120 min</span>
+                                </div>
+                            </div>
+                        </div>
                     </section>
 
                     <section class="section">
@@ -244,7 +256,7 @@
                     </section>
 
                     <div class="actions">
-                        <button type="submit" class="btn-primary" id="analyzeBtn">Analyze My Skin</button>
+                    <button type="button" class="btn-primary" id="analyzeBtn">Analyze My Skin</button>
                         <button type="button" class="btn-secondary" id="fillDemoBtn">Use demo values</button>
                         <button type="button" class="btn-ghost" id="resetBtn">Reset</button>
                     </div>
@@ -287,6 +299,20 @@
                     <div class="card">
                         <h4>Recommendations</h4>
                         <ul class="list" id="recommendationsList"></ul>
+                    </div>
+
+                    <div class="card" id="comprehensiveScoreCard" style="display:none;">
+                        <h4>🌟 Comprehensive Health Score</h4>
+                        <div class="hero-score" style="margin-bottom: 16px;">
+                            <div class="label">Overall Score</div>
+                            <div class="value" id="comprehensiveOverallScore">0</div>
+                            <div class="meter" aria-hidden="true"><div id="comprehensiveScoreBar"></div></div>
+                            <div class="label" id="comprehensiveCategory">Category</div>
+                        </div>
+                        <div style="margin-top: 16px;">
+                            <h5 style="margin-bottom: 12px; font-size: 0.9rem;">Component Breakdown:</h5>
+                            <div id="comprehensiveComponents" style="display: grid; gap: 8px;"></div>
+                        </div>
                     </div>
 
                     <div class="footer-actions">
@@ -334,10 +360,13 @@
         const quickPriorityTag = document.getElementById('quickPriorityTag');
         const waterInput = document.getElementById('water_intake');
         const sleepInput = document.getElementById('sleep_hours');
+        const exerciseInput = document.getElementById('exercise_frequency');
         const waterLabel = document.getElementById('waterLabel');
         const sleepLabel = document.getElementById('sleepLabel');
+        const exerciseLabel = document.getElementById('exerciseLabel');
 
         let currentAnalysis = null;
+        let analysisVersion = 0;
         let isAnalyzing = false;
         let detectedSkinType = null;
         let detectedSkinTypeLabel = null;
@@ -631,6 +660,9 @@
             scoreValue.textContent = analysis.skin_health_score;
             scoreBar.style.width = `${analysis.skin_health_score}%`;
             conditionValue.textContent = `${analysis.overall_condition} condition`;
+            
+            console.log('Rendering analysis:', analysis);
+            console.log('Has comprehensive score:', !!analysis.comprehensive_score);
 
             if (analysis.skin_health_score >= 80) {
                 scoreBar.style.background = 'linear-gradient(90deg, #2f855a, #6cbf84)';
@@ -700,6 +732,61 @@
                 li.textContent = item;
                 recommendationsList.appendChild(li);
             });
+
+            // Display comprehensive score if available
+            const comprehensiveScoreCard = document.getElementById('comprehensiveScoreCard');
+            if (analysis.comprehensive_score) {
+                comprehensiveScoreCard.style.display = 'block';
+                console.log('Showing comprehensive score card with score:', analysis.comprehensive_score.overall_score);
+                document.getElementById('comprehensiveOverallScore').textContent = analysis.comprehensive_score.overall_score.toFixed(1);
+                document.getElementById('comprehensiveCategory').textContent = analysis.comprehensive_score.category;
+                document.getElementById('comprehensiveScoreBar').style.width = `${analysis.comprehensive_score.overall_score}%`;
+                
+                // Color code the comprehensive score bar
+                const comprehensiveScore = analysis.comprehensive_score.overall_score;
+                if (comprehensiveScore >= 80) {
+                    document.getElementById('comprehensiveScoreBar').style.background = 'linear-gradient(90deg, #2f855a, #6cbf84)';
+                } else if (comprehensiveScore >= 60) {
+                    document.getElementById('comprehensiveScoreBar').style.background = 'linear-gradient(90deg, #3182ce, #74a9e8)';
+                } else if (comprehensiveScore >= 40) {
+                    document.getElementById('comprehensiveScoreBar').style.background = 'linear-gradient(90deg, #b7791f, #e0aa45)';
+                } else {
+                    document.getElementById('comprehensiveScoreBar').style.background = 'linear-gradient(90deg, #c05621, #ef7b45)';
+                }
+
+                // Display component breakdown
+                const componentsContainer = document.getElementById('comprehensiveComponents');
+                componentsContainer.innerHTML = '';
+                const componentLabels = {
+                    condition: 'Skin Condition (35%)',
+                    lifestyle: 'Lifestyle Habits (20%)',
+                    sleep: 'Sleep Quality (15%)',
+                    routine: 'Routine Consistency (20%)',
+                    hydration: 'Hydration Level (10%)'
+                };
+                
+                Object.entries(analysis.comprehensive_score.components).forEach(([key, value]) => {
+                    const componentDiv = document.createElement('div');
+                    componentDiv.style.display = 'flex';
+                    componentDiv.style.alignItems = 'center';
+                    componentDiv.style.gap = '8px';
+                    componentDiv.style.fontSize = '0.85rem';
+                    
+                    componentDiv.innerHTML = `
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="font-weight: 500; margin-bottom: 4px;">${componentLabels[key] || key}</div>
+                            <div style="background: rgba(0,0,0,0.05); border-radius: 4px; height: 6px; overflow: hidden;">
+                                <div style="width: ${value}%; height: 100%; background: linear-gradient(90deg, #6cbf84, #3182ce);"></div>
+                            </div>
+                        </div>
+                        <div style="font-weight: 600; min-width: 40px; text-align: right;">${value.toFixed(1)}</div>
+                    `;
+                    componentsContainer.appendChild(componentDiv);
+                });
+            } else {
+                comprehensiveScoreCard.style.display = 'none';
+                console.log('Hiding comprehensive score card - no comprehensive score');
+            }
         }
 
         function collectFormData() {
@@ -711,6 +798,7 @@
                 age: form.age.value,
                 water_intake: form.water_intake.value,
                 sleep_hours: form.sleep_hours.value,
+                exercise_frequency: form.exercise_frequency.value,
                 sun_exposure: form.querySelector('input[name="sun_exposure"]:checked')?.value || 'low',
                 smoking: form.querySelector('input[name="smoking"]:checked')?.value || 'false',
                 stress_level: form.querySelector('input[name="stress_level"]:checked')?.value || 'low',
@@ -719,15 +807,65 @@
             };
         }
 
-        function saveLocalAnalysis() {
+        async function saveLocalAnalysis() {
             if (!currentAnalysis) {
                 showBanner('Run an analysis first.', 'error');
                 return;
             }
 
+            // Save to localStorage
             localStorage.setItem('skinProfileLastAnalysis', JSON.stringify(currentAnalysis));
             localStorage.setItem('skinProfileLastForm', JSON.stringify(collectFormData()));
-            showBanner('Analysis saved locally on this device.', 'success');
+            
+            // Also save to database via API (await this)
+            try {
+                await saveAnalysisToDatabase(currentAnalysis);
+                showBanner('Analysis saved to database.', 'success');
+            } catch (error) {
+                console.error('Failed to save to database:', error);
+                showBanner('Analysis saved locally only. Database save failed.', 'warn');
+            }
+        }
+
+        async function saveAnalysisToDatabase(analysis) {
+            const userId = getCurrentUserId();
+            const formData = collectFormData();
+            
+            // Save skin profile to Node.js backend
+            const response = await fetch('http://localhost:3000/api/skin-profile', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                },
+                body: JSON.stringify({
+                    user_id: userId,
+                    skin_type: analysis.skin_type,
+                    skin_health_score: analysis.skin_health_score,
+                    concerns: analysis.concerns,
+                    risk_factors: analysis.risk_factors,
+                    recommendations: analysis.recommendations,
+                    lifestyle_data: {
+                        age: formData.age,
+                        water_intake: formData.water_intake,
+                        sleep_hours: formData.sleep_hours,
+                        exercise_frequency: formData.exercise_frequency,
+                        smoking: formData.smoking,
+                        stress_level: formData.stress_level,
+                        sun_exposure: formData.sun_exposure
+                    },
+                    comprehensive_score_value: analysis.comprehensive_score_value,
+                    comprehensive_category: analysis.comprehensive_category,
+                    comprehensive_components: analysis.comprehensive_components
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Database save failed: ${response.status}`);
+            }
+            
+            console.log('Analysis saved to database successfully');
+            return await response.json();
         }
 
         function loadSavedAnalysis() {
@@ -746,10 +884,12 @@
                     if (data.age) form.age.value = data.age;
                     if (data.water_intake) form.water_intake.value = data.water_intake;
                     if (data.sleep_hours) form.sleep_hours.value = data.sleep_hours;
+                    if (data.exercise_frequency) form.exercise_frequency.value = data.exercise_frequency;
                     if (data.allergies) form.allergies.value = data.allergies;
                     if (data.current_products) form.current_products.value = data.current_products;
                     waterLabel.textContent = `${Number(data.water_intake).toFixed(1)} L`;
                     sleepLabel.textContent = `${Number(data.sleep_hours).toFixed(1)} h`;
+                    exerciseLabel.textContent = `${Number(data.exercise_frequency)} min`;
 
                     if (Array.isArray(data.concerns)) {
                         data.concerns.forEach(concern => {
@@ -781,6 +921,10 @@
             sleepLabel.textContent = `${Number(sleepInput.value).toFixed(1)} h`;
         });
 
+        exerciseInput.addEventListener('input', () => {
+            exerciseLabel.textContent = `${Number(exerciseInput.value)} min`;
+        });
+
         dropZone.addEventListener('click', () => skinImageUpload.click());
         dropZone.addEventListener('dragover', (event) => {
             event.preventDefault();
@@ -807,8 +951,65 @@
 
         removeImageBtn.addEventListener('click', resetImagePrediction);
 
-        form.addEventListener('submit', (event) => {
+        // Get current user ID
+        function getCurrentUserId() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser) {
+                const user = JSON.parse(currentUser);
+                return user.id || user._id || user.email;
+            }
+            return 'demo_user'; // Fallback for testing
+        }
+
+        // Function to call comprehensive scoring API
+        async function calculateComprehensiveScore(formData, localScore) {
+            try {
+                const userId = getCurrentUserId();
+                console.log('Calculating comprehensive score for user:', userId);
+                console.log('Using local score:', localScore);
+                
+                // Direct call to Python API (bypassing Node.js backend routing issue)
+                const response = await fetch('http://localhost:8001/api/skin-health/calculate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        condition_data: {
+                            skin_health_score: Number.isFinite(Number(localScore)) ? Number(localScore) : 70, // Use actual calculated score
+                            smoking: formData.smoking === 'true' || formData.smoking === true,
+                            stress_level: formData.stress_level || 'low',
+                            sun_exposure: formData.sun_exposure || 'low',
+                            age: parseInt(formData.age) || 25,
+                            sleep_hours: Number.isFinite(parseFloat(formData.sleep_hours)) ? parseFloat(formData.sleep_hours) : 7,
+                            water_intake: Number.isFinite(parseFloat(formData.water_intake)) ? parseFloat(formData.water_intake) : 2.0,
+                            exercise_frequency: Number.isFinite(parseFloat(formData.exercise_frequency)) ? parseFloat(formData.exercise_frequency) : 30
+                        },
+                        routine_data: {
+                            completed_tasks: 8,
+                            expected_tasks: 10
+                        }
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Comprehensive Score:', data);
+                    return data;
+                } else {
+                    console.error('Comprehensive score API error:', response.status);
+                    return null;
+                }
+            } catch (error) {
+                console.error('Comprehensive score API call failed:', error);
+                return null;
+            }
+        }
+
+        analyzeBtn.addEventListener('click', async (event) => {
             event.preventDefault();
+            event.stopPropagation();
             if (isAnalyzing) return;
 
             if (!form.age.value || !form.checkValidity()) {
@@ -820,20 +1021,27 @@
             clearBanner();
             setLoading(true);
 
-            window.setTimeout(() => {
-                try {
-                    const analysis = buildAnalysis(collectFormData());
-                    renderAnalysis(analysis);
-                    showBanner('Analysis complete. The result is now shown on the right.', 'success');
-                } catch (error) {
-                    console.error(error);
-                    showBanner('Analysis failed locally. Please try again.', 'error');
-                } finally {
-                    setLoading(false);
-                    isAnalyzing = false;
-                }
-            }, 240);
+            try {
+                const formData = collectFormData();
+                
+                // Calculate local analysis
+                const analysis = buildAnalysis(formData);
+                
+                // Render the local result immediately; the optional API score can arrive later.
+                renderAnalysis(analysis);
+                showBanner('Analysis complete. The result is now shown on the right.', 'success');
+
+            } catch (error) {
+                console.error(error);
+                showBanner('Analysis failed locally. Please try again.', 'error');
+            } finally {
+                setLoading(false);
+                isAnalyzing = false;
+            }
         });
+
+        // Prevent any browser-native form submission from reloading the result page.
+        form.addEventListener('submit', (event) => event.preventDefault());
 
         editBtn.addEventListener('click', () => {
             form.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -843,6 +1051,7 @@
         saveBtn.addEventListener('click', saveLocalAnalysis);
 
         clearBtn.addEventListener('click', () => {
+            analysisVersion += 1;
             localStorage.removeItem('skinProfileLastAnalysis');
             localStorage.removeItem('skinProfileLastForm');
             currentAnalysis = null;
@@ -867,8 +1076,10 @@
             form.age.value = 33;
             form.water_intake.value = 1.5;
             form.sleep_hours.value = 5.5;
+            form.exercise_frequency.value = 45;
             waterLabel.textContent = '1.5 L';
             sleepLabel.textContent = '5.5 h';
+            exerciseLabel.textContent = '45 min';
             form.allergies.value = 'fragrance';
             form.current_products.value = 'gel cleanser, spot treatment, SPF 50';
             document.querySelector('input[name="concerns"][value="acne"]').checked = true;
@@ -877,9 +1088,11 @@
         });
 
         resetBtn.addEventListener('click', () => {
+            analysisVersion += 1;
             form.reset();
             waterLabel.textContent = '2.0 L';
             sleepLabel.textContent = '7.0 h';
+            exerciseLabel.textContent = '30 min';
             clearBanner();
             currentAnalysis = null;
             resultsPanel.style.display = 'none';
@@ -951,7 +1164,7 @@
         }
 
         loadUserData();
-        loadSavedAnalysis();
+        // Do not restore an older analysis automatically; it can replace a fresh result.
     </script>
 </body>
 </html>

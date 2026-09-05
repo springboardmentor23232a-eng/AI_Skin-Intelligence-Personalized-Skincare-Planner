@@ -186,3 +186,75 @@ if (logoutBtn) {
     window.location.href = 'login.html';
   });
 }
+
+// ─── Skin Health Scoring Functions ─────────────────────────────────────────────
+async function calculateSkinHealthScore(assessmentData) {
+  try {
+    const user = getUser();
+    if (!user) return null;
+
+    const requestData = {
+      user_id: user.id,
+      condition_data: assessmentData,
+      routine_data: {
+        completed_tasks: assessmentData.completed_tasks || 0,
+        expected_tasks: assessmentData.expected_tasks || 0
+      }
+    };
+
+    const response = await fetch(`${API_BASE}/skin/skin-health/calculate`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getToken()}`
+      },
+      body: JSON.stringify(requestData)
+    });
+
+    if (response.ok) {
+      return await response.json();
+    } else {
+      console.error('Failed to calculate skin health score');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error calculating skin health score:', error);
+    return null;
+  }
+}
+
+async function getCurrentSkinHealthScore() {
+  try {
+    const response = await fetch(`${API_BASE}/skin/skin-health/current`, {
+      headers: { 'Authorization': `Bearer ${getToken()}` }
+    });
+
+    if (response.ok) {
+      return await response.json();
+    } else {
+      console.error('Failed to get current skin health score');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error getting current skin health score:', error);
+    return null;
+  }
+}
+
+async function getSkinHealthScoreHistory() {
+  try {
+    const response = await fetch(`${API_BASE}/skin/skin-health/history`, {
+      headers: { 'Authorization': `Bearer ${getToken()}` }
+    });
+
+    if (response.ok) {
+      return await response.json();
+    } else {
+      console.error('Failed to get skin health score history');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error getting skin health score history:', error);
+    return null;
+  }
+}

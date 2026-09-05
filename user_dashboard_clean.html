@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - AI Skin Intelligence</title>
+    <link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+    <div class="desktop-layout">
+        
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="brand">✨ AI Skin Intelligence</div>
+            
+            <a href="user_dashboard.html" class="nav-item active">
+                <span>🏠</span> Dashboard
+            </a>
+            <a href="skin_profile.html" class="nav-item">
+                <span>🧴</span> Skin Profile
+            </a>
+            <a href="routine_manager.html" class="nav-item">
+                <span>🧴</span> My Routines
+            </a>
+            <a href="intelligence_lab.html" class="nav-item">
+                <span>🧠</span> Intelligence Lab
+            </a>
+            <a href="#" class="nav-item">
+                <span>📅</span> Calendar
+            </a>
+            <a href="#" class="nav-item">
+                <span>👤</span> Profile
+            </a>
+            
+            <div style="margin-top: auto; padding: 20px 15px; border-top: 1px solid var(--line);">
+                <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: rgba(255, 255, 255, 0.5); border-radius: 12px; margin-bottom: 12px;">
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-2)); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff;" id="userAvatar">U</div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 0.9rem; font-weight: 600; color: var(--ink);" id="userName">User</div>
+                        <div style="font-size: 0.75rem; color: var(--muted);" id="userRole">User</div>
+                    </div>
+                </div>
+                <a href="login.html" class="nav-item" style="color: var(--bad);">
+                    <span>🚪</span> Logout
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Area -->
+        <div class="dashboard-content">
+            <main class="page">
+                <section class="hero">
+                    <article class="hero-card">
+                        <div class="eyebrow">Welcome back</div>
+                        <h1>Your Skin Health Dashboard</h1>
+                        <p>Track your skin health progress, manage routines, and get personalized recommendations.</p>
+                    </article>
+
+                    <aside class="stats-card" aria-label="Quick summary">
+                        <div class="stat">
+                            <div>
+                                <strong id="dashboardHealthScore">--</strong>
+                                <span>Health Score</span>
+                            </div>
+                            <div class="tag" id="dashboardPriorityText">Complete assessment</div>
+                        </div>
+                        <div class="stat">
+                            <div>
+                                <strong id="dashboardAssessmentCount">0</strong>
+                                <span>Assessments</span>
+                            </div>
+                            <div class="tag">Total</div>
+                        </div>
+                    </aside>
+                </section>
+
+                <section class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; margin-bottom: 28px;">
+                    <a href="skin_profile.html" class="card" style="text-align: center; text-decoration: none; color: var(--ink); transition: transform 0.3s ease; min-height: 140px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <div style="font-size: 2rem; margin-bottom: 8px;">📸</div>
+                        <div style="font-size: 0.85rem; font-weight: 600; word-wrap: break-word; overflow-wrap: break-word; white-space: normal; line-height: 1.3;">Skin Assessment</div>
+                    </a>
+                    <a href="routine_manager.html" class="card" style="text-align: center; text-decoration: none; color: var(--ink); transition: transform 0.3s ease; min-height: 140px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <div style="font-size: 2rem; margin-bottom: 8px;">🧴</div>
+                        <div style="font-size: 0.85rem; font-weight: 600; word-wrap: break-word; overflow-wrap: break-word; white-space: normal; line-height: 1.3;">My Routines</div>
+                    </a>
+                    <a href="intelligence_lab.html" class="card" style="text-align: center; text-decoration: none; color: var(--ink); transition: transform 0.3s ease; min-height: 140px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <div style="font-size: 2rem; margin-bottom: 8px;">💬</div>
+                        <div style="font-size: 0.85rem; font-weight: 600; word-wrap: break-word; overflow-wrap: break-word; white-space: normal; line-height: 1.3;">Ingredient + Product Lab</div>
+                    </a>
+                    <a href="#" class="card" style="text-align: center; text-decoration: none; color: var(--ink); transition: transform 0.3s ease; min-height: 140px; display: flex; flex-direction: column; justify-content: center; align-items: center;" onclick="openTrackingModal()">
+                        <div style="font-size: 2rem; margin-bottom: 8px;">📊</div>
+                        <div style="font-size: 0.85rem; font-weight: 600; word-wrap: break-word; overflow-wrap: break-word; white-space: normal; line-height: 1.3;">Daily Tracking</div>
+                    </a>
+                </section>
+
+                <!-- Score Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card" style="grid-column: span 2;">
+                        <div class="stat-icon">🌟</div>
+                        <div class="stat-value" id="dashboardOverallHealthScore">--</div>
+                        <div class="stat-label">Overall Skin Health Score</div>
+                        <div class="tag" style="margin-top: 8px;" id="dashboardScoreCategory">Complete assessment</div>
+                        <div id="dashboardScoreTrend" style="font-size: 0.8rem; color: var(--muted); margin-top: 4px;"></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-value" id="dashboardComponentScores">--</div>
+                        <div class="stat-label">Component Scores</div>
+                        <div class="tag" style="margin-top: 8px;">View breakdown</div>
+                    </div>
+                </div>
+
+                <!-- Component Score Breakdown -->
+                <div class="card" style="margin-top: 28px;" id="componentBreakdownCard">
+                    <h3>📊 Skin Health Score Breakdown</h3>
+                    <p style="color: var(--muted); margin-bottom: 16px;">Complete a skin assessment to see your comprehensive score breakdown</p>
+                    <div id="componentScoresContainer">
+                        <div class="loading-spinner">
+                            <div class="spinner"></div>
+                            <p>Loading component scores...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Assessment Results -->
+                <div class="card" style="margin-top: 28px;">
+                    <h3>📋 Recent Assessment Results</h3>
+                    <div id="assessmentResultsContainer">
+                        <div class="loading-spinner">
+                            <div class="spinner"></div>
+                            <p>Loading assessment results...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Recommendations -->
+                <div class="card" style="margin-top: 28px;">
+                    <h3>🛍️ Personalized Product Recommendations</h3>
+                    <p style="color: var(--muted); margin-bottom: 16px;">Based on your skin profile and concerns</p>
+                    <div id="productRecommendationsContainer">
+                        <div class="loading-spinner">
+                            <div class="spinner"></div>
+                            <p>Loading recommendations...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Today's Routine -->
+                <div class="card" style="margin-top: 28px;">
+                    <h3>🧴 Today's Skincare Routine</h3>
+                    <div id="routineContainer">
+                        <div class="routine-item">
+                            <input type="checkbox" class="routine-checkbox">
+                            <span>Cleanser - Gentle Foam Cleanser</span>
+                        </div>
+                        <div class="routine-item">
+                            <input type="checkbox" class="routine-checkbox">
+                            <span>Toner - Hydrating Essence Toner</span>
+                        </div>
+                        <div class="routine-item">
+                            <input type="checkbox" class="routine-checkbox">
+                            <span>Serum - Vitamin C Brightening Serum</span>
+                        </div>
+                        <div class="routine-item">
+                            <input type="checkbox" class="routine-checkbox">
+                            <span>Moisturizer - Daily Defense Moisturizer SPF 30</span>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Daily Tracking Modal -->
+    <div id="trackingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Daily Tracking</h2>
+                <button class="close-btn" onclick="closeTrackingModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="tracking-tabs">
+                    <button class="tracking-tab active" onclick="switchTrackingTab('lifestyle')">Lifestyle</button>
+                    <button class="tracking-tab" onclick="switchTrackingTab('sleep')">Sleep</button>
+                    <button class="tracking-tab" onclick="switchTrackingTab('hydration')">Hydration</button>
+                </div>
+                
+                <div id="lifestyleTab" class="tracking-tab-content active">
+                    <h3>Lifestyle Tracking</h3>
+                    <p>Track your daily lifestyle factors that affect skin health.</p>
+                    <form id="lifestyleForm">
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Exercise</label>
+                            <select style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--line);">
+                                <option value="none">No exercise</option>
+                                <option value="light">Light (15-30 min)</option>
+                                <option value="moderate">Moderate (30-60 min)</option>
+                                <option value="intense">Intense (60+ min)</option>
+                            </select>
+                        </div>
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Stress Level</label>
+                            <select style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--line);">
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Diet Quality</label>
+                            <select style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--line);">
+                                <option value="poor">Poor</option>
+                                <option value="fair">Fair</option>
+                                <option value="good">Good</option>
+                                <option value="excellent">Excellent</option>
+                            </select>
+                        </div>
+                        <button type="button" class="tracking-btn" onclick="saveLifestyleData()">Save Lifestyle Data</button>
+                    </form>
+                </div>
+                
+                <div id="sleepTab" class="tracking-tab-content">
+                    <h3>Sleep Tracking</h3>
+                    <p>Track your sleep patterns and quality.</p>
+                    <form id="sleepForm">
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Hours of Sleep</label>
+                            <input type="number" min="0" max="12" step="0.5" value="7" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--line);">
+                        </div>
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Sleep Quality</label>
+                            <select style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--line);">
+                                <option value="poor">Poor</option>
+                                <option value="fair">Fair</option>
+                                <option value="good">Good</option>
+                                <option value="excellent">Excellent</option>
+                            </select>
+                        </div>
+                        <button type="button" class="tracking-btn" onclick="saveSleepData()">Save Sleep Data</button>
+                    </form>
+                </div>
+                
+                <div id="hydrationTab" class="tracking-tab-content">
+                    <h3>Hydration Tracking</h3>
+                    <p>Track your daily water intake.</p>
+                    <form id="hydrationForm">
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Water Intake (Liters)</label>
+                            <input type="number" min="0" max="5" step="0.5" value="2.0" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--line);">
+                        </div>
+                        <button type="button" class="tracking-btn" onclick="saveHydrationData()">Save Hydration Data</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+        
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .tracking-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .tracking-tab {
+            padding: 10px 20px;
+            border: 1px solid var(--line);
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        .tracking-tab.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        
+        .tracking-tab-content {
+            display: none;
+        }
+        
+        .tracking-tab-content.active {
+            display: block;
+        }
+        
+        .tracking-btn {
+            padding: 12px 24px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .tracking-btn:hover {
+            background: var(--accent-2);
+        }
+
+        .component-score-card {
+            padding: 16px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(36, 48, 65, 0.08);
+        }
+        .component-label {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-bottom: 8px;
+        }
+        .component-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+        .component-bar {
+            height: 8px;
+            background: rgba(36, 48, 65, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .component-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+    </style>
+
+    <script>
+        // Modal functions
+        function openTrackingModal() {
+            document.getElementById('trackingModal').classList.add('show');
+        }
+
+        function closeTrackingModal() {
+            document.getElementById('trackingModal').classList.remove('show');
+        }
+
+        function switchTrackingTab(tab) {
+            document.querySelectorAll('.tracking-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tracking-tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tab + 'Tab').classList.add('active');
+        }
+
+        // Routine checkbox functionality
+        document.querySelectorAll('.routine-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                this.closest('.routine-item').classList.toggle('completed', this.checked);
+            });
+        });
+
+        // Load user data
+        function loadUserData() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser) {
+                const user = JSON.parse(currentUser);
+                document.getElementById('userName').textContent = user.name || 'User';
+                document.getElementById('userAvatar').textContent = (user.name || 'U').charAt(0).toUpperCase();
+                document.getElementById('userRole').textContent = user.role || 'User';
+                return user;
+            }
+            return null;
+        }
+
+        // Get current user ID
+        function getCurrentUserId() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser) {
+                const user = JSON.parse(currentUser);
+                return user.id || user._id || user.email;
+            }
+            return 'demo_user';
+        }
+
+        // Update dashboard with comprehensive score from database
+        function updateDashboardWithComprehensiveScore(profile) {
+            const overallScoreEl = document.getElementById('dashboardOverallHealthScore');
+            const categoryEl = document.getElementById('dashboardScoreCategory');
+            const trendEl = document.getElementById('dashboardScoreTrend');
+            const container = document.getElementById('componentScoresContainer');
+            
+            if (profile.comprehensive_score_value) {
+                overallScoreEl.textContent = profile.comprehensive_score_value.toFixed(1) + '/100';
+                categoryEl.textContent = profile.comprehensive_category || 'Good';
+                trendEl.textContent = '➡️ Latest score';
+                
+                if (profile.comprehensive_components) {
+                    container.innerHTML = `
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 16px;">
+                            <div class="component-score-card">
+                                <div class="component-label">Skin Condition (35%)</div>
+                                <div class="component-value">${profile.comprehensive_components.condition?.toFixed(1) || 0}/100</div>
+                                <div class="component-bar">
+                                    <div class="component-bar-fill" style="width: ${profile.comprehensive_components.condition || 0}%"></div>
+                                </div>
+                            </div>
+                            <div class="component-score-card">
+                                <div class="component-label">Lifestyle (20%)</div>
+                                <div class="component-value">${profile.comprehensive_components.lifestyle?.toFixed(1) || 0}/100</div>
+                                <div class="component-bar">
+                                    <div class="component-bar-fill" style="width: ${profile.comprehensive_components.lifestyle || 0}%"></div>
+                                </div>
+                            </div>
+                            <div class="component-score-card">
+                                <div class="component-label">Sleep Quality (15%)</div>
+                                <div class="component-value">${profile.comprehensive_components.sleep?.toFixed(1) || 0}/100</div>
+                                <div class="component-bar">
+                                    <div class="component-bar-fill" style="width: ${profile.comprehensive_components.sleep || 0}%"></div>
+                                </div>
+                            </div>
+                            <div class="component-score-card">
+                                <div class="component-label">Routine Consistency (20%)</div>
+                                <div class="component-value">${profile.comprehensive_components.routine?.toFixed(1) || 0}/100</div>
+                                <div class="component-bar">
+                                    <div class="component-bar-fill" style="width: ${profile.comprehensive_components.routine || 0}%"></div>
+                                </div>
+                            </div>
+                            <div class="component-score-card">
+                                <div class="component-label">Hydration (10%)</div>
+                                <div class="component-value">${profile.comprehensive_components.hydration?.toFixed(1) || 0}/100</div>
+                                <div class="component-bar">
+                                    <div class="component-bar-fill" style="width: ${profile.comprehensive_components.hydration || 0}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // Load assessment results
+        async function loadAssessmentResults() {
+            const container = document.getElementById('assessmentResultsContainer');
+            try {
+                const token = localStorage.getItem('accessToken');
+                const response = await fetch('http://localhost:3000/api/skin-profiles/my', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const profileResponse = await response.json();
+                    const profiles = profileResponse.profile ? [profileResponse.profile] : [];
+                    if (profiles.length > 0) {
+                        const latestProfile = profiles[0];
+                        
+                        // If profile has comprehensive score data, use it for the dashboard
+                        if (latestProfile.comprehensive_score_value) {
+                            updateDashboardWithComprehensiveScore(latestProfile);
+                        } else {
+                            // Show "no data" message for comprehensive score section
+                            const overallScoreEl = document.getElementById('dashboardOverallHealthScore');
+                            const categoryEl = document.getElementById('dashboardScoreCategory');
+                            const trendEl = document.getElementById('dashboardScoreTrend');
+                            const componentContainer = document.getElementById('componentScoresContainer');
+                            
+                            overallScoreEl.textContent = '--';
+                            categoryEl.textContent = 'No data';
+                            trendEl.textContent = '';
+                            componentContainer.innerHTML = `
+                                <div style="text-align: center; padding: 20px; color: var(--muted);">
+                                    <p>No comprehensive score available.</p>
+                                    <p style="font-size: 0.85rem;">Complete a skin assessment to generate your comprehensive score.</p>
+                                </div>
+                            `;
+                        }
+                        
+                        container.innerHTML = `
+                            <div class="card" style="margin-bottom: 16px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                    <div>
+                                        <h4 style="margin: 0; font-size: 1.2rem;">${latestProfile.score || '--'}/100</h4>
+                                        <span class="tag">${latestProfile.condition || 'No condition'}</span>
+                                    </div>
+                                    <div style="font-size: 0.8rem; color: var(--muted);">
+                                        ${new Date(latestProfile.created_at).toLocaleDateString()}
+                                    </div>
+                                </div>
+                                <div class="tags">
+                                    ${latestProfile.concerns ? latestProfile.concerns.map(c => `<span class="tag warn">${c}</span>`).join('') : ''}
+                                </div>
+                            </div>
+                        `;
+                        
+                        document.getElementById('dashboardHealthScore').textContent = latestProfile.score || '--';
+                        document.getElementById('dashboardPriorityText').textContent = latestProfile.condition || 'Complete assessment';
+                        
+                        loadProductRecommendations(latestProfile);
+                    } else {
+                        container.innerHTML = `
+                            <div class="no-assessments">
+                                <p>No assessments yet. <a href="skin_profile.html" style="color: var(--accent);">Complete your first assessment</a></p>
+                            </div>
+                        `;
+                        
+                        const overallScoreEl = document.getElementById('dashboardOverallHealthScore');
+                        const categoryEl = document.getElementById('dashboardScoreCategory');
+                        const componentContainer = document.getElementById('componentScoresContainer');
+                        
+                        overallScoreEl.textContent = '--';
+                        categoryEl.textContent = 'No data';
+                        componentContainer.innerHTML = `
+                            <div style="text-align: center; padding: 20px; color: var(--muted);">
+                                <p>No comprehensive score available.</p>
+                                <p style="font-size: 0.85rem;">Complete a skin assessment to generate your comprehensive score.</p>
+                            </div>
+                        `;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading assessments:', error);
+                container.innerHTML = `<p style="color: var(--muted);">Unable to load assessments.</p>`;
+            }
+        }
+
+        // Load product recommendations
+        async function loadProductRecommendations(assessment) {
+            const container = document.getElementById('productRecommendationsContainer');
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/products/recommendations', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        skin_type: assessment.skin_type,
+                        skin_concerns: assessment.concerns || [],
+                        budget_tier: 'budget',
+                        allergies: assessment.allergies || []
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.recommendations && data.recommendations.length > 0) {
+                        let html = '<div style="display: grid; gap: 20px;">';
+                        
+                        data.recommendations.forEach(category => {
+                            html += `
+                                <div style="margin-bottom: 16px;">
+                                    <h4 style="margin: 0 0 12px; font-size: 1rem;">${category.icon} ${category.category}</h4>
+                                    <div style="display: grid; gap: 12px;">
+                            `;
+                            
+                            category.products.slice(0, 2).forEach(product => {
+                                const tierBadge = product.price_tier === 'budget' ? '🟢' : 
+                                                  product.price_tier === 'premium' ? '🟠' : '🔴';
+                                html += `
+                                    <div style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(36, 48, 65, 0.08); flex-wrap: wrap;">
+                                        <div style="font-size: 1.5rem;">${tierBadge}</div>
+                                        <div style="flex: 1; min-width: 140px;">
+                                            <div style="font-weight: 600; font-size: 0.9rem;">${product.brand}</div>
+                                            <div style="font-size: 0.85rem; color: var(--muted);">${product.product_name}</div>
+                                        </div>
+                                        <div style="text-align: right;">
+                                            <div style="font-weight: 700; font-size: 0.9rem;">₹${product.current_price}</div>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                            
+                            html += `
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        
+                        html += '</div>';
+                        container.innerHTML = html;
+                    } else {
+                        container.innerHTML = `<p style="color: var(--muted);">No recommendations available based on your profile.</p>`;
+                    }
+                } else {
+                    container.innerHTML = `<p style="color: var(--muted);">Unable to load recommendations.</p>`;
+                }
+            } catch (error) {
+                console.error('Error loading recommendations:', error);
+                container.innerHTML = `<p style="color: var(--muted);">Unable to load recommendations.</p>`;
+            }
+        }
+
+        // Tracking functions
+        function saveLifestyleData() {
+            console.log('Saving lifestyle data...');
+            alert('Lifestyle data saved!');
+        }
+
+        function saveSleepData() {
+            console.log('Saving sleep data...');
+            alert('Sleep data saved!');
+        }
+
+        function saveHydrationData() {
+            console.log('Saving hydration data...');
+            alert('Hydration data saved!');
+        }
+
+        // Initialize
+        loadUserData();
+        loadAssessmentResults();
+    </script>
+</body>
+</html>

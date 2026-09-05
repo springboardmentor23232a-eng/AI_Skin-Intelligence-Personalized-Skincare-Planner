@@ -244,3 +244,35 @@ class UserDashboard(Base):
     
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+# Skin Health Scoring Models
+class SkinHealthScore(Base):
+    __tablename__ = "skin_health_scores"
+
+    id = Column(UUIDType, primary_key=True, default=generate_uuid, index=True)
+    user_id = Column(UUIDType, nullable=False, index=True)
+    assessment_id = Column(UUIDType, ForeignKey("skin_assessments.id"), nullable=True)
+    
+    # Component scores (0-100)
+    condition_score = Column(Float, nullable=False)  # Skin condition assessment
+    lifestyle_score = Column(Float, nullable=False)  # Lifestyle habits
+    sleep_score = Column(Float, nullable=False)  # Sleep quality
+    routine_score = Column(Float, nullable=False)  # Routine consistency
+    hydration_score = Column(Float, nullable=False)  # Hydration level
+    
+    # Overall weighted score
+    overall_score = Column(Float, nullable=False)  # Final weighted score (0-100)
+    category = Column(String(20), nullable=False)  # Score category: Excellent, Good, Fair, Needs Improvement, Poor
+    
+    # Improvement tracking
+    previous_score = Column(Float, nullable=True)  # Previous overall score for comparison
+    absolute_change = Column(Float, nullable=True)  # Absolute change from previous
+    percentage_change = Column(Float, nullable=True)  # Percentage change from previous
+    trend = Column(String(20), nullable=True)  # Improving, Stable, Declining
+    
+    # Metadata
+    calculation_details = Column(JSON, nullable=True)  # Detailed calculation breakdown
+    is_complete = Column(Boolean, default=False)  # Whether all component data was available
+    notes = Column(Text, nullable=True)
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
