@@ -192,3 +192,66 @@ CREATE TABLE IF NOT EXISTS routine_adherence_logs (
 
 CREATE INDEX IF NOT EXISTS idx_routine_adherence_user ON routine_adherence_logs(user_id, log_date);
 
+-- 8. Progress Tracking & Analytics Tables (Module 8)
+CREATE TABLE IF NOT EXISTS skin_progress_logs (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    assessment_id INT REFERENCES skin_assessments(id) ON DELETE SET NULL,
+    log_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    checkpoint_title VARCHAR(150) NOT NULL DEFAULT 'Routine Checkpoint',
+    tag VARCHAR(50) DEFAULT 'Milestone',
+    overall_skin_health_score NUMERIC(5, 2) NOT NULL,
+    hydration_level NUMERIC(5, 2) DEFAULT 50.0,
+    oiliness_level NUMERIC(5, 2) DEFAULT 50.0,
+    sensitivity_level NUMERIC(5, 2) DEFAULT 20.0,
+    acne_severity NUMERIC(5, 2) DEFAULT 10.0,
+    pigmentation_score NUMERIC(5, 2) DEFAULT 15.0,
+    wrinkles_score NUMERIC(5, 2) DEFAULT 10.0,
+    barrier_strength NUMERIC(5, 2) DEFAULT 65.0,
+    redness_reactivity NUMERIC(5, 2) DEFAULT 20.0,
+    photo_url TEXT,
+    routine_adherence_rate NUMERIC(5, 2) DEFAULT 85.0,
+    clinical_notes TEXT,
+    key_improvements JSONB DEFAULT '[]',
+    active_concerns_snapshot JSONB DEFAULT '[]',
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_progress_logs_user ON skin_progress_logs(user_id, log_date DESC);
+
+CREATE TABLE IF NOT EXISTS routine_adherence_records (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    record_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    morning_completed INT DEFAULT 0,
+    morning_total INT DEFAULT 4,
+    evening_completed INT DEFAULT 0,
+    evening_total INT DEFAULT 5,
+    weekly_treatment_done INT DEFAULT 0,
+    overall_adherence_pct NUMERIC(5, 2) DEFAULT 100.0,
+    current_streak_days INT DEFAULT 1,
+    water_intake_ml INT DEFAULT 2000,
+    sunscreen_reapplied INT DEFAULT 1,
+    missed_step_reason TEXT,
+    notes TEXT,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_adherence_records_user ON routine_adherence_records(user_id, record_date DESC);
+
+CREATE TABLE IF NOT EXISTS before_after_comparisons (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    baseline_log_id INT NOT NULL REFERENCES skin_progress_logs(id) ON DELETE CASCADE,
+    current_log_id INT NOT NULL REFERENCES skin_progress_logs(id) ON DELETE CASCADE,
+    days_elapsed INT DEFAULT 30,
+    score_delta NUMERIC(5, 2) NOT NULL,
+    verdict VARCHAR(100) DEFAULT 'Significant Improvement',
+    clinical_analysis TEXT NOT NULL,
+    biomarker_deltas JSONB NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_before_after_user ON before_after_comparisons(user_id);
+
+

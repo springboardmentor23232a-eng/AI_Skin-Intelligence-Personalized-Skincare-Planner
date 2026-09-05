@@ -52,6 +52,23 @@ export async function initAndSeedDb() {
         category VARCHAR(100) NOT NULL,
         score_match INT DEFAULT 90
       );
+
+      CREATE TABLE IF NOT EXISTS chat_messages (
+        id SERIAL PRIMARY KEY,
+        conversation_id VARCHAR(100) NOT NULL,
+        sender_id VARCHAR(50) NOT NULL,
+        sender_name VARCHAR(255) NOT NULL,
+        sender_role VARCHAR(50) NOT NULL,
+        sender_avatar TEXT,
+        recipient_id VARCHAR(50) NOT NULL,
+        recipient_name VARCHAR(255) NOT NULL,
+        recipient_role VARCHAR(50) NOT NULL,
+        recipient_avatar TEXT,
+        message TEXT NOT NULL,
+        message_type VARCHAR(50) DEFAULT 'text',
+        read BOOLEAN DEFAULT false,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
     `);
 
     // Seed Initial Demo Users

@@ -187,3 +187,83 @@ class RoutineAdherenceLog(Base):
     notes = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
 
+
+# ════════════════════════════════════════════════════════════════
+# MODULE 8: PROGRESS TRACKING & ANALYTICS ORM MODELS
+# ════════════════════════════════════════════════════════════════
+
+class SkinProgressLog(Base):
+    """
+    Module 8: Historical progress checkpoint tracking quantitative biomarkers over time.
+    """
+    __tablename__ = "skin_progress_logs"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, index=True, nullable=False)
+    assessment_id = Column(Integer, ForeignKey("skin_assessments.id", ondelete="SET NULL"), nullable=True)
+    log_date = Column(DateTime(timezone=True), default=utc_now, nullable=False, index=True)
+    checkpoint_title = Column(String(150), nullable=False, default="Routine Checkpoint") # e.g. "Baseline Day 1", "Week 2 Checkpoint"
+    tag = Column(String(50), default="Milestone") # Baseline, Week 2, Week 4, Milestone, Current
+    
+    overall_skin_health_score = Column(Float, nullable=False) # 0 to 100
+    hydration_level = Column(Float, default=50.0)             # 0 to 100
+    oiliness_level = Column(Float, default=50.0)              # 0 to 100
+    sensitivity_level = Column(Float, default=20.0)           # 0 to 100
+    acne_severity = Column(Float, default=10.0)               # 0 to 100
+    pigmentation_score = Column(Float, default=15.0)          # 0 to 100
+    wrinkles_score = Column(Float, default=10.0)              # 0 to 100
+    barrier_strength = Column(Float, default=65.0)            # 0 to 100
+    redness_reactivity = Column(Float, default=20.0)          # 0 to 100
+    
+    photo_url = Column(Text, nullable=True)
+    routine_adherence_rate = Column(Float, default=85.0)      # % during this period
+    clinical_notes = Column(Text, nullable=True)
+    key_improvements = Column(JSON, default=list)             # List of strings e.g. ["+12% Hydration", "-25% Acne"]
+    active_concerns_snapshot = Column(JSON, default=list)
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+
+class RoutineAdherenceRecord(Base):
+    """
+    Module 8: Detailed daily routine adherence logging with streaks & AM/PM fidelity.
+    """
+    __tablename__ = "routine_adherence_records"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, index=True, nullable=False)
+    record_date = Column(DateTime(timezone=True), default=utc_now, nullable=False, index=True)
+    
+    morning_completed = Column(Integer, default=0) # Steps completed in AM
+    morning_total = Column(Integer, default=4)
+    evening_completed = Column(Integer, default=0) # Steps completed in PM
+    evening_total = Column(Integer, default=5)
+    weekly_treatment_done = Column(Integer, default=0)
+    
+    overall_adherence_pct = Column(Float, default=100.0)
+    current_streak_days = Column(Integer, default=1)
+    water_intake_ml = Column(Integer, default=2000)
+    sunscreen_reapplied = Column(Integer, default=1)
+    missed_step_reason = Column(Text, nullable=True)
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+
+class BeforeAfterComparison(Base):
+    """
+    Module 8: Linked comparison between any two progress checkpoints.
+    """
+    __tablename__ = "before_after_comparisons"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, index=True, nullable=False)
+    baseline_log_id = Column(Integer, ForeignKey("skin_progress_logs.id", ondelete="CASCADE"), nullable=False)
+    current_log_id = Column(Integer, ForeignKey("skin_progress_logs.id", ondelete="CASCADE"), nullable=False)
+    
+    days_elapsed = Column(Integer, default=30)
+    score_delta = Column(Float, nullable=False) # e.g. +7.5
+    verdict = Column(String(100), default="Significant Improvement")
+    clinical_analysis = Column(Text, nullable=False)
+    biomarker_deltas = Column(JSON, nullable=False) # Detailed map of metric changes
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+

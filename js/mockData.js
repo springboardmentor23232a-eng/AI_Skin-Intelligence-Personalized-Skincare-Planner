@@ -1221,3 +1221,249 @@ export function getAlternativeProductsFor(productId, profile = MOCK_USER_DATA.pr
     premiumUpgrades: premiumUpgrades.slice(0, 3)
   };
 }
+
+// ════════════════════════════════════════════════════════════════
+// MODULE 8: PROGRESS TRACKING & ANALYTICS DATA STORE & HELPERS
+// ════════════════════════════════════════════════════════════════
+
+export const MOCK_PROGRESS_TRACKING_DATA = {
+  checkpoints: [
+    {
+      id: 1,
+      user_id: 1,
+      log_date: '24 Oct 2025',
+      checkpoint_title: 'Baseline Intake Scan',
+      tag: 'Baseline (Day 1)',
+      overall_skin_health_score: 68.5,
+      hydration_level: 48.0,
+      oiliness_level: 74.0,
+      sensitivity_level: 38.0,
+      acne_severity: 42.0,
+      pigmentation_score: 35.0,
+      wrinkles_score: 18.0,
+      barrier_strength: 52.0,
+      redness_reactivity: 36.0,
+      photo_url: 'assets/hero_skin_scan.png',
+      routine_adherence_rate: 60.0,
+      clinical_notes: 'Initial intake: Elevated transepidermal water loss, active follicular congestion along T-zone, and reactive flushing.',
+      key_improvements: ['Baseline Established'],
+      active_concerns_snapshot: ['Acne & Breakouts', 'Barrier Impairment', 'Post-Acne Melanin']
+    },
+    {
+      id: 2,
+      user_id: 1,
+      log_date: '02 Nov 2025',
+      checkpoint_title: 'Week 2 - Active Introduction',
+      tag: 'Week 2 Checkpoint',
+      overall_skin_health_score: 72.0,
+      hydration_level: 56.0,
+      oiliness_level: 68.0,
+      sensitivity_level: 32.0,
+      acne_severity: 32.0,
+      pigmentation_score: 32.0,
+      wrinkles_score: 16.0,
+      barrier_strength: 64.0,
+      redness_reactivity: 28.0,
+      photo_url: 'assets/hero_skin_scan.png',
+      routine_adherence_rate: 88.0,
+      clinical_notes: 'Niacinamide 10% + BHA 2% response: Sebum output reduced by 8%, active inflammatory papules calming down.',
+      key_improvements: ['+8% Hydration', '-10% Sebum Congestion', 'Inflammation Soothed'],
+      active_concerns_snapshot: ['Acne & Breakouts', 'Post-Acne Melanin']
+    },
+    {
+      id: 3,
+      user_id: 1,
+      log_date: '14 Nov 2025',
+      checkpoint_title: 'Week 4 - Barrier Consolidation',
+      tag: 'Week 4 Checkpoint',
+      overall_skin_health_score: 75.8,
+      hydration_level: 65.0,
+      oiliness_level: 58.0,
+      sensitivity_level: 24.0,
+      acne_severity: 20.0,
+      pigmentation_score: 26.0,
+      wrinkles_score: 14.0,
+      barrier_strength: 76.0,
+      redness_reactivity: 22.0,
+      photo_url: 'assets/hero_skin_scan.png',
+      routine_adherence_rate: 93.5,
+      clinical_notes: 'Ceramide barrier cream stabilized lipid membrane. Redness reactivity plunged by 38% compared to baseline.',
+      key_improvements: ['+17% Hydration', '-22% Acne Severity', '+24% Barrier Strength'],
+      active_concerns_snapshot: ['Post-Acne Melanin']
+    },
+    {
+      id: 4,
+      user_id: 1,
+      log_date: '24 Nov 2025',
+      checkpoint_title: 'Current 30-Day Milestone Scan',
+      tag: 'Current (Day 30)',
+      overall_skin_health_score: 79.4,
+      hydration_level: 74.0,
+      oiliness_level: 52.0,
+      sensitivity_level: 18.0,
+      acne_severity: 12.0,
+      pigmentation_score: 19.5,
+      wrinkles_score: 11.0,
+      barrier_strength: 86.0,
+      redness_reactivity: 15.0,
+      photo_url: 'assets/hero_skin_scan.png',
+      routine_adherence_rate: 96.0,
+      clinical_notes: 'Outstanding clinical transformation: Stratum corneum moisture restored, zero cystic flares, hyperpigmentation fading noticeably.',
+      key_improvements: ['+26% Hydration Plumpness', '-71% Acne Severity Reduction', '+34% Barrier Resilience', '-58% Redness Flushes'],
+      active_concerns_snapshot: ['Maintenance & Sun Protection']
+    }
+  ],
+
+  adherence: {
+    current_streak_days: 18,
+    longest_streak_days: 24,
+    weekly_compliance_pct: 96.5,
+    biweekly_compliance_pct: 94.8,
+    monthly_compliance_pct: 92.4,
+    morning_adherence_avg: 98.0,
+    evening_adherence_avg: 89.5,
+    total_sessions_logged: 58,
+    adherence_to_score_correlation: 'Strong Positive (r = +0.89)',
+    adherence_insights: [
+      'Your 18-day active streak is driving a +4.0 pt acceleration in skin barrier score.',
+      'Morning routine compliance (98.0%) is exceptionally consistent; sunscreen was applied 29/30 days.',
+      'Evening double cleansing on Wednesday & Sunday aligned perfectly with BHA exfoliation days.'
+    ]
+  },
+
+  beforeAfterComparison: {
+    days_elapsed: 30,
+    baseline_date: '24 Oct 2025',
+    current_date: '24 Nov 2025',
+    baseline_image: 'assets/hero_skin_scan.png',
+    current_image: 'assets/dark_banner_portrait.png',
+    baseline_score: 68.5,
+    current_score: 79.4,
+    score_delta: 10.9,
+    verdict: 'Exceptional Clinical Transformation (+10.9 pts)',
+    clinical_summary: 'Over the 30-day intervention period, skin health advanced from 68.5 to 79.4/100. Primary victories include complete clearance of active inflammatory acne papules (-71.4%) and barrier lipid reinforcement (+65.4%).',
+    biomarker_deltas: [
+      { parameter: 'Hydration (Moisture Plumpness)', baseline_val: 48.0, current_val: 74.0, delta_val: 26.0, delta_percentage: 54.2, status: 'Significantly Improved', color: '#0284C7', clinical_insight: 'Hyaluronic acid + Ceramide layering increased intracellular moisture capacity by +54.2%.' },
+      { parameter: 'Acne & Blemish Severity', baseline_val: 42.0, current_val: 12.0, delta_val: -30.0, delta_percentage: -71.4, status: 'Significantly Improved', color: '#2E7D32', clinical_insight: '2% Salicylic Acid + 10% Niacinamide dissolved micro-comedones, cutting active blemishes by -71.4%.' },
+      { parameter: 'Barrier Integrity Score', baseline_val: 52.0, current_val: 86.0, delta_val: 34.0, delta_percentage: 65.4, status: 'Significantly Improved', color: '#C59B27', clinical_insight: 'Lipid bilayer consolidation stopped moisture leakage and irritation.' },
+      { parameter: 'Erythema & Redness Reactivity', baseline_val: 36.0, current_val: 15.0, delta_val: -21.0, delta_percentage: -58.3, status: 'Significantly Improved', color: '#8E24AA', clinical_insight: 'Centella Asiatica + Zinc PCA calmed flushing by -58.3%.' },
+      { parameter: 'Post-Inflammatory Pigmentation', baseline_val: 35.0, current_val: 19.5, delta_val: -15.5, delta_percentage: -44.3, status: 'Improved', color: '#D97706', clinical_insight: 'Consistent SPF 50+ prevention and PM retinol faded melanin clusters.' },
+      { parameter: 'Sebum / Oiliness Regulation', baseline_val: 74.0, current_val: 52.0, delta_val: -22.0, delta_percentage: -29.7, status: 'Improved', color: '#475569', clinical_insight: 'Transition to water-gel hydrators normalized T-zone sebum balance.' }
+    ],
+    top_positive_drivers: [
+      'Consistent daily sunscreen application preventing UV melanocyte stimulation.',
+      'PM ceramide lipid sealing stopping transepidermal water loss.',
+      'High routine adherence (96%) providing steady therapeutic concentrations.'
+    ],
+    remaining_targets: [
+      'Continue fading faint post-inflammatory hyperpigmentation on lateral cheeks.',
+      'Maintain night-time hydration buffering during seasonal humidity transitions.'
+    ]
+  },
+
+  improvementReport: {
+    overall_health_change: '+10.9 pts (68.5 -> 79.4 / 100)',
+    velocity_summary: '+2.54 pts gained per week on average',
+    top_improving_factors: [
+      { category: 'Inflammation & Blemish Count', metric: 'Acne Severity Index', improvement_pct: 71.4, direction: 'down', impact_level: 'Critical', clinical_explanation: 'Follicular micro-congestion resolved through daily 0.5% - 2.0% BHA salicylic pore flushing.' },
+      { category: 'Lipid Matrix Resilience', metric: 'Stratum Corneum Barrier Strength', improvement_pct: 65.4, direction: 'up', impact_level: 'Critical', clinical_explanation: 'Ceramide NP/AP supplementation sealed intercellular cement, stopping transepidermal dehydration.' },
+      { category: 'Moisture Volume', metric: 'Epidermal Hydration Level', improvement_pct: 54.2, direction: 'up', impact_level: 'High', clinical_explanation: 'Multi-molecular weight hyaluronic acid restored cellular turgor and smoothed surface fine lines.' },
+      { category: 'Vascular Reactivity', metric: 'Erythema & Flushing Reactivity', improvement_pct: 58.3, direction: 'down', impact_level: 'High', clinical_explanation: 'Elimination of sensitizing fragrances and introduction of Centella Asiatica calmed capillary dilation.' }
+    ],
+    areas_for_optimization: [
+      { category: 'Melanin Uniformity', metric: 'Post-Inflammatory Hyperpigmentation', improvement_pct: 44.3, direction: 'down', impact_level: 'Moderate', clinical_explanation: 'Melanin clusters are clearing, but require 4-6 more weeks of gentle PM retinol and AM Vitamin C / Azelaic pairing.' }
+    ],
+    ai_dermatologist_verdict: "Patient demonstrated textbook response to the barrier-first protocol. Active inflammatory breakouts are virtually resolved. Recommend transitioning into 'Optimal Glow Maintenance Mode' with slight increase in PM antioxidant concentration.",
+    next_stage_routine_adjustments: [
+      'Upgrade evening Retinol frequency from 2x/week to 3x/week on alternating nights.',
+      'Introduce Azelaic Acid 10% on non-retinol mornings for targeted dark spot acceleration.',
+      'Continue daily SPF 50+ mineral fluid as non-negotiable UV defense.'
+    ]
+  }
+};
+
+export function generateTrendTrajectoryData(timeframe = '30d') {
+  const points = [];
+  const start = new Date();
+  start.setDate(start.getDate() - 30);
+
+  // 30 days historical
+  for (let i = 0; i <= 30; i++) {
+    const d = new Date(start);
+    d.setDate(d.getDate() + i);
+    const factor = i / 30.0;
+    const score = Math.round((68.5 + 10.9 * (1 - Math.exp(-2.2 * factor))) * 10) / 10;
+    points.push({
+      day: `Day ${i}`,
+      date_formatted: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      score,
+      is_projected: false,
+      hydration: Math.round((48.0 + 26.0 * factor) * 10) / 10,
+      sebum: Math.round((74.0 - 22.0 * factor) * 10) / 10,
+      barrier: Math.round((52.0 + 34.0 * factor) * 10) / 10,
+      sensitivity: Math.round((38.0 - 20.0 * factor) * 10) / 10,
+      adherence_pct: Math.min(100, Math.round((65.0 + 31.0 * factor) * 10) / 10)
+    });
+  }
+
+  // 30 days forecast
+  const now = new Date();
+  for (let j = 1; j <= 30; j++) {
+    const d = new Date(now);
+    d.setDate(d.getDate() + j);
+    const factor = j / 30.0;
+    const score = Math.round((79.4 + 7.1 * (1 - Math.exp(-1.8 * factor))) * 10) / 10;
+    points.push({
+      day: `+${j}d Forecast`,
+      date_formatted: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      score,
+      is_projected: true,
+      hydration: Math.min(92, Math.round((74.0 + 10.0 * factor) * 10) / 10),
+      sebum: Math.max(45, Math.round((52.0 - 6.0 * factor) * 10) / 10),
+      barrier: Math.min(95, Math.round((86.0 + 8.0 * factor) * 10) / 10),
+      sensitivity: Math.max(12, Math.round((18.0 - 5.0 * factor) * 10) / 10),
+      adherence_pct: 96.0
+    });
+  }
+
+  return {
+    timeframe,
+    improvement_velocity_pts_per_week: 2.54,
+    projected_score_30d: 84.5,
+    projected_score_60d: 87.8,
+    target_score: 85.0,
+    estimated_days_to_target: 22,
+    trajectory_curve: points,
+    key_trend_indicators: [
+      { indicator: 'Barrier Restoration Index', trend: 'Rapid Ascent', delta: '+65.4%', direction: 'positive' },
+      { indicator: 'Sebum Secretion Stability', trend: 'Normalized Balance', delta: '-29.7%', direction: 'positive' },
+      { indicator: 'Micro-Vascular Sensitivity', trend: 'Steady Cooling', delta: '-52.6%', direction: 'positive' },
+      { indicator: 'Photodamage Repair Rate', trend: 'Continuous Gradual', delta: '+44.3%', direction: 'positive' }
+    ]
+  };
+}
+
+export function generateCalendar30Days() {
+  const list = [];
+  const now = new Date();
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i);
+    const isMissed = i === 18;
+    const isPartial = i === 25 || i === 28;
+    const comp = isMissed ? 50 : (isPartial ? 75 : 100);
+    list.push({
+      date: d.toISOString().split('T')[0],
+      day_number: d.getDate(),
+      day_name: d.toLocaleDateString('en-US', { weekday: 'short' }),
+      status: isMissed ? 'Partial' : (isPartial ? 'Partial' : 'Complete'),
+      compliance_pct: comp,
+      morning_pct: comp >= 75 ? 100 : 75,
+      evening_pct: comp === 100 ? 100 : 50,
+      water_target_met: comp >= 75,
+      streak_active: i < 18
+    });
+  }
+  return list;
+}
+

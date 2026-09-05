@@ -554,3 +554,196 @@ class ScoreTrendResponse(BaseModel):
     timeline: List[ScoreTrendItem]
 
 
+# ════════════════════════════════════════════════════════════════
+# MODULE 8: PROGRESS TRACKING & ANALYTICS SCHEMAS
+# ════════════════════════════════════════════════════════════════
+
+class ProgressCheckpointCreateRequest(BaseModel):
+    user_id: Optional[int] = 1
+    assessment_id: Optional[int] = None
+    checkpoint_title: str = "Weekly Routine Checkpoint"
+    tag: str = "Milestone" # Baseline, Week 2, Week 4, Milestone, Current
+    overall_skin_health_score: float = 78.5
+    hydration_level: float = 72.0
+    oiliness_level: float = 55.0
+    sensitivity_level: float = 22.0
+    acne_severity: float = 14.0
+    pigmentation_score: float = 20.0
+    wrinkles_score: float = 12.0
+    barrier_strength: float = 82.0
+    redness_reactivity: float = 18.0
+    photo_url: Optional[str] = "assets/hero_skin_scan.png"
+    routine_adherence_rate: float = 95.0
+    clinical_notes: Optional[str] = "Skin barrier showing significant lipid reinforcement."
+    key_improvements: List[str] = []
+    active_concerns_snapshot: List[str] = []
+
+
+class ProgressLogItem(BaseModel):
+    id: int
+    user_id: int
+    log_date: str
+    checkpoint_title: str
+    tag: str
+    overall_skin_health_score: float
+    hydration_level: float
+    oiliness_level: float
+    sensitivity_level: float
+    acne_severity: float
+    pigmentation_score: float
+    wrinkles_score: float
+    barrier_strength: float
+    redness_reactivity: float
+    photo_url: Optional[str]
+    routine_adherence_rate: float
+    clinical_notes: Optional[str]
+    key_improvements: List[str]
+    active_concerns_snapshot: List[str]
+
+
+class ProgressHistoryResponse(BaseModel):
+    success: bool = True
+    user_id: int
+    total_checkpoints: int
+    baseline_score: float
+    current_score: float
+    overall_improvement_pts: float
+    milestones_achieved: int
+    history: List[ProgressLogItem]
+
+
+class DailyAdherenceCheckInRequest(BaseModel):
+    user_id: Optional[int] = 1
+    morning_completed: int = 4
+    morning_total: int = 4
+    evening_completed: int = 5
+    evening_total: int = 5
+    weekly_treatment_done: int = 0
+    water_intake_ml: int = 2250
+    sunscreen_reapplied: int = 1
+    missed_step_reason: Optional[str] = None
+    notes: Optional[str] = None
+
+
+class DailyAdherenceItem(BaseModel):
+    date: str
+    day_name: str
+    status: str # "Complete", "Partial", "Missed"
+    compliance_pct: float
+    morning_pct: float
+    evening_pct: float
+    water_target_met: bool
+    streak_active: bool
+
+
+class RoutineAdherenceAnalyticsResponse(BaseModel):
+    success: bool = True
+    user_id: int
+    current_streak_days: int
+    longest_streak_days: int
+    weekly_compliance_pct: float # 7-day
+    biweekly_compliance_pct: float # 14-day
+    monthly_compliance_pct: float # 30-day
+    morning_adherence_avg: float
+    evening_adherence_avg: float
+    total_sessions_logged: int
+    adherence_to_score_correlation: str # e.g. "Strong Positive (r = +0.88)"
+    adherence_insights: List[str]
+    calendar_30_days: List[DailyAdherenceItem]
+
+
+class BiomarkerDeltaItem(BaseModel):
+    parameter: str
+    baseline_val: float
+    current_val: float
+    delta_val: float
+    delta_percentage: float
+    status: str # "Improved", "Significantly Improved", "Stable", "Attention Required"
+    color: str
+    clinical_insight: str
+
+
+class BeforeAfterCompareRequest(BaseModel):
+    user_id: Optional[int] = 1
+    baseline_checkpoint_id: Optional[int] = None
+    current_checkpoint_id: Optional[int] = None
+
+
+class BeforeAfterCompareResponse(BaseModel):
+    success: bool = True
+    user_id: int
+    days_elapsed: int
+    baseline_date: str
+    current_date: str
+    baseline_image: str
+    current_image: str
+    baseline_score: float
+    current_score: float
+    score_delta: float
+    verdict: str
+    clinical_summary: str
+    biomarker_deltas: List[BiomarkerDeltaItem]
+    top_positive_drivers: List[str]
+    remaining_targets: List[str]
+
+
+class ScoreTrajectoryPoint(BaseModel):
+    day: str
+    date_formatted: str
+    score: float
+    is_projected: bool = False
+    hydration: float
+    sebum: float
+    barrier: float
+    sensitivity: float
+    adherence_pct: float
+
+
+class TrendAnalysisResponse(BaseModel):
+    success: bool = True
+    user_id: int
+    timeframe: str # "7d", "30d", "90d", "all"
+    improvement_velocity_pts_per_week: float
+    projected_score_30d: float
+    projected_score_60d: float
+    target_score: float
+    estimated_days_to_target: int
+    trajectory_curve: List[ScoreTrajectoryPoint]
+    key_trend_indicators: List[dict]
+
+
+class ImprovementFactorItem(BaseModel):
+    category: str
+    metric: str
+    improvement_pct: float
+    direction: str # "up", "down" (positive reduction in acne)
+    impact_level: str # "High", "Moderate", "Critical"
+    clinical_explanation: str
+
+
+class ImprovementAnalysisResponse(BaseModel):
+    success: bool = True
+    user_id: int
+    overall_health_change: str
+    velocity_summary: str
+    top_improving_factors: List[ImprovementFactorItem]
+    areas_for_optimization: List[ImprovementFactorItem]
+    ai_dermatologist_verdict: str
+    next_stage_routine_adjustments: List[str]
+
+
+class ProgressSummaryAnalyticsResponse(BaseModel):
+    success: bool = True
+    user_id: int
+    current_health_score: float
+    baseline_health_score: float
+    score_delta: float
+    current_streak: int
+    adherence_30d: float
+    improvement_velocity: str
+    active_milestones: List[dict]
+    latest_comparison: BeforeAfterCompareResponse
+    quick_trends: List[ScoreTrajectoryPoint]
+
+
+

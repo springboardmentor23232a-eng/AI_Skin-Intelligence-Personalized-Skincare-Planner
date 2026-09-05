@@ -52,7 +52,7 @@ test('3. Landing Page View Renderer Test', () => {
   assert.ok(html.includes('Check Your Skin Health in Seconds'), 'Must contain editorial hero headline');
   assert.ok(html.includes('Precision Skin Intelligence Made Simple'), 'Must contain simple features section');
   assert.ok(html.includes('99.4% Scan Accuracy'), 'Must list accuracy metric');
-  assert.ok(html.includes('Dr. Sarah Johnson'), 'Must render doctor specialist card');
+  assert.ok(html.includes('Dr. Julian Rostova') || html.includes('Elena Vance'), 'Must render certified clinician specialist card');
 });
 
 test('4. User Dashboard View Renderer Test', () => {
@@ -68,7 +68,7 @@ test('5. Consultant Dashboard View Renderer Test', () => {
   const html = renderConsultantDashboard();
   assert.ok(html.includes('Consultant Workspace'), 'Must render consultant header');
   assert.ok(html.includes('Active Client Roster'), 'Must render client roster table');
-  assert.ok(html.includes('Maya Lin'), 'Must include client data');
+  assert.ok(html.includes('Alex Rivera') || html.includes('Maya Lin'), 'Must include client data');
 });
 
 test('6. Dermatologist Dashboard View Renderer Test', () => {

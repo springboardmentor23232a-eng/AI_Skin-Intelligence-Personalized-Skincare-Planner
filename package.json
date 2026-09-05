@@ -12,7 +12,11 @@
     "test:server": "node test/server.test.js",
     "test:routine": "node test/routine.test.js",
     "test:products": "node test/products.test.js",
-    "test:all": "node test/dashboard.test.js && node test/server.test.js && node test/routine.test.js && node test/products.test.js"
+    "test:progress": "node test/progress.test.js",
+    "test:clinical": "node test/clinical_sync.test.js",
+    "test:consultations": "node test/consultation_sharing.test.js",
+    "test:chat": "node test/chat.test.js",
+    "test:all": "node test/dashboard.test.js && node test/server.test.js && node test/routine.test.js && node test/products.test.js && node test/progress.test.js && node test/clinical_sync.test.js && node test/consultation_sharing.test.js && node test/chat.test.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
