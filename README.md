@@ -1,6 +1,6 @@
-#  PanaceaAI — AI Skin Intelligence & Personalized Skincare Planner
+# PanaceaAI — AI Skin Intelligence & Personalized Skincare Planner
 
-> **An AI-powered skincare platform offering multi-parameter skin health analysis, personalized skincare routine planning, role-based dashboards, and consultation management.**
+> **An enterprise-grade, full-stack AI Skin Intelligence and Telehealth platform featuring multi-parameter cutaneous biomarker analysis, optical lesion classification, personalized skincare routine planning, 30-day progress analytics, docked clinic messaging & Lumina AI assistant, and multi-role clinical synchronization backed by PostgreSQL and FastAPI microservices.**
 
 ---
 
@@ -10,6 +10,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-v0.111-009688.svg?logo=fastapi)](https://fastapi.tiangolo.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-v16-4169E1.svg?logo=postgresql)](https://postgresql.org/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg?logo=docker)](https://www.docker.com/)
+[![Tests](https://img.shields.io/badge/Tests-106%2F106%20Passing-brightgreen.svg)](test/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
@@ -17,75 +18,121 @@
 ## 📌 Table of Contents
 
 - [Overview](#-overview)
-- [Key Features](#-key-features)
+- [Key Features & Modules](#-key-features--modules)
+  - [1. User & Patient Portal](#1-user--patient-portal)
+  - [2. Progress Tracking & Analytics Lab](#2-progress-tracking--analytics-lab)
+  - [3. Clinic Telehealth Messenger & Lumina AI](#3-clinic-telehealth-messenger--lumina-ai)
+  - [4. Skincare Consultant & Dermatologist Portals](#4-skincare-consultant--dermatologist-portals)
+  - [5. Products Explorer & Dupe Finder Engine](#5-products-explorer--dupe-finder-engine)
+  - [6. Optical ML Scanner & Ingredient Safety Checker](#6-optical-ml-scanner--ingredient-safety-checker)
+  - [7. Platform Administrator Control Center](#7-platform-administrator-control-center)
 - [System Architecture](#-system-architecture)
 - [Tech Stack](#-tech-stack)
 - [Project Directory Structure](#-project-directory-structure)
 - [Getting Started](#-getting-started)
   - [Prerequisites](#prerequisites)
-  - [Option A: Docker Compose (Quick Start & Recommended)](#option-a-docker-compose-quick-start--recommended)
+  - [Option A: Docker Compose (Quick Start)](#option-a-docker-compose-quick-start)
   - [Option B: Manual Local Setup](#option-b-manual-local-setup)
 - [Default Seed Accounts](#-default-seed-accounts)
 - [API Endpoints Reference](#-api-endpoints-reference)
   - [Express Backend Platform (Port 3000)](#express-backend-platform-port-3000)
-  - [Skin Assessment Microservice (Port 8000)](#skin-assessment-microservice-port-8000)
+  - [Skin Assessment & Analytics Microservice (Port 8000)](#skin-assessment--analytics-microservice-port-8000)
 - [Environment Variables](#-environment-variables)
 - [Running Automated Tests](#-running-automated-tests)
-- [License](#-license)
+- [License & Acknowledgments](#-license--acknowledgments)
 
 ---
 
 ## 🚀 Overview
 
-**PanaceaAI** is an end-to-end AI Skin Intelligence & Personalized Skincare Planning platform designed for users, dermatologists, and platform administrators.
+**PanaceaAI** is an end-to-end clinical skincare intelligence application designed to bridge the gap between AI diagnostic models, consumers, certified estheticians, and board-certified dermatologists.
 
-It combines a **Node.js Express backend**, a **Vanilla JS/CSS interactive single-page application frontend**, and a **Python FastAPI Skin Assessment Engine microservice** backed by **PostgreSQL**.
+It integrates:
+- A high-performance **Node.js Express backend** handling JWT authentication, Google OAuth 2.0, PostgreSQL relational persistence, and real-time telehealth chat.
+- A **Vanilla JS/CSS SPA frontend** with luxury editorial aesthetics, responsive mobile breakpoints, sticky comparison docks, and docked popup messengers.
+- A **Python FastAPI Microservice** executing algorithmic biomarker scoring, ISIC lesion screening, 30-day predictive trajectory forecasting, ingredient contraindication checks, and intelligent product recommendation algorithms.
 
 ---
 
-## ✨ Key Features
+## ✨ Key Features & Modules
 
-### 👤 User Portal
-- **AI Skin Health Score (0–100)**: Algorithmic calculation based on 10 skin & lifestyle parameters (hydration, sebum, acne, sensitivity, UV exposure, sleep, stress).
-- **Personalized Routine Planner**: AM/PM skincare routines tailored to skin type and active concerns.
-- **Scanning & History Tracking**: Timeline analysis with score trends (`Improving`, `Stable`, `Declining`).
-- **Consultation Booking**: Schedule virtual or in-person appointments with certified dermatologists.
+### 1. User & Patient Portal
+- **Algorithmic Skin Health Score (0–100)**: Multi-parameter weighted score evaluation covering hydration, sebum, acne, barrier resilience, erythema, UV exposure, and stress.
+- **Adaptive Routine Engine**: AM/PM chronological regimens, custom routine step creation, and weekly treatment schedules.
+- **Granular Data Sharing Matrix**: Patients choose exactly which data modules (Biomarkers, Facial Photos, Routine Adherence, Medical Rx History) are visible to their assigned consultant vs doctor.
+- **Consultation Scheduling**: Book live encrypted telehealth or clinic reviews with assigned specialists.
 
-### 🩺 Dermatologist / Expert Portal
-- **Patient Queue Management**: View pending, in-review, and completed consultations.
-- **E-Prescriptions & Advice**: Issue custom prescriptions, product recommendations, and routine adjustments.
-- **Diagnostic Insights**: Access patient skin assessment breakdown and historical risk factors.
+### 2. Progress Tracking & Analytics Lab
+- **30-Day Routine Adherence & Compliance Heatmap**: Daily habit compliance calendar tracking morning/evening completion streaks and behavioral consistency.
+- **Interactive Before & After Comparison Slider**: Dual-layer visual and biomarker matrix comparing baseline vs current clinical status.
+- **30-Day AI Predictive Forecast Curves**: Longitudinal biomarker trajectory modeling with weekly velocity gains and AI clinical verdicts.
+- **Biomarker Delta Badges**: Real-time indicators of hydration gain (+26%), barrier strength (+32%), and acne lesion clearance (-71.4%).
 
-### 🛡️ Admin Control Center
-- **User Management**: Approve pending user registrations, manage user roles (`user`, `dermatologist`, `admin`), and toggle account status.
-- **Microservices Health Monitor**: Live metrics tracking service uptime, latency, and operational health.
-- **Audit & Analytics**: Monitor platform user activity, consultation logs, and system metrics.
+### 3. Clinic Telehealth Messenger & Lumina AI
+- **Docked Floating Messenger Popup (`#floating-messenger-dock`)**:
+  - Omnipresent floating button at bottom-right with an interactive gold pulse dot.
+  - Expands into a 380px x 540px docked card with minimize, expand to full-page, contact switching, and typing indicator.
+  - 1-click prompt pills for instant queries (`✨ BHA + Adapalene`, `🛡️ Barrier Repair`, `🌅 Routine Order`, `💊 Retinoid Purging`).
+- **Dedicated 3-Pane Full-Screen Telehealth Studio (`/chat` route)**:
+  - **Left Pane**: Conversations Directory & Contacts Roster with search and category filters (*All*, *Care Team*, *Lumina AI*).
+  - **Center Pane**: Active Message Stream with encrypted message cards, read receipts (`✓✓`), audio voice note simulator, and photo attachments.
+  - **Right Pane**: Live Cutaneous Telemetry Snapshot, active digital prescriptions (Rx), and 1-click video telehealth booking.
+- **Lumina AI Skincare Copilot**:
+  - Context-aware engine evaluating active acid/retinoid contraindications, barrier repair guidelines, acne care, and specialist triage in real time.
+
+### 4. Skincare Consultant & Dermatologist Portals
+- **Zero-Fake Data Synchronization**: Active patient rosters derived directly from PostgreSQL database records.
+- **Interactive Clinical Patient Dossier**:
+  - Tab 1: 8-Cutaneous Biomarkers & Optical ISIC Lesion Screening.
+  - Tab 2: 30-Day Longitudinal Progress & Routine Compliance Heatmaps.
+  - Tab 3: Board-Certified Medical Prescriptions (Rx) and Esthetician Regimen Builder Notes.
+- **RBAC Privacy Redactions**: Automatically redacts confidential medical prescriptions or sensitive photos if restricted by the patient.
+
+### 5. Products Explorer & Dupe Finder Engine
+- **Master 20+ Curated Products Catalog**: Real-world e-commerce links (Amazon, Nykaa, Flipkart), active ingredients, and suitability matching badges.
+- **Sticky Compare Floating Dock**: Select up to 4 formulations and launch a side-by-side ingredient and clinical matrix modal.
+- **Smart Dupe & Alternative Finder**: Instant recommendations for budget-friendly alternatives, fragrance-free options, and high-potency upgrades.
+
+### 6. Optical ML Scanner & Ingredient Safety Checker
+- **Optical Skin Photo Analyzer & Live Webcam Scan**: Automated facial biomarker extraction and ISIC binary lesion risk screening with progress bar animation.
+- **Ingredient Contraindication Matrix**: Analyze chemical safety and compatibility when layering actives (e.g. Vitamin C + Retinol, BHA + Adapalene).
+
+### 7. Platform Administrator Control Center
+- **User Account Management**: Admin verification and approval for newly registered accounts, role elevation, and user deletion.
+- **Microservices Layer Monitor**: Live telemetry for 12 microservice endpoints across ports 3000 and 8000.
+- **Security & Audit Trail**: Real-time system access and security logs.
 
 ---
 
 ## 🏗️ System Architecture
 
 ```
-                               ┌────────────────────────────────┐
-                               │     Web Browser Client (SPA)   │
-                               │   User / Derm / Admin UI       │
-                               └───────────────┬────────────────┘
-                                               │
-                                 HTTP / REST   │ (Port 3000)
-                                               ▼
-                               ┌────────────────────────────────┐
-                               │ Express Platform API (Node.js)  │
-                               │ JWT Auth, OAuth, User/Derm APIs│
-                               └───────────────┬────────────────┘
-                                               │
-                         ┌─────────────────────┴─────────────────────┐
-                         │                                           │
-                         ▼ (Port 8000)                               ▼ (Port 5432)
-       ┌──────────────────────────────────┐        ┌──────────────────────────────────┐
-       │ Skin Assessment Engine (FastAPI) │        │     PostgreSQL Database          │
-       │ Scoring, Risk Rules, Concerns    │───────►│  Users, Assessments, Consults,   │
-       └──────────────────────────────────┘        │  Products, Microservice Logs     │
-                                                   └──────────────────────────────────┘
+                               ┌──────────────────────────────────────────────┐
+                               │       Web Browser Client (Modern SPA)        │
+                               │  User / Consultant / Dermatologist / Admin   │
+                               └──────────────────────┬───────────────────────┘
+                                                      │
+                                        HTTP / REST   │ (Port 3000)
+                                                      ▼
+                               ┌──────────────────────────────────────────────┐
+                               │       Express Platform Server (Node.js)      │
+                               │  - JWT Auth, RBAC Guards, Google OAuth 2.0   │
+                               │  - Multi-Role Clinic Telehealth Chat Stream  │
+                               │  - Lumina AI Real-Time Skincare Engine       │
+                               │  - Clinical Patient Dossiers & Sharing Matrix│
+                               └──────────────┬───────────────────────────────┘
+                                              │
+                        ┌─────────────────────┴─────────────────────┐
+                        │                                           │
+                        ▼ (Port 8000)                               ▼ (Port 5432)
+      ┌───────────────────────────────────┐       ┌───────────────────────────────────┐
+      │  FastAPI Analytics Microservice   │       │        PostgreSQL Database        │
+      │  - Cutaneous Biomarker Scoring    │──────►│  - users & user_profiles          │
+      │  - ISIC Optical Lesion Classifier │       │  - assessments & biomarkers       │
+      │  - 30-Day Progress & Adherence    │       │  - clinical_records & sharing_pref│
+      │  - Ingredient Safety & Dupes      │       │  - chat_messages & appointments   │
+      │  - Telehealth Chat Microservice   │       │  - master_products_catalog        │
+      └───────────────────────────────────┘       └───────────────────────────────────┘
 ```
 
 ---
@@ -94,13 +141,12 @@ It combines a **Node.js Express backend**, a **Vanilla JS/CSS interactive single
 
 | Component | Technology | Description |
 | :--- | :--- | :--- |
-| **Frontend** | HTML5, CSS3, ES6 Modules | Modern dark-mode responsive glassmorphism SPA |
-| **Platform Server** | Node.js (v18+), Express (v4.19) | REST APIs, JWT Auth, Rate Limiting, CORS |
-| **AI Assessment Engine** | Python (3.10+), FastAPI, Pydantic | Algorithmic skin scoring, risk rules, taxonomy engine |
-| **Database** | PostgreSQL (v16) | Shared relational store with relational schemas |
-| **Security** | JWT, BcryptJS, Express-Rate-Limit | Role-Based Access Control (RBAC), OAuth 2.0 |
-| **Containerization** | Docker, Docker Compose | Multi-container setup for seamless local & cloud deploy |
-| **Testing** | Node test runner, Pytest | Automated integration tests & unit test coverage |
+| **Frontend UI** | HTML5, Vanilla CSS3, ES6 Modules | Editorial luxury design, glassmorphism, docked floating messenger, zero external UI frameworks |
+| **Platform Server** | Node.js (v18+), Express (v4.19) | REST APIs, JWT Auth, Bcrypt password hashing, Telehealth Chat APIs, RBAC Middleware |
+| **Microservices Engine** | Python (3.10+), FastAPI, Pydantic | Quantitative cutaneous scoring, ISIC lesion screening, Progress forecast engine, Chat router |
+| **Database** | PostgreSQL (v16) / In-Memory Pool | Multi-table relational schema with auto-seeding engine and real-world clinical records |
+| **Security & Auth** | JWT, BcryptJS, Google OAuth 2.0 | Role-based authorization, unauthenticated action interception, and seamless redirect handling |
+| **Testing** | Node test runner, Pytest | 106 automated tests across Node.js and Python microservices with 100% pass rate |
 
 ---
 
@@ -108,26 +154,44 @@ It combines a **Node.js Express backend**, a **Vanilla JS/CSS interactive single
 
 ```
 AI_Skin_Project/
-├── server/                        # Node.js Express Backend Platform
-│   ├── config/                    # DB configuration (pg pool)
-│   ├── db/                        # SQL schemas & auto-seed data script
-│   ├── middleware/                # JWT verification & RBAC authorization middleware
-│   ├── routes/                    # Auth & platform API endpoints
-│   └── index.js                   # Express application entry point
-├── skin_assessment_engine/        # Python FastAPI Microservice (Module 3)
-│   ├── app/                       # FastAPI routes, models, & logic engines
-│   ├── tests/                     # Pytest automated test suite
-│   ├── Dockerfile                 # Microservice Docker build container
-│   ├── requirements.txt           # Python dependencies
-│   └── schema.sql                 # Database table schema
-├── js/                            # Client-side JavaScript modules
-├── css/                           # Global UI stylesheets
-├── test/                          # Node.js integration tests
-├── Dockerfile                     # Platform web/server Dockerfile
-├── docker-compose.yml             # Orchestration for Web, FastAPI, and Postgres
-├── index.html                     # Primary SPA entry page
-├── package.json                   # Node.js project manifest & scripts
-└── README.md                      # Project documentation
+├── server/                           # Node.js Express Backend Platform
+│   ├── config/                       # DB configuration (pg pool & in-memory fallback)
+│   ├── db/                           # SQL schemas (schema.sql) & seed engine (seed.js)
+│   ├── middleware/                   # JWT verification & RBAC authorization middleware
+│   ├── routes/                       # Auth, Clinical Sync, Telehealth Chat, & Admin routes
+│   └── index.js                      # Express application entry point
+├── skin_assessment_engine/           # Python FastAPI Microservice
+│   ├── app/                          # FastAPI application package
+│   │   ├── routers/                  # Assessment, Clinical, Progress, & Chat routers
+│   │   ├── services/                 # Biomarker scoring, Progress analytics, & ML models
+│   │   ├── models.py & schemas.py    # Pydantic validation models
+│   │   └── main.py                   # FastAPI app mount
+│   ├── tests/                        # Pytest automated test suite (50 tests)
+│   ├── requirements.txt              # Python dependencies
+│   └── schema.sql                    # Microservice database schema
+├── js/                               # Frontend ES6 Client Modules
+│   ├── api.js                        # Unified API client for Express (3000) & FastAPI (8000)
+│   ├── app.js                        # Main SPA orchestrator, auth guards, messenger controller
+│   ├── auth.js                       # Client-side session and role management
+│   ├── dashboards.js                 # HTML view renderers (User, Consultant, Doctor, Admin, Chat)
+│   └── mockData.js                   # Clinical fallback datasets and quotes
+├── css/                              # Global Styling & Component Systems
+│   └── style.css                     # Vanilla CSS styling with luxury dark & editorial themes
+├── test/                             # Node.js Automated Test Suites (56 tests)
+│   ├── dashboard.test.js             # View rendering & formula tests
+│   ├── server.test.js                # Auth, JWT, & RBAC tests
+│   ├── routine.test.js               # Personalized routine planner tests
+│   ├── products.test.js              # Products catalog & comparison tests
+│   ├── progress.test.js              # Progress analytics & adherence tests
+│   ├── clinical_sync.test.js         # Multi-role dossier sync tests
+│   ├── consultation_sharing.test.js  # Patient privacy & sharing matrix tests
+│   └── chat.test.js                  # Telehealth chat & Lumina AI tests
+├── assets/                           # Product imagery, logos, and medical icons
+├── Dockerfile                        # Platform Web/Server container
+├── docker-compose.yml                # Multi-container orchestration (Node, FastAPI, Postgres)
+├── index.html                        # Primary SPA entry page
+├── package.json                      # Node.js manifest & scripts
+└── README.md                         # Project documentation
 ```
 
 ---
@@ -143,25 +207,25 @@ AI_Skin_Project/
 
 ---
 
-### Option A: Docker Compose (Quick Start & Recommended)
+### Option A: Docker Compose (Quick Start)
 
-Run the entire application stack (Web Platform, Python FastAPI Microservice, and PostgreSQL Database) with a single command:
+Run the complete multi-tier system with a single command:
 
 ```bash
-# Clone the repository
-git clone https://github.com/your-username/AI_Skin_Project.git
-cd AI_Skin_Project
+# Clone repository
+git clone https://github.com/springboardmentor23232a-eng/AI_Skin-Intelligence-Personalized-Skincare-Planner.git
+cd AI_Skin-Intelligence-Personalized-Skincare-Planner
 
 # Start containers in detached mode
 docker-compose up --build -d
 ```
 
 #### Service Access URLs:
-- 🌐 **Web Application & Express API**: [http://localhost:3000](http://localhost:3000)
-- 🐍 **Skin Assessment Engine (FastAPI Docs)**: [http://localhost:8000/docs](http://localhost:8000/docs)
-- 🗄️ **PostgreSQL Database**: `localhost:5432` (`panacea_skin_db`)
+- 🌐 **Web Platform & Express API**: [http://localhost:3000](http://localhost:3000)
+- 🐍 **FastAPI Skin Assessment & Chat Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
+- 🗄️ **PostgreSQL Relational Database**: `localhost:5432` (`panacea_skin_db`)
 
-To stop all running services:
+To stop all services:
 ```bash
 docker-compose down
 ```
@@ -171,7 +235,6 @@ docker-compose down
 ### Option B: Manual Local Setup
 
 #### 1. Setup PostgreSQL Database
-Make sure PostgreSQL is running locally and create the database:
 ```sql
 CREATE DATABASE panacea_skin_db;
 ```
@@ -181,22 +244,17 @@ CREATE DATABASE panacea_skin_db;
 # Install dependencies
 npm install
 
-# Copy environment variables configuration
-cp .env.example .env
-
-# Seed database and start Node Express server
-npm run db:seed
+# Start Express server (auto-seeds database on start)
 npm start
 ```
-The Express server will start on [http://localhost:3000](http://localhost:3000).
+The server will run on [http://localhost:3000](http://localhost:3000).
 
 #### 3. Setup Python FastAPI Engine
-Open a new terminal window:
+In a separate terminal:
 ```bash
-# Navigate to the Python microservice directory
 cd skin_assessment_engine
 
-# Create & activate a virtual environment
+# Create & activate virtual environment
 python -m venv .venv
 
 # On Windows:
@@ -204,25 +262,26 @@ python -m venv .venv
 # On macOS/Linux:
 source .venv/bin/activate
 
-# Install Python dependencies
+# Install requirements
 pip install -r requirements.txt
 
-# Start FastAPI server with Uvicorn
+# Start FastAPI microservice
 uvicorn app.main:app --reload --port 8000
 ```
-Interactive FastAPI documentation will be available at [http://localhost:8000/docs](http://localhost:8000/docs).
+Interactive API documentation will be live at [http://localhost:8000/docs](http://localhost:8000/docs).
 
 ---
 
 ## 🔑 Default Seed Accounts
 
-The database is pre-populated with test user accounts for all three system roles:
+The platform includes pre-seeded accounts for all system roles:
 
 | Role | Username | Password | Email | Access Scope |
 | :--- | :--- | :--- | :--- | :--- |
-| **User** | `user` | `user123` | `user@panacea.ai` | User Dashboard, Skin Assessment, Routine Planner |
-| **Dermatologist** | `doctor` | `doctor123` | `doctor@panacea.ai` | Dermatologist Dashboard, Patient Consultations |
-| **Admin** | `admin` | `admin123` | `admin@panacea.ai` | Admin Control Center, User Approval, Health Monitor |
+| **User / Patient** | `user` | `user123` | `user@panacea.ai` | User Dashboard, Skin Assessment, Progress Lab, Chat & Lumina AI |
+| **Skincare Consultant** | `consultant` | `consultant123` | `consultant@panacea.ai` | Consultant Workspace, Client Roster, Regimen Builder Notes |
+| **Dermatologist Doctor** | `doctor` | `doctor123` | `doctor@panacea.ai` | Clinical Portal, Patient Dossiers, Prescription (Rx) Authorization |
+| **Platform Administrator** | `admin` | `admin123` | `admin@panacea.ai` | System Control Center, User Verification, Microservices Monitor |
 
 ---
 
@@ -232,25 +291,41 @@ The database is pre-populated with test user accounts for all three system roles
 
 | HTTP Method | Endpoint | Access | Description |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/api/auth/register` | Public | Register new user account |
+| `POST` | `/api/auth/register` | Public | Register new user account (submits for admin approval) |
 | `POST` | `/api/auth/login` | Public | Authenticate user & return JWT token |
-| `POST` | `/api/auth/google` | Public | Google OAuth 2.0 authentication |
-| `GET` | `/api/user/profile` | Authenticated | Retrieve current user profile |
-| `GET` | `/api/consultations` | User / Derm | List consultations |
-| `POST` | `/api/consultations` | User | Create a new consultation request |
-| `GET` | `/api/admin/users` | Admin | List all system registered users |
-| `PATCH` | `/api/admin/users/:id/approve` | Admin | Approve pending user account |
-| `GET` | `/api/health` | Public | Node platform health status check |
+| `POST` | `/api/auth/google` | Public | Google OAuth 2.0 credential verification |
+| `GET` | `/api/clinical/consultant/clients` | Consultant | Get synchronized client roster |
+| `GET` | `/api/clinical/dermatologist/patients` | Doctor | Get synchronized medical patient roster |
+| `GET` | `/api/clinical/patient-dossier/:userId` | Clinicians | Retrieve full patient medical dossier (with RBAC redactions) |
+| `POST` | `/api/clinical/consultant/update-regimen` | Consultant | Save esthetician regimen notes |
+| `POST` | `/api/clinical/dermatologist/update-prescription` | Doctor | Authorize and sign medical prescription (Rx) |
+| `GET` | `/api/clinical/user/sharing-preferences` | User | Retrieve data sharing permissions matrix |
+| `POST` | `/api/clinical/user/sharing-preferences` | User | Update consent permissions for care team |
+| `POST` | `/api/clinical/user/book-consultation` | User | Schedule telehealth appointment |
+| `GET` | `/api/chat/conversations` | Authenticated | Retrieve user conversation channels |
+| `GET` | `/api/chat/messages` | Authenticated | Retrieve message history for active contact |
+| `POST` | `/api/chat/send` | Authenticated | Send message (triggers Lumina AI reply if recipient is AI) |
+| `POST` | `/api/chat/mark-read` | Authenticated | Mark channel messages as read |
+| `GET` | `/api/admin/users` | Admin | List all platform registered users |
+| `PUT` | `/api/admin/users/:id/approve` | Admin | Approve pending user account |
 
-### Skin Assessment Microservice (Port 8000)
+### Skin Assessment & Analytics Microservice (Port 8000)
 
 | HTTP Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `POST` | `/assessment` | Calculate skin health score, risks, & create assessment |
-| `GET` | `/assessment` | Retrieve user assessment history |
-| `GET` | `/assessment/score` | Get latest overall skin score (0-100) & parameter breakdown |
-| `GET` | `/assessment/risks` | Active rule-based risk factor matrix |
-| `GET` | `/health` | FastAPI health check & database ping |
+| `POST` | `/assessment` | Calculate 8-biomarker score, risk rules, and save assessment |
+| `GET` | `/assessment/history` | Retrieve historical assessment timeline |
+| `POST` | `/progress/log` | Record longitudinal progress checkpoint |
+| `GET` | `/progress/history/{userId}` | Retrieve 30-day progress history |
+| `GET` | `/progress/adherence/{userId}` | Calculate habit adherence percentage and streak |
+| `POST` | `/progress/compare` | Dual-checkpoint Before & After comparison verdict |
+| `GET` | `/progress/trends/{userId}` | 30-day predictive trajectory curve generation |
+| `POST` | `/ingredient/analyze` | Active chemical contraindication and safety checker |
+| `POST` | `/product/recommend` | Suitability scoring engine for product catalog |
+| `POST` | `/product/compare` | Side-by-side formulation matrix generator |
+| `GET` | `/chat/conversations` | FastAPI chat conversation channels |
+| `POST` | `/chat/send` | Send message & generate Lumina AI response |
+| `GET` | `/health` | Microservice health check and DB ping |
 
 ---
 
@@ -263,7 +338,7 @@ NODE_ENV=development
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/panacea_skin_db
 JWT_SECRET=panacea_ai_skin_intelligence_jwt_secret_key_2026_super_secret
 JWT_EXPIRES_IN=24h
-GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_ID=435046043372-n2nmis20orleg8q57rh6o0muo7qpi0c3.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=your-google-client-secret
 ```
 
@@ -280,26 +355,30 @@ JWT_ALGORITHM="HS256"
 
 ## 🧪 Running Automated Tests
 
-### Node.js Integration Tests
+Run the complete test suites to verify platform integrity:
+
+### 1. Node.js Express & Database Test Suite (56 Tests)
 ```bash
-# Run all Node.js backend & dashboard tests
 npm run test:all
 ```
+*Executes all unit, RBAC security, routine, product comparison, progress tracking, clinical sync, and telehealth chat tests.*
 
-### Python FastAPI Tests
+### 2. Python FastAPI Microservice Test Suite (50 Tests)
 ```bash
 cd skin_assessment_engine
 python -m pytest tests/ -v
 ```
+*Executes all scoring algorithm, ISIC classifier, progress analytics, ingredient contraindication, and chat engine tests.*
+
+**Overall Pass Rate**: **106 / 106 Tests Passing (100%)**
 
 ---
 
-## 📄 License
+## 📄 License & Acknowledgments
 
 Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for details.
 
----
-
 <p align="center">
-  Created by <b>Manish Kumar</b> (Student Email: <a href="mailto:moonknight4550@gmail.com">moonknight4550@gmail.com</a>) for <b>Infosys Springboard Project</b>
+  <b>PanaceaAI</b> — Developed by <b>Manish Kumar</b> for <b>Infosys Springboard Project</b><br>
+  Contact: <a href="mailto:moonknight4550@gmail.com">moonknight4550@gmail.com</a>
 </p>
