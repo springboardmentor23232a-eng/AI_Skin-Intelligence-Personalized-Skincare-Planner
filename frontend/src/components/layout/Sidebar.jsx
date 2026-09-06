@@ -15,6 +15,7 @@ import {
   Settings,
   Sparkles,
   FlaskConical,
+  Activity,
 } from "lucide-react";
 
 export default function Sidebar() {
@@ -120,6 +121,11 @@ export default function Sidebar() {
         path: "/progress",
         icon: TrendingUp,
       },
+      {
+       name: "Scoring Engine",
+       path: "/scoring-engine",
+       icon: Activity,
+      },
       
       {
         name: "Appointments",
@@ -132,6 +138,7 @@ export default function Sidebar() {
         icon: Bell,
         notification: true,
       },
+      
       {
         name: "Settings",
         path: "/settings",

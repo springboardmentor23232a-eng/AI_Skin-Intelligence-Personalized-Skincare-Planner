@@ -21,6 +21,7 @@ import ConsultantAppointments from './pages/ConsultantAppointments'
 import ProviderDashboard from './pages/ProviderDashboard'
 import Settings from './pages/Settings'
 import IngredientIntelligence from './pages/IngredientIntelligence'
+import ScoringEngine from './pages/ScoringEngine'
 
 export default function App() {
   return (
@@ -206,6 +207,16 @@ export default function App() {
     >
       <MainLayout>
         <IngredientIntelligence />
+      </MainLayout>
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/scoring-engine"
+  element={
+    <ProtectedRoute roles={["user"]}>
+      <MainLayout>
+        <ScoringEngine />
       </MainLayout>
     </ProtectedRoute>
   }
