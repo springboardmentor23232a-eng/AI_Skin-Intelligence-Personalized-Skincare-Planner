@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Any, Dict
 from pydantic import BaseModel, EmailStr, Field
 
 class UserRegister(BaseModel):
@@ -268,4 +268,163 @@ class ProductComparisonItem(BaseModel):
 class ProductComparisonResponse(BaseModel):
     comparison_results: List[ProductComparisonItem]
     verdict: str
+
+
+# --- Module 7: Skin Health Scoring Engine Schemas ---
+
+class ScoreComponentBreakdown(BaseModel):
+    name: str
+    key: str
+    score: float
+    weight: float
+    weighted_score: float
+    status: str
+    description: str
+    insights: List[str] = []
+
+class SkinHealthScoreResponse(BaseModel):
+    id: Optional[int] = None
+    user_id: int
+    overall_score: int
+    condition_score: float
+    lifestyle_score: float
+    sleep_score: float
+    routine_score: float
+    hydration_score: float
+    status: str
+    status_color: str
+    delta_change: Optional[int] = 0
+    delta_direction: str
+    components: List[ScoreComponentBreakdown] = []
+    insights: List[str] = []
+    calculated_at: datetime
+    has_profile: bool = True
+    has_assessment_scan: bool = True
+
+    class Config:
+        from_attributes = True
+
+class ScoreHistoryItem(BaseModel):
+    id: int
+    overall_score: int
+    condition_score: float
+    lifestyle_score: float
+    sleep_score: float
+    routine_score: float
+    hydration_score: float
+    calculated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class ChecklistLogCreate(BaseModel):
+    completed_count: int = Field(..., ge=0, description="Completed items count")
+    total_count: int = Field(..., ge=1, description="Total items count")
+
+class ChecklistLogResponse(BaseModel):
+    id: int
+    completed_count: int
+    total_count: int
+    completion_rate: float
+    logged_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# --- Module 8: Progress Tracking & Analytics Schemas ---
+
+class ProgressOverviewItem(BaseModel):
+    title: str
+    key: str
+    value: Any
+    previous_value: Optional[Any] = None
+    delta: Optional[Any] = None
+    unit: Optional[str] = None
+    status: str # "improved", "stable", "declined", "neutral"
+    description: str
+
+class ProgressSummaryResponse(BaseModel):
+    current_overall_score: Optional[int] = None
+    previous_overall_score: Optional[int] = None
+    overall_delta: int = 0
+    overall_status: str
+    current_condition_score: Optional[int] = None
+    previous_condition_score: Optional[int] = None
+    condition_delta: int = 0
+    adherence_7d: float = 0.0
+    adherence_30d: float = 0.0
+    adherence_all: float = 0.0
+    total_scans_count: int = 0
+    total_routines_count: int = 0
+    total_checklist_logs_count: int = 0
+    overview_metrics: List[ProgressOverviewItem] = []
+
+class TrendPoint(BaseModel):
+    date_label: str
+    timestamp: datetime
+    overall_score: Optional[int] = None
+    condition_score: Optional[float] = None
+    adherence_rate: Optional[float] = None
+    lifestyle_score: Optional[float] = None
+    sleep_score: Optional[float] = None
+    routine_score: Optional[float] = None
+    hydration_score: Optional[float] = None
+
+class ConcernTrendItem(BaseModel):
+    concern_name: str
+    data: List[Dict[str, Any]] # [{"date": str, "severity": float, "priority": str}]
+
+class ProgressTrendsResponse(BaseModel):
+    time_range: str
+    total_data_points: int
+    has_data: bool
+    trend_points: List[TrendPoint] = []
+    concern_trends: List[ConcernTrendItem] = []
+
+class AdherenceAnalyticsResponse(BaseModel):
+    adherence_rate_30d: float = 0.0
+    adherence_rate_7d: float = 0.0
+    adherence_rate_all: float = 0.0
+    completed_steps: int = 0
+    total_steps: int = 0
+    missed_steps: int = 0
+    am_adherence_rate: float = 0.0
+    pm_adherence_rate: float = 0.0
+    am_completed: int = 0
+    am_total: int = 0
+    pm_completed: int = 0
+    pm_total: int = 0
+    daily_history: List[Dict[str, Any]] = []
+
+class ConcernComparisonDetail(BaseModel):
+    concern_name: str
+    earlier_severity: Optional[float] = None
+    later_severity: Optional[float] = None
+    delta: float # Negative means improved / severity decreased
+    status: str # "Improved", "Increased", "Unchanged", "Resolved", "New"
+
+class SnapshotComparisonResponse(BaseModel):
+    earlier_date: datetime
+    later_date: datetime
+    days_between: int
+    earlier_overall_score: Optional[int] = None
+    later_overall_score: Optional[int] = None
+    overall_delta: Optional[int] = None
+    earlier_condition_score: Optional[float] = None
+    later_condition_score: Optional[float] = None
+    condition_delta: Optional[float] = None
+    earlier_components: Optional[Dict[str, float]] = None
+    later_components: Optional[Dict[str, float]] = None
+    concerns_comparison: List[ConcernComparisonDetail] = []
+    earlier_risks: List[str] = []
+    later_risks: List[str] = []
+    summary_verdict: str
+
+class SnapshotItem(BaseModel):
+    id: int
+    type: str # "assessment" | "health_score"
+    date: datetime
+    label: str
+    score: Optional[int] = None
 

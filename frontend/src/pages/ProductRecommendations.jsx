@@ -17,6 +17,8 @@ import {
 import toast from 'react-hot-toast';
 import * as productService from '../services/productService';
 import * as routineService from '../services/routineService';
+import ShoppingLinks from '../components/common/ShoppingLinks';
+import { getProductShoppingLinks } from '../data/productShoppingLinks';
 
 export default function ProductRecommendations() {
   const navigate = useNavigate();
@@ -418,6 +420,9 @@ export default function ProductRecommendations() {
                               <span>Safe active ingredients</span>
                             </div>
                           )}
+
+                          {/* Where to Buy - Shopping Platform Redirects */}
+                          <ShoppingLinks links={getProductShoppingLinks(prod)} />
                         </div>
                       </div>
 
@@ -471,6 +476,7 @@ export default function ProductRecommendations() {
                   <span className="text-[10px] font-display font-bold uppercase tracking-wider text-brand-650">{selectedProduct.brand}</span>
                   <h2 className="font-display text-xl font-black text-slate-900 leading-snug">{selectedProduct.name}</h2>
                   <span className="inline-block mt-1 text-xs font-display font-bold text-slate-900">Price: ₹{selectedProduct.price}</span>
+                  <ShoppingLinks links={getProductShoppingLinks(selectedProduct)} className="mt-1" />
                 </div>
                 <button 
                   onClick={() => setSelectedProduct(null)}
@@ -628,6 +634,7 @@ export default function ProductRecommendations() {
                         <div className="bg-brand-50/40 p-2.5 rounded-xl border border-brand-100/50 text-[10px] text-brand-900 font-sans">
                           {item.match_reason}
                         </div>
+                        <ShoppingLinks links={getProductShoppingLinks(item.product)} />
                         <button
                           onClick={() => {
                             setAlternativesProduct(null);

@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.exceptions import register_exception_handlers
-from app.routers import auth, profile, assessment, routine, consultant, ingredients, products
+from app.routers import auth, profile, assessment, routine, consultant, ingredients, products, score, progress
 from app.logging_config import logger
 from app.database import engine, Base, SessionLocal
 from app.models import Ingredient, Product
@@ -44,6 +44,8 @@ app.include_router(routine.router)
 app.include_router(consultant.router)
 app.include_router(ingredients.router)
 app.include_router(products.router)
+app.include_router(score.router)
+app.include_router(progress.router)
 
 @app.on_event("startup")
 def seed_ingredients():

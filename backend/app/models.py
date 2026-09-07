@@ -25,6 +25,8 @@ class User(Base):
     assessments = relationship("SkinAssessment", back_populates="user", cascade="all, delete-orphan")
     routine_profile = relationship("RoutineProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")
     routines = relationship("Routine", back_populates="user", cascade="all, delete-orphan")
+    health_scores = relationship("SkinHealthScoreRecord", back_populates="user", cascade="all, delete-orphan")
+    checklist_logs = relationship("DailyChecklistLog", back_populates="user", cascade="all, delete-orphan")
 
 
 class SkinAssessment(Base):
@@ -199,3 +201,50 @@ class Product(Base):
     is_active = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+
+
+# --- Module 7: Skin Health Scoring Engine Models ---
+
+class SkinHealthScoreRecord(Base):
+    __tablename__ = "skin_health_scores"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    
+    # 0 - 100 Overall Score
+    overall_score = Column(Integer, nullable=False)
+    
+    # Normalized Sub-Scores (0 - 100)
+    condition_score = Column(Float, nullable=False)   # 35% weight
+    lifestyle_score = Column(Float, nullable=False)   # 20% weight
+    sleep_score = Column(Float, nullable=False)       # 15% weight
+    routine_score = Column(Float, nullable=False)     # 20% weight
+    hydration_score = Column(Float, nullable=False)   # 10% weight
+    
+    # References
+    assessment_id = Column(Integer, ForeignKey("skin_assessments.id", ondelete="SET NULL"), nullable=True)
+    routine_profile_id = Column(Integer, ForeignKey("routine_profiles.id", ondelete="SET NULL"), nullable=True)
+    
+    # Structured breakdown, insights, tips
+    breakdown = Column(JSON, nullable=True)
+    
+    calculated_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    # Relationships
+    user = relationship("User", back_populates="health_scores")
+    assessment = relationship("SkinAssessment")
+    profile = relationship("RoutineProfile")
+
+
+class DailyChecklistLog(Base):
+    __tablename__ = "daily_checklist_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    completed_count = Column(Integer, nullable=False)
+    total_count = Column(Integer, nullable=False)
+    completion_rate = Column(Float, nullable=False) # 0.0 - 1.0
+    logged_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    # Relationships
+    user = relationship("User", back_populates="checklist_logs")

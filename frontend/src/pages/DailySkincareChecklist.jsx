@@ -4,6 +4,7 @@ import Breadcrumb from '../components/common/Breadcrumb';
 import { Sun, Moon, CheckCircle2, Circle, Calendar, ClipboardList, ExternalLink } from 'lucide-react';
 import toast from 'react-hot-toast';
 import * as routineService from '../services/routineService';
+import * as scoreService from '../services/scoreService';
 
 export default function DailySkincareChecklist() {
   const navigate = useNavigate();
@@ -31,9 +32,13 @@ export default function DailySkincareChecklist() {
       setRoutine(routineData);
       
       const items = routineData.items || [];
-      setMorningList(items.filter(i => i.routine_type === 'MORNING' && i.is_enabled).sort((a, b) => a.step_order - b.step_order));
-      setEveningList(items.filter(i => i.routine_type === 'EVENING' && i.is_enabled).sort((a, b) => a.step_order - b.step_order));
-      setWeeklyList(items.filter(i => i.routine_type === 'WEEKLY' && i.is_enabled).sort((a, b) => a.step_order - b.step_order));
+      const mList = items.filter(i => i.routine_type === 'MORNING' && i.is_enabled).sort((a, b) => a.step_order - b.step_order);
+      const eList = items.filter(i => i.routine_type === 'EVENING' && i.is_enabled).sort((a, b) => a.step_order - b.step_order);
+      const wList = items.filter(i => i.routine_type === 'WEEKLY' && i.is_enabled).sort((a, b) => a.step_order - b.step_order);
+      
+      setMorningList(mList);
+      setEveningList(eList);
+      setWeeklyList(wList);
       setHasRoutine(true);
       
       // Load saved progress from localStorage
@@ -60,12 +65,24 @@ export default function DailySkincareChecklist() {
     loadChecklistData();
   }, []);
 
-  const toggleCheck = (id, name) => {
+  const toggleCheck = async (id, name) => {
     const nextVal = !checkedItems[id];
     const newChecked = { ...checkedItems, [id]: nextVal };
     setCheckedItems(newChecked);
     localStorage.setItem('skincare_checklist_progress', JSON.stringify(newChecked));
     toast.success(nextVal ? `Completed: ${name}` : `Undone: ${name}`);
+
+    // Compute active completed and total count and sync to backend adherence tracker
+    const totalSteps = morningList.length + eveningList.length;
+    const completedSteps = morningList.filter(i => newChecked[i.id]).length + 
+                           eveningList.filter(i => newChecked[i.id]).length;
+    if (totalSteps > 0) {
+      try {
+        await scoreService.logChecklistAdherence(completedSteps, totalSteps);
+      } catch (err) {
+        console.error("Failed to sync checklist adherence to backend:", err);
+      }
+    }
   };
 
   // Calculate today's completion percentage (AM + PM only, weekly is checklist treatment support)
