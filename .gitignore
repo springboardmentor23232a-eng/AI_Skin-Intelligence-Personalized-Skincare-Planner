@@ -17,3 +17,5 @@ backend/**/*.py[cod]
 .env
 backend/datasets/
 .vite/
+
+backend/uploads/
