@@ -36,6 +36,17 @@ export const initDb = async () => {
         profile_picture TEXT,
         bio TEXT,
         phone VARCHAR(50),
+        specialty VARCHAR(100),
+        license_number VARCHAR(100),
+        experience_years VARCHAR(50),
+        qualification VARCHAR(150),
+        hospital_clinic VARCHAR(150),
+        consultation_fee VARCHAR(50),
+        availability_status VARCHAR(50) DEFAULT 'Available',
+        skin_type VARCHAR(50),
+        skin_concerns TEXT,
+        allergies TEXT,
+        admin_role_title VARCHAR(100),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
@@ -46,6 +57,17 @@ export const initDb = async () => {
       ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_picture TEXT;
       ALTER TABLE users ADD COLUMN IF NOT EXISTS bio TEXT;
       ALTER TABLE users ADD COLUMN IF NOT EXISTS phone VARCHAR(50);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS specialty VARCHAR(100);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS license_number VARCHAR(100);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS experience_years VARCHAR(50);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS qualification VARCHAR(150);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS hospital_clinic VARCHAR(150);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS consultation_fee VARCHAR(50);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS availability_status VARCHAR(50) DEFAULT 'Available';
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS skin_type VARCHAR(50);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS skin_concerns TEXT;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS allergies TEXT;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS admin_role_title VARCHAR(100);
     `);
 
     // Generate BCrypt hashes for seed accounts
@@ -54,20 +76,20 @@ export const initDb = async () => {
 
     // Seed/Upsert User: akp73733@gmail.com with Super ADMIN Role
     await client.query(`
-      INSERT INTO users (name, email, password, role, provider, bio, phone)
-      VALUES ('Akash Prajapati', 'akp73733@gmail.com', '${customUserHash}', 'ADMIN', 'LOCAL', 'Super Administrator with full multi-role access.', '+1 555-7373')
+      INSERT INTO users (name, email, password, role, provider, bio, phone, admin_role_title, availability_status)
+      VALUES ('Akash Prajapati', 'akp73733@gmail.com', '${customUserHash}', 'ADMIN', 'LOCAL', 'Super Administrator with full multi-role access.', '+1 555-7373', 'Super Administrator & Security Lead', 'Active')
       ON CONFLICT (email) DO UPDATE 
-      SET password = '${customUserHash}', role = 'ADMIN';
+      SET password = '${customUserHash}', role = 'ADMIN', admin_role_title = 'Super Administrator & Security Lead';
     `);
 
     // Seed Demo Users into PostgreSQL if not present
     await client.query(`
-      INSERT INTO users (name, email, password, role, provider, bio, phone)
+      INSERT INTO users (name, email, password, role, provider, bio, phone, specialty, license_number, experience_years, qualification, hospital_clinic, consultation_fee, availability_status, skin_type, skin_concerns, allergies, admin_role_title)
       VALUES 
-      ('John Doe', 'john@gmail.com', '${seedHash}', 'USER', 'LOCAL', 'Passionate user seeking personalized skin intelligence.', '+1 555-0192'),
-      ('Dr. Emily Watson', 'consultant@skincare.com', '${seedHash}', 'SKINCARE_CONSULTANT', 'LOCAL', 'Senior Skincare Consultant & Routine Specialist.', '+1 555-0195'),
-      ('Dr. Michael Chen', 'dermatologist@skincare.com', '${seedHash}', 'DERMATOLOGIST', 'LOCAL', 'Board-Certified Dermatologist.', '+1 555-0196'),
-      ('System Admin', 'admin@wellness.com', '${seedHash}', 'ADMIN', 'LOCAL', 'AI Skincare Platform Administrator.', '+1 555-0194')
+      ('John Doe', 'john@gmail.com', '${seedHash}', 'USER', 'LOCAL', 'Passionate user seeking personalized skin intelligence.', '+1 555-0192', NULL, NULL, NULL, NULL, NULL, NULL, 'Active Member', 'Combination', 'Acne, Hyperpigmentation, Redness', 'Fragrance sensitivity', NULL),
+      ('Dr. Emily Watson', 'consultant@skincare.com', '${seedHash}', 'SKINCARE_CONSULTANT', 'LOCAL', 'Senior Skincare Consultant & Routine Specialist.', '+1 555-0195', 'Barrier Repair & Anti-Aging', 'SC-449102', '8 Years', 'Certified Aesthetician', 'SkinIntelligence Wellness Center', '$85 / session', 'Available', NULL, NULL, NULL, NULL),
+      ('Dr. Michael Chen', 'dermatologist@skincare.com', '${seedHash}', 'DERMATOLOGIST', 'LOCAL', 'Board-Certified Dermatologist specializing in clinical acne & psoriasis.', '+1 555-0196', 'Clinical & Surgical Dermatology', 'MD-8839201', '14 Years', 'MD, FAAD (Fellow of American Academy of Dermatology)', 'Metro Dermatology & Laser Center', '$150 / session', 'Available', NULL, NULL, NULL, NULL),
+      ('System Admin', 'admin@wellness.com', '${seedHash}', 'ADMIN', 'LOCAL', 'AI Skincare Platform Administrator.', '+1 555-0194', NULL, NULL, NULL, NULL, NULL, NULL, 'Active', NULL, NULL, NULL, 'System Administrator')
       ON CONFLICT (email) DO NOTHING;
     `);
 

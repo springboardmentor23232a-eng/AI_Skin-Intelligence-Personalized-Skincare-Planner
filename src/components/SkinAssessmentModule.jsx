@@ -111,6 +111,19 @@ const SkinAssessmentModule = ({ onToast }) => {
 
   const activeAssessment = selectedAssessment || (history.length > 0 ? history[0] : null);
 
+  const getConditionBadgeStyle = (condition) => {
+    switch (condition) {
+      case "Excellent":
+        return { bg: "rgba(16, 185, 129, 0.18)", color: "var(--success)", border: "1px solid rgba(16, 185, 129, 0.4)" };
+      case "Good":
+        return { bg: "rgba(59, 130, 246, 0.18)", color: "#60A5FA", border: "1px solid rgba(59, 130, 246, 0.4)" };
+      case "Moderate":
+        return { bg: "rgba(245, 158, 11, 0.18)", color: "var(--warning)", border: "1px solid rgba(245, 158, 11, 0.4)" };
+      default:
+        return { bg: "rgba(239, 68, 68, 0.18)", color: "var(--danger)", border: "1px solid rgba(239, 68, 68, 0.4)" };
+    }
+  };
+
   return (
     <div style={{ marginTop: '2rem', marginBottom: '2.5rem' }}>
       {/* Header Banner */}
@@ -299,46 +312,48 @@ const SkinAssessmentModule = ({ onToast }) => {
 
         {history.length > 0 ? (
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+            <table className="custom-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid var(--border-color)', textAlign: 'left', color: 'var(--text-muted)' }}>
-                  <th style={{ padding: '0.75rem' }}>ID</th>
-                  <th style={{ padding: '0.75rem' }}>Date & Time</th>
-                  <th style={{ padding: '0.75rem' }}>Score</th>
-                  <th style={{ padding: '0.75rem' }}>Condition</th>
-                  <th style={{ padding: '0.75rem' }}>Concerns Count</th>
-                  <th style={{ padding: '0.75rem' }}>Risks Count</th>
-                  <th style={{ padding: '0.75rem' }}>Notes</th>
-                  <th style={{ padding: '0.75rem', textAlign: 'right' }}>Action</th>
+                <tr style={{ borderBottom: '2px solid var(--border-color)', textAlign: 'left', color: 'var(--text-secondary)' }}>
+                  <th style={{ padding: '0.75rem', color: 'var(--text-secondary)' }}>ID</th>
+                  <th style={{ padding: '0.75rem', color: 'var(--text-secondary)' }}>Date & Time</th>
+                  <th style={{ padding: '0.75rem', color: 'var(--text-secondary)' }}>Score</th>
+                  <th style={{ padding: '0.75rem', color: 'var(--text-secondary)' }}>Condition</th>
+                  <th style={{ padding: '0.75rem', color: 'var(--text-secondary)' }}>Concerns Count</th>
+                  <th style={{ padding: '0.75rem', color: 'var(--text-secondary)' }}>Risks Count</th>
+                  <th style={{ padding: '0.75rem', color: 'var(--text-secondary)' }}>Notes</th>
+                  <th style={{ padding: '0.75rem', textAlign: 'right', color: 'var(--text-secondary)' }}>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {history.map((item) => {
                   const isSelected = activeAssessment?.id === item.id;
+                  const condBadge = getConditionBadgeStyle(item.overall_condition);
                   return (
                     <tr
                       key={item.id}
                       style={{
                         borderBottom: '1px solid var(--border-color)',
-                        background: isSelected ? 'rgba(79, 70, 229, 0.08)' : 'transparent',
-                        cursor: 'pointer'
+                        background: isSelected ? 'var(--primary-light)' : 'transparent',
+                        cursor: 'pointer',
+                        color: 'var(--text-primary)'
                       }}
                       onClick={() => setSelectedAssessment(item)}
                     >
-                      <td style={{ padding: '0.75rem', fontWeight: 700 }}>#{item.id}</td>
-                      <td style={{ padding: '0.75rem' }}>{new Date(item.assessment_date).toLocaleString()}</td>
+                      <td style={{ padding: '0.75rem', fontWeight: 800, color: 'var(--primary)' }}>#{item.id}</td>
+                      <td style={{ padding: '0.75rem', color: 'var(--text-primary)' }}>{new Date(item.assessment_date).toLocaleString()}</td>
                       <td style={{ padding: '0.75rem' }}>
                         <span style={{ fontWeight: 800, color: getScoreColor(item.skin_health_score) }}>
                           {item.skin_health_score} / 100
                         </span>
                       </td>
                       <td style={{ padding: '0.75rem' }}>
-                        <span style={{ padding: '0.15rem 0.5rem', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 700, background: 'var(--input-bg)', border: '1px solid var(--border-color)' }}>
+                        <span style={{ padding: '0.25rem 0.65rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 800, background: condBadge.bg, color: condBadge.color, border: condBadge.border }}>
                           {item.overall_condition}
                         </span>
                       </td>
-                      <td style={{ padding: '0.75rem' }}>{item.concerns?.length || 0}</td>
-                      <td style={{ padding: '0.75rem' }}>{item.risks?.length || 0}</td>
+                      <td style={{ padding: '0.75rem', color: 'var(--text-primary)', fontWeight: 600 }}>{item.concerns?.length || 0}</td>
+                      <td style={{ padding: '0.75rem', color: 'var(--text-primary)', fontWeight: 600 }}>{item.risks?.length || 0}</td>
                       <td style={{ padding: '0.75rem', color: 'var(--text-secondary)' }}>{item.notes || "-"}</td>
                       <td style={{ padding: '0.75rem', textAlign: 'right' }}>
                         <button

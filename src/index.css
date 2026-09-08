@@ -970,15 +970,15 @@ input::placeholder, textarea::placeholder {
   border-radius: var(--radius-sm);
 }
 
-.custom-table {
+.custom-table, table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
   color: var(--text-primary) !important;
 }
 
-.custom-table th {
-  background: var(--input-bg) !important;
+.custom-table th, table th {
+  background: var(--input-bg);
   color: var(--text-primary) !important;
   font-weight: 800;
   font-size: 0.82rem;
@@ -989,7 +989,7 @@ input::placeholder, textarea::placeholder {
   border-bottom: 2px solid var(--border-color);
 }
 
-.custom-table td {
+.custom-table td, table td {
   padding: 0.85rem 1rem;
   color: var(--text-primary) !important;
   font-size: 0.88rem;
@@ -997,26 +997,26 @@ input::placeholder, textarea::placeholder {
   vertical-align: middle;
 }
 
-.custom-table tr:hover td {
+.custom-table tr:hover td, table tr:hover td {
   background: var(--primary-light) !important;
 }
 
-[data-theme="dark"] .custom-table th {
+[data-theme="dark"] .custom-table th, [data-theme="dark"] table th {
   background: #1E293B !important;
-  color: #FFFFFF !important;
+  color: #E2E8F0 !important;
   border-bottom: 2px solid #334155;
 }
 
-[data-theme="dark"] .custom-table td {
+[data-theme="dark"] .custom-table td, [data-theme="dark"] table td {
   color: #F8FAFC !important;
   border-bottom: 1px solid #1E293B;
 }
 
-[data-theme="dark"] .custom-table td.fw-bold {
+[data-theme="dark"] .custom-table td.fw-bold, [data-theme="dark"] table td.fw-bold {
   color: #FFFFFF !important;
 }
 
-[data-theme="dark"] .custom-table tr:hover td {
+[data-theme="dark"] .custom-table tr:hover td, [data-theme="dark"] table tr:hover td {
   background: rgba(129, 140, 248, 0.18) !important;
 }
 
@@ -1032,3 +1032,22 @@ input::placeholder, textarea::placeholder {
   color: #FFFFFF !important;
   border-color: #475569 !important;
 }
+
+/* Universal High Contrast Dark Mode Overrides */
+[data-theme="dark"] label {
+  color: #FFFFFF !important;
+}
+
+[data-theme="dark"] p {
+  color: #CBD5E1 !important;
+}
+
+[data-theme="dark"] select option {
+  background-color: #1E293B !important;
+  color: #FFFFFF !important;
+}
+
+[data-theme="dark"] input[type="range"] {
+  background-color: transparent !important;
+}
+

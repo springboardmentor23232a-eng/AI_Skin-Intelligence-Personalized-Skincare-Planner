@@ -95,6 +95,14 @@ export const apiService = {
   getUserDashboard: () => axiosInstance.get('/user/dashboard'),
   getAdminDashboard: () => axiosInstance.get('/admin/dashboard'),
   getAllUsers: () => axiosInstance.get('/admin/users'),
+  updateUserByAdmin: async (userId, userData) => {
+    try {
+      const res = await axiosInstance.put(`/admin/users/${userId}`, userData);
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
 
   // Module 3: Skin Assessment Engine APIs
   createAssessment: async (assessmentData) => {

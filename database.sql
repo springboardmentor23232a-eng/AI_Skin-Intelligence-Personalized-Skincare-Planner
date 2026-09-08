@@ -22,16 +22,30 @@ CREATE TABLE IF NOT EXISTS users (
     profile_picture TEXT,
     bio TEXT,
     phone VARCHAR(50),
+    specialty VARCHAR(100),
+    license_number VARCHAR(100),
+    experience_years VARCHAR(50),
+    qualification VARCHAR(150),
+    hospital_clinic VARCHAR(150),
+    consultation_fee VARCHAR(50),
+    availability_status VARCHAR(50) DEFAULT 'Available',
+    skin_type VARCHAR(50),
+    skin_concerns TEXT,
+    allergies TEXT,
+    admin_role_title VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Seed Initial Demo Users (BCrypt hashed password for "Password@123")
 -- Hash: $2a$10$E.yT5gG.T7N2q7K7z3V5ue/yF8z.yWnE/9K.3S8G.S9V0uK2H.5uO
-INSERT INTO users (name, email, password, role, provider, bio, phone)
+INSERT INTO users (name, email, password, role, provider, bio, phone, specialty, license_number, experience_years, qualification, hospital_clinic, consultation_fee, availability_status, skin_type, skin_concerns, allergies, admin_role_title)
 VALUES 
-('John Doe', 'john@gmail.com', '$2a$10$E.yT5gG.T7N2q7K7z3V5ue/yF8z.yWnE/9K.3S8G.S9V0uK2H.5uO', 'USER', 'LOCAL', 'Passionate developer aiming for skill growth and peak health.', '+1 555-0192'),
-('System Admin', 'admin@wellness.com', '$2a$10$E.yT5gG.T7N2q7K7z3V5ue/yF8z.yWnE/9K.3S8G.S9V0uK2H.5uO', 'ADMIN', 'LOCAL', 'AI Skincare Platform Administrator.', '+1 555-0194')
+('Akash Prajapati', 'akp73733@gmail.com', '$2a$10$E.yT5gG.T7N2q7K7z3V5ue/yF8z.yWnE/9K.3S8G.S9V0uK2H.5uO', 'ADMIN', 'LOCAL', 'Super Administrator with full multi-role access.', '+1 555-7373', NULL, NULL, NULL, NULL, NULL, NULL, 'Active', NULL, NULL, NULL, 'Super Administrator & Security Lead'),
+('John Doe', 'john@gmail.com', '$2a$10$E.yT5gG.T7N2q7K7z3V5ue/yF8z.yWnE/9K.3S8G.S9V0uK2H.5uO', 'USER', 'LOCAL', 'Passionate user seeking personalized skin intelligence.', '+1 555-0192', NULL, NULL, NULL, NULL, NULL, NULL, 'Active Member', 'Combination', 'Acne, Hyperpigmentation, Redness', 'Fragrance sensitivity', NULL),
+('Dr. Emily Watson', 'consultant@skincare.com', '$2a$10$E.yT5gG.T7N2q7K7z3V5ue/yF8z.yWnE/9K.3S8G.S9V0uK2H.5uO', 'SKINCARE_CONSULTANT', 'LOCAL', 'Senior Skincare Consultant & Routine Specialist.', '+1 555-0195', 'Barrier Repair & Anti-Aging', 'SC-449102', '8 Years', 'Certified Aesthetician', 'SkinIntelligence Wellness Center', '$85 / session', 'Available', NULL, NULL, NULL, NULL),
+('Dr. Michael Chen', 'dermatologist@skincare.com', '$2a$10$E.yT5gG.T7N2q7K7z3V5ue/yF8z.yWnE/9K.3S8G.S9V0uK2H.5uO', 'DERMATOLOGIST', 'LOCAL', 'Board-Certified Dermatologist specializing in clinical acne & psoriasis.', '+1 555-0196', 'Clinical & Surgical Dermatology', 'MD-8839201', '14 Years', 'MD, FAAD (Fellow of American Academy of Dermatology)', 'Metro Dermatology & Laser Center', '$150 / session', 'Available', NULL, NULL, NULL, NULL),
+('System Admin', 'admin@wellness.com', '$2a$10$E.yT5gG.T7N2q7K7z3V5ue/yF8z.yWnE/9K.3S8G.S9V0uK2H.5uO', 'ADMIN', 'LOCAL', 'AI Skincare Platform Administrator.', '+1 555-0194', NULL, NULL, NULL, NULL, NULL, NULL, 'Active', NULL, NULL, NULL, 'System Administrator')
 ON CONFLICT (email) DO NOTHING;
 
 -- ====================================================

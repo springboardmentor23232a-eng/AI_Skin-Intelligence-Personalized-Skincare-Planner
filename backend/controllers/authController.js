@@ -2,6 +2,28 @@ import { findUserByEmail, createUser, findUserById } from '../models/userModel.j
 import { hashPassword, comparePassword } from '../utils/passwordUtils.js';
 import { generateToken } from '../utils/jwtUtils.js';
 
+const formatUserResponse = (user) => ({
+  id: user.id,
+  name: user.name,
+  email: user.email,
+  role: user.role,
+  provider: user.provider,
+  profile_picture: user.profile_picture || '',
+  bio: user.bio || '',
+  phone: user.phone || '',
+  specialty: user.specialty || '',
+  license_number: user.license_number || '',
+  experience_years: user.experience_years || '',
+  qualification: user.qualification || '',
+  hospital_clinic: user.hospital_clinic || '',
+  consultation_fee: user.consultation_fee || '',
+  availability_status: user.availability_status || 'Available',
+  skin_type: user.skin_type || '',
+  skin_concerns: user.skin_concerns || '',
+  allergies: user.allergies || '',
+  admin_role_title: user.admin_role_title || ''
+});
+
 /**
  * User Registration API
  * POST /api/auth/register
@@ -38,16 +60,7 @@ export const register = async (req, res) => {
       success: true,
       message: 'User registered successfully',
       token,
-      user: {
-        id: newUser.id,
-        name: newUser.name,
-        email: newUser.email,
-        role: newUser.role,
-        provider: newUser.provider,
-        profile_picture: newUser.profile_picture || '',
-        bio: newUser.bio || '',
-        phone: newUser.phone || ''
-      }
+      user: formatUserResponse(newUser)
     });
   } catch (err) {
     console.error('Registration Error:', err);
@@ -100,16 +113,7 @@ export const login = async (req, res) => {
       message: 'Login successful',
       token,
       role: user.role,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        provider: user.provider,
-        profile_picture: user.profile_picture || '',
-        bio: user.bio || '',
-        phone: user.phone || ''
-      }
+      user: formatUserResponse(user)
     });
   } catch (err) {
     console.error('Login Error:', err);
@@ -159,16 +163,7 @@ export const googleAuth = async (req, res) => {
       message: 'Google OAuth login successful',
       token,
       role: user.role,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        provider: user.provider,
-        profile_picture: user.profile_picture || '',
-        bio: user.bio || '',
-        phone: user.phone || ''
-      }
+      user: formatUserResponse(user)
     });
   } catch (err) {
     console.error('Google OAuth Error:', err);
@@ -191,16 +186,7 @@ export const getCurrentUser = async (req, res) => {
     }
     return res.status(200).json({
       success: true,
-      data: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        provider: user.provider,
-        profile_picture: user.profile_picture || '',
-        bio: user.bio || '',
-        phone: user.phone || ''
-      }
+      data: formatUserResponse(user)
     });
   } catch (_err) {
     return res.status(500).json({ success: false, message: 'Failed to fetch user' });

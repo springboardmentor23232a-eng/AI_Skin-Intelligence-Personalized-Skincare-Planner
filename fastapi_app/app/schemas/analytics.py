@@ -5,6 +5,8 @@ class ScoreDataPoint(BaseModel):
     date: str
     skin_score: int
     moisture_level: int
+    acne_severity: Optional[str] = "Low"
+    redness_level: Optional[str] = "Low"
     routine_completed: bool
 
 class ConcernDistribution(BaseModel):

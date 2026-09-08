@@ -38,21 +38,27 @@ class AnalyticsEngine:
                         date=l.log_date.strftime("%b %d"),
                         skin_score=l.skin_score,
                         moisture_level=l.moisture_level,
+                        acne_severity=l.acne_severity or "Low",
+                        redness_level=l.redness_level or "Low",
                         routine_completed=l.routine_completed
                     )
                 )
         else:
             # Generate mock history for demonstration if user has no logs yet
             today = date.today()
-            dummy_scores = [72, 74, 73, 76, 78, 80, 82]
+            dummy_scores = [72, 74, 73, 76, 78, 80, 82, 84, 85, 87]
+            dummy_acne = ["High", "High", "Medium", "Medium", "Medium", "Low", "Low", "Low", "None", "None"]
+            dummy_redness = ["Medium", "Medium", "Low", "Low", "Low", "Low", "None", "None", "None", "None"]
             for i, sc in enumerate(dummy_scores):
-                dt = today - timedelta(days=6 - i)
+                dt = today - timedelta(days=len(dummy_scores) - 1 - i)
                 score_trajectory.append(
                     ScoreDataPoint(
                         date=dt.strftime("%b %d"),
                         skin_score=sc,
-                        moisture_level=65 + i * 2,
-                        routine_completed=True
+                        moisture_level=60 + i * 3,
+                        acne_severity=dummy_acne[i],
+                        redness_level=dummy_redness[i],
+                        routine_completed=True if i % 6 != 0 else False
                     )
                 )
 

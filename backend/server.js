@@ -12,7 +12,7 @@ import authRoutes from './routes/authRoutes.js';
 import profileRoutes from './routes/profileRoutes.js';
 import { authenticateJWT } from './middleware/authMiddleware.js';
 import { authorizeRoles } from './middleware/roleMiddleware.js';
-import { findUserByEmail, createUser, getAllUsers } from './models/userModel.js';
+import { findUserByEmail, createUser, getAllUsers, updateUserRoleAndProfileByAdmin } from './models/userModel.js';
 import { generateToken } from './utils/jwtUtils.js';
 
 dotenv.config();
@@ -175,6 +175,20 @@ app.get('/api/admin/users', authenticateJWT, authorizeRoles('ADMIN'), async (req
     res.json({ success: true, users });
   } catch (_err) {
     res.status(500).json({ success: false, message: 'Failed to fetch users' });
+  }
+});
+
+app.put('/api/admin/users/:id', authenticateJWT, authorizeRoles('ADMIN'), async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const updated = await updateUserRoleAndProfileByAdmin(userId, req.body);
+    if (!updated) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    res.json({ success: true, message: 'User updated successfully by Admin', user: updated });
+  } catch (err) {
+    console.error('Admin update user error:', err);
+    res.status(500).json({ success: false, message: 'Failed to update user' });
   }
 });
 

@@ -15,8 +15,7 @@ import {
   Tag,
   Info,
   Layers,
-  RefreshCw,
-  Terminal
+  RefreshCw
 } from "lucide-react";
 
 const CATEGORIES = [
@@ -133,84 +132,7 @@ const ProductRecommendationModule = ({ onToast }) => {
     };
   }, [selectedCategory, selectedBudgetTier, sortBy, budgetOnly, customSkinType, customConcerns]);
 
-  // UPPER COMMAND HANDLER
-  const handleExecuteCommand = async (commandType) => {
-    switch (commandType) {
-      case "AI_MATCH":
-        if (onToast) onToast("⚡ Upper Command Executed: Recalibrating AI Suitability Scores...");
-        setLoading(true);
-        try {
-          const res = await apiService.getCustomProductRecommendations({
-            skin_type: customSkinType,
-            skin_concerns: customConcerns,
-            category: selectedCategory === "ALL" ? "" : selectedCategory
-          }, { sort_by: "suitability" });
-          setRecommendations(res || []);
-          if (onToast) onToast("✔ Upper Command Complete: AI Suitability Matrix Updated!");
-        } catch (_err) {
-          if (onToast) onToast("ℹ AI Suitability scores refreshed.");
-        } finally {
-          setLoading(false);
-        }
-        break;
 
-      case "BUDGET_PICK":
-        setSelectedBudgetTier("BUDGET");
-        setBudgetOnly(true);
-        if (onToast) onToast("💰 Upper Command Executed: Budget-Friendly Filter (≤ ₹500) Applied!");
-        break;
-
-      case "FACEWASH":
-        setSelectedCategory("Face Wash");
-        if (onToast) onToast("🧴 Upper Command Executed: Loaded Face Wash Product Recommendations!");
-        break;
-
-      case "FACEMASK":
-        setSelectedCategory("Face Masks");
-        if (onToast) onToast("🧖 Upper Command Executed: Loaded Face Masks Product Recommendations!");
-        break;
-
-      case "TONER":
-        setSelectedCategory("Toner");
-        if (onToast) onToast("💧 Upper Command Executed: Loaded Toner Product Recommendations!");
-        break;
-
-      case "TREATMENT":
-        setSelectedCategory("Treatment Products");
-        if (onToast) onToast("🧪 Upper Command Executed: Loaded Treatment Products Recommendations!");
-        break;
-
-      case "COMPARE":
-        if (selectedForCompare.length >= 2) {
-          handleOpenComparisonModal();
-          if (onToast) onToast("⚖️ Upper Command Executed: Side-by-Side Product Comparison Matrix Launched!");
-        } else if (recommendations.length >= 2) {
-          const autoSelect = recommendations.slice(0, 2);
-          setSelectedForCompare(autoSelect);
-          if (onToast) onToast(`⚖️ Upper Command Executed: Auto-selected '${autoSelect[0].name}' & '${autoSelect[1].name}' for comparison!`);
-          setTimeout(() => {
-            handleOpenComparisonModalWithItems(autoSelect);
-          }, 200);
-        } else {
-          if (onToast) onToast("ℹ Please select products to compare.");
-        }
-        break;
-
-      case "RESET":
-        setSelectedCategory("ALL");
-        setSelectedBudgetTier("ALL");
-        setBudgetOnly(false);
-        setSortBy("suitability");
-        setSelectedForCompare([]);
-        setCustomSkinType("Combination");
-        setCustomConcerns(["Acne", "Enlarged Pores"]);
-        if (onToast) onToast("🔄 Upper Command Executed: Reset All Product Engine Commands & Filters!");
-        break;
-
-      default:
-        break;
-    }
-  };
 
   const handleOpenComparisonModalWithItems = async (itemsList) => {
     setComparingLoading(true);
@@ -271,111 +193,7 @@ const ProductRecommendationModule = ({ onToast }) => {
   return (
     <div id="products" className="glass-card" style={{ marginBottom: "2rem", padding: "1.75rem", position: "relative" }}>
       
-      {/* UPPER COMMAND CENTER / ENGINE CONTROL TOOLBAR */}
-      <div
-        id="product-command-bar"
-        className="upper-command-bar"
-        style={{
-          background: "linear-gradient(135deg, rgba(124, 58, 237, 0.12), rgba(16, 185, 129, 0.12))",
-          border: "1px solid rgba(124, 58, 237, 0.3)",
-          borderRadius: "var(--radius-md)",
-          padding: "1rem 1.25rem",
-          marginBottom: "1.5rem",
-          display: "flex",
-          flexDirection: "column",
-          gap: "0.85rem"
-        }}
-      >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <span style={{ padding: "0.35rem 0.65rem", background: "var(--accent)", color: "#ffffff", borderRadius: "12px", fontSize: "0.72rem", fontWeight: 800, letterSpacing: "0.5px", display: "flex", alignItems: "center", gap: "0.3rem" }}>
-              <Terminal size={14} /> UPPER COMMAND CENTER
-            </span>
-            <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--text-primary)" }}>
-              Product Recommendation Control Commands
-            </span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.72rem", color: "var(--success)", fontWeight: 700 }}>
-            <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#10B981", boxShadow: "0 0 8px #10B981" }}></span>
-            ENGINE COMMAND STATUS: ACTIVE (v2.4)
-          </div>
-        </div>
 
-        {/* Command Action Buttons */}
-        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
-          <button
-            onClick={() => handleExecuteCommand("AI_MATCH")}
-            className="btn"
-            style={{ padding: "0.38rem 0.75rem", fontSize: "0.76rem", fontWeight: 700, background: "var(--primary)", color: "#fff", border: "none", borderRadius: "15px", display: "flex", alignItems: "center", gap: "0.35rem" }}
-            title="Execute Upper Command to run AI suitability match matrix"
-          >
-            <Zap size={14} /> Command: Run AI Match Engine
-          </button>
-
-          <button
-            onClick={() => handleExecuteCommand("BUDGET_PICK")}
-            className="btn"
-            style={{ padding: "0.38rem 0.75rem", fontSize: "0.76rem", fontWeight: 700, background: "rgba(34, 197, 94, 0.15)", color: "#10B981", border: "1px solid #10B981", borderRadius: "15px", display: "flex", alignItems: "center", gap: "0.35rem" }}
-            title="Execute Upper Command to filter budget-friendly products under ₹500"
-          >
-            <DollarSign size={14} /> Command: Budget Friendly (≤ ₹500)
-          </button>
-
-          <button
-            onClick={() => handleExecuteCommand("FACEWASH")}
-            className="btn"
-            style={{ padding: "0.38rem 0.75rem", fontSize: "0.76rem", fontWeight: 700, background: "rgba(59, 130, 246, 0.15)", color: "#3B82F6", border: "1px solid #3B82F6", borderRadius: "15px", display: "flex", alignItems: "center", gap: "0.35rem" }}
-            title="Execute Upper Command for Face Wash Category"
-          >
-            🧴 Command: Face Wash
-          </button>
-
-          <button
-            onClick={() => handleExecuteCommand("FACEMASK")}
-            className="btn"
-            style={{ padding: "0.38rem 0.75rem", fontSize: "0.76rem", fontWeight: 700, background: "rgba(245, 158, 11, 0.15)", color: "#F59E0B", border: "1px solid #F59E0B", borderRadius: "15px", display: "flex", alignItems: "center", gap: "0.35rem" }}
-            title="Execute Upper Command for Face Masks Category"
-          >
-            🧖 Command: Face Masks
-          </button>
-
-          <button
-            onClick={() => handleExecuteCommand("TONER")}
-            className="btn"
-            style={{ padding: "0.38rem 0.75rem", fontSize: "0.76rem", fontWeight: 700, background: "rgba(6, 182, 212, 0.15)", color: "#06B6D4", border: "1px solid #06B6D4", borderRadius: "15px", display: "flex", alignItems: "center", gap: "0.35rem" }}
-            title="Execute Upper Command for Toner Category"
-          >
-            💧 Command: Toner
-          </button>
-
-          <button
-            onClick={() => handleExecuteCommand("TREATMENT")}
-            className="btn"
-            style={{ padding: "0.38rem 0.75rem", fontSize: "0.76rem", fontWeight: 700, background: "rgba(236, 72, 153, 0.15)", color: "#EC4899", border: "1px solid #EC4899", borderRadius: "15px", display: "flex", alignItems: "center", gap: "0.35rem" }}
-            title="Execute Upper Command for Treatment Products Category"
-          >
-            🧪 Command: Treatment
-          </button>
-
-          <button
-            onClick={() => handleExecuteCommand("COMPARE")}
-            className="btn"
-            style={{ padding: "0.38rem 0.75rem", fontSize: "0.76rem", fontWeight: 700, background: "rgba(139, 92, 246, 0.15)", color: "var(--accent)", border: "1px solid var(--accent)", borderRadius: "15px", display: "flex", alignItems: "center", gap: "0.35rem" }}
-            title="Execute Upper Command for Side-by-Side Product Comparison"
-          >
-            <Scale size={14} /> Command: Side-by-Side Compare
-          </button>
-
-          <button
-            onClick={() => handleExecuteCommand("RESET")}
-            className="btn btn-outline"
-            style={{ padding: "0.38rem 0.75rem", fontSize: "0.76rem", fontWeight: 600, borderRadius: "15px", display: "flex", alignItems: "center", gap: "0.35rem" }}
-            title="Reset engine commands & parameters"
-          >
-            <RefreshCw size={14} /> Reset Commands
-          </button>
-        </div>
-      </div>
 
       {/* Header Banner */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>

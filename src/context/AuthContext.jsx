@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { apiService } from "../services/api";
+import { DEMO_ROLE_PROFILES } from "../utils/roleUtils";
 
 const AuthContext = createContext();
 
@@ -28,13 +29,27 @@ export const AuthProvider = ({ children }) => {
   const [tokenPayload, setTokenPayload] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setUser(null);
     setToken(null);
     setTokenPayload(null);
     localStorage.removeItem("app_user");
     localStorage.removeItem("app_token");
-  };
+  }, []);
+
+  const refreshProfile = useCallback(async () => {
+    try {
+      const res = await apiService.getProfile();
+      if (res && res.user) {
+        setUser(res.user);
+        localStorage.setItem("app_user", JSON.stringify(res.user));
+        return res.user;
+      }
+    } catch (_err) {
+      console.warn("Could not refresh live profile:", _err.message);
+    }
+    return null;
+  }, []);
 
   // Initialize auth state from local storage and backend API
   useEffect(() => {
@@ -71,14 +86,7 @@ export const AuthProvider = ({ children }) => {
         }
       } else {
         // Initial Demo user setup if no token exists
-        const defaultUser = {
-          id: 1,
-          name: "John Doe",
-          email: "john@gmail.com",
-          role: "USER",
-          provider: "LOCAL",
-          bio: "Passionate developer aiming for skill growth and peak health."
-        };
+        const defaultUser = DEMO_ROLE_PROFILES.USER;
         setUser(defaultUser);
         const demoToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJqb2huQGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzIyMzMyODAwLCJleHAiOjE5MjIzMzI4MDB9.signature";
         setToken(demoToken);
@@ -90,7 +98,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     initializeAuth();
-  }, []);
+  }, [logout]);
 
   const login = async (email, password) => {
     try {
@@ -110,23 +118,19 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       console.warn("API Login Error:", err.message);
       // Local fallback for UI demo testing
-      let role = "USER";
-      let name = "John Doe";
       const emailLower = email.toLowerCase();
+      let roleKey = "USER";
 
       if (emailLower.includes("admin") || emailLower.includes("akp73733")) {
-        role = "ADMIN";
-        name = "System Admin";
+        roleKey = "ADMIN";
       } else if (emailLower.includes("dermatologist") || emailLower.includes("doctor")) {
-        role = "DERMATOLOGIST";
-        name = "Dr. Michael Chen";
+        roleKey = "DERMATOLOGIST";
       } else if (emailLower.includes("consultant")) {
-        role = "SKINCARE_CONSULTANT";
-        name = "Dr. Emily Watson";
+        roleKey = "SKINCARE_CONSULTANT";
       }
 
-      const userData = { id: 1, name, email, role, provider: "LOCAL" };
-      const demoToken = `eyJhbGciOiJIUzI1NiJ9.${btoa(JSON.stringify({ id: 1, name, email, role, exp: Math.floor(Date.now() / 1000) + 86400 }))}.signature`;
+      const userData = { ...DEMO_ROLE_PROFILES[roleKey], email };
+      const demoToken = `eyJhbGciOiJIUzI1NiJ9.${btoa(JSON.stringify({ id: userData.id, name: userData.name, email, role: userData.role, exp: Math.floor(Date.now() / 1000) + 86400 }))}.signature`;
 
       setToken(demoToken);
       setUser(userData);
@@ -154,7 +158,15 @@ export const AuthProvider = ({ children }) => {
       return { success: false, message: res.message || "Registration failed" };
     } catch (err) {
       console.warn("API Registration error:", err.message);
-      const userData = { id: Math.floor(Math.random() * 1000), name, email, role: role || "USER", provider: "LOCAL" };
+      const roleKey = (role || "USER").toUpperCase();
+      const baseProfile = DEMO_ROLE_PROFILES[roleKey] || DEMO_ROLE_PROFILES.USER;
+      const userData = {
+        ...baseProfile,
+        id: Math.floor(Math.random() * 1000),
+        name,
+        email,
+        role: roleKey
+      };
       const demoToken = `eyJhbGciOiJIUzI1NiJ9.${btoa(JSON.stringify({ id: userData.id, name, email, role: userData.role }))}.signature`;
       setToken(demoToken);
       setUser(userData);
@@ -187,13 +199,16 @@ export const AuthProvider = ({ children }) => {
       else if (emailLower.includes("dermatologist") || emailLower.includes("doctor")) userRole = "DERMATOLOGIST";
       else if (emailLower.includes("consultant")) userRole = "SKINCARE_CONSULTANT";
 
+      const baseProfile = DEMO_ROLE_PROFILES[userRole] || DEMO_ROLE_PROFILES.USER;
+
       const userData = {
+        ...baseProfile,
         id: 99,
         name: googleUser.name || "Google User",
         email: googleUser.email || "google@gmail.com",
         role: userRole,
         provider: "GOOGLE",
-        profile_picture: googleUser.profile_picture || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"
+        profile_picture: googleUser.profile_picture || baseProfile.profile_picture || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"
       };
       const demoToken = `eyJhbGciOiJIUzI1NiJ9.${btoa(JSON.stringify({ id: 99, name: userData.name, email: userData.email, role: userRole, exp: Math.floor(Date.now() / 1000) + 86400 }))}.signature`;
       setToken(demoToken);
@@ -213,13 +228,24 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("app_user", JSON.stringify(userData));
   };
 
-  const updateProfileState = (updatedFields) => {
+  const updateProfileState = useCallback((updatedFields) => {
     setUser((prev) => {
       const newUser = { ...prev, ...updatedFields };
       localStorage.setItem("app_user", JSON.stringify(newUser));
       return newUser;
     });
-  };
+  }, []);
+
+  const switchDemoRole = useCallback((roleKey) => {
+    const target = DEMO_ROLE_PROFILES[roleKey.toUpperCase()] || DEMO_ROLE_PROFILES.USER;
+    const demoToken = `eyJhbGciOiJIUzI1NiJ9.${btoa(JSON.stringify({ id: target.id, name: target.name, email: target.email, role: target.role, exp: Math.floor(Date.now() / 1000) + 86400 }))}.signature`;
+    
+    setToken(demoToken);
+    setUser(target);
+    setTokenPayload(parseJwt(demoToken));
+    localStorage.setItem("app_token", demoToken);
+    localStorage.setItem("app_user", JSON.stringify(target));
+  }, []);
 
   return (
     <AuthContext.Provider value={{
@@ -232,6 +258,8 @@ export const AuthProvider = ({ children }) => {
       loginWithToken,
       logout,
       updateProfileState,
+      refreshProfile,
+      switchDemoRole,
       loading,
       isAuthenticated: !!user
     }}>

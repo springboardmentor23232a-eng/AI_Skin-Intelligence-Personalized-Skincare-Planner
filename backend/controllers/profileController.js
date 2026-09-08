@@ -1,5 +1,30 @@
 import { findUserById, updateUserProfile } from '../models/userModel.js';
 
+// Format user object with all profile attributes
+const formatUserProfile = (user) => ({
+  id: user.id,
+  name: user.name,
+  email: user.email,
+  role: user.role,
+  provider: user.provider,
+  profile_picture: user.profile_picture || '',
+  bio: user.bio || '',
+  phone: user.phone || '',
+  specialty: user.specialty || '',
+  license_number: user.license_number || '',
+  experience_years: user.experience_years || '',
+  qualification: user.qualification || '',
+  hospital_clinic: user.hospital_clinic || '',
+  consultation_fee: user.consultation_fee || '',
+  availability_status: user.availability_status || 'Available',
+  skin_type: user.skin_type || '',
+  skin_concerns: user.skin_concerns || '',
+  allergies: user.allergies || '',
+  admin_role_title: user.admin_role_title || '',
+  created_at: user.created_at,
+  updated_at: user.updated_at
+});
+
 /**
  * GET /api/profile
  * Retrieve authenticated user profile
@@ -16,18 +41,7 @@ export const getProfile = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        provider: user.provider,
-        profile_picture: user.profile_picture || '',
-        bio: user.bio || '',
-        phone: user.phone || '',
-        created_at: user.created_at,
-        updated_at: user.updated_at
-      }
+      user: formatUserProfile(user)
     });
   } catch (err) {
     console.error('Get Profile Error:', err);
@@ -40,13 +54,33 @@ export const getProfile = async (req, res) => {
 
 /**
  * PUT /api/profile
- * Update allowed profile fields (name, email, profile_picture, bio, phone).
- * Immutable fields: role, provider.
+ * Update allowed profile fields for user's role.
+ * Immutable fields via profile API: role, provider.
  */
 export const updateProfile = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { name, email, profile_picture, avatarUrl, bio, phone, role, provider } = req.body;
+    const {
+      name,
+      email,
+      profile_picture,
+      avatarUrl,
+      bio,
+      phone,
+      specialty,
+      license_number,
+      experience_years,
+      qualification,
+      hospital_clinic,
+      consultation_fee,
+      availability_status,
+      skin_type,
+      skin_concerns,
+      allergies,
+      admin_role_title,
+      role,
+      provider
+    } = req.body;
 
     // Explicitly prevent role and provider modification
     if (role && role !== req.user.role) {
@@ -69,7 +103,18 @@ export const updateProfile = async (req, res) => {
       email,
       profile_picture: pictureToUpdate,
       bio,
-      phone
+      phone,
+      specialty,
+      license_number,
+      experience_years,
+      qualification,
+      hospital_clinic,
+      consultation_fee,
+      availability_status,
+      skin_type,
+      skin_concerns,
+      allergies,
+      admin_role_title
     });
 
     if (!updatedUser) {
@@ -82,18 +127,7 @@ export const updateProfile = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: 'Profile updated successfully',
-      user: {
-        id: updatedUser.id,
-        name: updatedUser.name,
-        email: updatedUser.email,
-        role: updatedUser.role,
-        provider: updatedUser.provider,
-        profile_picture: updatedUser.profile_picture || '',
-        bio: updatedUser.bio || '',
-        phone: updatedUser.phone || '',
-        created_at: updatedUser.created_at,
-        updated_at: updatedUser.updated_at
-      }
+      user: formatUserProfile(updatedUser)
     });
   } catch (err) {
     console.error('Update Profile Error:', err);

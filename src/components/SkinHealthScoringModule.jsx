@@ -152,7 +152,7 @@ const SkinHealthScoringModule = ({ onToast }) => {
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
               <div>
-                <label style={{ fontSize: "0.75rem", fontWeight: 700, display: "block", marginBottom: "0.2rem" }}>Acne Severity:</label>
+                <label style={{ fontSize: "0.75rem", fontWeight: 700, display: "block", marginBottom: "0.2rem", color: "var(--text-primary)" }}>Acne Severity:</label>
                 <select value={acneSeverity} onChange={(e) => setAcneSeverity(e.target.value)} style={{ width: "100%", padding: "0.35rem", fontSize: "0.78rem", borderRadius: "6px" }}>
                   <option value="None">None (0 Penalty)</option>
                   <option value="Mild">Mild (-10 Pts)</option>
@@ -162,7 +162,7 @@ const SkinHealthScoringModule = ({ onToast }) => {
               </div>
 
               <div>
-                <label style={{ fontSize: "0.75rem", fontWeight: 700, display: "block", marginBottom: "0.2rem" }}>Pigmentation:</label>
+                <label style={{ fontSize: "0.75rem", fontWeight: 700, display: "block", marginBottom: "0.2rem", color: "var(--text-primary)" }}>Pigmentation:</label>
                 <select value={pigmentation} onChange={(e) => setPigmentation(e.target.value)} style={{ width: "100%", padding: "0.35rem", fontSize: "0.78rem", borderRadius: "6px" }}>
                   <option value="None">None</option>
                   <option value="Mild">Mild (-8 Pts)</option>
@@ -172,7 +172,7 @@ const SkinHealthScoringModule = ({ onToast }) => {
               </div>
 
               <div>
-                <label style={{ fontSize: "0.75rem", fontWeight: 700, display: "block", marginBottom: "0.2rem" }}>Redness / Erythema:</label>
+                <label style={{ fontSize: "0.75rem", fontWeight: 700, display: "block", marginBottom: "0.2rem", color: "var(--text-primary)" }}>Redness / Erythema:</label>
                 <select value={rednessLevel} onChange={(e) => setRednessLevel(e.target.value)} style={{ width: "100%", padding: "0.35rem", fontSize: "0.78rem", borderRadius: "6px" }}>
                   <option value="None">None / Low</option>
                   <option value="Mild">Mild (-8 Pts)</option>
@@ -182,7 +182,7 @@ const SkinHealthScoringModule = ({ onToast }) => {
               </div>
 
               <div>
-                <label style={{ fontSize: "0.75rem", fontWeight: 700, display: "block", marginBottom: "0.2rem" }}>Oiliness / Dryness Balance:</label>
+                <label style={{ fontSize: "0.75rem", fontWeight: 700, display: "block", marginBottom: "0.2rem", color: "var(--text-primary)" }}>Oiliness / Dryness Balance:</label>
                 <select value={oiliness} onChange={(e) => setOiliness(e.target.value)} style={{ width: "100%", padding: "0.35rem", fontSize: "0.78rem", borderRadius: "6px" }}>
                   <option value="Low">Balanced / Low</option>
                   <option value="Medium">Medium (-4 Pts)</option>
@@ -201,7 +201,7 @@ const SkinHealthScoringModule = ({ onToast }) => {
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
               <div>
-                <label style={{ fontSize: "0.75rem", fontWeight: 700, display: "block", marginBottom: "0.2rem" }}>Stress Level:</label>
+                <label style={{ fontSize: "0.75rem", fontWeight: 700, display: "block", marginBottom: "0.2rem", color: "var(--text-primary)" }}>Stress Level:</label>
                 <select value={stressLevel} onChange={(e) => setStressLevel(e.target.value)} style={{ width: "100%", padding: "0.35rem", fontSize: "0.78rem", borderRadius: "6px" }}>
                   <option value="Low">Low (100 Pts)</option>
                   <option value="Medium">Medium (75 Pts)</option>
@@ -210,7 +210,7 @@ const SkinHealthScoringModule = ({ onToast }) => {
               </div>
 
               <div>
-                <label style={{ fontSize: "0.75rem", fontWeight: 700, display: "block", marginBottom: "0.2rem" }}>Sun Exposure:</label>
+                <label style={{ fontSize: "0.75rem", fontWeight: 700, display: "block", marginBottom: "0.2rem", color: "var(--text-primary)" }}>Sun Exposure:</label>
                 <select value={sunExposure} onChange={(e) => setSunExposure(e.target.value)} style={{ width: "100%", padding: "0.35rem", fontSize: "0.78rem", borderRadius: "6px" }}>
                   <option value="Low">Low (100 Pts)</option>
                   <option value="Moderate">Moderate (80 Pts)</option>
@@ -219,7 +219,7 @@ const SkinHealthScoringModule = ({ onToast }) => {
               </div>
 
               <div>
-                <label style={{ fontSize: "0.75rem", fontWeight: 700, display: "block", marginBottom: "0.2rem" }}>Smoking Habit:</label>
+                <label style={{ fontSize: "0.75rem", fontWeight: 700, display: "block", marginBottom: "0.2rem", color: "var(--text-primary)" }}>Smoking Habit:</label>
                 <select value={smoking ? "Yes" : "No"} onChange={(e) => setSmoking(e.target.value === "Yes")} style={{ width: "100%", padding: "0.35rem", fontSize: "0.78rem", borderRadius: "6px" }}>
                   <option value="No">Non-Smoker (100 Pts)</option>
                   <option value="Yes">Smoker (35 Pts)</option>
@@ -227,7 +227,7 @@ const SkinHealthScoringModule = ({ onToast }) => {
               </div>
 
               <div>
-                <label style={{ fontSize: "0.75rem", fontWeight: 700, display: "block", marginBottom: "0.2rem" }}>Alcohol Intake:</label>
+                <label style={{ fontSize: "0.75rem", fontWeight: 700, display: "block", marginBottom: "0.2rem", color: "var(--text-primary)" }}>Alcohol Intake:</label>
                 <select value={alcohol} onChange={(e) => setAlcohol(e.target.value)} style={{ width: "100%", padding: "0.35rem", fontSize: "0.78rem", borderRadius: "6px" }}>
                   <option value="None">None (100 Pts)</option>
                   <option value="Occasional">Occasional (80 Pts)</option>
@@ -242,7 +242,7 @@ const SkinHealthScoringModule = ({ onToast }) => {
             {/* Sleep Slider */}
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.78rem", fontWeight: 700, marginBottom: "0.25rem" }}>
-                <span>3. Sleep Quality (Weight: 15%):</span>
+                <span style={{ color: "var(--text-primary)" }}>3. Sleep Quality (Weight: 15%):</span>
                 <span style={{ color: "var(--warning)" }}>{sleepHours} Hours / night</span>
               </div>
               <input
@@ -259,7 +259,7 @@ const SkinHealthScoringModule = ({ onToast }) => {
             {/* Routine Consistency Slider */}
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.78rem", fontWeight: 700, marginBottom: "0.25rem" }}>
-                <span>4. Routine Consistency (Weight: 20%):</span>
+                <span style={{ color: "var(--text-primary)" }}>4. Routine Consistency (Weight: 20%):</span>
                 <span style={{ color: "var(--danger)" }}>{routineConsistency}% Adherence</span>
               </div>
               <input
@@ -276,7 +276,7 @@ const SkinHealthScoringModule = ({ onToast }) => {
             {/* Hydration Slider */}
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.78rem", fontWeight: 700, marginBottom: "0.25rem" }}>
-                <span>5. Hydration Level (Weight: 10%):</span>
+                <span style={{ color: "var(--text-primary)" }}>5. Hydration Level (Weight: 10%):</span>
                 <span style={{ color: "#3B82F6" }}>{waterIntake} Liters / day</span>
               </div>
               <input
@@ -293,7 +293,7 @@ const SkinHealthScoringModule = ({ onToast }) => {
             {/* Previous Score Baseline for Improvement Delta */}
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.78rem", fontWeight: 700, marginBottom: "0.25rem" }}>
-                <span>Baseline Score (For Improvement Delta):</span>
+                <span style={{ color: "var(--text-primary)" }}>Baseline Score (For Improvement Delta):</span>
                 <span style={{ color: "var(--text-muted)" }}>{previousScore} pts</span>
               </div>
               <input
