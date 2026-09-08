@@ -16,7 +16,10 @@
     "test:clinical": "node test/clinical_sync.test.js",
     "test:consultations": "node test/consultation_sharing.test.js",
     "test:chat": "node test/chat.test.js",
-    "test:all": "node test/dashboard.test.js && node test/server.test.js && node test/routine.test.js && node test/products.test.js && node test/progress.test.js && node test/clinical_sync.test.js && node test/consultation_sharing.test.js && node test/chat.test.js"
+    "test:dashboard_v9": "node test/dashboard_v9.test.js",
+    "test:notifications_v10": "node test/notifications_v10.test.js",
+    "test:reports_v11": "node test/reports_v11.test.js",
+    "test:all": "node test/dashboard.test.js && node test/server.test.js && node test/routine.test.js && node test/products.test.js && node test/progress.test.js && node test/clinical_sync.test.js && node test/consultation_sharing.test.js && node test/chat.test.js && node test/dashboard_v9.test.js && node test/notifications_v10.test.js && node test/reports_v11.test.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

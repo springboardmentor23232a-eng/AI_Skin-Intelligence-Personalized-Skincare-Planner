@@ -521,6 +521,213 @@ const inMemoryStore = {
       read: true,
       created_at: new Date(Date.now() - 3600000 * 18).toISOString()
     }
+  ],
+  notifications: [
+    {
+      id: 1,
+      user_id: 1,
+      title: '🌅 Morning Routine Reminder',
+      message: 'Time for your AM Vitamin C & SPF 50+ Shield routine! Lock in hydration before UV exposure.',
+      category: 'routine',
+      type: 'info',
+      is_read: false,
+      action_url: '#checklist-am',
+      metadata: { routine_type: 'morning', steps_count: 4 },
+      created_at: new Date(Date.now() - 45 * 60000).toISOString()
+    },
+    {
+      id: 2,
+      user_id: 1,
+      title: '💧 Daily Hydration Milestone',
+      message: "You've reached 1,750ml today! Drink 2 more glasses to hit your 2,500ml skin moisture target.",
+      category: 'hydration_sleep',
+      type: 'success',
+      is_read: false,
+      action_url: '#hydration-widget',
+      metadata: { current_ml: 1750, target_ml: 2500 },
+      created_at: new Date(Date.now() - 2 * 3600000).toISOString()
+    },
+    {
+      id: 3,
+      user_id: 1,
+      title: '⚠️ Product Replenishment Alert',
+      message: "Your 'The Ordinary Niacinamide 10%' has ~5 days of usage remaining. 1-Click reorder is available.",
+      category: 'product',
+      type: 'warning',
+      is_read: false,
+      action_url: 'https://www.nykaa.com',
+      metadata: { product_name: 'The Ordinary Niacinamide 10%', days_left: 5, remaining_pct: 12.0 },
+      created_at: new Date(Date.now() - 5 * 3600000).toISOString()
+    },
+    {
+      id: 4,
+      user_id: 1,
+      title: '🔥 14-Day Consistency Streak!',
+      message: 'Incredible dedication! Your 14-day routine streak has boosted barrier lipid strength by +24%.',
+      category: 'system',
+      type: 'success',
+      is_read: true,
+      action_url: '/progress',
+      metadata: { streak_days: 14, barrier_delta: 24.0 },
+      created_at: new Date(Date.now() - 86400000).toISOString()
+    },
+    {
+      id: 5,
+      user_id: 1,
+      title: '🩺 Dermatologist Prescription Update',
+      message: 'Dr. Julian Rostova reviewed your optical scan and adjusted your Adapalene PM application frequency to 3x/wk.',
+      category: 'clinical',
+      type: 'alert',
+      is_read: true,
+      action_url: '/chat',
+      metadata: { doctor_name: 'Dr. Julian Rostova, MD', rx: 'Adapalene 0.1%' },
+      created_at: new Date(Date.now() - 2 * 86400000).toISOString()
+    }
+  ],
+  reminders: [
+    {
+      id: 1,
+      user_id: 1,
+      morning_routine_time: '08:00',
+      evening_routine_time: '21:30',
+      hydration_target_ml: 2500,
+      hydration_interval_hours: 2,
+      sleep_wind_down_time: '22:30',
+      sleep_target_hours: 8.0,
+      weekly_scan_day: 'Sunday',
+      enable_routine_reminders: true,
+      enable_replenishment_alerts: true,
+      enable_hydration_reminders: true,
+      enable_sleep_reminders: true,
+      enable_progress_alerts: true,
+      enable_platform_notifications: true
+    }
+  ],
+  product_replenishment_tracking: [
+    {
+      id: 1,
+      user_id: 1,
+      product_id: 1,
+      product_name: 'The Ordinary Niacinamide 10% + Zinc 1%',
+      category: 'Serum',
+      total_volume_ml: 30.0,
+      daily_usage_ml: 0.8,
+      remaining_pct: 12.0,
+      days_left: 5,
+      status: 'Low',
+      reorder_url: 'https://www.nykaa.com',
+      estimated_depletion_date: new Date(Date.now() + 5 * 86400000).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+    },
+    {
+      id: 2,
+      user_id: 1,
+      product_id: 2,
+      product_name: 'CeraVe Hydrating Facial Cleanser',
+      category: 'Face Wash',
+      total_volume_ml: 236.0,
+      daily_usage_ml: 3.0,
+      remaining_pct: 45.0,
+      days_left: 35,
+      status: 'Adequate',
+      reorder_url: 'https://www.amazon.in',
+      estimated_depletion_date: new Date(Date.now() + 35 * 86400000).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+    },
+    {
+      id: 3,
+      user_id: 1,
+      product_id: 3,
+      product_name: 'La Roche-Posay Anthelios SPF 50+',
+      category: 'Sunscreen',
+      total_volume_ml: 50.0,
+      daily_usage_ml: 1.5,
+      remaining_pct: 18.0,
+      days_left: 6,
+      status: 'Low',
+      reorder_url: 'https://www.amazon.in',
+      estimated_depletion_date: new Date(Date.now() + 6 * 86400000).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+    },
+    {
+      id: 4,
+      user_id: 1,
+      product_id: 4,
+      product_name: 'Illiyoon Ceramide Ato Concentrate Cream',
+      category: 'Moisturizer',
+      total_volume_ml: 200.0,
+      daily_usage_ml: 2.5,
+      remaining_pct: 70.0,
+      days_left: 56,
+      status: 'Adequate',
+      reorder_url: 'https://www.nykaa.com',
+      estimated_depletion_date: new Date(Date.now() + 56 * 86400000).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+    }
+  ],
+  daily_skincare_checklists: [
+    { id: 1, user_id: 1, check_date: new Date().toISOString().split('T')[0], routine_type: 'morning', step_id: 'am_cleanse', step_name: 'Gentle Hydrating Cleanser', completed: true, completed_at: new Date().toISOString() },
+    { id: 2, user_id: 1, check_date: new Date().toISOString().split('T')[0], routine_type: 'morning', step_id: 'am_treat', step_name: 'Antioxidant Vitamin C Serum', completed: true, completed_at: new Date().toISOString() },
+    { id: 3, user_id: 1, check_date: new Date().toISOString().split('T')[0], routine_type: 'morning', step_id: 'am_moisturize', step_name: 'Barrier Support Moisture Gel', completed: true, completed_at: new Date().toISOString() },
+    { id: 4, user_id: 1, check_date: new Date().toISOString().split('T')[0], routine_type: 'morning', step_id: 'am_spf', step_name: 'Broad Spectrum SPF 50+ Sunscreen', completed: true, completed_at: new Date().toISOString() },
+    { id: 5, user_id: 1, check_date: new Date().toISOString().split('T')[0], routine_type: 'evening', step_id: 'pm_oil_cleanse', step_name: 'Micellar Cleansing Water', completed: false, completed_at: null },
+    { id: 6, user_id: 1, check_date: new Date().toISOString().split('T')[0], routine_type: 'evening', step_id: 'pm_cleanse', step_name: 'Soothing Gel Cleanser', completed: false, completed_at: null },
+    { id: 7, user_id: 1, check_date: new Date().toISOString().split('T')[0], routine_type: 'evening', step_id: 'pm_actives', step_name: 'Adapalene 0.1% / Retinoid Repair', completed: false, completed_at: null },
+    { id: 8, user_id: 1, check_date: new Date().toISOString().split('T')[0], routine_type: 'evening', step_id: 'pm_ceramide', step_name: 'Ceramide Overnight Recovery Cream', completed: false, completed_at: null }
+  ],
+  hydration_logs: [
+    {
+      id: 1,
+      user_id: 1,
+      log_date: new Date().toISOString().split('T')[0],
+      intake_ml: 1750,
+      target_ml: 2500,
+      logs_breakdown: [
+        { time: '08:30', amount: 500 },
+        { time: '11:00', amount: 500 },
+        { time: '13:30', amount: 500 },
+        { time: '16:00', amount: 250 }
+      ]
+    }
+  ],
+  sleep_logs: [
+    {
+      id: 1,
+      user_id: 1,
+      log_date: new Date().toISOString().split('T')[0],
+      sleep_hours: 7.5,
+      sleep_quality: 'Good',
+      wind_down_time: '22:30',
+      notes: 'Deep restful sleep cycle.'
+    }
+  ],
+  generated_reports: [
+    {
+      id: 1,
+      user_id: 1,
+      report_type: 'skin_health',
+      title: 'Executive Comprehensive Skin Intelligence & Clinical Health Dossier',
+      summary: 'Executive comprehensive skin intelligence dossier integrating cutaneous scoring, diagnostic screening, personalized routines, and 30-day clinical progress.',
+      format: 'pdf',
+      created_at: new Date().toISOString(),
+      report_data: {
+        patient_name: 'Alex Rivera',
+        patient_id: 'PX-00001',
+        evaluation_date: new Date().toISOString(),
+        overall_health_score: 79.4,
+        skin_type: 'Combination',
+        clinical_status: 'Optimal Progress / Regimen Maintained',
+        assigned_consultant: 'Elena Vance, LE',
+        assigned_dermatologist: 'Dr. Julian Rostova, MD',
+        active_prescription: 'Topical Adapalene 0.1% (PM 3x/wk) + Azelaic Acid 15% (AM)',
+        routine_adherence: '93.5%',
+        consistency_streak: '14 Days',
+        hydration_status: '74% (1,750ml / 2,500ml Daily)',
+        sleep_circadian_index: '7.5 hrs / Night (Optimal Mitosis)'
+      }
+    }
+  ],
+  admin_audit_logs: [
+    { id: 101, actor: 'Dr. Julian Rostova, MD', role: 'dermatologist', action: 'Issued Board Prescription (Rx) for User #6', ip: '192.168.1.42', time: '12 mins ago' },
+    { id: 102, actor: 'Elena Vance, LE', role: 'consultant', action: 'Updated Regimen Formulation Notes for User #1', ip: '192.168.1.18', time: '28 mins ago' },
+    { id: 103, actor: 'System Admin', role: 'admin', action: 'Verified & Approved Clinician Account #5', ip: '127.0.0.1', time: '1 hr ago' },
+    { id: 104, actor: 'Lumina AI Copilot', role: 'system', action: 'Flagged Retinoid + BHA Contraindication for User #5', ip: '127.0.0.1', time: '2 hrs ago' }
   ]
 };
 
@@ -583,6 +790,18 @@ export async function query(text, params = []) {
     return { rows: [], rowCount: 0 };
   }
 
+  // UPDATE users SET role
+  if (cleanText.includes('UPDATE users SET role')) {
+    const roleVal = params[0];
+    const target = params[1];
+    const userObj = inMemoryStore.users.find(u => u.id === parseInt(target, 10) || u.username === target);
+    if (userObj) {
+      userObj.role = roleVal;
+      return { rows: [userObj], rowCount: 1 };
+    }
+    return { rows: [], rowCount: 0 };
+  }
+
   // INSERT INTO users
   if (cleanText.includes('INSERT INTO users')) {
     const newUser = {
@@ -620,6 +839,70 @@ export async function query(text, params = []) {
 
   if (cleanText.includes('FROM consultations')) {
     return { rows: inMemoryStore.consultations, rowCount: inMemoryStore.consultations.length };
+  }
+
+  // SELECT notifications
+  if (cleanText.includes('FROM notifications WHERE user_id = $1')) {
+    const idVal = parseInt(params[0], 10);
+    const found = inMemoryStore.notifications.filter(n => n.user_id === idVal);
+    return { rows: found, rowCount: found.length };
+  }
+
+  if (cleanText.includes('FROM notifications')) {
+    return { rows: inMemoryStore.notifications, rowCount: inMemoryStore.notifications.length };
+  }
+
+  // SELECT reminders
+  if (cleanText.includes('FROM reminders WHERE user_id = $1')) {
+    const idVal = parseInt(params[0], 10);
+    const found = inMemoryStore.reminders.filter(r => r.user_id === idVal);
+    return { rows: found, rowCount: found.length };
+  }
+
+  // SELECT product_replenishment_tracking
+  if (cleanText.includes('FROM product_replenishment_tracking WHERE user_id = $1') || cleanText.includes('FROM product_replenishment')) {
+    const idVal = params[0] ? parseInt(params[0], 10) : 1;
+    const found = inMemoryStore.product_replenishment_tracking.filter(p => p.user_id === idVal);
+    return { rows: found, rowCount: found.length };
+  }
+
+  // SELECT daily_skincare_checklists
+  if (cleanText.includes('FROM daily_skincare_checklists WHERE user_id = $1')) {
+    const idVal = parseInt(params[0], 10);
+    const found = inMemoryStore.daily_skincare_checklists.filter(c => c.user_id === idVal);
+    return { rows: found, rowCount: found.length };
+  }
+
+  // SELECT hydration_logs
+  if (cleanText.includes('FROM hydration_logs WHERE user_id = $1')) {
+    const idVal = parseInt(params[0], 10);
+    const found = inMemoryStore.hydration_logs.filter(h => h.user_id === idVal);
+    return { rows: found, rowCount: found.length };
+  }
+
+  // SELECT sleep_logs
+  if (cleanText.includes('FROM sleep_logs WHERE user_id = $1')) {
+    const idVal = parseInt(params[0], 10);
+    const found = inMemoryStore.sleep_logs.filter(s => s.user_id === idVal);
+    return { rows: found, rowCount: found.length };
+  }
+
+  // SELECT generated_reports
+  if (cleanText.includes('FROM generated_reports WHERE user_id = $1')) {
+    const idVal = parseInt(params[0], 10);
+    const found = inMemoryStore.generated_reports.filter(r => r.user_id === idVal);
+    return { rows: found, rowCount: found.length };
+  }
+
+  if (cleanText.includes('FROM generated_reports WHERE id = $1')) {
+    const idVal = parseInt(params[0], 10);
+    const found = inMemoryStore.generated_reports.filter(r => r.id === idVal);
+    return { rows: found, rowCount: found.length };
+  }
+
+  // SELECT admin_audit_logs
+  if (cleanText.includes('FROM admin_audit_logs')) {
+    return { rows: inMemoryStore.admin_audit_logs, rowCount: inMemoryStore.admin_audit_logs.length };
   }
 
   // SELECT sharing_preferences
@@ -661,6 +944,7 @@ export async function query(text, params = []) {
   // Generic fallback query response
   return { rows: [], rowCount: 0 };
 }
+
 
 export async function testConnection() {
   if (!realPool) return false;

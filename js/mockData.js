@@ -1467,3 +1467,267 @@ export function generateCalendar30Days() {
   return list;
 }
 
+// =========================================================================
+// MODULE 9, 10, 11 MOCK DATA FIXTURES & HELPERS
+// =========================================================================
+
+export const MOCK_NOTIFICATIONS = [
+  {
+    id: 1,
+    user_id: 1,
+    title: '🌅 Morning Routine Reminder',
+    message: 'Time for your AM Vitamin C & SPF 50+ Shield routine! Lock in hydration before UV exposure.',
+    category: 'routine',
+    type: 'info',
+    is_read: false,
+    action_url: '#checklist-am',
+    metadata: { routine_type: 'morning', steps_count: 4 },
+    created_at: new Date(Date.now() - 45 * 60000).toISOString()
+  },
+  {
+    id: 2,
+    user_id: 1,
+    title: '💧 Daily Hydration Milestone',
+    message: "You've reached 1,750ml today! Drink 2 more glasses to hit your 2,500ml skin moisture target.",
+    category: 'hydration_sleep',
+    type: 'success',
+    is_read: false,
+    action_url: '#hydration-widget',
+    metadata: { current_ml: 1750, target_ml: 2500 },
+    created_at: new Date(Date.now() - 2 * 3600000).toISOString()
+  },
+  {
+    id: 3,
+    user_id: 1,
+    title: '⚠️ Product Replenishment Alert',
+    message: "Your 'The Ordinary Niacinamide 10%' has ~5 days of usage remaining. 1-Click reorder is available.",
+    category: 'product',
+    type: 'warning',
+    is_read: false,
+    action_url: 'https://www.nykaa.com',
+    metadata: { product_name: 'The Ordinary Niacinamide 10%', days_left: 5, remaining_pct: 12.0 },
+    created_at: new Date(Date.now() - 5 * 3600000).toISOString()
+  },
+  {
+    id: 4,
+    user_id: 1,
+    title: '🔥 14-Day Consistency Streak!',
+    message: 'Incredible dedication! Your 14-day routine streak has boosted barrier lipid strength by +24%.',
+    category: 'system',
+    type: 'success',
+    is_read: true,
+    action_url: '/progress',
+    metadata: { streak_days: 14, barrier_delta: 24.0 },
+    created_at: new Date(Date.now() - 86400000).toISOString()
+  },
+  {
+    id: 5,
+    user_id: 1,
+    title: '🩺 Dermatologist Prescription Update',
+    message: 'Dr. Julian Rostova reviewed your optical scan and adjusted your Adapalene PM application frequency to 3x/wk.',
+    category: 'clinical',
+    type: 'alert',
+    is_read: true,
+    action_url: '/chat',
+    metadata: { doctor_name: 'Dr. Julian Rostova, MD', rx: 'Adapalene 0.1%' },
+    created_at: new Date(Date.now() - 2 * 86400000).toISOString()
+  }
+];
+
+export const MOCK_REMINDER_PREFS = {
+  user_id: 1,
+  morning_routine_time: '08:00',
+  evening_routine_time: '21:30',
+  hydration_target_ml: 2500,
+  hydration_interval_hours: 2,
+  sleep_wind_down_time: '22:30',
+  sleep_target_hours: 8.0,
+  weekly_scan_day: 'Sunday',
+  enable_routine_reminders: true,
+  enable_replenishment_alerts: true,
+  enable_hydration_reminders: true,
+  enable_sleep_reminders: true,
+  enable_progress_alerts: true,
+  enable_platform_notifications: true
+};
+
+export const MOCK_PRODUCT_REPLENISHMENT = [
+  {
+    id: 1,
+    user_id: 1,
+    product_id: 1,
+    product_name: 'The Ordinary Niacinamide 10% + Zinc 1%',
+    category: 'Serum',
+    total_volume_ml: 30.0,
+    daily_usage_ml: 0.8,
+    remaining_pct: 12.0,
+    days_left: 5,
+    status: 'Low',
+    reorder_url: 'https://www.nykaa.com',
+    estimated_depletion_date: new Date(Date.now() + 5 * 86400000).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+  },
+  {
+    id: 2,
+    user_id: 1,
+    product_id: 2,
+    product_name: 'CeraVe Hydrating Facial Cleanser',
+    category: 'Face Wash',
+    total_volume_ml: 236.0,
+    daily_usage_ml: 3.0,
+    remaining_pct: 45.0,
+    days_left: 35,
+    status: 'Adequate',
+    reorder_url: 'https://www.amazon.in',
+    estimated_depletion_date: new Date(Date.now() + 35 * 86400000).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+  },
+  {
+    id: 3,
+    user_id: 1,
+    product_id: 3,
+    product_name: 'La Roche-Posay Anthelios SPF 50+',
+    category: 'Sunscreen',
+    total_volume_ml: 50.0,
+    daily_usage_ml: 1.5,
+    remaining_pct: 18.0,
+    days_left: 6,
+    status: 'Low',
+    reorder_url: 'https://www.amazon.in',
+    estimated_depletion_date: new Date(Date.now() + 6 * 86400000).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+  },
+  {
+    id: 4,
+    user_id: 1,
+    product_id: 4,
+    product_name: 'Illiyoon Ceramide Ato Concentrate Cream',
+    category: 'Moisturizer',
+    total_volume_ml: 200.0,
+    daily_usage_ml: 2.5,
+    remaining_pct: 70.0,
+    days_left: 56,
+    status: 'Adequate',
+    reorder_url: 'https://www.nykaa.com',
+    estimated_depletion_date: new Date(Date.now() + 56 * 86400000).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+  }
+];
+
+export const MOCK_DAILY_CHECKLIST = {
+  morning: [
+    { id: 'am_cleanse', name: 'Gentle Hydrating Cleanser', product: 'CeraVe Hydrating Cleanser', duration: '1 min', completed: true },
+    { id: 'am_treat', name: 'Antioxidant Vitamin C Serum', product: 'Panacea 15% Vitamin C', duration: '1 min', completed: true },
+    { id: 'am_moisturize', name: 'Barrier Support Moisture Gel', product: 'La Roche-Posay Toleriane', duration: '1 min', completed: true },
+    { id: 'am_spf', name: 'Broad Spectrum SPF 50+ Shield', product: 'Panacea UV Shield SPF 50+', duration: '1 min', completed: true }
+  ],
+  evening: [
+    { id: 'pm_oil_cleanse', name: 'Micellar Cleansing Water', product: 'Bioderma Sensibio H2O', duration: '2 mins', completed: false },
+    { id: 'pm_cleanse', name: 'Soothing Gel Cleanser', product: 'CeraVe Hydrating Cleanser', duration: '1 min', completed: false },
+    { id: 'pm_actives', name: 'Adapalene 0.1% Retinoid Gel', product: 'Differin Gel 0.1%', duration: '1 min', completed: false },
+    { id: 'pm_ceramide', name: 'Ceramide Overnight Recovery Cream', product: 'Illiyoon Ceramide Ato', duration: '2 mins', completed: false }
+  ],
+  weekly: [
+    { id: 'wk_exfoliate', name: '2% BHA Salicylic Exfoliant Mask', product: "Paula's Choice 2% BHA", duration: '10 mins', completed: true },
+    { id: 'wk_hydration_mask', name: 'Centella Soothing Sheet Mask', product: 'Mediheal Tea Tree Mask', duration: '15 mins', completed: false }
+  ]
+};
+
+export const MOCK_GENERATED_REPORTS = [
+  {
+    id: 1,
+    user_id: 1,
+    report_type: 'skin_health',
+    title: 'Executive Comprehensive Skin Intelligence & Clinical Health Dossier',
+    summary: 'Executive comprehensive skin intelligence dossier integrating cutaneous scoring, diagnostic screening, personalized routines, and 30-day clinical progress.',
+    format: 'pdf',
+    created_at: new Date(Date.now() - 3600000 * 4).toISOString(),
+    report_data: {
+      patient_name: 'Alex Rivera',
+      patient_id: 'PX-00001',
+      evaluation_date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
+      overall_health_score: 79.4,
+      skin_type: 'Combination',
+      clinical_status: 'Optimal Progress / Regimen Maintained',
+      assigned_consultant: 'Elena Vance, LE',
+      assigned_dermatologist: 'Dr. Julian Rostova, MD',
+      active_prescription: 'Topical Adapalene 0.1% (PM 3x/wk) + Azelaic Acid 15% (AM)',
+      routine_adherence: '93.5%',
+      consistency_streak: '14 Days',
+      hydration_status: '74% (1,750ml / 2,500ml Daily)',
+      sleep_circadian_index: '7.5 hrs / Night (Optimal Mitosis)'
+    }
+  },
+  {
+    id: 2,
+    user_id: 1,
+    report_type: 'assessment',
+    title: 'Cutaneous Biomarker & Optical Diagnostic Assessment Report',
+    summary: 'Comprehensive quantitative evaluation of 8 cutaneous biomarkers, barrier resilience, and optical ISIC lesion screening status.',
+    format: 'pdf',
+    created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+    report_data: {
+      patient_name: 'Alex Rivera',
+      patient_id: 'PX-00001',
+      skin_type: 'Combination',
+      overall_score: 79.4,
+      fitzpatrick: 'Type III (Medium)'
+    }
+  },
+  {
+    id: 3,
+    user_id: 1,
+    report_type: 'progress',
+    title: '30-Day Longitudinal Skin Health Trajectory & Adherence Audit',
+    summary: 'Longitudinal 30-day clinical progress analysis, routine adherence logs, and biomarker improvements.',
+    format: 'pdf',
+    created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+    report_data: {
+      patient_name: 'Alex Rivera',
+      period: 'Baseline (Day 1) to Current (Day 30)',
+      score_delta: '+10.9 pts (+15.9%)',
+      adherence_rate: '93.5%'
+    }
+  }
+];
+
+export function compileClinicalReport(reportType = 'skin_health', userId = 1) {
+  const titles = {
+    assessment: 'Cutaneous Biomarker & Optical Diagnostic Assessment Report',
+    routine: 'Chronological AM/PM Personalized Regimen & Treatment Plan',
+    product_recs: 'AI Formulation Compatibility & Product Prescription Dossier',
+    progress: '30-Day Longitudinal Skin Health Trajectory & Adherence Audit',
+    skin_health: 'Executive Comprehensive Skin Intelligence & Clinical Health Dossier'
+  };
+
+  const descriptions = {
+    assessment: 'Comprehensive quantitative evaluation of 8 cutaneous biomarkers, barrier resilience, and optical ISIC lesion screening status.',
+    routine: 'Chronological morning, evening, and weekly treatment routine designed for barrier restoration and comedone clearance.',
+    product_recs: 'Algorithmic formulation compatibility analysis and recommended non-comedogenic skincare products.',
+    progress: 'Longitudinal 30-day clinical progress analysis, routine adherence logs, and biomarker improvements.',
+    skin_health: 'Executive comprehensive skin intelligence dossier integrating cutaneous scoring, diagnostic screening, personalized routines, and 30-day clinical progress.'
+  };
+
+  return {
+    id: MOCK_GENERATED_REPORTS.length + 1,
+    user_id: userId,
+    report_type: reportType,
+    title: titles[reportType] || 'Clinical Skin Health Report',
+    summary: descriptions[reportType] || 'Comprehensive clinical skin evaluation.',
+    format: 'pdf',
+    created_at: new Date().toISOString(),
+    report_data: {
+      patient_name: 'Alex Rivera',
+      patient_id: `PX-${String(userId).padStart(5, '0')}`,
+      evaluation_date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
+      overall_health_score: 79.4,
+      skin_type: 'Combination',
+      clinical_status: 'Optimal Progress / Regimen Maintained',
+      assigned_consultant: 'Elena Vance, LE',
+      assigned_dermatologist: 'Dr. Julian Rostova, MD',
+      active_prescription: 'Topical Adapalene 0.1% (PM 3x/wk) + Azelaic Acid 15% (AM)',
+      routine_adherence: '93.5%',
+      consistency_streak: '14 Days',
+      hydration_status: '74% (1,750ml / 2,500ml Daily)',
+      sleep_circadian_index: '7.5 hrs / Night (Optimal Mitosis)'
+    }
+  };
+}
+
+

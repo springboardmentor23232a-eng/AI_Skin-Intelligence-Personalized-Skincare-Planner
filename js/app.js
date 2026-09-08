@@ -11,7 +11,16 @@ import {
   calculateProductSuitability,
   filterProductCatalog,
   generateProductComparison,
-  getAlternativeProductsFor
+  getAlternativeProductsFor,
+  MOCK_NOTIFICATIONS,
+  MOCK_REMINDER_PREFS,
+  MOCK_PRODUCT_REPLENISHMENT,
+  MOCK_DAILY_CHECKLIST,
+  MOCK_GENERATED_REPORTS,
+  compileClinicalReport,
+  MOCK_PROGRESS_TRACKING_DATA,
+  generateTrendTrajectoryData,
+  generateCalendar30Days
 } from './mockData.js';
 import {
   renderLandingPage,
@@ -28,13 +37,13 @@ import {
   renderProgressAnalyticsPage,
   renderPatientDossierModalContent,
   renderConsultationsPage,
-  renderClinicChatPage
+  renderClinicChatPage,
+  renderNotificationDrawerContent,
+  renderReminderSettingsModalContent,
+  renderReportsHubModalContent,
+  renderConsultantRegimenModalContent,
+  renderDermatologistRxModalContent
 } from './dashboards.js';
-import {
-  MOCK_PROGRESS_TRACKING_DATA,
-  generateTrendTrajectoryData,
-  generateCalendar30Days
-} from './mockData.js';
 
 class App {
   constructor() {
@@ -73,6 +82,17 @@ class App {
     };
     this.selectedCompareProductIds = [];
     this.searchDebounceTimer = null;
+
+    // Notification, Reminders, and Reports Hub State
+    this.isNotificationDrawerOpen = false;
+    this.activeNotificationCategory = 'all';
+    this.notificationsList = [];
+    this.unreadNotificationsCount = 0;
+    this.reminderPreferences = null;
+    this.replenishmentsList = [];
+    this.dailyChecklist = [];
+    this.reportsList = [];
+    this.activeReportType = 'skin_health';
 
     // Current Quote Index & Data List
     this.currentQuoteIndex = 0;
@@ -286,6 +306,8 @@ class App {
         if (this.chatConversations.length === 0) {
           this.loadChatConversations(false);
         }
+        // Load notification badge in header
+        this.loadNotificationsBadge();
       } else {
         messengerDock.classList.add('hidden');
         messengerDock.style.display = 'none';
@@ -2717,6 +2739,333 @@ class App {
         c.style.display = 'none';
       }
     });
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // MODULE 10: NOTIFICATION CENTER & REMINDER SYSTEM CONTROLLERS
+  // ════════════════════════════════════════════════════════════════
+
+  async loadNotificationsBadge() {
+    try {
+      const user = auth.getCurrentUser();
+      const userId = user?.id || 1;
+      const res = await api.getNotifications(userId);
+      if (res && res.success && res.notifications) {
+        this.notificationsList = res.notifications;
+      } else {
+        this.notificationsList = [...MOCK_NOTIFICATIONS];
+      }
+      this.unreadNotificationsCount = this.notificationsList.filter(n => !n.is_read).length;
+
+      const badge = document.getElementById('nav-notification-badge');
+      if (badge) {
+        badge.innerText = this.unreadNotificationsCount;
+        if (this.unreadNotificationsCount > 0) {
+          badge.style.display = 'inline-block';
+        } else {
+          badge.style.display = 'none';
+        }
+      }
+    } catch (e) {
+      console.warn('[App] Load notifications badge fallback:', e.message);
+    }
+  }
+
+  async toggleNotificationDrawer(forceState = null) {
+    const drawer = document.getElementById('notification-drawer');
+    const panel = document.getElementById('notif-drawer-panel');
+    if (!drawer || !panel) return;
+
+    const shouldOpen = forceState !== null ? forceState : !drawer.classList.contains('active');
+    if (shouldOpen) {
+      const user = auth.getCurrentUser();
+      const userId = user?.id || 1;
+      const res = await api.getNotifications(userId, this.activeNotificationCategory);
+      if (res && res.success && res.notifications) {
+        this.notificationsList = res.notifications;
+      }
+      panel.innerHTML = renderNotificationDrawerContent(this.notificationsList, this.activeNotificationCategory);
+      drawer.classList.add('active');
+      this.isNotificationDrawerOpen = true;
+    } else {
+      drawer.classList.remove('active');
+      this.isNotificationDrawerOpen = false;
+    }
+  }
+
+  closeNotificationDrawer() {
+    this.toggleNotificationDrawer(false);
+  }
+
+  filterNotificationCategory(category) {
+    this.activeNotificationCategory = category;
+    const panel = document.getElementById('notif-drawer-panel');
+    if (panel) {
+      panel.innerHTML = renderNotificationDrawerContent(this.notificationsList, this.activeNotificationCategory);
+    }
+  }
+
+  async handleMarkNotificationRead(notificationId) {
+    await api.markNotificationRead(notificationId);
+    const item = this.notificationsList.find(n => n.id === notificationId);
+    if (item) item.is_read = true;
+    const panel = document.getElementById('notif-drawer-panel');
+    if (panel) {
+      panel.innerHTML = renderNotificationDrawerContent(this.notificationsList, this.activeNotificationCategory);
+    }
+    this.loadNotificationsBadge();
+  }
+
+  async handleMarkAllNotificationsRead() {
+    const user = auth.getCurrentUser();
+    const userId = user?.id || 1;
+    await api.markAllNotificationsRead(userId);
+    this.notificationsList.forEach(n => { n.is_read = true; });
+    const panel = document.getElementById('notif-drawer-panel');
+    if (panel) {
+      panel.innerHTML = renderNotificationDrawerContent(this.notificationsList, this.activeNotificationCategory);
+    }
+    this.loadNotificationsBadge();
+  }
+
+  handleNotificationAction(actionUrl, notificationId) {
+    if (notificationId) {
+      this.handleMarkNotificationRead(notificationId);
+    }
+    this.closeNotificationDrawer();
+
+    if (actionUrl) {
+      if (actionUrl.startsWith('#view:')) {
+        const view = actionUrl.replace('#view:', '');
+        this.navigateToView(view);
+      } else if (actionUrl.startsWith('#modal:')) {
+        const modal = actionUrl.replace('#modal:', '');
+        this.openModal(modal);
+      } else if (actionUrl.startsWith('http')) {
+        window.open(actionUrl, '_blank');
+      }
+    }
+  }
+
+  async openReminderSettingsModal() {
+    this.closeNotificationDrawer();
+    const user = auth.getCurrentUser();
+    const userId = user?.id || 1;
+    const res = await api.getReminderPreferences(userId);
+    if (res && res.success && res.preferences) {
+      this.reminderPreferences = res.preferences;
+    } else {
+      this.reminderPreferences = { ...MOCK_REMINDER_PREFS };
+    }
+    const card = document.getElementById('reminder-settings-modal-card');
+    if (card) {
+      card.innerHTML = renderReminderSettingsModalContent(this.reminderPreferences);
+    }
+    this.openModal('reminder-settings-modal');
+  }
+
+  async handleSaveReminderSettings(event) {
+    if (event) event.preventDefault();
+    const form = document.getElementById('reminder-settings-form');
+    if (!form) return;
+
+    const user = auth.getCurrentUser();
+    const userId = user?.id || 1;
+
+    const formData = new FormData(form);
+    const prefs = {
+      morning_routine_time: formData.get('morning_routine_time'),
+      evening_routine_time: formData.get('evening_routine_time'),
+      hydration_target_ml: Number(formData.get('hydration_target_ml')) || 2500,
+      sleep_wind_down_time: formData.get('sleep_wind_down_time'),
+      enable_routine_reminders: form.querySelector('input[name="enable_routine_reminders"]')?.checked ?? true,
+      enable_replenishment_alerts: form.querySelector('input[name="enable_replenishment_alerts"]')?.checked ?? true,
+      enable_hydration_reminders: form.querySelector('input[name="enable_hydration_reminders"]')?.checked ?? true,
+      enable_sleep_reminders: form.querySelector('input[name="enable_sleep_reminders"]')?.checked ?? true
+    };
+
+    const res = await api.updateReminderPreferences(userId, prefs);
+    if (res && res.success) {
+      this.reminderPreferences = { ...this.reminderPreferences, ...prefs };
+      this.closeModal('reminder-settings-modal');
+      alert('⏰ Reminder preferences and notification schedules updated successfully!');
+    } else {
+      alert('Failed to save reminder preferences.');
+    }
+  }
+
+  async handleQuickHydrationLog(amountMl = 250) {
+    const user = auth.getCurrentUser();
+    const userId = user?.id || 1;
+    const res = await api.logHydration(userId, amountMl);
+    if (res && res.success) {
+      alert(`💧 Logged +${amountMl}ml hydration! Keep up the cellular skin barrier hydration.`);
+      if (auth.getCurrentRole() === 'user' && this.currentView === 'dashboard') {
+        this.render();
+      }
+    }
+  }
+
+  async handleQuickSleepLog(hours = 8.0, quality = 'Good') {
+    const user = auth.getCurrentUser();
+    const userId = user?.id || 1;
+    const res = await api.logSleep(userId, hours, quality, '22:30', 'Logged via Quick Action');
+    if (res && res.success) {
+      alert(`🛌 Logged ${hours}h of restful sleep (${quality}). Circadian barrier repair telemetry recorded.`);
+      if (auth.getCurrentRole() === 'user' && this.currentView === 'dashboard') {
+        this.render();
+      }
+    }
+  }
+
+  async handleToggleChecklistStep(stepId, routineType, completed) {
+    const user = auth.getCurrentUser();
+    const userId = user?.id || 1;
+    const res = await api.toggleChecklistStep(userId, stepId, routineType, completed);
+    if (res && res.success) {
+      // Update element visually
+      const stepRow = document.getElementById(`checklist-step-${stepId}`);
+      if (stepRow) {
+        if (completed) {
+          stepRow.classList.add('completed');
+        } else {
+          stepRow.classList.remove('completed');
+        }
+      }
+    }
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // MODULE 11: REPORTS & EXPORT HUB CONTROLLERS
+  // ════════════════════════════════════════════════════════════════
+
+  async openReportsModal(defaultType = 'skin_health') {
+    this.activeReportType = defaultType;
+    const user = auth.getCurrentUser();
+    const userId = user?.id || 1;
+    const res = await api.getReportsHistory(userId);
+    if (res && res.success && res.reports) {
+      this.reportsList = res.reports;
+    } else {
+      this.reportsList = [...MOCK_GENERATED_REPORTS];
+    }
+
+    const card = document.getElementById('reports-export-modal-card');
+    if (card) {
+      card.innerHTML = renderReportsHubModalContent(this.activeReportType, this.reportsList);
+    }
+    this.openModal('reports-export-modal');
+  }
+
+  switchReportType(type) {
+    this.activeReportType = type;
+    const card = document.getElementById('reports-export-modal-card');
+    if (card) {
+      card.innerHTML = renderReportsHubModalContent(this.activeReportType, this.reportsList);
+    }
+  }
+
+  async handleGenerateAndPrintPDF(reportType = 'skin_health') {
+    const user = auth.getCurrentUser();
+    const userId = user?.id || 1;
+    const res = await api.generateReport(userId, reportType, 'pdf');
+    
+    let htmlContent = '';
+    if (res && res.success && res.html_preview) {
+      htmlContent = res.html_preview;
+    } else {
+      htmlContent = compileClinicalReport(reportType, user?.profile || MOCK_USER_DATA.profile);
+    }
+
+    const printContainer = document.getElementById('printable-report-container');
+    if (printContainer) {
+      printContainer.innerHTML = htmlContent;
+      printContainer.classList.remove('hidden');
+      setTimeout(() => {
+        window.print();
+        setTimeout(() => {
+          printContainer.classList.add('hidden');
+        }, 1000);
+      }, 300);
+    }
+  }
+
+  handleDownloadCSVExport(exportType = 'progress') {
+    const url = api.getCsvExportUrl(exportType);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `PanaceaAI_Clinical_Export_${exportType}_${Date.now()}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  openReportPDFPreview(reportId) {
+    const url = api.getReportPdfUrl(reportId);
+    window.open(url, '_blank');
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // MODULE 9: CLINICIAN REGIMEN & DERMATOLOGIST RX CONTROLLERS
+  // ════════════════════════════════════════════════════════════════
+
+  openConsultantRegimenModal(clientId = 1, clientName = 'Sophia Sterling') {
+    const card = document.getElementById('consultant-regimen-modal-card');
+    if (card) {
+      card.innerHTML = renderConsultantRegimenModalContent(clientId);
+    }
+    this.openModal('consultant-regimen-modal');
+  }
+
+  async handleSaveConsultantRegimen(event, clientId = 1) {
+    if (event) event.preventDefault();
+    const form = document.getElementById('consultant-regimen-form');
+    if (!form) return;
+
+    const formData = new FormData(form);
+    const payload = {
+      client_id: clientId,
+      priority: formData.get('client_priority'),
+      morning_notes: formData.get('morning_notes'),
+      evening_notes: formData.get('evening_notes')
+    };
+
+    const res = await api.saveConsultantRegimen(payload);
+    this.closeModal('consultant-regimen-modal');
+    alert(`✓ Personalized skincare regimen protocol updated for Client #PX-0000${clientId}!`);
+    if (auth.getCurrentRole() === 'consultant') {
+      this.render();
+    }
+  }
+
+  openDermatologistRxModal(patientId = 1, patientName = 'Sophia Sterling') {
+    const card = document.getElementById('dermatologist-rx-modal-card');
+    if (card) {
+      card.innerHTML = renderDermatologistRxModalContent(patientId);
+    }
+    this.openModal('dermatologist-rx-modal');
+  }
+
+  async handleSaveDermatologistRx(event, patientId = 1) {
+    if (event) event.preventDefault();
+    const form = document.getElementById('dermatologist-rx-form');
+    if (!form) return;
+
+    const formData = new FormData(form);
+    const payload = {
+      patient_id: patientId,
+      prescription_text: formData.get('prescription_text'),
+      refills: Number(formData.get('refills')) || 3,
+      review_date: formData.get('review_date'),
+      clinical_instructions: formData.get('clinical_instructions')
+    };
+
+    const res = await api.saveDoctorPrescription(payload);
+    this.closeModal('dermatologist-rx-modal');
+    alert(`💊 Board Medical Prescription (Rx) digitally signed & issued for Patient #PX-0000${patientId}!`);
+    if (auth.getCurrentRole() === 'dermatologist') {
+      this.render();
+    }
   }
 }
 

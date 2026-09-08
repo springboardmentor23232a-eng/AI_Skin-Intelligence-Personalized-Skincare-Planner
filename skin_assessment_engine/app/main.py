@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import engine, Base
 import app.models # Register all ORM models with Base
-from app.routers import assessment, health, routine, ingredient, product, scoring, progress, clinical, chat
+from app.routers import assessment, health, routine, ingredient, product, scoring, progress, clinical, chat, dashboard, notification, report
 
 # Create DB tables automatically on startup
 Base.metadata.create_all(bind=engine)
@@ -13,17 +13,20 @@ app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
     description="""
-    ## PanaceaAI Skin Intelligence Engine (Modules 3, 4, 5, 6, 7, 8 & Clinical Portals)
+    ## PanaceaAI Skin Intelligence Engine (Modules 3 through 11 & Clinical Portals)
     
     Complete API for skin assessments, personalized routine generation, ingredient intelligence,
     product recommendation & comparison, weighted skin health scoring, progress tracking & analytics,
-    clinician patient dossiers, and Clinical Chat & Lumina AI.
+    dashboards & analytics, notification & reminders, and reports & export system.
     
     ### Key Endpoints:
     * **Module 5**: `/ingredient/analyze`, `/ingredient/categories`, `/ingredient/{name}`
     * **Module 6**: `/product/recommend`, `/product/compare`, `/product/alternatives/{id}`
     * **Module 7**: `/scoring/calculate`, `/scoring/trend/{user_id}`, `/scoring/adherence`
     * **Module 8**: `/progress/history/{user_id}`, `/progress/adherence/{user_id}`, `/progress/compare`, `/progress/trends/{user_id}`, `/progress/summary/{user_id}`
+    * **Module 9**: `/dashboard/user/{user_id}`, `/dashboard/consultant`, `/dashboard/dermatologist`, `/dashboard/admin`, `/dashboard/checklist/toggle`
+    * **Module 10**: `/notifications/user/{user_id}`, `/notifications/{id}/read`, `/notifications/replenishment/{user_id}`, `/notifications/hydration/log`, `/notifications/sleep/log`
+    * **Module 11**: `/reports/generate`, `/reports/user/{user_id}`, `/reports/{id}/pdf`, `/reports/export/{export_type}`
     * **Clinical Portals**: `/clinical/consultant/clients`, `/clinical/dermatologist/patients`, `/clinical/patient-dossier/{user_id}`
     * **Clinical Chat**: `/chat/conversations`, `/chat/messages`, `/chat/send`, `/chat/mark-read`
     """,
@@ -73,6 +76,21 @@ app.include_router(chat.router, prefix="/chat")
 app.include_router(chat.router, prefix="/api/v1/chat")
 app.include_router(chat.router, prefix="/api/chat")
 
+# Module 9: Dashboard & Analytics Router
+app.include_router(dashboard.router, prefix="/dashboard")
+app.include_router(dashboard.router, prefix="/api/v1/dashboard")
+app.include_router(dashboard.router, prefix="/api/dashboard")
+
+# Module 10: Notification & Reminder Router
+app.include_router(notification.router, prefix="/notifications")
+app.include_router(notification.router, prefix="/api/v1/notifications")
+app.include_router(notification.router, prefix="/api/notifications")
+
+# Module 11: Reports & Export System Router
+app.include_router(report.router, prefix="/reports")
+app.include_router(report.router, prefix="/api/v1/reports")
+app.include_router(report.router, prefix="/api/reports")
+
 app.include_router(health.router)
 
 @app.get("/")
@@ -87,8 +105,12 @@ def root():
             "Module 5: Ingredient Intelligence",
             "Module 6: Product Recommendation Engine",
             "Module 7: Skin Health Scoring Engine",
-            "Module 8: Progress Tracking & Analytics"
+            "Module 8: Progress Tracking & Analytics",
+            "Module 9: Dashboard & Analytics",
+            "Module 10: Notification & Reminder System",
+            "Module 11: Reports & Export System"
         ]
     }
+
 
 

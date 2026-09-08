@@ -52,10 +52,10 @@
         <input type="text" placeholder="Search..." onkeydown="if(event.key==='Enter'){window.app.navigateToView('products'); window.app.handleProductSearchInput(this.value);}">
       </div>
 
-      <!-- Notifications Icon -->
-      <button class="nav-icon-circle-btn" onclick="alert('You have 0 new clinical alerts or messages.')" title="Notifications">
+      <!-- Notifications Icon & Trigger -->
+      <button id="nav-notifications-btn" class="nav-icon-circle-btn" onclick="window.app.toggleNotificationDrawer()" title="Notifications & Reminders">
         <span>🔔</span>
-        <span class="nav-icon-badge-num">0</span>
+        <span id="nav-notification-badge" class="nav-icon-badge-num">0</span>
       </button>
 
       <!-- Profile Avatar & Dropdown -->
@@ -958,6 +958,44 @@
       </form>
     </div>
   </div>
+
+  <!-- MODULE 10: NOTIFICATION CENTER SLIDE-OVER DRAWER -->
+  <div id="notification-drawer" class="notif-drawer-backdrop" onclick="if(event.target===this) window.app.closeNotificationDrawer()">
+    <div class="notif-drawer-panel" id="notif-drawer-panel">
+      <!-- Injected dynamically by app.js -->
+    </div>
+  </div>
+
+  <!-- MODULE 10: REMINDER PREFERENCES MODAL -->
+  <div id="reminder-settings-modal" class="modal-backdrop">
+    <div class="modal-card" id="reminder-settings-modal-card">
+      <!-- Injected dynamically by app.js -->
+    </div>
+  </div>
+
+  <!-- MODULE 11: REPORTS & EXPORT HUB MODAL -->
+  <div id="reports-export-modal" class="modal-backdrop">
+    <div class="modal-card" id="reports-export-modal-card" style="max-width: 780px;">
+      <!-- Injected dynamically by app.js -->
+    </div>
+  </div>
+
+  <!-- MODULE 9: CONSULTANT REGIMEN BUILDER MODAL -->
+  <div id="consultant-regimen-modal" class="modal-backdrop">
+    <div class="modal-card" id="consultant-regimen-modal-card">
+      <!-- Injected dynamically by app.js -->
+    </div>
+  </div>
+
+  <!-- MODULE 9: DERMATOLOGIST PRESCRIPTION (RX) MODAL -->
+  <div id="dermatologist-rx-modal" class="modal-backdrop">
+    <div class="modal-card" id="dermatologist-rx-modal-card">
+      <!-- Injected dynamically by app.js -->
+    </div>
+  </div>
+
+  <!-- PRINTABLE CLINICAL PDF CONTAINER (INVISIBLE ON SCREEN, VISIBLE ON PRINT) -->
+  <div id="printable-report-container" class="clinical-printable-report hidden"></div>
 
   <script type="module" src="js/app.js"></script>
 </body>

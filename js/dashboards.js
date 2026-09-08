@@ -3844,6 +3844,321 @@ export function renderClinicChatPage(conversations = [], activeContactId = 'lumi
   `;
 }
 
+// ════════════════════════════════════════════════════════════════
+// MODULE 10: NOTIFICATION CENTER DRAWER RENDERER
+// ════════════════════════════════════════════════════════════════
+
+export function renderNotificationDrawerContent(notifications = [], activeCategory = 'all') {
+  const filtered = activeCategory === 'all' ? notifications : notifications.filter(n => n.category === activeCategory);
+  const unreadCount = notifications.filter(n => !n.is_read).length;
+
+  return `
+    <div class="notif-drawer-inner">
+      <div class="notif-drawer-header">
+        <div>
+          <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem; margin: 0; color: var(--text-primary);">
+            Notifications & Reminders
+          </h3>
+          <span style="font-size: 0.78rem; color: var(--text-muted);">
+            ${unreadCount > 0 ? `${unreadCount} unread alerts` : 'All alerts read'}
+          </span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <button class="btn btn-sm btn-outline" onclick="window.app.handleMarkAllNotificationsRead()" style="font-size: 0.72rem; padding: 0.3rem 0.6rem;">
+            Mark All Read
+          </button>
+          <button class="btn btn-sm btn-outline" onclick="window.app.openReminderSettingsModal()" title="Reminder Settings" style="font-size: 0.72rem; padding: 0.3rem 0.5rem;">
+            ⚙️
+          </button>
+          <button class="close-btn" onclick="window.app.closeNotificationDrawer()" style="font-size: 1.3rem;">×</button>
+        </div>
+      </div>
+
+      <!-- Category Filter Tabs -->
+      <div class="notif-category-bar">
+        <button class="notif-cat-btn ${activeCategory === 'all' ? 'active' : ''}" onclick="window.app.filterNotificationCategory('all')">All (${notifications.length})</button>
+        <button class="notif-cat-btn ${activeCategory === 'routine' ? 'active' : ''}" onclick="window.app.filterNotificationCategory('routine')">Routines</button>
+        <button class="notif-cat-btn ${activeCategory === 'product' ? 'active' : ''}" onclick="window.app.filterNotificationCategory('product')">Products</button>
+        <button class="notif-cat-btn ${activeCategory === 'hydration_sleep' ? 'active' : ''}" onclick="window.app.filterNotificationCategory('hydration_sleep')">Hydration & Sleep</button>
+        <button class="notif-cat-btn ${activeCategory === 'clinical' ? 'active' : ''}" onclick="window.app.filterNotificationCategory('clinical')">Clinical</button>
+      </div>
+
+      <!-- Notifications List -->
+      <div class="notif-list-container">
+        ${filtered.length === 0 ? `
+          <div style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔔</div>
+            <p style="font-size: 0.85rem; margin: 0;">No notifications found in this category.</p>
+          </div>
+        ` : filtered.map(n => {
+          const typeBorder = n.type === 'warning' ? '#D97706' : (n.type === 'alert' ? '#DC2626' : (n.type === 'success' ? '#059669' : 'var(--gold-primary)'));
+          return `
+            <div class="notif-card ${n.is_read ? 'read' : 'unread'}" style="border-left: 3px solid ${typeBorder};">
+              <div class="notif-card-header">
+                <strong class="notif-card-title">${n.title}</strong>
+                <span class="notif-card-time">${new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+              </div>
+              <p class="notif-card-msg">${n.message}</p>
+              <div class="notif-card-actions">
+                ${n.action_url ? `
+                  <button class="btn btn-sm btn-primary notif-action-btn" onclick="window.app.handleNotificationAction('${n.action_url}', ${n.id})">
+                    Take Action →
+                  </button>
+                ` : ''}
+                ${!n.is_read ? `
+                  <button class="btn btn-sm btn-outline notif-action-btn" onclick="window.app.handleMarkNotificationRead(${n.id})">
+                    Mark Read
+                  </button>
+                ` : '<span style="font-size: 0.72rem; color: #64748B;">✓ Read</span>'}
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `;
+}
+
+// ════════════════════════════════════════════════════════════════
+// MODULE 10: REMINDER PREFERENCES MODAL RENDERER
+// ════════════════════════════════════════════════════════════════
+
+export function renderReminderSettingsModalContent(prefs = {}) {
+  const p = prefs || {};
+  return `
+    <div class="modal-header">
+      <div>
+        <h3 style="font-family: 'Playfair Display', serif; font-size: 1.35rem; margin: 0;">⏰ Skincare & Lifestyle Reminders</h3>
+        <p class="text-muted" style="font-size: 0.82rem; margin: 0.2rem 0 0 0;">Configure scheduled notification times and intelligent alerts</p>
+      </div>
+      <button class="close-btn" onclick="window.app.closeModal('reminder-settings-modal')">×</button>
+    </div>
+
+    <form id="reminder-settings-form" onsubmit="window.app.handleSaveReminderSettings(event)" style="padding: 1.25rem;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+        <div class="form-group">
+          <label style="font-size: 0.8rem; font-weight: 700;">🌅 Morning Routine Time</label>
+          <input type="time" name="morning_routine_time" class="form-control" value="${p.morning_routine_time || '08:00'}">
+        </div>
+        <div class="form-group">
+          <label style="font-size: 0.8rem; font-weight: 700;">🌙 Evening Routine Time</label>
+          <input type="time" name="evening_routine_time" class="form-control" value="${p.evening_routine_time || '21:30'}">
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+        <div class="form-group">
+          <label style="font-size: 0.8rem; font-weight: 700;">💧 Daily Hydration Target (ml)</label>
+          <input type="number" name="hydration_target_ml" class="form-control" value="${p.hydration_target_ml || 2500}" step="250" min="1000" max="5000">
+        </div>
+        <div class="form-group">
+          <label style="font-size: 0.8rem; font-weight: 700;">🛌 Sleep Wind-Down Time</label>
+          <input type="time" name="sleep_wind_down_time" class="form-control" value="${p.sleep_wind_down_time || '22:30'}">
+        </div>
+      </div>
+
+      <div class="hud-divider" style="margin: 1.25rem 0;"></div>
+
+      <h4 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 0.85rem;">Active Notification Channels</h4>
+      <div style="display: flex; flex-direction: column; gap: 0.65rem; font-size: 0.85rem;">
+        <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer;">
+          <input type="checkbox" name="enable_routine_reminders" ${p.enable_routine_reminders !== false ? 'checked' : ''} style="accent-color: var(--gold-primary);">
+          <span>Morning & Evening Skincare Step Reminders</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer;">
+          <input type="checkbox" name="enable_replenishment_alerts" ${p.enable_replenishment_alerts !== false ? 'checked' : ''} style="accent-color: var(--gold-primary);">
+          <span>Smart Product Replenishment & Low Stock Alerts (7 Days Left)</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer;">
+          <input type="checkbox" name="enable_hydration_reminders" ${p.enable_hydration_reminders !== false ? 'checked' : ''} style="accent-color: var(--gold-primary);">
+          <span>Hydration Interval Water Check-ins (Every 2 Hours)</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer;">
+          <input type="checkbox" name="enable_sleep_reminders" ${p.enable_sleep_reminders !== false ? 'checked' : ''} style="accent-color: var(--gold-primary);">
+          <span>Circadian Cellular Repair & Sleep Prompts</span>
+        </label>
+      </div>
+
+      <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" class="btn btn-outline btn-sm" onclick="window.app.closeModal('reminder-settings-modal')">Cancel</button>
+        <button type="submit" class="btn btn-primary btn-sm" style="font-weight: 700;">Save Preferences</button>
+      </div>
+    </form>
+  `;
+}
+
+// ════════════════════════════════════════════════════════════════
+// MODULE 11: REPORTS & EXPORT HUB MODAL RENDERER
+// ════════════════════════════════════════════════════════════════
+
+export function renderReportsHubModalContent(activeReportType = 'skin_health', reportsList = []) {
+  const reportTypes = [
+    { type: 'skin_health', name: 'Executive Holistic Skin Dossier', icon: '👑', desc: 'Comprehensive multi-parameter evaluation combining scores, routines, and clinical progress.' },
+    { type: 'assessment', name: 'Cutaneous Diagnostic Report', icon: '🔬', desc: '8 optical biomarkers, Fitzpatrick phototype, and ISIC lesion malignancy screening.' },
+    { type: 'routine', name: 'Personalized Regimen & Schedule', icon: '📝', desc: 'Morning AM and Evening PM chronological application steps and active layering notes.' },
+    { type: 'product_recs', name: 'Formulation Compatibility Dossier', icon: '🧪', desc: 'Matched products catalog, compatibility match %, and budget alternatives.' },
+    { type: 'progress', name: '30-Day Longitudinal Progress Audit', icon: '📈', desc: 'Adherence compliance heatmap, score trajectory curve, and before/after biomarker deltas.' }
+  ];
+
+  return `
+    <div class="modal-header">
+      <div>
+        <h3 style="font-family: 'Playfair Display', serif; font-size: 1.4rem; margin: 0;">📑 Clinical Reports & Export Hub</h3>
+        <p class="text-muted" style="font-size: 0.82rem; margin: 0.2rem 0 0 0;">Generate board-certified diagnostic summaries, printable PDFs, and Excel CSV exports</p>
+      </div>
+      <button class="close-btn" onclick="window.app.closeModal('reports-export-modal')">×</button>
+    </div>
+
+    <div style="padding: 1.25rem;">
+      <!-- Report Type Selector Grid -->
+      <div style="font-size: 0.78rem; font-weight: 800; color: var(--gold-primary); text-transform: uppercase; margin-bottom: 0.65rem;">
+        Select Report Type:
+      </div>
+      <div class="report-type-selector-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem;">
+        ${reportTypes.map(rt => `
+          <div class="report-type-card ${rt.type === activeReportType ? 'active' : ''}" onclick="window.app.switchReportType('${rt.type}')" style="background: ${rt.type === activeReportType ? '#FAF8F5' : '#FFFFFF'}; border: 1.5px solid ${rt.type === activeReportType ? 'var(--gold-primary)' : 'var(--border-light)'}; border-radius: 8px; padding: 0.85rem; cursor: pointer; transition: all 0.2s ease;">
+            <div style="font-size: 1.4rem; margin-bottom: 0.3rem;">${rt.icon}</div>
+            <strong style="font-size: 0.85rem; color: var(--text-primary); display: block;">${rt.name}</strong>
+            <p style="font-size: 0.72rem; color: var(--text-muted); margin: 0.3rem 0 0 0; line-height: 1.35;">${rt.desc}</p>
+          </div>
+        `).join('')}
+      </div>
+
+      <!-- Action Banner: PDF & CSV Export -->
+      <div style="background: #0F172A; color: #FFFFFF; border-radius: 8px; padding: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+        <div>
+          <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gold-primary); font-weight: 800;">Ready for Export</div>
+          <h4 style="font-family: 'Playfair Display', serif; font-size: 1.15rem; margin: 0.2rem 0; color: #FFFFFF;">
+            ${reportTypes.find(r => r.type === activeReportType)?.name || 'Clinical Skin Dossier'}
+          </h4>
+          <span style="font-size: 0.78rem; color: #94A3B8;">Includes PanaceaAI branding, doctor signature, and biomarker dials.</span>
+        </div>
+
+        <div style="display: flex; gap: 0.65rem;">
+          <button class="btn btn-sm btn-primary" onclick="window.app.handleGenerateAndPrintPDF('${activeReportType}')" style="font-weight: 700; display: flex; align-items: center; gap: 0.4rem;">
+            <span>🖨️ Export Printable PDF</span>
+          </button>
+          <button class="btn btn-sm btn-outline" onclick="window.app.handleDownloadCSVExport('${activeReportType === 'routine' ? 'routine_logs' : (activeReportType === 'product_recs' ? 'products' : 'progress')}')" style="font-weight: 700; color: #FFFFFF; border-color: rgba(255,255,255,0.3); display: flex; align-items: center; gap: 0.4rem;">
+            <span>📊 Export CSV (Excel)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Past Reports Archive -->
+      <div style="font-size: 0.78rem; font-weight: 800; color: var(--text-primary); text-transform: uppercase; margin-bottom: 0.65rem;">
+        Generated Reports Archive
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 180px; overflow-y: auto;">
+        ${(reportsList && reportsList.length > 0 ? reportsList : [
+          { id: 1, title: 'Executive Comprehensive Skin Intelligence Dossier', created_at: new Date().toISOString(), format: 'pdf' },
+          { id: 2, title: 'Cutaneous Biomarker & Optical Diagnostic Assessment Report', created_at: new Date(Date.now() - 86400000 * 2).toISOString(), format: 'pdf' }
+        ]).map(r => `
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.65rem 0.85rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.8rem;">
+            <div>
+              <strong style="color: var(--text-primary);">${r.title}</strong>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">${new Date(r.created_at).toLocaleDateString()}</div>
+            </div>
+            <button class="btn btn-sm btn-outline" onclick="window.app.openReportPDFPreview(${r.id})" style="font-size: 0.72rem; padding: 0.25rem 0.55rem;">
+              Preview PDF
+            </button>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+// ════════════════════════════════════════════════════════════════
+// CONSULTANT REGIMEN MANAGEMENT MODAL RENDERER
+// ════════════════════════════════════════════════════════════════
+
+export function renderConsultantRegimenModalContent(clientId = 1) {
+  return `
+    <div class="modal-header">
+      <div>
+        <h3 style="font-family: 'Playfair Display', serif; font-size: 1.35rem; margin: 0;">📝 Consultant Regimen Management</h3>
+        <p class="text-muted" style="font-size: 0.82rem; margin: 0.2rem 0 0 0;">Customize active ingredients and routine instructions for Client #PX-0000${clientId}</p>
+      </div>
+      <button class="close-btn" onclick="window.app.closeModal('consultant-regimen-modal')">×</button>
+    </div>
+
+    <form id="consultant-regimen-form" onsubmit="window.app.handleSaveConsultantRegimen(event, ${clientId})" style="padding: 1.25rem;">
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label style="font-size: 0.8rem; font-weight: 700;">Client Skin Goal & Priority</label>
+        <select class="form-control" name="client_priority">
+          <option value="Barrier Repair & Hydration">Barrier Repair & Hydration (Standard)</option>
+          <option value="Acne & Comedone Clearance" selected>Acne & Comedone Clearance (High)</option>
+          <option value="Hyperpigmentation & Dark Spots">Hyperpigmentation & Dark Spots</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label style="font-size: 0.8rem; font-weight: 700;">Morning Regimen Instructions</label>
+        <textarea name="morning_notes" class="form-control" rows="2">CeraVe Hydrating Cleanser -> Panacea 15% Vitamin C -> La Roche-Posay Fluid -> SPF 50+ Mineral Shield.</textarea>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label style="font-size: 0.8rem; font-weight: 700;">Evening Regimen Instructions</label>
+        <textarea name="evening_notes" class="form-control" rows="2">Micellar Cleanse -> CeraVe Gel Cleanse -> Topical Adapalene 0.1% (3x/wk) -> Illiyoon Ceramide Seal.</textarea>
+      </div>
+
+      <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" class="btn btn-outline btn-sm" onclick="window.app.closeModal('consultant-regimen-modal')">Cancel</button>
+        <button type="submit" class="btn btn-primary btn-sm" style="font-weight: 700;">Save Regimen Protocol</button>
+      </div>
+    </form>
+  `;
+}
+
+// ════════════════════════════════════════════════════════════════
+// DERMATOLOGIST MEDICAL RX MODAL RENDERER
+// ════════════════════════════════════════════════════════════════
+
+export function renderDermatologistRxModalContent(patientId = 1) {
+  return `
+    <div class="modal-header">
+      <div>
+        <h3 style="font-family: 'Playfair Display', serif; font-size: 1.35rem; margin: 0;">💊 Board Medical Prescription (Rx)</h3>
+        <p class="text-muted" style="font-size: 0.82rem; margin: 0.2rem 0 0 0;">Issue authorized clinical digital prescription for Patient #PX-0000${patientId}</p>
+      </div>
+      <button class="close-btn" onclick="window.app.closeModal('dermatologist-rx-modal')">×</button>
+    </div>
+
+    <form id="dermatologist-rx-form" onsubmit="window.app.handleSaveDermatologistRx(event, ${patientId})" style="padding: 1.25rem;">
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label style="font-size: 0.8rem; font-weight: 700;">Prescribed Medication & Strength</label>
+        <input type="text" name="prescription_text" class="form-control" value="Topical Adapalene 0.1% Gel (PM 3x/wk) + Azelaic Acid 15% (AM Daily)">
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div class="form-group">
+          <label style="font-size: 0.8rem; font-weight: 700;">Refill Count</label>
+          <input type="number" name="refills" class="form-control" value="3" min="0" max="12">
+        </div>
+        <div class="form-group">
+          <label style="font-size: 0.8rem; font-weight: 700;">Next Optical Review Date</label>
+          <input type="date" name="review_date" class="form-control" value="2025-12-24">
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label style="font-size: 0.8rem; font-weight: 700;">Clinical Contraindication Notes & Instructions</label>
+        <textarea name="clinical_instructions" class="form-control" rows="2">Apply pea-sized amount onto dry skin. Use SPF 50+ mineral sunscreen daily to prevent retinoid photosensitivity.</textarea>
+      </div>
+
+      <div style="background: #FAF9F6; border: 1px solid var(--border-gold); border-radius: 6px; padding: 0.75rem; font-size: 0.75rem; color: #64748B; margin-bottom: 1.25rem;">
+        🔒 Digitally signed by <strong>Dr. Julian Rostova, MD</strong> (License #DERM-884920-CL)
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" class="btn btn-outline btn-sm" onclick="window.app.closeModal('dermatologist-rx-modal')">Cancel</button>
+        <button type="submit" class="btn btn-primary btn-sm" style="font-weight: 700; background: #2E7D32; border-color: #2E7D32;">Sign & Issue Prescription (Rx)</button>
+      </div>
+    </form>
+  `;
+}
+
+
 
 
 

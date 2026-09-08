@@ -1874,7 +1874,609 @@ router.post('/chat/mark-read', async (req, res) => {
   }
 });
 
+// =========================================================================
+// MODULE 9: DASHBOARD & ANALYTICS APIS
+// =========================================================================
+
+/**
+ * @route   GET /api/dashboard/user-metrics
+ * @desc    Fetch comprehensive User Dashboard metrics, 5-factor weighted score, checklist & vitals
+ */
+router.get('/dashboard/user-metrics', async (req, res) => {
+  try {
+    const userId = req.query.user_id ? parseInt(req.query.user_id, 10) : 1;
+    const store = db.getInMemoryStore();
+
+    const scoreRow = store.skin_scores.find(s => s.user_id === userId) || store.skin_scores[0];
+    const overallScore = scoreRow ? scoreRow.overall_score : 79.4;
+
+    const conditionScore = 88;
+    const lifestyleScore = 82;
+    const sleepScore = 85;
+    const consistencyScore = 92;
+    const hydrationScore = 74;
+
+    const scoreBreakdown = [
+      { name: 'Skin Condition (Acne / Lesions)', score: conditionScore, weight: '35%', status: 'Good', insight: 'Minimal inflammatory comedones; sebum balance stabilized.' },
+      { name: 'Lifestyle & Environmental Exposure', score: lifestyleScore, weight: '20%', status: 'Optimal', insight: 'Consistent SPF protection; moderate environmental stress.' },
+      { name: 'Sleep Quality & Circadian Repair', score: sleepScore, weight: '15%', status: 'Good', insight: '7.5 hrs average nightly cellular regeneration cycle.' },
+      { name: 'Routine Consistency Index', score: consistencyScore, weight: '20%', status: 'Optimal', insight: '14-day consecutive morning & night compliance streak.' },
+      { name: 'Epidermal Hydration Level', score: hydrationScore, weight: '10%', status: 'Good', insight: 'Corneocyte water binding capacity is +18% above baseline.' }
+    ];
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    const checklist = store.daily_skincare_checklists || [];
+    const morningSteps = checklist.filter(c => c.routine_type === 'morning');
+    const eveningSteps = checklist.filter(c => c.routine_type === 'evening');
+    const totalSteps = checklist.length || 8;
+    const completedSteps = checklist.filter(c => c.completed).length;
+    const completionPct = Math.round((completedSteps / totalSteps) * 100);
+
+    const hyd = store.hydration_logs[0] || { intake_ml: 1750, target_ml: 2500 };
+    const sleep = store.sleep_logs[0] || { sleep_hours: 7.5, sleep_quality: 'Good' };
+    const unreadCount = (store.notifications || []).filter(n => !n.is_read).length;
+
+    return res.json({
+      success: true,
+      user_id: userId,
+      user_name: 'Alex Rivera',
+      overall_health_score: overallScore,
+      score_breakdown: scoreBreakdown,
+      skin_type: 'Combination',
+      primary_concerns: ['Comedonal Acne', 'Compromised Barrier', 'Post-Acne Melanin'],
+      current_streak: 14,
+      adherence_rate: 93.5,
+      daily_checklist: {
+        date: todayStr,
+        total_steps: totalSteps,
+        completed_steps: completedSteps,
+        completion_pct: completionPct,
+        morning_routine: morningSteps,
+        evening_routine: eveningSteps,
+        streak_days: 14
+      },
+      hydration_intake_ml: hyd.intake_ml,
+      hydration_target_ml: hyd.target_ml,
+      hydration_progress_pct: Math.min(100, Math.round((hyd.intake_ml / hyd.target_ml) * 100)),
+      sleep_hours: sleep.sleep_hours,
+      sleep_quality: sleep.sleep_quality,
+      recommended_products_count: (store.products || []).length || 6,
+      unread_notifications_count: unreadCount
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to fetch user dashboard metrics.', error: err.message });
+  }
+});
+
+/**
+ * @route   POST /api/dashboard/checklist/toggle
+ * @desc    Toggle daily skincare checklist item completion
+ */
+router.post('/dashboard/checklist/toggle', async (req, res) => {
+  try {
+    const { user_id, step_id, routine_type, completed } = req.body;
+    const store = db.getInMemoryStore();
+
+    let item = (store.daily_skincare_checklists || []).find(c => c.step_id === step_id);
+    if (!item) {
+      item = {
+        id: (store.daily_skincare_checklists.length || 0) + 1,
+        user_id: user_id || 1,
+        check_date: new Date().toISOString().split('T')[0],
+        routine_type: routine_type || 'morning',
+        step_id,
+        step_name: step_id.replace('_', ' '),
+        completed: Boolean(completed),
+        completed_at: completed ? new Date().toISOString() : null
+      };
+      store.daily_skincare_checklists.push(item);
+    } else {
+      item.completed = Boolean(completed);
+      item.completed_at = completed ? new Date().toISOString() : null;
+    }
+
+    const total = store.daily_skincare_checklists.length;
+    const done = store.daily_skincare_checklists.filter(c => c.completed).length;
+    const pct = Math.round((done / total) * 100);
+
+    return res.json({
+      success: true,
+      user_id: user_id || 1,
+      step_id,
+      completed: item.completed,
+      completion_pct: pct,
+      streak_days: 14,
+      updated_at: new Date().toISOString()
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to toggle checklist step.', error: err.message });
+  }
+});
+
+/**
+ * @route   GET /api/dashboard/consultant-metrics
+ * @desc    Fetch consultant dashboard analytics and client roster
+ */
+router.get('/dashboard/consultant-metrics', async (req, res) => {
+  try {
+    const store = db.getInMemoryStore();
+    const clients = (store.users || []).filter(u => u.role === 'user').map(u => ({
+      id: u.id,
+      name: u.full_name || u.username,
+      email: u.email,
+      skin_type: u.skin_type || 'Combination',
+      health_score: u.id === 1 ? 79.4 : (u.id === 5 ? 71.2 : 65.5),
+      adherence_pct: u.id === 1 ? 94.2 : (u.id === 5 ? 86.5 : 78.0),
+      priority: u.id === 1 ? 'Standard' : 'High',
+      last_assessment_date: '24 Nov 2025',
+      primary_concern: (u.primary_concerns && u.primary_concerns[0]) || 'Acne & Barrier Repair',
+      status: u.id === 1 ? 'Under Active Regimen' : (u.id === 5 ? 'Needs Clinical Review' : 'Active Medical Treatment')
+    }));
+
+    return res.json({
+      success: true,
+      consultant_id: 2,
+      consultant_name: 'Elena Vance, LE',
+      total_clients: clients.length,
+      active_cases: clients.length,
+      average_client_adherence: 86.2,
+      average_client_score: 72.0,
+      clients,
+      skin_type_distribution: { Combination: 45.0, Oily: 25.0, Dry: 18.0, Sensitive: 12.0 },
+      top_concerns: [
+        { concern: 'Barrier Compromise / Stinging', count: 14, percentage: 38.0 },
+        { concern: 'Acne & Inflammatory Papules', count: 12, percentage: 32.5 },
+        { concern: 'Post-Inflammatory Hyperpigmentation', count: 8, percentage: 21.6 }
+      ]
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to fetch consultant metrics.', error: err.message });
+  }
+});
+
+/**
+ * @route   GET /api/dashboard/dermatologist-metrics
+ * @desc    Fetch dermatologist dashboard analytics, patient triage & lesion screening
+ */
+router.get('/dashboard/dermatologist-metrics', async (req, res) => {
+  try {
+    const store = db.getInMemoryStore();
+    const patients = (store.consultations || []).map(c => ({
+      id: c.user_id || c.id,
+      name: c.patient_name,
+      condition: c.condition,
+      severity: c.id === 1 ? 'Mild-Moderate' : (c.id === 2 ? 'Moderate' : 'High'),
+      priority: c.priority || 'Standard',
+      lesion_risk: c.id === 1 ? 'Benign (Safe / 8.2%)' : (c.id === 2 ? 'Benign Vascular Flushing (6.5%)' : 'Inflammatory Pattern (Monitor / 11.0%)'),
+      fitzpatrick: c.id === 1 ? 'Type III (Medium)' : (c.id === 2 ? 'Type II (Fair)' : 'Type IV (Olive)'),
+      last_visit: c.last_visit || '24 Nov 2025',
+      next_review: c.next_review || '24 Dec 2025',
+      active_rx: c.prescription
+    }));
+
+    return res.json({
+      success: true,
+      doctor_id: 3,
+      doctor_name: 'Dr. Julian Rostova, MD',
+      total_patients: patients.length,
+      high_risk_patients_count: 2,
+      pending_prescriptions_count: 1,
+      average_recovery_velocity: '+2.8 pts/week',
+      patients,
+      condition_severity_distribution: { Mild: 35.0, Moderate: 45.0, 'Severe / High Risk': 20.0 },
+      optical_lesion_metrics: {
+        total_scanned_lesions: 142,
+        benign_screened_pct: 94.4,
+        clinical_followup_flags: 8,
+        malignancy_triage_latency_ms: 120
+      }
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to fetch dermatologist metrics.', error: err.message });
+  }
+});
+
+/**
+ * @route   GET /api/dashboard/admin-metrics
+ * @desc    Fetch platform administration analytics, microservices telemetry & safety audit
+ */
+router.get('/dashboard/admin-metrics', async (req, res) => {
+  try {
+    const store = db.getInMemoryStore();
+    return res.json({
+      success: true,
+      total_users: (store.users || []).length * 250 || 1500,
+      role_distribution: {
+        'Users / Patients': 1420,
+        'Esthetician Consultants': 48,
+        'Board Dermatologists': 26,
+        'System Admins': 6
+      },
+      active_assessments_today: 328,
+      average_platform_adherence: 88.4,
+      microservices_status: [
+        { service_name: 'User Authentication & RBAC Service', port: 3000, status: 'Operational', uptime: '99.98%', latency_ms: 28 },
+        { service_name: 'Skin Profile & Assessment Service', port: 8000, status: 'Operational', uptime: '99.95%', latency_ms: 42 },
+        { service_name: 'Personalized Routine Generator', port: 8000, status: 'Operational', uptime: '99.99%', latency_ms: 36 },
+        { service_name: 'Ingredient Intelligence & Contraindication', port: 8000, status: 'Operational', uptime: '99.94%', latency_ms: 31 },
+        { service_name: 'Product Recommendation & Dupe Engine', port: 8000, status: 'Operational', uptime: '99.91%', latency_ms: 45 },
+        { service_name: 'Skin Health Scoring Engine', port: 8000, status: 'Operational', uptime: '99.97%', latency_ms: 24 },
+        { service_name: 'Progress Tracking & Analytics Lab', port: 8000, status: 'Operational', uptime: '99.92%', latency_ms: 48 },
+        { service_name: 'Optical ISIC Lesion Classifier Microservice', port: 8000, status: 'Operational', uptime: '99.88%', latency_ms: 115 },
+        { service_name: 'Telehealth Chat & Lumina AI Stream', port: 3000, status: 'Operational', uptime: '99.96%', latency_ms: 33 },
+        { service_name: 'Notification & Reminder Dispatch Service', port: 3000, status: 'Operational', uptime: '99.99%', latency_ms: 19 },
+        { service_name: 'Clinical Reports & PDF Export Engine', port: 8000, status: 'Operational', uptime: '99.93%', latency_ms: 62 },
+        { service_name: 'PostgreSQL Primary Cluster Storage', port: 5432, status: 'Operational', uptime: '100.0%', latency_ms: 8 }
+      ],
+      system_latency_ms: 38.5,
+      top_recommended_products: [
+        { name: 'CeraVe Hydrating Facial Cleanser', category: 'Face Wash', recommendation_count: 894, safety_score: 98 },
+        { name: 'The Ordinary Niacinamide 10% + Zinc 1%', category: 'Serum', recommendation_count: 782, safety_score: 96 },
+        { name: 'La Roche-Posay Anthelios SPF 50+', category: 'Sunscreen', recommendation_count: 745, safety_score: 99 }
+      ],
+      contraindication_alerts_24h: 14,
+      recent_audit_logs: store.admin_audit_logs || []
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to fetch admin metrics.', error: err.message });
+  }
+});
+
+// =========================================================================
+// MODULE 10: NOTIFICATION & REMINDER SYSTEM APIS
+// =========================================================================
+
+/**
+ * @route   GET /api/notifications
+ * @desc    Fetch notifications list with optional category filtering
+ */
+router.get('/notifications', async (req, res) => {
+  try {
+    const userId = req.query.user_id ? parseInt(req.query.user_id, 10) : 1;
+    const category = req.query.category;
+    const store = db.getInMemoryStore();
+
+    let notifs = store.notifications || [];
+    if (category && category !== 'all') {
+      notifs = notifs.filter(n => n.category === category);
+    }
+
+    const unreadCount = notifs.filter(n => !n.is_read).length;
+
+    return res.json({
+      success: true,
+      user_id: userId,
+      unread_count: unreadCount,
+      total_count: notifs.length,
+      notifications: notifs
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to fetch notifications.', error: err.message });
+  }
+});
+
+/**
+ * @route   PATCH /api/notifications/:id/read
+ * @desc    Mark a single notification as read
+ */
+router.patch('/notifications/:id/read', async (req, res) => {
+  try {
+    const notifId = parseInt(req.params.id, 10);
+    const store = db.getInMemoryStore();
+
+    const notif = (store.notifications || []).find(n => n.id === notifId);
+    if (notif) {
+      notif.is_read = true;
+    }
+
+    return res.json({ success: true, marked_count: 1, unread_remaining: 0 });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to mark notification read.', error: err.message });
+  }
+});
+
+/**
+ * @route   POST /api/notifications/mark-all-read
+ * @desc    Mark all user notifications as read
+ */
+router.post('/notifications/mark-all-read', async (req, res) => {
+  try {
+    const store = db.getInMemoryStore();
+    if (store.notifications) {
+      store.notifications.forEach(n => { n.is_read = true; });
+    }
+    return res.json({ success: true, marked_count: store.notifications.length, unread_remaining: 0 });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to mark all notifications as read.', error: err.message });
+  }
+});
+
+/**
+ * @route   GET /api/notifications/reminders
+ * @desc    Fetch user reminder preferences
+ */
+router.get('/notifications/reminders', async (req, res) => {
+  try {
+    const store = db.getInMemoryStore();
+    const pref = (store.reminders && store.reminders[0]) || {
+      user_id: 1,
+      morning_routine_time: '08:00',
+      evening_routine_time: '21:30',
+      hydration_target_ml: 2500,
+      hydration_interval_hours: 2,
+      sleep_wind_down_time: '22:30',
+      sleep_target_hours: 8.0,
+      weekly_scan_day: 'Sunday',
+      enable_routine_reminders: true,
+      enable_replenishment_alerts: true,
+      enable_hydration_reminders: true,
+      enable_sleep_reminders: true,
+      enable_progress_alerts: true,
+      enable_platform_notifications: true
+    };
+    return res.json({ success: true, ...pref });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to fetch reminder preferences.', error: err.message });
+  }
+});
+
+/**
+ * @route   PUT /api/notifications/reminders
+ * @desc    Update user reminder preferences
+ */
+router.put('/notifications/reminders', async (req, res) => {
+  try {
+    const store = db.getInMemoryStore();
+    if (store.reminders && store.reminders.length > 0) {
+      Object.assign(store.reminders[0], req.body);
+    }
+    return res.json({ success: true, ...(store.reminders[0] || req.body) });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to update reminder preferences.', error: err.message });
+  }
+});
+
+/**
+ * @route   GET /api/notifications/replenishment
+ * @desc    Fetch product replenishment status & depletion forecasts
+ */
+router.get('/notifications/replenishment', async (req, res) => {
+  try {
+    const store = db.getInMemoryStore();
+    const items = store.product_replenishment_tracking || [];
+    const lowCount = items.filter(i => i.status === 'Low' || i.status === 'Critical').length;
+    return res.json({ success: true, active_items: items, low_stock_alerts_count: lowCount });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to fetch replenishment items.', error: err.message });
+  }
+});
+
+/**
+ * @route   POST /api/notifications/hydration/log
+ * @desc    Quick log hydration intake increment (+250ml, +500ml)
+ */
+router.post('/notifications/hydration/log', async (req, res) => {
+  try {
+    const { user_id, amount_ml } = req.body;
+    const store = db.getInMemoryStore();
+    const hyd = store.hydration_logs[0] || { intake_ml: 1750, target_ml: 2500, logs_breakdown: [] };
+    
+    hyd.intake_ml += (amount_ml || 250);
+    const pct = Math.round((hyd.intake_ml / hyd.target_ml) * 100);
+
+    return res.json({
+      success: true,
+      user_id: user_id || 1,
+      log_date: new Date().toISOString().split('T')[0],
+      total_intake_ml: hyd.intake_ml,
+      target_ml: hyd.target_ml,
+      progress_percentage: Math.min(100, pct),
+      status: hyd.intake_ml >= hyd.target_ml ? 'Target Reached 🎉' : `${hyd.target_ml - hyd.intake_ml}ml remaining`,
+      logged_at: new Date().toISOString()
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to log hydration.', error: err.message });
+  }
+});
+
+/**
+ * @route   POST /api/notifications/sleep/log
+ * @desc    Log sleep duration and quality
+ */
+router.post('/notifications/sleep/log', async (req, res) => {
+  try {
+    const { user_id, sleep_hours, sleep_quality, wind_down_time, notes } = req.body;
+    const store = db.getInMemoryStore();
+    const sleep = store.sleep_logs[0] || { sleep_hours: 7.5, sleep_quality: 'Good' };
+
+    sleep.sleep_hours = parseFloat(sleep_hours || 7.5);
+    sleep.sleep_quality = sleep_quality || 'Good';
+    sleep.wind_down_time = wind_down_time || '22:30';
+    sleep.notes = notes;
+
+    const repairScore = Math.min(100, Math.round((sleep.sleep_hours / 8.0) * 100));
+
+    return res.json({
+      success: true,
+      user_id: user_id || 1,
+      log_date: new Date().toISOString().split('T')[0],
+      sleep_hours: sleep.sleep_hours,
+      sleep_quality: sleep.sleep_quality,
+      circadian_repair_score: repairScore,
+      skin_cellular_regeneration_status: repairScore >= 85 ? 'Optimal Cellular Mitosis' : 'Standard Barrier Recovery',
+      recorded_at: new Date().toISOString()
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to log sleep schedule.', error: err.message });
+  }
+});
+
+// =========================================================================
+// MODULE 11: REPORTS & EXPORT SYSTEM APIS
+// =========================================================================
+
+/**
+ * @route   POST /api/reports/generate
+ * @desc    Generate a structured clinical report (assessment, routine, product_recs, progress, skin_health)
+ */
+router.post('/api/reports/generate', async (req, res) => {
+  try {
+    const { user_id, report_type, format, title_override } = req.body;
+    const store = db.getInMemoryStore();
+
+    const titles = {
+      assessment: 'Cutaneous Biomarker & Optical Diagnostic Assessment Report',
+      routine: 'Chronological AM/PM Personalized Regimen & Treatment Plan',
+      product_recs: 'AI Formulation Compatibility & Product Prescription Dossier',
+      progress: '30-Day Longitudinal Skin Health Trajectory & Adherence Audit',
+      skin_health: 'Executive Comprehensive Skin Intelligence & Clinical Health Dossier'
+    };
+
+    const title = title_override || titles[report_type] || 'Clinical Skin Health Report';
+    const summary = 'Comprehensive quantitative evaluation indicating strong recovery of stratum corneum lipid barrier.';
+
+    const newReport = {
+      id: (store.generated_reports.length || 0) + 1,
+      user_id: user_id || 1,
+      report_type: report_type || 'skin_health',
+      title,
+      summary,
+      format: format || 'pdf',
+      created_at: new Date().toISOString(),
+      report_data: {
+        patient_name: 'Alex Rivera',
+        patient_id: `PX-0000${user_id || 1}`,
+        overall_health_score: 79.4,
+        skin_type: 'Combination',
+        clinical_status: 'Optimal Progress / Regimen Maintained',
+        assigned_consultant: 'Elena Vance, LE',
+        assigned_dermatologist: 'Dr. Julian Rostova, MD',
+        active_prescription: 'Topical Adapalene 0.1% (PM 3x/wk) + Azelaic Acid 15% (AM)',
+        routine_adherence: '93.5%',
+        consistency_streak: '14 Days',
+        hydration_status: '74% (1,750ml / 2,500ml Daily)',
+        sleep_circadian_index: '7.5 hrs / Night (Optimal Mitosis)'
+      }
+    };
+
+    store.generated_reports.push(newReport);
+    return res.json({ success: true, ...newReport });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to generate report.', error: err.message });
+  }
+});
+
+/**
+ * @route   GET /api/reports/history
+ * @desc    Fetch generated clinical report history
+ */
+router.get('/reports/history', async (req, res) => {
+  try {
+    const userId = req.query.user_id ? parseInt(req.query.user_id, 10) : 1;
+    const store = db.getInMemoryStore();
+    const reports = store.generated_reports || [];
+    return res.json({ success: true, user_id: userId, total_reports: reports.length, reports });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to fetch reports.', error: err.message });
+  }
+});
+
+/**
+ * @route   GET /api/reports/:id/pdf
+ * @desc    Render printable luxury clinical PDF HTML layout
+ */
+router.get('/reports/:id/pdf', async (req, res) => {
+  try {
+    const reportId = parseInt(req.params.id, 10);
+    const store = db.getInMemoryStore();
+    const rep = (store.generated_reports || []).find(r => r.id === reportId) || store.generated_reports[0];
+
+    const data = (rep && rep.report_data) || {};
+    const patientName = data.patient_name || 'Alex Rivera';
+    const score = data.overall_health_score || 79.4;
+    const title = rep ? rep.title : 'Clinical Skin Health Report';
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>${title} - PanaceaAI</title>
+  <style>
+    body { font-family: 'Inter', sans-serif; color: #1e293b; padding: 30px; line-height: 1.6; }
+    .header { display: flex; justify-content: space-between; border-bottom: 2px solid #d4af37; padding-bottom: 15px; }
+    .brand { font-size: 24px; font-weight: 700; color: #0f172a; }
+    .banner { background: #0f172a; color: #fff; padding: 18px; border-radius: 8px; margin: 20px 0; display: flex; justify-content: space-between; align-items: center; }
+    .score { font-size: 32px; color: #f7d070; font-weight: 700; }
+    .rx { background: #fffbeb; border-left: 4px solid #d97706; padding: 14px; border-radius: 6px; margin: 20px 0; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <div class="brand">PanaceaAI</div>
+      <small style="color: #b38728; text-transform: uppercase;">Clinical Dermatology & Skin Intelligence</small>
+    </div>
+    <div style="text-align: right; font-size: 11px; color: #64748b;">
+      <div><strong>Document:</strong> ${title}</div>
+      <div><strong>Patient:</strong> ${patientName}</div>
+    </div>
+  </div>
+  <div class="banner">
+    <div>
+      <div style="font-size: 11px; text-transform: uppercase; color: #94a3b8;">Holistic Cutaneous Health Score</div>
+      <div style="color: #cbd5e1;">Weighted 5-Factor Clinical Quantitative Assessment Index</div>
+    </div>
+    <div class="score">${score} / 100</div>
+  </div>
+  <p>${rep.summary || 'Detailed quantitative evaluation indicating stratum corneum barrier normalization.'}</p>
+  <div class="rx">
+    <strong>📋 ACTIVE PRESCRIPTION & PROTOCOL:</strong>
+    <p style="margin: 4px 0 0 0; color: #92400e;">${data.active_prescription || 'Topical Adapalene 0.1% (PM 3x/wk) + Azelaic Acid 15% (AM)'}</p>
+  </div>
+</body>
+</html>`;
+
+    res.setHeader('Content-Type', 'text/html');
+    return res.send(html);
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to generate PDF layout.', error: err.message });
+  }
+});
+
+/**
+ * @route   GET /api/reports/export/csv
+ * @desc    Export structured CSV file data
+ */
+router.get('/reports/export/csv', async (req, res) => {
+  try {
+    const exportType = req.query.type || 'progress';
+    let filename = 'panacea_progress_telemetry.csv';
+    let csvContent = 'Date,Health Score,Hydration (%),Sebum (%),Barrier Strength (%),Acne Severity (%),Redness (%),Adherence Rate (%),Streak (Days),Clinical Status\n' +
+      '2025-10-25,68.5,48.0,64.0,54.0,42.0,38.0,80.0,1,Baseline Checkpoint\n' +
+      '2025-11-01,71.2,56.0,58.0,62.0,34.0,30.0,85.0,7,Week 1 Checkpoint\n' +
+      '2025-11-08,74.8,64.0,55.0,72.0,26.0,24.0,90.0,14,Week 2 Checkpoint\n' +
+      '2025-11-15,77.5,70.0,53.0,80.0,18.0,18.0,92.5,21,Week 3 Checkpoint\n' +
+      '2025-11-24,79.4,74.0,52.0,86.0,12.0,15.0,94.2,30,Month 1 Milestone Checkpoint';
+
+    if (exportType === 'routine_logs') {
+      filename = 'panacea_routine_adherence_logs.csv';
+      csvContent = 'Date,Routine Type,Steps Completed,Total Steps,Adherence (%),Water Intake (ml),Sleep (hrs)\n' +
+        '2025-11-20,Morning,4,4,100.0,2500,7.5\n' +
+        '2025-11-20,Evening,4,4,100.0,2500,7.5\n' +
+        '2025-11-21,Morning,4,4,100.0,2250,8.0\n' +
+        '2025-11-21,Evening,4,4,100.0,2250,8.0';
+    }
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+    return res.send(csvContent);
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to export CSV.', error: err.message });
+  }
+});
+
 export default router;
+
 
 
 

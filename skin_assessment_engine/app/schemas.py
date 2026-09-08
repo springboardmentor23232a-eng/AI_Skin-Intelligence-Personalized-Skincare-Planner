@@ -746,4 +746,304 @@ class ProgressSummaryAnalyticsResponse(BaseModel):
     quick_trends: List[ScoreTrajectoryPoint]
 
 
+# =========================================================================
+# MODULE 9: DASHBOARD & ANALYTICS SCHEMAS
+# =========================================================================
+
+class ChecklistStepItem(BaseModel):
+    id: str
+    routine_type: str # morning, evening, weekly
+    step_number: int
+    name: str
+    product_name: Optional[str] = None
+    time_estimate: str
+    instructions: str
+    completed: bool = False
+    completed_at: Optional[str] = None
+
+
+class DailyChecklistResponse(BaseModel):
+    success: bool = True
+    user_id: int
+    date: str
+    total_steps: int
+    completed_steps: int
+    completion_pct: float
+    morning_routine: List[ChecklistStepItem]
+    evening_routine: List[ChecklistStepItem]
+    weekly_routine: List[ChecklistStepItem]
+    streak_days: int
+
+
+class ChecklistToggleRequest(BaseModel):
+    user_id: int = 1
+    routine_type: str # morning, evening, weekly
+    step_id: str
+    completed: bool
+    check_date: Optional[str] = None
+
+
+class ChecklistToggleResponse(BaseModel):
+    success: bool = True
+    user_id: int
+    step_id: str
+    completed: bool
+    completion_pct: float
+    streak_days: int
+    updated_at: str
+
+
+class SkinHealthScoreBreakdown(BaseModel):
+    name: str
+    score: float
+    weight: str
+    status: str
+    insight: str
+
+
+class UserDashboardAnalyticsResponse(BaseModel):
+    success: bool = True
+    user_id: int
+    user_name: str
+    overall_health_score: float
+    score_breakdown: List[SkinHealthScoreBreakdown]
+    skin_type: str
+    primary_concerns: List[str]
+    current_streak: int
+    adherence_rate: float
+    daily_checklist: DailyChecklistResponse
+    hydration_intake_ml: int
+    hydration_target_ml: int
+    hydration_progress_pct: float
+    sleep_hours: float
+    sleep_quality: str
+    recommended_products_count: int
+    unread_notifications_count: int
+
+
+class ConsultantClientOverview(BaseModel):
+    id: int
+    name: str
+    email: str
+    skin_type: str
+    health_score: float
+    adherence_pct: float
+    priority: str
+    last_assessment_date: str
+    primary_concern: str
+    status: str
+
+
+class ConsultantDashboardAnalyticsResponse(BaseModel):
+    success: bool = True
+    consultant_id: int
+    consultant_name: str
+    total_clients: int
+    active_cases: int
+    average_client_adherence: float
+    average_client_score: float
+    clients: List[ConsultantClientOverview]
+    skin_type_distribution: dict
+    top_concerns: List[dict]
+
+
+class DermatologistPatientOverview(BaseModel):
+    id: int
+    name: str
+    age: int
+    gender: str
+    condition: str
+    severity: str
+    priority: str
+    lesion_risk: str
+    fitzpatrick: str
+    last_visit: str
+    next_review: str
+    active_rx: Optional[str] = None
+
+
+class DermatologistDashboardAnalyticsResponse(BaseModel):
+    success: bool = True
+    doctor_id: int
+    doctor_name: str
+    total_patients: int
+    high_risk_patients_count: int
+    pending_prescriptions_count: int
+    average_recovery_velocity: str
+    patients: List[DermatologistPatientOverview]
+    condition_severity_distribution: dict
+    optical_lesion_metrics: dict
+
+
+class AdminDashboardAnalyticsResponse(BaseModel):
+    success: bool = True
+    total_users: int
+    role_distribution: dict
+    active_assessments_today: int
+    average_platform_adherence: float
+    microservices_status: List[dict]
+    system_latency_ms: float
+    top_recommended_products: List[dict]
+    contraindication_alerts_24h: int
+    recent_audit_logs: List[dict]
+
+
+# =========================================================================
+# MODULE 10: NOTIFICATION & REMINDER SYSTEM SCHEMAS
+# =========================================================================
+
+class NotificationItem(BaseModel):
+    id: int
+    user_id: int
+    title: str
+    message: str
+    category: str # routine, product, hydration_sleep, clinical, system
+    type: str # info, success, warning, alert
+    is_read: bool
+    action_url: Optional[str] = None
+    metadata_json: Optional[dict] = None
+    created_at: str
+
+
+class NotificationListResponse(BaseModel):
+    success: bool = True
+    user_id: int
+    unread_count: int
+    total_count: int
+    notifications: List[NotificationItem]
+
+
+class NotificationMarkReadResponse(BaseModel):
+    success: bool = True
+    marked_count: int
+    unread_remaining: int
+
+
+class ReminderPreferencesSchema(BaseModel):
+    user_id: int
+    morning_routine_time: str = "08:00"
+    evening_routine_time: str = "21:30"
+    hydration_target_ml: int = 2500
+    hydration_interval_hours: int = 2
+    sleep_wind_down_time: str = "22:30"
+    sleep_target_hours: float = 8.0
+    weekly_scan_day: str = "Sunday"
+    enable_routine_reminders: bool = True
+    enable_replenishment_alerts: bool = True
+    enable_hydration_reminders: bool = True
+    enable_sleep_reminders: bool = True
+    enable_progress_alerts: bool = True
+    enable_platform_notifications: bool = True
+
+
+class ProductReplenishmentItem(BaseModel):
+    id: int
+    user_id: int
+    product_id: Optional[int] = None
+    product_name: str
+    category: str
+    total_volume_ml: float
+    daily_usage_ml: float
+    remaining_pct: float
+    days_left: int
+    status: str # Adequate, Low, Critical, Replenished
+    reorder_url: Optional[str] = None
+    estimated_depletion_date: str
+
+
+class ProductReplenishmentResponse(BaseModel):
+    success: bool = True
+    user_id: int
+    active_items: List[ProductReplenishmentItem]
+    low_stock_alerts_count: int
+
+
+class HydrationLogRequest(BaseModel):
+    user_id: int = 1
+    amount_ml: int = Field(default=250, ge=50, le=2000)
+    log_date: Optional[str] = None
+
+
+class HydrationLogResponse(BaseModel):
+    success: bool = True
+    user_id: int
+    log_date: str
+    total_intake_ml: int
+    target_ml: int
+    progress_percentage: float
+    status: str
+    logged_at: str
+
+
+class SleepLogRequest(BaseModel):
+    user_id: int = 1
+    sleep_hours: float = Field(default=7.5, ge=1.0, le=16.0)
+    sleep_quality: str = "Good" # Optimal, Good, Restless, Insufficient
+    wind_down_time: Optional[str] = "22:30"
+    notes: Optional[str] = None
+    log_date: Optional[str] = None
+
+
+class SleepLogResponse(BaseModel):
+    success: bool = True
+    user_id: int
+    log_date: str
+    sleep_hours: float
+    sleep_quality: str
+    circadian_repair_score: float
+    skin_cellular_regeneration_status: str
+    recorded_at: str
+
+
+# =========================================================================
+# MODULE 11: REPORTS & EXPORT SYSTEM SCHEMAS
+# =========================================================================
+
+class ReportGenerateRequest(BaseModel):
+    user_id: int = 1
+    report_type: str # assessment, routine, product_recs, progress, skin_health
+    format: str = "pdf" # pdf, excel, json
+    title_override: Optional[str] = None
+
+
+class ReportItem(BaseModel):
+    id: int
+    user_id: int
+    report_type: str
+    title: str
+    summary: str
+    format: str
+    created_at: str
+    report_data: dict
+
+
+class ReportListResponse(BaseModel):
+    success: bool = True
+    user_id: int
+    total_reports: int
+    reports: List[ReportItem]
+
+
+class ReportDetailResponse(BaseModel):
+    success: bool = True
+    report: ReportItem
+
+
+class ReportPDFExportResponse(BaseModel):
+    success: bool = True
+    report_id: int
+    title: str
+    html_content: str
+    download_filename: str
+
+
+class CSVExportResponse(BaseModel):
+    success: bool = True
+    export_type: str
+    filename: str
+    csv_content: str
+    row_count: int
+
+
+
 

@@ -267,3 +267,128 @@ class BeforeAfterComparison(Base):
     created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
 
 
+# Module 9: Daily Skincare Checklists
+class DailySkincareChecklist(Base):
+    __tablename__ = "daily_skincare_checklists"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, index=True, nullable=False)
+    check_date = Column(String(20), default=lambda: datetime.now(timezone.utc).strftime("%Y-%m-%d"), index=True)
+    routine_type = Column(String(50), nullable=False) # morning, evening, weekly
+    step_id = Column(String(100), nullable=False)
+    step_name = Column(String(255), nullable=False)
+    completed = Column(Integer, default=0) # 0 for false, 1 for true (portable across sqlite & postgres)
+    completed_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+
+# Module 10: Notification & Reminder System
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, index=True, nullable=False)
+    title = Column(String(255), nullable=False)
+    message = Column(Text, nullable=False)
+    category = Column(String(50), default="system", index=True) # routine, product, hydration_sleep, clinical, system
+    type = Column(String(50), default="info") # info, success, warning, alert
+    is_read = Column(Integer, default=0) # 0 for false, 1 for true
+    action_url = Column(Text, nullable=True)
+    metadata_json = Column(JSON, default=dict)
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False, index=True)
+
+
+class ReminderPreference(Base):
+    __tablename__ = "reminder_preferences"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, unique=True, index=True, nullable=False)
+    morning_routine_time = Column(String(20), default="08:00")
+    evening_routine_time = Column(String(20), default="21:30")
+    hydration_target_ml = Column(Integer, default=2500)
+    hydration_interval_hours = Column(Integer, default=2)
+    sleep_wind_down_time = Column(String(20), default="22:30")
+    sleep_target_hours = Column(Float, default=8.0)
+    weekly_scan_day = Column(String(20), default="Sunday")
+    
+    enable_routine_reminders = Column(Integer, default=1)
+    enable_replenishment_alerts = Column(Integer, default=1)
+    enable_hydration_reminders = Column(Integer, default=1)
+    enable_sleep_reminders = Column(Integer, default=1)
+    enable_progress_alerts = Column(Integer, default=1)
+    enable_platform_notifications = Column(Integer, default=1)
+    
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+    updated_at = Column(DateTime(timezone=True), default=utc_now, onupdate=utc_now, nullable=False)
+
+
+class ProductReplenishment(Base):
+    __tablename__ = "product_replenishments"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, index=True, nullable=False)
+    product_id = Column(Integer, nullable=True)
+    product_name = Column(String(255), nullable=False)
+    category = Column(String(100), default="Serum")
+    total_volume_ml = Column(Float, default=50.0)
+    daily_usage_ml = Column(Float, default=1.0)
+    remaining_pct = Column(Float, default=100.0)
+    days_left = Column(Integer, default=50)
+    status = Column(String(50), default="Adequate") # Adequate, Low, Critical, Replenished
+    reorder_url = Column(Text, nullable=True)
+    last_logged = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+
+class HydrationLog(Base):
+    __tablename__ = "hydration_logs"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, index=True, nullable=False)
+    log_date = Column(String(20), default=lambda: datetime.now(timezone.utc).strftime("%Y-%m-%d"), index=True)
+    intake_ml = Column(Integer, default=0)
+    target_ml = Column(Integer, default=2500)
+    logs_breakdown = Column(JSON, default=list) # e.g. [{"time": "09:30", "amount": 250}, ...]
+    updated_at = Column(DateTime(timezone=True), default=utc_now, onupdate=utc_now, nullable=False)
+
+
+class SleepLog(Base):
+    __tablename__ = "sleep_logs"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, index=True, nullable=False)
+    log_date = Column(String(20), default=lambda: datetime.now(timezone.utc).strftime("%Y-%m-%d"), index=True)
+    sleep_hours = Column(Float, default=7.5)
+    sleep_quality = Column(String(50), default="Good") # Optimal, Good, Restless, Insufficient
+    wind_down_time = Column(String(20), default="22:30")
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+
+# Module 11: Reports & Export System
+class GeneratedReport(Base):
+    __tablename__ = "generated_reports"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, index=True, nullable=False)
+    report_type = Column(String(100), nullable=False, index=True) # assessment, routine, product_recs, progress, skin_health
+    title = Column(String(255), nullable=False)
+    summary = Column(Text, nullable=False)
+    report_data = Column(JSON, nullable=False)
+    format = Column(String(50), default="pdf") # pdf, excel, json
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False, index=True)
+
+
+class AdminAuditLog(Base):
+    __tablename__ = "admin_audit_logs"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    actor_id = Column(Integer, nullable=True)
+    actor_name = Column(String(255), nullable=False)
+    actor_role = Column(String(50), nullable=False)
+    action = Column(String(150), nullable=False)
+    details = Column(JSON, default=dict)
+    ip_address = Column(String(100), default="127.0.0.1")
+    timestamp = Column(DateTime(timezone=True), default=utc_now, nullable=False, index=True)
+
+
+

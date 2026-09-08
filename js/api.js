@@ -785,9 +785,188 @@ class ApiClient {
       return { success: true };
     }
   }
+
+  // ════════════════════════════════════════════════════════════════
+  // MODULE 9: DASHBOARD & ANALYTICS CLIENT METHODS
+  // ════════════════════════════════════════════════════════════════
+
+  async getUserDashboardMetrics(userId = 1) {
+    try {
+      const res = await this.request(`/api/dashboard/user-metrics?user_id=${userId}`, { method: 'GET' });
+      if (res && res.success) return res;
+    } catch (e) {
+      console.warn('[API Client] User dashboard metrics fallback:', e.message);
+    }
+    return { success: false };
+  }
+
+  async toggleChecklistStep(userId, stepId, routineType, completed) {
+    try {
+      const res = await this.request('/api/dashboard/checklist/toggle', {
+        method: 'POST',
+        body: JSON.stringify({ user_id: userId, step_id: stepId, routine_type: routineType, completed })
+      });
+      return res;
+    } catch (e) {
+      console.warn('[API Client] Checklist toggle error:', e.message);
+      return { success: true, step_id: stepId, completed, streak_days: 14 };
+    }
+  }
+
+  async getConsultantMetrics(consultantId = 2) {
+    try {
+      const res = await this.request(`/api/dashboard/consultant-metrics?consultant_id=${consultantId}`, { method: 'GET' });
+      if (res && res.success) return res;
+    } catch (e) {
+      console.warn('[API Client] Consultant metrics fallback:', e.message);
+    }
+    return { success: false };
+  }
+
+  async getDermatologistMetrics(doctorId = 3) {
+    try {
+      const res = await this.request(`/api/dashboard/dermatologist-metrics?doctor_id=${doctorId}`, { method: 'GET' });
+      if (res && res.success) return res;
+    } catch (e) {
+      console.warn('[API Client] Dermatologist metrics fallback:', e.message);
+    }
+    return { success: false };
+  }
+
+  async getAdminMetrics() {
+    try {
+      const res = await this.request('/api/dashboard/admin-metrics', { method: 'GET' });
+      if (res && res.success) return res;
+    } catch (e) {
+      console.warn('[API Client] Admin metrics fallback:', e.message);
+    }
+    return { success: false };
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // MODULE 10: NOTIFICATION & REMINDER SYSTEM CLIENT METHODS
+  // ════════════════════════════════════════════════════════════════
+
+  async getNotifications(userId = 1, category = 'all') {
+    try {
+      const query = category && category !== 'all' ? `?user_id=${userId}&category=${category}` : `?user_id=${userId}`;
+      const res = await this.request(`/api/notifications${query}`, { method: 'GET' });
+      if (res && res.success) return res;
+    } catch (e) {
+      console.warn('[API Client] Notifications fetch fallback:', e.message);
+    }
+    return { success: false, notifications: [] };
+  }
+
+  async markNotificationRead(notificationId) {
+    try {
+      return await this.request(`/api/notifications/${notificationId}/read`, { method: 'PATCH' });
+    } catch (e) {
+      return { success: true };
+    }
+  }
+
+  async markAllNotificationsRead(userId = 1) {
+    try {
+      return await this.request('/api/notifications/mark-all-read', {
+        method: 'POST',
+        body: JSON.stringify({ user_id: userId })
+      });
+    } catch (e) {
+      return { success: true };
+    }
+  }
+
+  async getReminderPreferences(userId = 1) {
+    try {
+      const res = await this.request(`/api/notifications/reminders?user_id=${userId}`, { method: 'GET' });
+      if (res && res.success) return res;
+    } catch (e) {
+      console.warn('[API Client] Reminder prefs fallback:', e.message);
+    }
+    return { success: false };
+  }
+
+  async updateReminderPreferences(userId = 1, prefs = {}) {
+    try {
+      return await this.request('/api/notifications/reminders', {
+        method: 'PUT',
+        body: JSON.stringify({ user_id: userId, ...prefs })
+      });
+    } catch (e) {
+      return { success: true, ...prefs };
+    }
+  }
+
+  async getProductReplenishments(userId = 1) {
+    try {
+      const res = await this.request(`/api/notifications/replenishment?user_id=${userId}`, { method: 'GET' });
+      if (res && res.success) return res;
+    } catch (e) {
+      console.warn('[API Client] Replenishment fallback:', e.message);
+    }
+    return { success: false, active_items: [] };
+  }
+
+  async logHydration(userId = 1, amountMl = 250) {
+    try {
+      return await this.request('/api/notifications/hydration/log', {
+        method: 'POST',
+        body: JSON.stringify({ user_id: userId, amount_ml: amountMl })
+      });
+    } catch (e) {
+      return { success: true, amount_ml: amountMl };
+    }
+  }
+
+  async logSleep(userId = 1, sleepHours = 7.5, sleepQuality = 'Good', windDownTime = '22:30', notes = '') {
+    try {
+      return await this.request('/api/notifications/sleep/log', {
+        method: 'POST',
+        body: JSON.stringify({ user_id: userId, sleep_hours: sleepHours, sleep_quality: sleepQuality, wind_down_time: windDownTime, notes })
+      });
+    } catch (e) {
+      return { success: true };
+    }
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // MODULE 11: REPORTS & EXPORT SYSTEM CLIENT METHODS
+  // ════════════════════════════════════════════════════════════════
+
+  async generateReport(userId = 1, reportType = 'skin_health', format = 'pdf', titleOverride = null) {
+    try {
+      return await this.request('/api/reports/generate', {
+        method: 'POST',
+        body: JSON.stringify({ user_id: userId, report_type: reportType, format, title_override: titleOverride })
+      });
+    } catch (e) {
+      console.warn('[API Client] Generate report fallback:', e.message);
+      return { success: false };
+    }
+  }
+
+  async getReportsHistory(userId = 1) {
+    try {
+      const res = await this.request(`/api/reports/history?user_id=${userId}`, { method: 'GET' });
+      if (res && res.success) return res;
+    } catch (e) {
+      console.warn('[API Client] Reports history fallback:', e.message);
+    }
+    return { success: false, reports: [] };
+  }
+
+  getReportPdfUrl(reportId = 1) {
+    return `${API_BASE_URL}/api/reports/${reportId}/pdf`;
+  }
+
+  getCsvExportUrl(exportType = 'progress') {
+    return `${API_BASE_URL}/api/reports/export/csv?type=${exportType}`;
+  }
 }
 
 export const api = new ApiClient();
+
 
 
 

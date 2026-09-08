@@ -254,4 +254,127 @@ CREATE TABLE IF NOT EXISTS before_after_comparisons (
 
 CREATE INDEX IF NOT EXISTS idx_before_after_user ON before_after_comparisons(user_id);
 
+-- 9. Dashboard & Daily Checklist Engine Tables (Module 9)
+CREATE TABLE IF NOT EXISTS daily_skincare_checklists (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    check_date DATE DEFAULT CURRENT_DATE NOT NULL,
+    routine_type VARCHAR(50) NOT NULL, -- morning, evening, weekly
+    step_id VARCHAR(100) NOT NULL,
+    step_name VARCHAR(255) NOT NULL,
+    completed BOOLEAN DEFAULT false,
+    completed_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_checklist_user_date ON daily_skincare_checklists(user_id, check_date);
+
+-- 10. Notification & Reminder System Tables (Module 10)
+CREATE TABLE IF NOT EXISTS notifications (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    category VARCHAR(50) DEFAULT 'system', -- routine, product, hydration_sleep, clinical, system
+    type VARCHAR(50) DEFAULT 'info', -- info, success, warning, alert
+    is_read BOOLEAN DEFAULT false,
+    action_url TEXT,
+    metadata JSONB DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_notifications_category ON notifications(category);
+
+CREATE TABLE IF NOT EXISTS reminder_preferences (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL UNIQUE,
+    morning_routine_time VARCHAR(20) DEFAULT '08:00',
+    evening_routine_time VARCHAR(20) DEFAULT '21:30',
+    hydration_target_ml INT DEFAULT 2500,
+    hydration_interval_hours INT DEFAULT 2,
+    sleep_wind_down_time VARCHAR(20) DEFAULT '22:30',
+    sleep_target_hours NUMERIC(4,2) DEFAULT 8.0,
+    weekly_scan_day VARCHAR(20) DEFAULT 'Sunday',
+    enable_routine_reminders BOOLEAN DEFAULT true,
+    enable_replenishment_alerts BOOLEAN DEFAULT true,
+    enable_hydration_reminders BOOLEAN DEFAULT true,
+    enable_sleep_reminders BOOLEAN DEFAULT true,
+    enable_progress_alerts BOOLEAN DEFAULT true,
+    enable_platform_notifications BOOLEAN DEFAULT true,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS product_replenishments (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    product_id INT,
+    product_name VARCHAR(255) NOT NULL,
+    category VARCHAR(100) DEFAULT 'Serum',
+    total_volume_ml NUMERIC(6, 2) DEFAULT 50.0,
+    daily_usage_ml NUMERIC(4, 2) DEFAULT 1.0,
+    remaining_pct NUMERIC(5, 2) DEFAULT 100.0,
+    days_left INT DEFAULT 50,
+    status VARCHAR(50) DEFAULT 'Adequate', -- Adequate, Low, Critical, Replenished
+    reorder_url TEXT,
+    last_logged TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_replenishments_user ON product_replenishments(user_id);
+
+CREATE TABLE IF NOT EXISTS hydration_logs (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    log_date DATE DEFAULT CURRENT_DATE NOT NULL,
+    intake_ml INT DEFAULT 0,
+    target_ml INT DEFAULT 2500,
+    logs_breakdown JSONB DEFAULT '[]'::jsonb,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_hydration_user_date ON hydration_logs(user_id, log_date);
+
+CREATE TABLE IF NOT EXISTS sleep_logs (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    log_date DATE DEFAULT CURRENT_DATE NOT NULL,
+    sleep_hours NUMERIC(4,2) DEFAULT 7.5,
+    sleep_quality VARCHAR(50) DEFAULT 'Good',
+    wind_down_time VARCHAR(20) DEFAULT '22:30',
+    notes TEXT,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_sleep_user_date ON sleep_logs(user_id, log_date);
+
+-- 11. Reports & Export System Tables (Module 11)
+CREATE TABLE IF NOT EXISTS generated_reports (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    report_type VARCHAR(100) NOT NULL, -- assessment, routine, product_recs, progress, skin_health
+    title VARCHAR(255) NOT NULL,
+    summary TEXT NOT NULL,
+    report_data JSONB NOT NULL,
+    format VARCHAR(50) DEFAULT 'pdf', -- pdf, excel, json
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_reports_user ON generated_reports(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_reports_type ON generated_reports(report_type);
+
+CREATE TABLE IF NOT EXISTS admin_audit_logs (
+    id SERIAL PRIMARY KEY,
+    actor_id INT,
+    actor_name VARCHAR(255) NOT NULL,
+    actor_role VARCHAR(50) NOT NULL,
+    action VARCHAR(150) NOT NULL,
+    details JSONB DEFAULT '{}'::jsonb,
+    ip_address VARCHAR(100) DEFAULT '127.0.0.1',
+    timestamp TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_audit_logs_time ON admin_audit_logs(timestamp DESC);
+
+
 
