@@ -4,6 +4,7 @@ import tempfile
 import shutil
 import os
 import json
+import uuid
 
 from app.database import get_db
 from app import models
@@ -41,8 +42,8 @@ async def combined_assessment_api(
     db: Session = Depends(get_db)
 ):
     """
-    Runs the combined Questionnaire + Vision AI assessment
-    and stores the completed assessment in PostgreSQL
+    Runs the combined Questionnaire + Vision AI assessment,
+    stores uploaded image permanently, and saves the completed assessment in PostgreSQL
     for the authenticated user.
     """
 
@@ -50,22 +51,51 @@ async def combined_assessment_api(
 
     try:
         # --------------------------------------------------
-        # 1. Save uploaded image temporarily
+        # 1. Save uploaded image permanently
         # --------------------------------------------------
 
-        suffix = os.path.splitext(image.filename or "")[1]
+        ext = os.path.splitext(image.filename or "")[1].lower()
+        allowed_extensions = {".jpg", ".jpeg", ".png", ".webp"}
+        if ext not in allowed_extensions:
+            ext = ".jpg"
+
+        filename = f"{uuid.uuid4().hex}{ext}"
+
+        router_dir = os.path.dirname(os.path.abspath(__file__))
+        backend_dir = os.path.dirname(os.path.dirname(router_dir))
+        uploads_assessments_dir = os.path.join(backend_dir, "uploads", "assessments")
+        os.makedirs(uploads_assessments_dir, exist_ok=True)
+
+        perm_file_path = os.path.join(uploads_assessments_dir, filename)
+
+        try:
+            with open(perm_file_path, "wb") as perm_file:
+                shutil.copyfileobj(image.file, perm_file)
+        except Exception as img_err:
+            print(f"[ERROR] Failed to save permanent image: {img_err}")
+            raise HTTPException(
+                status_code=500,
+                detail="Unable to store assessment scan image."
+            )
+
+        image_url = f"/uploads/assessments/{filename}"
+
+        # --------------------------------------------------
+        # 2. Save uploaded image temporarily for Vision AI
+        # --------------------------------------------------
 
         with tempfile.NamedTemporaryFile(
             delete=False,
-            suffix=suffix
+            suffix=ext
         ) as temp_file:
 
+            image.file.seek(0)
             shutil.copyfileobj(image.file, temp_file)
             temp_file_path = temp_file.name
 
         # --------------------------------------------------
-# Parse allergies for JSONB storage
-# --------------------------------------------------
+        # Parse allergies for JSONB storage
+        # --------------------------------------------------
 
         parsed_allergies = []
 
@@ -95,20 +125,21 @@ async def combined_assessment_api(
             except json.JSONDecodeError:
                 parsed_lifestyle_habits = {}
         # --------------------------------------------------
-        # 2. Prepare questionnaire data
+        # 3. Prepare questionnaire data
         # --------------------------------------------------
         
         questionnaire_data = {
             "age": age,
             "gender": gender,
-            "hydration_level": hydration_level,            "oil_level": oil_level,
+            "hydration_level": hydration_level,
+            "oil_level": oil_level,
             "sensitivity": sensitivity,
             "humidity": humidity,
             "temperature": temperature
         }
 
         # --------------------------------------------------
-        # 3. Run existing AI assessment engine
+        # 4. Run existing AI assessment engine
         # --------------------------------------------------
 
         result = combined_assessment(
@@ -127,7 +158,7 @@ async def combined_assessment_api(
             )
 
         # --------------------------------------------------
-        # 4. Extract assessment results
+        # 5. Extract assessment results
         # --------------------------------------------------
 
         summary = result.get("assessment_summary", {})
@@ -135,7 +166,7 @@ async def combined_assessment_api(
         recommendations = result.get("recommendations", {})
 
         # --------------------------------------------------
-        # 5. Create PostgreSQL assessment record
+        # 6. Create PostgreSQL assessment record
         # --------------------------------------------------
 
         assessment_record = models.Assessment(
@@ -181,11 +212,12 @@ async def combined_assessment_api(
             concerns=result.get("concerns", []),
             priority_order=result.get("priority_order", []),
             risk_factors=result.get("risk_factors", []),
-            recommendations=recommendations
+            recommendations=recommendations,
+            image_url=image_url
         )
 
         # --------------------------------------------------
-        # 6. Save to PostgreSQL
+        # 7. Save to PostgreSQL
         # --------------------------------------------------
 
         db.add(assessment_record)
@@ -193,10 +225,11 @@ async def combined_assessment_api(
         db.refresh(assessment_record)
 
         # --------------------------------------------------
-        # 7. Return assessment response
+        # 8. Return assessment response
         # --------------------------------------------------
 
         result["assessment_id"] = assessment_record.id
+        result["image_url"] = assessment_record.image_url
         result["assessment_time"] = (
             assessment_record.assessment_time
         )
@@ -272,6 +305,7 @@ def get_assessment_history(
             "priority_order": assessment.priority_order,
             "risk_factors": assessment.risk_factors,
             "recommendations": assessment.recommendations,
+            "image_url": assessment.image_url,
             "assessment_time": assessment.assessment_time,
         }
         for assessment in assessments
@@ -400,6 +434,7 @@ def get_assessment(
         "priority_order": assessment.priority_order,
         "risk_factors": assessment.risk_factors,
         "recommendations": assessment.recommendations,
+        "image_url": assessment.image_url,
         "assessment_time": assessment.assessment_time,
     }
 
@@ -493,6 +528,7 @@ def update_assessment(
             "priority_order": assessment.priority_order,
             "risk_factors": assessment.risk_factors,
             "recommendations": assessment.recommendations,
+            "image_url": assessment.image_url,
             "assessment_time": assessment.assessment_time,
         }
     }

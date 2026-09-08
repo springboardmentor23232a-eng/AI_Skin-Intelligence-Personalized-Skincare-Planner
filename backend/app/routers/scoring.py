@@ -193,3 +193,48 @@ def log_routine_adherence(
             "adherence_percentage": adherence_pct
         }
     }
+
+@router.get("/adherence/history")
+def get_routine_adherence_history(
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Returns routine adherence history for the authenticated user.
+    """
+
+    logs = (
+        db.query(models.RoutineLog)
+        .filter(
+            models.RoutineLog.user_id == current_user.id
+        )
+        .order_by(
+            models.RoutineLog.log_date.asc()
+        )
+        .all()
+    )
+
+    history = []
+
+    for log in logs:
+        adherence_percentage = (
+            round(
+                (log.completed_count / float(log.total_count)) * 100.0,
+                1
+            )
+            if log.total_count > 0
+            else 0.0
+        )
+
+        history.append({
+            "id": log.id,
+            "log_date": str(log.log_date),
+            "completed_count": log.completed_count,
+            "total_count": log.total_count,
+            "adherence_percentage": adherence_percentage
+        })
+
+    return {
+        "status": "success",
+        "history": history
+    }

@@ -1,5 +1,5 @@
 from app.database import engine, Base
-from app.models import User, RoutineLog
+from app.models import User, RoutineLog, Assessment
 from sqlalchemy import inspect, text
 
 def sync_database():
@@ -27,6 +27,14 @@ def sync_database():
         if 'updated_at' not in columns:
             print("Adding 'updated_at' column...")
             conn.execute(text("ALTER TABLE users ADD COLUMN updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;"))
+            conn.commit()
+
+        # Safely sync assessments table columns
+        assessment_columns = [c['name'] for c in inspector.get_columns('assessments')]
+        print("Existing columns in 'assessments' table:", assessment_columns)
+        if 'image_url' not in assessment_columns:
+            print("Adding 'image_url' column to 'assessments' table...")
+            conn.execute(text("ALTER TABLE assessments ADD COLUMN IF NOT EXISTS image_url VARCHAR;"))
             conn.commit()
 
     print("Database sync completed successfully!")

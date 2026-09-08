@@ -60,6 +60,9 @@ class Assessment(Base):
     risk_factors = Column(JSONB, nullable=True)
     recommendations = Column(JSONB, nullable=True)
 
+    # Scan image URL
+    image_url = Column(String, nullable=True)
+
     # Assessment history timestamp
     assessment_time = Column(
         DateTime(timezone=True),
