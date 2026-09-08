@@ -93,25 +93,94 @@ function googleCallback(req, res) {
 }
 
 // GET /api/auth/me
+// Single source of truth for identity/shared fields: req.user is loaded
+// fresh from `users` on every request by the protect middleware. For
+// DOCTOR/CONSULTANT accounts, this also merges in their role-specific
+// professional-profile row (doctor_profiles/consultant_profiles) so a
+// single endpoint gives every role everything their own Profile page
+// needs — without ever exposing another user's data (scoped to
+// req.user.id throughout).
 async function getProfile(req, res, next) {
   try {
-    res.json({ user: req.user });
+    let professional = null;
+    if (req.user.role === 'DOCTOR') {
+      const { rows } = await pool.query(
+        'SELECT specialization, qualification, experience_years, bio FROM doctor_profiles WHERE user_id = $1',
+        [req.user.id]
+      );
+      professional = rows[0] || null;
+    } else if (req.user.role === 'CONSULTANT') {
+      const { rows } = await pool.query(
+        'SELECT specialization, experience_years, bio FROM consultant_profiles WHERE user_id = $1',
+        [req.user.id]
+      );
+      professional = rows[0] || null;
+    }
+    res.json({ user: req.user, professional });
   } catch (err) {
     next(err);
   }
 }
 
 // PUT /api/auth/me
+// Shared identity fields (name, phone) always live on `users` and apply
+// to every role identically. skin_type is USER-specific but harmless to
+// leave on the shared users row (pre-existing design) — a DOCTOR/
+// CONSULTANT/ADMIN simply never sends it, so it stays untouched (COALESCE).
+// Role-specific professional fields (specialization/qualification/
+// experience_years/bio) are only ever written to *that* user's own
+// doctor_profiles/consultant_profiles row, gated by req.user.role, so a
+// DOCTOR can never write into consultant_profiles or vice versa, and no
+// other user's row is ever touched.
 async function updateProfile(req, res, next) {
   try {
-    const { name, phone, skin_type } = req.body;
+    const { name, phone, skin_type, specialization, qualification, experience_years, bio } = req.body;
+
+    if (experience_years !== undefined && experience_years !== null && experience_years !== '') {
+      const n = Number(experience_years);
+      if (!Number.isFinite(n) || n < 0 || n > 80) {
+        return res.status(400).json({ message: 'experience_years must be a number between 0 and 80.' });
+      }
+    }
+
     const { rows } = await pool.query(
       `UPDATE users SET name = COALESCE($1, name), phone = COALESCE($2, phone),
        skin_type = COALESCE($3, skin_type), updated_at = NOW()
        WHERE id = $4 RETURNING ${PUBLIC_FIELDS}`,
       [name, phone, skin_type, req.user.id]
     );
-    res.json({ message: 'Profile updated.', user: rows[0] });
+
+    let professional = null;
+    const expYears = experience_years !== undefined && experience_years !== '' ? Number(experience_years) : null;
+
+    if (req.user.role === 'DOCTOR') {
+      const { rows: profRows } = await pool.query(
+        `INSERT INTO doctor_profiles (user_id, specialization, qualification, experience_years, bio)
+         VALUES ($1, $2, $3, $4, $5)
+         ON CONFLICT (user_id) DO UPDATE SET
+           specialization = COALESCE(EXCLUDED.specialization, doctor_profiles.specialization),
+           qualification = COALESCE(EXCLUDED.qualification, doctor_profiles.qualification),
+           experience_years = COALESCE(EXCLUDED.experience_years, doctor_profiles.experience_years),
+           bio = COALESCE(EXCLUDED.bio, doctor_profiles.bio)
+         RETURNING specialization, qualification, experience_years, bio`,
+        [req.user.id, specialization || null, qualification || null, expYears, bio || null]
+      );
+      professional = profRows[0] || null;
+    } else if (req.user.role === 'CONSULTANT') {
+      const { rows: profRows } = await pool.query(
+        `INSERT INTO consultant_profiles (user_id, specialization, experience_years, bio)
+         VALUES ($1, $2, $3, $4)
+         ON CONFLICT (user_id) DO UPDATE SET
+           specialization = COALESCE(EXCLUDED.specialization, consultant_profiles.specialization),
+           experience_years = COALESCE(EXCLUDED.experience_years, consultant_profiles.experience_years),
+           bio = COALESCE(EXCLUDED.bio, consultant_profiles.bio)
+         RETURNING specialization, experience_years, bio`,
+        [req.user.id, specialization || null, expYears, bio || null]
+      );
+      professional = profRows[0] || null;
+    }
+
+    res.json({ message: 'Profile updated.', user: rows[0], professional });
   } catch (err) {
     next(err);
   }

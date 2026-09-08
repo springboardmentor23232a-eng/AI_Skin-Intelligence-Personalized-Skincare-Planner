@@ -34,13 +34,47 @@ export default function Register() {
   return (
     <div className="auth-shell">
       <div className="auth-visual">
+        <div className="auth-visual-brand">
+          <span className="auth-visual-mark">AI</span>
+          <span>AI Skincare Planner</span>
+        </div>
+        <span className="auth-eyebrow">AI · Skin Intelligence</span>
         <h1>Create your skincare profile in minutes.</h1>
-        <p>Join as a user for personalized analysis, or as a doctor / consultant to help others on their skincare journey.</p>
-        <ul>
-          <li>✓ Secure JWT authentication with bcrypt password hashing</li>
-          <li>✓ Role-based dashboards for Users, Doctors & Consultants</li>
-          <li>✓ Google Sign-In supported</li>
-        </ul>
+        <p className="auth-visual-sub">Join as a user for personalized analysis, or as a doctor / consultant to help others on their skincare journey.</p>
+
+        <div className="auth-feature-grid">
+          <div className="auth-feature-card">
+            <span className="auth-feature-icon">📝</span>
+            <div className="auth-feature-title">Create Your Skin Profile</div>
+            <div className="auth-feature-desc">Tell us about your skin type, concerns and sensitivities.</div>
+          </div>
+          <div className="auth-feature-card">
+            <span className="auth-feature-icon">📷</span>
+            <div className="auth-feature-title">Assess Your Skin</div>
+            <div className="auth-feature-desc">Upload an image or capture a webcam photo.</div>
+          </div>
+          <div className="auth-feature-card">
+            <span className="auth-feature-icon">🧴</span>
+            <div className="auth-feature-title">Personalized Care</div>
+            <div className="auth-feature-desc">Receive routines based on your assessment and lifestyle.</div>
+          </div>
+          <div className="auth-feature-card">
+            <span className="auth-feature-icon">📈</span>
+            <div className="auth-feature-title">Track Your Journey</div>
+            <div className="auth-feature-desc">Monitor your skin health and progress over time.</div>
+          </div>
+        </div>
+
+        <div>
+          <div className="auth-journey-label">Your Skincare Journey</div>
+          <div className="auth-journey">
+            <span className="auth-journey-step"><span className="auth-journey-num">1</span>Profile</span>
+            <span className="auth-journey-arrow">→</span>
+            <span className="auth-journey-step"><span className="auth-journey-num">2</span>Assess</span>
+            <span className="auth-journey-arrow">→</span>
+            <span className="auth-journey-step"><span className="auth-journey-num">3</span>Personalize</span>
+          </div>
+        </div>
       </div>
       <div className="auth-form-side">
         <div className="auth-box">

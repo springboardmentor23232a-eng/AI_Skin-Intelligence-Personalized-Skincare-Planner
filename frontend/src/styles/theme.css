@@ -1,35 +1,43 @@
 :root {
-  /* Core palette — clean white base, soft blue/green healthcare accents */
-  --color-bg: #f6faf9;
+  /* Core palette — professional blue/white "AI Skincare Planner" theme */
+  --color-bg: #f5f8fc;
   --color-surface: #ffffff;
-  --color-surface-alt: #f0f7f6;
-  --color-border: #e2ebe9;
+  --color-surface-alt: #eef4fb;
+  --color-border: #dbe6f2;
 
-  --color-primary: #2a8c82;       /* teal-green */
-  --color-primary-dark: #1f6b63;
-  --color-primary-light: #e4f4f2;
+  --color-primary: #1c6fd6;        /* professional blue */
+  --color-primary-dark: #14509e;
+  --color-primary-light: #e6f0fc;
 
-  --color-accent: #4a90c4;        /* soft blue */
-  --color-accent-light: #eaf3fb;
+  --color-accent: #0ea5b7;         /* soft teal accent */
+  --color-accent-light: #e2f6f8;
 
-  --color-text: #1f2d2b;
-  --color-text-muted: #5f7370;
-  --color-text-soft: #8ba09d;
+  --color-tertiary: #2f8fe0;       /* lighter blue, third gradient stop */
+  --color-tertiary-light: #eaf4fd;
 
-  --color-success: #34a06f;
-  --color-warning: #d99a2b;
-  --color-danger: #d1554a;
+  --color-text: #142236;
+  --color-text-muted: #56687e;
+  --color-text-soft: #8ea0b4;
+
+  --color-success: #16a97a;
+  --color-warning: #e08e1f;
+  --color-danger: #e2483c;
+
+  --gradient-brand: linear-gradient(135deg, #14509e 0%, #1c6fd6 55%, #2f8fe0 100%);
+  --gradient-brand-soft: linear-gradient(135deg, #e6f0fc 0%, #eaf4fd 60%, #f5f8fc 100%);
+  --gradient-sidebar: linear-gradient(195deg, #0f3d80 0%, #1c6fd6 60%, #2f8fe0 100%);
 
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 20px;
 
-  --shadow-sm: 0 1px 3px rgba(31, 45, 43, 0.06);
-  --shadow-md: 0 6px 20px rgba(31, 45, 43, 0.08);
-  --shadow-lg: 0 12px 36px rgba(31, 45, 43, 0.12);
+  --shadow-sm: 0 1px 3px rgba(20, 80, 158, 0.08);
+  --shadow-md: 0 6px 20px rgba(20, 80, 158, 0.10);
+  --shadow-lg: 0 12px 36px rgba(20, 80, 158, 0.16);
 
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
+
 
 * {
   box-sizing: border-box;
@@ -37,6 +45,13 @@
 
 html, body, #root {
   height: 100%;
+}
+
+body {
+  background:
+    radial-gradient(circle at 8% 0%, rgba(28, 111, 214, 0.06) 0%, transparent 45%),
+    radial-gradient(circle at 92% 12%, rgba(14, 165, 183, 0.06) 0%, transparent 42%),
+    var(--color-bg);
 }
 
 body {
@@ -96,11 +111,11 @@ button {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  background: var(--gradient-brand);
   color: #fff;
-  box-shadow: 0 4px 14px rgba(42, 140, 130, 0.28);
+  box-shadow: 0 4px 14px rgba(139, 61, 209, 0.35);
 }
-.btn-primary:hover { box-shadow: 0 6px 18px rgba(42, 140, 130, 0.36); }
+.btn-primary:hover { box-shadow: 0 6px 18px rgba(139, 61, 209, 0.45); }
 
 .btn-secondary {
   background: var(--color-primary-light);
@@ -122,6 +137,7 @@ button {
 
 .btn-block { width: 100%; }
 .btn-sm { padding: 7px 14px; font-size: 13px; }
+.btn-lg { padding: 14px 28px; font-size: 15.5px; border-radius: var(--radius-md); }
 .btn:disabled { opacity: 0.55; cursor: not-allowed; }
 
 /* ---------- Forms ---------- */
@@ -164,11 +180,13 @@ button {
   font-weight: 600;
   letter-spacing: 0.2px;
 }
-.badge-green { background: #e4f6ee; color: var(--color-success); }
+.badge-green { background: #e1f7ee; color: var(--color-success); }
 .badge-blue { background: var(--color-accent-light); color: var(--color-accent); }
-.badge-amber { background: #fbf1e0; color: var(--color-warning); }
-.badge-red { background: #fbeceb; color: var(--color-danger); }
-.badge-gray { background: #eef2f1; color: var(--color-text-muted); }
+.badge-amber { background: #fdf0dc; color: var(--color-warning); }
+.badge-red { background: #fbe4e1; color: var(--color-danger); }
+.badge-gray { background: var(--color-surface-alt); color: var(--color-text-muted); }
+.badge-purple { background: var(--color-primary-light); color: var(--color-primary-dark); }
+.badge-orange { background: var(--color-tertiary-light); color: #b45a0f; }
 
 /* ---------- Misc ---------- */
 .text-muted { color: var(--color-text-muted); }
@@ -181,8 +199,9 @@ button {
   font-size: 14px;
   margin-bottom: 16px;
 }
-.alert-error { background: #fbeceb; color: var(--color-danger); }
-.alert-success { background: #e4f6ee; color: var(--color-success); }
+.alert-error { background: #fbe4e1; color: var(--color-danger); }
+.alert-success { background: #e1f7ee; color: var(--color-success); }
+.alert-info { background: var(--color-primary-light); color: var(--color-primary-dark); }
 
 .spinner {
   width: 18px;

@@ -22,7 +22,7 @@ export default function Navbar() {
       <div className="container navbar-inner">
         <div className="brand">
           <span className="brand-mark">AI</span>
-          Skin Intelligence
+          Skincare Planner
         </div>
         {user && (
           <div className="navbar-right">

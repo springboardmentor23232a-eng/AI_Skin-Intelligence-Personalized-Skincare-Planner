@@ -4,11 +4,13 @@ import Sidebar from '../../components/Sidebar';
 import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
 import { Loading, Empty, StatusBadge, ScoreRing } from '../../components/Shared';
+import ProfilePage from '../user/ProfilePage';
 
 const TABS = [
   { key: 'patients', label: 'My Patients', icon: '🧑‍🤝‍🧑' },
   { key: 'reports', label: 'Skin Reports', icon: '📋' },
   { key: 'appointments', label: 'Appointments', icon: '📅' },
+  { key: 'profile', label: 'My Profile', icon: '👤' },
 ];
 
 export default function DoctorDashboard() {
@@ -28,6 +30,7 @@ export default function DoctorDashboard() {
           {tab === 'patients' && <PatientsTab />}
           {tab === 'reports' && <ReportsTab />}
           {tab === 'appointments' && <AppointmentsTab />}
+          {tab === 'profile' && <ProfilePage />}
         </main>
       </div>
     </div>

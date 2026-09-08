@@ -1,0 +1,16 @@
+# ---------- Demo track (runs without a GPU, minimal deps) ----------
+numpy
+pillow
+scikit-image
+scikit-learn
+flask
+joblib
+pandas
+
+# ---------- Production track (CNN, optional) ----------
+# Uncomment to train/run the MobileNetV2 pipeline in training/train_cnn.py
+# tensorflow==2.16.*
+# opencv-python-headless
+
+# ---------- Serving ----------
+gunicorn

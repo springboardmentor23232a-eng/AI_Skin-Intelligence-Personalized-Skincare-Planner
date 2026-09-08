@@ -1,5 +1,5 @@
 const pool = require('../config/db');
-const { analyzeSkin } = require('../utils/aiAnalysis');
+const { runSkinAnalysis } = require('../utils/mlClient');
 
 // POST /api/reports/upload  (multipart/form-data, field name: "image")
 async function uploadAndAnalyze(req, res, next) {
@@ -8,7 +8,7 @@ async function uploadAndAnalyze(req, res, next) {
       return res.status(400).json({ message: 'Please upload a skin image.' });
     }
 
-    const analysis = analyzeSkin();
+    const analysis = await runSkinAnalysis(req.file.path);
     const imagePath = `/uploads/${req.file.filename}`;
 
     const { rows } = await pool.query(

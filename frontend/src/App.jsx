@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
+import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import OAuthCallback from './pages/OAuthCallback';
@@ -13,7 +14,8 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 function RootRedirect() {
   const { user, loading, homePathFor } = useAuth();
   if (loading) return null;
-  return <Navigate to={user ? homePathFor(user.role) : '/login'} replace />;
+  if (user) return <Navigate to={homePathFor(user.role)} replace />;
+  return <Home />;
 }
 
 export default function App() {

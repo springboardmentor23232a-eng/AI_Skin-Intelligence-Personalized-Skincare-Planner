@@ -1,0 +1,6 @@
+numpy
+pillow
+scikit-image
+scikit-learn
+flask
+joblib

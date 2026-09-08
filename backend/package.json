@@ -1,13 +1,14 @@
 {
   "name": "ai-skin-intelligence-backend",
   "version": "1.0.0",
-  "description": "AI Skin Intelligence - Personalized Skincare Planner (Backend API)",
+  "description": "AI Skincare Planner - Personalized Skin Intelligence (Backend API)",
   "main": "server.js",
   "type": "commonjs",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "db:init": "node src/db/init.js"
+    "db:init": "node src/db/init.js",
+    "db:migrate": "node src/db/migrate.js"
   },
   "dependencies": {
     "express": "^4.19.2",
@@ -20,7 +21,9 @@
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "morgan": "^1.10.0",
-    "express-validator": "^7.1.0"
+    "express-validator": "^7.1.0",
+    "axios": "^1.7.7",
+    "form-data": "^4.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.4"

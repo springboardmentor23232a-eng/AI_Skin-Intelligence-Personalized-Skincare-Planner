@@ -11,6 +11,7 @@ const bcrypt = require('bcrypt');
 // process.cwd()), so requiring it here is enough — no separate dotenv call
 // needed in this file.
 const pool = require('../config/db');
+const { seedCatalog } = require('./seedCatalog');
 
 const DEMO_PASSWORD = 'Password@123';
 
@@ -66,6 +67,11 @@ async function run() {
 
     console.log('✓ Demo accounts ready:');
     demoUsers.forEach((u) => console.log(`   ${u.role.padEnd(10)} ${u.email}  /  Password@123`));
+
+    console.log('→ Seeding ingredient + product catalog (idempotent)...');
+    const { ingredientsInserted, productsInserted, productsUpdated } = await seedCatalog(client);
+    console.log(`✓ Catalog ready (${ingredientsInserted} ingredients newly inserted; ${productsInserted} products newly inserted, ${productsUpdated} existing products migrated with new fields).`);
+
     console.log('Done.');
   } catch (err) {
     console.error('Init failed:', err);

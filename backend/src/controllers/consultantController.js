@@ -1,4 +1,5 @@
 const pool = require('../config/db');
+const { computeChanges } = require('../utils/routineGenerator');
 
 // GET /api/consultant/reports
 async function getUserReports(req, res, next) {
@@ -14,6 +15,92 @@ async function getUserReports(req, res, next) {
       [req.user.id]
     );
     res.json({ reports: rows });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// GET /api/consultant/users
+// Users this consultant can monitor: anyone who has booked an appointment
+// with them, or whose report they've reviewed. Includes a quick snapshot
+// (latest score, latest assessment date) for the users list view.
+async function getMonitoredUsers(req, res, next) {
+  try {
+    const { rows } = await pool.query(
+      `SELECT
+         u.id, u.name, u.email, u.skin_type,
+         latest.skin_health_score AS latest_score,
+         latest.created_at AS latest_assessment_at
+       FROM users u
+       LEFT JOIN LATERAL (
+         SELECT skin_health_score, created_at
+         FROM skin_reports
+         WHERE user_id = u.id
+         ORDER BY created_at DESC
+         LIMIT 1
+       ) latest ON TRUE
+       WHERE u.id IN (
+         SELECT DISTINCT user_id FROM appointments WHERE provider_id = $1
+         UNION
+         SELECT DISTINCT user_id FROM skin_reports WHERE reviewed_by = $1
+       )
+       ORDER BY u.name`,
+      [req.user.id]
+    );
+    res.json({ users: rows });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// GET /api/consultant/users/:userId/progress
+// Full monitoring view for one user: overview, full assessment history
+// (for the progress graph + history table), and their current routine.
+// Access is limited to users this consultant already has a relationship
+// with (via appointment or a reviewed report) — same rule as getUserReports.
+async function getUserProgress(req, res, next) {
+  try {
+    const { userId } = req.params;
+
+    const accessCheck = await pool.query(
+      `SELECT 1 WHERE EXISTS (
+         SELECT 1 FROM appointments WHERE provider_id = $1 AND user_id = $2
+         UNION
+         SELECT 1 FROM skin_reports WHERE reviewed_by = $1 AND user_id = $2
+       )`,
+      [req.user.id, userId]
+    );
+    if (!accessCheck.rows.length) {
+      return res.status(403).json({ message: 'You do not have access to this user\u2019s progress.' });
+    }
+
+    const userResult = await pool.query('SELECT id, name, email, skin_type FROM users WHERE id = $1', [userId]);
+    const user = userResult.rows[0];
+    if (!user) return res.status(404).json({ message: 'User not found.' });
+
+    const reportsResult = await pool.query(
+      'SELECT * FROM skin_reports WHERE user_id = $1 ORDER BY created_at DESC',
+      [userId]
+    );
+    const reports = reportsResult.rows;
+
+    const planResult = await pool.query(
+      'SELECT * FROM skincare_plans WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1',
+      [userId]
+    );
+
+    const latest = reports[0] || null;
+    const previous = reports[1] || null;
+    const changes = computeChanges(previous, latest);
+
+    res.json({
+      user,
+      latest_report: latest,
+      previous_report: previous,
+      changes,
+      assessment_history: reports,
+      current_plan: planResult.rows[0] || null,
+    });
   } catch (err) {
     next(err);
   }
@@ -76,4 +163,11 @@ async function updateConsultationStatus(req, res, next) {
   }
 }
 
-module.exports = { getUserReports, recommendRoutine, getMyConsultations, updateConsultationStatus };
+module.exports = {
+  getUserReports,
+  getMonitoredUsers,
+  getUserProgress,
+  recommendRoutine,
+  getMyConsultations,
+  updateConsultationStatus,
+};

@@ -34,14 +34,47 @@ export default function Login() {
   return (
     <div className="auth-shell">
       <div className="auth-visual">
-        <h1>Personalized skincare, backed by AI insight.</h1>
-        <p>Upload a photo, get an instant skin health assessment, and connect with real dermatologists and consultants — all in one place.</p>
-        <ul>
-          <li>✓ Instant AI-generated skin analysis</li>
-          <li>✓ Personalized product & routine recommendations</li>
-          <li>✓ Book appointments with doctors & consultants</li>
-          <li>✓ Track your skin health over time</li>
-        </ul>
+        <div className="auth-visual-brand">
+          <span className="auth-visual-mark">AI</span>
+          <span>AI Skincare Planner</span>
+        </div>
+        <span className="auth-eyebrow">AI · Skin Intelligence</span>
+        <h1>AI Skincare<br />Planner</h1>
+        <p className="auth-visual-sub">Personalized skincare powered by AI — from skin assessment to your daily routine.</p>
+
+        <div className="auth-feature-grid">
+          <div className="auth-feature-card">
+            <span className="auth-feature-icon">🔬</span>
+            <div className="auth-feature-title">AI Skin Analysis</div>
+            <div className="auth-feature-desc">Understand skin type, health score and concerns.</div>
+          </div>
+          <div className="auth-feature-card">
+            <span className="auth-feature-icon">🧴</span>
+            <div className="auth-feature-title">Smart Routines</div>
+            <div className="auth-feature-desc">Personalized morning, evening and weekly routines.</div>
+          </div>
+          <div className="auth-feature-card">
+            <span className="auth-feature-icon">📷</span>
+            <div className="auth-feature-title">Flexible Assessment</div>
+            <div className="auth-feature-desc">Upload an image or capture a webcam photo.</div>
+          </div>
+          <div className="auth-feature-card">
+            <span className="auth-feature-icon">📈</span>
+            <div className="auth-feature-title">Track Your Progress</div>
+            <div className="auth-feature-desc">Monitor skin changes and assessment results.</div>
+          </div>
+        </div>
+
+        <div>
+          <div className="auth-journey-label">Your Skincare Journey</div>
+          <div className="auth-journey">
+            <span className="auth-journey-step"><span className="auth-journey-num">1</span>Analyze</span>
+            <span className="auth-journey-arrow">→</span>
+            <span className="auth-journey-step"><span className="auth-journey-num">2</span>Plan</span>
+            <span className="auth-journey-arrow">→</span>
+            <span className="auth-journey-step"><span className="auth-journey-num">3</span>Improve</span>
+          </div>
+        </div>
       </div>
       <div className="auth-form-side">
         <div className="auth-box">

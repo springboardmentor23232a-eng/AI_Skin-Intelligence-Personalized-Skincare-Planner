@@ -3,6 +3,8 @@ import Navbar from '../../components/Navbar';
 import Sidebar from '../../components/Sidebar';
 import api from '../../api/axios';
 import { Loading, Empty, StatusBadge, StatCard } from '../../components/Shared';
+import BarChart from '../../components/BarChart';
+import ProfilePage from '../user/ProfilePage';
 
 const TABS = [
   { key: 'stats', label: 'Overview', icon: '📊' },
@@ -11,6 +13,7 @@ const TABS = [
   { key: 'consultants', label: 'Consultants', icon: '💬' },
   { key: 'reports', label: 'All Reports', icon: '📋' },
   { key: 'appointments', label: 'Appointments', icon: '📅' },
+  { key: 'profile', label: 'My Profile', icon: '👤' },
 ];
 
 export default function AdminDashboard() {
@@ -32,6 +35,7 @@ export default function AdminDashboard() {
           {tab === 'consultants' && <UsersTab role="CONSULTANT" title="Consultants" />}
           {tab === 'reports' && <ReportsTab />}
           {tab === 'appointments' && <AppointmentsTab />}
+          {tab === 'profile' && <ProfilePage />}
         </main>
       </div>
     </div>
@@ -49,10 +53,24 @@ function StatsTab() {
         <StatCard value={stats.totalUsers} label="Total Users" />
         <StatCard value={stats.totalDoctors} label="Doctors" />
         <StatCard value={stats.totalConsultants} label="Consultants" />
-        <StatCard value={stats.totalReports} label="Skin Reports" />
+        <StatCard value={stats.totalReports} label="Skin Reports / Assessments" />
+        <StatCard value={stats.activeUsers30d} label="Active Users (30d)" />
+        <StatCard value={stats.totalRoutinesGenerated} label="Routines Generated" />
+        <StatCard value={stats.totalProductRecommendations} label="Product Recommendations" />
         <StatCard value={stats.totalAppointments} label="Appointments" />
         <StatCard value={stats.averageSkinHealthScore || '—'} label="Avg. Skin Health Score" />
       </div>
+
+      {stats.concernDistribution?.length > 0 && (
+        <div className="card" style={{ marginBottom: 20 }}>
+          <h3 style={{ marginTop: 0 }}>Skin Concern Distribution</h3>
+          <p className="text-muted" style={{ fontSize: 13, marginTop: -6, marginBottom: 16 }}>
+            Most common concerns identified across all skin assessments platform-wide.
+          </p>
+          <BarChart data={stats.concernDistribution.map((c) => ({ label: c.concern, value: c.count }))} />
+        </div>
+      )}
+
       <div className="card">
         <h3 style={{ marginTop: 0 }}>Appointments by Status</h3>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>

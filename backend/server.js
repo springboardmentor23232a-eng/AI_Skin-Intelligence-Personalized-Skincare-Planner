@@ -10,10 +10,14 @@ const { notFound, errorHandler } = require('./src/middleware/errorHandler');
 const authRoutes = require('./src/routes/authRoutes');
 const userRoutes = require('./src/routes/userRoutes');
 const reportRoutes = require('./src/routes/reportRoutes');
+const skincarePlanRoutes = require('./src/routes/skincarePlanRoutes');
+const preferencesRoutes = require('./src/routes/preferencesRoutes');
 const appointmentRoutes = require('./src/routes/appointmentRoutes');
 const doctorRoutes = require('./src/routes/doctorRoutes');
 const consultantRoutes = require('./src/routes/consultantRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
+const ingredientRoutes = require('./src/routes/ingredientRoutes');
+const productRoutes = require('./src/routes/productRoutes');
 
 const app = express();
 
@@ -36,10 +40,14 @@ app.get('/api/health', (req, res) => res.json({ status: 'ok', service: 'ai-skin-
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/skincare-plan', skincarePlanRoutes);
+app.use('/api/preferences', preferencesRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/doctor', doctorRoutes);
 app.use('/api/consultant', consultantRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/ingredients', ingredientRoutes);
+app.use('/api/products', productRoutes);
 
 // ---------- Error handling ----------
 app.use(notFound);
@@ -65,7 +73,7 @@ async function start() {
   }
 
   app.listen(PORT, () => {
-    console.log(`AI Skin Intelligence API running on http://localhost:${PORT}`);
+    console.log(`AI Skincare Planner API running on http://localhost:${PORT}`);
   });
 }
 

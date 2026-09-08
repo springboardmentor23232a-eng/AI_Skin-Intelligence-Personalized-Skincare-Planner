@@ -3,6 +3,8 @@ const { protect } = require('../middleware/authMiddleware');
 const { authorize } = require('../middleware/roleMiddleware');
 const {
   getUserReports,
+  getMonitoredUsers,
+  getUserProgress,
   recommendRoutine,
   getMyConsultations,
   updateConsultationStatus,
@@ -15,5 +17,7 @@ router.get('/reports', getUserReports);
 router.put('/reports/:id/recommend', recommendRoutine);
 router.get('/appointments', getMyConsultations);
 router.put('/appointments/:id/status', updateConsultationStatus);
+router.get('/users', getMonitoredUsers);
+router.get('/users/:userId/progress', getUserProgress);
 
 module.exports = router;

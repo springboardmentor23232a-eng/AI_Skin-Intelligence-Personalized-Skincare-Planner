@@ -124,17 +124,35 @@ async function getAllAppointments(req, res, next) {
 // GET /api/admin/stats
 async function getStats(req, res, next) {
   try {
-    const [users, doctors, consultants, reports, appointments, avgScore] = await Promise.all([
+    const [users, doctors, consultants, reports, appointments, avgScore, plans, productRecs] = await Promise.all([
       pool.query("SELECT COUNT(*) FROM users WHERE role = 'USER'"),
       pool.query("SELECT COUNT(*) FROM users WHERE role = 'DOCTOR'"),
       pool.query("SELECT COUNT(*) FROM users WHERE role = 'CONSULTANT'"),
       pool.query('SELECT COUNT(*) FROM skin_reports'),
       pool.query('SELECT COUNT(*) FROM appointments'),
       pool.query('SELECT ROUND(AVG(skin_health_score)) AS avg FROM skin_reports'),
+      pool.query('SELECT COUNT(*) FROM skincare_plans'),
+      pool.query('SELECT COUNT(*) FROM product_recommendations'),
     ]);
 
     const appointmentsByStatus = await pool.query(
       'SELECT status, COUNT(*) FROM appointments GROUP BY status'
+    );
+
+    // Skin concern distribution — unnest each report's JSONB concerns
+    // array and count occurrences by concern name, across all reports.
+    const concernDistribution = await pool.query(
+      `SELECT LOWER(concern->>'name') AS concern, COUNT(*) AS count
+       FROM skin_reports, jsonb_array_elements(COALESCE(concerns, '[]'::jsonb)) AS concern
+       WHERE concern->>'name' IS NOT NULL
+       GROUP BY LOWER(concern->>'name')
+       ORDER BY count DESC
+       LIMIT 8`
+    );
+
+    // Active users: users who have at least one skin_report in the last 30 days.
+    const activeUsers = await pool.query(
+      `SELECT COUNT(DISTINCT user_id) FROM skin_reports WHERE created_at >= NOW() - INTERVAL '30 days'`
     );
 
     res.json({
@@ -144,10 +162,14 @@ async function getStats(req, res, next) {
       totalReports: Number(reports.rows[0].count),
       totalAppointments: Number(appointments.rows[0].count),
       averageSkinHealthScore: Number(avgScore.rows[0].avg) || 0,
+      totalRoutinesGenerated: Number(plans.rows[0].count),
+      totalProductRecommendations: Number(productRecs.rows[0].count),
+      activeUsers30d: Number(activeUsers.rows[0].count),
       appointmentsByStatus: appointmentsByStatus.rows.reduce((acc, r) => {
         acc[r.status] = Number(r.count);
         return acc;
       }, {}),
+      concernDistribution: concernDistribution.rows.map((r) => ({ concern: r.concern, count: Number(r.count) })),
     });
   } catch (err) {
     next(err);
