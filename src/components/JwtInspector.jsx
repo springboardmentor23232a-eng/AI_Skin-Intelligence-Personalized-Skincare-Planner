@@ -7,7 +7,7 @@ const JwtInspector = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  if (!token) return null;
+  if (!token || user?.role !== "ADMIN") return null;
 
   const handleCopyToken = () => {
     navigator.clipboard.writeText(token);

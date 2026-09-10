@@ -157,9 +157,9 @@ const UserProfile = () => {
             <div>
               <h2>
                 <User className="icon-title" style={{ color: 'var(--primary)' }} />
-                <span> Synchronized Role Profile ({currentRole})</span>
+                <span> User Profile &amp; Account Settings</span>
               </h2>
-              <p>Manage role credentials, personal metadata, and active platform permissions across all system roles.</p>
+              <p>Manage your personal information, skin profile preferences, and account security.</p>
             </div>
             <div style={{ display: 'flex', gap: '0.5rem', background: 'var(--input-bg)', padding: '0.35rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
               <button
@@ -179,58 +179,60 @@ const UserProfile = () => {
             </div>
           </div>
 
-          {/* Quick Persona Switcher for Role Sync Testing */}
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.08), rgba(13, 148, 136, 0.08))',
-            border: '1px solid var(--border-color)',
-            borderRadius: 'var(--radius-md)',
-            padding: '1rem 1.25rem',
-            marginBottom: '1.5rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '1rem'
-          }}>
-            <div>
-              <h4 style={{ margin: 0, fontSize: '0.92rem', color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <Sparkles size={16} /> Multi-Role Profile Sync & Test Persona Switcher
-              </h4>
-              <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
-                Test how profile data, credentials, and UI components dynamically adapt for each role type.
-              </p>
+          {/* Admin-Only Persona Switcher for Role Testing */}
+          {currentRole === "ADMIN" && (
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.08), rgba(13, 148, 136, 0.08))',
+              border: '1px solid var(--border-color)',
+              borderRadius: 'var(--radius-md)',
+              padding: '1rem 1.25rem',
+              marginBottom: '1.5rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '1rem'
+            }}>
+              <div>
+                <h4 style={{ margin: 0, fontSize: '0.92rem', color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <Sparkles size={16} /> Admin Development Persona Switcher
+                </h4>
+                <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                  Test how UI components and credentials dynamically adapt for each role type.
+                </p>
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <button
+                  onClick={() => switchDemoRole("USER")}
+                  className={`btn ${currentRole === "USER" ? "btn-primary" : "btn-outline"}`}
+                  style={{ padding: '0.35rem 0.75rem', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+                >
+                  <User size={14} /> User Persona
+                </button>
+                <button
+                  onClick={() => switchDemoRole("SKINCARE_CONSULTANT")}
+                  className={`btn ${currentRole === "SKINCARE_CONSULTANT" ? "btn-primary" : "btn-outline"}`}
+                  style={{ padding: '0.35rem 0.75rem', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+                >
+                  <Briefcase size={14} /> Consultant
+                </button>
+                <button
+                  onClick={() => switchDemoRole("DERMATOLOGIST")}
+                  className={`btn ${currentRole === "DERMATOLOGIST" ? "btn-primary" : "btn-outline"}`}
+                  style={{ padding: '0.35rem 0.75rem', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+                >
+                  <Stethoscope size={14} /> Doctor
+                </button>
+                <button
+                  onClick={() => switchDemoRole("ADMIN")}
+                  className={`btn ${currentRole === "ADMIN" ? "btn-primary" : "btn-outline"}`}
+                  style={{ padding: '0.35rem 0.75rem', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+                >
+                  <Shield size={14} /> Admin
+                </button>
+              </div>
             </div>
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-              <button
-                onClick={() => switchDemoRole("USER")}
-                className={`btn ${currentRole === "USER" ? "btn-primary" : "btn-outline"}`}
-                style={{ padding: '0.35rem 0.75rem', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
-              >
-                <User size={14} /> User Persona
-              </button>
-              <button
-                onClick={() => switchDemoRole("SKINCARE_CONSULTANT")}
-                className={`btn ${currentRole === "SKINCARE_CONSULTANT" ? "btn-primary" : "btn-outline"}`}
-                style={{ padding: '0.35rem 0.75rem', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
-              >
-                <Briefcase size={14} /> Consultant
-              </button>
-              <button
-                onClick={() => switchDemoRole("DERMATOLOGIST")}
-                className={`btn ${currentRole === "DERMATOLOGIST" ? "btn-primary" : "btn-outline"}`}
-                style={{ padding: '0.35rem 0.75rem', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
-              >
-                <Stethoscope size={14} /> Doctor
-              </button>
-              <button
-                onClick={() => switchDemoRole("ADMIN")}
-                className={`btn ${currentRole === "ADMIN" ? "btn-primary" : "btn-outline"}`}
-                style={{ padding: '0.35rem 0.75rem', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
-              >
-                <Shield size={14} /> Admin
-              </button>
-            </div>
-          </div>
+          )}
 
           <div className="grid-layout grid-2-col">
             {/* View & Edit Synchronized Profile */}

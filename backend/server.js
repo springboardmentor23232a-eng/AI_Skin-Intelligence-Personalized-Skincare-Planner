@@ -67,7 +67,7 @@ initDb();
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
 
-// Module 3, 4, 5, 6, 7: Forward FastAPI engine endpoints to Python FastAPI Engine (port 8000)
+// Module 3 - 11: Forward FastAPI engine endpoints to Python FastAPI Engine (port 8000)
 app.all([
   '/api/assessment', '/api/assessment/*', 
   '/api/routine', '/api/routine/*', 
@@ -76,7 +76,9 @@ app.all([
   '/api/product', '/api/product/*',
   '/api/progress', '/api/progress/*',
   '/api/analytics', '/api/analytics/*',
-  '/api/score', '/api/score/*'
+  '/api/score', '/api/score/*',
+  '/api/notifications', '/api/notifications/*',
+  '/api/reports', '/api/reports/*'
 ], async (req, res) => {
   const fastApiBase = process.env.FASTAPI_URL || 'http://localhost:8000';
   let targetUrl = `${fastApiBase}${req.originalUrl}`;
@@ -94,7 +96,9 @@ app.all([
     targetUrl = `${fastApiBase}${req.originalUrl.replace('/api/analytics', '/analytics')}`;
   } else if (req.originalUrl.startsWith('/api/score')) {
     targetUrl = `${fastApiBase}${req.originalUrl.replace('/api/score', '/score')}`;
-  } else if (req.originalUrl.startsWith('/api/ai')) {
+  } else if (req.originalUrl.startsWith('/api/reports')) {
+    targetUrl = `${fastApiBase}${req.originalUrl.replace('/api/reports', '/reports')}`;
+  } else if (req.originalUrl.startsWith('/api/ai') || req.originalUrl.startsWith('/api/notifications')) {
     targetUrl = `${fastApiBase}${req.originalUrl}`;
   }
 
@@ -115,6 +119,25 @@ app.all([
     }
 
     const fastApiResponse = await fetch(targetUrl, fetchOptions);
+    const contentType = fastApiResponse.headers.get('content-type') || '';
+
+    // Check if response is binary (PDF, Excel, Octet-Stream, etc.)
+    if (
+      contentType.includes('application/pdf') ||
+      contentType.includes('application/vnd.openxml') ||
+      contentType.includes('application/octet-stream') ||
+      contentType.includes('binary')
+    ) {
+      const arrayBuf = await fastApiResponse.arrayBuffer();
+      const buffer = Buffer.from(arrayBuf);
+      res.setHeader('Content-Type', contentType);
+      const disposition = fastApiResponse.headers.get('content-disposition');
+      if (disposition) {
+        res.setHeader('Content-Disposition', disposition);
+      }
+      return res.status(fastApiResponse.status).send(buffer);
+    }
+
     const data = await fastApiResponse.json().catch(() => ({}));
     res.status(fastApiResponse.status).json(data);
   } catch (err) {

@@ -9,12 +9,8 @@ import {
   Columns,
   Image as ImageIcon,
   Award,
-  Sparkles,
-  TrendingUp,
-  ChevronRight,
   ShieldCheck,
-  Zap,
-  Camera
+  Zap
 } from "lucide-react";
 
 // Preset Demo Transformation Photos

@@ -376,7 +376,140 @@ export const apiService = {
     } catch (err) {
       throw err.response ? err.response.data : new Error(err.message);
     }
+  },
+
+  // Module 10: Notification & Reminder System APIs
+  getNotifications: async () => {
+    try {
+      const res = await axiosInstance.get('/notifications');
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  getMotivationalQuote: async () => {
+    try {
+      const res = await axiosInstance.get('/notifications/motivational-quote');
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  getNotificationPreferences: async () => {
+    try {
+      const res = await axiosInstance.get('/notifications/preferences');
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  updateNotificationPreferences: async (prefs) => {
+    try {
+      const res = await axiosInstance.post('/notifications/preferences', prefs);
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  markNotificationAsRead: async (notificationId) => {
+    try {
+      const res = await axiosInstance.post(`/notifications/${notificationId}/read`);
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  triggerTestNotification: async (payload) => {
+    try {
+      const res = await axiosInstance.post('/notifications/trigger-test', payload);
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  // Module 11: Reports & Export System APIs
+  getAssessmentReport: async (userName = 'Akash Prajapati', exportType = null) => {
+    try {
+      const res = await axiosInstance.get('/reports/assessment', {
+        params: { user_name: userName, export: exportType },
+        responseType: exportType ? 'blob' : 'json'
+      });
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  getRoutineReport: async (userName = 'Akash Prajapati', exportType = null) => {
+    try {
+      const res = await axiosInstance.get('/reports/routine', {
+        params: { user_name: userName, export: exportType },
+        responseType: exportType ? 'blob' : 'json'
+      });
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  getProductRecommendationReport: async (userName = 'Akash Prajapati', exportType = null) => {
+    try {
+      const res = await axiosInstance.get('/reports/products', {
+        params: { user_name: userName, export: exportType },
+        responseType: exportType ? 'blob' : 'json'
+      });
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  getProgressReport: async (userName = 'Akash Prajapati', exportType = null) => {
+    try {
+      const res = await axiosInstance.get('/reports/progress', {
+        params: { user_name: userName, export: exportType },
+        responseType: exportType ? 'blob' : 'json'
+      });
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  getSkinHealthReport: async (userName = 'Akash Prajapati', exportType = null) => {
+    try {
+      const res = await axiosInstance.get('/reports/health', {
+        params: { user_name: userName, export: exportType },
+        responseType: exportType ? 'blob' : 'json'
+      });
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+
+  downloadReportExport: async (reportType = 'assessment', exportFormat = 'pdf', userName = 'Akash Prajapati') => {
+    try {
+      const endpoint = exportFormat === 'excel' ? '/reports/export/excel' : '/reports/export/pdf';
+      const res = await axiosInstance.get(endpoint, {
+        params: { type: reportType, user_name: userName },
+        responseType: 'blob'
+      });
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
   }
 };
+
+export const api = apiService;
+export default apiService;
+
 
 

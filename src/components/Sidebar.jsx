@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { LayoutDashboard, Sparkles, History, User, Shield, Stethoscope, Award, BookOpen, Settings, Crown, Moon, Sun, LogOut } from "lucide-react";
+import { LayoutDashboard, Sparkles, History, User, Shield, Stethoscope, Award, BookOpen, Settings, Crown, Moon, Sun, LogOut, Bell, FileText } from "lucide-react";
 
 import { getDashboardForRole, normalizeRole } from "../utils/roleUtils";
 
@@ -112,6 +112,19 @@ const Sidebar = () => {
                     <span>Skincare Analytics</span>
                   </Link>
                 </li>
+
+                <li>
+                  <Link to="/user#reminders" className={`sidebar-item ${isActive("/user") && location.hash === "#reminders" ? "active" : ""}`}>
+                    <Bell size={18} />
+                    <span>Reminders &amp; Alerts</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/user#reports" className={`sidebar-item ${isActive("/user") && location.hash === "#reports" ? "active" : ""}`}>
+                    <FileText size={18} />
+                    <span>Reports &amp; Export</span>
+                  </Link>
+                </li>
               </>
             )}
 
@@ -166,15 +179,57 @@ const Sidebar = () => {
           <h4 className="sidebar-title">COMMUNITY</h4>
           <ul className="sidebar-menu">
             <li>
-              <Link to={userRole === 'USER' ? "/user#consult" : "/consultant"} className={`sidebar-item ${(isActive("/consultant") || (isActive("/user") && location.hash === "#consult")) ? "active" : ""}`}>
+              <Link
+                to={
+                  userRole === 'ADMIN'
+                    ? '/admin#users'
+                    : userRole === 'DERMATOLOGIST'
+                    ? '/doctor#patients'
+                    : userRole === 'SKINCARE_CONSULTANT'
+                    ? '/consultant#assigned-clients'
+                    : '/user#consult'
+                }
+                className={`sidebar-item ${
+                  (isActive('/admin') && location.hash === '#users') ||
+                  (isActive('/doctor') && location.hash === '#patients') ||
+                  (isActive('/consultant') && location.hash === '#assigned-clients') ||
+                  (isActive('/user') && location.hash === '#consult')
+                    ? 'active'
+                    : ''
+                }`}
+              >
                 <Stethoscope size={18} />
-                <span>Consult a Specialist</span>
+                <span>
+                  {userRole === 'ADMIN'
+                    ? 'User & Staff Directory'
+                    : userRole === 'DERMATOLOGIST'
+                    ? 'Patient Consultations'
+                    : userRole === 'SKINCARE_CONSULTANT'
+                    ? 'Client Consultations'
+                    : 'Consult a Specialist'}
+                </span>
               </Link>
             </li>
             <li>
-              <Link to="/user#tips" className={`sidebar-item ${isActive("/user") && location.hash === "#tips" ? "active" : ""}`}>
+              <Link
+                to={
+                  userRole === 'ADMIN'
+                    ? '/admin#users'
+                    : userRole === 'DERMATOLOGIST'
+                    ? '/doctor#overview'
+                    : userRole === 'SKINCARE_CONSULTANT'
+                    ? '/consultant#overview'
+                    : '/user#tips'
+                }
+                className={`sidebar-item ${
+                  (isActive('/user') && location.hash === '#tips') ||
+                  (isActive('/admin') && location.hash === '#users')
+                    ? 'active'
+                    : ''
+                }`}
+              >
                 <BookOpen size={18} />
-                <span>Tips &amp; Articles</span>
+                <span>{userRole === 'ADMIN' ? 'Broadcast & Tips' : 'Tips & Articles'}</span>
               </Link>
             </li>
           </ul>
@@ -199,25 +254,27 @@ const Sidebar = () => {
           </ul>
         </div>
 
-        {/* Unlock Premium Upgrade Box */}
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(13, 148, 136, 0.1))',
-          border: '1px solid var(--border-color)',
-          borderRadius: 'var(--radius-md)',
-          padding: '1.15rem 1rem',
-          marginBottom: '1.5rem',
-          textAlign: 'left'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.4rem', color: 'var(--warning)', fontWeight: 700, fontSize: '0.85rem' }}>
-            <Crown size={16} /> <span>Unlock Premium</span>
+        {/* Unlock Premium Upgrade Box (Only shown for USER role) */}
+        {userRole === 'USER' && (
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(13, 148, 136, 0.1))',
+            border: '1px solid var(--border-color)',
+            borderRadius: 'var(--radius-md)',
+            padding: '1.15rem 1rem',
+            marginBottom: '1.5rem',
+            textAlign: 'left'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.4rem', color: 'var(--warning)', fontWeight: 700, fontSize: '0.85rem' }}>
+              <Crown size={16} /> <span>Unlock Premium</span>
+            </div>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.85rem', lineHeight: '1.4' }}>
+              Get advanced AI insights, detailed reports and personalized routines.
+            </p>
+            <button className="btn btn-primary btn-block" style={{ padding: '0.45rem', fontSize: '0.8rem' }}>
+              Upgrade Now →
+            </button>
           </div>
-          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.85rem', lineHeight: '1.4' }}>
-            Get advanced AI insights, detailed reports and personalized routines.
-          </p>
-          <button className="btn btn-primary btn-block" style={{ padding: '0.45rem', fontSize: '0.8rem' }}>
-            Upgrade Now →
-          </button>
-        </div>
+        )}
       </div>
 
       {/* Bottom Controls: Theme Toggle & Logout Button */}

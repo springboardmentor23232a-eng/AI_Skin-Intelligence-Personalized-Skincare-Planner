@@ -8,11 +8,7 @@ import {
   PieChart,
   Sparkles,
   CheckCircle2,
-  Droplets,
-  Zap,
-  CheckCircle,
-  Clock,
-  Filter
+  Zap
 } from "lucide-react";
 
 const SkincareAnalyticsModule = ({ _onToast }) => {

@@ -14,6 +14,9 @@ import ProductRecommendationModule from "../components/ProductRecommendationModu
 import ProgressTrackingModule from "../components/ProgressTrackingModule";
 import SkincareAnalyticsModule from "../components/SkincareAnalyticsModule";
 import SkinHealthScoringModule from "../components/SkinHealthScoringModule";
+import DailySkincareChecklist from "../components/DailySkincareChecklist";
+import NotificationReminderModule from "../components/NotificationReminderModule";
+import ReportsExportModule from "../components/ReportsExportModule";
 import { Sparkles, Sun, Droplets, Moon, Flame, Search, Bell, Star, Heart, CheckCircle, TrendingUp, Camera } from "lucide-react";
 
 
@@ -456,6 +459,9 @@ const UserDashboard = () => {
           {/* Google Gemini AI Skincare Assistant & Vision Scan */}
           <AiSkincareAssistant userProfile={user} />
 
+          {/* Daily Skincare Checklist Section */}
+          <DailySkincareChecklist onToast={showToast} />
+
           {/* Module 4: Skincare Routine Generation Engine Section */}
           <SkincareRoutineModule onToast={showToast} />
 
@@ -583,6 +589,12 @@ const UserDashboard = () => {
               ))}
             </div>
           </div>
+
+          {/* Module 10: Notification & Reminder System */}
+          <NotificationReminderModule onToast={showToast} />
+
+          {/* Module 11: Reports & Export System */}
+          <ReportsExportModule onToast={showToast} />
 
         </main>
       </div>
