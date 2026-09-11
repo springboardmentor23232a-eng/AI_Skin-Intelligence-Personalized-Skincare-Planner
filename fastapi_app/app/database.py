@@ -8,49 +8,37 @@ logger = logging.getLogger("skin_assessment_db")
 
 Base = declarative_base()
 
-# Primary PostgreSQL Engine
-try:
-    engine = create_engine(
-        DATABASE_URL,
-        pool_pre_ping=True,
-        pool_size=10,
-        max_overflow=20
-    )
-except Exception as e:
-    logger.warning(f"PostgreSQL connection engine setup warning: {e}. Using SQLite fallback.")
-    engine = create_engine("sqlite:///./fallback_skincare.db", connect_args={"check_same_thread": False})
+def initialize_engine():
+    # If running on Render/Cloud container and DATABASE_URL points to localhost without external PG DB
+    if "localhost" in DATABASE_URL and (os.getenv("RENDER") or os.getenv("PORT")):
+        logger.info("Cloud container detected without external DATABASE_URL. Using SQLite database.")
+        return create_engine("sqlite:///./skincare_production.db", connect_args={"check_same_thread": False})
 
-# Dedicated SQLite Fallback Engine
-fallback_engine = create_engine("sqlite:///./fallback_skincare.db", connect_args={"check_same_thread": False})
+    try:
+        eng = create_engine(
+            DATABASE_URL,
+            pool_pre_ping=True,
+            pool_size=10,
+            max_overflow=20
+        )
+        with eng.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        return eng
+    except Exception as e:
+        logger.warning(f"PostgreSQL connection warning ({e}). Using SQLite database fallback.")
+        return create_engine("sqlite:///./skincare_production.db", connect_args={"check_same_thread": False})
+
+engine = initialize_engine()
+fallback_engine = engine
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-FallbackSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=fallback_engine)
+FallbackSessionLocal = SessionLocal
 
 def get_db():
-    use_fallback = False
+    db = SessionLocal()
     try:
-        db = SessionLocal()
-        # Verify connection with quick ping query
-        db.execute(text("SELECT 1"))
         yield db
-    except Exception as e:
-        logger.warning(f"Primary DB session error: {e}. Switching to SQLite fallback DB.")
-        use_fallback = True
     finally:
-        if not use_fallback:
-            try:
-                db.close()
-            except Exception:
-                pass
+        db.close()
 
-    if use_fallback:
-        db_fallback = FallbackSessionLocal()
-        try:
-            Base.metadata.create_all(bind=fallback_engine)
-        except Exception:
-            pass
-        try:
-            yield db_fallback
-        finally:
-            db_fallback.close()
 
