@@ -165,7 +165,7 @@ app.all([
       return res.status(200).send(Buffer.from(axiosRes.data));
     }
 
-    if (axiosRes.status >= 500 || axiosRes.status === 404) {
+    if (axiosRes.status >= 400) {
       console.warn(`[Proxy Fallback] FastAPI returned status ${axiosRes.status}. Triggering rule-based engine fallback for route: ${req.originalUrl}`);
       return handleEngineFallback(req, res);
     }
