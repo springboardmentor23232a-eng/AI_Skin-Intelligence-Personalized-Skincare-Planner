@@ -1,0 +1,5 @@
+backend
+fastapi_app
+venv
+node_modules
+dist

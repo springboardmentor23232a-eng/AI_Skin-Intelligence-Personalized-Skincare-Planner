@@ -622,11 +622,16 @@ class SkincareReportEngine:
                     ws.cell(row=r, column=3, value="Optimal")
                     r += 1
 
-            # Auto-fit columns width
-            for col in ws.columns:
-                max_len = max(len(str(cell.value or '')) for cell in col)
-                col_letter = get_column_letter(col[0].column)
-                ws.column_dimensions[col_letter].width = max(max_len + 4, 14)
+            # Auto-fit columns width safely without MergedCell attribute error
+            for col_idx in range(1, 10):
+                col_letter = get_column_letter(col_idx)
+                max_len = 0
+                for r in range(2, ws.max_row + 1):
+                    val = ws.cell(row=r, column=col_idx).value
+                    if val is not None:
+                        max_len = max(max_len, len(str(val)))
+                if max_len > 0:
+                    ws.column_dimensions[col_letter].width = min(max(max_len + 4, 14), 55)
 
             buffer = io.BytesIO()
             wb.save(buffer)

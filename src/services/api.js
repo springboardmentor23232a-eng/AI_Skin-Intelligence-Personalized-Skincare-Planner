@@ -1,7 +1,9 @@
 // REST API Client Layer connecting React Frontend to Express & PostgreSQL Backend
 import axios from 'axios';
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const rawBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const BASE_URL = String(rawBase).trim().replace(/\/+$/, '');
+
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
@@ -9,6 +11,7 @@ const axiosInstance = axios.create({
     'Content-Type': 'application/json'
   }
 });
+
 
 // Request Interceptor: Inject JWT Bearer token into Authorization header
 axiosInstance.interceptors.request.use(

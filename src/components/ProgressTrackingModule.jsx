@@ -522,39 +522,60 @@ const ProgressTrackingModule = ({ onToast }) => {
           </div>
 
           {/* Photo Selector Controls */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1.5rem" }}>
-            <div>
-              <label style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--text-muted)", display: "block", marginBottom: "0.3rem" }}>Select BEFORE (Baseline):</label>
-              <select
-                value={beforeItem.id}
-                onChange={(e) => {
-                  const sel = PRESET_BEFORE_PHOTOS.concat(PRESET_AFTER_PHOTOS).find(p => p.id === e.target.value);
-                  if (sel) setBeforeItem(sel);
-                }}
-                style={{ width: "100%", padding: "0.5rem", fontSize: "0.8rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-color)" }}
-              >
-                {PRESET_BEFORE_PHOTOS.concat(PRESET_AFTER_PHOTOS).map((p) => (
-                  <option key={p.id} value={p.id}>{p.label} (Score: {p.skinScore})</option>
-                ))}
-              </select>
-            </div>
+          {(() => {
+            const allAvailablePhotos = [
+              ...historyLogs.map((log) => ({
+                id: `log-${log.id}`,
+                label: `User Log (${log.log_date || 'Recent'}) - Score: ${log.skin_score}`,
+                date: log.log_date || 'Recent',
+                photoUrl: log.photo_url || PRESET_BEFORE_PHOTOS[0].photoUrl,
+                skinScore: log.skin_score,
+                moistureLevel: log.moisture_level,
+                acneSeverity: log.acne_severity,
+                rednessLevel: log.redness_level,
+                notes: log.notes || "Logged user transformation photo"
+              })),
+              ...PRESET_BEFORE_PHOTOS,
+              ...PRESET_AFTER_PHOTOS
+            ];
 
-            <div>
-              <label style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--text-muted)", display: "block", marginBottom: "0.3rem" }}>Select AFTER (Current):</label>
-              <select
-                value={afterItem.id}
-                onChange={(e) => {
-                  const sel = PRESET_BEFORE_PHOTOS.concat(PRESET_AFTER_PHOTOS).find(p => p.id === e.target.value);
-                  if (sel) setAfterItem(sel);
-                }}
-                style={{ width: "100%", padding: "0.5rem", fontSize: "0.8rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-color)" }}
-              >
-                {PRESET_BEFORE_PHOTOS.concat(PRESET_AFTER_PHOTOS).map((p) => (
-                  <option key={p.id} value={p.id}>{p.label} (Score: {p.skinScore})</option>
-                ))}
-              </select>
-            </div>
-          </div>
+            return (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1.5rem" }}>
+                <div>
+                  <label style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--text-muted)", display: "block", marginBottom: "0.3rem" }}>Select BEFORE (Baseline):</label>
+                  <select
+                    value={beforeItem.id}
+                    onChange={(e) => {
+                      const sel = allAvailablePhotos.find(p => p.id === e.target.value);
+                      if (sel) setBeforeItem(sel);
+                    }}
+                    style={{ width: "100%", padding: "0.5rem", fontSize: "0.8rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-color)" }}
+                  >
+                    {allAvailablePhotos.map((p) => (
+                      <option key={`before-${p.id}`} value={p.id}>{p.label} (Score: {p.skinScore})</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--text-muted)", display: "block", marginBottom: "0.3rem" }}>Select AFTER (Current):</label>
+                  <select
+                    value={afterItem.id}
+                    onChange={(e) => {
+                      const sel = allAvailablePhotos.find(p => p.id === e.target.value);
+                      if (sel) setAfterItem(sel);
+                    }}
+                    style={{ width: "100%", padding: "0.5rem", fontSize: "0.8rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-color)" }}
+                  >
+                    {allAvailablePhotos.map((p) => (
+                      <option key={`after-${p.id}`} value={p.id}>{p.label} (Score: {p.skinScore})</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            );
+          })()}
+
 
           {/* Main Visual Comparison Display Area */}
           {comparisonMode === "split" ? (
