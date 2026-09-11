@@ -128,9 +128,10 @@ app.all([
   // Ensure CORS binary headers are exposed
   res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition, Content-Type');
 
-  const headers = { ...req.headers };
-  delete headers.host;
-  delete headers['content-length'];
+  const headers = {};
+  if (req.headers['authorization']) headers['authorization'] = req.headers['authorization'];
+  if (req.headers['content-type']) headers['content-type'] = req.headers['content-type'];
+  if (req.headers['accept']) headers['accept'] = req.headers['accept'];
 
   const fetchOptions = {
     method: req.method,
