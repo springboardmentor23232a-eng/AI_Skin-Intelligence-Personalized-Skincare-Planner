@@ -10,28 +10,18 @@ Base = declarative_base()
 
 def initialize_engine():
     db_url = DATABASE_URL or ""
-    # Fallback to SQLite if DATABASE_URL is unconfigured, localhost, or on Render without accessible PostgreSQL
-    if not db_url or "localhost" in db_url or "127.0.0.1" in db_url or "7410" in db_url or os.getenv("RENDER") or os.getenv("RENDER_SERVICE_ID"):
-        if db_url and not ("localhost" in db_url or "127.0.0.1" in db_url or "7410" in db_url):
-            try:
-                eng = create_engine(db_url, pool_pre_ping=True, connect_args={"connect_timeout": 3})
-                with eng.connect() as conn:
-                    conn.execute(text("SELECT 1"))
-                logger.info("Successfully connected to external PostgreSQL database.")
-                return eng
-            except Exception as e:
-                logger.warning(f"PostgreSQL connection failed ({e}). Defaulting to production SQLite engine.")
-        logger.info("Using production SQLite database engine.")
-        return create_engine("sqlite:///./skincare_production.db", connect_args={"check_same_thread": False})
-
-    try:
-        eng = create_engine(db_url, pool_pre_ping=True, pool_size=10, max_overflow=20)
-        with eng.connect() as conn:
-            conn.execute(text("SELECT 1"))
-        return eng
-    except Exception as e:
-        logger.warning(f"PostgreSQL connection warning ({e}). Using SQLite database fallback.")
-        return create_engine("sqlite:///./skincare_production.db", connect_args={"check_same_thread": False})
+    if db_url and not any(h in db_url for h in ["localhost", "127.0.0.1", "7410"]):
+        try:
+            eng = create_engine(db_url, pool_pre_ping=True, connect_args={"connect_timeout": 3})
+            with eng.connect() as conn:
+                conn.execute(text("SELECT 1"))
+            logger.info("Successfully connected to external PostgreSQL database.")
+            return eng
+        except Exception as e:
+            logger.warning(f"PostgreSQL connection failed ({e}). Defaulting to production SQLite engine.")
+    
+    logger.info("Using production SQLite database engine.")
+    return create_engine("sqlite:///./skincare_production.db", connect_args={"check_same_thread": False})
 
 engine = initialize_engine()
 fallback_engine = create_engine("sqlite:///./skincare_production.db", connect_args={"check_same_thread": False})
@@ -60,3 +50,4 @@ def get_db():
                 db.close()
             except:
                 pass
+
