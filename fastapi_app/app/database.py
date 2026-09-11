@@ -9,7 +9,7 @@ logger = logging.getLogger("skin_assessment_db")
 Base = declarative_base()
 
 def initialize_engine():
-    db_url = os.getenv("DATABASE_URL", "")
+    db_url = DATABASE_URL
     # Fallback to SQLite if DATABASE_URL is unconfigured or pointing to non-existent localhost PG
     if not db_url or "localhost" in db_url or "127.0.0.1" in db_url:
         logger.info("Localhost or unconfigured PostgreSQL detected. Using production SQLite database engine.")
