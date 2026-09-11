@@ -18,11 +18,7 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: FRONTEND_URL
-        sync: false
-      - key: FASTAPI_URL
-        sync: false
-      - key: DATABASE_URL
-        sync: false
+        value: "*"
 
   # ----------------------------------------------------
   # 2. FastAPI Python AI Engine Microservice
@@ -38,9 +34,8 @@ services:
     healthCheckPath: /health
     envVars:
       - key: FRONTEND_URL
-        sync: false
+        value: "*"
       - key: GEMINI_API_KEY
-        sync: false
-      - key: DATABASE_URL
-        sync: false
+        value: "demo_key"
+
 
