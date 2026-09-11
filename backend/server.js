@@ -93,7 +93,8 @@ app.all([
   '/api/notifications', '/api/notifications/*',
   '/api/reports', '/api/reports/*'
 ], async (req, res) => {
-  const fastApiBase = process.env.FASTAPI_URL || 'http://localhost:8000';
+  const fastApiBase = (process.env.FASTAPI_URL || 'https://ai-skincare-fastapi-backend.onrender.com').trim().replace(/\/+$/, '');
+
   let targetUrl = `${fastApiBase}${req.originalUrl}`;
   if (req.originalUrl.startsWith('/api/assessment')) {
     targetUrl = `${fastApiBase}${req.originalUrl.replace('/api/assessment', '/assessment')}`;
