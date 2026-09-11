@@ -144,11 +144,12 @@ app.include_router(reports_router.router)
 @app.get("/health", tags=["Health & Info"])
 def health_check():
     return {
-        "status": "HEALTHY",
+        "status": "ok",
         "service": "AI Skincare Intelligence Engine API",
         "version": "2.0.0",
         "swagger_docs": "/docs"
     }
 
 if __name__ == "__main__":
-    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run("app.main:app", host="0.0.0.0", port=port, reload=False)

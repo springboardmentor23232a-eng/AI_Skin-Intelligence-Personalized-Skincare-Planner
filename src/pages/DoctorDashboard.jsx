@@ -131,6 +131,7 @@ const DoctorDashboard = () => {
       setNotificationMsg("");
     }, 3500);
   };
+  const showToast = showNotification;
 
   useEffect(() => {
     let isMounted = true;

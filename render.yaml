@@ -1,0 +1,43 @@
+services:
+  # ----------------------------------------------------
+  # 1. Express Node.js Backend API Service
+  # ----------------------------------------------------
+  - type: web
+    name: ai-skincare-express-backend
+    env: node
+    region: oregon
+    buildCommand: npm install
+    startCommand: node backend/server.js
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        sync: false
+      - key: FASTAPI_URL
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+
+  # ----------------------------------------------------
+  # 2. FastAPI Python AI Engine Microservice
+  # ----------------------------------------------------
+  - type: web
+    name: ai-skincare-fastapi-backend
+    rootDir: fastapi_app
+    env: python
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: FRONTEND_URL
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
