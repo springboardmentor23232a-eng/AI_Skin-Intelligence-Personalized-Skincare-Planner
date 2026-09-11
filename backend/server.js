@@ -100,7 +100,7 @@ app.all([
   '/api/reports', '/api/reports/*'
 ], async (req, res) => {
   let fastApiBase = 'https://ai-skincare-fastapi-backend.onrender.com';
-  if (process.env.NODE_ENV === 'development' && process.env.FASTAPI_URL) {
+  if (process.env.FASTAPI_URL && !process.env.FASTAPI_URL.includes('localhost') && !process.env.FASTAPI_URL.includes('127.0.0.1')) {
     fastApiBase = process.env.FASTAPI_URL.trim().replace(/\/+$/, '');
   }
 
