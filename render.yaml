@@ -5,6 +5,7 @@ services:
   - type: web
     name: ai-skincare-express-backend
     env: node
+    plan: free
     region: oregon
     buildCommand: npm install
     startCommand: node backend/server.js
@@ -30,6 +31,7 @@ services:
     name: ai-skincare-fastapi-backend
     rootDir: fastapi_app
     env: python
+    plan: free
     region: oregon
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
@@ -41,3 +43,4 @@ services:
         sync: false
       - key: DATABASE_URL
         sync: false
+
