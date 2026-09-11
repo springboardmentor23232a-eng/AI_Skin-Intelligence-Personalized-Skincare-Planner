@@ -9,7 +9,7 @@ import uvicorn
 # Include current directory in path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app.database import engine, Base, SessionLocal
+from app.database import engine, Base, SessionLocal, FallbackSessionLocal, fallback_engine
 from app.routers import (
     assessment_router, routine_router, gemini_router,
     ingredient_router, product_router, progress_router, analytics_router, scoring_router, notification_router, reports_router
@@ -18,9 +18,9 @@ from app.routers import (
 from app.models.ingredient import Ingredient, IngredientConflict
 from app.models.product import Product
 
-def seed_database():
+def seed_database(session_factory=SessionLocal):
     """Seed initial demo ingredients, conflict rules, and products if database is empty."""
-    db = SessionLocal()
+    db = session_factory()
     try:
         # 1. Seed Ingredients
         if db.query(Ingredient).count() == 0:
@@ -92,10 +92,17 @@ async def lifespan(app: FastAPI):
     # Startup: Create tables if they do not exist & seed default data
     try:
         Base.metadata.create_all(bind=engine)
-        print("[FastAPI Skin Engine] Database tables created/verified successfully.")
-        seed_database()
+        print("[FastAPI Skin Engine] Primary Database tables created/verified successfully.")
+        seed_database(SessionLocal)
     except Exception as e:
-        print(f"[FastAPI Skin Engine Warning] Could not auto-create/seed database tables: {e}")
+        print(f"[FastAPI Skin Engine Warning] Could not auto-create/seed Primary DB: {e}")
+
+    try:
+        Base.metadata.create_all(bind=fallback_engine)
+        seed_database(FallbackSessionLocal)
+        print("[FastAPI Skin Engine] Fallback SQLite database verified & seeded successfully.")
+    except Exception as e:
+        print(f"[FastAPI Skin Engine Warning] Could not seed Fallback DB: {e}")
     yield
     # Shutdown logic
     print("[FastAPI Skin Engine] Shutting down clean.")
