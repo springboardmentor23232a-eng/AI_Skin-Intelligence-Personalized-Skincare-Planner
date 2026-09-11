@@ -99,7 +99,10 @@ app.all([
   '/api/notifications', '/api/notifications/*',
   '/api/reports', '/api/reports/*'
 ], async (req, res) => {
-  const fastApiBase = (process.env.FASTAPI_URL || 'https://ai-skincare-fastapi-backend.onrender.com').trim().replace(/\/+$/, '');
+  let fastApiBase = (process.env.FASTAPI_URL || 'https://ai-skincare-fastapi-backend.onrender.com').trim().replace(/\/+$/, '');
+  if (process.env.RENDER || process.env.RENDER_SERVICE_ID || (fastApiBase.includes('localhost') && process.env.NODE_ENV === 'production')) {
+    fastApiBase = 'https://ai-skincare-fastapi-backend.onrender.com';
+  }
 
   let targetUrl = `${fastApiBase}${req.originalUrl}`;
   if (req.originalUrl.startsWith('/api/assessment')) {
