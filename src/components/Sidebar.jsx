@@ -254,27 +254,7 @@ const Sidebar = () => {
           </ul>
         </div>
 
-        {/* Unlock Premium Upgrade Box (Only shown for USER role) */}
-        {userRole === 'USER' && (
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(13, 148, 136, 0.1))',
-            border: '1px solid var(--border-color)',
-            borderRadius: 'var(--radius-md)',
-            padding: '1.15rem 1rem',
-            marginBottom: '1.5rem',
-            textAlign: 'left'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.4rem', color: 'var(--warning)', fontWeight: 700, fontSize: '0.85rem' }}>
-              <Crown size={16} /> <span>Unlock Premium</span>
-            </div>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.85rem', lineHeight: '1.4' }}>
-              Get advanced AI insights, detailed reports and personalized routines.
-            </p>
-            <button className="btn btn-primary btn-block" style={{ padding: '0.45rem', fontSize: '0.8rem' }}>
-              Upgrade Now →
-            </button>
-          </div>
-        )}
+
       </div>
 
       {/* Bottom Controls: Theme Toggle & Logout Button */}
