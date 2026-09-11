@@ -33,9 +33,12 @@ services:
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
       - key: FRONTEND_URL
         value: "*"
       - key: GEMINI_API_KEY
         value: "demo_key"
+
 
 
