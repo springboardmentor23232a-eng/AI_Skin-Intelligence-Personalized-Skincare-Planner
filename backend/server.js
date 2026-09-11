@@ -1,4 +1,5 @@
 import express from 'express';
+import axios from 'axios';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -125,80 +126,45 @@ app.all([
     targetUrl = `${fastApiBase}${req.originalUrl}`;
   }
 
-  // Ensure CORS binary headers are exposed
   res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition, Content-Type');
 
-  const headers = {};
-  if (req.headers['authorization']) headers['authorization'] = req.headers['authorization'];
-  if (req.headers['content-type']) headers['content-type'] = req.headers['content-type'];
-  if (req.headers['accept']) headers['accept'] = req.headers['accept'];
-
-  const fetchOptions = {
-    method: req.method,
-    headers: headers
+  const proxyHeaders = {
+    'User-Agent': 'Express-Backend-Proxy/2.0'
   };
+  if (req.headers['authorization']) proxyHeaders['Authorization'] = req.headers['authorization'];
+  if (req.headers['content-type']) proxyHeaders['Content-Type'] = req.headers['content-type'];
+  if (req.headers['accept']) proxyHeaders['Accept'] = req.headers['accept'];
 
-  if (['POST', 'PUT', 'PATCH'].includes(req.method) && Object.keys(req.body || {}).length > 0) {
-    fetchOptions.body = JSON.stringify(req.body);
-    headers['content-type'] = 'application/json';
-  }
+  const isReportExport = req.originalUrl.includes('/reports/export');
 
-  let fastApiResponse = null;
-  let attempts = 3;
-  let lastError = null;
+  try {
+    const axiosRes = await axios({
+      method: req.method,
+      url: targetUrl,
+      data: ['POST', 'PUT', 'PATCH'].includes(req.method) ? req.body : undefined,
+      headers: proxyHeaders,
+      responseType: isReportExport ? 'arraybuffer' : 'json',
+      validateStatus: () => true,
+      timeout: 30000
+    });
 
-  while (attempts > 0) {
-    try {
-      fastApiResponse = await fetch(targetUrl, fetchOptions);
-      if (fastApiResponse.status !== 503 && fastApiResponse.status !== 502) {
-        break;
-      }
-      lastError = new Error(`HTTP ${fastApiResponse.status} from FastAPI backend`);
-    } catch (err) {
-      lastError = err;
-      console.warn(`[Proxy Retrying] Attempt remaining: ${attempts - 1}. Target: ${targetUrl}. Error: ${err.message}`);
+    if (axiosRes.headers['content-type']) {
+      res.setHeader('Content-Type', axiosRes.headers['content-type']);
     }
-    attempts--;
-    if (attempts > 0) {
-      await new Promise(resolve => setTimeout(resolve, 2000));
+    if (axiosRes.headers['content-disposition']) {
+      res.setHeader('Content-Disposition', axiosRes.headers['content-disposition']);
     }
-  }
 
-  if (!fastApiResponse || (fastApiResponse.status === 503 || fastApiResponse.status === 502)) {
+    if (isReportExport && axiosRes.status === 200) {
+      return res.status(200).send(Buffer.from(axiosRes.data));
+    }
+
+    return res.status(axiosRes.status).json(axiosRes.data);
+  } catch (err) {
+    console.error(`[Proxy Error] Target: ${targetUrl}. Error:`, err.message);
     return res.status(503).json({
       success: false,
       message: 'AI Skin Engine service is currently warming up. Please wait a few seconds and try again.',
-      error: lastError ? lastError.message : 'FastAPI cold start timeout'
-    });
-  }
-
-  try {
-    const contentType = fastApiResponse.headers.get('content-type') || '';
-
-    // Check if response is binary (PDF, Excel, Octet-Stream, etc.)
-    if (
-      contentType.includes('application/pdf') ||
-      contentType.includes('application/vnd.openxml') ||
-      contentType.includes('application/octet-stream') ||
-      contentType.includes('binary')
-    ) {
-      const arrayBuf = await fastApiResponse.arrayBuffer();
-      const buffer = Buffer.from(arrayBuf);
-      res.setHeader('Content-Type', contentType);
-      const disposition = fastApiResponse.headers.get('content-disposition');
-      if (disposition) {
-        res.setHeader('Content-Disposition', disposition);
-      }
-      return res.status(fastApiResponse.status).send(buffer);
-    }
-
-    const data = await fastApiResponse.json().catch(() => ({}));
-    res.status(fastApiResponse.status).json(data);
-  } catch (err) {
-    console.warn(`[Proxy Error] ${err.message}`);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to process AI Skin Engine response.',
       error: err.message
     });
   }
