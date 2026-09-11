@@ -9,14 +9,15 @@ logger = logging.getLogger("skin_assessment_db")
 Base = declarative_base()
 
 def initialize_engine():
-    # If running on Render/Cloud container and DATABASE_URL points to localhost without external PG DB
-    if "localhost" in DATABASE_URL and (os.getenv("RENDER") or os.getenv("PORT")):
-        logger.info("Cloud container detected without external DATABASE_URL. Using SQLite database.")
+    db_url = os.getenv("DATABASE_URL", "")
+    # Fallback to SQLite if DATABASE_URL is unconfigured or pointing to non-existent localhost PG
+    if not db_url or "localhost" in db_url or "127.0.0.1" in db_url:
+        logger.info("Localhost or unconfigured PostgreSQL detected. Using production SQLite database engine.")
         return create_engine("sqlite:///./skincare_production.db", connect_args={"check_same_thread": False})
 
     try:
         eng = create_engine(
-            DATABASE_URL,
+            db_url,
             pool_pre_ping=True,
             pool_size=10,
             max_overflow=20
