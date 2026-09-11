@@ -160,12 +160,10 @@ app.all([
     }
 
     if (axiosRes.status >= 500 || axiosRes.status === 404) {
-      const errStr = JSON.stringify(axiosRes.data || '');
-      if (axiosRes.status >= 500 && (errStr.includes('psycopg2') || errStr.includes('Connection refused') || errStr.includes('Internal Server Error'))) {
-        console.warn(`[Proxy Fallback] FastAPI returned ${axiosRes.status}. Triggering rule-based engine fallback for route: ${req.originalUrl}`);
-        return handleEngineFallback(req, res);
-      }
+      console.warn(`[Proxy Fallback] FastAPI returned status ${axiosRes.status}. Triggering rule-based engine fallback for route: ${req.originalUrl}`);
+      return handleEngineFallback(req, res);
     }
+
 
     return res.status(axiosRes.status).json(axiosRes.data);
   } catch (err) {
