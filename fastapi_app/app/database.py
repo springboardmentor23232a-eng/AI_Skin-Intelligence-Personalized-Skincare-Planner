@@ -36,10 +36,25 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 FallbackSessionLocal = SessionLocal
 
 def get_db():
-    db = SessionLocal()
+    db = None
     try:
+        db = SessionLocal()
+        db.execute(text("SELECT 1"))
+        yield db
+    except Exception as e:
+        logger.warning(f"Primary DB session error ({e}). Falling back to SQLite Session.")
+        if db:
+            try:
+                db.close()
+            except:
+                pass
+        db = FallbackSessionLocal()
         yield db
     finally:
-        db.close()
+        if db:
+            try:
+                db.close()
+            except:
+                pass
 
 
