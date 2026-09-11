@@ -172,16 +172,12 @@ const ReportsExportModule = ({ onToast }) => {
 
   const handleDownloadExport = async (format) => {
     setExportingFormat(format);
+    const formatLabel = format === 'excel' ? 'Excel Spreadsheet (.xlsx)' : 'PDF Document (.pdf)';
     try {
       const blobData = await apiService.downloadReportExport(activeTab, format, userName);
 
       // Validate blob binary size and content header
-      if (blobData && blobData.size && blobData.size > 200) {
-        const isJsonBlob = blobData.type === 'application/json';
-        if (isJsonBlob) {
-          throw new Error("API returned JSON error instead of binary stream.");
-        }
-
+      if (blobData && blobData.size && blobData.size > 200 && blobData.type !== 'application/json') {
         const blob = new Blob([blobData], {
           type: format === 'excel'
             ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -197,19 +193,29 @@ const ReportsExportModule = ({ onToast }) => {
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
 
-        const formatLabel = format === 'excel' ? 'Excel Spreadsheet (.xlsx)' : 'PDF Document (.pdf)';
         if (onToast) onToast(`📄 Exported ${activeTab.toUpperCase()} report successfully as ${formatLabel}!`);
         return;
       }
 
-      throw new Error("Invalid binary buffer length received from backend service.");
+      throw new Error("Direct binary download preferred");
     } catch (err) {
-      console.warn(`API export download fallback active:`, err.message || err);
-      if (format === 'pdf') {
-        if (onToast) onToast("🖨️ Backend PDF stream starting. Opening Print / Save as PDF dialog...");
-        setTimeout(() => window.print(), 300);
-      } else {
-        triggerCsvExportFallback();
+      console.warn(`Attempting direct browser download stream:`, err.message || err);
+      try {
+        const directUrl = apiService.getDirectExportUrl(activeTab, format, userName);
+        const a = document.createElement('a');
+        a.href = directUrl;
+        a.target = '_blank';
+        a.download = `Skincare_${activeTab.toUpperCase()}_Report.${format === 'excel' ? 'xlsx' : 'pdf'}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        if (onToast) onToast(`📥 Downloading ${activeTab.toUpperCase()} report as ${formatLabel}...`);
+      } catch (_dlErr) {
+        if (format === 'excel') {
+          triggerCsvExportFallback();
+        } else {
+          window.print();
+        }
       }
     } finally {
       setExportingFormat(null);

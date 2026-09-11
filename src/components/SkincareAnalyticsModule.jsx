@@ -49,7 +49,11 @@ const SkincareAnalyticsModule = ({ _onToast }) => {
   const fetchAnalytics = async () => {
     try {
       const res = await apiService.getUserAnalytics();
-      setAnalytics(res || getFallbackAnalytics());
+      if (res && res.current_skin_score !== undefined && Array.isArray(res.score_trajectory)) {
+        setAnalytics(res);
+      } else {
+        setAnalytics(getFallbackAnalytics());
+      }
     } catch (err) {
       console.warn("Could not load skincare analytics, using fallback:", err);
       setAnalytics(getFallbackAnalytics());

@@ -1293,4 +1293,66 @@ input::placeholder, textarea::placeholder {
   to { opacity: 1; transform: translateX(0); }
 }
 
+/* Print Stylesheet for Reports & Clinical Export */
+@media print {
+  body, html {
+    background: #ffffff !important;
+    color: #111827 !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Hide app navigation, headers, footers, buttons, and sidebars */
+  aside,
+  header,
+  nav,
+  .sidebar,
+  .top-navbar,
+  .nav-header,
+  .notif-toast-overlay,
+  .toast-container,
+  .btn,
+  button,
+  .no-print,
+  footer {
+    display: none !important;
+  }
+
+  /* Main container formatting for 1-2 page print layout */
+  .glass-card,
+  #reports,
+  .report-preview-container {
+    background: #ffffff !important;
+    color: #111827 !important;
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  h1, h2, h3, h4, h5, p, span, div, td, th {
+    color: #111827 !important;
+  }
+
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin-top: 1rem !important;
+  }
+
+  th, td {
+    border: 1px solid #d1d5db !important;
+    padding: 8px 12px !important;
+    text-align: left !important;
+    font-size: 11pt !important;
+  }
+
+  th {
+    background-color: #f3f4f6 !important;
+    font-weight: bold !important;
+  }
+}
+
 

@@ -17,9 +17,10 @@ router = APIRouter(prefix="", tags=["Skincare Analytics Engine"])
 )
 def get_user_analytics(
     db: Session = Depends(get_db),
-    current_user: AuthenticatedUser = Depends(get_current_user)
+    current_user: AuthenticatedUser = Depends(get_optional_current_user)
 ):
-    return AnalyticsEngine.get_user_analytics(db, current_user.id)
+    user_id = current_user.id if current_user else 1
+    return AnalyticsEngine.get_user_analytics(db, user_id)
 
 # 2. GET /analytics/system - Get system-wide admin/clinical analytics
 @router.get(

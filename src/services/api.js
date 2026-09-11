@@ -508,6 +508,11 @@ export const apiService = {
     } catch (err) {
       throw err.response ? err.response.data : new Error(err.message);
     }
+  },
+
+  getDirectExportUrl: (reportType = 'assessment', exportFormat = 'pdf', userName = 'Akash Prajapati') => {
+    const endpoint = exportFormat === 'excel' ? '/reports/export/excel' : '/reports/export/pdf';
+    return `${BASE_URL}${endpoint}?type=${encodeURIComponent(reportType)}&user_name=${encodeURIComponent(userName)}`;
   }
 };
 

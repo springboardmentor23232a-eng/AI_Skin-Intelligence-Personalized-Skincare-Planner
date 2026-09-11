@@ -116,23 +116,53 @@ app.all([
     targetUrl = `${fastApiBase}${req.originalUrl}`;
   }
 
+  // Ensure CORS binary headers are exposed
+  res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition, Content-Type');
+
+  const headers = { ...req.headers };
+  delete headers.host;
+  delete headers['content-length'];
+
+  const fetchOptions = {
+    method: req.method,
+    headers: headers
+  };
+
+  if (['POST', 'PUT', 'PATCH'].includes(req.method) && Object.keys(req.body || {}).length > 0) {
+    fetchOptions.body = JSON.stringify(req.body);
+    headers['content-type'] = 'application/json';
+  }
+
+  let fastApiResponse = null;
+  let attempts = 3;
+  let lastError = null;
+
+  while (attempts > 0) {
+    try {
+      fastApiResponse = await fetch(targetUrl, fetchOptions);
+      if (fastApiResponse.status !== 503 && fastApiResponse.status !== 502) {
+        break;
+      }
+      lastError = new Error(`HTTP ${fastApiResponse.status} from FastAPI backend`);
+    } catch (err) {
+      lastError = err;
+      console.warn(`[Proxy Retrying] Attempt remaining: ${attempts - 1}. Target: ${targetUrl}. Error: ${err.message}`);
+    }
+    attempts--;
+    if (attempts > 0) {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
+  }
+
+  if (!fastApiResponse || (fastApiResponse.status === 503 || fastApiResponse.status === 502)) {
+    return res.status(503).json({
+      success: false,
+      message: 'AI Skin Engine service is currently warming up. Please wait a few seconds and try again.',
+      error: lastError ? lastError.message : 'FastAPI cold start timeout'
+    });
+  }
 
   try {
-    const headers = { ...req.headers };
-    delete headers.host;
-    delete headers['content-length'];
-
-    const fetchOptions = {
-      method: req.method,
-      headers: headers
-    };
-
-    if (['POST', 'PUT', 'PATCH'].includes(req.method) && Object.keys(req.body || {}).length > 0) {
-      fetchOptions.body = JSON.stringify(req.body);
-      headers['content-type'] = 'application/json';
-    }
-
-    const fastApiResponse = await fetch(targetUrl, fetchOptions);
     const contentType = fastApiResponse.headers.get('content-type') || '';
 
     // Check if response is binary (PDF, Excel, Octet-Stream, etc.)
@@ -155,10 +185,10 @@ app.all([
     const data = await fastApiResponse.json().catch(() => ({}));
     res.status(fastApiResponse.status).json(data);
   } catch (err) {
-    console.warn(`[Proxy Warning] Failed to reach Python FastAPI on port 8000: ${err.message}`);
-    res.status(503).json({
+    console.warn(`[Proxy Error] ${err.message}`);
+    res.status(500).json({
       success: false,
-      message: 'FastAPI Skin Engine service is starting or unavailable on port 8000. Please verify Python service status.',
+      message: 'Failed to process AI Skin Engine response.',
       error: err.message
     });
   }
