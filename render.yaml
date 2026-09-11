@@ -7,7 +7,7 @@ services:
     env: node
     plan: free
     region: oregon
-    buildCommand: npm install
+    buildCommand: npm install && npm run build
     startCommand: node backend/server.js
     healthCheckPath: /health
     envVars:

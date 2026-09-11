@@ -6,6 +6,12 @@ import cookieParser from 'cookie-parser';
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const distPath = path.join(__dirname, '../dist');
 
 import { initDb } from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
@@ -282,6 +288,25 @@ app.get(['/', '/api', '/api/'], (req, res) => {
 // Health Check Endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'UP', message: 'AI Skincare Backend API operational on port ' + PORT });
+});
+
+// Serve static built React assets
+app.use(express.static(distPath));
+
+// SPA Client Side Routing Fallback for Non-API Requests
+app.get('*', (req, res, next) => {
+  if (req.originalUrl.startsWith('/api') || req.originalUrl.startsWith('/health')) {
+    return next();
+  }
+  res.sendFile(path.join(distPath, 'index.html'), (err) => {
+    if (err) {
+      res.status(200).json({
+        success: true,
+        message: 'AI Skin Intelligence & Personalized Skincare Planner API Operational',
+        version: '1.0.0'
+      });
+    }
+  });
 });
 
 // 404 Route Handler
