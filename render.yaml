@@ -19,6 +19,9 @@ services:
         generateValue: true
       - key: FRONTEND_URL
         value: "*"
+      - key: FASTAPI_URL
+        value: "https://ai-skincare-fastapi-backend.onrender.com"
+
 
   # ----------------------------------------------------
   # 2. FastAPI Python AI Engine Microservice
