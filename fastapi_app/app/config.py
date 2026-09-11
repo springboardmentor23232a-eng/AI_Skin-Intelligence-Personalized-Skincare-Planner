@@ -15,10 +15,12 @@ DB_USER = os.getenv("DB_USER", "postgres")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "asdfghjkl")
 
 # SQLAlchemy connection string
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-)
+raw_db_url = os.getenv("DATABASE_URL", "")
+if not raw_db_url or "localhost" in raw_db_url or "7410" in raw_db_url or "127.0.0.1" in raw_db_url:
+    DATABASE_URL = ""
+else:
+    DATABASE_URL = raw_db_url
+
 
 # JWT Configuration
 JWT_SECRET = os.getenv("JWT_SECRET", "ai_skincare_super_secret_jwt_key_2026_module1")
