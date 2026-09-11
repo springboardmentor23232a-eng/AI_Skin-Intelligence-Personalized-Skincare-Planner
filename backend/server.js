@@ -93,7 +93,9 @@ app.all([
   '/api/routine', '/api/routine/*', 
   '/api/ai', '/api/ai/*',
   '/api/ingredient', '/api/ingredient/*',
+  '/api/ingredients', '/api/ingredients/*',
   '/api/product', '/api/product/*',
+  '/api/products', '/api/products/*',
   '/api/progress', '/api/progress/*',
   '/api/analytics', '/api/analytics/*',
   '/api/score', '/api/score/*',
@@ -110,8 +112,12 @@ app.all([
     targetUrl = `${fastApiBase}${req.originalUrl.replace('/api/assessment', '/assessment')}`;
   } else if (req.originalUrl.startsWith('/api/routine')) {
     targetUrl = `${fastApiBase}${req.originalUrl.replace('/api/routine', '/routine')}`;
+  } else if (req.originalUrl.startsWith('/api/ingredients')) {
+    targetUrl = `${fastApiBase}${req.originalUrl.replace('/api/ingredients', '/ingredient')}`;
   } else if (req.originalUrl.startsWith('/api/ingredient')) {
     targetUrl = `${fastApiBase}${req.originalUrl.replace('/api/ingredient', '/ingredient')}`;
+  } else if (req.originalUrl.startsWith('/api/products')) {
+    targetUrl = `${fastApiBase}${req.originalUrl.replace('/api/products', '/product')}`;
   } else if (req.originalUrl.startsWith('/api/product')) {
     targetUrl = `${fastApiBase}${req.originalUrl.replace('/api/product', '/product')}`;
   } else if (req.originalUrl.startsWith('/api/progress')) {
@@ -224,7 +230,7 @@ function handleEngineFallback(req, res) {
       seasonal_recommendations: []
     });
   }
-  if (url.startsWith('/api/ingredient')) {
+  if (url.startsWith('/api/ingredient') || url.startsWith('/api/ingredients')) {
     return res.status(200).json({
       overall_safety_rating: 'SAFE_FOR_USE',
       safety_score: 95,
@@ -237,7 +243,7 @@ function handleEngineFallback(req, res) {
       ]
     });
   }
-  if (url.startsWith('/api/product')) {
+  if (url.startsWith('/api/product') || url.startsWith('/api/products')) {
     return res.status(200).json([
       { id: 1, brand: 'Minimalist', name: 'Niacinamide 10% Serum', category: 'Serum', active_ingredients: 'Niacinamide, Zinc', price: 599.0, rating: 4.7, buy_url: 'https://beminimalist.co' },
       { id: 2, brand: 'CeraVe', name: 'Moisturizing Cream', category: 'Moisturizer', active_ingredients: 'Ceramides, Hyaluronic Acid', price: 1299.0, rating: 4.8, buy_url: 'https://www.cerave.com' },
