@@ -5,12 +5,13 @@ from pydantic import BaseModel, ConfigDict
 class RoutineStepSchema(BaseModel):
     step_number: int
     category: str
-    ingredient: str
-    instructions: str
-    frequency: str
-    duration: str
-    precautions: str
-    expected_benefits: str
+    ingredient: Optional[str] = "N/A"
+    instructions: Optional[str] = ""
+    frequency: Optional[str] = "daily"
+    duration: Optional[str] = "ongoing"
+    precautions: Optional[str] = "None"
+    expected_benefits: Optional[str] = "Skin improvement"
+    product_name: Optional[str] = None
 
 class SkincareRoutineResponse(BaseModel):
     id: int

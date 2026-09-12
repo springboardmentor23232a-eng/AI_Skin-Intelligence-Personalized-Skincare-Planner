@@ -6,17 +6,24 @@ from app.main import app
 from app.database import SessionLocal
 from app.models import User
 
+from app.core.config import settings
+
 client = TestClient(app)
 
 def test_google_oauth_backend_endpoint():
     """Verify backend Google OAuth endpoint with formatted ID token payload."""
     db = SessionLocal()
     try:
+        expected_aud = (
+            settings.GOOGLE_CLIENT_ID
+            if settings.GOOGLE_CLIENT_ID and not settings.GOOGLE_CLIENT_ID.startswith("YOUR_")
+            else "test_google_client_id.apps.googleusercontent.com"
+        )
         # Construct valid JWT ID token format with test payload
         header = base64.urlsafe_b64encode(json.dumps({"alg": "RS256", "typ": "JWT"}).encode()).decode().rstrip("=")
         payload = base64.urlsafe_b64encode(json.dumps({
             "iss": "https://accounts.google.com",
-            "aud": "test_google_client_id.apps.googleusercontent.com",
+            "aud": expected_aud,
             "sub": "109876543210987654321",
             "email": "google_unit_test@skincare.com",
             "email_verified": True,

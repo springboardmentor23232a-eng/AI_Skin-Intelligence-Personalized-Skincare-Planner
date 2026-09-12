@@ -40,7 +40,19 @@ def test_phase7():
         "role": "ADMIN"
     })
     assert res_admin.status_code == 201
-    admin_headers = {"Authorization": f"Bearer {res_admin.json()['access_token']}"}
+
+    # Security rule: Registration strictly defaults to USER. In tests, promote admin via DB fixture.
+    from app.database import SessionLocal
+    from app.models import User
+    from app.auth import create_access_token
+
+    db = SessionLocal()
+    db.query(User).filter(User.email == admin_email).update({"role": "ADMIN", "email_verified": True})
+    db.commit()
+    db.close()
+
+    admin_token = create_access_token({"sub": admin_email, "role": "ADMIN"})
+    admin_headers = {"Authorization": f"Bearer {admin_token}"}
 
     print("[OK] Step 1: User & Admin Registered for Phase 7")
 
@@ -105,7 +117,7 @@ def test_phase7():
 
     xlsx_res = client.get("/api/reports/export?format=xlsx", headers=headers)
     assert xlsx_res.status_code == 200
-    assert "application/vnd.ms-excel" in xlsx_res.headers["content-type"]
+    assert any(t in xlsx_res.headers["content-type"] for t in ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.ms-excel"])
     print("[OK] Step 9b: Excel (.xlsx) Document Stream Export Verified")
 
     pdf_res = client.get("/api/reports/export?format=pdf", headers=headers)

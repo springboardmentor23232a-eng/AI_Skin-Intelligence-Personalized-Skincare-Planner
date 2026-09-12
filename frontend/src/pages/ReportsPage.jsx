@@ -3,10 +3,11 @@ import Layout from "../components/Layout";
 import apiService from "../services/apiService";
 
 function ReportsPage() {
+  const [loading, setLoading] = useState(true);
   const [report, setReport] = useState(null);
   const [reminders, setReminders] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [downloading, setDownloading] = useState(false);
+  const [downloadingFormat, setDownloadingFormat] = useState(null);
+  const [downloadFeedback, setDownloadFeedback] = useState(null);
   const [savingReminders, setSavingReminders] = useState(false);
 
   const fetchData = async () => {
@@ -26,16 +27,34 @@ function ReportsPage() {
 
   useEffect(() => {
     fetchData();
+    const handleFocus = () => {
+      fetchData();
+    };
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
   }, []);
 
   const handleDownload = async (format) => {
-    setDownloading(true);
+    setDownloadingFormat(format);
+    setDownloadFeedback(null);
     try {
-      await apiService.downloadReport(format);
+      const res = await apiService.downloadReport(format);
+      if (res?.success) {
+        setDownloadFeedback({
+          type: "success",
+          message: `${format.toUpperCase()} export started. Saved to your Downloads folder as ${res.filename}.`
+        });
+      }
+      setTimeout(() => setDownloadFeedback(null), 6000);
     } catch (err) {
       console.error(`Failed to export ${format} report`, err);
+      setDownloadFeedback({
+        type: "danger",
+        message: `Unable to download the ${format.toUpperCase()} report. ${err.message || "Please try again."}`
+      });
+      setTimeout(() => setDownloadFeedback(null), 8000);
     } finally {
-      setDownloading(false);
+      setDownloadingFormat(null);
     }
   };
 
@@ -76,30 +95,73 @@ function ReportsPage() {
         </div>
 
         {/* Multi-Format Export Controls */}
-        <div className="d-flex gap-2">
+        <div className="d-flex flex-wrap align-items-center gap-2">
           <button
-            className="btn btn-outline-danger btn-sm d-flex align-items-center gap-2"
+            id="export-pdf-btn"
+            className="btn btn-outline-danger btn-sm d-flex align-items-center gap-2 px-3 py-2 shadow-sm"
             onClick={() => handleDownload("pdf")}
-            disabled={downloading}
+            disabled={!!downloadingFormat}
+            title="Download complete clinical health summary as PDF"
           >
-            📄 Export PDF
+            {downloadingFormat === "pdf" ? (
+              <>
+                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span>Generating PDF...</span>
+              </>
+            ) : (
+              <>
+                <span>📄</span>
+                <span className="fw-semibold">Export PDF</span>
+              </>
+            )}
           </button>
           <button
-            className="btn btn-outline-success btn-sm d-flex align-items-center gap-2"
+            id="export-excel-btn"
+            className="btn btn-outline-success btn-sm d-flex align-items-center gap-2 px-3 py-2 shadow-sm"
             onClick={() => handleDownload("xlsx")}
-            disabled={downloading}
+            disabled={!!downloadingFormat}
+            title="Download multi-sheet clinical workbook as Excel (.xlsx)"
           >
-            📊 Export Excel (.xlsx)
+            {downloadingFormat === "xlsx" ? (
+              <>
+                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span>Generating Excel...</span>
+              </>
+            ) : (
+              <>
+                <span>📊</span>
+                <span className="fw-semibold">Export Excel (.xlsx)</span>
+              </>
+            )}
           </button>
           <button
-            className="btn btn-outline-info btn-sm d-flex align-items-center gap-2"
+            id="export-csv-btn"
+            className="btn btn-outline-info btn-sm d-flex align-items-center gap-2 px-3 py-2 shadow-sm"
             onClick={() => handleDownload("csv")}
-            disabled={downloading}
+            disabled={!!downloadingFormat}
+            title="Download raw normalized health data as CSV"
           >
-            📁 Export CSV
+            {downloadingFormat === "csv" ? (
+              <>
+                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span>Generating CSV...</span>
+              </>
+            ) : (
+              <>
+                <span>📁</span>
+                <span className="fw-semibold">Export CSV</span>
+              </>
+            )}
           </button>
         </div>
       </div>
+
+      {downloadFeedback && (
+        <div className={`alert alert-${downloadFeedback.type} d-flex align-items-center gap-2 mb-4`} role="alert">
+          <span>{downloadFeedback.type === "success" ? "✅" : "⚠️"}</span>
+          <div>{downloadFeedback.message}</div>
+        </div>
+      )}
 
       {loading ? (
         <div className="text-center py-5">
@@ -128,26 +190,30 @@ function ReportsPage() {
                 <div className="col-sm-6 col-md-3">
                   <div className="p-3 rounded" style={{ backgroundColor: "var(--bg-surface-elevated)", border: "1px solid var(--border-subtle)" }}>
                     <div className="text-muted small">Skin Type</div>
-                    <div className="fw-bold fs-6">{report?.profile?.skin_type || "N/A"}</div>
+                    <div className="fw-bold fs-6">{report?.profile?.skin_type || "No skin profile completed yet"}</div>
                   </div>
                 </div>
                 <div className="col-sm-6 col-md-3">
                   <div className="p-3 rounded" style={{ backgroundColor: "var(--bg-surface-elevated)", border: "1px solid var(--border-subtle)" }}>
                     <div className="text-muted small">Fitzpatrick Tone</div>
-                    <div className="fw-bold fs-6">{report?.profile?.skin_tone || "N/A"}</div>
+                    <div className="fw-bold fs-6">{report?.profile?.skin_tone || "Pending skin profile"}</div>
                   </div>
                 </div>
                 <div className="col-sm-6 col-md-3">
                   <div className="p-3 rounded" style={{ backgroundColor: "var(--bg-surface-elevated)", border: "1px solid var(--border-subtle)" }}>
                     <div className="text-muted small">Routine Adherence</div>
-                    <div className="fw-bold fs-6 text-success">{report?.adherence?.adherence_percentage}%</div>
+                    <div className="fw-bold fs-6 text-success">
+                      {report?.adherence?.total_logged > 0 ? `${report.adherence.adherence_percentage}%` : "No routine adherence records available yet"}
+                    </div>
                   </div>
                 </div>
                 <div className="col-sm-6 col-md-3">
                   <div className="p-3 rounded" style={{ backgroundColor: "var(--bg-surface-elevated)", border: "1px solid var(--border-subtle)" }}>
                     <div className="text-muted small">Latest Diagnostic</div>
                     <div className="fw-bold fs-6" style={{ color: "var(--accent-primary)" }}>
-                      {report?.latest_assessment?.overall_score ? `${report.latest_assessment.overall_score}%` : "Not Assessed"}
+                      {report?.latest_assessment?.overall_score != null
+                        ? `${report.latest_assessment.overall_score}% (${report.latest_assessment.risk_level})`
+                        : "No diagnostic assessment available yet"}
                     </div>
                   </div>
                 </div>
@@ -185,7 +251,7 @@ function ReportsPage() {
                   </div>
                 </div>
               ) : (
-                <div className="text-muted small mb-4">No diagnostic assessment logged yet.</div>
+                <div className="text-muted small mb-4">No diagnostic assessment available yet. Complete a clinical scan to populate sub-parameters.</div>
               )}
 
               {/* Primary Concerns & Allergies */}
@@ -193,7 +259,9 @@ function ReportsPage() {
                 <div className="col-md-6">
                   <h6 className="fw-bold mb-2">Target Concerns</h6>
                   <p className="small text-secondary mb-0">
-                    {report?.profile?.concerns?.join(", ") || "No specific concerns selected."}
+                    {(Array.isArray(report?.profile?.concerns) && report.profile.concerns.length > 0)
+                      ? report.profile.concerns.join(", ")
+                      : "No skin profile completed yet."}
                   </p>
                 </div>
                 <div className="col-md-6">

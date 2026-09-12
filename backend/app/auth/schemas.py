@@ -17,6 +17,13 @@ class UserResponse(BaseModel):
     email: str
     role: str
     provider: str
+    email_verified: bool = False
+    email_verified_at: Optional[datetime] = None
+    phone_number: Optional[str] = None
+    phone_verified: bool = False
+    phone_verified_at: Optional[datetime] = None
+    is_active: int = 1
+    is_blocked: int = 0
     created_at: datetime
     updated_at: datetime
 
@@ -41,3 +48,26 @@ class Token(BaseModel):
 
 class GenericMessage(BaseModel):
     message: str
+
+class VerifyEmailRequest(BaseModel):
+    token: str
+
+class ResendVerificationRequest(BaseModel):
+    email: Optional[EmailStr] = None
+
+class SendPhoneOtpRequest(BaseModel):
+    phone_number: str
+
+class VerifyPhoneOtpRequest(BaseModel):
+    phone_number: str
+    otp: str
+
+class VerificationStatusResponse(BaseModel):
+    email: str
+    email_verified: bool
+    email_verified_at: Optional[datetime] = None
+    phone_number: Optional[str] = None
+    phone_verified: bool = False
+    phone_verified_at: Optional[datetime] = None
+    sms_provider_configured: bool = False
+    sms_provider_name: str = "CONSOLE"

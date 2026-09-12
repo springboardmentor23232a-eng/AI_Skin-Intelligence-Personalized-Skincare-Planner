@@ -17,7 +17,9 @@ if backend_dir not in sys.path:
 
 from app.main import app
 from app.core.config import settings
-from app.db.session import engine, Base
+from app.db.session import engine, Base, SessionLocal
+from app.models import User
+from app.auth.service import create_access_token
 
 client = TestClient(app)
 
@@ -223,14 +225,25 @@ assert res_trends.status_code == 200
 
 # 11. Phase 6 Clinical Workspace APIs
 rand_staff = secrets.token_hex(4)
+staff_email = f"staff_{rand_staff}@skincare.com"
 res_reg_staff = client.post("/api/auth/register", json={
     "full_name": "Dr. Staff Test",
-    "email": f"staff_{rand_staff}@skincare.com",
-    "password": pwd,
-    "role": "DERMATOLOGIST"
+    "email": staff_email,
+    "password": pwd
 })
 assert res_reg_staff.status_code == 201
-staff_token = res_reg_staff.json()["access_token"]
+
+# Promote staff to DERMATOLOGIST role in database (enterprise role provisioning)
+db_staff = SessionLocal()
+try:
+    user_rec = db_staff.query(User).filter(User.email == staff_email).first()
+    if user_rec:
+        user_rec.role = "DERMATOLOGIST"
+        db_staff.commit()
+finally:
+    db_staff.close()
+
+staff_token = create_access_token({"sub": staff_email, "role": "DERMATOLOGIST"})
 staff_headers = {"Authorization": f"Bearer {staff_token}"}
 
 res_clin_stats = client.get("/api/clinical/stats", headers=staff_headers)

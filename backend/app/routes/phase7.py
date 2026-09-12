@@ -19,6 +19,13 @@ from app.schemas_phase7 import (
     ReminderSettingCreate,
     ReportSummaryResponse
 )
+from app.services.report_generator import (
+    generate_pdf_report,
+    generate_csv_report,
+    generate_xlsx_report,
+    build_canonical_report_dataset
+)
+from app.services.notification_dispatcher import notification_dispatcher
 
 router = APIRouter(prefix="/api", tags=["phase7"])
 
@@ -192,46 +199,111 @@ def trigger_reminder_evaluations(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    # Evaluate reminder rules & create fresh notifications
+    # Evaluate reminder rules & create fresh notifications with duplicate prevention
     active_reminders = db.query(ReminderSetting).filter(
         ReminderSetting.user_id == current_user.id,
         ReminderSetting.enabled == 1
     ).all()
 
+    # Get start of today (UTC) to prevent duplicate reminders on the same day
+    today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    existing_today_cats = set(
+        cat[0] for cat in db.query(Notification.category).filter(
+            Notification.user_id == current_user.id,
+            Notification.created_at >= today_start
+        ).all()
+    )
+
     created_notifications = []
     for rem in active_reminders:
         if rem.reminder_type == "ROUTINE_MORNING":
-            n = Notification(
-                user_id=current_user.id,
-                category="ROUTINE",
-                priority="MEDIUM",
-                title="☀️ Morning Skincare Routine",
-                message="Time for your morning cleanser, Vitamin C serum, and SPF protection!"
-            )
-            db.add(n)
-            created_notifications.append("Morning Routine Reminder")
+            if "ROUTINE" not in existing_today_cats:
+                n = Notification(
+                    user_id=current_user.id,
+                    category="ROUTINE",
+                    priority="MEDIUM",
+                    title="☀️ Morning Skincare Routine",
+                    message="Time for your morning cleanser, Vitamin C serum, and SPF protection!"
+                )
+                db.add(n)
+                created_notifications.append("Morning Routine Reminder")
+                existing_today_cats.add("ROUTINE")
         elif rem.reminder_type == "ROUTINE_EVENING":
-            n = Notification(
-                user_id=current_user.id,
-                category="ROUTINE",
-                priority="MEDIUM",
-                title="🌙 Evening Skincare Routine",
-                message="Cleanse off daily impurities and apply your evening hydrating moisturizer."
-            )
-            db.add(n)
-            created_notifications.append("Evening Routine Reminder")
+            if "ROUTINE_EVENING" not in existing_today_cats:
+                n = Notification(
+                    user_id=current_user.id,
+                    category="ROUTINE_EVENING",
+                    priority="MEDIUM",
+                    title="🌙 Evening Skincare Routine",
+                    message="Cleanse off daily impurities and apply your evening hydrating moisturizer."
+                )
+                db.add(n)
+                created_notifications.append("Evening Routine Reminder")
+                existing_today_cats.add("ROUTINE_EVENING")
         elif rem.reminder_type == "HYDRATION":
-            n = Notification(
-                user_id=current_user.id,
-                category="HYDRATION",
-                priority="LOW",
-                title="💧 Hydration Alert",
-                message="Remember to drink 500ml of water to support your skin barrier."
-            )
-            db.add(n)
-            created_notifications.append("Hydration Reminder")
+            if "HYDRATION" not in existing_today_cats:
+                n = Notification(
+                    user_id=current_user.id,
+                    category="HYDRATION",
+                    priority="LOW",
+                    title="💧 Hydration Alert",
+                    message="Remember to drink 500ml of water to support your skin barrier."
+                )
+                db.add(n)
+                created_notifications.append("Hydration Reminder")
+                existing_today_cats.add("HYDRATION")
+        elif rem.reminder_type == "SLEEP":
+            if "SLEEP" not in existing_today_cats:
+                n = Notification(
+                    user_id=current_user.id,
+                    category="SLEEP",
+                    priority="LOW",
+                    title="🌙 Rest & Sleep Alert",
+                    message="Adequate restful sleep allows your epidermal barrier to naturally regenerate."
+                )
+                db.add(n)
+                created_notifications.append("Sleep Reminder")
+                existing_today_cats.add("SLEEP")
+        elif rem.reminder_type == "REPLENISHMENT":
+            if "REFILL" not in existing_today_cats:
+                n = Notification(
+                    user_id=current_user.id,
+                    category="REFILL",
+                    priority="MEDIUM",
+                    title="📦 Product Replenishment Alert",
+                    message="Check your skincare product levels (cleanser, moisturizer, SPF) to ensure timely refill."
+                )
+                db.add(n)
+                created_notifications.append("Replenishment Reminder")
+                existing_today_cats.add("REFILL")
+        elif rem.reminder_type == "ASSESSMENT_CHECK":
+            if "ASSESSMENT" not in existing_today_cats:
+                n = Notification(
+                    user_id=current_user.id,
+                    category="ASSESSMENT",
+                    priority="LOW",
+                    title="📋 Periodic Skin Assessment Check",
+                    message="Take a new skin diagnostic assessment to update your personalized plan and health score."
+                )
+                db.add(n)
+                created_notifications.append("Assessment Reminder")
+                existing_today_cats.add("ASSESSMENT")
 
     db.commit()
+
+    # Communication Identity Enforcement: Dispatch external notifications only if verified
+    for notif_title in created_notifications:
+        notification_dispatcher.dispatch_user_email(
+            current_user,
+            notif_title,
+            f"Personalized reminder from AI Skin Intelligence: {notif_title}"
+        )
+        if getattr(current_user, "phone_verified", False) and getattr(current_user, "phone_number", None):
+            notification_dispatcher.dispatch_user_sms(
+                current_user,
+                f"Skin Intelligence: {notif_title}"
+            )
+
     return {
         "message": f"Generated {len(created_notifications)} fresh reminders",
         "reminders": created_notifications
@@ -250,7 +322,7 @@ def get_patient_report_summary(
     profile = db.query(SkinProfile).filter(SkinProfile.user_id == current_user.id).first()
     latest_assessment = db.query(SkinAssessment).filter(
         SkinAssessment.user_id == current_user.id
-    ).order_by(SkinAssessment.created_at.desc()).first()
+    ).order_by(SkinAssessment.created_at.desc(), SkinAssessment.id.desc()).first()
 
     total_logs = db.query(SkincareLog).filter(SkincareLog.user_id == current_user.id).count()
     completed_logs = db.query(SkincareLog).filter(
@@ -271,7 +343,7 @@ def get_patient_report_summary(
     return {
         "generated_at": datetime.utcnow(),
         "patient": {
-            "full_name": current_user.full_name,
+            "full_name": profile.full_name if (profile and profile.full_name) else current_user.full_name,
             "email": current_user.email,
             "role": current_user.role
         },
@@ -289,131 +361,38 @@ def get_patient_report_summary(
 
 @router.get("/reports/export")
 def export_user_health_data(
-    format: str = Query("csv", regex="^(csv|xlsx|pdf)$"),
+    format: str = Query("csv", pattern="^(csv|xlsx|pdf)$"),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    profile = db.query(SkinProfile).filter(SkinProfile.user_id == current_user.id).first()
-    assessments = db.query(SkinAssessment).filter(
-        SkinAssessment.user_id == current_user.id
-    ).order_by(SkinAssessment.created_at.desc()).all()
+    canonical_data = build_canonical_report_dataset(db, current_user)
 
-    filename_base = f"skin_intelligence_report_{current_user.id}_{datetime.now().strftime('%Y%m%d')}"
-
-    if format == "csv":
-        output = io.StringIO()
-        writer = csv.writer(output)
-
-        # Section 1: User & Profile Metadata
-        writer.writerow(["=== AI SKIN INTELLIGENCE PLATFORM REPORT ==="])
-        writer.writerow(["Patient Name", current_user.full_name])
-        writer.writerow(["Email", current_user.email])
-        writer.writerow(["Generated At", datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")])
-        writer.writerow([])
-
-        writer.writerow(["=== SKIN PROFILE ==="])
-        writer.writerow(["Age", profile.age if profile else "N/A"])
-        writer.writerow(["Gender", profile.gender if profile else "N/A"])
-        writer.writerow(["Skin Type", profile.skin_type if profile else "N/A"])
-        writer.writerow(["Skin Tone", profile.skin_tone if profile else "N/A"])
-        writer.writerow(["Target Concerns", ", ".join(profile.concerns) if profile and profile.concerns else "None"])
-        writer.writerow(["Allergies", profile.allergies if profile else "None reported"])
-        writer.writerow([])
-
-        # Section 2: Assessments Data Table
-        writer.writerow(["=== HISTORICAL AI DIAGNOSTIC ASSESSMENTS ==="])
-        writer.writerow(["Assessment ID", "Date", "Overall Score", "Risk Level", "Primary Priority", "Acne", "Dryness", "Redness"])
-
-        for a in assessments:
-            writer.writerow([
-                a.id,
-                a.created_at.strftime("%Y-%m-%d"),
-                f"{a.overall_score}%",
-                a.risk_level,
-                a.concern_priority,
-                a.acne,
-                a.dryness,
-                a.redness
-            ])
-
-        output.seek(0)
-        return StreamingResponse(
-            io.BytesIO(output.getvalue().encode("utf-8")),
-            media_type="text/csv",
-            headers={"Content-Disposition": f"attachment; filename={filename_base}.csv"}
+    fmt = format.lower().strip()
+    if fmt == "csv":
+        csv_bytes = generate_csv_report(canonical_data)
+        return Response(
+            content=csv_bytes,
+            media_type="text/csv; charset=utf-8",
+            headers={"Content-Disposition": 'attachment; filename="skin-health-report.csv"; filename*=UTF-8\'\'skin-health-report.csv'}
         )
-
-    elif format == "xlsx":
-        # Stream structured Excel-styled XML spreadsheet (compatible with all Excel readers without binary dependencies)
-        xml_output = io.StringIO()
-        xml_output.write('<?xml version="1.0"?>\n')
-        xml_output.write('<?mso-application progid="Excel.Sheet"?>\n')
-        xml_output.write('<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"\n')
-        xml_output.write(' xmlns:o="urn:schemas-microsoft-com:office:office"\n')
-        xml_output.write(' xmlns:x="urn:schemas-microsoft-com:office:excel"\n')
-        xml_output.write(' xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">\n')
-        xml_output.write(' <Worksheet ss:Name="Skin Intelligence Report">\n')
-        xml_output.write('  <Table>\n')
-
-        def write_xml_row(cells):
-            xml_output.write('   <Row>\n')
-            for c in cells:
-                xml_output.write(f'    <Cell><Data ss:Type="String">{c}</Data></Cell>\n')
-            xml_output.write('   </Row>\n')
-
-        write_xml_row(["AI SKIN INTELLIGENCE REPORT", current_user.full_name])
-        write_xml_row(["Skin Type", profile.skin_type if profile else "N/A"])
-        write_xml_row(["Total Assessments Logged", len(assessments)])
-        write_xml_row([])
-        write_xml_row(["ID", "Date", "Overall Score", "Risk Rating", "Priority Concern"])
-        for a in assessments:
-            write_xml_row([str(a.id), a.created_at.strftime("%Y-%m-%d"), f"{a.overall_score}%", a.risk_level, a.concern_priority])
-
-        xml_output.write('  </Table>\n')
-        xml_output.write(' </Worksheet>\n')
-        xml_output.write('</Workbook>\n')
-
-        xml_output.seek(0)
-        return StreamingResponse(
-            io.BytesIO(xml_output.getvalue().encode("utf-8")),
-            media_type="application/vnd.ms-excel",
-            headers={"Content-Disposition": f"attachment; filename={filename_base}.xlsx"}
+    elif fmt == "xlsx":
+        xlsx_bytes = generate_xlsx_report(canonical_data)
+        return Response(
+            content=xlsx_bytes,
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={"Content-Disposition": 'attachment; filename="skin-health-report.xlsx"; filename*=UTF-8\'\'skin-health-report.xlsx'}
         )
-
-    elif format == "pdf":
-        # Formatted Clinical PDF document report
-        pdf_text = f"""
-======================================================================
-           AI SKIN INTELLIGENCE CLINICAL HEALTH REPORT
-======================================================================
-Patient Name: {current_user.full_name}
-Email: {current_user.email}
-Report Date: {datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")}
-
-----------------------------------------------------------------------
-DERMATOLOGICAL PROFILE
-----------------------------------------------------------------------
-Age: {profile.age if profile else "N/A"}
-Skin Type: {profile.skin_type if profile else "N/A"}
-Skin Tone: {profile.skin_tone if profile else "N/A"}
-Reported Allergies: {profile.allergies if profile else "None reported"}
-Concerns: {", ".join(profile.concerns) if profile and profile.concerns else "None"}
-
-----------------------------------------------------------------------
-HISTORICAL AI DIAGNOSTIC ASSESSMENTS ({len(assessments)} records)
-----------------------------------------------------------------------
-"""
-        for a in assessments:
-            pdf_text += f"\n- Assessment #{a.id} ({a.created_at.strftime('%Y-%m-%d')})"
-            pdf_text += f"\n  Overall Health Score: {a.overall_score}% | Risk: {a.risk_level} | Focus: {a.concern_priority}"
-            pdf_text += f"\n  Sub-metrics: Acne={a.acne}, Dryness={a.dryness}, Redness={a.redness}, Oiliness={a.oiliness}\n"
-
-        pdf_text += "\n======================================================================\n"
-
-        return StreamingResponse(
-            io.BytesIO(pdf_text.encode("utf-8")),
+    elif fmt == "pdf":
+        pdf_bytes = generate_pdf_report(canonical_data)
+        return Response(
+            content=pdf_bytes,
             media_type="application/pdf",
-            headers={"Content-Disposition": f"attachment; filename={filename_base}.pdf"}
+            headers={"Content-Disposition": 'attachment; filename="skin-health-report.pdf"; filename*=UTF-8\'\'skin-health-report.pdf'}
+        )
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Unsupported export format '{format}'. Allowed: csv, xlsx, pdf."
         )
 
 
@@ -426,7 +405,15 @@ def get_admin_reports_summary(
         raise HTTPException(status_code=403, detail="Admin credentials required.")
 
     total_users = db.query(User).count()
+    total_consultants = db.query(User).filter(User.role == "SKINCARE_CONSULTANT").count()
+    total_dermatologists = db.query(User).filter(User.role == "DERMATOLOGIST").count()
+    total_administrators = db.query(User).filter(User.role == "ADMIN").count()
+    active_accounts = db.query(User).filter(User.is_active == 1, User.is_blocked == 0).count()
+    blocked_accounts = db.query(User).filter(User.is_blocked == 1).count()
+
     total_assessments = db.query(SkinAssessment).count()
+    total_routines = db.query(SkincareRoutine).count()
+    total_recommendations = db.query(ProductRecommendation).count()
     total_consultations = db.query(Consultation).count()
     total_reviews = db.query(ClinicalReview).count()
     total_notifications = db.query(Notification).count()
@@ -434,7 +421,14 @@ def get_admin_reports_summary(
     return {
         "platform_statistics": {
             "total_registered_users": total_users,
+            "total_consultants": total_consultants,
+            "total_dermatologists": total_dermatologists,
+            "total_administrators": total_administrators,
+            "active_accounts": active_accounts,
+            "blocked_accounts": blocked_accounts,
             "total_ai_assessments": total_assessments,
+            "total_routines": total_routines,
+            "total_recommendations": total_recommendations,
             "total_clinical_consultations": total_consultations,
             "total_dermatologist_reviews": total_reviews,
             "total_system_notifications": total_notifications

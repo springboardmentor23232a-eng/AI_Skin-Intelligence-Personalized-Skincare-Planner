@@ -33,8 +33,6 @@ def test_phase6():
         "role": "SKINCARE_CONSULTANT"
     })
     assert res_cons.status_code == 201
-    token_cons = res_cons.json()["access_token"]
-    headers_cons = {"Authorization": f"Bearer {token_cons}"}
 
     res_derm = client.post("/api/auth/register", json={
         "full_name": "Dr. Alex Dermatologist",
@@ -43,7 +41,22 @@ def test_phase6():
         "role": "DERMATOLOGIST"
     })
     assert res_derm.status_code == 201
-    token_derm = res_derm.json()["access_token"]
+
+    # Security rule: Registration strictly defaults to USER. In tests, promote staff via DB fixture.
+    from app.database import SessionLocal
+    from app.models import User
+    from app.auth import create_access_token
+
+    db = SessionLocal()
+    db.query(User).filter(User.email == consultant_email).update({"role": "SKINCARE_CONSULTANT", "email_verified": True})
+    db.query(User).filter(User.email == dermatologist_email).update({"role": "DERMATOLOGIST", "email_verified": True})
+    db.commit()
+    db.close()
+
+    token_cons = create_access_token({"sub": consultant_email, "role": "SKINCARE_CONSULTANT"})
+    headers_cons = {"Authorization": f"Bearer {token_cons}"}
+
+    token_derm = create_access_token({"sub": dermatologist_email, "role": "DERMATOLOGIST"})
     headers_derm = {"Authorization": f"Bearer {token_derm}"}
 
     res_pat = client.post("/api/auth/register", json={

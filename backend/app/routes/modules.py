@@ -85,6 +85,8 @@ def update_profile(
     update_data = profile_in.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         setattr(profile, field, value)
+    if profile_in.full_name:
+        current_user.full_name = profile_in.full_name
 
     db.commit()
     db.refresh(profile)
@@ -217,7 +219,7 @@ def get_assessment_history(
 ):
     assessments = db.query(SkinAssessment)\
         .filter(SkinAssessment.user_id == current_user.id)\
-        .order_by(SkinAssessment.created_at.desc())\
+        .order_by(SkinAssessment.created_at.desc(), SkinAssessment.id.desc())\
         .all()
     return assessments
 

@@ -13,6 +13,7 @@ SQLALCHEMY_DATABASE_URL = "sqlite:///./test_gaps.db"
 engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+Base.metadata.drop_all(bind=engine)
 Base.metadata.create_all(bind=engine)
 
 def override_get_db():
@@ -29,53 +30,55 @@ def setup_test_users():
     global client
     app.dependency_overrides[get_db] = override_get_db
     client = TestClient(app)
-    db = TestingSessionLocal()
-    db.query(User).delete()
-    db.query(SkinProfile).delete()
-    db.query(SkinAssessment).delete()
-    db.query(SkincareRoutine).delete()
-    db.commit()
+    try:
+        db = TestingSessionLocal()
+        db.query(User).delete()
+        db.query(SkinProfile).delete()
+        db.query(SkinAssessment).delete()
+        db.query(SkincareRoutine).delete()
+        db.commit()
 
-    user_a = User(full_name="User Alpha", email="gap_user_a@example.com", password="hashedpassword", role="USER")
-    user_b = User(full_name="User Beta", email="gap_user_b@example.com", password="hashedpassword", role="USER")
-    db.add(user_a)
-    db.add(user_b)
-    db.commit()
-    db.refresh(user_a)
-    db.refresh(user_b)
+        user_a = User(full_name="User Alpha", email="gap_user_a@example.com", password="hashedpassword", role="USER")
+        user_b = User(full_name="User Beta", email="gap_user_b@example.com", password="hashedpassword", role="USER")
+        db.add(user_a)
+        db.add(user_b)
+        db.commit()
+        db.refresh(user_a)
+        db.refresh(user_b)
 
-    # User A Profile with Allergies & Lifestyle
-    profile_a = SkinProfile(
-        user_id=user_a.id,
-        full_name="User Alpha",
-        age=30,
-        gender="Female",
-        skin_type="Oily",
-        skin_tone="Fair",
-        concerns=["Acne / Breakouts", "Hyperpigmentation"],
-        allergies="Retinol, Salicylic",
-        sensitivities="Fragrance",
-        lifestyle="High Stress",
-        sleep_quality="Poor",
-        water_intake=1.5,
-        stress_level="High",
-        uv_exposure="High",
-        climate="Humid"
-    )
-    db.add(profile_a)
-    db.commit()
+        # User A Profile with Allergies & Lifestyle
+        profile_a = SkinProfile(
+            user_id=user_a.id,
+            full_name="User Alpha",
+            age=30,
+            gender="Female",
+            skin_type="Oily",
+            skin_tone="Fair",
+            concerns=["Acne / Breakouts", "Hyperpigmentation"],
+            allergies="Retinol, Salicylic",
+            sensitivities="Fragrance",
+            lifestyle="High Stress",
+            sleep_quality="Poor",
+            water_intake=1.5,
+            stress_level="High",
+            uv_exposure="High",
+            climate="Humid"
+        )
+        db.add(profile_a)
+        db.commit()
 
-    token_a = create_access_token(data={"sub": user_a.email, "role": user_a.role})
-    token_b = create_access_token(data={"sub": user_b.email, "role": user_b.role})
+        token_a = create_access_token(data={"sub": user_a.email, "role": user_a.role})
+        token_b = create_access_token(data={"sub": user_b.email, "role": user_b.role})
 
-    db.close()
-    yield {
-        "user_a": user_a,
-        "token_a": token_a,
-        "user_b": user_b,
-        "token_b": token_b
-    }
-    app.dependency_overrides.clear()
+        db.close()
+        yield {
+            "user_a": user_a,
+            "token_a": token_a,
+            "user_b": user_b,
+            "token_b": token_b
+        }
+    finally:
+        app.dependency_overrides.clear()
 
 def test_no_previous_assessment_behavior(setup_test_users):
     headers = {"Authorization": f"Bearer {setup_test_users['token_a']}"}

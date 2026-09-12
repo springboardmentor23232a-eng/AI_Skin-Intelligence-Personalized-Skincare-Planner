@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api/auth";
+const rawApi = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || (import.meta.env.PROD ? "/api" : "http://127.0.0.1:8000/api");
+const API_BASE_URL = rawApi.endsWith("/auth") ? rawApi : `${rawApi.replace(/\/+$/, "")}/auth`;
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -73,6 +74,90 @@ export const authService = {
         error.response?.data?.detail ||
         error.message ||
         "Authentication verification failed.";
+      throw new Error(message, { cause: error });
+    }
+  },
+
+  verifyEmail: async (token) => {
+    try {
+      const response = await apiClient.post("/verify-email", { token });
+      return response.data;
+    } catch (error) {
+      const message =
+        error.response?.data?.detail ||
+        error.message ||
+        "Email verification failed.";
+      throw new Error(message, { cause: error });
+    }
+  },
+
+  resendVerification: async (email) => {
+    try {
+      const response = await apiClient.post("/resend-verification", { email });
+      return response.data;
+    } catch (error) {
+      const message =
+        error.response?.data?.detail ||
+        error.message ||
+        "Failed to resend verification email.";
+      throw new Error(message, { cause: error });
+    }
+  },
+
+  sendPhoneOtp: async (phoneNumber, token) => {
+    try {
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const response = await apiClient.post(
+        "/phone/send-otp",
+        { phone_number: phoneNumber },
+        { headers }
+      );
+      return response.data;
+    } catch (error) {
+      let message = error.response?.data?.detail;
+      if (!message) {
+        if (error.response?.status === 503) {
+          message = "SMS verification is not configured in this environment.";
+        } else if (error.response?.status === 502) {
+          message = "Unable to send verification code. Please try again later.";
+        } else if (error.response?.status === 429) {
+          message = "Too many verification requests. Please wait before requesting another code.";
+        } else {
+          message = error.message || "Failed to send phone verification OTP.";
+        }
+      }
+      throw new Error(message, { cause: error });
+    }
+  },
+
+  verifyPhoneOtp: async (phoneNumber, otp, token) => {
+    try {
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const response = await apiClient.post(
+        "/phone/verify-otp",
+        { phone_number: phoneNumber, otp },
+        { headers }
+      );
+      return response.data;
+    } catch (error) {
+      const message =
+        error.response?.data?.detail ||
+        error.message ||
+        "Phone verification failed.";
+      throw new Error(message, { cause: error });
+    }
+  },
+
+  getVerificationStatus: async (token) => {
+    try {
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const response = await apiClient.get("/verification-status", { headers });
+      return response.data;
+    } catch (error) {
+      const message =
+        error.response?.data?.detail ||
+        error.message ||
+        "Failed to fetch verification status.";
       throw new Error(message, { cause: error });
     }
   },

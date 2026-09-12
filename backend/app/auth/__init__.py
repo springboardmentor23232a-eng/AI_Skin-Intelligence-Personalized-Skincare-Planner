@@ -45,6 +45,20 @@ def get_current_user(request: Request, token: Optional[str] = Depends(oauth2_sch
     user = db.query(User).filter(User.email == email).first()
     if user is None:
         raise HTTPException(status_code=401, detail="User not found")
+
+    if getattr(user, "is_blocked", 0):
+        reason_msg = f": {user.blocked_reason}" if getattr(user, "blocked_reason", None) else "."
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Access denied: Account has been suspended{reason_msg}"
+        )
+
+    if not getattr(user, "is_active", 1):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied: Account has been deactivated."
+        )
+
     return user
 
 def require_roles(*allowed_roles: str):

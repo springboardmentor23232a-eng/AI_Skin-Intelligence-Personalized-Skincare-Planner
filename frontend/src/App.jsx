@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -18,6 +18,7 @@ import IngredientIntelligencePage from "./pages/IngredientIntelligencePage";
 import ProductCatalogPage from "./pages/ProductCatalogPage";
 import ProductRecommendationsPage from "./pages/ProductRecommendationsPage";
 import ReportsPage from "./pages/ReportsPage";
+import VerifyEmailPage from "./pages/VerifyEmailPage";
 
 function App() {
   return (
@@ -27,7 +28,10 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
 
+          {/* User Dashboard & Aliases */}
+          <Route path="/dashboard" element={<Navigate to="/user" replace />} />
           <Route
             path="/user"
             element={
@@ -37,6 +41,8 @@ function App() {
             }
           />
 
+          {/* Profile & Onboarding */}
+          <Route path="/onboarding" element={<Navigate to="/profile" replace />} />
           <Route
             path="/profile"
             element={
@@ -45,6 +51,9 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          {/* Routine Aliases */}
+          <Route path="/routine" element={<Navigate to="/routines" replace />} />
 
           <Route
             path="/assessment"

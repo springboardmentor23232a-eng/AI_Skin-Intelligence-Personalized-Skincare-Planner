@@ -1,0 +1,404 @@
+{
+  "environment": {
+    "os_platform": "Windows-11-10.0.26200-SP0",
+    "processor": "Intel64 Family 6 Model 170 Stepping 4, GenuineIntel",
+    "python_version": "3.13.3",
+    "timestamp_utc": "2026-09-11T16:59:18Z",
+    "torch_threads": "default",
+    "database_url_type": "postgresql"
+  },
+  "ai_inference": {
+    "model_architecture": "efficientnet_b0",
+    "model_name": "SCIN_EFFICIENTNET_B0_Clinical_Category_Classifier",
+    "model_version": "2.0.0",
+    "classes_count": 8,
+    "classes": [
+      "Acneiform & Follicular Disorders",
+      "Eczematous & Inflammatory Dermatitis",
+      "Infections & Infestations",
+      "Other Clinical Disorders",
+      "Papulosquamous Disorders",
+      "Trauma & Insect Bites",
+      "Urticaria & Reactive Rashes",
+      "Vascular & Purpuric Conditions"
+    ],
+    "weights_size_mb": 15.61,
+    "device": "cpu",
+    "inference_runs": 30,
+    "latency_ms": {
+      "min": 51.17,
+      "mean": 59.51,
+      "median_p50": 56.37,
+      "p95": 79.77,
+      "p99": 82.11,
+      "max": 82.11
+    },
+    "is_deterministic": true,
+    "recorded_training_validation_accuracy": 0.842,
+    "recorded_training_macro_f1": 0.825,
+    "local_labeled_image_dataset_present": false,
+    "local_labeled_image_dataset_note": "SCIN raw dermatology images reside on GCS; only metadata CSVs and pre-trained weights are in git."
+  },
+  "scoring_engine": {
+    "formula_weights": {
+      "condition_weight": 0.35,
+      "lifestyle_weight": 0.2,
+      "sleep_weight": 0.15,
+      "routine_weight": 0.2,
+      "hydration_weight": 0.1,
+      "total_sum": 1.0,
+      "weights_sum_to_one": true
+    },
+    "boundary_tests": {
+      "all_zeros_optimal_score": 100.0,
+      "all_hundreds_worst_score": 0.0,
+      "bounded_between_0_and_100": true
+    },
+    "missing_data_fallbacks": {
+      "condition_baseline": 60.0,
+      "lifestyle_baseline": 55.0,
+      "sleep_baseline": 55.0,
+      "hydration_baseline": 55.0
+    },
+    "deterministic": true
+  },
+  "personalization_profiles": {
+    "profiles_evaluated": 5,
+    "results": [
+      {
+        "profile_id": "PROFILE_1_DRY_DEHYDRATION",
+        "skin_type": "Dry",
+        "concerns": [
+          "Dryness",
+          "Flakiness",
+          "Sensitivity"
+        ],
+        "budget_filter": "ALL",
+        "routines_count": 5,
+        "recommended_products_count": 13,
+        "top_product": "Cicaplast Baume B5+ Soothing Balm",
+        "top_suitability_score": 88.0,
+        "match_reasons": [
+          "Ideal match for Dry skin type",
+          "Targets key concerns: Dryness, Sensitivity",
+          "Active clinical ingredients: Panthenol (Vitamin B5), Madecassoside (Centella), Shea Butter"
+        ],
+        "allergy_warnings": []
+      },
+      {
+        "profile_id": "PROFILE_2_OILY_ACNE",
+        "skin_type": "Oily",
+        "concerns": [
+          "Acne",
+          "Oiliness",
+          "Enlarged Pores"
+        ],
+        "budget_filter": "ALL",
+        "routines_count": 5,
+        "recommended_products_count": 13,
+        "top_product": "Skin Perfecting 2% BHA Liquid Exfoliant",
+        "top_suitability_score": 94.7,
+        "match_reasons": [
+          "Ideal match for Oily skin type",
+          "Targets key concerns: Acne, Oiliness, Enlarged Pores",
+          "Active clinical ingredients: Salicylic Acid (BHA), Green Tea Extract"
+        ],
+        "allergy_warnings": []
+      },
+      {
+        "profile_id": "PROFILE_3_SENSITIVE_REDNESS",
+        "skin_type": "Sensitive",
+        "concerns": [
+          "Redness",
+          "Irritation",
+          "Barrier Damage"
+        ],
+        "budget_filter": "ALL",
+        "routines_count": 5,
+        "recommended_products_count": 13,
+        "top_product": "Cicaplast Baume B5+ Soothing Balm",
+        "top_suitability_score": 76.4,
+        "match_reasons": [
+          "Ideal match for Sensitive skin type",
+          "Targets key concerns: Redness",
+          "Active clinical ingredients: Panthenol (Vitamin B5), Madecassoside (Centella), Shea Butter"
+        ],
+        "allergy_warnings": []
+      },
+      {
+        "profile_id": "PROFILE_4_COMBINATION_PIGMENTATION",
+        "skin_type": "Combination",
+        "concerns": [
+          "Hyperpigmentation",
+          "Uneven Tone",
+          "Dark Spots"
+        ],
+        "budget_filter": "ALL",
+        "routines_count": 5,
+        "recommended_products_count": 13,
+        "top_product": "C E Ferulic Combination Antioxidant Treatment",
+        "top_suitability_score": 88.0,
+        "match_reasons": [
+          "Ideal match for Combination skin type",
+          "Targets key concerns: Hyperpigmentation, Dark Spots",
+          "Active clinical ingredients: Vitamin C (L-Ascorbic Acid), Vitamin E, Ferulic Acid"
+        ],
+        "allergy_warnings": []
+      },
+      {
+        "profile_id": "PROFILE_5_BUDGET_CONSTRAINED",
+        "skin_type": "Normal",
+        "concerns": [
+          "Maintenance",
+          "UV Protection"
+        ],
+        "budget_filter": "LOW",
+        "routines_count": 5,
+        "recommended_products_count": 8,
+        "top_product": "Glycolic Acid 7% Toning Solution",
+        "top_suitability_score": 74.1,
+        "match_reasons": [
+          "Ideal match for Normal skin type",
+          "Active clinical ingredients: Glycolic Acid (AHA), Aloe Vera, Tasmanian Pepperberry"
+        ],
+        "allergy_warnings": []
+      }
+    ],
+    "unique_top_products_count": 4,
+    "is_differentiated": true,
+    "personalization_inputs_used": [
+      "skin_type (weight=35)",
+      "concerns (weight=35)",
+      "rating (weight=15)",
+      "active_ingredients (weight=15)",
+      "allergies_and_sensitivities (penalties: -40 to -30)",
+      "budget_tier (hard INR price filter)"
+    ]
+  },
+  "catalog_quality": {
+    "total_catalog_products": 13,
+    "distinct_categories": 6,
+    "categories_list": [
+      "Cleanser",
+      "Treatment",
+      "Toner",
+      "Serum",
+      "Sunscreen",
+      "Moisturizer"
+    ],
+    "distinct_brands": 9,
+    "brands_list": [
+      "EltaMD",
+      "COSRX",
+      "SkinCeuticals",
+      "Paula's Choice",
+      "The Inkey List",
+      "The Ordinary",
+      "La Roche-Posay",
+      "Neutrogena",
+      "CeraVe"
+    ],
+    "data_completeness": {
+      "name_completeness_pct": 100.0,
+      "brand_completeness_pct": 100.0,
+      "price_completeness_pct": 100.0,
+      "actives_completeness_pct": 100.0,
+      "skin_types_completeness_pct": 100.0,
+      "concerns_completeness_pct": 100.0,
+      "purchase_url_completeness_pct": 100.0,
+      "duplicate_count": 0
+    }
+  },
+  "api_latencies": {
+    "GET /health": {
+      "runs": 15,
+      "min_ms": 8.99,
+      "mean_ms": 10.31,
+      "median_p50_ms": 10.14,
+      "p95_ms": 12.62,
+      "p99_ms": 12.62,
+      "max_ms": 12.62
+    },
+    "GET /readiness": {
+      "runs": 15,
+      "min_ms": 11.26,
+      "mean_ms": 13.49,
+      "median_p50_ms": 13.51,
+      "p95_ms": 15.45,
+      "p99_ms": 15.45,
+      "max_ms": 15.45
+    },
+    "GET /api/system/telemetry": {
+      "runs": 15,
+      "min_ms": 13.45,
+      "mean_ms": 14.68,
+      "median_p50_ms": 14.74,
+      "p95_ms": 16.69,
+      "p99_ms": 16.69,
+      "max_ms": 16.69
+    },
+    "POST /api/auth/login": {
+      "runs": 15,
+      "min_ms": 110.18,
+      "mean_ms": 125.31,
+      "median_p50_ms": 127.68,
+      "p95_ms": 139.53,
+      "p99_ms": 139.53,
+      "max_ms": 139.53
+    },
+    "GET /api/profile": {
+      "runs": 15,
+      "min_ms": 17.01,
+      "mean_ms": 19.7,
+      "median_p50_ms": 19.7,
+      "p95_ms": 23.43,
+      "p99_ms": 23.43,
+      "max_ms": 23.43
+    },
+    "GET /api/assessment/history": {
+      "runs": 15,
+      "min_ms": 19.2,
+      "mean_ms": 20.46,
+      "median_p50_ms": 20.44,
+      "p95_ms": 21.92,
+      "p99_ms": 21.92,
+      "max_ms": 21.92
+    },
+    "POST /api/routines/generate": {
+      "runs": 15,
+      "min_ms": 29.42,
+      "mean_ms": 36.23,
+      "median_p50_ms": 35.37,
+      "p95_ms": 47.42,
+      "p99_ms": 47.42,
+      "max_ms": 47.42
+    },
+    "POST /api/recommendations/generate": {
+      "runs": 15,
+      "min_ms": 31.46,
+      "mean_ms": 37.12,
+      "median_p50_ms": 37.55,
+      "p95_ms": 40.94,
+      "p99_ms": 40.94,
+      "max_ms": 40.94
+    },
+    "GET /api/products": {
+      "runs": 15,
+      "min_ms": 18.15,
+      "mean_ms": 20.09,
+      "median_p50_ms": 20.28,
+      "p95_ms": 21.84,
+      "p99_ms": 21.84,
+      "max_ms": 21.84
+    },
+    "GET /api/analytics/history": {
+      "runs": 15,
+      "min_ms": 18.9,
+      "mean_ms": 20.47,
+      "median_p50_ms": 20.02,
+      "p95_ms": 23.71,
+      "p99_ms": 23.71,
+      "max_ms": 23.71
+    },
+    "GET /api/reports/export?format=csv": {
+      "runs": 15,
+      "min_ms": 39.51,
+      "mean_ms": 41.49,
+      "median_p50_ms": 41.8,
+      "p95_ms": 44.59,
+      "p99_ms": 44.59,
+      "max_ms": 44.59
+    },
+    "GET /api/reports/export?format=pdf": {
+      "runs": 15,
+      "min_ms": 65.66,
+      "mean_ms": 104.94,
+      "median_p50_ms": 78.56,
+      "p95_ms": 490.68,
+      "p99_ms": 490.68,
+      "max_ms": 490.68
+    },
+    "GET /api/reports/export?format=xlsx": {
+      "runs": 15,
+      "min_ms": 191.18,
+      "mean_ms": 212.42,
+      "median_p50_ms": 212.92,
+      "p95_ms": 249.95,
+      "p99_ms": 249.95,
+      "max_ms": 249.95
+    }
+  },
+  "concurrency": {
+    "10_concurrent_requests": {
+      "concurrency_level": 10,
+      "total_requests": 10,
+      "success_count": 10,
+      "fail_count": 0,
+      "success_rate_pct": 100.0,
+      "total_time_seconds": 0.09,
+      "throughput_req_per_sec": 111.0,
+      "p50_ms": 54.32,
+      "p95_ms": 63.44,
+      "p99_ms": 63.44,
+      "max_ms": 63.44
+    },
+    "25_concurrent_requests": {
+      "concurrency_level": 25,
+      "total_requests": 25,
+      "success_count": 25,
+      "fail_count": 0,
+      "success_rate_pct": 100.0,
+      "total_time_seconds": 0.239,
+      "throughput_req_per_sec": 104.7,
+      "p50_ms": 141.28,
+      "p95_ms": 187.23,
+      "p99_ms": 189.76,
+      "max_ms": 189.76
+    },
+    "50_concurrent_requests": {
+      "concurrency_level": 50,
+      "total_requests": 50,
+      "success_count": 50,
+      "fail_count": 0,
+      "success_rate_pct": 100.0,
+      "total_time_seconds": 0.503,
+      "throughput_req_per_sec": 99.5,
+      "p50_ms": 295.87,
+      "p95_ms": 394.77,
+      "p99_ms": 409.97,
+      "max_ms": 409.97
+    }
+  },
+  "database_performance": {
+    "count_users": {
+      "mean_ms": 0.764,
+      "min_ms": 0.501,
+      "max_ms": 1.702
+    },
+    "count_profiles": {
+      "mean_ms": 0.624,
+      "min_ms": 0.473,
+      "max_ms": 0.784
+    },
+    "count_assessments": {
+      "mean_ms": 0.619,
+      "min_ms": 0.42,
+      "max_ms": 1.0
+    },
+    "count_products": {
+      "mean_ms": 0.436,
+      "min_ms": 0.343,
+      "max_ms": 0.585
+    },
+    "select_products_filtered": {
+      "mean_ms": 1.083,
+      "min_ms": 0.663,
+      "max_ms": 3.777
+    },
+    "user_profile_join": {
+      "mean_ms": 0.916,
+      "min_ms": 0.698,
+      "max_ms": 2.075
+    }
+  }
+}

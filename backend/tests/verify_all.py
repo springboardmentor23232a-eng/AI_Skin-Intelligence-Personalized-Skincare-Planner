@@ -99,7 +99,8 @@ def run_verification():
         mock_cred = "header." + base64.b64encode(json.dumps({
             "email": "verified_google_user@gmail.com",
             "name": "Verified Google User",
-            "sub": "123459876"
+            "sub": "123459876",
+            "email_verified": True
         }).encode()).decode() + ".signature"
 
         g_res = client.post("/api/auth/google", json={"credential": mock_cred, "role": "USER"})

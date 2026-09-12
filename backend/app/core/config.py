@@ -22,6 +22,29 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: str = ""
     GOOGLE_CLIENT_SECRET: str = ""
 
+    # Cloud & Application URLs
+    FRONTEND_URL: str = "http://localhost:5173"
+    BACKEND_URL: str = "http://localhost:8000"
+
+    # Identity Verification Tokens & OTP Settings
+    EMAIL_VERIFICATION_TOKEN_EXPIRE_HOURS: int = 24
+    PHONE_OTP_EXPIRE_MINUTES: int = 10
+
+    # Notification Services Configuration (Email)
+    EMAIL_PROVIDER: str = "CONSOLE"  # CONSOLE, SMTP, SENDGRID
+    EMAIL_FROM: str = "notifications@skin-intelligence.com"
+    EMAIL_API_KEY: str = ""
+    SMTP_HOST: str = ""
+    SMTP_PORT: int = 587
+    SMTP_USER: str = ""
+    SMTP_PASSWORD: str = ""
+
+    # Notification Services Configuration (SMS)
+    SMS_PROVIDER: str = "CONSOLE"  # CONSOLE, TWILIO
+    SMS_FROM: str = ""
+    TWILIO_ACCOUNT_SID: str = ""
+    TWILIO_AUTH_TOKEN: str = ""
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

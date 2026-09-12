@@ -19,6 +19,16 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  if (user.is_blocked) {
+    return (
+      <Navigate
+        to="/login"
+        state={{ error: `Account suspended: ${user.blocked_reason || "Contact administrator."}` }}
+        replace
+      />
+    );
+  }
+
   if (allowedRoles && !allowedRoles.includes(user.role)) {
     // Redirect user to their matching dashboard based on their role
     if (user.role === "SKINCARE_CONSULTANT") {

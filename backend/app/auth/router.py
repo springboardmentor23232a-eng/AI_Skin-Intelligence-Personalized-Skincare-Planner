@@ -13,13 +13,16 @@ from app.auth.schemas import (
     GoogleAuthRequest,
     GenericMessage
 )
+from jose import jwt
 from app.auth.service import (
     register_user,
     login_user,
     google_auth_user,
     create_access_token,
     create_refresh_token,
-    decode_refresh_token
+    decode_refresh_token,
+    SECRET_KEY,
+    ALGORITHM
 )
 from app.auth import get_current_user
 
@@ -96,6 +99,19 @@ def refresh_token_endpoint(request: Request, response: Response, body: Optional[
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
 
+    if getattr(user, "is_blocked", 0):
+        reason_msg = f": {user.blocked_reason}" if getattr(user, "blocked_reason", None) else "."
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Access denied: Account has been suspended{reason_msg}"
+        )
+
+    if not getattr(user, "is_active", 1):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied: Account has been deactivated."
+        )
+
     new_access_token = create_access_token({"sub": user.email, "role": user.role})
     new_refresh_token = create_refresh_token({"sub": user.email})
 
@@ -125,4 +141,104 @@ def google_auth(payload: GoogleAuthRequest, response: Response, db: Session = De
         "refresh_token": refresh_token,
         "token_type": "bearer",
         "user": user
+    }
+
+
+# =========================================================
+# EMAIL & PHONE IDENTITY VERIFICATION ENDPOINTS
+# =========================================================
+
+from app.auth.schemas import (
+    VerifyEmailRequest,
+    ResendVerificationRequest,
+    SendPhoneOtpRequest,
+    VerifyPhoneOtpRequest,
+    VerificationStatusResponse
+)
+from app.auth.service import (
+    verify_email_token,
+    resend_email_verification,
+    request_phone_otp,
+    verify_phone_otp
+)
+
+
+@router.post("/verify-email")
+def verify_email_endpoint(payload: VerifyEmailRequest, db: Session = Depends(get_db)):
+    user = verify_email_token(db, payload.token)
+    return {
+        "message": "Email address has been successfully verified.",
+        "email": user.email,
+        "email_verified": bool(user.email_verified)
+    }
+
+
+@router.post("/resend-verification")
+def resend_verification_endpoint(
+    request: Request,
+    payload: Optional[ResendVerificationRequest] = None,
+    db: Session = Depends(get_db)
+):
+    target_email = None
+    if payload and payload.email:
+        target_email = payload.email
+    else:
+        # Check if user is authenticated via cookie or header
+        try:
+            from app.auth import get_current_user
+            token = request.cookies.get("access_token")
+            if token and token.startswith("Bearer "):
+                token = token[7:]
+            if not token:
+                auth_header = request.headers.get("Authorization")
+                if auth_header and auth_header.startswith("Bearer "):
+                    token = auth_header[7:]
+            if token:
+                payload_data = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+                target_email = payload_data.get("sub")
+        except Exception:
+            pass
+
+    if not target_email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email address is required to resend verification link."
+        )
+
+    res = resend_email_verification(db, target_email)
+    return res
+
+
+@router.post("/phone/send-otp")
+def send_phone_otp_endpoint(
+    payload: SendPhoneOtpRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    return request_phone_otp(db, current_user, payload.phone_number)
+
+
+@router.post("/phone/verify-otp")
+def verify_phone_otp_endpoint(
+    payload: VerifyPhoneOtpRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    return verify_phone_otp(db, current_user, payload.phone_number, payload.otp)
+
+
+from app.services.notification_dispatcher import notification_dispatcher
+
+
+@router.get("/verification-status", response_model=VerificationStatusResponse)
+def get_verification_status(current_user: User = Depends(get_current_user)):
+    return {
+        "email": current_user.email,
+        "email_verified": bool(current_user.email_verified),
+        "email_verified_at": current_user.email_verified_at,
+        "phone_number": current_user.phone_number,
+        "phone_verified": bool(current_user.phone_verified),
+        "phone_verified_at": current_user.phone_verified_at,
+        "sms_provider_configured": notification_dispatcher.sms_provider.is_configured(),
+        "sms_provider_name": getattr(notification_dispatcher.sms_provider, "name", "CONSOLE")
     }

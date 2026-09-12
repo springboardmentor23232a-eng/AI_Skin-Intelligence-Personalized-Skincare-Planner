@@ -47,7 +47,18 @@ function ProfileDropdown() {
           <div className="px-3 py-2 border-bottom mb-2">
             <div className="fw-semibold text-truncate" style={{ color: "var(--text-primary)" }}>{user.full_name}</div>
             <div className="small text-muted text-truncate">{user.email}</div>
-            <span className="badge badge-saas badge-saas-primary mt-1">{user.role}</span>
+            <div className="d-flex align-items-center gap-1 mt-1">
+              <span className="badge badge-saas badge-saas-primary">{user.role}</span>
+              {user.email_verified ? (
+                <span className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25" style={{ fontSize: "0.65rem" }}>
+                  ✓ Verified
+                </span>
+              ) : (
+                <span className="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25" style={{ fontSize: "0.65rem" }}>
+                  Unverified
+                </span>
+              )}
+            </div>
           </div>
 
           <button

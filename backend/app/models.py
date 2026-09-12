@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text, Float, JSON, Enum as SQLEnum
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text, Float, JSON, Boolean, Enum as SQLEnum
 from sqlalchemy.orm import relationship
 import enum
 from app.db.session import Base
@@ -26,6 +26,19 @@ class User(Base):
     provider = Column(String(50), nullable=False, default="LOCAL")
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    is_active = Column(Integer, nullable=False, default=1)  # 1 for True, 0 for False
+    is_blocked = Column(Integer, nullable=False, default=0)  # 1 for True, 0 for False
+    is_verified = Column(Integer, nullable=False, default=1)  # 1 for True, 0 for False
+    email_verified = Column(Boolean, nullable=False, default=False)
+    email_verified_at = Column(DateTime, nullable=True)
+    phone_number = Column(String(50), nullable=True)
+    phone_verified = Column(Boolean, nullable=False, default=False)
+    phone_verified_at = Column(DateTime, nullable=True)
+    google_subject_id = Column(String(255), nullable=True, index=True)
+    blocked_reason = Column(String(255), nullable=True)
+    blocked_at = Column(DateTime, nullable=True)
+    blocked_by = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    last_login_at = Column(DateTime, nullable=True)
 
     profile = relationship("SkinProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")
     assessments = relationship("SkinAssessment", back_populates="user", cascade="all, delete-orphan")
@@ -39,6 +52,10 @@ class User(Base):
     notifications = relationship("Notification", back_populates="user", cascade="all, delete-orphan")
     reminder_settings = relationship("ReminderSetting", back_populates="user", cascade="all, delete-orphan")
     image_analyses = relationship("ImageAnalysis", back_populates="user", cascade="all, delete-orphan")
+    audit_logs_received = relationship("AdminAuditLog", foreign_keys="[AdminAuditLog.target_user_id]", back_populates="target_user", cascade="all, delete-orphan")
+    audit_logs_authored = relationship("AdminAuditLog", foreign_keys="[AdminAuditLog.admin_user_id]", back_populates="admin")
+    email_verification_tokens = relationship("EmailVerificationToken", back_populates="user", cascade="all, delete-orphan")
+    phone_otps = relationship("PhoneOtpVerification", back_populates="user", cascade="all, delete-orphan")
 
 
 
@@ -272,3 +289,47 @@ class ImageAnalysis(Base):
     status = Column(String(50), nullable=False, default="COMPLETED")
 
     user = relationship("User", back_populates="image_analyses")
+
+
+class AdminAuditLog(Base):
+    __tablename__ = "admin_audit_logs"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    admin_user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
+    target_user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True)
+    action = Column(String(100), nullable=False, index=True)  # BLOCK_USER, UNBLOCK_USER, CHANGE_ROLE, DEACTIVATE_USER, REACTIVATE_USER, DELETE_USER
+    previous_value = Column(Text, nullable=True)
+    new_value = Column(Text, nullable=True)
+    reason = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+
+    admin = relationship("User", foreign_keys=[admin_user_id], back_populates="audit_logs_authored")
+    target_user = relationship("User", foreign_keys=[target_user_id], back_populates="audit_logs_received")
+
+
+class EmailVerificationToken(Base):
+    __tablename__ = "email_verification_tokens"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    token_hash = Column(String(255), nullable=False, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    expires_at = Column(DateTime, nullable=False)
+    used_at = Column(DateTime, nullable=True)
+
+    user = relationship("User", back_populates="email_verification_tokens")
+
+
+class PhoneOtpVerification(Base):
+    __tablename__ = "phone_otp_verifications"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    phone_number = Column(String(50), nullable=False, index=True)
+    otp_hash = Column(String(255), nullable=False)
+    attempts = Column(Integer, nullable=False, default=0)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    expires_at = Column(DateTime, nullable=False)
+    used_at = Column(DateTime, nullable=True)
+
+    user = relationship("User", back_populates="phone_otps")

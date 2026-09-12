@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Layout from "../components/Layout";
 import { useAuth } from "../context/AuthContext";
 import apiService from "../services/apiService";
+import authService from "../services/authService";
 import { Link } from "react-router-dom";
 
 function UserDashboard() {
@@ -11,6 +12,123 @@ function UserDashboard() {
   const [routines, setRoutines] = useState([]);
   const [todayLogs, setTodayLogs] = useState({});
   const [streak, setStreak] = useState(0);
+  const [resendingEmail, setResendingEmail] = useState(false);
+  const [verificationFeedback, setVerificationFeedback] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState(user?.phone_number || "");
+  const [phoneOtp, setPhoneOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [phoneLoading, setPhoneLoading] = useState(false);
+  const [smsConfigured, setSmsConfigured] = useState(null);
+  const [smsProviderName, setSmsProviderName] = useState("CONSOLE");
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [phoneStatus, setPhoneStatus] = useState({
+    verified: !!user?.phone_verified,
+    number: user?.phone_number || ""
+  });
+  const [phoneFeedback, setPhoneFeedback] = useState({ text: "", type: "" });
+
+  useEffect(() => {
+    if (user) {
+      setPhoneStatus({
+        verified: !!user.phone_verified,
+        number: user.phone_number || ""
+      });
+      if (user.phone_number) {
+        setPhoneNumber(user.phone_number);
+      }
+    }
+  }, [user]);
+
+  useEffect(() => {
+    const fetchVerificationStatus = async () => {
+      try {
+        const res = await authService.getVerificationStatus();
+        if (res) {
+          setSmsConfigured(!!res.sms_provider_configured);
+          setSmsProviderName(res.sms_provider_name || "CONSOLE");
+          if (res.phone_number) {
+            setPhoneStatus({
+              verified: !!res.phone_verified,
+              number: res.phone_number
+            });
+            setPhoneNumber(res.phone_number);
+          }
+        }
+      } catch {
+        // graceful fallback if not logged in yet
+      }
+    };
+    fetchVerificationStatus();
+  }, []);
+
+  useEffect(() => {
+    let timer = null;
+    if (resendCooldown > 0) {
+      timer = setInterval(() => {
+        setResendCooldown((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [resendCooldown]);
+
+  const handleSendPhoneOtp = async (e) => {
+    e?.preventDefault();
+    if (!phoneNumber.trim()) {
+      setPhoneFeedback({ text: "Please enter a valid phone number.", type: "error" });
+      return;
+    }
+    setPhoneLoading(true);
+    setPhoneFeedback({ text: "", type: "" });
+    try {
+      const res = await authService.sendPhoneOtp(phoneNumber.trim());
+      setOtpSent(true);
+      setResendCooldown(60);
+      setPhoneFeedback({
+        text: res.message || "Verification code sent. Check your phone.",
+        type: "success"
+      });
+    } catch (err) {
+      // Strictly do not transition to OTP entry on failure
+      setPhoneFeedback({
+        text: err.message || "Unable to send verification code. Please try again.",
+        type: "error"
+      });
+    } finally {
+      setPhoneLoading(false);
+    }
+  };
+
+  const handleVerifyPhoneOtp = async (e) => {
+    e?.preventDefault();
+    if (!phoneOtp.trim()) {
+      setPhoneFeedback({ text: "Please enter the 6-digit OTP code.", type: "error" });
+      return;
+    }
+    setPhoneLoading(true);
+    setPhoneFeedback({ text: "", type: "" });
+    try {
+      const res = await authService.verifyPhoneOtp(phoneNumber.trim(), phoneOtp.trim());
+      setPhoneStatus({
+        verified: true,
+        number: res.phone_number || phoneNumber.trim()
+      });
+      setOtpSent(false);
+      setPhoneOtp("");
+      setPhoneFeedback({
+        text: "Phone number successfully verified!",
+        type: "success"
+      });
+    } catch (err) {
+      setPhoneFeedback({
+        text: err.message || "Invalid or expired OTP code.",
+        type: "error"
+      });
+    } finally {
+      setPhoneLoading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -141,13 +259,38 @@ function UserDashboard() {
   const totalGenerated = routines.length;
   const completedToday = Object.values(todayLogs).filter(Boolean).length;
 
+  const handleResendVerification = async () => {
+    if (!user?.email) return;
+    setResendingEmail(true);
+    setVerificationFeedback("");
+    try {
+      const res = await authService.resendVerification(user.email);
+      setVerificationFeedback(res.message || "Verification link sent to your email.");
+    } catch (err) {
+      setVerificationFeedback(err.message || "Failed to resend verification link.");
+    } finally {
+      setResendingEmail(false);
+    }
+  };
+
   return (
     <Layout>
       <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
         <div>
-          <h2 className="fw-bold mb-1" style={{ color: "var(--text-primary)" }}>
-            Welcome back, {user?.full_name?.split(" ")[0] || "there"}
-          </h2>
+          <div className="d-flex align-items-center gap-2 mb-1">
+            <h2 className="fw-bold mb-0" style={{ color: "var(--text-primary)" }}>
+              Welcome back, {user?.full_name?.split(" ")[0] || "there"}
+            </h2>
+            {user?.email_verified ? (
+              <span className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25" style={{ fontSize: "0.75rem" }}>
+                ✓ Verified
+              </span>
+            ) : (
+              <span className="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25" style={{ fontSize: "0.75rem" }}>
+                Unverified
+              </span>
+            )}
+          </div>
           <p className="text-secondary small mb-0">
             Here is your daily skin wellness summary and routine overview.
           </p>
@@ -161,6 +304,42 @@ function UserDashboard() {
           )}
         </div>
       </div>
+
+      {/* Email Verification Required Banner */}
+      {user && !user.email_verified && (
+        <div
+          className="p-3 mb-4 rounded-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3"
+          style={{
+            backgroundColor: "rgba(234, 179, 8, 0.1)",
+            border: "1px solid rgba(234, 179, 8, 0.3)"
+          }}
+        >
+          <div className="d-flex align-items-center gap-2">
+            <span style={{ fontSize: "1.25rem" }}>⚠️</span>
+            <div>
+              <div className="fw-semibold small" style={{ color: "var(--text-primary)" }}>
+                Email Verification Required
+              </div>
+              <div className="text-secondary small">
+                Verify your address ({user.email}) to unlock transactional routine alerts and clinical email delivery.
+              </div>
+            </div>
+          </div>
+          <div className="d-flex align-items-center gap-2 flex-shrink-0">
+            {verificationFeedback && (
+              <span className="small text-muted">{verificationFeedback}</span>
+            )}
+            <button
+              type="button"
+              className="btn btn-sm btn-saas-outline"
+              onClick={handleResendVerification}
+              disabled={resendingEmail}
+            >
+              {resendingEmail ? "Dispatching..." : "Resend Link"}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Stat Cards Row */}
       <div className="row g-3 mb-4">
@@ -330,6 +509,228 @@ function UserDashboard() {
               <Link to="/analytics" className="btn btn-sm btn-saas-secondary">
                 Explore Analytics Dashboard
               </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Verified Communication Channels & Security Card */}
+      <div className="saas-card mb-4">
+        <div className="saas-card-header">
+          <div>
+            <h5 className="saas-card-title mb-0">Verified Communication Channels</h5>
+            <span className="saas-card-subtitle">
+              Clinical identity protection and transactional delivery controls
+            </span>
+          </div>
+          <span className="badge badge-saas badge-saas-primary">Channel Security</span>
+        </div>
+
+        <div className="row g-4 mt-1">
+          {/* Email Verification Card */}
+          <div className="col-md-6">
+            <div
+              className="p-3 rounded h-100 d-flex flex-column justify-content-between"
+              style={{
+                backgroundColor: "var(--bg-surface-elevated)",
+                border: "1px solid var(--border-subtle)"
+              }}
+            >
+              <div>
+                <div className="d-flex align-items-center justify-content-between mb-2">
+                  <div className="d-flex align-items-center gap-2">
+                    <span style={{ fontSize: "1.2rem" }}>✉️</span>
+                    <span className="fw-semibold" style={{ color: "var(--text-primary)" }}>
+                      Email Address
+                    </span>
+                  </div>
+                  {user?.email_verified ? (
+                    <span className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">
+                      ✓ Verified
+                    </span>
+                  ) : (
+                    <span className="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25">
+                      Action Required
+                    </span>
+                  )}
+                </div>
+                <p className="text-secondary small mb-2">
+                  <strong>Registered Address:</strong> {user?.email || "No email on record"}
+                </p>
+                <p className="text-muted small mb-3">
+                  {user?.email_verified
+                    ? "Verified via Google identity or cryptographic verification link. Transactional routine emails and reports are active."
+                    : "Your email must be verified before the system can dispatch routine reminders or clinical consultation reports."}
+                </p>
+              </div>
+
+              {!user?.email_verified && (
+                <div className="pt-2 border-top border-secondary border-opacity-10">
+                  {verificationFeedback && (
+                    <div className="small text-info mb-2">{verificationFeedback}</div>
+                  )}
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-saas-outline w-100"
+                    onClick={handleResendVerification}
+                    disabled={resendingEmail}
+                  >
+                    {resendingEmail ? "Dispatching link..." : "Resend Verification Email"}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Phone SMS OTP Card */}
+          <div className="col-md-6">
+            <div
+              className="p-3 rounded h-100 d-flex flex-column justify-content-between"
+              style={{
+                backgroundColor: "var(--bg-surface-elevated)",
+                border: "1px solid var(--border-subtle)"
+              }}
+            >
+              <div>
+                <div className="d-flex align-items-center justify-content-between mb-2">
+                  <div className="d-flex align-items-center gap-2">
+                    <span style={{ fontSize: "1.2rem" }}>📱</span>
+                    <span className="fw-semibold" style={{ color: "var(--text-primary)" }}>
+                      SMS & Phone Alerts
+                    </span>
+                  </div>
+                  {phoneStatus.verified ? (
+                    <span className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">
+                      ✓ Verified
+                    </span>
+                  ) : (
+                    <span className="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25">
+                      Not Verified
+                    </span>
+                  )}
+                </div>
+
+                <p className="text-secondary small mb-2">
+                  <strong>Current Phone:</strong>{" "}
+                  {phoneStatus.number || "No phone number linked"}
+                </p>
+                <p className="text-muted small mb-3">
+                  {phoneStatus.verified
+                    ? "Phone number verified with SMS OTP. Critical appointment reminders and alerts are enabled."
+                    : "Link and verify your phone number via 6-digit SMS OTP to receive instant regimen notifications."}
+                </p>
+              </div>
+
+              <div>
+                {smsConfigured === false && !phoneStatus.verified && (
+                  <div
+                    className="small p-2 rounded mb-2 d-flex align-items-center gap-2"
+                    style={{
+                      backgroundColor: "rgba(148, 163, 184, 0.1)",
+                      border: "1px solid rgba(148, 163, 184, 0.25)",
+                      color: "var(--text-secondary)"
+                    }}
+                  >
+                    <span>ℹ️</span>
+                    <span>
+                      SMS verification is not configured in this environment ({smsProviderName} mode). Live SMS delivery requires a configured SMS provider (e.g. Twilio).
+                    </span>
+                  </div>
+                )}
+
+                {phoneFeedback.text && (
+                  <div
+                    className={`small mb-2 p-2 rounded ${
+                      phoneFeedback.type === "success"
+                        ? "bg-success bg-opacity-10 text-success"
+                        : "bg-danger bg-opacity-10 text-danger"
+                    }`}
+                  >
+                    {phoneFeedback.text}
+                  </div>
+                )}
+
+                {!phoneStatus.verified && (
+                  <div>
+                    {!otpSent ? (
+                      <form onSubmit={handleSendPhoneOtp} className="d-flex gap-2">
+                        <input
+                          type="tel"
+                          className="form-control form-control-sm"
+                          placeholder="+91 9876543210"
+                          value={phoneNumber}
+                          onChange={(e) => setPhoneNumber(e.target.value)}
+                          disabled={phoneLoading}
+                          style={{
+                            backgroundColor: "var(--bg-surface)",
+                            color: "var(--text-primary)",
+                            borderColor: "var(--border-subtle)"
+                          }}
+                        />
+                        <button
+                          type="submit"
+                          className="btn btn-sm btn-saas flex-shrink-0"
+                          disabled={phoneLoading}
+                        >
+                          {phoneLoading ? "Sending..." : "Send OTP"}
+                        </button>
+                      </form>
+                    ) : (
+                      <form onSubmit={handleVerifyPhoneOtp} className="d-flex flex-column gap-2">
+                        <div className="d-flex gap-2">
+                          <input
+                            type="text"
+                            maxLength={6}
+                            className="form-control form-control-sm"
+                            placeholder="Enter 6-digit OTP"
+                            value={phoneOtp}
+                            onChange={(e) => setPhoneOtp(e.target.value)}
+                            disabled={phoneLoading}
+                            style={{
+                              backgroundColor: "var(--bg-surface)",
+                              color: "var(--text-primary)",
+                              borderColor: "var(--border-subtle)",
+                              letterSpacing: "4px",
+                              textAlign: "center"
+                            }}
+                          />
+                          <button
+                            type="submit"
+                            className="btn btn-sm btn-saas-success flex-shrink-0"
+                            disabled={phoneLoading}
+                          >
+                            {phoneLoading ? "Verifying..." : "Confirm OTP"}
+                          </button>
+                        </div>
+                        <div className="d-flex align-items-center justify-content-between pt-1">
+                          <button
+                            type="button"
+                            className="btn btn-link btn-sm text-secondary p-0 text-start"
+                            onClick={() => {
+                              setOtpSent(false);
+                              setPhoneOtp("");
+                              setPhoneFeedback({ text: "", type: "" });
+                            }}
+                            disabled={phoneLoading}
+                            style={{ fontSize: "0.75rem" }}
+                          >
+                            ← Change phone number
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-link btn-sm text-primary p-0 text-end"
+                            onClick={handleSendPhoneOtp}
+                            disabled={phoneLoading || resendCooldown > 0}
+                            style={{ fontSize: "0.75rem" }}
+                          >
+                            {resendCooldown > 0 ? `Resend code in ${resendCooldown}s` : "Resend OTP code"}
+                          </button>
+                        </div>
+                      </form>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
