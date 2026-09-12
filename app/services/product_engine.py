@@ -1038,7 +1038,6 @@ def normalize_text_list(val: Any) -> List[str]:
         return [x.strip().lower() for x in cleaned.split(",") if x.strip()]
     return []
 
-
 def calculate_product_suitability(
     product: Dict[str, Any],
     skin_type: str = "Normal",
@@ -1130,9 +1129,9 @@ def calculate_product_suitability(
         full_inci_lower = product.get("full_inci", "").lower()
         flags = [f.lower() for f in product.get("allergen_flags", [])]
         
-        # Test common allergen substrings
-        test_allergens = [a.strip() for a in allergies_text.replace(";", ",").split(",") if a.strip()]
-        for allergen in test_allergens:
+        # Match common allergen substrings
+        user_allergens = [a.strip() for a in allergies_text.replace(";", ",").split(",") if a.strip()]
+        for allergen in user_allergens:
             if len(allergen) < 3:
                 continue
             if allergen in full_inci_lower or any(allergen in f for f in flags):

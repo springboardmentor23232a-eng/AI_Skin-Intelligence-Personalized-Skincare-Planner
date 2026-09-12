@@ -820,3 +820,159 @@ tr:hover td {
   font-size: 0.8rem !important;
   padding: 0.4rem 0.75rem !important;
 }
+
+/* ── Additional Admin Stat Colors ── */
+.stat-teal .stat-icon {
+  background: #f0fdfa;
+  color: #0d9488;
+  font-size: 1.25rem;
+}
+
+/* ── Platform Analytics Grid ── */
+.analytics-charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 1.5rem;
+}
+
+.chart-box {
+  padding: 1rem;
+}
+
+/* ── System Health Diagnostics Grid ── */
+.sys-health-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  padding: 1rem 1.5rem 1.5rem;
+}
+
+.sys-health-card {
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: 0.85rem;
+  padding: 1.15rem;
+}
+
+.sys-health-card h4 {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.sys-health-card p {
+  margin: 0.25rem 0;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.sys-health-card strong {
+  color: var(--text);
+}
+
+/* ── Exportable Reports Cards ── */
+.reports-export-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+  padding: 1rem 1.5rem 1.5rem;
+}
+
+.export-card {
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: 0.85rem;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.export-card-header h4 {
+  margin: 0 0 0.35rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.export-card-header p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
+.export-card-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.btn-export-pdf, .btn-export-excel, .btn-export-csv, .btn-export-json {
+  padding: 0.45rem 0.85rem;
+  border-radius: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.btn-export-pdf {
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  color: #ffffff;
+  border: none;
+}
+
+.btn-export-pdf:hover {
+  background: linear-gradient(135deg, #6d28d9, #5b21b6);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);
+}
+
+.btn-export-excel {
+  background: linear-gradient(135deg, #059669, #047857);
+  color: #ffffff;
+  border: none;
+}
+
+.btn-export-excel:hover {
+  background: linear-gradient(135deg, #047857, #065f46);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+}
+
+.btn-export-csv {
+  background: #0f172a;
+  color: #ffffff;
+  border: 1px solid #0f172a;
+}
+
+.btn-export-csv:hover {
+  background: #1e293b;
+}
+
+.btn-export-json {
+  background: #ffffff;
+  color: #475569;
+  border: 1px solid var(--border);
+}
+
+.btn-export-json:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.btn-export-pdf:disabled, .btn-export-excel:disabled, .btn-export-csv:disabled, .btn-export-json:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}

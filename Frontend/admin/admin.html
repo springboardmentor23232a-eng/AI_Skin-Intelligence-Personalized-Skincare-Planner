@@ -6,11 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Dashboard | AI Skin Intelligence</title>
   <meta name="description"
-    content="Admin control panel for managing user and consultant account approvals on AI Skin Intelligence." />
+    content="Admin control panel for managing user, consultant and dermatologist account approvals, analytics, and system monitoring on AI Skin Intelligence." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="admin.css?v=20.0" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="admin.css?v=21.0" />
 </head>
 
 <body>
@@ -27,7 +28,7 @@
       </div>
       <div>
         <p class="brand-name">AI Skin Intelligence</p>
-        <p class="brand-sub">Admin Panel</p>
+        <p class="brand-sub">Platform Administration</p>
       </div>
     </div>
 
@@ -66,6 +67,31 @@
           <line x1="23" y1="11" x2="17" y2="11" />
         </svg>
         Allocations
+      </a>
+      <a href="#platform-analytics" class="nav-item" id="navPlatformAnalytics" data-section="platform-analytics">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="20" x2="18" y2="10"></line>
+          <line x1="12" y1="20" x2="12" y2="4"></line>
+          <line x1="6" y1="20" x2="6" y2="14"></line>
+        </svg>
+        Platform Analytics
+      </a>
+      <a href="#rec-monitoring" class="nav-item" id="navRecMonitoring" data-section="rec-monitoring">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        Recommendation Monitoring
+      </a>
+      <a href="#system-reports" class="nav-item" id="navSystemReports" data-section="system-reports">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
+        System Reports
       </a>
     </nav>
 
@@ -110,7 +136,7 @@
     <!-- Sections -->
     <main class="content">
 
-      <!-- ── OVERVIEW section ── -->
+      <!-- ── 1. OVERVIEW section ── -->
       <section id="section-overview" class="section active">
         <div class="stats-grid">
           <div class="stat-card stat-blue">
@@ -135,8 +161,15 @@
               </svg>
             </div>
             <div>
-              <p class="stat-label">Total Consultants</p>
+              <p class="stat-label">Consultants</p>
               <p id="statTotalConsultants" class="stat-value">—</p>
+            </div>
+          </div>
+          <div class="stat-card stat-teal">
+            <div class="stat-icon">🩺</div>
+            <div>
+              <p class="stat-label">Dermatologists</p>
+              <p id="statTotalDermatologists" class="stat-value">—</p>
             </div>
           </div>
           <div class="stat-card stat-amber">
@@ -149,18 +182,6 @@
             <div>
               <p class="stat-label">Pending Approvals</p>
               <p id="statPending" class="stat-value">—</p>
-            </div>
-          </div>
-          <div class="stat-card stat-green">
-            <div class="stat-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                <polyline points="22 4 12 14.01 9 11.01" />
-              </svg>
-            </div>
-            <div>
-              <p class="stat-label">Approved Accounts</p>
-              <p id="statApproved" class="stat-value">—</p>
             </div>
           </div>
         </div>
@@ -177,7 +198,7 @@
         </div>
       </section>
 
-      <!-- ── APPROVALS section ── -->
+      <!-- ── 2. APPROVALS section ── -->
       <section id="section-approvals" class="section">
         <div class="tab-bar">
           <button class="tab-btn active" id="tabUsers" data-tab="users">
@@ -187,6 +208,10 @@
           <button class="tab-btn" id="tabConsultants" data-tab="consultants">
             Pending Consultants
             <span id="tabConsultantCount" class="tab-count">0</span>
+          </button>
+          <button class="tab-btn" id="tabDermatologists" data-tab="dermatologists">
+            Pending Dermatologists
+            <span id="tabDermatologistCount" class="tab-count">0</span>
           </button>
         </div>
 
@@ -213,13 +238,26 @@
             </div>
           </div>
         </div>
+
+        <div id="tabPanelDermatologists" class="tab-panel">
+          <div class="panel">
+            <div class="panel-header">
+              <h2 class="panel-title">Pending Dermatologists</h2>
+              <p class="panel-subtitle">Approve or reject clinical specialist registrations</p>
+            </div>
+            <div id="pendingDermatologistsList" class="approval-list">
+              <p class="empty-msg">Loading…</p>
+            </div>
+          </div>
+        </div>
       </section>
 
-      <!-- ── ALL ACCOUNTS section ── -->
+      <!-- ── 3. ALL ACCOUNTS section ── -->
       <section id="section-accounts" class="section">
         <div class="tab-bar">
           <button class="tab-btn active" id="tabAllUsers" data-tab="users">All Users</button>
           <button class="tab-btn" id="tabAllConsultants" data-tab="consultants">All Consultants</button>
+          <button class="tab-btn" id="tabAllDermatologists" data-tab="dermatologists">All Dermatologists</button>
         </div>
 
         <div id="tabPanelAllUsers" class="tab-panel active">
@@ -243,14 +281,26 @@
             </div>
           </div>
         </div>
+
+        <div id="tabPanelAllDermatologists" class="tab-panel">
+          <div class="panel">
+            <div class="panel-header">
+              <h2 class="panel-title">All Dermatologists</h2>
+            </div>
+            <div id="allDermatologistsList" class="table-wrapper">
+              <p class="empty-msg">Loading…</p>
+            </div>
+          </div>
+        </div>
       </section>
 
-      <!-- ── ALLOCATIONS section ── -->
+      <!-- ── 4. ALLOCATIONS section ── -->
       <section id="section-allocations" class="section">
-        <div class="panel">
+        <!-- Consultant Allocation -->
+        <div class="panel mb-6">
           <div class="panel-header">
             <div>
-              <h2 class="panel-title">Assign User to Consultant</h2>
+              <h2 class="panel-title">Assign Client to Consultant</h2>
               <p class="panel-subtitle">Allocate approved users to approved consultants</p>
             </div>
           </div>
@@ -268,17 +318,254 @@
                   <option value="">— Choose a consultant —</option>
                 </select>
               </div>
-              <button id="assignBtn" class="assign-action-btn">Assign</button>
+              <button id="assignBtn" class="assign-action-btn">Assign Consultant</button>
+            </div>
+          </div>
+          <div class="mt-4">
+            <h3 class="panel-subtitle mb-2 font-bold">Current Consultant Assignments</h3>
+            <div id="assignmentsList" class="table-wrapper">
+              <p class="empty-msg">Loading…</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dermatologist Allocation -->
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Assign Patient to Dermatologist</h2>
+              <p class="panel-subtitle">Allocate approved patients to licensed clinical dermatologists</p>
+            </div>
+          </div>
+          <div class="allocate-form-wrapper">
+            <div class="allocate-form">
+              <div class="allocate-field">
+                <label for="allocateDermUser" class="allocate-label">Select Patient</label>
+                <select id="allocateDermUser" class="allocate-select">
+                  <option value="">— Choose a patient —</option>
+                </select>
+              </div>
+              <div class="allocate-field">
+                <label for="allocateDermatologist" class="allocate-label">Select Dermatologist</label>
+                <select id="allocateDermatologist" class="allocate-select">
+                  <option value="">— Choose a dermatologist —</option>
+                </select>
+              </div>
+              <button id="assignDermBtn" class="assign-action-btn" style="background:#0284c7;">Assign Dermatologist</button>
+            </div>
+          </div>
+          <div class="mt-4">
+            <h3 class="panel-subtitle mb-2 font-bold">Current Dermatologist Care Assignments</h3>
+            <div id="dermAssignmentsList" class="table-wrapper">
+              <p class="empty-msg">Loading…</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 5. PLATFORM ANALYTICS section ── -->
+      <section id="section-platform-analytics" class="section">
+        <div class="stats-grid mb-6">
+          <div class="stat-card stat-blue">
+            <div class="stat-icon">👥</div>
+            <div>
+              <p class="stat-label">Active Users (30d)</p>
+              <p id="kpiActiveUsers" class="stat-value">—</p>
+            </div>
+          </div>
+          <div class="stat-card stat-purple">
+            <div class="stat-icon">📑</div>
+            <div>
+              <p class="stat-label">Total Assessments</p>
+              <p id="kpiTotalAssessments" class="stat-value">—</p>
+            </div>
+          </div>
+          <div class="stat-card stat-green">
+            <div class="stat-icon">⭐</div>
+            <div>
+              <p class="stat-label">Avg Skin Health Score</p>
+              <p id="kpiAvgScore" class="stat-value">—</p>
+            </div>
+          </div>
+          <div class="stat-card stat-teal">
+            <div class="stat-icon">📈</div>
+            <div>
+              <p class="stat-label">Avg Adherence Rate</p>
+              <p id="kpiAvgAdherence" class="stat-value">—</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Analytics Charts Grid -->
+        <div class="analytics-charts-grid">
+          <div class="panel">
+            <h3 class="panel-title mb-1 text-sm font-bold">User Registrations (Last 14 Days)</h3>
+            <div class="chart-box" style="height: 220px; position: relative;">
+              <canvas id="chartUserGrowth"></canvas>
+            </div>
+          </div>
+          <div class="panel">
+            <h3 class="panel-title mb-1 text-sm font-bold">Assessment Volume Trends</h3>
+            <div class="chart-box" style="height: 220px; position: relative;">
+              <canvas id="chartAssessmentVolume"></canvas>
+            </div>
+          </div>
+          <div class="panel">
+            <h3 class="panel-title mb-1 text-sm font-bold">Health Score Distribution</h3>
+            <div class="chart-box" style="height: 220px; position: relative;">
+              <canvas id="chartScoreDistribution"></canvas>
+            </div>
+          </div>
+          <div class="panel">
+            <h3 class="panel-title mb-1 text-sm font-bold">Top Reported Skin Concerns</h3>
+            <div class="chart-box" style="height: 220px; position: relative;">
+              <canvas id="chartTopConcerns"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 6. RECOMMENDATION MONITORING section ── -->
+      <section id="section-rec-monitoring" class="section">
+        <div class="stats-grid mb-6">
+          <div class="stat-card stat-blue">
+            <div class="stat-icon">📦</div>
+            <div>
+              <p class="stat-label">Products in Catalog</p>
+              <p id="monCatalogCount" class="stat-value">—</p>
+            </div>
+          </div>
+          <div class="stat-card stat-teal">
+            <div class="stat-icon">🩺</div>
+            <div>
+              <p class="stat-label">Clinical Prescriptions</p>
+              <p id="monClinicalCount" class="stat-value">—</p>
+            </div>
+          </div>
+          <div class="stat-card stat-purple">
+            <div class="stat-icon">🧴</div>
+            <div>
+              <p class="stat-label">Active Routine Steps</p>
+              <p id="monStepsCount" class="stat-value">—</p>
             </div>
           </div>
         </div>
 
         <div class="panel">
-          <div class="panel-header">
-            <h2 class="panel-title">Current Assignments</h2>
+          <div class="panel-header flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 class="panel-title">Real-Time Recommendation &amp; Prescription Audit</h2>
+              <p class="panel-subtitle">Monitor clinical prescriptions and routine formulations across the platform</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <input type="text" id="recSearchInput" placeholder="Search target, active or formula..." class="allocate-select text-xs" style="min-width: 220px;" />
+            </div>
           </div>
-          <div id="assignmentsList" class="table-wrapper">
-            <p class="empty-msg">Loading…</p>
+          <div class="table-wrapper mt-3">
+            <table>
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Title / Formula</th>
+                  <th>Active Ingredients</th>
+                  <th>Target Patient / User</th>
+                  <th>Source</th>
+                  <th>Status / Urgency</th>
+                  <th>Timestamp</th>
+                </tr>
+              </thead>
+              <tbody id="recMonitoringTableBody">
+                <tr><td colspan="7" class="text-center py-4 text-slate-500">Loading recommendation stream...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 7. SYSTEM REPORTS section ── -->
+      <section id="section-system-reports" class="section">
+        <!-- System Health Diagnostics -->
+        <div class="panel mb-6">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">System Health &amp; Operational Diagnostics</h2>
+              <p class="panel-subtitle">Live health telemetry across database, ML engines, storage, and security layers</p>
+            </div>
+            <span class="badge badge-approved" id="sysHealthStatusBadge">● System Healthy</span>
+          </div>
+          <div class="sys-health-grid mt-4" id="sysHealthContainer">
+            <p class="empty-msg">Loading diagnostics…</p>
+          </div>
+        </div>
+
+        <!-- Exportable Reports Generator -->
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Exportable System Reports</h2>
+              <p class="panel-subtitle">Generate and download comprehensive platform audit logs and data exports</p>
+            </div>
+          </div>
+          <div class="reports-export-cards mt-4">
+            <div class="export-card">
+              <div class="export-card-header">
+                <h4>Platform Executive Summary</h4>
+                <p>High-level operational metrics, role distributions, and activity totals.</p>
+              </div>
+              <div class="export-card-actions">
+                <button class="btn-export-pdf" onclick="downloadReport('platform_summary', 'pdf')">📄 PDF</button>
+                <button class="btn-export-excel" onclick="downloadReport('platform_summary', 'excel')">📊 Excel</button>
+                <button class="btn-export-csv" onclick="downloadReport('platform_summary', 'csv')">CSV</button>
+              </div>
+            </div>
+
+            <div class="export-card">
+              <div class="export-card-header">
+                <h4>User &amp; Specialist Directory</h4>
+                <p>Comprehensive register of all approved and pending users, consultants, and dermatologists.</p>
+              </div>
+              <div class="export-card-actions">
+                <button class="btn-export-pdf" onclick="downloadReport('users', 'pdf')">📄 PDF</button>
+                <button class="btn-export-excel" onclick="downloadReport('users', 'excel')">📊 Excel</button>
+                <button class="btn-export-csv" onclick="downloadReport('users', 'csv')">CSV</button>
+              </div>
+            </div>
+
+            <div class="export-card">
+              <div class="export-card-header">
+                <h4>Clinical Assessment Audit Log</h4>
+                <p>Complete historical ledger of all ML-evaluated skin assessments and risk scores.</p>
+              </div>
+              <div class="export-card-actions">
+                <button class="btn-export-pdf" onclick="downloadReport('assessments', 'pdf')">📄 PDF</button>
+                <button class="btn-export-excel" onclick="downloadReport('assessments', 'excel')">📊 Excel</button>
+                <button class="btn-export-csv" onclick="downloadReport('assessments', 'csv')">CSV</button>
+              </div>
+            </div>
+
+            <div class="export-card">
+              <div class="export-card-header">
+                <h4>Recommendation &amp; Treatment History</h4>
+                <p>Audit trail of all clinical treatment recommendations and prescribed formulas.</p>
+              </div>
+              <div class="export-card-actions">
+                <button class="btn-export-pdf" onclick="downloadReport('recommendations', 'pdf')">📄 PDF</button>
+                <button class="btn-export-excel" onclick="downloadReport('recommendations', 'excel')">📊 Excel</button>
+                <button class="btn-export-csv" onclick="downloadReport('recommendations', 'csv')">CSV</button>
+              </div>
+            </div>
+
+            <div class="export-card">
+              <div class="export-card-header">
+                <h4>User Skincare Regimens &amp; Routines</h4>
+                <p>Overview of active morning and evening skincare regimens and habit consistency.</p>
+              </div>
+              <div class="export-card-actions">
+                <button class="btn-export-pdf" onclick="downloadReport('routines', 'pdf')">📄 PDF</button>
+                <button class="btn-export-excel" onclick="downloadReport('routines', 'excel')">📊 Excel</button>
+                <button class="btn-export-csv" onclick="downloadReport('routines', 'csv')">CSV</button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -289,7 +576,7 @@
   <!-- Toast notification -->
   <div id="toast" class="toast hidden"></div>
 
-  <script src="admin.js?v=20.0"></script>
+  <script src="admin.js?v=21.0"></script>
 </body>
 
 </html>

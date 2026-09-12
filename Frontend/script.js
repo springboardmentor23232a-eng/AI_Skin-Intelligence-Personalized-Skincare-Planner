@@ -77,7 +77,7 @@ window.handleGoogleCredentialResponse = async (response) => {
     localStorage.setItem('access_token', data.access_token);
     localStorage.setItem('user_role', rolePath);
 
-    const targetPage = roleRoutes[rolePath] || 'user/user.html';
+    const targetPage = roleRoutes[rolePath] || 'user/user.html#score';
     window.location.href = targetPage;
   } catch (err) {
     showMessage(feedbackEl, 'Google sign-in failed. Please try again.');
@@ -85,9 +85,10 @@ window.handleGoogleCredentialResponse = async (response) => {
 };
 
 const roleRoutes = {
-  user: 'user/user.html',
+  user: 'user/user.html#score',
   admin: 'admin/admin.html',
   consultant: 'consultant/consultant.html',
+  dermatologist: 'dermatologist/dermatologist.html',
 };
 
 if (loginForm) {
@@ -122,7 +123,7 @@ if (loginForm) {
 
       localStorage.setItem('access_token', data.access_token);
       localStorage.setItem('user_role', rolePath);
-      const targetPage = roleRoutes[rolePath] || 'user/user.html';
+      const targetPage = roleRoutes[rolePath] || 'user/user.html#score';
       window.location.href = targetPage;
     } catch (err) {
       showMessage(loginMessage, 'Network error. Please try again.');
@@ -150,8 +151,21 @@ if (registerForm) {
       return;
     }
 
-    if (password.length < 6) {
-      showMessage(registerMessage, 'Password must be at least 6 characters long.');
+    if (password.length < 8) {
+      showMessage(registerMessage, 'Password must be at least 8 characters long.');
+      return;
+    }
+
+    if (!/[A-Z]/.test(password)) {
+      showMessage(registerMessage, 'Password must contain at least one uppercase letter.');
+      return;
+    }
+    if (!/[a-z]/.test(password)) {
+      showMessage(registerMessage, 'Password must contain at least one lowercase letter.');
+      return;
+    }
+    if (!/[0-9]/.test(password)) {
+      showMessage(registerMessage, 'Password must contain at least one digit.');
       return;
     }
 
@@ -176,7 +190,7 @@ if (registerForm) {
 
       localStorage.setItem('access_token', data.access_token);
       localStorage.setItem('user_role', rolePath);
-      const targetPage = roleRoutes[rolePath] || 'user/user.html';
+      const targetPage = roleRoutes[rolePath] || 'user/user.html#score';
       window.location.href = targetPage;
     } catch (err) {
       showMessage(registerMessage, 'Network error. Please try again.');

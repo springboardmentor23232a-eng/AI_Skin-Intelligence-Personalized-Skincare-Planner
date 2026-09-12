@@ -1,3 +1,14 @@
+// --- HTML Sanitization Utility (XSS protection) ---
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 // --- Skin Profile Management ---
 const profileForm = document.getElementById('profileForm');
 const profileStatus = document.getElementById('profileStatus');
@@ -87,14 +98,7 @@ const fetchSkinProfile = async (token) => {
   }
 };
 
-const escapeHtml = (str) => {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-};
+
 
 const renderRiskMessages = (risks) => {
   const container = document.getElementById('riskMessagesContainer');
@@ -262,8 +266,8 @@ const renderAssessmentHistory = (history) => {
   container.innerHTML = history.map((item, idx) => {
     const dateStr = item.assessment_date
       ? new Date(item.assessment_date).toLocaleString(undefined, {
-          year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-        })
+        year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+      })
       : 'Unknown Date';
 
     let categoryClass = 'bg-blue-100 text-blue-800 border-blue-200';
@@ -464,16 +468,16 @@ const renderScoreBreakdown = (breakdown) => {
       </div>
       <div class="total-stacked-bar">
         ${factors.map(f => {
-          const contrib = wc[f.key] || 0;
-          return `<div class="total-stacked-segment ${f.segClass}" style="width: ${contrib}%" title="${f.name}: ${contrib} pts"></div>`;
-        }).join('')}
+    const contrib = wc[f.key] || 0;
+    return `<div class="total-stacked-segment ${f.segClass}" style="width: ${contrib}%" title="${f.name}: ${contrib} pts"></div>`;
+  }).join('')}
       </div>
       <div class="total-legend">
         ${factors.map(f => {
-          const dotClass = f.segClass.replace('seg-', 'dot-');
-          const contrib = wc[f.key] || 0;
-          return `<span class="legend-item"><span class="legend-dot ${dotClass}"></span>${f.name} (${contrib})</span>`;
-        }).join('')}
+    const dotClass = f.segClass.replace('seg-', 'dot-');
+    const contrib = wc[f.key] || 0;
+    return `<span class="legend-item"><span class="legend-dot ${dotClass}"></span>${f.name} (${contrib})</span>`;
+  }).join('')}
       </div>
     </div>
   `;
@@ -582,31 +586,414 @@ const updateChecklistStatus = () => {
   checklistStatus.textContent = `${completed} of ${checkboxes.length} tasks complete`;
 };
 
-// --- Session & Auth ---
+// --- User Profile & Database Sync ---
+let currentUserAccountProfile = null;
+
+const showUserProfileAlert = (message, type = 'success') => {
+  const alertEl = document.getElementById('userProfileAlert');
+  if (!alertEl) return;
+  alertEl.className = `user-profile-alert ${type}`;
+  const icon = type === 'success' ? '✓' : type === 'error' ? '⚠️' : 'ℹ️';
+  alertEl.innerHTML = `<span>${icon}</span> <span>${escapeHtml(message)}</span>`;
+  alertEl.classList.remove('hidden');
+};
+
+const hideUserProfileAlert = () => {
+  const alertEl = document.getElementById('userProfileAlert');
+  if (alertEl) {
+    alertEl.classList.add('hidden');
+    alertEl.textContent = '';
+  }
+};
+
+const updateSidebarUserDisplay = (profile, fallbackEmail) => {
+  if (!profile && !fallbackEmail) return;
+
+  let displayName = '';
+  if (profile) {
+    const fn = (profile.first_name || '').trim();
+    const ln = (profile.last_name || '').trim();
+    if (fn || ln) {
+      displayName = `${fn} ${ln}`.trim();
+    }
+    if (!displayName && profile.name) {
+      displayName = profile.name.trim();
+    }
+  }
+
+  if (!displayName && fallbackEmail) {
+    const handle = fallbackEmail.split('@')[0];
+    displayName = handle.charAt(0).toUpperCase() + handle.slice(1);
+  }
+
+  const initial = (displayName || fallbackEmail || 'U').charAt(0).toUpperCase();
+
+  const avatarEl = document.getElementById('userAvatarInitial');
+  if (avatarEl) {
+    avatarEl.textContent = initial;
+  }
+
+  const sidebarNameEl = document.getElementById('sidebarUserName');
+  if (sidebarNameEl) {
+    sidebarNameEl.textContent = displayName || 'User';
+  }
+
+  // Update modal header / card avatars if present
+  const headerAvatar = document.getElementById('profileHeaderAvatar');
+  if (headerAvatar) headerAvatar.textContent = initial;
+  const cardAvatar = document.getElementById('profileCardAvatar');
+  if (cardAvatar) cardAvatar.textContent = initial;
+  const cardFullName = document.getElementById('profileCardFullName');
+  if (cardFullName) cardFullName.textContent = displayName || 'User Account';
+  const cardEmail = document.getElementById('profileCardEmail');
+  if (cardEmail && profile?.email) cardEmail.textContent = profile.email;
+};
+
 const fetchUserProfile = async (token, fallbackEmail) => {
   try {
-    const res = await fetch('/auth/profile', {
+    // Attempt to fetch full account profile first
+    let res = await fetch('/user/account-profile', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (res.ok) {
+      currentUserAccountProfile = await res.json();
+      updateSidebarUserDisplay(currentUserAccountProfile, fallbackEmail);
+      return currentUserAccountProfile;
+    }
+
+    // Fallback to /auth/profile if account-profile is unavailable
+    res = await fetch('/auth/profile', {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (res.ok) {
-      const data = await res.json();
-      let displayName = data.name ? data.name.trim() : '';
-      if (!displayName && fallbackEmail) {
-        const handle = fallbackEmail.split('@')[0];
-        displayName = handle.charAt(0).toUpperCase() + handle.slice(1);
-      }
-      const initial = (displayName || fallbackEmail || 'U').charAt(0).toUpperCase();
-      const avatarEl = document.getElementById('userAvatarInitial');
-      if (avatarEl) {
-        avatarEl.textContent = initial;
-      }
-      const sidebarNameEl = document.getElementById('sidebarUserName');
-      if (sidebarNameEl) {
-        sidebarNameEl.textContent = displayName || 'User';
-      }
+      currentUserAccountProfile = await res.json();
+      updateSidebarUserDisplay(currentUserAccountProfile, fallbackEmail);
+      return currentUserAccountProfile;
     }
   } catch (err) {
     console.error('Error fetching profile:', err);
+    if (fallbackEmail) {
+      updateSidebarUserDisplay(null, fallbackEmail);
+    }
+  }
+};
+
+const openUserProfileModal = async () => {
+  const modal = document.getElementById('userProfileModal');
+  if (!modal) return;
+
+  hideUserProfileAlert();
+  modal.classList.remove('hidden');
+
+  const token = localStorage.getItem('access_token');
+  if (!token) return;
+
+  try {
+    const res = await fetch('/user/account-profile', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.ok) {
+      currentUserAccountProfile = await res.json();
+    }
+  } catch (err) {
+    console.error('Error refreshing profile data:', err);
+  }
+
+  const data = currentUserAccountProfile || {};
+
+  const fnInput = document.getElementById('profileFirstName');
+  const lnInput = document.getElementById('profileLastName');
+  const emailInput = document.getElementById('profileEmail');
+  const phoneInput = document.getElementById('profilePhoneNumber');
+  const mobileToggle = document.getElementById('profilePushMobileToggle');
+  const emailToggle = document.getElementById('profilePushEmailToggle');
+  const joinedEl = document.getElementById('profileCardJoinedDate');
+  const statusBadge = document.getElementById('profileCardStatusBadge');
+
+  if (fnInput) fnInput.value = data.first_name || '';
+  if (lnInput) lnInput.value = data.last_name || '';
+  if (emailInput) emailInput.value = data.email || '';
+  if (phoneInput) phoneInput.value = data.phone_number || '';
+  if (mobileToggle) mobileToggle.checked = data.push_notifications_mobile !== false;
+  if (emailToggle) emailToggle.checked = data.push_notifications_email !== false;
+
+  if (statusBadge) {
+    statusBadge.textContent = (data.status || 'Active').toUpperCase();
+  }
+
+  const recipientDisplay = document.getElementById('profileRecipientDisplay');
+  if (recipientDisplay) {
+    recipientDisplay.textContent = data.email || 'your email';
+  }
+
+  if (joinedEl && data.created_at) {
+    try {
+      const dt = new Date(data.created_at);
+      joinedEl.textContent = `Member since ${dt.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}`;
+    } catch (_) {
+      joinedEl.textContent = 'Member';
+    }
+  }
+
+  updateSidebarUserDisplay(data, data.email);
+};
+
+const closeUserProfileModal = () => {
+  const modal = document.getElementById('userProfileModal');
+  if (modal) {
+    modal.classList.add('hidden');
+    hideUserProfileAlert();
+  }
+};
+
+const handleSaveUserProfile = async (e) => {
+  if (e) e.preventDefault();
+  const token = localStorage.getItem('access_token');
+  if (!token) {
+    showUserProfileAlert('Session expired. Please log in again.', 'error');
+    return;
+  }
+
+  const fnInput = document.getElementById('profileFirstName');
+  const lnInput = document.getElementById('profileLastName');
+  const emailInput = document.getElementById('profileEmail');
+  const phoneInput = document.getElementById('profilePhoneNumber');
+  const mobileToggle = document.getElementById('profilePushMobileToggle');
+  const emailToggle = document.getElementById('profilePushEmailToggle');
+  const saveBtn = document.getElementById('btnSaveUserProfile');
+  const spinner = document.getElementById('saveProfileSpinner');
+
+  const firstName = fnInput ? fnInput.value.trim() : '';
+  const lastName = lnInput ? lnInput.value.trim() : '';
+  const email = emailInput ? emailInput.value.trim().toLowerCase() : '';
+  const phoneNumber = phoneInput ? phoneInput.value.trim() : '';
+  const pushMobile = mobileToggle ? mobileToggle.checked : true;
+  const pushEmail = emailToggle ? emailToggle.checked : true;
+
+  if (!firstName) {
+    showUserProfileAlert('Please enter your first name.', 'error');
+    if (fnInput) fnInput.focus();
+    return;
+  }
+  if (!email || !email.includes('@')) {
+    showUserProfileAlert('Please enter a valid email address.', 'error');
+    if (emailInput) emailInput.focus();
+    return;
+  }
+
+  // Set loading state
+  if (saveBtn) saveBtn.disabled = true;
+  if (spinner) spinner.classList.remove('hidden');
+  hideUserProfileAlert();
+
+  try {
+    const res = await fetch('/user/account-profile', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        first_name: firstName,
+        last_name: lastName,
+        email: email,
+        phone_number: phoneNumber,
+        push_notifications_mobile: pushMobile,
+        push_notifications_email: pushEmail,
+      }),
+    });
+
+    const result = await res.json().catch(() => ({}));
+
+    if (res.ok) {
+      if (result.access_token) {
+        localStorage.setItem('access_token', result.access_token);
+      }
+      currentUserAccountProfile = result;
+      updateSidebarUserDisplay(result, email);
+      const recipientDisplay = document.getElementById('profileRecipientDisplay');
+      if (recipientDisplay) recipientDisplay.textContent = email;
+      showUserProfileAlert('✓ Profile details & notification preferences saved successfully!', 'success');
+    } else {
+      showUserProfileAlert(result.detail || 'Failed to save profile. Please try again.', 'error');
+    }
+  } catch (err) {
+    console.error('Error saving user profile:', err);
+    showUserProfileAlert('Network or server error while updating profile.', 'error');
+  } finally {
+    if (saveBtn) saveBtn.disabled = false;
+    if (spinner) spinner.classList.add('hidden');
+  }
+};
+
+const handlePushNotificationAction = async (channel) => {
+  const token = localStorage.getItem('access_token');
+  if (!token) {
+    showUserProfileAlert('Session expired. Please log in again.', 'error');
+    return;
+  }
+
+  const btn = channel === 'mobile'
+    ? document.getElementById('btnPushMobileNotification')
+    : document.getElementById('btnPushEmailNotification');
+
+  const originalContent = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<span class="animate-spin inline-block w-3 h-3 border-2 border-current border-t-transparent rounded-full"></span> Sending...`;
+  }
+
+  hideUserProfileAlert();
+
+  const emailInput = document.getElementById('profileEmail');
+  const recipientEmail = emailInput ? emailInput.value.trim() : '';
+
+  try {
+    const res = await fetch('/user/send-notification', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        channel: channel,
+        recipient_email: channel === 'email' ? recipientEmail : undefined,
+      }),
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (res.ok && data.success) {
+      // If mobile channel and browser Notification API available, trigger a local notification
+      if (channel === 'mobile' && 'Notification' in window) {
+        if (Notification.permission === 'granted') {
+          try {
+            new Notification(data.title || 'AI Skin Intelligence Alert', {
+              body: data.message || 'Mobile notification pushed successfully.',
+              icon: 'https://cdn-icons-png.flaticon.com/512/2854/2854314.png',
+            });
+          } catch (_) {}
+        } else if (Notification.permission !== 'denied') {
+          Notification.requestPermission().then((perm) => {
+            if (perm === 'granted') {
+              try {
+                new Notification(data.title || 'AI Skin Intelligence Alert', {
+                  body: data.message || 'Mobile notification pushed successfully.',
+                  icon: 'https://cdn-icons-png.flaticon.com/512/2854/2854314.png',
+                });
+              } catch (_) {}
+            }
+          });
+        }
+      }
+
+      showUserProfileAlert(`✓ ${data.status_text || 'Notification pushed successfully!'}`, 'success');
+    } else {
+      showUserProfileAlert(data.detail || 'Could not push notification. Please check your settings.', 'error');
+    }
+  } catch (err) {
+    console.error('Error pushing notification:', err);
+    showUserProfileAlert('Network error while pushing notification.', 'error');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalContent;
+    }
+  }
+};
+
+const handleRunPerformanceAudit = async () => {
+  const token = localStorage.getItem('access_token');
+  if (!token) {
+    showUserProfileAlert('Session expired. Please log in again.', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('btnAuditReminders');
+  const spinner = document.getElementById('auditRemindersSpinner');
+  if (btn) btn.disabled = true;
+  if (spinner) spinner.classList.remove('hidden');
+
+  hideUserProfileAlert();
+
+  try {
+    const res = await fetch('/user/reminders/evaluate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (res.ok && data.success) {
+      const count = data.reminders_count || 0;
+      if (count > 0) {
+        showUserProfileAlert(`⚡ Performance audit complete: Dispatched ${count} reminder email(s) based on your routine metrics.`, 'success');
+      } else {
+        showUserProfileAlert(data.message || '⚡ Performance audit complete: All routine metrics optimal. No new reminders required at this time.', 'info');
+      }
+    } else {
+      showUserProfileAlert(data.message || 'Could not evaluate performance reminders.', 'error');
+    }
+  } catch (err) {
+    console.error('Error running performance audit:', err);
+    showUserProfileAlert('Network error evaluating performance.', 'error');
+  } finally {
+    if (btn) btn.disabled = false;
+    if (spinner) spinner.classList.add('hidden');
+  }
+};
+
+const handleSendSpecificReminder = async (category, btnElement) => {
+  const token = localStorage.getItem('access_token');
+  if (!token) {
+    showUserProfileAlert('Session expired. Please log in again.', 'error');
+    return;
+  }
+
+  const originalText = btnElement ? btnElement.innerHTML : '';
+  if (btnElement) {
+    btnElement.disabled = true;
+    btnElement.innerHTML = `<span class="animate-spin inline-block w-2.5 h-2.5 border-2 border-current border-t-transparent rounded-full"></span>`;
+  }
+
+  hideUserProfileAlert();
+
+  const emailInput = document.getElementById('profileEmail');
+  const recipientEmail = emailInput ? emailInput.value.trim() : '';
+
+  try {
+    const res = await fetch('/user/reminders/send', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        reminder_type: category,
+        recipient_email: recipientEmail || undefined,
+      }),
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (res.ok && data.success) {
+      const msg = data.simulated
+        ? `✓ ${category.charAt(0).toUpperCase() + category.slice(1)} reminder generated (simulated for ${data.recipient}).`
+        : `✓ ${category.charAt(0).toUpperCase() + category.slice(1)} reminder successfully emailed to ${data.recipient}!`;
+      showUserProfileAlert(msg, 'success');
+    } else {
+      showUserProfileAlert(data.error || data.detail || data.reason || 'Could not send reminder email. Please check your notification settings.', 'error');
+    }
+  } catch (err) {
+    console.error('Error sending reminder:', err);
+    showUserProfileAlert('Network error sending reminder email.', 'error');
+  } finally {
+    if (btnElement) {
+      btnElement.disabled = false;
+      btnElement.innerHTML = originalText;
+    }
   }
 };
 
@@ -717,6 +1104,60 @@ document.querySelectorAll('.sidebar-logout-btn, .logout-btn').forEach(btn => {
   btn.addEventListener('click', clearUserSession);
 });
 
+// User Profile Modal Event Listeners
+const sidebarUserInfo = document.getElementById('sidebarUserInfo');
+if (sidebarUserInfo) {
+  sidebarUserInfo.addEventListener('click', openUserProfileModal);
+  sidebarUserInfo.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      openUserProfileModal();
+    }
+  });
+}
+const sidebarUserName = document.getElementById('sidebarUserName');
+if (sidebarUserName && sidebarUserName !== sidebarUserInfo) {
+  sidebarUserName.addEventListener('click', (e) => {
+    e.stopPropagation();
+    openUserProfileModal();
+  });
+}
+
+document.getElementById('btnCloseUserProfileModal')?.addEventListener('click', closeUserProfileModal);
+document.getElementById('btnCancelUserProfile')?.addEventListener('click', closeUserProfileModal);
+document.getElementById('userProfileModalBackdrop')?.addEventListener('click', closeUserProfileModal);
+document.getElementById('userProfileForm')?.addEventListener('submit', handleSaveUserProfile);
+
+document.getElementById('profileEmail')?.addEventListener('input', (e) => {
+  const recipientDisplay = document.getElementById('profileRecipientDisplay');
+  if (recipientDisplay) {
+    recipientDisplay.textContent = e.target.value.trim() || 'your email';
+  }
+});
+
+document.getElementById('btnPushMobileNotification')?.addEventListener('click', () => handlePushNotificationAction('mobile'));
+document.getElementById('btnPushEmailNotification')?.addEventListener('click', () => handlePushNotificationAction('email'));
+
+document.getElementById('btnAuditReminders')?.addEventListener('click', handleRunPerformanceAudit);
+
+document.querySelectorAll('.btn-send-reminder').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    const cat = btn.getAttribute('data-category');
+    if (cat) handleSendSpecificReminder(cat, btn);
+  });
+});
+
+// Allow Esc key to close user profile modal
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const profileModal = document.getElementById('userProfileModal');
+    if (profileModal && !profileModal.classList.contains('hidden')) {
+      closeUserProfileModal();
+    }
+  }
+});
+
 // --- Skin Image Upload Management ---
 let selectedFile = null;
 
@@ -793,6 +1234,7 @@ if (skinFileInput) {
     }
   });
 }
+
 
 if (dropzone) {
   dropzone.addEventListener('dragover', (e) => {
@@ -916,13 +1358,14 @@ const sections = {
   routine: { el: document.getElementById('section-routine'), nav: document.getElementById('navRoutine'), title: 'Personalized Routine', sub: 'Today’s suggested skincare steps' },
   ingredients: { el: document.getElementById('section-ingredients'), nav: document.getElementById('navIngredients'), title: 'Ingredient Intelligence Module', sub: 'Deep INCI formula analysis, skin suitability assessment, biochemical conflict detection & active education' },
   recommendations: { el: document.getElementById('section-recommendations'), nav: document.getElementById('navRecommendations'), title: 'Recommended Products', sub: 'Targeted products for your skin condition' },
-  progress: { el: document.getElementById('section-progress'), nav: document.getElementById('navProgress'), title: 'Progress Tracking', sub: 'Skin goals you’re working toward' },
+  progress: { el: document.getElementById('section-progress'), nav: document.getElementById('navProgress'), title: 'Progress Tracking & Analytics Suite', sub: 'Longitudinal trendlines, habit adherence, concern resolution audits & skin data comparison' },
   history: { el: document.getElementById('section-history'), nav: document.getElementById('navHistory'), title: 'Assessment History', sub: 'Complete historical log of AI skin health evaluations, risks, and prioritized concerns' },
   checklist: { el: document.getElementById('section-checklist'), nav: document.getElementById('navChecklist'), title: 'Daily Skincare Checklist', sub: 'Complete your daily care habits' },
+  reports: { el: document.getElementById('section-reports'), nav: document.getElementById('navReports'), title: 'Reports & Export', sub: 'Download comprehensive PDF or Excel reports of your skin intelligence data' },
 };
 
 const showSection = (key) => {
-  const targetKey = sections[key] ? key : 'profile';
+  const targetKey = sections[key] ? key : 'score';
   Object.entries(sections).forEach(([k, s]) => {
     const isActive = (k === targetKey || (targetKey === 'upload' && k === 'profile'));
     if (s.el) s.el.classList.toggle('active', isActive);
@@ -936,7 +1379,11 @@ const showSection = (key) => {
   if (subEl && activeSec) subEl.textContent = activeSec.sub;
   window.scrollTo({ top: 0 });
 
-  if (targetKey === 'progress' || targetKey === 'score') {
+  if (targetKey === 'progress') {
+    initProgressAnalytics();
+    const token = localStorage.getItem('access_token');
+    if (token) fetchSkinProfile(token);
+  } else if (targetKey === 'score') {
     const token = localStorage.getItem('access_token');
     if (token) fetchSkinProfile(token);
   }
@@ -973,7 +1420,7 @@ const initSectionFromHash = () => {
   if (hash && sections[hash]) {
     showSection(hash);
   } else {
-    showSection('profile');
+    showSection('score');
   }
 };
 
@@ -983,6 +1430,7 @@ window.addEventListener('hashchange', initSectionFromHash);
 bindRoutineEvents();
 initIngredientIntelligence();
 initProductRecommendationEngine();
+initProgressAnalytics();
 updateChecklistStatus();
 verifySession();
 initSectionFromHash();
@@ -1289,7 +1737,7 @@ function bindRoutineEvents() {
     tab.addEventListener('click', (e) => {
       document.querySelectorAll('.routine-tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.routine-tab-content').forEach(c => c.classList.remove('active'));
-      
+
       const targetTab = e.currentTarget.dataset.tab;
       e.currentTarget.classList.add('active');
 
@@ -1909,7 +2357,7 @@ function renderMatrixEmptyState() {
       <div class="p-8 text-center bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700">
         <span class="text-3xl">🧪</span>
         <p class="text-sm font-semibold text-slate-700 dark:text-slate-200 mt-2">Select 2 or more ingredients above to calculate biochemical compatibility.</p>
-        <p class="text-xs text-slate-400 mt-1">Try testing Retinoids + Glycolic Acid or Vitamin C + Ferulic Acid.</p>
+        <p class="text-xs text-slate-400 mt-1">Try evaluating Retinoids + Glycolic Acid or Vitamin C + Ferulic Acid.</p>
       </div>
     `;
   }
@@ -2419,7 +2867,7 @@ function initProductRecommendationEngine() {
     budgetSlider.addEventListener('input', (e) => {
       const val = parseFloat(e.target.value);
       const displayEl = document.getElementById('budgetSliderDisplay');
-      if (displayEl) displayEl.textContent = `₹${val.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+      if (displayEl) displayEl.textContent = `₹${val.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       recalculateBudgetRoutine();
     });
   }
@@ -2434,7 +2882,7 @@ function initProductRecommendationEngine() {
       if (budgetSlider) {
         budgetSlider.value = presetVal;
         const displayEl = document.getElementById('budgetSliderDisplay');
-        if (displayEl) displayEl.textContent = `₹${presetVal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        if (displayEl) displayEl.textContent = `₹${presetVal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         recalculateBudgetRoutine();
       }
     });
@@ -2691,7 +3139,7 @@ async function openProductDetailModal(productId) {
     const bodyEl = document.getElementById('pDetailModalBody');
     if (bodyEl) {
       const badgeClass = `badge-${p.badge_color || 'indigo'}`;
-      
+
       // Match reasons list
       const reasonsHtml = (p.match_reasons || []).map(r => `
         <li class="flex items-start gap-2 text-xs text-slate-700 dark:text-slate-300">
@@ -3246,5 +3694,856 @@ window.showSection = showSection;
 window.saveSkinProfile = saveSkinProfile;
 
 
+// ===========================================================================
+// FEATURE 8: PROGRESS TRACKING & ANALYTICS SUITE IMPLEMENTATION
+// ===========================================================================
 
+let trendChartInstance = null;
+let adherenceChartInstance = null;
+let cachedAnalyticsTrends = null;
+let cachedImprovementData = null;
+let cachedSkinDataComparison = null;
+let isAnalyticsInitialized = false;
 
+// 1. Master Init for Progress & Analytics
+async function initProgressAnalytics() {
+  initAnalyticsSubtabs();
+
+  const token = localStorage.getItem('access_token');
+  if (!token) return;
+
+  try {
+    await Promise.all([
+      fetchTrendsAnalytics(token),
+      fetchImprovementAnalytics(token),
+      fetchSkinDataComparison(token)
+    ]);
+    isAnalyticsInitialized = true;
+  } catch (err) {
+    console.error('Error initializing progress analytics:', err);
+  }
+}
+
+// 2. Subtabs Switching (Trends | Before & After | Improvement | Concerns)
+function initAnalyticsSubtabs() {
+  const tabBtns = document.querySelectorAll('.analytics-tab-btn');
+  tabBtns.forEach(btn => {
+    btn.onclick = (e) => {
+      const targetTab = e.currentTarget.dataset.analyticsTab;
+      tabBtns.forEach(b => b.classList.toggle('active', b === e.currentTarget));
+
+      const tabMap = {
+        'trends': document.getElementById('analyticsTabTrends'),
+        'before-after': document.getElementById('analyticsTabBeforeAfter'),
+        'improvement': document.getElementById('analyticsTabImprovement'),
+        'concerns': document.getElementById('analyticsTabConcerns'),
+      };
+
+      Object.entries(tabMap).forEach(([key, el]) => {
+        if (el) el.classList.toggle('active', key === targetTab);
+      });
+
+      // Re-trigger layout adjustments when switching tabs
+      if (targetTab === 'trends') {
+        if (trendChartInstance) trendChartInstance.resize();
+        if (adherenceChartInstance) adherenceChartInstance.resize();
+      }
+    };
+  });
+}
+
+// 3. Trend Analysis & Charts
+async function fetchTrendsAnalytics(token) {
+  try {
+    const res = await fetch('/user/analytics/trends', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error('Failed to load trend analytics');
+    const data = await res.json();
+    cachedAnalyticsTrends = data;
+
+    renderTrendKpiCards(data.summary);
+    renderSkinScoreTrendChart(data.score_history);
+    renderRoutineAdherenceChart(data.adherence_timeline);
+    renderWeeklyAdherencePills(data.weekly_adherence);
+  } catch (err) {
+    console.warn('Trends fetch error:', err);
+  }
+}
+
+function renderTrendKpiCards(summary) {
+  if (!summary) return;
+
+  const currentScoreEl = document.getElementById('trendKpiCurrentScore');
+  const scoreCategoryEl = document.getElementById('trendKpiScoreCategory');
+  const deltaEl = document.getElementById('trendKpiDelta');
+  const deltaBadgeEl = document.getElementById('trendKpiDeltaBadge');
+  const adherenceEl = document.getElementById('trendKpiAdherence');
+  const streakBadgeEl = document.getElementById('trendKpiStreakBadge');
+  const peakScoreEl = document.getElementById('trendKpiPeakScore');
+  const totalSessionsEl = document.getElementById('trendKpiTotalSessions');
+
+  if (currentScoreEl) currentScoreEl.textContent = summary.current_score || 0;
+
+  if (scoreCategoryEl) {
+    const s = summary.current_score || 0;
+    const cat = s >= 80 ? 'Excellent' : (s >= 65 ? 'Good' : (s >= 50 ? 'Fair' : 'Needs Care'));
+    scoreCategoryEl.textContent = `${cat} (${s}/100)`;
+  }
+
+  if (deltaEl) {
+    const diff = summary.score_change || 0;
+    deltaEl.textContent = `${diff >= 0 ? '+' : ''}${diff}`;
+    deltaEl.className = `text-3xl font-black ${diff > 0 ? 'text-emerald-600 dark:text-emerald-400' : (diff < 0 ? 'text-rose-500' : 'text-slate-800 dark:text-slate-100')}`;
+  }
+
+  if (deltaBadgeEl) {
+    const diff = summary.score_change || 0;
+    if (diff > 0) {
+      deltaBadgeEl.textContent = `📈 +${diff} pts gain`;
+      deltaBadgeEl.className = 'self-start text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300';
+    } else if (diff < 0) {
+      deltaBadgeEl.textContent = `📉 ${diff} pts decline`;
+      deltaBadgeEl.className = 'self-start text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-300';
+    } else {
+      deltaBadgeEl.textContent = '➡️ Baseline stable';
+      deltaBadgeEl.className = 'self-start text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300';
+    }
+  }
+
+  if (adherenceEl) adherenceEl.textContent = `${summary.overall_adherence_pct || 0}%`;
+  if (streakBadgeEl) {
+    streakBadgeEl.textContent = `🔥 ${summary.current_streak || 0} Day Streak`;
+  }
+  if (peakScoreEl) peakScoreEl.textContent = summary.peak_score || 0;
+  if (totalSessionsEl) {
+    totalSessionsEl.textContent = `${summary.total_assessments_logged || 0} Scans • ${summary.total_checkin_days || 0} Check-ins`;
+  }
+}
+
+function renderSkinScoreTrendChart(history) {
+  const canvas = document.getElementById('skinScoreTrendChart');
+  if (!canvas || typeof Chart === 'undefined') return;
+
+  if (trendChartInstance) {
+    trendChartInstance.destroy();
+    trendChartInstance = null;
+  }
+
+  const items = Array.isArray(history) && history.length > 0 ? history : [{ label: 'Baseline', score: 0 }];
+  const labels = items.map(i => i.label || i.date);
+  const dataPoints = items.map(i => i.score);
+
+  const ctx = canvas.getContext('2d');
+  const gradient = ctx.createLinearGradient(0, 0, 0, 260);
+  gradient.addColorStop(0, 'rgba(99, 102, 241, 0.35)');
+  gradient.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
+
+  trendChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Skin Health Score',
+        data: dataPoints,
+        borderColor: '#6366f1',
+        borderWidth: 3,
+        pointBackgroundColor: '#4f46e5',
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 2,
+        pointRadius: 5,
+        pointHoverRadius: 8,
+        tension: 0.35,
+        fill: true,
+        backgroundColor: gradient,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0f172a',
+          titleFont: { size: 12, weight: 'bold' },
+          bodyFont: { size: 12 },
+          padding: 10,
+          cornerRadius: 8,
+          callbacks: {
+            label: (context) => `Health Score: ${context.parsed.y} / 100`
+          }
+        }
+      },
+      scales: {
+        y: {
+          min: 0,
+          max: 100,
+          grid: { color: 'rgba(226, 232, 240, 0.5)' },
+          ticks: { font: { size: 11 }, color: '#94a3b8' }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { font: { size: 11 }, color: '#94a3b8' }
+        }
+      }
+    }
+  });
+}
+
+function renderRoutineAdherenceChart(timeline) {
+  const canvas = document.getElementById('routineAdherenceChart');
+  if (!canvas || typeof Chart === 'undefined') return;
+
+  if (adherenceChartInstance) {
+    adherenceChartInstance.destroy();
+    adherenceChartInstance = null;
+  }
+
+  const items = Array.isArray(timeline) && timeline.length > 0 ? timeline : [];
+  const labels = items.map(i => i.label);
+  const rates = items.map(i => i.completion_rate);
+
+  const bgColors = rates.map(r => r === 100 ? '#10b981' : (r === 50 ? '#6366f1' : '#e2e8f0'));
+
+  const ctx = canvas.getContext('2d');
+  adherenceChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Daily Adherence %',
+        data: rates,
+        backgroundColor: bgColors,
+        borderRadius: 6,
+        barPercentage: 0.65,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => `Completed: ${ctx.parsed.y}% (Morning & Evening)`
+          }
+        }
+      },
+      scales: {
+        y: {
+          min: 0,
+          max: 100,
+          ticks: { stepSize: 50, callback: v => `${v}%`, font: { size: 10 }, color: '#94a3b8' },
+          grid: { color: 'rgba(226, 232, 240, 0.5)' }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { font: { size: 10 }, color: '#94a3b8' }
+        }
+      }
+    }
+  });
+}
+
+function renderWeeklyAdherencePills(weekly) {
+  const container = document.getElementById('weeklyAdherencePills');
+  if (!container) return;
+
+  if (!weekly || weekly.length === 0) {
+    container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">No weekly compliance logged yet.</p>';
+    return;
+  }
+
+  container.innerHTML = weekly.map(w => {
+    const pct = w.adherence_percentage || 0;
+    const colorClass = pct >= 80 ? 'bg-emerald-500' : (pct >= 50 ? 'bg-indigo-500' : 'bg-amber-400');
+    return `
+      <div class="flex flex-col gap-1 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+        <div class="flex items-center justify-between text-xs font-semibold">
+          <span class="text-slate-700 dark:text-slate-200">${escapeHtml(w.week_label)}</span>
+          <span class="font-bold text-slate-900 dark:text-white">${pct}%</span>
+        </div>
+        <div class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+          <div class="h-full rounded-full ${colorClass} transition-all duration-500" style="width: ${pct}%"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// 4. Before / After Skin Assessment Data Comparison Suite
+let selectedBeforeSessionId = null;
+let selectedAfterSessionId = null;
+
+async function fetchSkinDataComparison(token, beforeId = null, afterId = null) {
+  try {
+    let url = '/user/analytics/data-comparison';
+    const params = new URLSearchParams();
+    if (beforeId !== null && beforeId !== undefined) params.append('before_id', beforeId);
+    if (afterId !== null && afterId !== undefined) params.append('after_id', afterId);
+    const queryString = params.toString();
+    if (queryString) url += `?${queryString}`;
+
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error('Failed to load skin data comparison');
+    const data = await res.json();
+    cachedSkinDataComparison = data;
+
+    renderSkinDataComparison(data);
+  } catch (err) {
+    console.warn('Skin data comparison fetch error:', err);
+  }
+}
+
+function renderSkinDataComparison(data) {
+  if (!data) return;
+
+  const emptyOverlay = document.getElementById('dataComparisonEmptyOverlay');
+  const selBefore = document.getElementById('selectBeforeDataSession');
+  const selAfter = document.getElementById('selectAfterDataSession');
+  const elapsedBadge = document.getElementById('dataComparisonElapsedBadge');
+  const refreshBtn = document.getElementById('btnRefreshDataComparison');
+
+  if (refreshBtn) {
+    refreshBtn.onclick = () => {
+      const token = localStorage.getItem('access_token');
+      if (token) fetchSkinDataComparison(token, selectedBeforeSessionId, selectedAfterSessionId);
+    };
+  }
+
+  // Handle empty state if user has less than 2 sessions to compare
+  if (!data.can_compare && (!data.available_sessions || data.available_sessions.length < 2)) {
+    if (emptyOverlay) emptyOverlay.classList.remove('hidden');
+    if (selBefore) selBefore.innerHTML = '<option value="">No previous assessment records</option>';
+    if (selAfter) selAfter.innerHTML = '<option value="">No follow-up assessment records</option>';
+    return;
+  }
+
+  if (emptyOverlay) emptyOverlay.classList.add('hidden');
+
+  // Populate Dropdowns with available assessment sessions
+  const sessions = data.available_sessions || [];
+  if (selBefore && selAfter && sessions.length > 0) {
+    const beforeIdToSelect = data.before_data ? data.before_data.assessment_id : sessions[0].assessment_id;
+    const afterIdToSelect = data.after_data ? data.after_data.assessment_id : sessions[sessions.length - 1].assessment_id;
+
+    selBefore.innerHTML = sessions.map(s => `
+      <option value="${s.assessment_id}" ${s.assessment_id === beforeIdToSelect ? 'selected' : ''}>
+        ${escapeHtml(s.formatted_date)} (${s.score}/100 - ${escapeHtml(s.category)})
+      </option>
+    `).join('');
+
+    selAfter.innerHTML = sessions.map(s => `
+      <option value="${s.assessment_id}" ${s.assessment_id === afterIdToSelect ? 'selected' : ''}>
+        ${escapeHtml(s.formatted_date)} (${s.score}/100 - ${escapeHtml(s.category)})
+      </option>
+    `).join('');
+
+    selBefore.onchange = (e) => {
+      const val = parseInt(e.target.value);
+      selectedBeforeSessionId = val;
+      const token = localStorage.getItem('access_token');
+      if (token) fetchSkinDataComparison(token, selectedBeforeSessionId, selectedAfterSessionId);
+    };
+
+    selAfter.onchange = (e) => {
+      const val = parseInt(e.target.value);
+      selectedAfterSessionId = val;
+      const token = localStorage.getItem('access_token');
+      if (token) fetchSkinDataComparison(token, selectedBeforeSessionId, selectedAfterSessionId);
+    };
+  }
+
+  const before = data.before_data || {};
+  const after = data.after_data || {};
+  const delta = data.comparison_delta || {};
+
+  // Days Elapsed Badge
+  if (elapsedBadge) {
+    elapsedBadge.textContent = `⏱️ ${delta.days_elapsed || 0} Days Elapsed`;
+  }
+
+  // Card 1: Previous Skin Data (Baseline)
+  const beforeDateEl = document.getElementById('beforeSessionDateBadge');
+  const beforeScoreEl = document.getElementById('beforeScoreVal');
+  const beforeCategoryEl = document.getElementById('beforeCategoryBadge');
+  const beforeRiskEl = document.getElementById('beforeRiskBadge');
+  const beforeSkinTypeEl = document.getElementById('beforeSkinTypeVal');
+  const beforeConcernsCountEl = document.getElementById('beforeConcernsCountVal');
+  const beforeConcernsPillList = document.getElementById('beforeConcernsPillList');
+
+  if (beforeDateEl) beforeDateEl.textContent = before.formatted_date || 'Baseline';
+  if (beforeScoreEl) beforeScoreEl.textContent = before.score || 0;
+  if (beforeCategoryEl) beforeCategoryEl.textContent = before.category || 'Fair';
+  if (beforeRiskEl) beforeRiskEl.textContent = `Risk: ${before.overall_risk || 'Low'}`;
+  if (beforeSkinTypeEl) beforeSkinTypeEl.textContent = before.skin_type || 'Normal';
+  if (beforeConcernsCountEl) beforeConcernsCountEl.textContent = `${(before.concerns || []).length} logged`;
+  if (beforeConcernsPillList) {
+    beforeConcernsPillList.innerHTML = (before.concerns || []).slice(0, 4).map(c => `
+      <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+        ${escapeHtml(c)}
+      </span>
+    `).join('') || '<span class="text-[10px] text-slate-400">None logged</span>';
+  }
+
+  // Card 2: Net Evolution / Delta
+  const verdictPill = document.getElementById('dataComparisonVerdictPill');
+  const deltaNumEl = document.getElementById('dataComparisonDeltaNum');
+  const percentChangeEl = document.getElementById('dataComparisonPercentChange');
+  const catShiftEl = document.getElementById('dataComparisonCategoryShift');
+  const riskShiftEl = document.getElementById('dataComparisonRiskShift');
+  const resolvedCountEl = document.getElementById('dataComparisonResolvedCount');
+
+  const scoreDiff = delta.score_diff || 0;
+  if (deltaNumEl) {
+    deltaNumEl.textContent = `${scoreDiff >= 0 ? '+' : ''}${scoreDiff} pts`;
+    deltaNumEl.className = `text-4xl font-black ${scoreDiff > 0 ? 'text-emerald-600 dark:text-emerald-400' : (scoreDiff < 0 ? 'text-rose-500' : 'text-slate-800 dark:text-slate-100')}`;
+  }
+
+  if (percentChangeEl) {
+    percentChangeEl.textContent = `${delta.percent_change >= 0 ? '+' : ''}${delta.percent_change || 0}% score shift`;
+  }
+
+  if (verdictPill) {
+    if (scoreDiff >= 10) {
+      verdictPill.textContent = 'Rapid Improvement 🚀';
+      verdictPill.className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-600 text-white shadow-sm';
+    } else if (scoreDiff > 0) {
+      verdictPill.textContent = 'Positive Progression 📈';
+      verdictPill.className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-600 text-white shadow-sm';
+    } else if (scoreDiff === 0) {
+      verdictPill.textContent = 'Stable Equilibrium ⚖️';
+      verdictPill.className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-600 text-white shadow-sm';
+    } else {
+      verdictPill.textContent = 'Regressed / Needs Care ⚠️';
+      verdictPill.className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-rose-600 text-white shadow-sm';
+    }
+  }
+
+  if (catShiftEl && delta.category_shift) {
+    catShiftEl.textContent = `${delta.category_shift.before} ➔ ${delta.category_shift.after}`;
+  }
+  if (riskShiftEl && delta.risk_shift) {
+    const reduced = delta.risk_shift.reduced;
+    riskShiftEl.textContent = `${delta.risk_shift.before} ➔ ${delta.risk_shift.after}`;
+    riskShiftEl.className = `font-bold ${reduced ? 'text-emerald-600' : 'text-slate-700 dark:text-slate-200'}`;
+  }
+  if (resolvedCountEl && delta.concerns_diff) {
+    resolvedCountEl.textContent = `${delta.concerns_diff.total_resolved_count || 0} cleared / softened`;
+  }
+
+  // Card 3: Current Skin Data (Follow-up)
+  const afterDateEl = document.getElementById('afterSessionDateBadge');
+  const afterScoreEl = document.getElementById('afterScoreVal');
+  const afterCategoryEl = document.getElementById('afterCategoryBadge');
+  const afterRiskEl = document.getElementById('afterRiskBadge');
+  const afterSkinTypeEl = document.getElementById('afterSkinTypeVal');
+  const afterConcernsCountEl = document.getElementById('afterConcernsCountVal');
+  const afterConcernsPillList = document.getElementById('afterConcernsPillList');
+
+  if (afterDateEl) afterDateEl.textContent = after.formatted_date || 'Recent';
+  if (afterScoreEl) afterScoreEl.textContent = after.score || 0;
+  if (afterCategoryEl) afterCategoryEl.textContent = after.category || 'Good';
+  if (afterRiskEl) afterRiskEl.textContent = `Risk: ${after.overall_risk || 'Low'}`;
+  if (afterSkinTypeEl) afterSkinTypeEl.textContent = after.skin_type || 'Normal';
+  if (afterConcernsCountEl) afterConcernsCountEl.textContent = `${(after.concerns || []).length} active`;
+  if (afterConcernsPillList) {
+    afterConcernsPillList.innerHTML = (after.concerns || []).slice(0, 4).map(c => `
+      <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+        ${escapeHtml(c)}
+      </span>
+    `).join('') || '<span class="text-[10px] text-slate-400">None remaining</span>';
+  }
+
+  // 5-Factor Clinical Sub-Score Comparative Rows
+  const factorContainer = document.getElementById('factorComparisonRowsContainer');
+  if (factorContainer) {
+    const factors = delta.factor_comparisons || [];
+    if (factors.length === 0) {
+      factorContainer.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">No factor sub-scores available.</p>';
+    } else {
+      factorContainer.innerHTML = factors.map(f => {
+        const diffNum = f.diff || 0;
+        const diffColor = diffNum > 0 ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800' : (diffNum < 0 ? 'text-rose-500 bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800' : 'text-slate-500 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700');
+        return `
+          <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5 min-w-[220px]">
+              <span class="text-lg">${f.icon}</span>
+              <div>
+                <h5 class="text-xs font-bold text-slate-800 dark:text-slate-100">${escapeHtml(f.label)}</h5>
+                <span class="text-[10px] text-slate-400 font-medium">Previous: ${f.before_score}/100 ➔ Current: ${f.after_score}/100</span>
+              </div>
+            </div>
+
+            <!-- Double Comparative Progress Bars -->
+            <div class="flex-1 max-w-md flex flex-col gap-1.5">
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-semibold text-slate-400 w-12">Baseline</span>
+                <div class="flex-1 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                  <div class="h-full bg-slate-400 dark:bg-slate-500 rounded-full transition-all duration-500" style="width: ${Math.min(100, Math.max(0, f.before_score))}%"></div>
+                </div>
+                <span class="text-[10px] font-bold text-slate-500 w-8 text-right">${f.before_score}</span>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-semibold text-indigo-500 w-12">Current</span>
+                <div class="flex-1 h-2.5 bg-indigo-100 dark:bg-indigo-950/60 rounded-full overflow-hidden">
+                  <div class="h-full bg-indigo-600 dark:bg-indigo-500 rounded-full transition-all duration-500" style="width: ${Math.min(100, Math.max(0, f.after_score))}%"></div>
+                </div>
+                <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 w-8 text-right">${f.after_score}</span>
+              </div>
+            </div>
+
+            <!-- Delta Badge -->
+            <div class="self-end sm:self-center">
+              <span class="text-xs font-bold px-2.5 py-1 rounded-lg border ${diffColor}">
+                ${f.diff_label}
+              </span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  // Active Concerns Evolution
+  const concernsContainer = document.getElementById('concernsEvolutionContainer');
+  const concernsBadge = document.getElementById('concernsEvolutionCountBadge');
+  if (concernsContainer) {
+    const cd = delta.concerns_diff || {};
+    const resolved = cd.resolved || [];
+    const improved = cd.improved || [];
+    const persisting = cd.persisting || [];
+    const newlyAdded = cd.new || [];
+
+    const totalCount = resolved.length + improved.length + persisting.length + newlyAdded.length;
+    if (concernsBadge) concernsBadge.textContent = `${totalCount} Analyzed`;
+
+    if (totalCount === 0) {
+      concernsContainer.innerHTML = '<p class="text-xs text-slate-400 text-center py-6">No specific concerns flagged between these two assessments.</p>';
+    } else {
+      let html = '';
+
+      resolved.forEach(c => {
+        html += `
+          <div class="p-2.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2">
+              <span class="text-base">${c.icon}</span>
+              <div>
+                <span class="font-bold text-emerald-900 dark:text-emerald-200">${escapeHtml(c.concern)}</span>
+                <span class="text-[10px] text-emerald-700 dark:text-emerald-400 ml-1">(${c.note})</span>
+              </div>
+            </div>
+            <span class="font-bold text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200">
+              Resolved ✅
+            </span>
+          </div>
+        `;
+      });
+
+      improved.forEach(c => {
+        html += `
+          <div class="p-2.5 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800/60 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2">
+              <span class="text-base">${c.icon}</span>
+              <div>
+                <span class="font-bold text-indigo-900 dark:text-indigo-200">${escapeHtml(c.concern)}</span>
+                <span class="text-[10px] text-indigo-700 dark:text-indigo-400 ml-1">(${c.note})</span>
+              </div>
+            </div>
+            <span class="font-bold text-[10px] px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200">
+              Softened 📉
+            </span>
+          </div>
+        `;
+      });
+
+      persisting.forEach(c => {
+        html += `
+          <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2">
+              <span class="text-base">${c.icon}</span>
+              <div>
+                <span class="font-bold text-slate-800 dark:text-slate-100">${escapeHtml(c.concern)}</span>
+                <span class="text-[10px] text-slate-500 ml-1">(${c.note})</span>
+              </div>
+            </div>
+            <span class="font-bold text-[10px] px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+              Persisting ➡️
+            </span>
+          </div>
+        `;
+      });
+
+      newlyAdded.forEach(c => {
+        html += `
+          <div class="p-2.5 rounded-xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2">
+              <span class="text-base">${c.icon}</span>
+              <div>
+                <span class="font-bold text-amber-900 dark:text-amber-200">${escapeHtml(c.concern)}</span>
+                <span class="text-[10px] text-amber-700 dark:text-amber-400 ml-1">(${c.note})</span>
+              </div>
+            </div>
+            <span class="font-bold text-[10px] px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200">
+              New 🔍
+            </span>
+          </div>
+        `;
+      });
+
+      concernsContainer.innerHTML = html;
+    }
+  }
+
+  // Lifestyle & Risk Factor Shifts
+  const shiftSleepBefore = document.getElementById('shiftSleepBefore');
+  const shiftSleepAfter = document.getElementById('shiftSleepAfter');
+  const shiftWaterBefore = document.getElementById('shiftWaterBefore');
+  const shiftWaterAfter = document.getElementById('shiftWaterAfter');
+  const risksContainer = document.getElementById('risksShiftContainer');
+
+  if (shiftSleepBefore) shiftSleepBefore.textContent = before.sleep_quality || 'Average';
+  if (shiftSleepAfter) shiftSleepAfter.textContent = after.sleep_quality || 'Good';
+  if (shiftWaterBefore) shiftWaterBefore.textContent = before.water_intake || 'Moderate';
+  if (shiftWaterAfter) shiftWaterAfter.textContent = after.water_intake || 'Adequate';
+
+  if (risksContainer) {
+    const rd = delta.risks_diff || {};
+    const cleared = rd.cleared_risks || [];
+    const ongoing = rd.ongoing_risks || [];
+    const newlyFlagged = rd.new_risks || [];
+
+    if (cleared.length === 0 && ongoing.length === 0 && newlyFlagged.length === 0) {
+      risksContainer.innerHTML = '<span class="text-xs text-slate-400">No dermatological risk factors recorded.</span>';
+    } else {
+      let riskHtml = '';
+      cleared.forEach(r => {
+        riskHtml += `
+          <div class="flex items-center justify-between text-xs p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300">
+            <span>🛡️ ${escapeHtml(r)}</span>
+            <span class="font-bold text-[10px] px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-200">Mitigated ✅</span>
+          </div>
+        `;
+      });
+      ongoing.forEach(r => {
+        riskHtml += `
+          <div class="flex items-center justify-between text-xs p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+            <span>⚠️ ${escapeHtml(r)}</span>
+            <span class="font-bold text-[10px] px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700">Ongoing</span>
+          </div>
+        `;
+      });
+      newlyFlagged.forEach(r => {
+        riskHtml += `
+          <div class="flex items-center justify-between text-xs p-2 rounded-lg bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300">
+            <span>🔍 ${escapeHtml(r)}</span>
+            <span class="font-bold text-[10px] px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-200">New Flag</span>
+          </div>
+        `;
+      });
+      risksContainer.innerHTML = riskHtml;
+    }
+  }
+
+  // Clinical Verdict & Insights
+  const verdictList = document.getElementById('dataComparisonVerdictList');
+  if (verdictList) {
+    const verdicts = delta.clinical_verdict || [];
+    if (verdicts.length === 0) {
+      verdictList.innerHTML = '<p class="text-xs text-indigo-700 dark:text-indigo-300">Consistent profile status maintained across assessments.</p>';
+    } else {
+      verdictList.innerHTML = verdicts.map(v => `
+        <div class="flex items-start gap-2">
+          <span class="text-indigo-600 dark:text-indigo-400 font-bold mt-0.5">•</span>
+          <p class="text-xs font-medium">${escapeHtml(v)}</p>
+        </div>
+      `).join('');
+    }
+  }
+}
+
+// 5. Improvement Analysis Rendering
+async function fetchImprovementAnalytics(token) {
+  try {
+    const res = await fetch('/user/analytics/improvement', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error('Failed to load improvement analysis');
+    const data = await res.json();
+    cachedImprovementData = data;
+
+    renderImprovementAnalysis(data);
+  } catch (err) {
+    console.warn('Improvement fetch error:', err);
+  }
+}
+
+function renderImprovementAnalysis(data) {
+  if (!data) return;
+
+  // Headline Banner
+  const titleEl = document.getElementById('improvementHeadlineTitle');
+  const datesEl = document.getElementById('improvementHeadlineDates');
+  const baseScoreEl = document.getElementById('improvementBaselineScoreNum');
+  const currScoreEl = document.getElementById('improvementCurrentScoreNum');
+
+  if (titleEl) {
+    const delta = data.score_delta || 0;
+    if (delta > 0) {
+      titleEl.textContent = `Measurable Improvement: +${delta} Points (${data.percent_gain}%)`;
+    } else if (delta === 0) {
+      titleEl.textContent = 'Stable Skin Barrier Maintenance';
+    } else {
+      titleEl.textContent = `Score Fluctuation: ${delta} Points`;
+    }
+  }
+
+  if (datesEl) {
+    datesEl.textContent = `Baseline (${data.baseline_formatted || 'Initial'}) ➔ Latest Evaluation (${data.latest_formatted || 'Current'}) • ${data.days_elapsed || 0} days elapsed`;
+  }
+
+  if (baseScoreEl) baseScoreEl.textContent = data.baseline_score || 0;
+  if (currScoreEl) currScoreEl.textContent = data.current_score || 0;
+
+  // Dynamic Milestones
+  const milestonesContainer = document.getElementById('dynamicMilestonesContainer');
+  if (milestonesContainer && data.milestones) {
+    milestonesContainer.innerHTML = data.milestones.map(m => `
+      <div class="milestone-card">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-slate-800 dark:text-slate-100">${escapeHtml(m.title)}</span>
+          <span class="text-[11px] font-bold px-2 py-0.5 rounded-full ${m.status === 'Optimal' ? 'bg-emerald-100 text-emerald-800' : 'bg-indigo-100 text-indigo-800'}">${escapeHtml(m.status)}</span>
+        </div>
+        <div class="milestone-progress-track my-1">
+          <div class="milestone-progress-fill" style="width: ${m.progress || 0}%;"></div>
+        </div>
+        <div class="flex items-center justify-between text-[11px] text-slate-400">
+          <span>${m.progress || 0}% Target Reached</span>
+          <span>${escapeHtml(m.delta_label || '')}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Concern Resolution Table
+  const tableBody = document.getElementById('concernAuditTableBody');
+  const resolvedBadge = document.getElementById('concernsResolvedBadge');
+
+  if (tableBody) {
+    if (!data.concerns_audit || data.concerns_audit.length === 0) {
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="5" class="py-6 text-center text-xs text-slate-400">
+            No specific concerns flagged in your assessment history. Keep up healthy skin habits!
+          </td>
+        </tr>
+      `;
+    } else {
+      const resolvedCount = data.concerns_audit.filter(c => c.status === 'Resolved' || c.status === 'Improved').length;
+      if (resolvedBadge) {
+        resolvedBadge.textContent = `${resolvedCount} of ${data.concerns_audit.length} Resolved / Softened`;
+      }
+
+      tableBody.innerHTML = data.concerns_audit.map(c => `
+        <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition">
+          <td class="py-3 px-3 font-semibold text-slate-900 dark:text-slate-100">
+            ${escapeHtml(c.concern)}
+          </td>
+          <td class="py-3 px-3 text-slate-500">
+            ${escapeHtml(c.baseline_severity)}
+          </td>
+          <td class="py-3 px-3 font-medium ${c.current_severity === 'Resolved' ? 'text-emerald-600' : 'text-slate-700 dark:text-slate-300'}">
+            ${escapeHtml(c.current_severity)}
+          </td>
+          <td class="py-3 px-3">
+            <span class="concern-status-tag ${escapeHtml(c.status_class)}">
+              <span>${c.icon}</span>
+              <span>${escapeHtml(c.status)}</span>
+            </span>
+          </td>
+          <td class="py-3 px-3 font-semibold text-xs ${c.status === 'Resolved' ? 'text-emerald-600' : 'text-slate-600 dark:text-slate-300'}">
+            ${escapeHtml(c.change_label)}
+          </td>
+        </tr>
+      `).join('');
+    }
+  }
+
+  // AI Insights Box
+  const insightsList = document.getElementById('improvementInsightsList');
+  if (insightsList && data.insights) {
+    insightsList.innerHTML = data.insights.map(txt => `
+      <li class="flex items-start gap-2">
+        <span class="text-emerald-600 shrink-0 mt-0.5">•</span>
+        <span>${escapeHtml(txt)}</span>
+      </li>
+    `).join('');
+  }
+}
+
+// Global exports
+window.initProgressAnalytics = initProgressAnalytics;
+window.updateSelectedComparisonPhotos = updateSelectedComparisonPhotos;
+window.openUserProfileModal = openUserProfileModal;
+window.closeUserProfileModal = closeUserProfileModal;
+window.handleSaveUserProfile = handleSaveUserProfile;
+window.handlePushNotificationAction = handlePushNotificationAction;
+window.handleRunPerformanceAudit = handleRunPerformanceAudit;
+window.handleSendSpecificReminder = handleSendSpecificReminder;
+
+// ─── Reports & Export ───────────────────────────────────────────────
+async function downloadUserReport(reportType, format) {
+  const token = localStorage.getItem('access_token');
+  if (!token) {
+    alert('Please log in to download reports.');
+    return;
+  }
+  // Find the button that was clicked and show loading
+  const btns = document.querySelectorAll(`.btn-export-${format === 'excel' ? 'excel' : 'pdf'}`);
+  let clickedBtn = null;
+  btns.forEach(btn => {
+    if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(reportType) && btn.getAttribute('onclick').includes(format)) {
+      clickedBtn = btn;
+    }
+  });
+  const origText = clickedBtn ? clickedBtn.innerHTML : '';
+  if (clickedBtn) {
+    clickedBtn.classList.add('loading');
+    clickedBtn.innerHTML = '⏳ Generating...';
+  }
+  try {
+    const resp = await fetch(`/user/reports/${reportType}?format=${format}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.detail || 'Failed to generate report');
+    }
+    const blob = await resp.blob();
+    const ext = format === 'excel' ? 'xlsx' : 'pdf';
+    const disposition = resp.headers.get('content-disposition') || '';
+    let filename = `${reportType}_report.${ext}`;
+    const match = disposition.match(/filename="?(.+?)"?$/);
+    if (match) filename = match[1];
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error('Report download error:', err);
+    alert('Error downloading report: ' + err.message);
+  } finally {
+    if (clickedBtn) {
+      clickedBtn.classList.remove('loading');
+      clickedBtn.innerHTML = origText;
+    }
+  }
+}
+window.downloadUserReport = downloadUserReport;

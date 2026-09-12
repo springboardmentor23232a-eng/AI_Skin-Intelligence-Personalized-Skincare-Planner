@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dermatologist Dashboard | Clinical Skin Intelligence</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="dermatologist.css?v=20.0" />
+  </head>
+  <body class="derm-body">
+
+    <!-- Approval status overlay (shown when pending or rejected) -->
+    <div id="statusOverlay" class="status-overlay hidden">
+      <div class="status-overlay-card">
+        <div id="statusIcon" class="status-icon pending-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <h1 id="statusTitle" class="status-title">Clinical Account Under Review</h1>
+        <p id="statusMessage" class="status-message">
+          Your dermatologist account has been registered and is currently pending administrator verification.
+          You will have access to patient medical records once approved.
+        </p>
+        <p id="statusEmail" class="status-email"></p>
+        <button id="statusLogout" class="status-logout-btn">Logout</button>
+      </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Comprehensive Patient Medical Report Modal -->
+    <div id="patientModal" class="profile-modal hidden">
+      <div class="profile-modal-backdrop" id="modalBackdrop"></div>
+      <div class="profile-modal-card report-card dossier-card">
+        <div class="report-header dossier-header">
+          <div class="report-header-left dossier-header-left">
+            <div class="report-avatar dossier-avatar" id="modalPatientAvatar">P</div>
+            <div>
+              <div class="report-name-row dossier-name-row">
+                <h2 id="modalPatientName" class="profile-modal-name">Patient Name</h2>
+                <span id="modalPatientScoreBadge" class="score-pill">Score: --</span>
+                <span id="modalPatientRiskBadge" class="risk-pill low">Low Risk</span>
+              </div>
+              <p id="modalPatientEmail" class="profile-modal-email">patient@example.com</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <button id="btnQuickPrescribeModal" class="btn-primary-small">
+              <span>🩺</span> Prescribe Treatment
+            </button>
+            <button id="closePatientModal" class="profile-modal-close" aria-label="Close modal">&times;</button>
+          </div>
+        </div>
+
+        <!-- Report Navigation Tabs -->
+        <div class="report-nav-tabs dossier-nav-tabs">
+          <button class="report-tab-btn dossier-tab-btn active" data-report-tab="profile" data-dossier-tab="profile">
+            <span>📋</span> Clinical Profile &amp; Allergies
+          </button>
+          <button class="report-tab-btn dossier-tab-btn" data-report-tab="diagnostics" data-dossier-tab="diagnostics">
+            <span>🔬</span> AI Diagnostics &amp; Risks
+          </button>
+          <button class="report-tab-btn dossier-tab-btn" data-report-tab="treatments" data-dossier-tab="treatments">
+            <span>💊</span> Active Regimen &amp; Rx
+          </button>
+          <button class="report-tab-btn dossier-tab-btn" data-report-tab="history" data-dossier-tab="history">
+            <span>📜</span> Assessment History
+          </button>
+          <button class="report-tab-btn dossier-tab-btn" data-report-tab="compliance" data-dossier-tab="compliance">
+            <span>📈</span> Patient Compliance
+          </button>
+          <button class="report-tab-btn dossier-tab-btn" data-report-tab="analytics" data-dossier-tab="analytics">
+            <span>📊</span> Clinical Trends &amp; Audit
+          </button>
+        </div>
+
+        <!-- Report Tab Contents -->
+        <div class="report-content-area dossier-content-area">
+
+          <!-- ── TAB 1: Clinical Profile & Allergies ── -->
+          <div id="reportTab-profile" class="report-tab-pane dossier-tab-pane active">
+            <div class="report-grid-two-col dossier-grid-two-col">
+              <div class="report-col-main dossier-col-main">
+                <h3 class="report-section-heading dossier-section-heading">Medical Profile &amp; Physiological Background</h3>
+                <div class="profile-modal-grid" id="modalPatientProfileGrid">
+                  <!-- dynamically filled -->
+                </div>
+              </div>
+              <div class="report-col-side dossier-col-side">
+                <h3 class="report-section-heading dossier-section-heading">High-Resolution Skin Scan</h3>
+                <div id="modalPatientImageWrapper" class="client-image-wrapper">
+                  <img id="modalPatientImage" src="" alt="Patient Skin Scan" class="modal-client-img" />
+                  <p id="noPatientImageText" class="no-image-text hidden">No clinical skin photo scan uploaded yet</p>
+                </div>
+                <div class="meta-info-box">
+                  <div class="meta-row">
+                    <span class="meta-label">Patient ID:</span>
+                    <span class="meta-val" id="modalPatientId">--</span>
+                  </div>
+                  <div class="meta-row">
+                    <span class="meta-label">First Visit:</span>
+                    <span class="meta-val" id="modalPatientRegistered">--</span>
+                  </div>
+                  <div class="meta-row">
+                    <span class="meta-label">Assigned At:</span>
+                    <span class="meta-val" id="modalPatientAssigned">--</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── TAB 2: AI Diagnostics & Risks ── -->
+          <div id="reportTab-diagnostics" class="report-tab-pane dossier-tab-pane">
+            <div class="score-overview-banner">
+              <div class="score-gauge-box">
+                <div class="score-number-large" id="modalTabScoreVal">--</div>
+                <div class="score-label-sub">AI Health Score</div>
+              </div>
+              <div class="score-meta-details">
+                <div class="score-category-tag" id="modalTabCategoryTag">Category: --</div>
+                <p class="score-description-text" id="modalTabScoreDesc">
+                  Calculated based on dermatological profile, barrier integrity, reported skin conditions, lifestyle factors, and environmental stressors.
+                </p>
+              </div>
+            </div>
+
+            <h3 class="report-section-heading dossier-section-heading mt-4">Identified Dermatological Risk Factors</h3>
+            <div id="modalRisksContainer" class="report-risks-list dossier-risks-list">
+              <!-- filled dynamically -->
+            </div>
+
+            <h3 class="report-section-heading dossier-section-heading mt-4">Prioritized Clinical Concerns</h3>
+            <div id="modalPrioritiesContainer" class="report-priorities-list dossier-priorities-list">
+              <!-- filled dynamically -->
+            </div>
+          </div>
+
+          <!-- ── TAB 3: Active Regimen & Rx Treatments ── -->
+          <div id="reportTab-treatments" class="report-tab-pane dossier-tab-pane">
+            <div class="routine-management-bar">
+              <div>
+                <span class="routine-season-pill" id="modalRoutineSeason">☀️ Summer Regimen</span>
+                <span class="routine-steps-count" id="modalRoutineStepCount">0 Total Steps</span>
+              </div>
+              <button class="btn-primary-small" id="btnAddPatientRoutineStep">
+                <span>➕</span> Add Clinical Step
+              </button>
+            </div>
+
+            <h3 class="report-section-heading dossier-section-heading mt-4">Prescribed Medical Treatments</h3>
+            <div id="modalPatientTreatmentsList" class="treatments-prescribed-list">
+              <p class="empty-compact-msg">No clinical prescriptions logged yet.</p>
+            </div>
+
+            <h3 class="report-section-heading dossier-section-heading mt-6">Patient Live Daily Routine</h3>
+            <div class="routine-times-grid">
+              <div class="routine-time-block">
+                <h4 class="routine-time-heading morning"><span>☀️</span> Morning Regimen</h4>
+                <div id="modalMorningStepsList" class="steps-compact-list"></div>
+              </div>
+              <div class="routine-time-block">
+                <h4 class="routine-time-heading evening"><span>🌙</span> Evening Treatment</h4>
+                <div id="modalEveningStepsList" class="steps-compact-list"></div>
+              </div>
+              <div class="routine-time-block">
+                <h4 class="routine-time-heading weekly"><span>✨</span> Weekly Targeted</h4>
+                <div id="modalWeeklyStepsList" class="steps-compact-list"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── TAB 4: Assessment History ── -->
+          <div id="reportTab-history" class="report-tab-pane dossier-tab-pane">
+            <div class="history-header-row">
+              <h3 class="report-section-heading dossier-section-heading">Historical Diagnostic Sessions</h3>
+              <span class="history-count-badge" id="modalHistoryCountBadge">0 Sessions Logged</span>
+            </div>
+            <div id="modalAssessmentHistoryList" class="history-timeline-list">
+              <!-- filled dynamically -->
+            </div>
+          </div>
+
+          <!-- ── TAB 5: Patient Compliance & Check-ins ── -->
+          <div id="reportTab-compliance" class="report-tab-pane dossier-tab-pane">
+            <div class="adherence-kpis-grid">
+              <div class="adherence-kpi-card">
+                <span class="adherence-kpi-label">Regimen Adherence</span>
+                <span class="adherence-kpi-val" id="modalAdherencePct">0%</span>
+              </div>
+              <div class="adherence-kpi-card">
+                <span class="adherence-kpi-label">Active Streak</span>
+                <span class="adherence-kpi-val" id="modalAdherenceStreak">0 Days</span>
+              </div>
+              <div class="adherence-kpi-card">
+                <span class="adherence-kpi-label">Days Tracked</span>
+                <span class="adherence-kpi-val" id="modalAdherenceTotalDays">0</span>
+              </div>
+              <div class="adherence-kpi-card">
+                <span class="adherence-kpi-label">Morning Adherence</span>
+                <span class="adherence-kpi-val" id="modalAdherenceMorning">0</span>
+              </div>
+            </div>
+
+            <h3 class="report-section-heading dossier-section-heading mt-4">Recent Daily Check-in Compliance Log</h3>
+            <div id="modalCheckinLogTable" class="checkin-log-wrapper">
+              <!-- filled dynamically -->
+            </div>
+          </div>
+
+          <!-- ── TAB 6: Clinical Trends & Audit ── -->
+          <div id="reportTab-analytics" class="report-tab-pane dossier-tab-pane">
+            <div class="report-analytics-grid dossier-analytics-grid">
+              <!-- Chart Card -->
+              <div class="report-card-box dossier-card-box">
+                <div class="report-box-header dossier-box-header flex items-center justify-between mb-2">
+                  <h3 class="report-section-heading dossier-section-heading">Patient Skin Health Trajectory</h3>
+                  <span class="score-pill" id="reportAnalyticsScoreChange">+0 pts</span>
+                </div>
+                <div class="chart-wrapper-box" style="height: 220px; position: relative;">
+                  <canvas id="dermScoreTrendChart"></canvas>
+                </div>
+              </div>
+
+              <!-- Previous vs Current Data Comparison -->
+              <div class="report-card-box dossier-card-box mt-4">
+                <div class="report-box-header dossier-box-header flex items-center justify-between mb-2">
+                  <h3 class="report-section-heading dossier-section-heading">Baseline vs Current Diagnostic Shift</h3>
+                  <span class="risk-pill low" id="reportDataDaysBadge">0 Days Elapsed</span>
+                </div>
+                <div id="reportSkinDataComparisonContainer" class="flex flex-col gap-4"></div>
+              </div>
+
+              <!-- Concern Resolution Audit Box -->
+              <div class="report-card-box dossier-card-box mt-4">
+                <div class="report-box-header dossier-box-header flex items-center justify-between mb-2">
+                  <h3 class="report-section-heading dossier-section-heading">Clinical Concern Resolution Audit</h3>
+                  <span class="risk-pill low" id="reportResolutionCountBadge">0 Resolved</span>
+                </div>
+                <div class="table-scroll-wrap">
+                  <table class="progress-table">
+                    <thead>
+                      <tr>
+                        <th>Target Condition</th>
+                        <th>Baseline Severity</th>
+                        <th>Current Severity</th>
+                        <th>Status Shift</th>
+                        <th>Progress Delta</th>
+                      </tr>
+                    </thead>
+                    <tbody id="reportConcernAuditBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Prescribe Treatment Modal -->
+    <div id="prescribeModal" class="profile-modal hidden">
+      <div class="profile-modal-backdrop" id="prescribeModalBackdrop"></div>
+      <div class="profile-modal-card step-modal-card">
+        <div class="modal-card-header">
+          <h2 id="prescribeModalTitle" class="profile-modal-name">Prescribe Clinical Treatment</h2>
+          <button id="btnClosePrescribeModal" class="profile-modal-close">&times;</button>
+        </div>
+        <form id="prescribeForm" class="step-form">
+          <input type="hidden" id="prescribePatientId" value="" />
+
+          <div class="form-group" id="patientSelectGroup">
+            <label for="prescribePatientSelect">Select Patient *</label>
+            <select id="prescribePatientSelect" required class="form-input">
+              <option value="">— Choose an assigned patient —</option>
+            </select>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="prescribeDiagnosis">Clinical Diagnosis / Condition *</label>
+              <input type="text" id="prescribeDiagnosis" required placeholder="e.g. Moderate Papulopustular Acne & Barrier Impairment" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label for="prescribeUrgency">Clinical Urgency Level *</label>
+              <select id="prescribeUrgency" required class="form-input">
+                <option value="Routine">Routine Care</option>
+                <option value="Priority">Priority Follow-up</option>
+                <option value="Urgent">Urgent Intervention</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="prescribePlan">Treatment Protocol &amp; Application Instructions *</label>
+            <textarea id="prescribePlan" required rows="3" placeholder="Apply a pea-sized amount every other evening after gentle cleansing. Buffer with ceramide moisturizer..." class="form-input"></textarea>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="prescribeActives">Active Ingredients / Prescription Actives</label>
+              <input type="text" id="prescribeActives" placeholder="e.g. Azelaic Acid 15%, Niacinamide 4%, Zinc PCA" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label for="prescribeTimeOfDay">Recommended Routine Step Time</label>
+              <select id="prescribeTimeOfDay" class="form-input">
+                <option value="evening">Evening Routine</option>
+                <option value="morning">Morning Routine</option>
+                <option value="weekly">Weekly Targeted Treatment</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="prescribeNotes">Clinical Precautions, Contraindications &amp; Warnings</label>
+            <input type="text" id="prescribeNotes" placeholder="e.g. Mandatory broad-spectrum SPF 50. Avoid concurrent AHA/BHA exfoliants." class="form-input" />
+          </div>
+
+          <div class="form-group checkbox-row">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="prescribeInjectRoutine" checked class="checkbox-input" />
+              <span class="text-sm font-semibold text-slate-700">Automatically inject this prescription into patient's active skincare routine steps</span>
+            </label>
+          </div>
+
+          <div class="step-form-actions">
+            <button type="button" id="btnCancelPrescribeModal" class="btn-secondary">Cancel</button>
+            <button type="submit" class="btn-primary" id="btnSavePrescription">Issue Clinical Prescription</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Routine Step Create / Edit Modal -->
+    <div id="routineStepModal" class="profile-modal hidden">
+      <div class="profile-modal-backdrop" id="routineStepModalBackdrop"></div>
+      <div class="profile-modal-card step-modal-card">
+        <div class="modal-card-header">
+          <h2 class="profile-modal-name">Add Clinical Routine Step</h2>
+          <button id="btnCloseRoutineStepModal" class="profile-modal-close">&times;</button>
+        </div>
+        <form id="routineStepForm" class="step-form">
+          <input type="hidden" id="stepPatientId" value="" />
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="stepTimeOfDay">Routine Time *</label>
+              <select id="stepTimeOfDay" required class="form-input">
+                <option value="morning">Morning</option>
+                <option value="evening">Evening</option>
+                <option value="weekly">Weekly Treatment</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="stepCategory">Category *</label>
+              <select id="stepCategory" required class="form-input">
+                <option value="treatment">Treatment / Active Serum</option>
+                <option value="cleansing">Cleansing</option>
+                <option value="moisturizing">Moisturizing &amp; Barrier</option>
+                <option value="sun_protection">Photoprotection (SPF)</option>
+                <option value="night_care">Night Intensive Care</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="stepTitle">Step / Product Name *</label>
+            <input type="text" id="stepTitle" required placeholder="e.g. Ceramide Barrier Restorative Cream" class="form-input" />
+          </div>
+
+          <div class="form-group">
+            <label for="stepDescription">Clinical Instructions</label>
+            <textarea id="stepDescription" rows="2" placeholder="Smooth over clean face and neck twice daily..." class="form-input"></textarea>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="stepActives">Active Actives</label>
+              <input type="text" id="stepActives" placeholder="e.g. Ceramides NP/AP/EOP, Cholesterol" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label for="stepFrequency">Frequency</label>
+              <input type="text" id="stepFrequency" placeholder="Daily, 2x/day" class="form-input" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="stepCaution">Clinical Caution Notes</label>
+            <input type="text" id="stepCaution" placeholder="e.g. Safe with retinoids. Suitable for broken barrier." class="form-input" />
+          </div>
+
+          <div class="step-form-actions">
+            <button type="button" id="btnCancelRoutineStepModal" class="btn-secondary">Cancel</button>
+            <button type="submit" class="btn-primary" id="btnSaveRoutineStep">Add to Regimen</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Main Dashboard Layout -->
+    <div class="dashboard-layout">
+
+      <!-- Mobile Top Header -->
+      <header class="mobile-header">
+        <div class="brand flex items-center gap-2">
+          <span class="font-bold text-slate-800 text-sm">AI Skin Intelligence</span>
+        </div>
+        <button id="mobileMenuBtn" class="mobile-menu-toggle" aria-label="Toggle menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      </header>
+
+      <!-- Sidebar Backdrop -->
+      <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+
+      <!-- Sidebar -->
+      <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-brand">
+            <div>
+              <h2 class="sidebar-title">AI Skin Intelligence</h2>
+              <span class="sidebar-badge">Dermatologist Portal</span>
+            </div>
+          </div>
+          <button id="closeSidebarBtn" class="close-sidebar-btn">&times;</button>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a href="#patients" class="nav-item active" id="navPatients" data-section="patients">
+            <span class="nav-icon">👥</span>
+            <span>Patient Insights</span>
+            <span class="nav-count-badge" id="sidebarPatientCount">0</span>
+          </a>
+          <a href="#condition-reports" class="nav-item" id="navConditionReports" data-section="condition-reports">
+            <span class="nav-icon">📑</span>
+            <span>Condition Reports</span>
+          </a>
+          <a href="#treatments" class="nav-item" id="navTreatments" data-section="treatments">
+            <span class="nav-icon">💊</span>
+            <span>Treatment Recs</span>
+          </a>
+          <a href="#analytics" class="nav-item" id="navAnalytics" data-section="analytics">
+            <span class="nav-icon">📈</span>
+            <span>Progress Analytics</span>
+          </a>
+          <a href="#export-reports" class="nav-item" id="navExportReports" data-section="export-reports">
+            <span class="nav-icon">📊</span>
+            <span>Reports &amp; Export</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="user-info">
+            <div class="avatar-circle">Dr</div>
+            <div class="user-details truncate">
+              <span id="sidebarDermName" class="user-name truncate">Dr. Dermatologist</span>
+              <span class="user-role">Board Certified Specialist</span>
+            </div>
+          </div>
+          <a href="../index.html" class="sidebar-logout-btn" id="headerLogout" title="Logout">
+            <span>Logout</span>
+          </a>
+        </div>
+      </aside>
+
+      <!-- Main wrapper -->
+      <div class="main-wrapper">
+        <!-- Top bar -->
+        <header class="topbar">
+          <div>
+            <h1 id="pageTitle" class="page-title">Patient Insights</h1>
+            <p id="pageSubtitle" class="page-subtitle">Clinical profiles, medical diagnostics &amp; triage management</p>
+          </div>
+          <div class="topbar-actions">
+            <button id="btnOpenGlobalPrescribe" class="btn-topbar-action primary">
+              <span>🩺</span> Prescribe Treatment
+            </button>
+            <button id="btnRefreshData" class="btn-refresh" title="Refresh patient data">
+              <span>🔄</span> Refresh
+            </button>
+          </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="content">
+
+          <!-- ── 1. PATIENT INSIGHTS SECTION ── -->
+          <section id="section-patients" class="section active panel patients-panel">
+            <div class="panel-heading-group">
+              <div>
+                <p class="panel-label">Clinical Care Roster</p>
+                <h2 class="panel-title">Assigned Patients &amp; Real-Time Skin Insights</h2>
+              </div>
+            </div>
+
+            <!-- Search & Filters -->
+            <div class="client-controls-row">
+              <div class="client-search-box">
+                <input id="patientSearch" type="search" class="client-search" placeholder="Search by patient name, email, condition, allergy..." />
+                <button type="button" class="search-btn" id="patientSearchBtn">Search</button>
+              </div>
+              <div class="filter-pills-row">
+                <button class="filter-pill active" data-filter="all">All Patients</button>
+                <button class="filter-pill" data-filter="critical-risk">Critical / High Risk</button>
+                <button class="filter-pill" data-filter="score-low">Score &lt; 60</button>
+                <button class="filter-pill" data-filter="active-treatment">Under Treatment</button>
+              </div>
+            </div>
+
+            <div id="assignedPatientsGrid" class="client-grid">
+              <p class="empty-clients-msg">Loading patient roster…</p>
+            </div>
+          </section>
+
+          <!-- ── 2. SKIN CONDITION REPORTS SECTION ── -->
+          <section id="section-condition-reports" class="section panel reports-panel">
+            <div class="panel-heading-group">
+              <div>
+                <p class="panel-label">Diagnostic Timeline</p>
+                <h2 class="panel-title">Clinical Skin Condition &amp; Assessment Reports</h2>
+              </div>
+            </div>
+
+            <div class="reports-filter-bar">
+              <select id="reportPatientFilter" class="report-select">
+                <option value="all">All Assigned Patients</option>
+              </select>
+              <select id="reportRiskFilter" class="report-select">
+                <option value="all">All Risk Tiers</option>
+                <option value="Critical">Critical Risk</option>
+                <option value="High">High Risk</option>
+                <option value="Medium">Medium Risk</option>
+                <option value="Low">Low Risk</option>
+              </select>
+            </div>
+
+            <div id="conditionReportList" class="report-list">
+              <p class="empty-clients-msg">Loading skin condition reports…</p>
+            </div>
+          </section>
+
+          <!-- ── 3. TREATMENT RECOMMENDATIONS SECTION ── -->
+          <section id="section-treatments" class="section panel treatments-panel">
+            <div class="panel-heading-group flex justify-between items-center">
+              <div>
+                <p class="panel-label">Clinical Prescriptive Management</p>
+                <h2 class="panel-title">Treatment Recommendations &amp; Active Prescriptions</h2>
+              </div>
+              <button id="btnOpenPrescribeSection" class="btn-primary-small">
+                <span>➕</span> New Prescription
+              </button>
+            </div>
+
+            <div class="recommendations-intro-banner">
+              <p>
+                Formulate targeted clinical recommendations, prescribe active medical-grade compounds, and automatically coordinate care with the patient's daily skincare regimen.
+              </p>
+            </div>
+
+            <h3 class="panel-subheading mt-6">Issued Clinical Treatment Prescriptions</h3>
+            <div class="table-responsive mt-3">
+              <table class="progress-table">
+                <thead>
+                  <tr>
+                    <th>Patient</th>
+                    <th>Diagnosis / Condition</th>
+                    <th>Prescribed Protocol</th>
+                    <th>Active Ingredients</th>
+                    <th>Urgency</th>
+                    <th>Date Issued</th>
+                  </tr>
+                </thead>
+                <tbody id="treatmentsTableBody">
+                  <tr>
+                    <td colspan="6" class="text-center py-4 text-slate-500">Loading clinical treatments...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3 class="panel-subheading mt-8">Clinical Dermatological Formulation Catalog</h3>
+            <div class="consultant-rec-toolbar mt-3">
+              <div class="consultant-cat-tabs" id="dermCatTabs">
+                <button type="button" class="cons-cat-btn active" data-cat="all">All Categories</button>
+                <button type="button" class="cons-cat-btn" data-cat="treatment_products">🎯 Treatments &amp; Actives</button>
+                <button type="button" class="cons-cat-btn" data-cat="serum">💧 Clinical Serums</button>
+                <button type="button" class="cons-cat-btn" data-cat="moisturizer">🧴 Barrier Repair</button>
+                <button type="button" class="cons-cat-btn" data-cat="sunscreen">☀️ Photoprotection</button>
+                <button type="button" class="cons-cat-btn" data-cat="face_wash">🧼 Gentle Cleansers</button>
+              </div>
+              <input type="text" id="dermProductSearchInput" placeholder="Search formulas or actives..." class="form-input text-xs" style="max-width:240px" />
+            </div>
+
+            <div class="recommendation-grid mt-4" id="clinicalFormulasGrid">
+              <!-- populated dynamically -->
+            </div>
+          </section>
+
+          <!-- ── 4. PROGRESS ANALYTICS SECTION ── -->
+          <section id="section-analytics" class="section panel analytics-panel">
+            <div class="panel-heading-group">
+              <div>
+                <p class="panel-label">Longitudinal Patient Analytics</p>
+                <h2 class="panel-title">Progress Monitoring, Trajectory &amp; Recovery Velocity</h2>
+              </div>
+            </div>
+
+            <div class="progress-summary">
+              <div class="progress-item">
+                <h3>Average Cohort Health Score</h3>
+                <p class="progress-value" id="kpiAvgScore">--</p>
+              </div>
+              <div class="progress-item">
+                <h3>Regimen Compliance Rate</h3>
+                <p class="progress-value" id="kpiAvgCompliance">--%</p>
+              </div>
+              <div class="progress-item">
+                <h3>Total Patients Monitored</h3>
+                <p class="progress-value" id="kpiTotalPatients">0</p>
+              </div>
+              <div class="progress-item alert-kpi">
+                <h3>Critical Risk Alerts</h3>
+                <p class="progress-value" id="kpiCriticalAlerts">0</p>
+              </div>
+            </div>
+
+            <h3 class="panel-subheading mt-6">Patient Recovery &amp; Progress Matrix</h3>
+            <div class="table-responsive">
+              <table class="progress-table">
+                <thead>
+                  <tr>
+                    <th>Patient</th>
+                    <th>Skin Type</th>
+                    <th>Baseline Score</th>
+                    <th>Current Score</th>
+                    <th>Improvement Trend</th>
+                    <th>Adherence</th>
+                    <th>Streak</th>
+                    <th>Risk Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="dermProgressTableBody">
+                  <tr>
+                    <td colspan="9" class="text-center py-4 text-slate-500">Loading progress matrix...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- ── Section: Clinical Reports & Export ── -->
+          <section id="section-export-reports" class="section panel reports-export-panel">
+            <div class="reports-export-header">
+              <div>
+                <p class="reports-export-label">Clinical Intelligence Export Center</p>
+                <h2 class="reports-export-title">Download Patient Clinical Reports</h2>
+                <p class="reports-export-desc">Select a patient and export comprehensive diagnostic, treatment, and progress reports in PDF or Excel.</p>
+              </div>
+            </div>
+
+            <div class="reports-client-selector">
+              <label for="reportPatientSelector">Select Patient:</label>
+              <select id="reportPatientSelector" class="report-select">
+                <option value="">-- Choose a patient --</option>
+              </select>
+            </div>
+
+            <div id="dermReportCards" class="reports-export-grid" style="display:none;">
+              <div class="report-export-card">
+                <div class="report-card-icon">🔬</div>
+                <div class="report-card-body">
+                  <h4>Skin Assessment Report</h4>
+                  <p>Clinical diagnostic scores, barrier integrity, risk indicators &amp; concerns.</p>
+                </div>
+                <div class="report-card-actions">
+                  <button class="btn-export-pdf" onclick="downloadDermReport('skin-assessment','pdf')">📄 PDF</button>
+                  <button class="btn-export-excel" onclick="downloadDermReport('skin-assessment','excel')">📊 Excel</button>
+                </div>
+              </div>
+
+              <div class="report-export-card">
+                <div class="report-card-icon">🧴</div>
+                <div class="report-card-body">
+                  <h4>Routine Report</h4>
+                  <p>Prescribed morning, evening &amp; targeted skincare regimen steps.</p>
+                </div>
+                <div class="report-card-actions">
+                  <button class="btn-export-pdf" onclick="downloadDermReport('routine','pdf')">📄 PDF</button>
+                  <button class="btn-export-excel" onclick="downloadDermReport('routine','excel')">📊 Excel</button>
+                </div>
+              </div>
+
+              <div class="report-export-card">
+                <div class="report-card-icon">📈</div>
+                <div class="report-card-body">
+                  <h4>Progress Report</h4>
+                  <p>Longitudinal score history, treatment adherence &amp; barrier recovery metrics.</p>
+                </div>
+                <div class="report-card-actions">
+                  <button class="btn-export-pdf" onclick="downloadDermReport('progress','pdf')">📄 PDF</button>
+                  <button class="btn-export-excel" onclick="downloadDermReport('progress','excel')">📊 Excel</button>
+                </div>
+              </div>
+
+              <div class="report-export-card">
+                <div class="report-card-icon">❤️</div>
+                <div class="report-card-body">
+                  <h4>Comprehensive Skin Health</h4>
+                  <p>Complete clinical synthesis: history, active issues, routine adherence &amp; scores.</p>
+                </div>
+                <div class="report-card-actions">
+                  <button class="btn-export-pdf" onclick="downloadDermReport('skin-health','pdf')">📄 PDF</button>
+                  <button class="btn-export-excel" onclick="downloadDermReport('skin-health','excel')">📊 Excel</button>
+                </div>
+              </div>
+
+              <div class="report-export-card">
+                <div class="report-card-icon">💊</div>
+                <div class="report-card-body">
+                  <h4>Clinical Treatment Report</h4>
+                  <p>Specialist prescriptions, active ingredients, treatment plans &amp; urgency level.</p>
+                </div>
+                <div class="report-card-actions">
+                  <button class="btn-export-pdf" onclick="downloadDermReport('clinical-treatment','pdf')">📄 PDF</button>
+                  <button class="btn-export-excel" onclick="downloadDermReport('clinical-treatment','excel')">📊 Excel</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </main>
+      </div>
+    </div>
+
+    <script src="dermatologist.js?v=1.0"></script>
+  </body>
+</html>

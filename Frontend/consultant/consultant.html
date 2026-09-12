@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="consultant.css?v=20.0" />
   </head>
   <body class="consultant-body">
@@ -68,6 +69,9 @@
           </button>
           <button class="dossier-tab-btn" data-dossier-tab="adherence">
             <span>📈</span> Check-in & Adherence
+          </button>
+          <button class="dossier-tab-btn" data-dossier-tab="analytics">
+            <span>🔬</span> Trends & Skin Data
           </button>
         </div>
 
@@ -223,6 +227,60 @@
             <h3 class="dossier-section-heading mt-4">Recent Daily Check-in Log</h3>
             <div id="modalCheckinLogTable" class="checkin-log-wrapper">
               <!-- filled dynamically -->
+            </div>
+          </div>
+
+          <!-- ── TAB 6: Longitudinal Trends & Photo Progress ── -->
+          <div id="dossierTab-analytics" class="dossier-tab-pane">
+            <div class="dossier-analytics-grid">
+              
+              <!-- Chart Card -->
+              <div class="dossier-card-box">
+                <div class="dossier-box-header flex items-center justify-between mb-2">
+                  <h3 class="dossier-section-heading">Client Skin Health Score Trajectory</h3>
+                  <span class="score-pill" id="dossierAnalyticsScoreChange">+0 pts</span>
+                </div>
+                <div class="chart-wrapper-box" style="height: 220px; position: relative;">
+                  <canvas id="consultantScoreTrendChart"></canvas>
+                </div>
+              </div>
+
+              <!-- Previous vs Current Skin Assessment Data Comparison Box -->
+              <div class="dossier-card-box mt-4">
+                <div class="dossier-box-header flex items-center justify-between mb-2">
+                  <h3 class="dossier-section-heading">Previous vs Current Skin Assessment Data</h3>
+                  <span class="risk-pill low" id="dossierDataDaysBadge">0 Days Elapsed</span>
+                </div>
+
+                <div id="dossierSkinDataComparisonContainer" class="flex flex-col gap-4">
+                  <!-- Injected dynamically in consultant.js -->
+                </div>
+              </div>
+
+              <!-- Concern Resolution Audit Box -->
+              <div class="dossier-card-box mt-4">
+                <div class="dossier-box-header flex items-center justify-between mb-2">
+                  <h3 class="dossier-section-heading">Concern Resolution Audit</h3>
+                  <span class="risk-pill low" id="dossierResolutionCountBadge">0 Resolved</span>
+                </div>
+                <div class="table-scroll-wrap">
+                  <table class="progress-table">
+                    <thead>
+                      <tr>
+                        <th>Target Concern</th>
+                        <th>Baseline Severity</th>
+                        <th>Current Severity</th>
+                        <th>Status Shift</th>
+                        <th>Progress Delta</th>
+                      </tr>
+                    </thead>
+                    <tbody id="dossierConcernAuditBody">
+                      <!-- Injected dynamically in consultant.js -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
             </div>
           </div>
 
@@ -386,6 +444,10 @@
           <a href="#recommendations" class="nav-item" id="navRecommendations" data-section="recommendations">
             <span class="nav-icon">💡</span>
             <span>Recommendations</span>
+          </a>
+          <a href="#export-reports" class="nav-item" id="navExportReports" data-section="export-reports">
+            <span class="nav-icon">📂</span>
+            <span>Reports & Export</span>
           </a>
         </nav>
 
@@ -561,6 +623,67 @@
 
             <div class="recommendation-grid" id="curatedRecommendationsGrid">
               <!-- populated dynamically -->
+            </div>
+          </section>
+
+          <!-- ── REPORTS & EXPORT section ── -->
+          <section id="section-export-reports" class="section panel reports-export-panel">
+            <div class="reports-export-header">
+              <div>
+                <p class="reports-export-label">Client Reports & Export Center</p>
+                <h2 class="reports-export-title">Download Client Skin Intelligence Reports</h2>
+                <p class="reports-export-desc">Select a client and export comprehensive PDF or Excel reports of their skin data.</p>
+              </div>
+            </div>
+
+            <div class="reports-client-selector">
+              <label for="reportClientSelector">Select Client:</label>
+              <select id="reportClientSelector" class="report-select">
+                <option value="">-- Choose a client --</option>
+              </select>
+            </div>
+
+            <div id="consultantReportCards" class="reports-export-grid" style="display:none;">
+              <div class="report-export-card">
+                <div class="report-card-icon">🔬</div>
+                <div class="report-card-body"><h4>Skin Assessment Report</h4><p>Client's skin profile, AI health score, risks & concerns.</p></div>
+                <div class="report-card-actions">
+                  <button class="btn-export-pdf" onclick="downloadConsultantReport('skin-assessment','pdf')">📄 PDF</button>
+                  <button class="btn-export-excel" onclick="downloadConsultantReport('skin-assessment','excel')">📊 Excel</button>
+                </div>
+              </div>
+              <div class="report-export-card">
+                <div class="report-card-icon">🧴</div>
+                <div class="report-card-body"><h4>Routine Report</h4><p>Client's morning, evening & weekly skincare routine.</p></div>
+                <div class="report-card-actions">
+                  <button class="btn-export-pdf" onclick="downloadConsultantReport('routine','pdf')">📄 PDF</button>
+                  <button class="btn-export-excel" onclick="downloadConsultantReport('routine','excel')">📊 Excel</button>
+                </div>
+              </div>
+              <div class="report-export-card">
+                <div class="report-card-icon">💡</div>
+                <div class="report-card-body"><h4>Product Recommendations</h4><p>AI-curated product suggestions for the client.</p></div>
+                <div class="report-card-actions">
+                  <button class="btn-export-pdf" onclick="downloadConsultantReport('product-recommendations','pdf')">📄 PDF</button>
+                  <button class="btn-export-excel" onclick="downloadConsultantReport('product-recommendations','excel')">📊 Excel</button>
+                </div>
+              </div>
+              <div class="report-export-card">
+                <div class="report-card-icon">📈</div>
+                <div class="report-card-body"><h4>Progress Report</h4><p>Score trends, adherence rates & improvement analysis.</p></div>
+                <div class="report-card-actions">
+                  <button class="btn-export-pdf" onclick="downloadConsultantReport('progress','pdf')">📄 PDF</button>
+                  <button class="btn-export-excel" onclick="downloadConsultantReport('progress','excel')">📊 Excel</button>
+                </div>
+              </div>
+              <div class="report-export-card">
+                <div class="report-card-icon">❤️</div>
+                <div class="report-card-body"><h4>Comprehensive Skin Health</h4><p>Full overview of profile, score, risks, routine & adherence.</p></div>
+                <div class="report-card-actions">
+                  <button class="btn-export-pdf" onclick="downloadConsultantReport('skin-health','pdf')">📄 PDF</button>
+                  <button class="btn-export-excel" onclick="downloadConsultantReport('skin-health','excel')">📊 Excel</button>
+                </div>
+              </div>
             </div>
           </section>
 

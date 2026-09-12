@@ -18,7 +18,12 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False, default="")
+    first_name = Column(String(100), nullable=True, default="")
+    last_name = Column(String(100), nullable=True, default="")
     email = Column(String(255), unique=True, index=True, nullable=False)
+    phone_number = Column(String(50), nullable=True, default="")
+    push_notifications_mobile = Column(Boolean, nullable=False, default=True)
+    push_notifications_email = Column(Boolean, nullable=False, default=True)
     password_hash = Column(String(255), nullable=False)
     status = Column(String(20), nullable=False, default="pending")
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
@@ -186,3 +191,66 @@ class RoutineCheckin(Base):
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     user = relationship("User", backref=backref("routine_checkins", cascade="all, delete-orphan"))
+
+
+class Dermatologist(Base):
+    __tablename__ = "dermatologists"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), nullable=False, default="")
+    email = Column(String(255), unique=True, index=True, nullable=False)
+    password_hash = Column(String(255), nullable=False)
+    status = Column(String(20), nullable=False, default="pending")  # pending, approved, rejected
+    license_number = Column(String(100), nullable=True, default="")
+    specialization = Column(String(255), nullable=True, default="Clinical Dermatology")
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+    patient_assignments = relationship("DermatologistAssignment", back_populates="dermatologist", cascade="all, delete-orphan")
+    clinical_recommendations = relationship("ClinicalRecommendation", back_populates="dermatologist", cascade="all, delete-orphan")
+
+
+class DermatologistAssignment(Base):
+    __tablename__ = "dermatologist_assignments"
+    __table_args__ = (
+        UniqueConstraint("user_id", "dermatologist_id", name="uq_patient_dermatologist"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    dermatologist_id = Column(Integer, ForeignKey("dermatologists.id", ondelete="CASCADE"), nullable=False)
+    assigned_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+    user = relationship("User", backref=backref("dermatologist_assignments", cascade="all, delete-orphan"))
+    dermatologist = relationship("Dermatologist", back_populates="patient_assignments")
+
+
+class ClinicalRecommendation(Base):
+    __tablename__ = "clinical_recommendations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    dermatologist_id = Column(Integer, ForeignKey("dermatologists.id", ondelete="CASCADE"), nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    diagnosis_title = Column(String(255), nullable=False)
+    treatment_plan = Column(Text, nullable=False, default="")
+    medications_or_actives = Column(String(500), nullable=True, default="")
+    urgency_level = Column(String(50), nullable=False, default="Routine")  # Routine, Priority, Urgent
+    clinical_notes = Column(Text, nullable=True, default="")
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+    dermatologist = relationship("Dermatologist", back_populates="clinical_recommendations")
+    user = relationship("User", backref=backref("clinical_recommendations", cascade="all, delete-orphan"))
+
+
+class UserReminderLog(Base):
+    __tablename__ = "user_reminder_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    reminder_type = Column(String(50), nullable=False, index=True)  # routine, replenishment, hydration, sleep, progress, platform
+    performance_trigger = Column(String(255), nullable=False, default="")
+    channel = Column(String(20), nullable=False, default="email")
+    subject = Column(String(255), nullable=False, default="")
+    status = Column(String(20), nullable=False, default="sent")  # sent, simulated, failed, skipped
+    sent_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), index=True)
+
+    user = relationship("User", backref=backref("reminder_logs", cascade="all, delete-orphan"))

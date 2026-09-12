@@ -1,20 +1,27 @@
+import asyncio
+import json
+import logging
 import os
+import re
+from contextlib import asynccontextmanager
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List, Dict, Any
 
-from fastapi import Depends, FastAPI, HTTPException, status, File, UploadFile
+from fastapi import Depends, FastAPI, HTTPException, Request, Response, status, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi.staticfiles import StaticFiles
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
+
+logger = logging.getLogger("skincare_api")
 
 load_dotenv()
 
@@ -23,9 +30,18 @@ from app.database import Base, engine, get_db, SessionLocal
 from app.models import (
     Admin, Assignment, Consultant, User, SkinProfile, AssessmentHistory,
     AssessmentRisk, AssessmentPriority, SkincareRoutine, RoutineStep,
-    SeasonalRecommendation, RoutineCheckin
+    SeasonalRecommendation, RoutineCheckin,
+    Dermatologist, DermatologistAssignment, ClinicalRecommendation,
+    UserReminderLog
 )
+from app.db_sync import sync_database_schema
 from app.services.routine_engine import generate_personalized_routine_data, get_current_season
+from app.services.notification_service import dispatch_user_reminder
+from app.services.reminder_performance_engine import (
+    background_reminder_worker,
+    evaluate_user_performance_and_remind,
+    run_automated_performance_audit_for_all_users
+)
 from app.services.ingredient_intelligence import (
     generate_ingredient_intelligence_report,
     analyze_interactions,
@@ -41,6 +57,24 @@ from app.services.product_engine import (
     get_product_alternatives,
     build_budget_optimized_routine,
 )
+from app.services.analytics_engine import (
+    get_user_trend_analytics,
+    get_user_improvement_analysis,
+    get_user_photo_comparisons,
+    get_user_skin_data_comparison,
+)
+from app.services.report_service import (
+    build_skin_assessment_report,
+    build_routine_report,
+    build_product_recommendation_report,
+    build_progress_report,
+    build_skin_health_report,
+    build_clinical_treatment_report,
+    build_platform_summary_report,
+    build_user_directory_report,
+    build_assessment_audit_report,
+    build_recommendation_audit_report,
+)
 
 from ML_models.risk_engine import analyze_risks
 from ML_models.priority_concern import prioritize_concerns
@@ -50,13 +84,21 @@ from ML_models.scoring_engine import calculate_weighted_skin_health_score
 # Automatically create database tables if missing
 try:
     Base.metadata.create_all(bind=engine)
+    sync_database_schema()
 except Exception as e:
     print(f"Warning: Could not automatically create database tables: {e}")
 
 
-SECRET_KEY = os.getenv("SECRET_KEY", "fallback-insecure-key-for-development").strip()
+_secret_raw = os.getenv("SECRET_KEY", "").strip()
+if not _secret_raw:
+    raise RuntimeError(
+        "CRITICAL: SECRET_KEY environment variable is not set. "
+        "Set a strong random key in your .env file before starting the server."
+    )
+SECRET_KEY = _secret_raw
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 5
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
+MAX_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 FRONTEND_DIR = BASE_DIR / "Frontend"
@@ -64,18 +106,55 @@ INDEX_FILE = FRONTEND_DIR / "index.html"
 UPLOADS_DIR = BASE_DIR / "uploads"
 UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
+# ---------------------------------------------------------------------------
+# Lifespan (replaces deprecated @app.on_event)
+# ---------------------------------------------------------------------------
+
+@asynccontextmanager
+async def lifespan(application: FastAPI):
+    """Startup / shutdown lifecycle."""
+    try:
+        seed_admin()
+        sync_database_schema()
+    except Exception as exc:
+        logger.warning(f"Database initialization pending or unreachable on startup: {exc}")
+    # Launch automated performance reminder engine in background
+    reminder_task = asyncio.create_task(background_reminder_worker(interval_seconds=3600))
+    yield
+    reminder_task.cancel()
+
+
 app = FastAPI(
     title="Skincare Planner & Dermatological Intelligence API",
     version="2.0.0",
-    description="Advanced AI-powered personalized skincare routines, ingredient intelligence, and product recommendation engine."
+    description="Advanced AI-powered personalized skincare routines, ingredient intelligence, and product recommendation engine.",
+    lifespan=lifespan,
 )
+
+# --- Security: restrict CORS to known origins ---
+_ALLOWED_ORIGINS = [
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# --- Security headers middleware ---
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response: Response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    return response
 
 security = HTTPBearer(auto_error=False)
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
@@ -86,14 +165,14 @@ pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 # ---------------------------------------------------------------------------
 
 class LoginRequest(BaseModel):
-    email: str
+    email: EmailStr
     password: str
     role: str
 
 
 class RegisterRequest(BaseModel):
     name: Optional[str] = ""
-    email: str
+    email: EmailStr
     password: str
     role: str
 
@@ -117,9 +196,64 @@ class UserPayload(BaseModel):
 class UserProfileResponse(BaseModel):
     id: int
     name: Optional[str] = ""
+    first_name: Optional[str] = ""
+    last_name: Optional[str] = ""
     email: str
+    phone_number: Optional[str] = ""
+    push_notifications_mobile: Optional[bool] = True
+    push_notifications_email: Optional[bool] = True
     role: str
     created_at: Optional[datetime] = None
+
+
+class UserAccountProfileResponse(BaseModel):
+    id: int
+    name: Optional[str] = ""
+    first_name: Optional[str] = ""
+    last_name: Optional[str] = ""
+    email: str
+    phone_number: Optional[str] = ""
+    push_notifications_mobile: bool = True
+    push_notifications_email: bool = True
+    status: str = "approved"
+    created_at: Optional[datetime] = None
+    access_token: Optional[str] = None
+
+
+class UserAccountProfileUpdateRequest(BaseModel):
+    first_name: Optional[str] = ""
+    last_name: Optional[str] = ""
+    email: Optional[EmailStr] = None
+    phone_number: Optional[str] = ""
+    push_notifications_mobile: Optional[bool] = True
+    push_notifications_email: Optional[bool] = True
+
+
+class PushNotificationRequest(BaseModel):
+    channel: str  # "mobile" or "email"
+    title: Optional[str] = None
+    message: Optional[str] = None
+    recipient_email: Optional[str] = None
+
+
+class SendReminderRequest(BaseModel):
+    reminder_type: str  # routine, replenishment, hydration, sleep, progress, platform
+    time_of_day: Optional[str] = "morning"
+    extra_message: Optional[str] = None
+    recipient_email: Optional[str] = None
+
+
+class ReminderLogResponse(BaseModel):
+    id: int
+    reminder_type: str
+    performance_trigger: str
+    channel: str
+    subject: str
+    status: str
+    sent_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
 
 
 class StatusResponse(BaseModel):
@@ -302,6 +436,22 @@ class SkinProfileUpdate(BaseModel):
 class AssignRequest(BaseModel):
     user_id: int
     consultant_id: int
+
+
+class AssignDermatologistRequest(BaseModel):
+    user_id: int
+    dermatologist_id: int
+
+
+class ClinicalTreatmentCreate(BaseModel):
+    diagnosis_title: str
+    treatment_plan: str
+    medications_or_actives: Optional[str] = ""
+    urgency_level: Optional[str] = "Routine"  # Routine, Priority, Urgent
+    clinical_notes: Optional[str] = ""
+    inject_to_routine: Optional[bool] = True
+    time_of_day: Optional[str] = "evening"
+    category: Optional[str] = "treatment"
 
 
 class AssessmentNotesUpdate(BaseModel):
@@ -870,7 +1020,12 @@ def ensure_user_routine(db: Session, user_id: int, force_regenerate: bool = Fals
 
 def get_model_for_role(role: str):
     """Return the SQLAlchemy model class for a given role string."""
-    mapping = {"user": User, "consultant": Consultant, "admin": Admin}
+    mapping = {
+        "user": User,
+        "consultant": Consultant,
+        "admin": Admin,
+        "dermatologist": Dermatologist,
+    }
     return mapping.get(role.lower())
 
 
@@ -892,28 +1047,27 @@ def seed_admin() -> None:
     if not admin_email or not admin_password:
         print("Warning: ADMIN_EMAIL or ADMIN_PASSWORD not set in .env — skipping admin seed.")
         return
-    db = SessionLocal()
     try:
-        existing = db.query(Admin).filter(Admin.email == admin_email).first()
-        if not existing:
-            hashed = pwd_context.hash(admin_password)
-            admin = Admin(email=admin_email, password_hash=hashed)
-            db.add(admin)
-            db.commit()
-            print(f"Seed admin created: {admin_email}")
-        else:
-            print(f"Seed admin already exists: {admin_email}")
-    finally:
-        db.close()
+        db = SessionLocal()
+        try:
+            existing = db.query(Admin).filter(Admin.email == admin_email).first()
+            if not existing:
+                hashed = pwd_context.hash(admin_password)
+                admin = Admin(email=admin_email, password_hash=hashed)
+                db.add(admin)
+                db.commit()
+                print(f"Seed admin created: {admin_email}")
+            else:
+                print(f"Seed admin already exists: {admin_email}")
+        finally:
+            db.close()
+    except Exception as exc:
+        print(f"Notice: Seed admin check deferred (database connection pending: {exc})")
 
 
 # ---------------------------------------------------------------------------
-# Startup
+# Startup (handled via lifespan context manager above)
 # ---------------------------------------------------------------------------
-
-@app.on_event("startup")
-async def on_startup() -> None:
-    seed_admin()
 
 
 # ---------------------------------------------------------------------------
@@ -967,9 +1121,10 @@ async def login(request: LoginRequest, db: Session = Depends(get_db)) -> TokenRe
     try:
         db_user = db.query(model).filter(model.email == clean_email).first()
     except Exception as exc:
+        logger.error("Database error during login: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Database connection error: {str(exc)}",
+            detail="A database error occurred. Please try again later.",
         ) from exc
 
     if not db_user:
@@ -1005,8 +1160,14 @@ async def register(request: RegisterRequest, db: Session = Depends(get_db)) -> T
     if not clean_email or not request.password:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email and password required")
 
-    if len(request.password) < 6:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password must be at least 6 characters long")
+    if len(request.password) < 8:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password must be at least 8 characters long")
+    if not re.search(r"[A-Z]", request.password):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password must contain at least one uppercase letter")
+    if not re.search(r"[a-z]", request.password):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password must contain at least one lowercase letter")
+    if not re.search(r"[0-9]", request.password):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password must contain at least one digit")
 
     model = get_model_for_role(clean_role)
     if not model:
@@ -1015,9 +1176,10 @@ async def register(request: RegisterRequest, db: Session = Depends(get_db)) -> T
     try:
         existing = db.query(model).filter(model.email == clean_email).first()
     except Exception as exc:
+        logger.error("Database error during registration: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Database connection error: {str(exc)}",
+            detail="A database error occurred. Please try again later.",
         ) from exc
 
     if existing:
@@ -1051,7 +1213,8 @@ async def google_login(request: GoogleOAuthRequest, db: Session = Depends(get_db
             google_client_id if google_client_id else None
         )
     except Exception as exc:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Invalid Google token: {str(exc)}") from exc
+        logger.error("Google OAuth token verification failed: %s", exc)
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Google token. Please try again.") from exc
 
     email = (id_info.get("email") or "").strip().lower()
     google_name = (id_info.get("name") or "").strip()
@@ -1065,9 +1228,10 @@ async def google_login(request: GoogleOAuthRequest, db: Session = Depends(get_db
     try:
         existing = db.query(model).filter(model.email == email).first()
     except Exception as exc:
+        logger.error("Database error during Google OAuth: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Database connection error: {str(exc)}",
+            detail="A database error occurred. Please try again later.",
         ) from exc
 
     if not existing:
@@ -1128,10 +1292,277 @@ async def get_profile(
     return UserProfileResponse(
         id=record.id,
         name=getattr(record, "name", "") or "",
+        first_name=getattr(record, "first_name", "") or "",
+        last_name=getattr(record, "last_name", "") or "",
         email=record.email,
+        phone_number=getattr(record, "phone_number", "") or "",
+        push_notifications_mobile=getattr(record, "push_notifications_mobile", True),
+        push_notifications_email=getattr(record, "push_notifications_email", True),
         role=current_user.role,
         created_at=record.created_at,
     )
+
+
+@app.get("/user/account-profile", response_model=UserAccountProfileResponse)
+async def get_user_account_profile(
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> UserAccountProfileResponse:
+    if current_user.role != "user":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only users can access account profile",
+        )
+    user_record = db.query(User).filter(User.email == current_user.email).first()
+    if not user_record:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User account not found",
+        )
+    return UserAccountProfileResponse(
+        id=user_record.id,
+        name=user_record.name or "",
+        first_name=user_record.first_name or "",
+        last_name=user_record.last_name or "",
+        email=user_record.email,
+        phone_number=user_record.phone_number or "",
+        push_notifications_mobile=bool(user_record.push_notifications_mobile) if user_record.push_notifications_mobile is not None else True,
+        push_notifications_email=bool(user_record.push_notifications_email) if user_record.push_notifications_email is not None else True,
+        status=user_record.status or "approved",
+        created_at=user_record.created_at,
+    )
+
+
+@app.put("/user/account-profile", response_model=UserAccountProfileResponse)
+async def update_user_account_profile(
+    update_data: UserAccountProfileUpdateRequest,
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> UserAccountProfileResponse:
+    if current_user.role != "user":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only users can update account profile",
+        )
+    user_record = db.query(User).filter(User.email == current_user.email).first()
+    if not user_record:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User account not found",
+        )
+
+    # Email uniqueness check if email is modified
+    new_token = None
+    if update_data.email:
+        new_email = update_data.email.strip().lower()
+        if new_email != user_record.email.lower():
+            existing_user = db.query(User).filter(User.email == new_email).first()
+            if existing_user and existing_user.id != user_record.id:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="This email address is already in use by another account",
+                )
+            user_record.email = new_email
+            new_token = create_access_token(user_record.email, "user")
+
+    if update_data.first_name is not None:
+        user_record.first_name = update_data.first_name.strip()
+    if update_data.last_name is not None:
+        user_record.last_name = update_data.last_name.strip()
+
+    # Synchronize full name
+    full_name = f"{user_record.first_name or ''} {user_record.last_name or ''}".strip()
+    if full_name:
+        user_record.name = full_name
+    elif not user_record.name and user_record.first_name:
+        user_record.name = user_record.first_name
+
+    if update_data.phone_number is not None:
+        user_record.phone_number = update_data.phone_number.strip()
+
+    if update_data.push_notifications_mobile is not None:
+        user_record.push_notifications_mobile = bool(update_data.push_notifications_mobile)
+
+    if update_data.push_notifications_email is not None:
+        user_record.push_notifications_email = bool(update_data.push_notifications_email)
+
+    db.add(user_record)
+    db.commit()
+    db.refresh(user_record)
+
+    return UserAccountProfileResponse(
+        id=user_record.id,
+        name=user_record.name or "",
+        first_name=user_record.first_name or "",
+        last_name=user_record.last_name or "",
+        email=user_record.email,
+        phone_number=user_record.phone_number or "",
+        push_notifications_mobile=bool(user_record.push_notifications_mobile),
+        push_notifications_email=bool(user_record.push_notifications_email),
+        status=user_record.status or "approved",
+        created_at=user_record.created_at,
+        access_token=new_token,
+    )
+
+
+@app.post("/user/send-notification")
+async def send_notification(
+    payload: PushNotificationRequest,
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if current_user.role != "user":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only users can trigger notifications",
+        )
+    user_record = db.query(User).filter(User.email == current_user.email).first()
+    if not user_record:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User account not found",
+        )
+
+    channel = (payload.channel or "").strip().lower()
+    if channel not in ["mobile", "email"]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid notification channel. Must be 'mobile' or 'email'.",
+        )
+
+    user_name = user_record.first_name or user_record.name or "User"
+    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+
+    if channel == "mobile":
+        target = user_record.phone_number if user_record.phone_number else "Primary Mobile Device / Browser Push"
+        title = payload.title or "AI Skin Intelligence: Daily Regimen Alert"
+        message = payload.message or f"Hello {user_name}! Your evening skincare routine is ready. Keep up your streak today!"
+        return {
+            "success": True,
+            "channel": "mobile",
+            "title": title,
+            "message": message,
+            "target": target,
+            "timestamp": timestamp,
+            "channel_enabled": bool(user_record.push_notifications_mobile),
+            "status_text": f"Mobile push notification dispatched successfully to {target}.",
+        }
+    else:  # email
+        target = (payload.recipient_email or user_record.email or "").strip().lower()
+        title = payload.title or "AI Skin Intelligence: Routine & Assessment Digest"
+        message = payload.message or f"Hi {user_name}, your personalized AI skin score and recommendations have been synchronized. Check your dashboard for latest insights!"
+        
+        # Dispatch through Python email module & smtplib
+        dispatch_res = dispatch_user_reminder(
+            user=user_record,
+            reminder_type="platform",
+            trigger_reason="Instant notification dispatched from user dashboard.",
+            extra_data={"message": message, "recipient_email": target},
+            db=db
+        )
+
+        return {
+            "success": dispatch_res.get("success", False),
+            "channel": "email",
+            "title": title,
+            "message": message,
+            "target": target,
+            "timestamp": timestamp,
+            "channel_enabled": bool(user_record.push_notifications_email),
+            "simulated": dispatch_res.get("simulated", False),
+            "status_text": dispatch_res.get("message", f"Email push notification dispatched successfully to {target}."),
+        }
+
+
+@app.post("/user/reminders/evaluate")
+async def trigger_user_performance_evaluation(
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if current_user.role != "user":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only users can access performance reminders",
+        )
+    user_record = db.query(User).filter(User.email == current_user.email).first()
+    if not user_record:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    if not user_record.push_notifications_email:
+        return {
+            "success": False,
+            "skipped": True,
+            "message": "Email push notifications are disabled in your account preferences.",
+            "evaluated": True,
+            "reminders": []
+        }
+
+    reminders = evaluate_user_performance_and_remind(user_record, db)
+    return {
+        "success": True,
+        "evaluated": True,
+        "reminders_count": len(reminders),
+        "reminders": reminders,
+        "message": f"Performance evaluation complete. {len(reminders)} automated reminder(s) dispatched." if reminders else "Performance evaluated: All metrics optimal and no new reminders required at this time."
+    }
+
+
+@app.post("/user/reminders/send")
+async def send_specific_reminder(
+    payload: SendReminderRequest,
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if current_user.role != "user":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only users can trigger reminders",
+        )
+    user_record = db.query(User).filter(User.email == current_user.email).first()
+    if not user_record:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    valid_categories = ["routine", "replenishment", "hydration", "sleep", "progress", "platform"]
+    cat = (payload.reminder_type or "").strip().lower()
+    if cat not in valid_categories:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid reminder type. Must be one of: {', '.join(valid_categories)}"
+        )
+
+    target_email = (payload.recipient_email or user_record.email or "").strip().lower()
+    res = dispatch_user_reminder(
+        user=user_record,
+        reminder_type=cat,
+        trigger_reason=f"User requested email reminder for {cat}.",
+        extra_data={"time_of_day": payload.time_of_day, "message": payload.extra_message, "recipient_email": target_email},
+        db=db
+    )
+    return res
+
+
+@app.get("/user/reminders/logs", response_model=List[ReminderLogResponse])
+async def get_user_reminder_logs(
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> List[ReminderLogResponse]:
+    if current_user.role != "user":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only users can access reminder history",
+        )
+    user_record = db.query(User).filter(User.email == current_user.email).first()
+    if not user_record:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    logs = (
+        db.query(UserReminderLog)
+        .filter(UserReminderLog.user_id == user_record.id)
+        .order_by(UserReminderLog.sent_at.desc())
+        .limit(20)
+        .all()
+    )
+    return logs
 
 
 @app.get("/user/profile", response_model=SkinProfileResponse)
@@ -1483,7 +1914,8 @@ async def update_routine_step_endpoint(
         return RoutineStepResponse.model_validate(step)
     except Exception as exc:
         db.rollback()
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to update step: {str(exc)}") from exc
+        logger.error("Failed to update routine step %d: %s", step_id, exc)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to update step. Please try again.") from exc
 
 
 @app.delete("/user/routine/step/{step_id}")
@@ -1509,7 +1941,8 @@ async def delete_routine_step_endpoint(
         return {"message": f"Step {step_id} deleted successfully"}
     except Exception as exc:
         db.rollback()
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to delete step: {str(exc)}") from exc
+        logger.error("Failed to delete routine step %d: %s", step_id, exc)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to delete step. Please try again.") from exc
 
 
 @app.post("/user/routine/checkin")
@@ -1776,6 +2209,11 @@ async def upload_skin_image(
     file_path = UPLOADS_DIR / filename
 
     contents = await file.read()
+    if len(contents) > MAX_UPLOAD_BYTES:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail=f"File too large. Maximum allowed size is {MAX_UPLOAD_BYTES // (1024 * 1024)}MB.",
+        )
     with open(file_path, "wb") as f:
         f.write(contents)
 
@@ -1801,6 +2239,146 @@ async def upload_skin_image(
     return {"image_url": image_url, "message": "Skin image uploaded successfully"}
 
 
+# ---------------------------------------------------------------------------
+# Progress Tracking, Trend Analysis & Before/After Visual Comparison Endpoints
+# ---------------------------------------------------------------------------
+
+@app.get("/user/analytics/trends")
+async def get_user_analytics_trends_endpoint(
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> dict:
+    if current_user.role != "user":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only users can access trend analytics",
+        )
+    user_record = db.query(User).filter(User.email == current_user.email).first()
+    if not user_record:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    
+    return get_user_trend_analytics(user_record.id, db)
+
+
+@app.get("/user/analytics/improvement")
+async def get_user_analytics_improvement_endpoint(
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> dict:
+    if current_user.role != "user":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only users can access improvement analysis",
+        )
+    user_record = db.query(User).filter(User.email == current_user.email).first()
+    if not user_record:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    
+    return get_user_improvement_analysis(user_record.id, db)
+
+
+@app.get("/user/photos/comparisons")
+async def get_user_photos_comparison_endpoint(
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> dict:
+    if current_user.role != "user":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only users can access photo comparisons",
+        )
+    user_record = db.query(User).filter(User.email == current_user.email).first()
+    if not user_record:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    
+    return get_user_photo_comparisons(user_record.id, db)
+
+
+@app.get("/user/analytics/data-comparison")
+async def get_user_skin_data_comparison_endpoint(
+    before_id: Optional[int] = None,
+    after_id: Optional[int] = None,
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> dict:
+    if current_user.role != "user":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only users can access skin data comparison",
+        )
+    user_record = db.query(User).filter(User.email == current_user.email).first()
+    if not user_record:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    
+    return get_user_skin_data_comparison(user_record.id, db, before_id=before_id, after_id=after_id)
+
+
+@app.post("/user/photos/upload-progress")
+async def upload_progress_photo_endpoint(
+    file: UploadFile = File(...),
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> dict:
+    if current_user.role != "user":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only users can upload progress photos",
+        )
+
+    allowed_types = ["image/jpeg", "image/png", "image/webp", "image/jpg"]
+    if file.content_type and file.content_type.lower() not in allowed_types:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid image format. Allowed formats: JPG, PNG, WEBP.",
+        )
+
+    user_record = db.query(User).filter(User.email == current_user.email).first()
+    if not user_record:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    import uuid
+    ext = Path(file.filename).suffix.lower() if file.filename else ".jpg"
+    if ext not in [".jpg", ".jpeg", ".png", ".webp"]:
+        ext = ".jpg"
+
+    filename = f"progress_user_{user_record.id}_{uuid.uuid4().hex[:8]}{ext}"
+    file_path = UPLOADS_DIR / filename
+
+    contents = await file.read()
+    if len(contents) > MAX_UPLOAD_BYTES:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail=f"File too large. Maximum allowed size is {MAX_UPLOAD_BYTES // (1024 * 1024)}MB.",
+        )
+    with open(file_path, "wb") as f:
+        f.write(contents)
+
+    image_url = f"/uploads/{filename}"
+
+    profile = db.query(SkinProfile).filter(SkinProfile.user_id == user_record.id).first()
+    if not profile:
+        profile = SkinProfile(user_id=user_record.id)
+        db.add(profile)
+
+    profile.image_url = image_url
+    if profile.skin_health_score is None or profile.skin_health_score == 0:
+        has_survey = bool(profile.skin_type or profile.age_group or profile.skin_concerns or profile.sleep_quality)
+        if has_survey:
+            profile.skin_health_score = calculate_skin_health_score(profile, db)
+
+    db.commit()
+    db.refresh(profile)
+
+    # Log assessment history session specifically for photo upload scan
+    history_entry = record_assessment_history(db, user_record.id, profile, trigger_source="photo_scan")
+
+    return {
+        "image_url": image_url,
+        "assessment_id": history_entry.assessment_id if history_entry else None,
+        "message": "Progress photo scan saved successfully and logged to timeline.",
+    }
+
+
 
 # ---------------------------------------------------------------------------
 # Admin approval endpoints
@@ -1813,6 +2391,7 @@ async def get_pending(
 ) -> dict:
     pending_users = db.query(User).filter(User.status == "pending").all()
     pending_consultants = db.query(Consultant).filter(Consultant.status == "pending").all()
+    pending_dermatologists = db.query(Dermatologist).filter(Dermatologist.status == "pending").all()
     return {
         "users": [
             {
@@ -1834,6 +2413,17 @@ async def get_pending(
             }
             for c in pending_consultants
         ],
+        "dermatologists": [
+            {
+                "id": d.id,
+                "name": d.name or "",
+                "email": d.email,
+                "role": "dermatologist",
+                "specialization": d.specialization or "Clinical Dermatology",
+                "created_at": d.created_at.isoformat() if d.created_at else None,
+            }
+            for d in pending_dermatologists
+        ],
     }
 
 
@@ -1844,6 +2434,7 @@ async def get_all_accounts(
 ) -> dict:
     all_users = db.query(User).all()
     all_consultants = db.query(Consultant).all()
+    all_dermatologists = db.query(Dermatologist).all()
     return {
         "users": [
             {
@@ -1865,6 +2456,17 @@ async def get_all_accounts(
             }
             for c in all_consultants
         ],
+        "dermatologists": [
+            {
+                "id": d.id,
+                "name": d.name or "",
+                "email": d.email,
+                "status": d.status,
+                "specialization": d.specialization or "Clinical Dermatology",
+                "created_at": d.created_at.isoformat() if d.created_at else None,
+            }
+            for d in all_dermatologists
+        ],
     }
 
 
@@ -1875,8 +2477,9 @@ async def approve_account(
     _: UserPayload = Depends(require_admin),
     db: Session = Depends(get_db),
 ) -> dict:
-    model = get_model_for_role(role)
-    if not model or role == "admin":
+    clean_role = role.lower()
+    model = get_model_for_role(clean_role)
+    if not model or clean_role == "admin":
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid role")
 
     record = db.query(model).filter(model.id == account_id).first()
@@ -1886,10 +2489,11 @@ async def approve_account(
     try:
         record.status = "approved"
         db.commit()
-        return {"message": f"{role.capitalize()} approved successfully"}
+        return {"message": f"{clean_role.capitalize()} approved successfully"}
     except Exception as exc:
         db.rollback()
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Approval failed: {str(exc)}") from exc
+        logger.error("Account approval failed for %s/%d: %s", role, account_id, exc)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Approval failed. Please try again.") from exc
 
 
 @app.post("/admin/reject/{role}/{account_id}")
@@ -1899,8 +2503,9 @@ async def reject_account(
     _: UserPayload = Depends(require_admin),
     db: Session = Depends(get_db),
 ) -> dict:
-    model = get_model_for_role(role)
-    if not model or role == "admin":
+    clean_role = role.lower()
+    model = get_model_for_role(clean_role)
+    if not model or clean_role == "admin":
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid role")
 
     record = db.query(model).filter(model.id == account_id).first()
@@ -1910,14 +2515,15 @@ async def reject_account(
     try:
         db.delete(record)
         db.commit()
-        return {"message": f"{role.capitalize()} account rejected and deleted successfully"}
+        return {"message": f"{clean_role.capitalize()} account rejected and deleted successfully"}
     except Exception as exc:
         db.rollback()
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Rejection failed: {str(exc)}") from exc
+        logger.error("Account rejection failed for %s/%d: %s", role, account_id, exc)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Rejection failed. Please try again.") from exc
 
 
 # ---------------------------------------------------------------------------
-# Admin allocation endpoints
+# Admin allocation endpoints (Consultants & Dermatologists)
 # ---------------------------------------------------------------------------
 
 @app.post("/admin/assign")
@@ -1953,7 +2559,8 @@ async def assign_user_to_consultant(
         return {"message": "User assigned to consultant successfully"}
     except Exception as exc:
         db.rollback()
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Assignment failed: {str(exc)}") from exc
+        logger.error("Assignment failed for user %d -> consultant %d: %s", req.user_id, req.consultant_id, exc)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Assignment failed. Please try again.") from exc
 
 
 @app.delete("/admin/unassign/{user_id}/{consultant_id}")
@@ -1977,7 +2584,70 @@ async def unassign_user_from_consultant(
         return {"message": "Assignment removed successfully"}
     except Exception as exc:
         db.rollback()
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Unassignment failed: {str(exc)}") from exc
+        logger.error("Unassignment failed for user %d / consultant %d: %s", user_id, consultant_id, exc)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Unassignment failed. Please try again.") from exc
+
+
+@app.post("/admin/assign-dermatologist")
+async def assign_user_to_dermatologist(
+    req: AssignDermatologistRequest,
+    _: UserPayload = Depends(require_admin),
+    db: Session = Depends(get_db),
+) -> dict:
+    user = db.query(User).filter(User.id == req.user_id).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Patient not found")
+    if user.status != "approved":
+        user.status = "approved"
+
+    dermatologist = db.query(Dermatologist).filter(Dermatologist.id == req.dermatologist_id).first()
+    if not dermatologist:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dermatologist not found")
+    if dermatologist.status != "approved":
+        dermatologist.status = "approved"
+
+    existing = (
+        db.query(DermatologistAssignment)
+        .filter(DermatologistAssignment.user_id == req.user_id, DermatologistAssignment.dermatologist_id == req.dermatologist_id)
+        .first()
+    )
+    if existing:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This patient is already assigned to this dermatologist")
+
+    try:
+        assignment = DermatologistAssignment(user_id=req.user_id, dermatologist_id=req.dermatologist_id)
+        db.add(assignment)
+        db.commit()
+        return {"message": "Patient assigned to dermatologist successfully"}
+    except Exception as exc:
+        db.rollback()
+        logger.error("Dermatologist assignment failed for user %d -> derm %d: %s", req.user_id, req.dermatologist_id, exc)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Assignment failed. Please try again.") from exc
+
+
+@app.delete("/admin/unassign-dermatologist/{user_id}/{dermatologist_id}")
+async def unassign_user_from_dermatologist(
+    user_id: int,
+    dermatologist_id: int,
+    _: UserPayload = Depends(require_admin),
+    db: Session = Depends(get_db),
+) -> dict:
+    assignment = (
+        db.query(DermatologistAssignment)
+        .filter(DermatologistAssignment.user_id == user_id, DermatologistAssignment.dermatologist_id == dermatologist_id)
+        .first()
+    )
+    if not assignment:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dermatologist assignment not found")
+
+    try:
+        db.delete(assignment)
+        db.commit()
+        return {"message": "Dermatologist assignment removed successfully"}
+    except Exception as exc:
+        db.rollback()
+        logger.error("Dermatologist unassignment failed: %s", exc)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Unassignment failed. Please try again.") from exc
 
 
 @app.get("/admin/assignments")
@@ -1986,11 +2656,12 @@ async def get_all_assignments(
     db: Session = Depends(get_db),
 ) -> dict:
     assignments = db.query(Assignment).all()
-    result = []
+    derm_assignments = db.query(DermatologistAssignment).all()
+    result_cons = []
     for a in assignments:
         user = a.user
         consultant = a.consultant
-        result.append({
+        result_cons.append({
             "id": a.id,
             "user_id": a.user_id,
             "user_name": (user.name or user.email) if user else "—",
@@ -2000,7 +2671,387 @@ async def get_all_assignments(
             "consultant_email": consultant.email if consultant else "—",
             "assigned_at": a.assigned_at.isoformat() if a.assigned_at else None,
         })
-    return {"assignments": result}
+    result_derm = []
+    for da in derm_assignments:
+        user = da.user
+        derm = da.dermatologist
+        result_derm.append({
+            "id": da.id,
+            "user_id": da.user_id,
+            "user_name": (user.name or user.email) if user else "—",
+            "user_email": user.email if user else "—",
+            "dermatologist_id": da.dermatologist_id,
+            "dermatologist_name": (derm.name or derm.email) if derm else "—",
+            "dermatologist_email": derm.email if derm else "—",
+            "assigned_at": da.assigned_at.isoformat() if da.assigned_at else None,
+        })
+    return {"assignments": result_cons, "dermatologist_assignments": result_derm}
+
+
+# ---------------------------------------------------------------------------
+# Admin Platform Analytics, Recommendation Monitoring & System Reports
+# ---------------------------------------------------------------------------
+
+@app.get("/admin/analytics/platform")
+async def get_platform_analytics(
+    _: UserPayload = Depends(require_admin),
+    db: Session = Depends(get_db),
+) -> dict:
+    """
+    Comprehensive platform analytics aggregation:
+    - User/Consultant/Dermatologist distribution & active counts
+    - Assessment trends, health score distribution, and concern rankings
+    - Routine adherence across active users
+    """
+    all_users = db.query(User).all()
+    all_consultants = db.query(Consultant).all()
+    all_dermatologists = db.query(Dermatologist).all()
+    all_profiles = db.query(SkinProfile).all()
+    all_assessments = db.query(AssessmentHistory).all()
+    all_routines = db.query(SkincareRoutine).all()
+    all_checkins = db.query(RoutineCheckin).all()
+    all_treatments = db.query(ClinicalRecommendation).all()
+
+    total_users_count = len(all_users)
+    total_consultants_count = len(all_consultants)
+    total_dermatologists_count = len(all_dermatologists)
+
+    # 30-day active users (have assessment or check-in in last 30 days)
+    thirty_days_ago = datetime.now(timezone.utc) - timedelta(days=30)
+    active_user_ids = set()
+    for c in all_checkins:
+        if c.created_at and c.created_at.replace(tzinfo=timezone.utc if c.created_at.tzinfo is None else c.created_at.tzinfo) >= thirty_days_ago:
+            active_user_ids.add(c.user_id)
+    for a in all_assessments:
+        if a.assessment_date and a.assessment_date.replace(tzinfo=timezone.utc if a.assessment_date.tzinfo is None else a.assessment_date.tzinfo) >= thirty_days_ago:
+            active_user_ids.add(a.user_id)
+
+    # Health score distribution
+    scores = [p.skin_health_score for p in all_profiles if p.skin_health_score and p.skin_health_score > 0]
+    avg_health_score = round(sum(scores) / len(scores), 1) if scores else 0.0
+
+    score_distribution = {"Excellent (85-100)": 0, "Good (70-84)": 0, "Fair (50-69)": 0, "Poor (<50)": 0}
+    for s in scores:
+        if s >= 85:
+            score_distribution["Excellent (85-100)"] += 1
+        elif s >= 70:
+            score_distribution["Good (70-84)"] += 1
+        elif s >= 50:
+            score_distribution["Fair (50-69)"] += 1
+        else:
+            score_distribution["Poor (<50)"] += 1
+
+    # Top reported skin concerns
+    concern_counts = {}
+    for p in all_profiles:
+        if p.skin_concerns:
+            items = [c.strip().title() for c in p.skin_concerns.replace(";", ",").split(",") if c.strip()]
+            for item in items:
+                concern_counts[item] = concern_counts.get(item, 0) + 1
+
+    top_concerns = sorted([{"name": k, "count": v} for k, v in concern_counts.items()], key=lambda x: x["count"], reverse=True)[:8]
+
+    # Skin type distribution
+    skin_type_counts = {}
+    for p in all_profiles:
+        st = (p.skin_type or "Unspecified").strip().title()
+        skin_type_counts[st] = skin_type_counts.get(st, 0) + 1
+
+    # 14-day timeline of registrations and assessments
+    timeline_labels = []
+    reg_timeline = []
+    assess_timeline = []
+    for i in range(13, -1, -1):
+        target_day = (date.today() - timedelta(days=i))
+        day_str = target_day.strftime("%b %d")
+        timeline_labels.append(day_str)
+
+        # Count registrations on this day
+        r_cnt = sum(
+            1 for u in all_users
+            if u.created_at and u.created_at.date() == target_day
+        )
+        reg_timeline.append(r_cnt)
+
+        # Count assessments on this day
+        a_cnt = sum(
+            1 for a in all_assessments
+            if a.assessment_date and a.assessment_date.date() == target_day
+        )
+        assess_timeline.append(a_cnt)
+
+    # Average routine adherence across all active users
+    total_checkins_cnt = len(all_checkins)
+    completed_checkins_cnt = sum(1 for c in all_checkins if c.morning_completed or c.evening_completed)
+    avg_adherence_pct = round((completed_checkins_cnt / total_checkins_cnt * 100)) if total_checkins_cnt > 0 else 0
+
+    return {
+        "kpis": {
+            "total_users": total_users_count,
+            "total_consultants": total_consultants_count,
+            "total_dermatologists": total_dermatologists_count,
+            "active_users_30d": len(active_user_ids),
+            "total_assessments": len(all_assessments),
+            "total_routines": len(all_routines),
+            "total_treatments": len(all_treatments),
+            "avg_skin_health_score": avg_health_score,
+            "avg_adherence_pct": avg_adherence_pct,
+        },
+        "score_distribution": score_distribution,
+        "top_concerns": top_concerns,
+        "skin_type_distribution": skin_type_counts,
+        "timeline": {
+            "labels": timeline_labels,
+            "registrations": reg_timeline,
+            "assessments": assess_timeline,
+        },
+    }
+
+
+@app.get("/admin/recommendations/monitoring")
+async def get_recommendation_monitoring(
+    _: UserPayload = Depends(require_admin),
+    db: Session = Depends(get_db),
+) -> dict:
+    """
+    Real-time monitoring of recommendations generated and assigned:
+    - Product catalog category metrics
+    - Assigned routine steps with actives
+    - Clinical treatment recommendations by dermatologists
+    - Top prescribed active ingredients
+    """
+    # Active routine steps that contain ingredients
+    routine_steps = db.query(RoutineStep).order_by(RoutineStep.created_at.desc()).limit(100).all()
+    clinical_recs = db.query(ClinicalRecommendation).order_by(ClinicalRecommendation.created_at.desc()).limit(100).all()
+
+    # Catalog overview
+    catalog_by_category = {}
+    for prod in PRODUCT_CATALOG:
+        cat = prod.get("category", "other")
+        catalog_by_category[cat] = catalog_by_category.get(cat, 0) + 1
+
+    # Recent recommendation feed
+    recent_feed = []
+    for cr in clinical_recs:
+        user = cr.user
+        derm = cr.dermatologist
+        recent_feed.append({
+            "id": f"clin-{cr.id}",
+            "type": "Clinical Treatment",
+            "title": cr.diagnosis_title,
+            "details": cr.treatment_plan[:80] + ("..." if len(cr.treatment_plan) > 80 else ""),
+            "actives": cr.medications_or_actives or "None specified",
+            "urgency": cr.urgency_level,
+            "target_user": (user.name or user.email) if user else f"User #{cr.user_id}",
+            "source": f"Dr. {derm.name or derm.email}" if derm else "Dermatologist",
+            "date": cr.created_at.strftime("%Y-%m-%d %H:%M") if cr.created_at else "—",
+        })
+
+    for step in routine_steps[:40]:
+        user_name = "Assigned User"
+        if step.routine and step.routine.user:
+            user_name = step.routine.user.name or step.routine.user.email
+        recent_feed.append({
+            "id": f"step-{step.id}",
+            "type": "Routine Step",
+            "title": step.step_title,
+            "details": step.description[:80] + ("..." if len(step.description) > 80 else ""),
+            "actives": step.active_ingredients or "Formulation blend",
+            "urgency": "Customized" if step.is_customized else "Standard",
+            "target_user": user_name,
+            "source": "Specialist / AI Engine",
+            "date": step.created_at.strftime("%Y-%m-%d %H:%M") if step.created_at else "—",
+        })
+
+    # Top prescribed / recommended actives frequency
+    active_freq = {}
+    for cr in clinical_recs:
+        if cr.medications_or_actives:
+            for act in cr.medications_or_actives.split(","):
+                clean = act.strip().title()
+                if clean:
+                    active_freq[clean] = active_freq.get(clean, 0) + 1
+    for step in routine_steps:
+        if step.active_ingredients:
+            for act in step.active_ingredients.split(","):
+                clean = act.strip().title()
+                if clean:
+                    active_freq[clean] = active_freq.get(clean, 0) + 1
+
+    top_actives = sorted([{"name": k, "count": v} for k, v in active_freq.items()], key=lambda x: x["count"], reverse=True)[:10]
+
+    return {
+        "catalog_summary": {
+            "total_products": len(PRODUCT_CATALOG),
+            "categories": catalog_by_category,
+        },
+        "stats": {
+            "total_clinical_prescriptions": len(clinical_recs),
+            "total_routine_steps_logged": len(routine_steps),
+            "top_prescribed_actives": top_actives,
+        },
+        "recent_recommendations": recent_feed[:50],
+    }
+
+
+@app.get("/admin/reports/system-health")
+async def get_system_health_report(
+    _: UserPayload = Depends(require_admin),
+    db: Session = Depends(get_db),
+) -> dict:
+    """
+    Returns live system diagnostics, database metrics, storage usage, and security status.
+    """
+    db_file = BASE_DIR / "skincare.db"
+    db_size_mb = round(db_file.stat().st_size / (1024 * 1024), 2) if db_file.exists() else 0.0
+
+    # Count rows in key tables
+    counts = {
+        "users": db.query(User).count(),
+        "consultants": db.query(Consultant).count(),
+        "dermatologists": db.query(Dermatologist).count(),
+        "skin_profiles": db.query(SkinProfile).count(),
+        "assessment_history": db.query(AssessmentHistory).count(),
+        "routines": db.query(SkincareRoutine).count(),
+        "routine_steps": db.query(RoutineStep).count(),
+        "routine_checkins": db.query(RoutineCheckin).count(),
+        "clinical_recommendations": db.query(ClinicalRecommendation).count(),
+    }
+
+    # Uploads storage metrics
+    upload_files = list(UPLOADS_DIR.glob("*.*"))
+    upload_size_bytes = sum(f.stat().st_size for f in upload_files if f.is_file())
+    upload_size_mb = round(upload_size_bytes / (1024 * 1024), 2)
+
+    return {
+        "status": "healthy",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "database": {
+            "status": "connected",
+            "type": "SQLite with SQLAlchemy 2.0",
+            "size_mb": db_size_mb,
+            "record_counts": counts,
+        },
+        "ml_engines": {
+            "skin_health_scoring": "loaded (scoring_engine.py v2.0)",
+            "risk_assessment_engine": "loaded (risk_engine.py)",
+            "priority_concern_model": "loaded (priority_concern.py)",
+            "ingredient_intelligence": f"active ({len(PRODUCT_CATALOG)} products indexed)",
+        },
+        "storage": {
+            "uploads_directory": str(UPLOADS_DIR.name),
+            "file_count": len(upload_files),
+            "total_size_mb": upload_size_mb,
+        },
+        "security": {
+            "jwt_algorithm": ALGORITHM,
+            "token_validity_hours": ACCESS_TOKEN_EXPIRE_MINUTES // 60,
+            "cors_protection": "active",
+            "security_headers": "nosniff, DENY, xss-protection enabled",
+        },
+    }
+
+
+async def export_admin_report(
+    report_type: str,
+    format: Optional[str] = "csv",
+    _: UserPayload = None,
+    db: Session = None,
+):
+    """
+    Export platform data in CSV or JSON format.
+    Supports report_type: 'users', 'assessments', 'recommendations', 'system_summary'.
+    """
+    clean_type = report_type.lower()
+    clean_fmt = (format or "csv").lower()
+
+    if clean_type == "users":
+        users = db.query(User).all()
+        data = [
+            {
+                "ID": u.id,
+                "Name": u.name or "",
+                "Email": u.email,
+                "Status": u.status,
+                "Registered": u.created_at.strftime("%Y-%m-%d %H:%M") if u.created_at else "",
+            }
+            for u in users
+        ]
+        filename = f"users_report_{date.today().isoformat()}"
+
+    elif clean_type == "assessments":
+        assessments = db.query(AssessmentHistory).order_by(AssessmentHistory.assessment_date.desc()).all()
+        data = [
+            {
+                "AssessmentID": a.assessment_id,
+                "UserID": a.user_id,
+                "HealthScore": a.skin_health_score,
+                "Category": a.skin_health_category,
+                "RiskLevel": a.overall_risk_level,
+                "TriggerSource": a.trigger_source,
+                "Date": a.assessment_date.strftime("%Y-%m-%d %H:%M") if a.assessment_date else "",
+            }
+            for a in assessments
+        ]
+        filename = f"assessments_audit_{date.today().isoformat()}"
+
+    elif clean_type == "recommendations":
+        recs = db.query(ClinicalRecommendation).order_by(ClinicalRecommendation.created_at.desc()).all()
+        data = [
+            {
+                "ID": r.id,
+                "PatientID": r.user_id,
+                "DermatologistID": r.dermatologist_id,
+                "Diagnosis": r.diagnosis_title,
+                "TreatmentPlan": r.treatment_plan,
+                "Actives": r.medications_or_actives or "",
+                "Urgency": r.urgency_level,
+                "Date": r.created_at.strftime("%Y-%m-%d %H:%M") if r.created_at else "",
+            }
+            for r in recs
+        ]
+        filename = f"recommendations_report_{date.today().isoformat()}"
+
+    else:
+        # Platform summary
+        data = [
+            {"Metric": "Total Users", "Value": db.query(User).count()},
+            {"Metric": "Total Consultants", "Value": db.query(Consultant).count()},
+            {"Metric": "Total Dermatologists", "Value": db.query(Dermatologist).count()},
+            {"Metric": "Total Assessments", "Value": db.query(AssessmentHistory).count()},
+            {"Metric": "Total Clinical Treatments", "Value": db.query(ClinicalRecommendation).count()},
+            {"Metric": "Total Checkins Logged", "Value": db.query(RoutineCheckin).count()},
+            {"Metric": "Report Generated At", "Value": datetime.now(timezone.utc).isoformat()},
+        ]
+        filename = f"platform_summary_{date.today().isoformat()}"
+
+    if clean_fmt == "json":
+        return Response(
+            content=json.dumps(data, indent=2),
+            media_type="application/json",
+            headers={"Content-Disposition": f'attachment; filename="{filename}.json"'},
+        )
+
+    # Convert data list of dicts to CSV string
+    if not data:
+        csv_content = "No data available\n"
+    else:
+        headers = list(data[0].keys())
+        lines = [",".join(f'"{h}"' for h in headers)]
+        for row in data:
+            row_vals = []
+            for h in headers:
+                val = str(row.get(h, "")).replace('"', '""')
+                row_vals.append(f'"{val}"')
+            lines.append(",".join(row_vals))
+        csv_content = "\n".join(lines)
+
+    return Response(
+        content=csv_content,
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{filename}.csv"'},
+    )
+
 
 
 # ---------------------------------------------------------------------------
@@ -2396,6 +3447,37 @@ async def get_consultant_progress(
         "high_risk_clients_count": high_risk_count,
         "client_progress": client_progress_items,
     }
+
+
+@app.get("/consultant/client/{client_id}/analytics")
+async def get_consultant_client_analytics(
+    client_id: int,
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> dict:
+    verify_consultant_client_access(current_user, client_id, db)
+    trends = get_user_trend_analytics(client_id, db)
+    improvement = get_user_improvement_analysis(client_id, db)
+    photos = get_user_photo_comparisons(client_id, db)
+    data_comparison = get_user_skin_data_comparison(client_id, db)
+    return {
+        "trends": trends,
+        "improvement": improvement,
+        "photos": photos,
+        "data_comparison": data_comparison,
+    }
+
+
+@app.get("/consultant/client/{client_id}/data-comparison")
+async def get_consultant_client_data_comparison(
+    client_id: int,
+    before_id: Optional[int] = None,
+    after_id: Optional[int] = None,
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> dict:
+    verify_consultant_client_access(current_user, client_id, db)
+    return get_user_skin_data_comparison(client_id, db, before_id=before_id, after_id=after_id)
 
 
 @app.post("/consultant/client/{client_id}/routine-step", response_model=RoutineStepResponse)
@@ -3108,6 +4190,941 @@ async def get_consultant_client_product_recommendations(
         category=category
     )
 
+
+# ---------------------------------------------------------------------------
+# Dermatologist — Clinical Care, Patient Insights, Reports, Treatments & Analytics
+# ---------------------------------------------------------------------------
+
+def verify_dermatologist_patient_access(current_user: UserPayload, patient_id: int, db: Session) -> User:
+    """Ensure the requester is an approved dermatologist assigned to this patient (or admin)."""
+    if current_user.role not in ["dermatologist", "admin"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Clinical dermatological credentials required to access patient records.",
+        )
+
+    patient = db.query(User).filter(User.id == patient_id).first()
+    if not patient:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Patient record not found.")
+
+    if current_user.role == "dermatologist":
+        derm = db.query(Dermatologist).filter(Dermatologist.email == current_user.email).first()
+        if not derm:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Dermatologist profile not found.")
+        if derm.status != "approved":
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Your dermatologist account is pending admin approval.")
+
+        assignment = (
+            db.query(DermatologistAssignment)
+            .filter(
+                DermatologistAssignment.user_id == patient_id,
+                DermatologistAssignment.dermatologist_id == derm.id,
+            )
+            .first()
+        )
+        if not assignment:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="This patient is not assigned to your clinical care roster.",
+            )
+
+    return patient
+
+
+@app.get("/dermatologist/my-patients")
+async def get_dermatologist_patients(
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> dict:
+    """Retrieve all patients assigned to the logged-in dermatologist."""
+    if current_user.role not in ["dermatologist", "admin"]:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Dermatological credentials required")
+
+    if current_user.role == "admin":
+        assignments = db.query(DermatologistAssignment).all()
+    else:
+        derm = db.query(Dermatologist).filter(Dermatologist.email == current_user.email).first()
+        if not derm:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dermatologist not found")
+        if derm.status != "approved":
+            return {"patients": [], "total": 0, "status": derm.status}
+        assignments = (
+            db.query(DermatologistAssignment)
+            .filter(DermatologistAssignment.dermatologist_id == derm.id)
+            .all()
+        )
+
+    patients_list = []
+    for a in assignments:
+        u = a.user
+        if not u:
+            continue
+        profile = u.skin_profile
+        latest_assessment = (
+            db.query(AssessmentHistory)
+            .filter(AssessmentHistory.user_id == u.id)
+            .order_by(AssessmentHistory.assessment_date.desc())
+            .first()
+        )
+        adherence_data = get_user_adherence_stats(u.id, db)
+        treatment_count = (
+            db.query(ClinicalRecommendation)
+            .filter(ClinicalRecommendation.user_id == u.id)
+            .count()
+        )
+
+        patients_list.append({
+            "id": u.id,
+            "name": u.name or u.email.split("@")[0].capitalize(),
+            "email": u.email,
+            "status": u.status,
+            "assigned_at": a.assigned_at.isoformat() if a.assigned_at else None,
+            "skin_type": profile.skin_type if profile and profile.skin_type else "Not set",
+            "age_group": profile.age_group if profile and profile.age_group else "Not set",
+            "skin_concerns": profile.skin_concerns if profile and profile.skin_concerns else "",
+            "allergies": profile.allergies if profile and profile.allergies else "",
+            "sensitivities": profile.sensitivities if profile and profile.sensitivities else "",
+            "skin_health_score": getattr(profile, "skin_health_score", 0) if profile else 0,
+            "image_url": profile.image_url if profile and profile.image_url else "",
+            "latest_assessment": {
+                "assessment_id": latest_assessment.assessment_id,
+                "score": latest_assessment.skin_health_score,
+                "category": latest_assessment.skin_health_category,
+                "risk_level": latest_assessment.overall_risk_level,
+                "date": latest_assessment.assessment_date.isoformat() if latest_assessment.assessment_date else None,
+            } if latest_assessment else None,
+            "adherence": adherence_data,
+            "active_treatments_count": treatment_count,
+        })
+
+    return {"patients": patients_list, "total": len(patients_list)}
+
+
+@app.get("/dermatologist/patient/{patient_id}")
+async def get_dermatologist_patient_dossier(
+    patient_id: int,
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> dict:
+    """Retrieve comprehensive medical dossier for a patient."""
+    patient = verify_dermatologist_patient_access(current_user, patient_id, db)
+    profile = patient.skin_profile
+
+    # Latest assessment
+    latest_assessment = (
+        db.query(AssessmentHistory)
+        .filter(AssessmentHistory.user_id == patient_id)
+        .order_by(AssessmentHistory.assessment_date.desc())
+        .first()
+    )
+
+    # All assessment history
+    history = (
+        db.query(AssessmentHistory)
+        .filter(AssessmentHistory.user_id == patient_id)
+        .order_by(AssessmentHistory.assessment_date.desc())
+        .limit(10)
+        .all()
+    )
+    history_data = []
+    for h in history:
+        history_data.append({
+            "assessment_id": h.assessment_id,
+            "skin_health_score": h.skin_health_score,
+            "skin_health_category": h.skin_health_category,
+            "overall_risk_level": h.overall_risk_level,
+            "assessment_date": h.assessment_date.isoformat() if h.assessment_date else None,
+            "model_version": h.model_version,
+            "image_url": h.image_url or "",
+            "trigger_source": h.trigger_source,
+            "notes": h.notes or "",
+            "risks": [
+                {
+                    "risk_title": r.risk_title,
+                    "risk_level": r.risk_level,
+                    "description": r.description,
+                    "recommendation": r.recommendation,
+                }
+                for r in h.risks
+            ],
+            "priorities": [
+                {
+                    "concern_name": p.concern_name,
+                    "priority_rank": p.priority_rank,
+                    "severity": p.severity,
+                    "priority_score": p.priority_score,
+                }
+                for p in h.priorities
+            ],
+        })
+
+    # Routine steps
+    routine = db.query(SkincareRoutine).filter(SkincareRoutine.user_id == patient_id).first()
+    steps_data = []
+    if routine and routine.steps:
+        for s in routine.steps:
+            steps_data.append({
+                "id": s.id,
+                "time_of_day": s.time_of_day,
+                "step_order": s.step_order,
+                "category": s.category,
+                "category_icon": s.category_icon,
+                "step_title": s.step_title,
+                "description": s.description,
+                "active_ingredients": s.active_ingredients or "",
+                "frequency": s.frequency,
+                "caution_notes": s.caution_notes or "",
+                "is_active": s.is_active,
+                "is_customized": s.is_customized,
+            })
+
+    # Clinical treatments history
+    treatments = (
+        db.query(ClinicalRecommendation)
+        .filter(ClinicalRecommendation.user_id == patient_id)
+        .order_by(ClinicalRecommendation.created_at.desc())
+        .all()
+    )
+    treatments_data = [
+        {
+            "id": t.id,
+            "diagnosis_title": t.diagnosis_title,
+            "treatment_plan": t.treatment_plan,
+            "medications_or_actives": t.medications_or_actives or "",
+            "urgency_level": t.urgency_level,
+            "clinical_notes": t.clinical_notes or "",
+            "created_at": t.created_at.isoformat() if t.created_at else None,
+            "dermatologist_name": f"Dr. {t.dermatologist.name or t.dermatologist.email}" if t.dermatologist else "Specialist",
+        }
+        for t in treatments
+    ]
+
+    adherence_stats = get_user_adherence_stats(patient_id, db)
+
+    return {
+        "patient": {
+            "id": patient.id,
+            "name": patient.name or patient.email.split("@")[0].capitalize(),
+            "email": patient.email,
+            "created_at": patient.created_at.isoformat() if patient.created_at else None,
+        },
+        "profile": {
+            "skin_type": profile.skin_type if profile else "",
+            "age_group": profile.age_group if profile else "",
+            "skin_concerns": profile.skin_concerns if profile else "",
+            "allergies": profile.allergies if profile else "",
+            "sensitivities": profile.sensitivities if profile else "",
+            "lifestyle_habits": profile.lifestyle_habits if profile else "",
+            "sleep_quality": profile.sleep_quality if profile else "",
+            "water_intake": profile.water_intake if profile else "",
+            "environmental_exposure": profile.environmental_exposure if profile else "",
+            "image_url": profile.image_url if profile else "",
+            "skin_health_score": getattr(profile, "skin_health_score", 0) if profile else 0,
+        } if profile else None,
+        "latest_assessment": history_data[0] if history_data else None,
+        "assessment_history": history_data,
+        "routine_steps": steps_data,
+        "treatments": treatments_data,
+        "adherence": adherence_stats,
+    }
+
+
+@app.get("/dermatologist/reports")
+async def get_dermatologist_reports(
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> dict:
+    """Retrieve skin condition assessment reports for patients assigned to this dermatologist."""
+    if current_user.role not in ["dermatologist", "admin"]:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Dermatological credentials required")
+
+    if current_user.role == "admin":
+        assessments = db.query(AssessmentHistory).order_by(AssessmentHistory.assessment_date.desc()).limit(100).all()
+    else:
+        derm = db.query(Dermatologist).filter(Dermatologist.email == current_user.email).first()
+        if not derm:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dermatologist not found")
+        assigned_user_ids = [
+            a.user_id for a in db.query(DermatologistAssignment).filter(DermatologistAssignment.dermatologist_id == derm.id).all()
+        ]
+        if not assigned_user_ids:
+            return {"reports": [], "total": 0}
+        assessments = (
+            db.query(AssessmentHistory)
+            .filter(AssessmentHistory.user_id.in_(assigned_user_ids))
+            .order_by(AssessmentHistory.assessment_date.desc())
+            .all()
+        )
+
+    reports = []
+    for a in assessments:
+        u = a.user
+        reports.append({
+            "assessment_id": a.assessment_id,
+            "patient_id": a.user_id,
+            "patient_name": (u.name or u.email) if u else f"Patient #{a.user_id}",
+            "patient_email": u.email if u else "",
+            "skin_health_score": a.skin_health_score,
+            "skin_health_category": a.skin_health_category,
+            "overall_risk_level": a.overall_risk_level,
+            "assessment_date": a.assessment_date.isoformat() if a.assessment_date else None,
+            "model_version": a.model_version,
+            "trigger_source": a.trigger_source,
+            "notes": a.notes or "",
+            "image_url": a.image_url or "",
+            "risks_count": len(a.risks) if a.risks else 0,
+            "priorities_count": len(a.priorities) if a.priorities else 0,
+            "priorities": [
+                {
+                    "concern_name": p.concern_name,
+                    "severity": p.severity,
+                    "priority_rank": p.priority_rank,
+                }
+                for p in a.priorities
+            ] if a.priorities else [],
+        })
+
+    return {"reports": reports, "total": len(reports)}
+
+
+@app.get("/dermatologist/patient/{patient_id}/analytics")
+async def get_dermatologist_patient_analytics(
+    patient_id: int,
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> dict:
+    """Retrieve longitudinal analytics, trend lines, and recovery data for a patient."""
+    verify_dermatologist_patient_access(current_user, patient_id, db)
+
+    trends = get_user_trend_analytics(patient_id, db)
+    improvement = get_user_improvement_analysis(patient_id, db)
+    data_comparison = get_user_skin_data_comparison(patient_id, db)
+    photo_comparisons = get_user_photo_comparisons(patient_id, db)
+
+    return {
+        "patient_id": patient_id,
+        "trends": trends,
+        "improvement": improvement,
+        "data_comparison": data_comparison,
+        "photo_comparisons": photo_comparisons,
+    }
+
+
+@app.post("/dermatologist/patient/{patient_id}/treatment")
+async def create_dermatologist_treatment(
+    patient_id: int,
+    req: ClinicalTreatmentCreate,
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> dict:
+    """Prescribe clinical treatment recommendations and optionally add them to the patient's live routine."""
+    patient = verify_dermatologist_patient_access(current_user, patient_id, db)
+
+    derm = db.query(Dermatologist).filter(Dermatologist.email == current_user.email).first()
+    if not derm and current_user.role == "admin":
+        # Admin acting on behalf of dermatologist: find first approved derm or self
+        derm = db.query(Dermatologist).first()
+    if not derm:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dermatologist profile not found")
+
+    clinical_rec = ClinicalRecommendation(
+        dermatologist_id=derm.id,
+        user_id=patient_id,
+        diagnosis_title=req.diagnosis_title.strip(),
+        treatment_plan=req.treatment_plan.strip(),
+        medications_or_actives=req.medications_or_actives.strip() if req.medications_or_actives else "",
+        urgency_level=req.urgency_level or "Routine",
+        clinical_notes=req.clinical_notes.strip() if req.clinical_notes else "",
+    )
+    db.add(clinical_rec)
+    db.flush()
+
+    injected_step_id = None
+    if req.inject_to_routine:
+        routine = db.query(SkincareRoutine).filter(SkincareRoutine.user_id == patient_id).first()
+        if not routine:
+            routine = SkincareRoutine(user_id=patient_id, season=get_current_season())
+            db.add(routine)
+            db.flush()
+
+        # Determine step order
+        existing_steps = (
+            db.query(RoutineStep)
+            .filter(RoutineStep.routine_id == routine.id, RoutineStep.time_of_day == (req.time_of_day or "evening"))
+            .count()
+        )
+
+        step = RoutineStep(
+            routine_id=routine.id,
+            time_of_day=req.time_of_day or "evening",
+            step_order=existing_steps + 1,
+            category=req.category or "treatment",
+            category_icon="🩺",
+            step_title=f"Rx: {req.diagnosis_title}",
+            description=req.treatment_plan,
+            active_ingredients=req.medications_or_actives or "",
+            frequency="Daily" if req.urgency_level != "Urgent" else "Twice Daily",
+            caution_notes=f"Prescribed by Dr. {derm.name or 'Specialist'}: {req.clinical_notes or 'Follow exact instructions.'}",
+            is_active=True,
+            is_customized=True,
+        )
+        db.add(step)
+        db.flush()
+        injected_step_id = step.id
+
+    db.commit()
+
+    return {
+        "message": "Clinical treatment recommendation prescribed successfully",
+        "treatment_id": clinical_rec.id,
+        "injected_step_id": injected_step_id,
+    }
+
+
+@app.get("/dermatologist/treatments")
+async def get_dermatologist_treatments(
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> dict:
+    """List all clinical treatment recommendations issued by this dermatologist."""
+    if current_user.role not in ["dermatologist", "admin"]:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Dermatological credentials required")
+
+    if current_user.role == "admin":
+        recs = db.query(ClinicalRecommendation).order_by(ClinicalRecommendation.created_at.desc()).all()
+    else:
+        derm = db.query(Dermatologist).filter(Dermatologist.email == current_user.email).first()
+        if not derm:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dermatologist not found")
+        recs = (
+            db.query(ClinicalRecommendation)
+            .filter(ClinicalRecommendation.dermatologist_id == derm.id)
+            .order_by(ClinicalRecommendation.created_at.desc())
+            .all()
+        )
+
+    result = []
+    for r in recs:
+        u = r.user
+        result.append({
+            "id": r.id,
+            "patient_id": r.user_id,
+            "patient_name": (u.name or u.email) if u else f"Patient #{r.user_id}",
+            "diagnosis_title": r.diagnosis_title,
+            "treatment_plan": r.treatment_plan,
+            "medications_or_actives": r.medications_or_actives or "",
+            "urgency_level": r.urgency_level,
+            "clinical_notes": r.clinical_notes or "",
+            "created_at": r.created_at.isoformat() if r.created_at else None,
+        })
+
+    return {"treatments": result, "total": len(result)}
+
+
+@app.post("/dermatologist/patient/{patient_id}/routine-step", response_model=RoutineStepResponse)
+async def add_dermatologist_routine_step(
+    patient_id: int,
+    step_data: ConsultantRoutineStepCreate,
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> RoutineStepResponse:
+    """Add a medical routine step directly into the patient's care regimen."""
+    verify_dermatologist_patient_access(current_user, patient_id, db)
+
+    routine = db.query(SkincareRoutine).filter(SkincareRoutine.user_id == patient_id).first()
+    if not routine:
+        routine = SkincareRoutine(user_id=patient_id, season=get_current_season())
+        db.add(routine)
+        db.flush()
+
+    existing_steps = (
+        db.query(RoutineStep)
+        .filter(RoutineStep.routine_id == routine.id, RoutineStep.time_of_day == step_data.time_of_day)
+        .count()
+    )
+
+    new_step = RoutineStep(
+        routine_id=routine.id,
+        time_of_day=step_data.time_of_day,
+        step_order=existing_steps + 1,
+        category=step_data.category,
+        category_icon="🩺",
+        step_title=step_data.step_title,
+        description=step_data.description or "",
+        active_ingredients=step_data.active_ingredients or "",
+        frequency=step_data.frequency or "Daily",
+        caution_notes=step_data.caution_notes or "",
+        is_active=True,
+        is_customized=True,
+    )
+    db.add(new_step)
+    db.commit()
+    db.refresh(new_step)
+
+    return RoutineStepResponse(
+        id=new_step.id,
+        time_of_day=new_step.time_of_day,
+        step_order=new_step.step_order,
+        category=new_step.category,
+        category_icon=new_step.category_icon,
+        step_title=new_step.step_title,
+        description=new_step.description,
+        active_ingredients=new_step.active_ingredients or "",
+        frequency=new_step.frequency,
+        caution_notes=new_step.caution_notes or "",
+        is_active=new_step.is_active,
+        is_customized=new_step.is_customized,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Reports & Export — PDF + Excel Endpoints for All Roles
+# ---------------------------------------------------------------------------
+
+def _report_response(content: bytes, filename: str, fmt: str) -> Response:
+    """Create a downloadable file response for report exports."""
+    if fmt == "excel":
+        return Response(
+            content=content,
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={"Content-Disposition": f'attachment; filename="{filename}.xlsx"'},
+        )
+    return Response(
+        content=content,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}.pdf"'},
+    )
+
+
+def _resolve_report_format(fmt: Optional[str]) -> str:
+    """Normalize format parameter to 'pdf' or 'excel'."""
+    if fmt and fmt.strip().lower() in ["excel", "xlsx", "xls"]:
+        return "excel"
+    return "pdf"
+
+
+def _get_user_report_context(email: str, db: Session):
+    """Load user + profile + assessments + adherence + routine for reports."""
+    user = db.query(User).filter(User.email == email.lower().strip()).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    profile = db.query(SkinProfile).filter(SkinProfile.user_id == user.id).first()
+    if not profile:
+        profile = SkinProfile(user_id=user.id, skin_health_score=0)
+        db.add(profile)
+        db.commit()
+        db.refresh(profile)
+    assessments = (
+        db.query(AssessmentHistory)
+        .filter(AssessmentHistory.user_id == user.id)
+        .order_by(AssessmentHistory.assessment_date.desc())
+        .all()
+    )
+    adherence = get_user_adherence_stats(user.id, db)
+    routine = db.query(SkincareRoutine).filter(SkincareRoutine.user_id == user.id).first()
+    return user, profile, assessments, adherence, routine
+
+
+# ── User Report Endpoints ──────────────────────────────────────────────────
+
+@app.get("/user/reports/skin-assessment")
+async def user_report_skin_assessment(
+    format: Optional[str] = "pdf",
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Download the user's Skin Assessment Report as PDF or Excel."""
+    if current_user.role != "user":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User access required")
+    fmt = _resolve_report_format(format)
+    user, profile, assessments, _, _ = _get_user_report_context(current_user.email, db)
+    content = build_skin_assessment_report(user, profile, assessments, fmt)
+    return _report_response(content, f"skin_assessment_{date.today().isoformat()}", fmt)
+
+
+@app.get("/user/reports/routine")
+async def user_report_routine(
+    format: Optional[str] = "pdf",
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Download the user's Routine Report as PDF or Excel."""
+    if current_user.role != "user":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User access required")
+    fmt = _resolve_report_format(format)
+    user, _, _, _, routine = _get_user_report_context(current_user.email, db)
+    if not routine:
+        routine = ensure_user_routine(db, user.id)
+    content = build_routine_report(user, routine, fmt)
+    return _report_response(content, f"routine_report_{date.today().isoformat()}", fmt)
+
+
+@app.get("/user/reports/product-recommendations")
+async def user_report_products(
+    format: Optional[str] = "pdf",
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Download the user's Product Recommendation Report as PDF or Excel."""
+    if current_user.role != "user":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User access required")
+    fmt = _resolve_report_format(format)
+    user, profile, _, _, _ = _get_user_report_context(current_user.email, db)
+    try:
+        recs_result = get_personalized_recommendations(
+            skin_type=profile.skin_type or "Normal",
+            concerns=[c.strip() for c in (profile.skin_concerns or "").split(",") if c.strip()],
+            allergies=profile.allergies or "",
+            sensitivities=profile.sensitivities or "",
+            skin_health_score=profile.skin_health_score or 70,
+            current_season=get_current_season(),
+        )
+        products = recs_result.get("recommendations", [])
+    except Exception:
+        products = []
+    content = build_product_recommendation_report(user, profile, products, fmt)
+    return _report_response(content, f"product_recommendations_{date.today().isoformat()}", fmt)
+
+
+@app.get("/user/reports/progress")
+async def user_report_progress(
+    format: Optional[str] = "pdf",
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Download the user's Progress Report as PDF or Excel."""
+    if current_user.role != "user":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User access required")
+    fmt = _resolve_report_format(format)
+    user, _, assessments, adherence, _ = _get_user_report_context(current_user.email, db)
+    adh_for_report = {
+        "total_checkins": adherence.get("total_logged_days", 0),
+        "morning_completed": adherence.get("morning_completed_count", 0),
+        "evening_completed": adherence.get("evening_completed_count", 0),
+        "adherence_percentage": adherence.get("adherence_percentage", 0),
+        "current_streak": adherence.get("streak", 0),
+    }
+    content = build_progress_report(user, assessments, adh_for_report, fmt)
+    return _report_response(content, f"progress_report_{date.today().isoformat()}", fmt)
+
+
+@app.get("/user/reports/skin-health")
+async def user_report_skin_health(
+    format: Optional[str] = "pdf",
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Download the user's Comprehensive Skin Health Report as PDF or Excel."""
+    if current_user.role != "user":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User access required")
+    fmt = _resolve_report_format(format)
+    user, profile, assessments, adherence, routine = _get_user_report_context(current_user.email, db)
+    if not routine:
+        routine = ensure_user_routine(db, user.id)
+    adh_for_report = {
+        "total_checkins": adherence.get("total_logged_days", 0),
+        "morning_completed": adherence.get("morning_completed_count", 0),
+        "evening_completed": adherence.get("evening_completed_count", 0),
+        "adherence_percentage": adherence.get("adherence_percentage", 0),
+        "current_streak": adherence.get("streak", 0),
+    }
+    content = build_skin_health_report(user, profile, assessments, adh_for_report, routine, fmt)
+    return _report_response(content, f"skin_health_report_{date.today().isoformat()}", fmt)
+
+
+# ── Consultant Report Endpoints ────────────────────────────────────────────
+
+def _get_client_report_context(client_id: int, current_user: UserPayload, db: Session):
+    """Verify consultant access and load client data."""
+    consultant, user = verify_consultant_client_access(current_user, client_id, db)
+    profile = db.query(SkinProfile).filter(SkinProfile.user_id == user.id).first()
+    if not profile:
+        profile = SkinProfile(user_id=user.id, skin_health_score=0)
+        db.add(profile)
+        db.commit()
+        db.refresh(profile)
+    assessments = (
+        db.query(AssessmentHistory)
+        .filter(AssessmentHistory.user_id == user.id)
+        .order_by(AssessmentHistory.assessment_date.desc())
+        .all()
+    )
+    adherence = get_user_adherence_stats(user.id, db)
+    routine = db.query(SkincareRoutine).filter(SkincareRoutine.user_id == user.id).first()
+    adh_normalized = {
+        "total_checkins": adherence.get("total_logged_days", 0),
+        "morning_completed": adherence.get("morning_completed_count", 0),
+        "evening_completed": adherence.get("evening_completed_count", 0),
+        "adherence_percentage": adherence.get("adherence_percentage", 0),
+        "current_streak": adherence.get("streak", 0),
+    }
+    return user, profile, assessments, adh_normalized, routine
+
+
+@app.get("/consultant/reports/client/{client_id}/skin-assessment")
+async def consultant_report_skin_assessment(
+    client_id: int,
+    format: Optional[str] = "pdf",
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    fmt = _resolve_report_format(format)
+    user, profile, assessments, _, _ = _get_client_report_context(client_id, current_user, db)
+    content = build_skin_assessment_report(user, profile, assessments, fmt)
+    return _report_response(content, f"client_{client_id}_skin_assessment_{date.today().isoformat()}", fmt)
+
+
+@app.get("/consultant/reports/client/{client_id}/routine")
+async def consultant_report_routine(
+    client_id: int,
+    format: Optional[str] = "pdf",
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    fmt = _resolve_report_format(format)
+    user, _, _, _, routine = _get_client_report_context(client_id, current_user, db)
+    if not routine:
+        routine = ensure_user_routine(db, user.id)
+    content = build_routine_report(user, routine, fmt)
+    return _report_response(content, f"client_{client_id}_routine_{date.today().isoformat()}", fmt)
+
+
+@app.get("/consultant/reports/client/{client_id}/product-recommendations")
+async def consultant_report_products(
+    client_id: int,
+    format: Optional[str] = "pdf",
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    fmt = _resolve_report_format(format)
+    user, profile, _, _, _ = _get_client_report_context(client_id, current_user, db)
+    try:
+        recs_result = get_personalized_recommendations(
+            skin_type=profile.skin_type or "Normal",
+            concerns=[c.strip() for c in (profile.skin_concerns or "").split(",") if c.strip()],
+            allergies=profile.allergies or "",
+            sensitivities=profile.sensitivities or "",
+            skin_health_score=profile.skin_health_score or 70,
+            current_season=get_current_season(),
+        )
+        products = recs_result.get("recommendations", [])
+    except Exception:
+        products = []
+    content = build_product_recommendation_report(user, profile, products, fmt)
+    return _report_response(content, f"client_{client_id}_products_{date.today().isoformat()}", fmt)
+
+
+@app.get("/consultant/reports/client/{client_id}/progress")
+async def consultant_report_progress(
+    client_id: int,
+    format: Optional[str] = "pdf",
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    fmt = _resolve_report_format(format)
+    user, _, assessments, adherence, _ = _get_client_report_context(client_id, current_user, db)
+    content = build_progress_report(user, assessments, adherence, fmt)
+    return _report_response(content, f"client_{client_id}_progress_{date.today().isoformat()}", fmt)
+
+
+@app.get("/consultant/reports/client/{client_id}/skin-health")
+async def consultant_report_skin_health(
+    client_id: int,
+    format: Optional[str] = "pdf",
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    fmt = _resolve_report_format(format)
+    user, profile, assessments, adherence, routine = _get_client_report_context(client_id, current_user, db)
+    if not routine:
+        routine = ensure_user_routine(db, user.id)
+    content = build_skin_health_report(user, profile, assessments, adherence, routine, fmt)
+    return _report_response(content, f"client_{client_id}_skin_health_{date.today().isoformat()}", fmt)
+
+
+# ── Dermatologist Report Endpoints ─────────────────────────────────────────
+
+def _get_patient_report_context(patient_id: int, current_user: UserPayload, db: Session):
+    """Verify dermatologist access and load patient data."""
+    patient = verify_dermatologist_patient_access(current_user, patient_id, db)
+    profile = db.query(SkinProfile).filter(SkinProfile.user_id == patient.id).first()
+    if not profile:
+        profile = SkinProfile(user_id=patient.id, skin_health_score=0)
+        db.add(profile)
+        db.commit()
+        db.refresh(profile)
+    assessments = (
+        db.query(AssessmentHistory)
+        .filter(AssessmentHistory.user_id == patient.id)
+        .order_by(AssessmentHistory.assessment_date.desc())
+        .all()
+    )
+    adherence = get_user_adherence_stats(patient.id, db)
+    routine = db.query(SkincareRoutine).filter(SkincareRoutine.user_id == patient.id).first()
+    adh_normalized = {
+        "total_checkins": adherence.get("total_logged_days", 0),
+        "morning_completed": adherence.get("morning_completed_count", 0),
+        "evening_completed": adherence.get("evening_completed_count", 0),
+        "adherence_percentage": adherence.get("adherence_percentage", 0),
+        "current_streak": adherence.get("streak", 0),
+    }
+    return patient, profile, assessments, adh_normalized, routine
+
+
+@app.get("/dermatologist/reports/patient/{patient_id}/skin-assessment")
+async def derm_report_skin_assessment(
+    patient_id: int,
+    format: Optional[str] = "pdf",
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    fmt = _resolve_report_format(format)
+    patient, profile, assessments, _, _ = _get_patient_report_context(patient_id, current_user, db)
+    content = build_skin_assessment_report(patient, profile, assessments, fmt)
+    return _report_response(content, f"patient_{patient_id}_skin_assessment_{date.today().isoformat()}", fmt)
+
+
+@app.get("/dermatologist/reports/patient/{patient_id}/routine")
+async def derm_report_routine(
+    patient_id: int,
+    format: Optional[str] = "pdf",
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    fmt = _resolve_report_format(format)
+    patient, _, _, _, routine = _get_patient_report_context(patient_id, current_user, db)
+    if not routine:
+        routine = ensure_user_routine(db, patient.id)
+    content = build_routine_report(patient, routine, fmt)
+    return _report_response(content, f"patient_{patient_id}_routine_{date.today().isoformat()}", fmt)
+
+
+@app.get("/dermatologist/reports/patient/{patient_id}/progress")
+async def derm_report_progress(
+    patient_id: int,
+    format: Optional[str] = "pdf",
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    fmt = _resolve_report_format(format)
+    patient, _, assessments, adherence, _ = _get_patient_report_context(patient_id, current_user, db)
+    content = build_progress_report(patient, assessments, adherence, fmt)
+    return _report_response(content, f"patient_{patient_id}_progress_{date.today().isoformat()}", fmt)
+
+
+@app.get("/dermatologist/reports/patient/{patient_id}/skin-health")
+async def derm_report_skin_health(
+    patient_id: int,
+    format: Optional[str] = "pdf",
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    fmt = _resolve_report_format(format)
+    patient, profile, assessments, adherence, routine = _get_patient_report_context(patient_id, current_user, db)
+    if not routine:
+        routine = ensure_user_routine(db, patient.id)
+    content = build_skin_health_report(patient, profile, assessments, adherence, routine, fmt)
+    return _report_response(content, f"patient_{patient_id}_skin_health_{date.today().isoformat()}", fmt)
+
+
+@app.get("/dermatologist/reports/patient/{patient_id}/clinical-treatment")
+async def derm_report_clinical_treatment(
+    patient_id: int,
+    format: Optional[str] = "pdf",
+    current_user: UserPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    fmt = _resolve_report_format(format)
+    patient = verify_dermatologist_patient_access(current_user, patient_id, db)
+    treatments = (
+        db.query(ClinicalRecommendation)
+        .filter(ClinicalRecommendation.user_id == patient_id)
+        .order_by(ClinicalRecommendation.created_at.desc())
+        .all()
+    )
+    content = build_clinical_treatment_report(patient, treatments, fmt)
+    return _report_response(content, f"patient_{patient_id}_clinical_treatment_{date.today().isoformat()}", fmt)
+
+
+# ── Admin Report Endpoints (upgraded with PDF/Excel) ───────────────────────
+
+@app.get("/admin/reports/export/{report_type}")
+@app.get("/admin/reports/export-report/{report_type}")
+async def export_admin_report_v2(
+    report_type: str,
+    format: Optional[str] = "pdf",
+    _: UserPayload = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """
+    Export platform data in PDF, Excel, CSV, or JSON format.
+    Supports: 'platform_summary', 'users', 'assessments', 'recommendations', 'routines', 'treatments'.
+    """
+    clean_type = report_type.lower()
+    clean_fmt = (format or "pdf").lower()
+
+    # Delegate to the old CSV/JSON handler if those formats are requested
+    if clean_fmt in ["csv", "json"]:
+        return await export_admin_report(report_type, clean_fmt, _, db)
+
+    fmt = _resolve_report_format(clean_fmt)
+
+    if clean_type == "users":
+        users = db.query(User).all()
+        data = [
+            {"ID": u.id, "Name": u.name or "", "Email": u.email, "Status": u.status,
+             "Registered": u.created_at.strftime("%Y-%m-%d %H:%M") if u.created_at else ""}
+            for u in users
+        ]
+        content = build_user_directory_report(data, fmt)
+        return _report_response(content, f"users_directory_{date.today().isoformat()}", fmt)
+
+    elif clean_type in ["assessments", "skin_assessments", "skin-assessments"]:
+        assessments = db.query(AssessmentHistory).order_by(AssessmentHistory.assessment_date.desc()).all()
+        data = [
+            {"AssessmentID": a.assessment_id, "UserID": a.user_id, "HealthScore": a.skin_health_score,
+             "Category": a.skin_health_category, "RiskLevel": a.overall_risk_level,
+             "TriggerSource": a.trigger_source,
+             "Date": a.assessment_date.strftime("%Y-%m-%d %H:%M") if a.assessment_date else ""}
+            for a in assessments
+        ]
+        content = build_assessment_audit_report(data, fmt)
+        return _report_response(content, f"assessments_audit_{date.today().isoformat()}", fmt)
+
+    elif clean_type in ["recommendations", "clinical_treatments", "treatments"]:
+        recs = db.query(ClinicalRecommendation).order_by(ClinicalRecommendation.created_at.desc()).all()
+        data = [
+            {"ID": r.id, "PatientID": r.user_id, "DermatologistID": r.dermatologist_id,
+             "Diagnosis": r.diagnosis_title, "TreatmentPlan": r.treatment_plan,
+             "Actives": r.medications_or_actives or "", "Urgency": r.urgency_level,
+             "Date": r.created_at.strftime("%Y-%m-%d %H:%M") if r.created_at else ""}
+            for r in recs
+        ]
+        content = build_recommendation_audit_report(data, fmt)
+        return _report_response(content, f"recommendations_audit_{date.today().isoformat()}", fmt)
+
+    elif clean_type in ["routines", "routine"]:
+        routines = db.query(SkincareRoutine).all()
+        data = [
+            {"Metric": f"Routine #{r.id} (User {r.user_id})", "Value": f"Morning: {len(r.morning_steps or [])} steps, Evening: {len(r.evening_steps or [])} steps"}
+            for r in routines
+        ] or [{"Metric": "Total Routines", "Value": 0}]
+        content = build_platform_summary_report(data, fmt)
+        return _report_response(content, f"routines_audit_{date.today().isoformat()}", fmt)
+
+    else:
+        # Platform summary
+        data = [
+            {"Metric": "Total Users", "Value": db.query(User).count()},
+            {"Metric": "Total Consultants", "Value": db.query(Consultant).count()},
+            {"Metric": "Total Dermatologists", "Value": db.query(Dermatologist).count()},
+            {"Metric": "Total Assessments", "Value": db.query(AssessmentHistory).count()},
+            {"Metric": "Total Clinical Treatments", "Value": db.query(ClinicalRecommendation).count()},
+            {"Metric": "Total Checkins Logged", "Value": db.query(RoutineCheckin).count()},
+            {"Metric": "Report Generated At", "Value": datetime.now(timezone.utc).isoformat()},
+        ]
+        content = build_platform_summary_report(data, fmt)
+        return _report_response(content, f"platform_summary_{date.today().isoformat()}", fmt)
 
 
 app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")

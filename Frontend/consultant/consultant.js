@@ -113,12 +113,13 @@ const showToast = (message, type = 'success') => {
 };
 
 const escapeHtml = (str) => {
-  if (!str) return '';
+  if (str === null || str === undefined) return '';
   return String(str)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 };
 
 // ── Auth Guard & Profile ─────────────────────────────────────
@@ -287,6 +288,19 @@ const populateClientSelects = (clients) => {
     });
     repSelect.value = current;
   }
+
+  const exportSelect = document.getElementById('reportClientSelector');
+  if (exportSelect) {
+    const current = exportSelect.value;
+    exportSelect.innerHTML = '<option value="">-- Choose a client --</option>';
+    clients.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = `${c.name || c.email} (${c.skin_type || 'Unassessed'})`;
+      exportSelect.appendChild(opt);
+    });
+    if (current) exportSelect.value = current;
+  }
 };
 
 const applyClientFilters = () => {
@@ -430,6 +444,9 @@ const openClientDossier = async (clientId, initialTab = 'profile') => {
 
     // Populate Tab 5: Adherence & Checkins
     populateDossierAdherenceTab(client);
+
+    // Populate Tab 6: Trends & Photos
+    populateDossierAnalyticsTab(client);
 
     // Switch to initial tab
     switchDossierTab(initialTab);
@@ -740,6 +757,225 @@ const populateDossierAdherenceTab = (client) => {
   `;
 };
 
+let consultantScoreTrendChartInstance = null;
+
+const populateDossierAnalyticsTab = async (client) => {
+  const token = localStorage.getItem('access_token');
+  if (!token || !client || !client.id) return;
+
+  const scoreChangeBadge = document.getElementById('dossierAnalyticsScoreChange');
+  const dataDaysBadge = document.getElementById('dossierDataDaysBadge');
+  const resolutionCountBadge = document.getElementById('dossierResolutionCountBadge');
+  const dataContainer = document.getElementById('dossierSkinDataComparisonContainer');
+  const concernTableBody = document.getElementById('dossierConcernAuditBody');
+
+  try {
+    const res = await fetch(`/consultant/client/${client.id}/analytics`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error('Failed to load client analytics');
+    const data = await res.json();
+
+    const trends = data.trends || {};
+    const improvement = data.improvement || {};
+    const photos = data.photos || {};
+
+    // 1. Trajectory Chart
+    const summary = trends.summary || {};
+    const delta = summary.score_change || 0;
+    if (scoreChangeBadge) {
+      scoreChangeBadge.textContent = `${delta >= 0 ? '+' : ''}${delta} pts Net`;
+      scoreChangeBadge.className = `score-pill ${delta > 0 ? 'bg-emerald-100 text-emerald-800' : (delta < 0 ? 'bg-rose-100 text-rose-800' : 'bg-slate-100 text-slate-700')}`;
+    }
+
+    const canvas = document.getElementById('consultantScoreTrendChart');
+    if (canvas && typeof Chart !== 'undefined') {
+      if (consultantScoreTrendChartInstance) {
+        consultantScoreTrendChartInstance.destroy();
+        consultantScoreTrendChartInstance = null;
+      }
+
+      const scoreHistory = trends.score_history && trends.score_history.length > 0 ? trends.score_history : [{ label: 'Baseline', score: 0 }];
+      const labels = scoreHistory.map(h => h.label || h.date);
+      const scores = scoreHistory.map(h => h.score);
+
+      const ctx = canvas.getContext('2d');
+      consultantScoreTrendChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Skin Health Score',
+            data: scores,
+            borderColor: '#6366f1',
+            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+            borderWidth: 2.5,
+            pointBackgroundColor: '#4f46e5',
+            pointRadius: 4,
+            tension: 0.3,
+            fill: true,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { min: 0, max: 100, ticks: { font: { size: 10 } } },
+            x: { ticks: { font: { size: 10 } } }
+          }
+        }
+      });
+    }
+
+    const dataComparison = data.data_comparison || {};
+
+    // 2. Previous vs Current Skin Assessment Data Comparison
+    if (dataContainer) {
+      if (!dataComparison || !dataComparison.can_compare) {
+        dataContainer.innerHTML = `
+          <div class="p-6 text-center text-xs text-slate-400">
+            Client has only one assessment record logged. At least 2 assessment evaluations are required to compute longitudinal data comparison.
+          </div>
+        `;
+        if (dataDaysBadge) dataDaysBadge.textContent = 'Baseline Established';
+      } else {
+        const before = dataComparison.before_data || {};
+        const after = dataComparison.after_data || {};
+        const deltaComp = dataComparison.comparison_delta || {};
+
+        if (dataDaysBadge) {
+          dataDaysBadge.textContent = `${deltaComp.days_elapsed || 0} Days Between Assessments`;
+        }
+
+        const scoreDiff = deltaComp.score_diff || 0;
+        const factors = deltaComp.factor_comparisons || [];
+        const verdicts = deltaComp.clinical_verdict || [];
+
+        dataContainer.innerHTML = `
+          <!-- 3-Column Comparative Data Cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <!-- Baseline Data Card -->
+            <div class="p-3.5 rounded-xl bg-white border border-slate-200 flex flex-col justify-between">
+              <div>
+                <span class="text-[10px] uppercase font-bold text-slate-400">Previous Assessment Data</span>
+                <p class="text-xs font-semibold text-slate-700">${escapeHtml(before.formatted_date || 'Baseline')}</p>
+                <div class="mt-2 flex items-baseline gap-1">
+                  <span class="text-2xl font-black text-slate-800">${before.score || 0}</span>
+                  <span class="text-[10px] text-slate-400">/ 100</span>
+                </div>
+              </div>
+              <div class="mt-2 pt-2 border-t border-slate-100 text-[11px] text-slate-500">
+                <span class="font-bold">${escapeHtml(before.category || 'Fair')}</span> • Skin: ${escapeHtml(before.skin_type || 'Normal')}
+                <div class="mt-1 flex flex-wrap gap-1">
+                  ${(before.concerns || []).slice(0, 3).map(c => `<span class="px-1.5 py-0.5 rounded bg-slate-100 text-[10px] font-medium text-slate-600">${escapeHtml(c)}</span>`).join('')}
+                </div>
+              </div>
+            </div>
+
+            <!-- Score Evolution Delta Card -->
+            <div class="p-3.5 rounded-xl bg-indigo-50 border border-indigo-200 flex flex-col justify-between text-center">
+              <div>
+                <span class="text-[10px] uppercase font-bold text-indigo-700">Evolution Delta</span>
+                <div class="mt-2 flex items-baseline justify-center gap-1">
+                  <span class="text-2xl font-black ${scoreDiff >= 0 ? 'text-emerald-600' : 'text-rose-600'}">
+                    ${scoreDiff >= 0 ? '+' : ''}${scoreDiff} pts
+                  </span>
+                </div>
+                <span class="text-[11px] font-bold text-indigo-800">
+                  ${deltaComp.percent_change >= 0 ? '+' : ''}${deltaComp.percent_change || 0}% Shift
+                </span>
+              </div>
+              <div class="mt-2 pt-2 border-t border-indigo-100 text-[11px] text-indigo-900">
+                ${deltaComp.category_shift ? `${escapeHtml(deltaComp.category_shift.before)} ➔ ${escapeHtml(deltaComp.category_shift.after)}` : 'Stable'}
+              </div>
+            </div>
+
+            <!-- Follow-up Data Card -->
+            <div class="p-3.5 rounded-xl bg-white border border-indigo-200 flex flex-col justify-between">
+              <div>
+                <span class="text-[10px] uppercase font-bold text-indigo-600">Current Assessment Data</span>
+                <p class="text-xs font-semibold text-slate-700">${escapeHtml(after.formatted_date || 'Recent')}</p>
+                <div class="mt-2 flex items-baseline gap-1">
+                  <span class="text-2xl font-black text-indigo-600">${after.score || 0}</span>
+                  <span class="text-[10px] text-slate-400">/ 100</span>
+                </div>
+              </div>
+              <div class="mt-2 pt-2 border-t border-slate-100 text-[11px] text-slate-500">
+                <span class="font-bold text-indigo-600">${escapeHtml(after.category || 'Good')}</span> • Skin: ${escapeHtml(after.skin_type || 'Normal')}
+                <div class="mt-1 flex flex-wrap gap-1">
+                  ${(after.concerns || []).slice(0, 3).map(c => `<span class="px-1.5 py-0.5 rounded bg-indigo-50 text-[10px] font-medium text-indigo-700">${escapeHtml(c)}</span>`).join('')}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5-Factor Sub-Scores Comparative Table -->
+          <div class="mt-2 p-3 bg-white rounded-xl border border-slate-200">
+            <h4 class="text-xs font-bold text-slate-700 mb-2">5-Factor Sub-Scores Delta</h4>
+            <div class="flex flex-col gap-2">
+              ${factors.map(f => `
+                <div class="flex items-center justify-between text-xs py-1 border-b border-slate-50 last:border-b-0">
+                  <span class="font-medium text-slate-700">${f.icon} ${escapeHtml(f.label)}</span>
+                  <div class="flex items-center gap-3">
+                    <span class="text-slate-400">${f.before_score} ➔ <strong class="text-slate-800">${f.after_score}</strong></span>
+                    <span class="font-bold text-[11px] px-2 py-0.5 rounded ${f.diff > 0 ? 'bg-emerald-50 text-emerald-700' : (f.diff < 0 ? 'bg-rose-50 text-rose-700' : 'bg-slate-100 text-slate-600')}">
+                      ${f.diff_label}
+                    </span>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Clinical Verdict Bullet List -->
+          ${verdicts.length > 0 ? `
+            <div class="p-3 bg-indigo-50/50 rounded-xl border border-indigo-100 text-xs text-indigo-900 flex flex-col gap-1">
+              <span class="font-bold text-[11px] uppercase text-indigo-700">Clinical Data Comparison Verdict:</span>
+              ${verdicts.map(v => `<p class="text-[11px] leading-relaxed">• ${escapeHtml(v)}</p>`).join('')}
+            </div>
+          ` : ''}
+        `;
+      }
+    }
+
+    // 3. Concern Resolution Table
+    if (concernTableBody) {
+      const audits = improvement.concerns_audit || [];
+      if (audits.length === 0) {
+        concernTableBody.innerHTML = `
+          <tr>
+            <td colspan="5" class="text-center py-4 text-xs text-slate-400">No specific concerns flagged for this client.</td>
+          </tr>
+        `;
+        if (resolutionCountBadge) resolutionCountBadge.textContent = '0 Concerns';
+      } else {
+        const resolvedCount = audits.filter(a => a.status === 'Resolved' || a.status === 'Improved').length;
+        if (resolutionCountBadge) resolutionCountBadge.textContent = `${resolvedCount} of ${audits.length} Resolved / Softened`;
+
+        concernTableBody.innerHTML = audits.map(a => `
+          <tr>
+            <td class="font-semibold text-slate-800">${escapeHtml(a.concern)}</td>
+            <td>${escapeHtml(a.baseline_severity)}</td>
+            <td class="font-medium ${a.current_severity === 'Resolved' ? 'text-emerald-600' : ''}">${escapeHtml(a.current_severity)}</td>
+            <td>
+              <span class="risk-pill ${a.status === 'Resolved' ? 'low' : (a.status === 'Improved' ? 'medium' : 'high')}">
+                ${a.icon} ${escapeHtml(a.status)}
+              </span>
+            </td>
+            <td class="font-semibold text-xs ${a.status === 'Resolved' ? 'text-emerald-600' : 'text-slate-600'}">
+              ${escapeHtml(a.change_label)}
+            </td>
+          </tr>
+        `).join('');
+      }
+    }
+
+  } catch (err) {
+    console.warn('Error loading consultant client analytics:', err);
+  }
+};
+
 // Switch tab in Dossier
 const switchDossierTab = (tabKey) => {
   document.querySelectorAll('.dossier-tab-btn').forEach(btn => {
@@ -748,6 +984,9 @@ const switchDossierTab = (tabKey) => {
   document.querySelectorAll('.dossier-tab-pane').forEach(pane => {
     pane.classList.toggle('active', pane.id === `dossierTab-${tabKey}`);
   });
+  if (tabKey === 'analytics' && consultantScoreTrendChartInstance) {
+    setTimeout(() => consultantScoreTrendChartInstance.resize(), 50);
+  }
 };
 
 document.querySelectorAll('.dossier-tab-btn').forEach(btn => {
@@ -1295,6 +1534,7 @@ const sections = {
   reports: { el: document.getElementById('section-reports'), nav: document.getElementById('navReports'), title: 'Skin Assessment Reports', sub: 'Recent client skin assessment and diagnostic sessions' },
   progress: { el: document.getElementById('section-progress'), nav: document.getElementById('navProgress'), title: 'Progress & Adherence', sub: 'Track client health improvements and habit compliance' },
   recommendations: { el: document.getElementById('section-recommendations'), nav: document.getElementById('navRecommendations'), title: 'Prescriptive Recommendations', sub: 'Assign targeted formulas & treatments to client routines' },
+  'export-reports': { el: document.getElementById('section-export-reports'), nav: document.getElementById('navExportReports'), title: 'Reports & Export Center', sub: 'Generate and download client PDF and Excel reports' },
 };
 
 const showSection = (key) => {
@@ -1343,6 +1583,72 @@ document.getElementById('headerLogout')?.addEventListener('click', (event) => {
   localStorage.removeItem('user_role');
   window.location.href = '../index.html';
 });
+
+// ── Reports & Export Center Logic ──────────────────────────────
+const repClientSelector = document.getElementById('reportClientSelector');
+if (repClientSelector) {
+  repClientSelector.addEventListener('change', (e) => {
+    const cards = document.getElementById('consultantReportCards');
+    if (cards) {
+      cards.style.display = e.target.value ? 'grid' : 'none';
+    }
+  });
+}
+
+async function downloadConsultantReport(reportType, format) {
+  const select = document.getElementById('reportClientSelector');
+  const clientId = select ? select.value : '';
+  if (!clientId) {
+    showToast('Please select a client first.', 'error');
+    return;
+  }
+
+  const btn = event?.currentTarget;
+  const originalText = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '⏳ Generating...';
+  }
+
+  try {
+    const endpoint = `/consultant/reports/client/${clientId}/${reportType}?format=${format}`;
+    const res = await fetch(endpoint, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: 'Download failed' }));
+      throw new Error(err.detail || `Server returned ${res.status}`);
+    }
+
+    const blob = await res.blob();
+    const disposition = res.headers.get('Content-Disposition');
+    let filename = `client_${clientId}_${reportType}.${format === 'excel' ? 'xlsx' : 'pdf'}`;
+    if (disposition && disposition.includes('filename=')) {
+      const match = disposition.match(/filename="?([^"]+)"?/);
+      if (match && match[1]) filename = match[1];
+    }
+
+    const blobUrl = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(blobUrl);
+
+    showToast(`Report downloaded successfully!`, 'success');
+  } catch (err) {
+    console.error('Download error:', err);
+    showToast(`Failed to download report: ${err.message}`, 'error');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    }
+  }
+}
+window.downloadConsultantReport = downloadConsultantReport;
 
 // ── Boot ─────────────────────────────────────────────────────
 verifySession();
