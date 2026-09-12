@@ -8,8 +8,13 @@ import {
   Download,
   CheckCircle2,
   Image as ImageIcon,
+  Droplets,
+  Moon,
+  AlertCircle,
+  Loader,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { API_BASE_URL } from '@/lib/constants';
 
 export default function ProgressTrackerPage() {
   const { fetchWithAuth } = useAuth();
@@ -21,6 +26,14 @@ export default function ProgressTrackerPage() {
   const [adherenceHistory, setAdherenceHistory] = useState([]);
   const [adherenceLoading, setAdherenceLoading] = useState(true);
   const [adherenceError, setAdherenceError] = useState('');
+
+  const [hydrationHistory, setHydrationHistory] = useState([]);
+  const [hydrationLoading, setHydrationLoading] = useState(true);
+  const [hydrationError, setHydrationError] = useState('');
+
+  const [sleepHistory, setSleepHistory] = useState([]);
+  const [sleepLoading, setSleepLoading] = useState(true);
+  const [sleepError, setSleepError] = useState('');
 
   const [beforeImageError, setBeforeImageError] = useState(false);
   const [afterImageError, setAfterImageError] = useState(false);
@@ -101,6 +114,82 @@ export default function ProgressTrackerPage() {
 
   loadAdherenceHistory();
 }, [fetchWithAuth]);
+
+  // Fetch hydration history
+  useEffect(() => {
+    const loadHydrationHistory = async () => {
+      try {
+        setHydrationLoading(true);
+        setHydrationError('');
+
+        const response = await fetchWithAuth(
+          `${API_BASE_URL}/hydration/history`,
+          {
+            method: 'GET',
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data?.detail || 'Unable to load hydration history.'
+          );
+        }
+
+        setHydrationHistory(
+          Array.isArray(data?.history) ? data.history : []
+        );
+      } catch (err) {
+        console.error('Hydration history error:', err);
+        setHydrationError(
+          err.message || 'Unable to load hydration history.'
+        );
+      } finally {
+        setHydrationLoading(false);
+      }
+    };
+
+    loadHydrationHistory();
+  }, [fetchWithAuth]);
+
+  // Fetch sleep history
+  useEffect(() => {
+    const loadSleepHistory = async () => {
+      try {
+        setSleepLoading(true);
+        setSleepError('');
+
+        const response = await fetchWithAuth(
+          `${API_BASE_URL}/sleep/history`,
+          {
+            method: 'GET',
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data?.detail || 'Unable to load sleep history.'
+          );
+        }
+
+        setSleepHistory(
+          Array.isArray(data?.history) ? data.history : []
+        );
+      } catch (err) {
+        console.error('Sleep history error:', err);
+        setSleepError(
+          err.message || 'Unable to load sleep history.'
+        );
+      } finally {
+        setSleepLoading(false);
+      }
+    };
+
+    loadSleepHistory();
+  }, [fetchWithAuth]);
   // ============================================================
   // PREPARE REAL HEALTH SCORE DATA
   // ============================================================
@@ -637,6 +726,249 @@ const bestAdherence =
     </div>
   </GlassCard>
 )}
+
+      {/* ======================================================
+          HYDRATION HISTORY
+      ======================================================= */}
+      {!hydrationLoading && !hydrationError && (
+        <GlassCard className="space-y-5">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div className="flex items-center gap-2">
+              <Droplets className="w-5 h-5 text-cyan-400" />
+              <h2 className="text-lg font-bold text-white">
+                Hydration History
+              </h2>
+            </div>
+            {hydrationHistory.length > 0 && (
+              <Badge variant="cyan">
+                {hydrationHistory.length} logs
+              </Badge>
+            )}
+          </div>
+
+          {hydrationHistory.length === 0 ? (
+            <div className="text-center py-8">
+              <Droplets className="w-10 h-10 mx-auto text-slate-600 mb-3" />
+              <h3 className="font-bold text-white">
+                No Hydration Logs Yet
+              </h3>
+              <p className="text-sm text-slate-400 mt-2">
+                Start logging your water intake to track your hydration trends.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
+                  <p className="text-xs text-slate-400">
+                    Latest Intake
+                  </p>
+                  <p className="text-2xl font-bold text-cyan-400 mt-1">
+                    {hydrationHistory[hydrationHistory.length - 1]?.quantity_glasses?.toFixed(1) || '—'} <span className="text-xs text-slate-400">glasses</span>
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
+                  <p className="text-xs text-slate-400">
+                    Average Intake
+                  </p>
+                  <p className="text-2xl font-bold text-teal-400 mt-1">
+                    {(hydrationHistory.reduce((sum, item) => sum + (item.quantity_glasses || 0), 0) / hydrationHistory.length).toFixed(1)} <span className="text-xs text-slate-400">glasses</span>
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
+                  <p className="text-xs text-slate-400">
+                    Max Intake
+                  </p>
+                  <p className="text-2xl font-bold text-emerald-400 mt-1">
+                    {Math.max(...hydrationHistory.map(item => item.quantity_glasses || 0)).toFixed(1)} <span className="text-xs text-slate-400">glasses</span>
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-sm font-semibold text-white mb-3">
+                  Recent Hydration Trend
+                </h3>
+                <div className="h-40 flex items-end gap-2 sm:gap-3 pt-6 pb-2 px-2 border-b border-slate-800">
+                  {[...hydrationHistory].slice(-7).map((item, idx) => {
+                    const maxValue = Math.max(...hydrationHistory.map(h => h.quantity_glasses || 0), 10);
+                    const heightPercent = (item.quantity_glasses / maxValue) * 100;
+                    return (
+                      <div
+                        key={idx}
+                        className="flex-1 flex flex-col items-center gap-2 h-full justify-end"
+                      >
+                        <span className="text-xs font-bold text-cyan-400">
+                          {item.quantity_glasses?.toFixed(1)}
+                        </span>
+                        <div
+                          className="w-full bg-gradient-to-t from-cyan-600/40 to-cyan-400 rounded-t-xl transition-all duration-500 hover:brightness-125"
+                          style={{
+                            height: `${Math.max(5, heightPercent)}%`,
+                          }}
+                        />
+                        <span className="text-[10px] text-slate-400 font-medium">
+                          {new Date(item.date || item.log_date).toLocaleDateString(
+                            undefined,
+                            {
+                              month: 'short',
+                              day: 'numeric',
+                            }
+                          )}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </>
+          )}
+        </GlassCard>
+      )}
+
+      {hydrationError && (
+        <GlassCard>
+          <div className="flex items-center gap-2 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30">
+            <AlertCircle className="w-4 h-4 text-rose-400 flex-shrink-0" />
+            <p className="text-sm text-rose-300">
+              {hydrationError}
+            </p>
+          </div>
+        </GlassCard>
+      )}
+
+      {hydrationLoading && (
+        <GlassCard>
+          <div className="flex items-center justify-center py-8">
+            <Loader className="w-5 h-5 text-cyan-400 animate-spin mr-2" />
+            <p className="text-sm text-slate-400">Loading hydration history...</p>
+          </div>
+        </GlassCard>
+      )}
+
+      {/* ======================================================
+          SLEEP HISTORY
+      ======================================================= */}
+      {!sleepLoading && !sleepError && (
+        <GlassCard className="space-y-5">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div className="flex items-center gap-2">
+              <Moon className="w-5 h-5 text-violet-400" />
+              <h2 className="text-lg font-bold text-white">
+                Sleep History
+              </h2>
+            </div>
+            {sleepHistory.length > 0 && (
+              <Badge variant="violet">
+                {sleepHistory.length} logs
+              </Badge>
+            )}
+          </div>
+
+          {sleepHistory.length === 0 ? (
+            <div className="text-center py-8">
+              <Moon className="w-10 h-10 mx-auto text-slate-600 mb-3" />
+              <h3 className="font-bold text-white">
+                No Sleep Logs Yet
+              </h3>
+              <p className="text-sm text-slate-400 mt-2">
+                Start logging your sleep to track your rest patterns.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
+                  <p className="text-xs text-slate-400">
+                    Latest Sleep
+                  </p>
+                  <p className="text-2xl font-bold text-violet-400 mt-1">
+                    {sleepHistory[sleepHistory.length - 1]?.sleep_hours?.toFixed(1) || '—'} <span className="text-xs text-slate-400">hrs</span>
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
+                  <p className="text-xs text-slate-400">
+                    Average Sleep
+                  </p>
+                  <p className="text-2xl font-bold text-indigo-400 mt-1">
+                    {(sleepHistory.reduce((sum, item) => sum + (item.sleep_hours || 0), 0) / sleepHistory.length).toFixed(1)} <span className="text-xs text-slate-400">hrs</span>
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
+                  <p className="text-xs text-slate-400">
+                    Max Sleep
+                  </p>
+                  <p className="text-2xl font-bold text-blue-400 mt-1">
+                    {Math.max(...sleepHistory.map(item => item.sleep_hours || 0)).toFixed(1)} <span className="text-xs text-slate-400">hrs</span>
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-sm font-semibold text-white mb-3">
+                  Recent Sleep Trend
+                </h3>
+                <div className="h-40 flex items-end gap-2 sm:gap-3 pt-6 pb-2 px-2 border-b border-slate-800">
+                  {[...sleepHistory].slice(-7).map((item, idx) => {
+                    const maxValue = Math.max(...sleepHistory.map(h => h.sleep_hours || 0), 12);
+                    const heightPercent = (item.sleep_hours / maxValue) * 100;
+                    return (
+                      <div
+                        key={idx}
+                        className="flex-1 flex flex-col items-center gap-2 h-full justify-end"
+                      >
+                        <span className="text-xs font-bold text-violet-400">
+                          {item.sleep_hours?.toFixed(1)}
+                        </span>
+                        <div
+                          className="w-full bg-gradient-to-t from-violet-600/40 to-violet-400 rounded-t-xl transition-all duration-500 hover:brightness-125"
+                          style={{
+                            height: `${Math.max(5, heightPercent)}%`,
+                          }}
+                        />
+                        <span className="text-[10px] text-slate-400 font-medium">
+                          {new Date(item.date || item.log_date).toLocaleDateString(
+                            undefined,
+                            {
+                              month: 'short',
+                              day: 'numeric',
+                            }
+                          )}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </>
+          )}
+        </GlassCard>
+      )}
+
+      {sleepError && (
+        <GlassCard>
+          <div className="flex items-center gap-2 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30">
+            <AlertCircle className="w-4 h-4 text-rose-400 flex-shrink-0" />
+            <p className="text-sm text-rose-300">
+              {sleepError}
+            </p>
+          </div>
+        </GlassCard>
+      )}
+
+      {sleepLoading && (
+        <GlassCard>
+          <div className="flex items-center justify-center py-8">
+            <Loader className="w-5 h-5 text-violet-400 animate-spin mr-2" />
+            <p className="text-sm text-slate-400">Loading sleep history...</p>
+          </div>
+        </GlassCard>
+      )}
+
       {/* ======================================================
           BEFORE / AFTER COMPARISON
       ======================================================= */}

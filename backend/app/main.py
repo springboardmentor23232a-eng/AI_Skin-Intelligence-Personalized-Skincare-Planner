@@ -5,7 +5,8 @@ from fastapi.staticfiles import StaticFiles
 
 from app.database import engine, Base
 from app import models
-from app.routers import users, assessment, routine, ingredients, products, scoring, consultant, dermatologist, admin
+from app.routers import users, assessment, routine, ingredients, products, scoring, consultant, dermatologist, admin, notifications, hydration, sleep, products_purchase, reminders
+from app.reminder_scheduler import start_scheduler, stop_scheduler
 
 Base.metadata.create_all(bind=engine)
 
@@ -36,6 +37,22 @@ app.include_router(scoring.router)
 app.include_router(consultant.router)
 app.include_router(dermatologist.router)
 app.include_router(admin.router)
+app.include_router(notifications.router)
+app.include_router(hydration.router)
+app.include_router(sleep.router)
+app.include_router(products_purchase.router)
+app.include_router(reminders.router)
+
+
+@app.on_event("startup")
+def on_startup():
+    start_scheduler()
+
+
+@app.on_event("shutdown")
+def on_shutdown():
+    stop_scheduler()
+
 
 @app.get("/")
 def home():

@@ -4,6 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { USER_ROLES } from '@/lib/constants';
 import { Sparkles, User, UserCheck, Stethoscope, Shield, Menu, X, LogIn, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { NotificationDropdown } from '@/components/notifications/NotificationDropdown';
 
 export function Navbar() {
   const location = useLocation();
@@ -125,6 +126,9 @@ return items;
           <div className="flex items-center gap-3">
             {isAuthenticated ? (
               <div className="hidden sm:flex items-center gap-2">
+                {/* Notification Bell */}
+                <NotificationDropdown />
+
                 {/* Role Badge */}
                 <div className={cn('flex items-center gap-1.5 px-3 py-1 rounded-xl border text-xs font-bold shadow-sm', roleBadge.color)}>
                   <BadgeIcon className="w-3.5 h-3.5" />

@@ -4,6 +4,8 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { PRODUCT_CATEGORIES, API_BASE_URL } from '@/lib/constants';
 import { useAuth } from '@/context/AuthContext';
+import { ProductPurchaseModal } from '@/components/products/ProductPurchaseModal';
+import { ProductReplenishmentBadge } from '@/components/products/ProductReplenishmentBadge';
 import {
   Sparkles,
   SlidersHorizontal,
@@ -18,6 +20,7 @@ import {
   DollarSign,
   ChevronDown,
   ChevronUp,
+  ShoppingBag,
 } from 'lucide-react';
 
 export default function ProductsPage() {
@@ -43,6 +46,10 @@ export default function ProductsPage() {
   const [activeAlternativesProduct, setActiveAlternativesProduct] = useState(null);
   const [alternativesList, setAlternativesList] = useState([]);
   const [alternativesLoading, setAlternativesLoading] = useState(false);
+
+  // Purchase Modal State
+  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
+  const [selectedProductForPurchase, setSelectedProductForPurchase] = useState(null);
 
   // Expanded details toggle per product card ID
   const [expandedCardId, setExpandedCardId] = useState(null);
@@ -143,8 +150,22 @@ export default function ProductsPage() {
     }
   };
 
+  // Handle opening purchase modal for a product
+  const handleOpenPurchaseModal = (product) => {
+    setSelectedProductForPurchase(product);
+    setIsPurchaseModalOpen(true);
+  };
+
+  const handlePurchaseSuccess = () => {
+    // Refresh recommendations to show updated data if needed
+    loadRecommendations();
+  };
+
   return (
     <div className="space-y-8 pb-12">
+      {/* Replenishment Alert Badge */}
+      <ProductReplenishmentBadge />
+
       {/* Header Banner */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -449,7 +470,7 @@ export default function ProductsPage() {
                       <span className="text-[10px] text-slate-400 ml-1">({prod.rating} ★)</span>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       {/* Compare Checkbox Button */}
                       <button
                         onClick={() => toggleCompareSelection(prod.id)}
@@ -472,6 +493,15 @@ export default function ProductsPage() {
                           Alternatives ({prod.alternative_suggestions.length})
                         </button>
                       )}
+
+                      {/* Log Purchase Button */}
+                      <button
+                        onClick={() => handleOpenPurchaseModal(prod)}
+                        className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 border border-amber-500/30 transition-all flex items-center gap-1"
+                      >
+                        <ShoppingBag className="w-3 h-3" />
+                        Purchase
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -644,6 +674,17 @@ export default function ProductsPage() {
           </div>
         </div>
       )}
+
+      {/* Product Purchase Modal */}
+      <ProductPurchaseModal
+        isOpen={isPurchaseModalOpen}
+        onClose={() => {
+          setIsPurchaseModalOpen(false);
+          setSelectedProductForPurchase(null);
+        }}
+        onSuccess={handlePurchaseSuccess}
+        product={selectedProductForPurchase}
+      />
     </div>
   );
 }

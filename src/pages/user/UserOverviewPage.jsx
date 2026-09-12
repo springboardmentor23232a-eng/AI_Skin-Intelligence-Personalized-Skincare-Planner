@@ -9,6 +9,8 @@ import { StatCard } from '@/components/dashboard/StatCard';
 import { QuickActionBar } from '@/components/dashboard/QuickActionBar';
 import { TrendBarChart } from '@/components/dashboard/TrendBarChart';
 import { ActivityFeedCard } from '@/components/dashboard/ActivityFeedCard';
+import { HydrationWidget } from '@/components/health/HydrationWidget';
+import { SleepWidget } from '@/components/health/SleepWidget';
 import { API_BASE_URL } from '@/lib/constants';
 import {
   Sparkles,
@@ -347,6 +349,12 @@ export default function UserOverviewPage() {
             badgeColor="violet"
             description="Sample skincare regimen"
           />
+        </div>
+
+        {/* 2B. HYDRATION & SLEEP WIDGETS */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <HydrationWidget />
+          <SleepWidget />
         </div>
 
         {/* Non-blocking scoring error alert banner */}
