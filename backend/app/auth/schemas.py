@@ -24,6 +24,7 @@ class UserResponse(BaseModel):
     phone_verified_at: Optional[datetime] = None
     is_active: int = 1
     is_blocked: int = 0
+    is_verified: int = 1
     created_at: datetime
     updated_at: datetime
 
