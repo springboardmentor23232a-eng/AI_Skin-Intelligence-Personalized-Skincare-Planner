@@ -111,3 +111,6 @@ ml/models/*.ckpt
 ml/models/*.h5
 !ml/models/skin_condition_improved.pth
 !ml/models/improved_model_metadata.json
+
+.vercel
+.env*

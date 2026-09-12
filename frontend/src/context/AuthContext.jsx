@@ -22,6 +22,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("skin_token");
     localStorage.removeItem("skin_refresh_token");
     localStorage.removeItem("skin_user");
+    sessionStorage.clear();
   };
 
   useEffect(() => {

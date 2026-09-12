@@ -146,7 +146,7 @@ function SkinAnalyticsPage() {
     if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) {
       return url;
     }
-    return `http://127.0.0.1:8000${url}`;
+    return url.startsWith("/") ? url : `/${url}`;
   };
 
   const renderLineChart = () => {

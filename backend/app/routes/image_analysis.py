@@ -16,9 +16,23 @@ from app.schemas_image_analysis import ImageAnalysisResponse
 
 router = APIRouter(prefix="/api/image-analysis", tags=["Image Analysis"])
 
-# Upload directory setup
-UPLOAD_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "uploads")
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+# Upload directory setup with serverless write-permission detection
+def get_upload_dir() -> str:
+    primary = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "uploads")
+    try:
+        os.makedirs(primary, exist_ok=True)
+        test_file = os.path.join(primary, ".write_test")
+        with open(test_file, "w") as f:
+            f.write("ok")
+        os.remove(test_file)
+        return primary
+    except OSError:
+        import tempfile
+        temp_dir = os.path.join(tempfile.gettempdir(), "uploads")
+        os.makedirs(temp_dir, exist_ok=True)
+        return temp_dir
+
+UPLOAD_DIR = get_upload_dir()
 
 # Allowed file specifications
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif"}
@@ -74,8 +88,16 @@ def process_and_save_image(img: Image.Image) -> str:
 
     # 4. Generate unique filename and save as compressed JPEG
     stored_name = f"{uuid.uuid4()}.jpg"
-    dest_path = os.path.join(UPLOAD_DIR, stored_name)
-    img.save(dest_path, "JPEG", quality=85)
+    target_dir = get_upload_dir()
+    dest_path = os.path.join(target_dir, stored_name)
+    try:
+        img.save(dest_path, "JPEG", quality=85)
+    except OSError:
+        import tempfile
+        fallback_dir = os.path.join(tempfile.gettempdir(), "uploads")
+        os.makedirs(fallback_dir, exist_ok=True)
+        dest_path = os.path.join(fallback_dir, stored_name)
+        img.save(dest_path, "JPEG", quality=85)
     return stored_name
 
 from app.ai.inference import run_skin_condition_inference

@@ -60,7 +60,7 @@ function Login() {
 
   const handleGoogleError = () => {
     setError(
-      "Google Sign-In Error (401 invalid_client): The Google OAuth Client ID is not configured or not registered in Google Cloud Console. Please add a valid VITE_GOOGLE_CLIENT_ID in frontend/.env."
+      "Google Sign-In was unable to complete authorization. Please ensure popups are permitted, or sign in using your email and password below."
     );
   };
 
@@ -128,20 +128,22 @@ function Login() {
 
             <div className="text-center my-3 text-muted small">OR</div>
 
-            <div className="d-flex flex-column align-items-center mb-4">
+            <div className="d-flex flex-column align-items-center mb-4 w-100" style={{ overflow: "hidden" }}>
               {import.meta.env.VITE_GOOGLE_CLIENT_ID &&
               !import.meta.env.VITE_GOOGLE_CLIENT_ID.includes("placeholder") &&
               !import.meta.env.VITE_GOOGLE_CLIENT_ID.includes("your-google-client-id") &&
               !import.meta.env.VITE_GOOGLE_CLIENT_ID.includes("your_google_client_id") ? (
-                <GoogleLogin
-                  onSuccess={handleGoogleSuccess}
-                  onError={handleGoogleError}
-                  useOneTap
-                  theme="outline"
-                  shape="pill"
-                  size="large"
-                  text="continue_with"
-                />
+                <div className="d-flex justify-content-center w-100" style={{ maxWidth: "100%", overflowX: "auto" }}>
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={handleGoogleError}
+                    theme="outline"
+                    shape="pill"
+                    size="large"
+                    text="continue_with"
+                    width="100%"
+                  />
+                </div>
               ) : (
                 <div
                   className="alert alert-warning text-center small py-2 px-3 mb-2 w-100 rounded"

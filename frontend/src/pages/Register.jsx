@@ -12,6 +12,7 @@ function Register() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("USER");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
@@ -36,8 +37,7 @@ function Register() {
     setSubmitting(true);
 
     try {
-      // Role is strictly enforced as "USER" for self-registration
-      await register(fullName, email, password, "USER");
+      const user = await register(fullName, email, password, role);
       setRegistrationSuccess(true);
     } catch (err) {
       setError(err.message || "Registration failed. Please try again.");
@@ -77,7 +77,7 @@ function Register() {
 
   const handleGoogleError = () => {
     setError(
-      "Google Sign-In Error (401 invalid_client): The Google OAuth Client ID is not configured or not registered in Google Cloud Console. Please add a valid VITE_GOOGLE_CLIENT_ID in frontend/.env."
+      "Google Sign-In was unable to complete authorization. Please ensure popups are enabled, or create an account using your email and password below."
     );
   };
 
@@ -119,7 +119,7 @@ function Register() {
                   <button
                     type="button"
                     className="btn btn-saas w-100"
-                    onClick={() => navigate("/user")}
+                    onClick={() => redirectToDashboard(role)}
                   >
                     Continue to Dashboard
                   </button>
@@ -180,7 +180,7 @@ function Register() {
                     />
                   </div>
 
-                  <div className="mb-4">
+                  <div className="mb-3">
                     <label className="form-label-saas">Password</label>
                     <input
                       type="password"
@@ -190,6 +190,28 @@ function Register() {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                     />
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="form-label-saas d-flex justify-content-between" htmlFor="role-select">
+                      <span>Select Account Role</span>
+                    </label>
+                    <select
+                      id="role-select"
+                      className="form-control-saas"
+                      value={role}
+                      onChange={(e) => setRole(e.target.value)}
+                    >
+                      <option value="USER">User (Standard Access)</option>
+                      <option value="SKINCARE_CONSULTANT">Skincare Consultant (Professional Review)</option>
+                      <option value="DERMATOLOGIST">Dermatologist (Clinical Review)</option>
+                      <option value="ADMIN" disabled>System Administrator (Invite Only)</option>
+                    </select>
+                    <small className="text-muted mt-1 d-block" style={{ fontSize: "0.75rem" }}>
+                      {role === "USER"
+                        ? "Standard user account with immediate access to skincare analysis and routine planning."
+                        : "Professional accounts undergo clinical verification before specialist features are enabled."}
+                    </small>
                   </div>
 
                   <button
@@ -203,20 +225,22 @@ function Register() {
 
                 <div className="text-center my-3 text-muted small">OR</div>
 
-                <div className="d-flex flex-column align-items-center mb-4">
+                <div className="d-flex flex-column align-items-center mb-4 w-100" style={{ overflow: "hidden" }}>
                   {import.meta.env.VITE_GOOGLE_CLIENT_ID &&
                   !import.meta.env.VITE_GOOGLE_CLIENT_ID.includes("placeholder") &&
                   !import.meta.env.VITE_GOOGLE_CLIENT_ID.includes("your-google-client-id") &&
                   !import.meta.env.VITE_GOOGLE_CLIENT_ID.includes("your_google_client_id") ? (
-                    <GoogleLogin
-                      onSuccess={handleGoogleSuccess}
-                      onError={handleGoogleError}
-                      useOneTap
-                      theme="outline"
-                      shape="pill"
-                      size="large"
-                      text="signup_with"
-                    />
+                    <div className="d-flex justify-content-center w-100" style={{ maxWidth: "100%", overflowX: "auto" }}>
+                      <GoogleLogin
+                        onSuccess={handleGoogleSuccess}
+                        onError={handleGoogleError}
+                        theme="outline"
+                        shape="pill"
+                        size="large"
+                        text="signup_with"
+                        width="100%"
+                      />
+                    </div>
                   ) : (
                     <div
                       className="alert alert-warning text-center small py-2 px-3 mb-2 w-100 rounded"

@@ -1,7 +1,17 @@
 import axios from "axios";
 
-const rawApi = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || (import.meta.env.PROD ? "/api" : "http://127.0.0.1:8000/api");
-const API_BASE_URL = rawApi.endsWith("/auth") ? rawApi : `${rawApi.replace(/\/+$/, "")}/auth`;
+const getBaseAuthUrl = () => {
+  if (import.meta.env.PROD) {
+    const custom = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL;
+    if (custom && !custom.includes("localhost") && !custom.includes("127.0.0.1")) {
+      return custom.endsWith("/auth") ? custom : `${custom.replace(/\/+$/, "")}/auth`;
+    }
+    return "/api/auth";
+  }
+  const devUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "/api";
+  return devUrl.endsWith("/auth") ? devUrl : `${devUrl.replace(/\/+$/, "")}/auth`;
+};
+const API_BASE_URL = getBaseAuthUrl();
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -22,10 +32,14 @@ export const authService = {
       });
       return response.data;
     } catch (error) {
-      const message =
-        error.response?.data?.detail ||
-        error.message ||
-        "Registration failed. Unable to connect to server.";
+      let message = error.response?.data?.detail;
+      if (!message) {
+        if (!error.response && (error.message === "Network Error" || error.code === "ERR_NETWORK")) {
+          message = "Unable to connect to the server. Please try again.";
+        } else {
+          message = error.message || "Registration failed. Unable to connect to server.";
+        }
+      }
       throw new Error(message, { cause: error });
     }
   },
@@ -35,10 +49,14 @@ export const authService = {
       const response = await apiClient.post("/login", { email, password });
       return response.data;
     } catch (error) {
-      const message =
-        error.response?.data?.detail ||
-        error.message ||
-        "Login failed. Please check your credentials.";
+      let message = error.response?.data?.detail;
+      if (!message) {
+        if (!error.response && (error.message === "Network Error" || error.code === "ERR_NETWORK")) {
+          message = "Unable to connect to the server. Please try again.";
+        } else {
+          message = error.message || "Login failed. Please check your credentials.";
+        }
+      }
       throw new Error(message, { cause: error });
     }
   },

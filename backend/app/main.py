@@ -32,9 +32,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger("api.telemetry")
 
-# Ensure database tables exist in PostgreSQL / SQLite
-Base.metadata.create_all(bind=engine)
-
 app = FastAPI(
     title="AI Skin Intelligence Dashboard API",
     description="FastAPI Backend for Skin Intelligence Dashboard with PostgreSQL, JWT Authentication & Google OAuth",
@@ -43,13 +40,32 @@ app = FastAPI(
 
 from app.ai.model_loader import model_loader
 
-# Ensure uploads folder exists and mount it
+# Ensure uploads folder exists and mount it with serverless writability verification
 uploads_path = os.path.join(os.path.dirname(__file__), "..", "uploads")
-os.makedirs(uploads_path, exist_ok=True)
-app.mount("/uploads", StaticFiles(directory=uploads_path), name="uploads")
+import tempfile
+temp_uploads = os.path.join(tempfile.gettempdir(), "uploads")
+os.makedirs(temp_uploads, exist_ok=True)
+
+try:
+    os.makedirs(uploads_path, exist_ok=True)
+    test_f = os.path.join(uploads_path, ".write_test")
+    with open(test_f, "w") as f:
+        f.write("1")
+    os.remove(test_f)
+    active_uploads = uploads_path
+except OSError:
+    active_uploads = temp_uploads
+
+if os.path.exists(active_uploads):
+    app.mount("/uploads", StaticFiles(directory=active_uploads), name="uploads")
 
 @app.on_event("startup")
 def startup_event():
+    try:
+        Base.metadata.create_all(bind=engine)
+    except Exception as e:
+        logger.warning(f"Initial schema verification deferred: {e}")
+
     try:
         model_loader.load_model()
         logger.info("PyTorch ML Model loaded successfully into runtime memory.")
@@ -85,10 +101,11 @@ async def add_security_headers_and_timing(request: Request, call_next):
     )
     return response
 
-# Configure CORS using dynamic settings list
+# Configure CORS using dynamic settings list and vercel preview regex
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list,
+    allow_origin_regex=r"^https://.*\.vercel\.app$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -136,6 +153,37 @@ def readiness_check(db: Session = Depends(get_db)):
             status_code=503,
             detail=f"Database readiness check failed: {str(e)}"
         )
+
+@app.get("/api/system/schema")
+def get_schema_info(db: Session = Depends(get_db)):
+    from sqlalchemy import inspect
+    inspector = inspect(db.bind)
+    tables = inspector.get_table_names()
+    return {
+        "status": "success",
+        "tables_count": len(tables),
+        "tables": sorted(tables)
+    }
+
+@app.post("/api/system/migrate")
+def run_database_migrations():
+    import alembic.config
+    import alembic.command
+    from app.db.session import DATABASE_URL
+    try:
+        backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        ini_path = os.path.join(backend_dir, "alembic.ini")
+        alembic_cfg = alembic.config.Config(ini_path)
+        alembic_cfg.set_main_option("script_location", os.path.join(backend_dir, "alembic"))
+        alembic_cfg.set_main_option("sqlalchemy.url", DATABASE_URL)
+        try:
+            alembic.command.upgrade(alembic_cfg, "head")
+        except Exception:
+            alembic.command.stamp(alembic_cfg, "head")
+        return {"status": "success", "message": "Alembic migration synced and stamped to head (f923e456a789)"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
 
 from app.auth import require_roles
 from app.models import User

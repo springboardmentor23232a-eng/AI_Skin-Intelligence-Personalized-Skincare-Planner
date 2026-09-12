@@ -30,7 +30,6 @@ with engine.connect() as conn:
 rand_tag = secrets.token_hex(3)
 users_to_test = [
     {"name": "Standard User Test", "email": f"user_{rand_tag}@test.com", "role": "USER"},
-    {"name": "Admin User Test", "email": f"admin_{rand_tag}@test.com", "role": "ADMIN"},
     {"name": "Dermatologist User Test", "email": f"derm_{rand_tag}@test.com", "role": "DERMATOLOGIST"},
     {"name": "Consultant User Test", "email": f"consultant_{rand_tag}@test.com", "role": "SKINCARE_CONSULTANT"},
 ]
@@ -54,6 +53,16 @@ for u in users_to_test:
     }
     print(f"[OK] 2. Registered {u['role']} -> {u['email']} (Stored Role in DB: {data['user']['role']})")
 
+# 2b. Verify ADMIN self-registration is strictly rejected (HTTP 400)
+admin_attempt = client.post("/api/auth/register", json={
+    "full_name": "Rogue Admin Attempt",
+    "email": f"admin_{rand_tag}@test.com",
+    "password": "SecurePassword123!",
+    "role": "ADMIN"
+})
+assert admin_attempt.status_code == 400, "Security Failure: Self-registration for ADMIN must be rejected with 400"
+print("[OK] 2b. Verified ADMIN self-registration strictly rejected with HTTP 400.")
+
 # 3. Test Backend Login (Role read strictly from DB)
 for role, creds in created_users.items():
     res_login = client.post("/api/auth/login", json={
@@ -65,12 +74,21 @@ for role, creds in created_users.items():
     assert login_data["user"]["role"] == role, f"Login returned wrong role for {creds['email']}"
     print(f"[OK] 3. Login for {role}: Verified role '{login_data['user']['role']}' retrieved from PostgreSQL")
 
-# 4. Test Google OAuth Login (New user defaults to USER, existing preserves DB role)
+# 4. Test Google OAuth Login
+import json, base64
+mock_cred = "header." + base64.urlsafe_b64encode(json.dumps({
+    "iss": "https://accounts.google.com",
+    "email": f"google_{rand_tag}@test.com",
+    "name": "Google User Test",
+    "sub": f"sub_{rand_tag}",
+    "email_verified": True
+}).encode()).decode().rstrip("=") + ".signature"
+
 res_google_new = client.post("/api/auth/google", json={
-    "credential": "mock_google_id_token_test_12345"
+    "credential": mock_cred
 })
-assert res_google_new.status_code in [200, 400, 401], f"Google endpoint error: {res_google_new.text}"
-print("[OK] 4. Google Auth API endpoint reachable and handled credential.")
+assert res_google_new.status_code == 200, f"Google endpoint error: {res_google_new.text}"
+print("[OK] 4. Google Auth API endpoint verified successfully with valid claims.")
 
 # 5. Test Token Refreshing
 user_creds = created_users["USER"]

@@ -1,7 +1,17 @@
 import axios from "axios";
 
-const rawApi = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || (import.meta.env.PROD ? "/api" : "http://127.0.0.1:8000/api");
-const API_BASE_URL = rawApi.replace(/\/auth\/?$/, "").replace(/\/+$/, "");
+const getBaseApiUrl = () => {
+  if (import.meta.env.PROD) {
+    const custom = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL;
+    if (custom && !custom.includes("localhost") && !custom.includes("127.0.0.1")) {
+      return custom.replace(/\/auth\/?$/, "").replace(/\/+$/, "");
+    }
+    return "/api";
+  }
+  const devUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "/api";
+  return devUrl.replace(/\/auth\/?$/, "").replace(/\/+$/, "");
+};
+const API_BASE_URL = getBaseApiUrl();
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,

@@ -95,10 +95,12 @@ def normalize_phone_number(raw_phone: str) -> str:
 
 def register_user(db: Session, user_data: UserCreate) -> User:
     """
-    Registers a new standard user.
-    SECURITY ENFORCEMENT: Self-registration strictly defaults to role='USER'.
-    Privileged roles (CONSULTANT, DERMATOLOGIST, ADMIN) cannot be self-assigned.
-    Email starts with email_verified=False. Generates single-use expiring token.
+    Registers a new user account with strict server-side role validation.
+    SECURITY ENFORCEMENT:
+    - Self-registration with role='ADMIN' is strictly forbidden with HTTP 400.
+    - USER accounts are immediately active (is_verified=1).
+    - Professional requested roles (SKINCARE_CONSULTANT, DERMATOLOGIST) are registered
+      in unverified status (is_verified=0) pending clinical review by an administrator.
     """
     normalized_email = str(user_data.email).strip().lower()
 
@@ -109,20 +111,40 @@ def register_user(db: Session, user_data: UserCreate) -> User:
             detail="Email address is already registered"
         )
 
+    # Validate and process requested role
+    raw_role = (getattr(user_data, "role", None) or "USER").strip().upper()
+
+    if raw_role == "ADMIN":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Self-registration for the ADMIN role is strictly forbidden. Admin accounts must be provisioned by an administrator."
+        )
+
+    if raw_role not in ["USER", "SKINCARE_CONSULTANT", "DERMATOLOGIST"]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid account role '{raw_role}'. Allowed roles: USER, SKINCARE_CONSULTANT, DERMATOLOGIST."
+        )
+
+    assigned_role = raw_role
+    # Standard users are is_verified=1; consultants and dermatologists undergo review (is_verified=0)
+    user_is_verified = 1 if assigned_role == "USER" else 0
+
     try:
         hashed_pwd = hash_password(user_data.password)
         new_user = User(
             full_name=user_data.full_name.strip(),
             email=normalized_email,
             password=hashed_pwd,
-            role="USER",  # Strict server-side role assignment
+            role=assigned_role,
             provider=AuthProvider.LOCAL.value,
             email_verified=False,
             email_verified_at=None,
             phone_verified=False,
             phone_verified_at=None,
             is_active=1,
-            is_blocked=0
+            is_blocked=0,
+            is_verified=user_is_verified
         )
         db.add(new_user)
         db.commit()

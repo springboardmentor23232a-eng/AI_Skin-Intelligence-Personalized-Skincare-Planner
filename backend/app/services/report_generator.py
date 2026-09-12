@@ -3,11 +3,23 @@ import csv
 import unicodedata
 from datetime import datetime, timezone
 from typing import List, Optional, Any, Dict
-from fpdf import FPDF
-from fpdf.enums import XPos, YPos
-import openpyxl
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
-from openpyxl.utils import get_column_letter
+try:
+    from fpdf import FPDF
+    from fpdf.enums import XPos, YPos
+except ImportError:
+    FPDF = None
+    XPos = None
+    YPos = None
+
+try:
+    import openpyxl
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from openpyxl.utils import get_column_letter
+except ImportError:
+    openpyxl = None
+    Font = PatternFill = Alignment = Border = Side = None
+    get_column_letter = None
+
 from sqlalchemy.orm import Session
 
 from app.models import (

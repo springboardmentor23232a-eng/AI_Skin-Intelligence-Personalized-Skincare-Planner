@@ -1,8 +1,16 @@
 import os
 import json
-import torch
-import torch.nn as nn
-from torchvision import models
+
+try:
+    import torch
+    import torch.nn as nn
+    from torchvision import models
+    TORCH_AVAILABLE = True
+except ImportError:
+    torch = None
+    nn = None
+    models = None
+    TORCH_AVAILABLE = False
 
 class ModelLoader:
     _instance = None
@@ -12,7 +20,10 @@ class ModelLoader:
             cls._instance = super(ModelLoader, cls).__new__(cls)
             cls._instance.model = None
             cls._instance.metadata = None
-            cls._instance.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+            if TORCH_AVAILABLE and torch is not None:
+                cls._instance.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+            else:
+                cls._instance.device = 'cpu'
             cls._instance.is_loaded = False
         return cls._instance
 
@@ -30,13 +41,7 @@ class ModelLoader:
 
         metadata_path = os.path.join(project_root, 'ml', 'models', 'improved_model_metadata.json')
 
-        print(f"[AI ModelLoader] Loading model weights from: {weights_path}")
-        print(f"[AI ModelLoader] Loading metadata from: {metadata_path}")
-
-        if not os.path.exists(weights_path):
-            raise FileNotFoundError(f"Model checkpoint not found at {weights_path}")
-
-        # Load Metadata
+        # Load Metadata first
         if os.path.exists(metadata_path):
             with open(metadata_path, 'r', encoding='utf-8') as f:
                 self.metadata = json.load(f)
@@ -56,6 +61,10 @@ class ModelLoader:
                     "Vascular & Purpuric Conditions"
                 ]
             }
+
+        if not TORCH_AVAILABLE or torch is None or models is None:
+            print("[AI ModelLoader] PyTorch runtime not available. Operating in fallback mode.")
+            return None, self.metadata
 
         # Build EfficientNet-B0 Model Structure
         classes = self.metadata.get("classes", [])

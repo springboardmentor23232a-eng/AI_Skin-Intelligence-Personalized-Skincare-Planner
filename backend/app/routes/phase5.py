@@ -188,8 +188,14 @@ def validate_and_save_progress_photo(file: UploadFile) -> str:
         img.thumbnail((1200, 1200), Image.Resampling.LANCZOS)
         
         stored_name = f"{uuid.uuid4()}.jpg"
-        os.makedirs(UPLOAD_DIR, exist_ok=True)
-        dest_path = os.path.join(UPLOAD_DIR, stored_name)
+        try:
+            os.makedirs(UPLOAD_DIR, exist_ok=True)
+            dest_path = os.path.join(UPLOAD_DIR, stored_name)
+        except OSError:
+            import tempfile
+            UPLOAD_DIR_TEMP = os.path.join(tempfile.gettempdir(), "uploads")
+            os.makedirs(UPLOAD_DIR_TEMP, exist_ok=True)
+            dest_path = os.path.join(UPLOAD_DIR_TEMP, stored_name)
         img.save(dest_path, "JPEG", quality=85)
         return f"/uploads/{stored_name}"
     except Exception as e:

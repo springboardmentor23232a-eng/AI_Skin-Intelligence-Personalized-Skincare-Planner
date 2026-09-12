@@ -1,3 +1,4 @@
+import os
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from sqlalchemy.orm import Session
@@ -29,12 +30,14 @@ from app.auth import get_current_user
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 def set_auth_cookies(response: Response, access_token: str, refresh_token: str):
+    is_prod = os.environ.get("ENVIRONMENT", "").lower() == "production"
     response.set_cookie(
         key="access_token",
         value=f"Bearer {access_token}",
         httponly=True,
         samesite="lax",
-        secure=False,
+        secure=is_prod,
+        path="/",
         max_age=3600
     )
     response.set_cookie(
@@ -42,7 +45,8 @@ def set_auth_cookies(response: Response, access_token: str, refresh_token: str):
         value=refresh_token,
         httponly=True,
         samesite="lax",
-        secure=False,
+        secure=is_prod,
+        path="/",
         max_age=7 * 86400
     )
 
@@ -78,8 +82,9 @@ def login(credentials: LoginRequest, response: Response, db: Session = Depends(g
 
 @router.post("/logout", response_model=GenericMessage)
 def logout(response: Response):
-    response.delete_cookie(key="access_token")
-    response.delete_cookie(key="refresh_token")
+    is_prod = os.environ.get("ENVIRONMENT", "").lower() == "production"
+    response.delete_cookie(key="access_token", path="/", samesite="lax", secure=is_prod)
+    response.delete_cookie(key="refresh_token", path="/", samesite="lax", secure=is_prod)
     return {"message": "Successfully logged out"}
 
 @router.post("/refresh", response_model=Token)

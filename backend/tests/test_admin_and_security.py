@@ -21,12 +21,12 @@ def setup_test_actors():
     db: Session = SessionLocal()
     ts = int(time.time() * 1000)
 
-    # 1. Register Admin
+    # 1. Register Admin (initial registration as USER, subsequently promoted via DB in accordance with privilege escalation prevention)
     admin_res = client.post("/api/auth/register", json={
         "full_name": f"Admin Actor {ts}",
         "email": f"admin_actor_{ts}@skincare.com",
         "password": "Password123!",
-        "role": "ADMIN"
+        "role": "USER"
     })
     assert admin_res.status_code == 201
     admin_token = admin_res.json()["access_token"]

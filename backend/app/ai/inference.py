@@ -1,5 +1,12 @@
-import torch
-import torch.nn.functional as F
+try:
+    import torch
+    import torch.nn.functional as F
+    TORCH_AVAILABLE = True
+except ImportError:
+    torch = None
+    F = None
+    TORCH_AVAILABLE = False
+
 from PIL import Image
 from typing import Dict, Any, Union
 from app.ai.model_loader import model_loader
@@ -13,7 +20,12 @@ def run_skin_condition_inference(image_input: Union[bytes, Image.Image]) -> Dict
     Returns structured results including predicted class, confidence, low-confidence warning,
     model metadata, and class probability distribution.
     """
+    if not TORCH_AVAILABLE or torch is None:
+        raise RuntimeError("PyTorch runtime is not installed. Fallback inference enabled.")
+
     model, metadata = model_loader.load_model()
+    if model is None:
+        raise RuntimeError("PyTorch model weights could not be loaded into runtime.")
     device = model_loader.device
 
     # Preprocess image into tensor

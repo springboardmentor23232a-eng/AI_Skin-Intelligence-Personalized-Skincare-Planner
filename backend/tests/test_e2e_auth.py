@@ -88,15 +88,16 @@ def run_e2e_tests():
 
     print("\n--- 9. Testing Google OAuth Login ---")
     import json, base64
-    mock_cred = "header." + base64.b64encode(json.dumps({
+    mock_cred = "header." + base64.urlsafe_b64encode(json.dumps({
+        "iss": "https://accounts.google.com",
         "email": "google_test_user@gmail.com",
         "name": "Google Test User",
-        "sub": "987654321"
-    }).encode()).decode() + ".signature"
+        "sub": "987654321",
+        "email_verified": True
+    }).encode()).decode().rstrip("=") + ".signature"
 
     google_res = client.post(f"{base_url}/google", json={
-        "credential": mock_cred,
-        "role": "USER"
+        "credential": mock_cred
     })
     print("Google Auth Status:", google_res.status_code)
     print("Google User Response:", google_res.json().get("user"))
