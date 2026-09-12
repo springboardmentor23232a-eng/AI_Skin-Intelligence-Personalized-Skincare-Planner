@@ -1,0 +1,21 @@
+{
+  "model_name": "SCIN_EFFICIENTNET_B0_Clinical_Category_Classifier",
+  "model_version": "2.0.0",
+  "architecture": "efficientnet_b0",
+  "classes": [
+    "Acneiform & Follicular Disorders",
+    "Eczematous & Inflammatory Dermatitis",
+    "Infections & Infestations",
+    "Other Clinical Disorders",
+    "Papulosquamous Disorders",
+    "Trauma & Insect Bites",
+    "Urticaria & Reactive Rashes",
+    "Vascular & Purpuric Conditions"
+  ],
+  "input_size": [224, 224],
+  "num_classes": 8,
+  "metrics": {
+    "validation_accuracy": 0.842,
+    "f1_score_macro": 0.825
+  }
+}

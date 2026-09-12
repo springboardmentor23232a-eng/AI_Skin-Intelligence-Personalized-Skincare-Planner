@@ -1,0 +1,41 @@
+{
+  "timestamp": "2026-09-11T17:43:05Z",
+  "environment": "Docker Compose (NGINX + FastAPI + PostgreSQL 15)",
+  "latencies": {
+    "GET /health (NGINX Proxy)": {
+      "min_ms": 6.87,
+      "p50_ms": 7.37,
+      "mean_ms": 7.49,
+      "p95_ms": 8.79,
+      "max_ms": 8.79
+    },
+    "POST /api/auth/login": {
+      "min_ms": 41.84,
+      "p50_ms": 45.67,
+      "mean_ms": 45.53,
+      "p95_ms": 47.92,
+      "max_ms": 47.92
+    },
+    "POST /api/routines/generate": {
+      "min_ms": 29.52,
+      "p50_ms": 30.86,
+      "mean_ms": 32.75,
+      "p95_ms": 43.7,
+      "max_ms": 43.7
+    },
+    "POST /api/recommendations/generate": {
+      "min_ms": 25.01,
+      "p50_ms": 28.32,
+      "mean_ms": 28.1,
+      "p95_ms": 33.13,
+      "max_ms": 33.13
+    },
+    "GET /api/reports/export?format=pdf": {
+      "min_ms": 46.78,
+      "p50_ms": 49.81,
+      "mean_ms": 51.58,
+      "p95_ms": 71.74,
+      "max_ms": 71.74
+    }
+  }
+}

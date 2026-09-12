@@ -1,0 +1,113 @@
+# ==============================================================================
+# AI Skin Intelligence & Personalized Skincare Planner - Git Ignore Configuration
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. ENVIRONMENT & SECRETS (Never commit actual credentials)
+# ------------------------------------------------------------------------------
+.env
+.env.*
+*.env
+**/.env
+**/.env.*
+!.env.example
+!.env.production.example
+!backend/.env.example
+!backend/.env.production.example
+!frontend/.env.example
+
+# ------------------------------------------------------------------------------
+# 2. PYTHON RUNTIME & CACHES
+# ------------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+*.cache
+
+# Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+test-results/
+coverage.xml
+
+# ------------------------------------------------------------------------------
+# 3. DATABASE & RUNTIME DATA
+# ------------------------------------------------------------------------------
+*.db
+*.sqlite
+*.sqlite3
+backend/skin_db.db
+test_gaps.db
+
+# ------------------------------------------------------------------------------
+# 4. USER UPLOADS & RUNTIME MEDIA
+# ------------------------------------------------------------------------------
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# ------------------------------------------------------------------------------
+# 5. NODE & FRONTEND BUILD ARTIFACTS
+# ------------------------------------------------------------------------------
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+build/
+.vite/
+frontend/.vite/
+dist-ssr/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ------------------------------------------------------------------------------
+# 6. LOGS & TEMPORARY FILES
+# ------------------------------------------------------------------------------
+*.log
+logs/
+*.tmp
+*.temp
+*.bak
+backend/tests/downloaded_exports/*
+!backend/tests/downloaded_exports/.gitkeep
+rendered_page_*.png
+
+# ------------------------------------------------------------------------------
+# 7. IDE & OPERATING SYSTEM
+# ------------------------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*.suo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ------------------------------------------------------------------------------
+# 8. MACHINE LEARNING DATA & ARTIFACTS
+# ------------------------------------------------------------------------------
+# Temporary image caches
+ml/data/image_cache/
+ml/data/sample_images/
+.ipynb_checkpoints/
+
+# Trained model weights (Exempt the verified production EfficientNet-B0 model)
+ml/models/*.pt
+ml/models/*.onnx
+ml/models/*.ckpt
+ml/models/*.h5
+!ml/models/skin_condition_improved.pth
+!ml/models/improved_model_metadata.json
