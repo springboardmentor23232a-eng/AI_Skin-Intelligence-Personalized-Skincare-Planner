@@ -62,11 +62,12 @@ async def add_security_headers(request: Request, call_next):
     # Content Security Policy appropriate for a backend API
     # Allows: same origin only, no inline scripts/styles
     # Note: Frontend is hosted separately on Vercel
+    # Swagger UI resources loaded from cdn.jsdelivr.net
     response.headers["Content-Security-Policy"] = (
         "default-src 'self'; "
-        "script-src 'self' 'unsafe-inline'; "  # unsafe-inline needed for Swagger UI
-        "style-src 'self' 'unsafe-inline'; "   # unsafe-inline needed for Swagger UI
-        "img-src 'self' data:; "                # data: needed for Swagger UI
+        "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "  # CDN for Swagger UI
+        "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "   # CDN for Swagger UI
+        "img-src 'self' data:; "                # data: needed for Swagger UI icons
         "font-src 'self' data:; "
         "connect-src 'self'; "
         "frame-ancestors 'none'"                # Prevents embedding in iframes
