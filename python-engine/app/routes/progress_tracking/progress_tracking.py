@@ -142,6 +142,13 @@ def get_user_progress(user_id: str, db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get user progress: {str(e)}")
 
+@router.get("/progress/milestone-types")
+def get_milestone_types():
+    """
+    Get available milestone types
+    """
+    return progress_tracker.milestone_types
+
 @router.get("/progress/{progress_id}", response_model=UserProgressSchema)
 def get_progress_entry(progress_id: str, db: Session = Depends(get_db)):
     """
@@ -340,10 +347,3 @@ def create_milestone(
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Failed to create milestone: {str(e)}")
-
-@router.get("/progress/milestone-types")
-def get_milestone_types():
-    """
-    Get available milestone types
-    """
-    return progress_tracker.milestone_types

@@ -439,7 +439,7 @@
                 const formData = new FormData();
                 formData.append('file', file);
 
-                const response = await fetch('http://localhost:3000/api/skin/predict-skin-type', {
+                const response = await fetch('https://ai-skin.centralindia.cloudapp.azure.com/api/skin/predict-skin-type', {
                     method: 'POST',
                     body: formData
                 });
@@ -832,7 +832,7 @@
             const formData = collectFormData();
             
             // Save skin profile to Node.js backend
-            const response = await fetch('http://localhost:3000/api/skin-profile', {
+            const response = await fetch('https://ai-skin.centralindia.cloudapp.azure.com/api/skin-profile', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -842,6 +842,7 @@
                     user_id: userId,
                     skin_type: analysis.skin_type,
                     skin_health_score: analysis.skin_health_score,
+                    overall_condition: analysis.overall_condition,
                     concerns: analysis.concerns,
                     risk_factors: analysis.risk_factors,
                     recommendations: analysis.recommendations,
@@ -865,6 +866,27 @@
             }
             
             console.log('Analysis saved to database successfully');
+            
+            // Log the activity
+            await fetch('https://ai-skin.centralindia.cloudapp.azure.com/api/activity/log', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                },
+                body: JSON.stringify({
+                    activityType: 'skin_assessment',
+                    activitySubtype: 'profile_save',
+                    activityData: {
+                        skin_type: analysis.skin_type,
+                        skin_health_score: analysis.skin_health_score,
+                        concerns: analysis.concerns,
+                        comprehensive_score: analysis.comprehensive_score_value
+                    },
+                    sourcePage: 'skin_profile.html'
+                })
+            });
+            
             return await response.json();
         }
 
@@ -969,7 +991,7 @@
                 console.log('Using local score:', localScore);
                 
                 // Direct call to Python API (bypassing Node.js backend routing issue)
-                const response = await fetch('http://localhost:8001/api/skin-health/calculate', {
+                const response = await fetch('https://ai-skin.centralindia.cloudapp.azure.com/api/skin/skin-health/calculate', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

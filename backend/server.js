@@ -1,4 +1,5 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 const express      = require('express');
 const cors         = require('cors');
 const cookieParser = require('cookie-parser');
@@ -11,6 +12,14 @@ const skinAssessmentRoutes = require('./routes/skinAssessment');
 const routineRoutes    = require('./routes/routines');
 const productsRoutes    = require('./routes/products');
 const ingredientRoutes  = require('./routes/ingredient');
+const dashboardRoutes   = require('./routes/dashboard');
+const notificationsRoutes = require('./routes/notifications');
+const { router: activityRoutes } = require('./routes/activity');
+const reportsRoutes    = require('./routes/reports');
+const adminReportsRoutes = require('./routes/adminReports');
+const dermatologistReportsRoutes = require('./routes/dermatologistReports');
+const activityLog       = require('./middleware/activityLog');
+const notificationService = require('./services/notificationService');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -18,6 +27,7 @@ const PORT = process.env.PORT || 3000;
 // ─── Middleware ───────────────────────────────────────────────────────────────
 app.use(cors({
   origin: [
+    'https://ai-skin-intelligence-pi.vercel.app',
     'http://127.0.0.1:5500',
     'http://localhost:5500',
     'http://127.0.0.1:3000',
@@ -29,6 +39,7 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(activityLog);
 
 // Session configuration
 app.use(session({
@@ -58,6 +69,14 @@ app.use('/api/products',     productsRoutes);
 
 // Ingredient intelligence routes
 app.use('/api/ingredient',   ingredientRoutes);
+app.use('/api/dashboard',    dashboardRoutes);
+app.use('/api/notifications', notificationsRoutes);
+app.use('/api/activity',     activityRoutes);
+
+// Reports routes
+app.use('/api/reports',      reportsRoutes);
+app.use('/api/admin/reports', adminReportsRoutes);
+app.use('/api/dermatologist/reports', dermatologistReportsRoutes);
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
@@ -80,8 +99,35 @@ app.use((err, req, res, next) => {
   res.status(500).json({ success: false, message: 'Internal server error.' });
 });
 
+async function startup() {
+  try {
+    await notificationService.ensureNotificationTable();
+    const userCount = await require('./db/pool').query('SELECT COUNT(*)::int AS count FROM users');
+    if (Number(userCount.rows[0].count || 0) > 0) {
+      const users = await require('./db/pool').query('SELECT id FROM users WHERE is_active = true');
+      for (const user of users.rows) {
+        await notificationService.generateUserNotifications(user.id);
+      }
+    }
+  } catch (error) {
+    console.error('Notification bootstrap failed:', error.message);
+  }
+
+  setInterval(async () => {
+    try {
+      const users = await require('./db/pool').query('SELECT id FROM users WHERE is_active = true');
+      for (const user of users.rows) {
+        await notificationService.generateUserNotifications(user.id);
+      }
+    } catch (error) {
+      console.error('Notification scheduler error:', error.message);
+    }
+  }, 5 * 60 * 1000);
+}
+
 // ─── Start ────────────────────────────────────────────────────────────────────
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
+  await startup();
   console.log(`\n🚀 Server running at http://localhost:${PORT}`);
   console.log(`📋 Available API endpoints:`);
   console.log(`   POST   http://localhost:${PORT}/api/skin/assessment`);
@@ -119,4 +165,5 @@ app.listen(PORT, () => {
   console.log(`   GET    http://localhost:${PORT}/api/skin/skin-health/trend`);
   console.log(`   POST   http://localhost:${PORT}/api/skin/assessment`);
   console.log(`   GET    http://localhost:${PORT}/api/health\n`);
+  console.log(`   GET    http://localhost:${PORT}/api/reports/patient/:userId`);
 });

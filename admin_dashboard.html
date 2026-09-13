@@ -20,6 +20,15 @@
         <button class="nav-item active" onclick="showSection('users')" id="nav-users">
             <span>👥</span> Users
         </button>
+        <button class="nav-item" onclick="showSection('analytics')" id="nav-analytics">
+            <span>📊</span> Platform Analytics
+        </button>
+        <button class="nav-item" onclick="showSection('recommendations')" id="nav-recommendations">
+            <span>🧠</span> Recommendation Monitoring
+        </button>
+        <button class="nav-item" onclick="showSection('reports')" id="nav-reports">
+            <span>📈</span> System Reports
+        </button>
         <button class="nav-item" onclick="showSection('skin-profiles')" id="nav-skin-profiles">
             <span>🧴</span> Skin Profiles
         </button>
@@ -110,6 +119,94 @@
                     <button class="btn-ghost" onclick="changePage(1)" id="nextBtn" style="padding: 5px 10px; font-size: 0.75rem;">Next →</button>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <!-- Platform Analytics Section -->
+    <section id="section-analytics" style="display: none;">
+        <div style="margin-bottom: 32px;">
+            <h1>📊 Platform Analytics</h1>
+            <p style="color: var(--muted); margin-top: 6px; font-size: 0.9rem;">Monitor user growth, platform adoption, and system health at a glance</p>
+        </div>
+
+        <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 32px;">
+            <div class="stat-card">
+                <div class="stat-icon">👤</div>
+                <div class="stat-value" id="platformUsers">—</div>
+                <div class="stat-label">Total Users</div>
+                <span class="tag" style="margin-top: 8px;">Live platform</span>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📈</div>
+                <div class="stat-value" id="platformAssessments">—</div>
+                <div class="stat-label">Assessments</div>
+                <span class="tag" style="margin-top: 8px;">All users</span>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-value" id="platformNewUsers">—</div>
+                <div class="stat-label">New this month</div>
+                <span class="tag warn" style="margin-top: 8px;">30-day window</span>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🩺</div>
+                <div class="stat-value" id="platformActiveUsers">—</div>
+                <div class="stat-label">Active accounts</div>
+                <span class="tag" style="margin-top: 8px;">Healthy</span>
+            </div>
+        </div>
+
+        <div class="card" style="padding: 24px;">
+            <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 20px;">
+                <div>
+                    <h3 style="margin: 0 0 16px; font-size: 1rem;">Role distribution</h3>
+                    <div id="roleDistribution" class="help">Loading platform roles…</div>
+                </div>
+                <div>
+                    <h3 style="margin: 0 0 16px; font-size: 1rem;">System health</h3>
+                    <div id="systemHealth" class="help">Loading health checks…</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recommendation Monitoring Section -->
+    <section id="section-recommendations" style="display: none;">
+        <div style="margin-bottom: 32px;">
+            <h1>🧠 Recommendation Monitoring</h1>
+            <p style="color: var(--muted); margin-top: 6px; font-size: 0.9rem;">Track recommendation status, approval flow, and active skincare suggestions</p>
+        </div>
+
+        <div class="card" style="padding: 24px;">
+            <div id="recommendationMonitoring" class="help">Loading recommendation status…</div>
+        </div>
+    </section>
+
+    <!-- System Reports Section -->
+    <section id="section-reports" style="display: none;">
+        <div style="margin-bottom: 32px;">
+            <h1>📈 System Reports</h1>
+            <p style="color: var(--muted); margin-top: 6px; font-size: 0.9rem;">Review and export assessment, recommendation, progress, and skin-health reports for every user.</p>
+        </div>
+
+        <div class="card" style="padding: 24px;">
+            <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:18px;">
+                <select id="adminReportType" class="btn-secondary" style="padding:10px;">
+                    <option value="">All report types</option>
+                    <option value="skin_assessment">Skin assessment</option>
+                    <option value="product_recommendation">Product recommendations</option>
+                    <option value="progress">Progress</option>
+                    <option value="skin_health">Skin health</option>
+                    <option value="routine">Routine</option>
+                </select>
+                <input id="adminReportSearch" type="search" placeholder="Search user name or email" style="padding:10px 12px; border:1px solid var(--line); border-radius:8px; min-width:220px;">
+                <input id="adminReportStart" type="date" style="padding:10px; border:1px solid var(--line); border-radius:8px;">
+                <input id="adminReportEnd" type="date" style="padding:10px; border:1px solid var(--line); border-radius:8px;">
+                <button class="btn-primary" id="loadAdminReportsBtn">Load reports</button>
+                <button class="btn-secondary" id="exportAdminReportsBtn">Download CSV summary</button>
+            </div>
+            <div id="adminReportStats" class="stats-grid" style="grid-template-columns:repeat(4,1fr); margin-bottom:20px;"></div>
+            <div id="systemReportsList" class="help">Select filters and load reports.</div>
         </div>
     </section>
 
@@ -420,6 +517,171 @@
         }, 3000);
     }
 
+    async function loadAdminDashboardData() {
+        const token = localStorage.getItem('accessToken');
+        if (!token) return;
+
+        try {
+            const response = await fetch('https://ai-skin.centralindia.cloudapp.azure.com/api/dashboard/summary', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const payload = await response.json();
+            if (!response.ok) throw new Error(payload.message || 'Unable to load admin platform analytics.');
+
+            const metrics = payload.metrics || {};
+            const roles = payload.roles || [];
+            const recommendationStatuses = payload.recommendationStatuses || [];
+            const system = payload.system || {};
+
+            document.getElementById('platformUsers').textContent = metrics.totalUsers ?? 0;
+            document.getElementById('platformAssessments').textContent = metrics.assessments ?? 0;
+            document.getElementById('platformNewUsers').textContent = metrics.newUsers ?? 0;
+            document.getElementById('platformActiveUsers').textContent = metrics.activeUsers ?? 0;
+
+            const roleSummary = roles.length ? roles.map(item => {
+                const label = item.role === 'user' ? 'Users' : item.role === 'consultant' ? 'Consultants' : item.role === 'dermatologist' ? 'Dermatologists' : item.role.charAt(0).toUpperCase() + item.role.slice(1);
+                return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);"><span>${escapeHtml(label)}</span><strong>${item.count}</strong></div>`;
+            }).join('') : '<p class="help">No role data available yet.</p>';
+            document.getElementById('roleDistribution').innerHTML = roleSummary;
+
+            const healthEntries = [
+                ['API', system.api || 'healthy'],
+                ['Database', system.database || 'healthy'],
+                ['Assessments', metrics.assessments > 0 ? 'tracking' : 'pending'],
+                ['Recommendations', recommendationStatuses.length ? 'live' : 'pending']
+            ];
+            document.getElementById('systemHealth').innerHTML = healthEntries.map(([label, state]) => `
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);">
+                    <span>${label}</span>
+                    <span class="tag ${state === 'healthy' || state === 'tracking' || state === 'live' ? '' : 'warn'}">${escapeHtml(state)}</span>
+                </div>
+            `).join('');
+
+            const statusRows = recommendationStatuses.length ? recommendationStatuses.map(item => `
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);">
+                    <span>${escapeHtml(item.status || 'Unknown')}</span>
+                    <strong>${item.count ?? 0}</strong>
+                </div>
+            `).join('') : '<p class="help">No recommendation data available.</p>';
+            document.getElementById('recommendationMonitoring').innerHTML = `
+                <h3 style="margin: 0 0 16px; font-size: 1rem;">Recommendation status overview</h3>
+                ${statusRows}
+            `;
+
+            const reportRows = [
+                { title: 'Platform health', value: `${system.api || 'Healthy'} / ${system.database || 'Healthy'}` },
+                { title: 'User growth', value: `${metrics.newUsers ?? 0} new users in 30 days` },
+                { title: 'Assessment volume', value: `${metrics.assessments ?? 0} total assessments` },
+                { title: 'Recommendation coverage', value: `${recommendationStatuses.reduce((sum, item) => sum + Number(item.count || 0), 0)} active or queued recommendations` },
+            ];
+            document.getElementById('systemReportsList').innerHTML = reportRows.map(item => `
+                <div style="padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; margin-bottom: 12px; background: rgba(255,255,255,.4);">
+                    <div style="font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;">${escapeHtml(item.title)}</div>
+                    <div style="font-size: 1rem; font-weight: 600; color: var(--ink);">${escapeHtml(item.value)}</div>
+                </div>
+            `).join('');
+        } catch (error) {
+            showToast(error.message, 'error');
+            document.getElementById('roleDistribution').innerHTML = '<p class="help">Unable to load analytics.</p>';
+            document.getElementById('recommendationMonitoring').innerHTML = '<p class="help">Unable to load recommendation data.</p>';
+            document.getElementById('systemReportsList').innerHTML = '<p class="help">Unable to load system reports.</p>';
+        }
+
+        async function loadAdminReports() {
+            const token = localStorage.getItem('accessToken');
+            const container = document.getElementById('systemReportsList');
+            if (!token || !container) return;
+            const params = new URLSearchParams();
+            const type = document.getElementById('adminReportType').value;
+            const search = document.getElementById('adminReportSearch').value.trim();
+            const start = document.getElementById('adminReportStart').value;
+            const end = document.getElementById('adminReportEnd').value;
+            if (type) params.set('reportType', type);
+            if (search) params.set('search', search);
+            if (start) params.set('startDate', start);
+            if (end) params.set('endDate', end);
+            params.set('limit', '100');
+            container.innerHTML = '<div class="loading-spinner"><div class="spinner"></div><p>Loading user reports…</p></div>';
+            try {
+                const response = await fetch(`https://ai-skin.centralindia.cloudapp.azure.com/api/admin/reports?${params}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const payload = await response.json();
+                if (!response.ok) throw new Error(payload.message || 'Unable to load reports.');
+                const reports = payload.reports || [];
+                const summary = payload.summary || {};
+                document.getElementById('adminReportStats').innerHTML = [
+                    ['👥', summary.users ?? new Set(reports.map(report => report.user_id)).size, 'Users covered'],
+                    ['📋', summary.reports ?? reports.length, 'Reports found'],
+                    ['📈', summary.assessments ?? 0, 'Assessments'],
+                    ['🧴', summary.recommendations ?? 0, 'Recommendations']
+                ].map(item => `<div class="stat-card"><div class="stat-icon">${item[0]}</div><div class="stat-value">${item[1]}</div><div class="stat-label">${item[2]}</div></div>`).join('');
+                container.innerHTML = reports.length ? `
+                    <div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;">
+                        <thead><tr><th style="text-align:left;padding:12px;">User</th><th style="text-align:left;padding:12px;">Report</th><th style="text-align:left;padding:12px;">Score</th><th style="text-align:left;padding:12px;">Condition</th><th style="text-align:left;padding:12px;">Date</th><th style="padding:12px;">Actions</th></tr></thead>
+                        <tbody>${reports.map(report => `<tr>
+                            <td style="padding:12px;"><strong>${escapeHtml(report.user_name || report.name || 'Unknown')}</strong><br><small>${escapeHtml(report.user_email || report.email || '')}</small></td>
+                            <td style="padding:12px;">${escapeHtml((report.report_type || 'report').replace(/_/g, ' '))}</td>
+                            <td style="padding:12px;">${report.latest_score == null ? '—' : `${report.latest_score}/100`}</td>
+                            <td style="padding:12px;">${escapeHtml(report.overall_condition || '—')}</td>
+                            <td style="padding:12px;">${report.created_at ? new Date(report.created_at).toLocaleDateString() : '—'}</td>
+                            <td style="padding:12px;white-space:nowrap;">
+                                ${report.report_id || report.id ? `<button class="action-btn" onclick="window.location.href='report_view.html?id=${encodeURIComponent(report.report_id || report.id)}&role=admin'">View</button>` : ''}
+                                ${report.user_id ? `<button class="action-btn" onclick="downloadAdminReport('${report.user_id}', '${report.report_type || 'comprehensive'}')">PDF</button>` : ''}
+                            </td>
+                        </tr>`).join('')}</tbody>
+                    </table></div>` : '<p class="help">No reports match the selected filters.</p>';
+            } catch (error) {
+                container.innerHTML = `<p class="help">${escapeHtml(error.message)}</p>`;
+                showToast(error.message, 'error');
+            }
+        }
+
+        async function downloadAdminReport(userId, reportType) {
+            const token = localStorage.getItem('accessToken');
+            const response = await fetch('https://ai-skin.centralindia.cloudapp.azure.com/api/reports/export', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ userId, reportType, format: 'pdf' })
+            });
+            if (!response.ok) {
+                const payload = await response.json().catch(() => ({}));
+                showToast(payload.message || 'Unable to export report.', 'error');
+                return;
+            }
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(await response.blob());
+            link.download = `${reportType.replace(/_/g, '-')}-${userId}.pdf`;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        }
+
+        async function exportAdminReports() {
+            const token = localStorage.getItem('accessToken');
+            const params = new URLSearchParams();
+            const type = document.getElementById('adminReportType').value;
+            const start = document.getElementById('adminReportStart').value;
+            const end = document.getElementById('adminReportEnd').value;
+            if (type) params.set('reportType', type);
+            if (start) params.set('startDate', start);
+            if (end) params.set('endDate', end);
+            params.set('format', 'csv');
+            const response = await fetch(`https://ai-skin.centralindia.cloudapp.azure.com/api/admin/reports/export?${params}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (!response.ok) {
+                const payload = await response.json().catch(() => ({}));
+                showToast(payload.message || 'Unable to export reports.', 'error');
+                return;
+            }
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(await response.blob());
+            link.download = `admin-${type || 'reports'}.csv`;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        }
+    }
+
     // Copy token to clipboard
     function copyToken() {
         const token = localStorage.getItem('accessToken');
@@ -447,6 +709,131 @@
         }
     }
 
+    let currentPage = 1;
+    const pageSize = 20;
+
+    async function loadUsers() {
+        const token = localStorage.getItem('accessToken');
+        const table = document.getElementById('tableBody');
+        if (!token) {
+            table.innerHTML = '<p class="help">Please sign in as an administrator.</p>';
+            return;
+        }
+
+        const params = new URLSearchParams({
+            page: currentPage,
+            limit: pageSize,
+            role: document.getElementById('roleFilter').value,
+            search: document.getElementById('searchInput').value.trim()
+        });
+
+        table.innerHTML = '<div class="loading-spinner"><div class="spinner"></div><p>Loading users from database…</p></div>';
+        try {
+            const response = await fetch(`https://ai-skin.centralindia.cloudapp.azure.com/api/users?${params}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const payload = await response.json();
+            if (!response.ok) throw new Error(payload.message || 'Unable to load users.');
+
+            table.innerHTML = payload.users.length ? `
+                <div style="overflow-x:auto;">
+                    <table style="width:100%; border-collapse:collapse;">
+                        <thead><tr><th style="text-align:left;padding:12px 24px;">Name</th><th style="text-align:left;padding:12px;">Email</th><th style="text-align:left;padding:12px;">Role</th><th style="text-align:left;padding:12px;">Status</th><th style="text-align:left;padding:12px;">Joined</th><th style="padding:12px;">Action</th></tr></thead>
+                        <tbody>${payload.users.map(user => `
+                            <tr>
+                                <td style="padding:12px 24px;font-weight:600;">${escapeHtml(user.name)}</td>
+                                <td style="padding:12px;">${escapeHtml(user.email)}</td>
+                                <td style="padding:12px;">${escapeHtml(user.role)}</td>
+                                <td style="padding:12px;">${user.is_active ? 'Active' : 'Inactive'}</td>
+                                <td style="padding:12px;">${new Date(user.created_at).toLocaleDateString()}</td>
+                                <td style="padding:12px;text-align:center;"><button class="action-btn ${user.is_active ? 'danger' : ''}" onclick="toggleUser('${user.id}')">${user.is_active ? 'Deactivate' : 'Activate'}</button></td>
+                            </tr>`).join('')}</tbody>
+                    </table>
+                </div>` : '<p class="help" style="padding:24px;">No users found.</p>';
+
+            const first = payload.total ? ((payload.page - 1) * payload.limit) + 1 : 0;
+            const last = Math.min(payload.page * payload.limit, payload.total);
+            document.getElementById('tableInfo').textContent = `${first}–${last} of ${payload.total}`;
+            document.getElementById('prevBtn').disabled = payload.page <= 1;
+            document.getElementById('nextBtn').disabled = last >= payload.total;
+        } catch (error) {
+            table.innerHTML = `<p class="help" style="padding:24px;color:var(--bad);">${escapeHtml(error.message)}</p>`;
+        }
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, character => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[character]));
+    }
+
+    async function loadSkinProfileStats() {
+        const token = localStorage.getItem('accessToken');
+        if (!token) return;
+        try {
+            const [statsResponse, profilesResponse] = await Promise.all([
+                fetch('https://ai-skin.centralindia.cloudapp.azure.com/api/users/stats', {
+                    headers: { Authorization: `Bearer ${token}` }
+                }),
+                fetch('https://ai-skin.centralindia.cloudapp.azure.com/api/users/skin-profiles', {
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+            ]);
+            const response = statsResponse;
+            const profilesPayload = await profilesResponse.json();
+            if (!profilesResponse.ok) throw new Error(profilesPayload.message || 'Unable to load skin profiles.');
+            const profiles = profilesPayload.profiles || [];
+            document.getElementById('totalProfiles').textContent = profiles.length;
+            document.getElementById('oilySkin').textContent = profiles.filter(profile => profile.skin_type === 'oily').length;
+            document.getElementById('drySkin').textContent = profiles.filter(profile => profile.skin_type === 'dry').length;
+            document.getElementById('combinationSkin').textContent = profiles.filter(profile => profile.skin_type === 'combination').length;
+            document.getElementById('skinProfilesTable').innerHTML = profiles.length ? `
+                <div style="overflow-x:auto;">
+                    <table style="width:100%; border-collapse:collapse;">
+                        <thead><tr><th style="text-align:left;padding:12px 24px;">User</th><th style="text-align:left;padding:12px;">Skin type</th><th style="text-align:left;padding:12px;">Concerns</th><th style="text-align:left;padding:12px;">Updated</th></tr></thead>
+                        <tbody>${profiles.map(profile => `
+                            <tr>
+                                <td style="padding:12px 24px;"><strong>${escapeHtml(profile.name)}</strong><br><small>${escapeHtml(profile.email)}</small></td>
+                                <td style="padding:12px;">${escapeHtml(profile.skin_type || 'Not set')}</td>
+                                <td style="padding:12px;">${escapeHtml((Array.isArray(profile.skin_concerns) ? profile.skin_concerns : []).join(', ') || 'None recorded')}</td>
+                                <td style="padding:12px;">${profile.updated_at ? new Date(profile.updated_at).toLocaleDateString() : '—'}</td>
+                            </tr>`).join('')}</tbody>
+                    </table>
+                </div>` : '<p class="help" style="padding:24px;">No skin profiles have been saved yet.</p>';
+
+            const statsResponsePayload = await response.json();
+            if (!response.ok) throw new Error(statsResponsePayload.message || 'Unable to load statistics.');
+            const stats = statsResponsePayload.stats;
+            document.getElementById('statTotal').textContent = stats.total;
+            document.getElementById('statActive').textContent = `${stats.active} active`;
+            document.getElementById('statConsultants').textContent = stats.byRole.consultant || 0;
+            document.getElementById('statUsers').textContent = stats.byRole.user || 0;
+            document.getElementById('statWeekly').textContent = stats.newThisWeek;
+        } catch (error) {
+            showToast(error.message, 'error');
+        }
+    }
+
+    async function toggleUser(id) {
+        const token = localStorage.getItem('accessToken');
+        const response = await fetch(`https://ai-skin.centralindia.cloudapp.azure.com/api/users/${id}/toggle`, {
+            method: 'PATCH',
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        const payload = await response.json();
+        if (!response.ok) {
+            showToast(payload.message || 'Unable to update user.', 'error');
+            return;
+        }
+        showToast(`User is now ${payload.user.is_active ? 'active' : 'inactive'}.`);
+        loadUsers();
+    }
+
+    function changePage(direction) {
+        currentPage = Math.max(1, currentPage + direction);
+        loadUsers();
+    }
+
     // Section navigation
     function showSection(sectionId) {
         // Hide all sections
@@ -470,8 +857,19 @@
     showSection('users');
     loadAdminData();
     displayToken();
+    loadAdminDashboardData();
     loadUsers();
     loadSkinProfileStats();
+    document.getElementById('loadAdminReportsBtn').addEventListener('click', loadAdminReports);
+    document.getElementById('exportAdminReportsBtn').addEventListener('click', exportAdminReports);
+    document.getElementById('searchInput').addEventListener('input', () => {
+        currentPage = 1;
+        loadUsers();
+    });
+    document.getElementById('roleFilter').addEventListener('change', () => {
+        currentPage = 1;
+        loadUsers();
+    });
 </script>
 </body>
 </html>

@@ -79,6 +79,25 @@ router.get('/stats', authMiddleware, requireRole('admin'), async (req, res) => {
   }
 });
 
+// GET /api/users/skin-profiles - recent profiles for admin dashboard
+router.get('/skin-profiles', authMiddleware, requireRole('admin'), async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT p.id, p.user_id, p.skin_type, p.skin_concerns, p.allergies,
+              p.routine_morning, p.routine_evening, p.created_at, p.updated_at,
+              u.name, u.email
+       FROM skin_profiles p
+       JOIN users u ON u.id = p.user_id
+       ORDER BY p.updated_at DESC NULLS LAST, p.created_at DESC
+       LIMIT 100`
+    );
+    return res.json({ success: true, profiles: result.rows });
+  } catch (err) {
+    console.error('Skin profiles error:', err);
+    return res.status(500).json({ success: false, message: 'Unable to load skin profiles.' });
+  }
+});
+
 // ─── PATCH /api/users/:id/toggle  (admin only) ────────────────────────────────
 router.patch('/:id/toggle', authMiddleware, requireRole('admin'), async (req, res) => {
   try {

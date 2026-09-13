@@ -479,7 +479,7 @@
             const container = document.getElementById('assessmentResultsContainer');
             try {
                 const token = localStorage.getItem('accessToken');
-                const response = await fetch('http://localhost:3000/api/skin-profiles/my', {
+                const response = await fetch('https://ai-skin.centralindia.cloudapp.azure.com/api/skin-profiles/my', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -565,7 +565,7 @@
             const container = document.getElementById('productRecommendationsContainer');
             
             try {
-                const response = await fetch('http://localhost:3000/api/products/recommendations', {
+                const response = await fetch('https://ai-skin.centralindia.cloudapp.azure.com/api/products/recommendations', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

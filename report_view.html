@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Skincare Report - AI Skin Intelligence</title>
+    <link rel="stylesheet" href="src/styles.css">
+    <style>
+        .report-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .report-header {
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+        }
+        
+        .report-section {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .report-section h3 {
+            color: var(--ink);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        
+        .data-item {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(36, 48, 65, 0.08);
+            border-radius: 12px;
+            padding: 16px;
+        }
+        
+        .data-label {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-bottom: 8px;
+        }
+        
+        .data-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .timeline-item {
+            padding: 12px;
+            border-left: 3px solid var(--accent);
+            margin-left: 12px;
+            margin-bottom: 12px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+        }
+        
+        .concern-tag {
+            display: inline-block;
+            background: rgba(200, 169, 106, 0.15);
+            color: var(--accent);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin: 4px;
+        }
+        
+        .recommendation-card {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(36, 48, 65, 0.08);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: rgba(36, 48, 65, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .print-button {
+            background: var(--ink);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .back-button {
+            background: var(--line);
+            color: var(--ink);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        @media print {
+            .action-buttons, .sidebar {
+                display: none;
+            }
+            .report-container {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="desktop-layout">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="brand">✨ AI Skin Intelligence</div>
+            
+            <a id="dashboardLink" href="user_dashboard.html" class="nav-item">
+                <span>🏠</span> Dashboard
+            </a>
+            <a href="#" class="nav-item active">
+                <span>📊</span> Report View
+            </a>
+            <a href="skin_profile.html" class="nav-item">
+                <span>🧴</span> Skin Profile
+            </a>
+            <a href="routine_manager.html" class="nav-item">
+                <span>🧴</span> My Routines
+            </a>
+            <a href="intelligence_lab.html" class="nav-item">
+                <span>🧠</span> Intelligence Lab
+            </a>
+            
+            <div style="margin-top: auto; padding: 20px 15px; border-top: 1px solid var(--line);">
+                <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: rgba(255, 255, 255, 0.5); border-radius: 12px; margin-bottom: 12px;">
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-2)); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff;" id="userAvatar">U</div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 0.9rem; font-weight: 600; color: var(--ink);" id="userName">User</div>
+                        <div style="font-size: 0.75rem; color: var(--muted);" id="userRole">User</div>
+                    </div>
+                </div>
+                <a href="login.html" class="nav-item" style="color: var(--bad);">
+                    <span>🚪</span> Logout
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="dashboard-content">
+            <div class="report-container">
+                <div class="action-buttons" style="flex-wrap: wrap; align-items: center;">
+                    <button class="back-button" onclick="window.location.href='user_dashboard.html'">← Back to Dashboard</button>
+                    <label style="display:flex; align-items:center; gap:8px; font-weight:600; color:var(--ink);">
+                        Report type
+                        <select id="reportTypeSelect" style="padding:10px 12px; border-radius:10px; border:1px solid var(--line); background:#fff;">
+                            <option value="skin_assessment">Skin Assessment</option>
+                            <option value="routine">Routine</option>
+                            <option value="product_recommendation">Product Recommendation</option>
+                            <option value="progress">Progress</option>
+                            <option value="skin_health">Skin Health</option>
+                            <option value="comprehensive">Comprehensive</option>
+                        </select>
+                    </label>
+                    <button class="print-button" id="exportPdfBtn" type="button">📄 Export PDF</button>
+                    <button class="btn-secondary" id="exportExcelBtn" type="button">📊 Export Excel</button>
+                    <button class="print-button" onclick="window.print()">🖨️ Print Report</button>
+                </div>
+                
+                <div id="reportContent">
+                    <div class="loading-spinner">
+                        <div class="spinner"></div>
+                        <p>Loading comprehensive report...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://ai-skin.centralindia.cloudapp.azure.com/api';
+        
+        function loadUserData() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser) {
+                const user = JSON.parse(currentUser);
+                document.getElementById('userName').textContent = user.name || 'User';
+                document.getElementById('userAvatar').textContent = (user.name || 'U').charAt(0).toUpperCase();
+                document.getElementById('userRole').textContent = user.role || 'User';
+                if (user.role === 'dermatologist') {
+                    document.getElementById('dashboardLink').href = 'dermatologist_dashboard.html';
+                } else if (user.role === 'consultant') {
+                    document.getElementById('dashboardLink').href = 'consultant_dashboard.html';
+                }
+            }
+        }
+        
+        async function exportReport(format) {
+            const token = localStorage.getItem('accessToken');
+            const urlParams = new URLSearchParams(window.location.search);
+            const userId = urlParams.get('userId');
+            const reportType = document.getElementById('reportTypeSelect')?.value || 'skin_assessment';
+
+            if (!token) {
+                alert('Please sign in to export a report.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/reports/export`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ reportType, format, userId: userId || undefined })
+                });
+
+                if (!response.ok) {
+                    const payload = await response.json().catch(() => ({}));
+                    throw new Error(payload.message || 'Unable to export report.');
+                }
+
+                const blob = await response.blob();
+                const downloadUrl = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                const extension = format === 'pdf' ? 'pdf' : 'xls';
+                link.href = downloadUrl;
+                link.download = `${reportType.replace(/_/g, '-')}.${extension}`;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+            } catch (error) {
+                console.error('Export error:', error);
+                alert(error.message || 'Unable to export this report.');
+            }
+        }
+
+        function getSelectedReportType() {
+            return document.getElementById('reportTypeSelect')?.value || 'skin_assessment';
+        }
+
+        async function loadReport() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const reportId = urlParams.get('id');
+            const userId = urlParams.get('userId');
+            const role = urlParams.get('role');
+            const container = document.getElementById('reportContent');
+            const token = localStorage.getItem('accessToken');
+            const selectedReportType = getSelectedReportType();
+            
+            if (!token) {
+                container.innerHTML = '<p style="color: var(--muted);">Please sign in to view reports.</p>';
+                return;
+            }
+            
+            try {
+                let report;
+                
+                if (userId && (role === 'dermatologist' || role === 'consultant')) {
+                    // Professional viewing a shared patient report
+                    const response = await fetch(`${API_BASE}/reports/patient/${encodeURIComponent(userId)}?reportType=${encodeURIComponent(selectedReportType)}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    const payload = await response.json();
+                    
+                    if (!response.ok) throw new Error(payload.message || 'Unable to load shared report.');
+                    report = { report_data: payload.report, version: 1, is_shared: true };
+                } else if (reportId && role === 'admin') {
+                    const response = await fetch(`${API_BASE}/admin/reports/${encodeURIComponent(reportId)}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    const payload = await response.json();
+                    if (!response.ok) throw new Error(payload.message || 'Unable to load administrative report.');
+                    report = payload.report;
+                } else if (reportId && role === 'dermatologist') {
+                    const response = await fetch(`${API_BASE}/dermatologist/reports/${encodeURIComponent(reportId)}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    const payload = await response.json();
+                    if (!response.ok) throw new Error(payload.message || 'Unable to load patient report.');
+                    report = payload.report;
+                } else if (reportId) {
+                    // User viewing their own saved report
+                    const response = await fetch(`${API_BASE}/reports/${reportId}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    
+                    const payload = await response.json();
+                    
+                    if (!response.ok) throw new Error(payload.message || 'Unable to load report.');
+                    
+                    report = payload.report;
+                } else {
+                    const reportType = selectedReportType;
+                    const generateResponse = await fetch(`${API_BASE}/reports/generate`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ reportType })
+                    });
+                    const generatePayload = await generateResponse.json();
+                    if (!generateResponse.ok) throw new Error(generatePayload.message || 'Unable to generate a report.');
+                    report = generatePayload.report || { report_data: generatePayload.reportData, version: 1, is_shared: false };
+                }
+                
+                renderReport(report, selectedReportType);
+                
+            } catch (error) {
+                console.error('Error loading report:', error);
+                container.innerHTML = `<p style="color: var(--muted);">Error: ${error.message}</p>`;
+            }
+        }
+        
+        function renderReport(report, reportType = getSelectedReportType()) {
+            const container = document.getElementById('reportContent');
+            const reportTitleMap = {
+                skin_assessment: 'Skin Assessment Report',
+                routine: 'Routine Report',
+                product_recommendation: 'Product Recommendation Report',
+                progress: 'Progress Report',
+                skin_health: 'Skin Health Report',
+                comprehensive: 'Comprehensive Skincare Report'
+            };
+            const reportTitle = reportTitleMap[reportType] || 'Comprehensive Skincare Report';
+            const data = report.report_data || {};
+            data.profile = data.profile || {};
+            data.latestAssessment = data.latestAssessment || null;
+            data.assessments = data.assessments || { history: [], count: 0, averageScore: null, scoreTrend: 0 };
+            data.statistics = data.statistics || {};
+            data.statistics.mostCommonConcerns = Array.isArray(data.statistics.mostCommonConcerns)
+                ? data.statistics.mostCommonConcerns
+                : [];
+            data.recommendations = data.recommendations || { skincare: [], ai: [], total: 0 };
+            data.recommendations.skincare = Array.isArray(data.recommendations.skincare)
+                ? data.recommendations.skincare
+                : [];
+            data.recommendations.ai = Array.isArray(data.recommendations.ai)
+                ? data.recommendations.ai
+                : [];
+            data.routines = data.routines || { tracking: [], adherence: 0, totalCompletions: 0 };
+            data.routines.tracking = Array.isArray(data.routines.tracking) ? data.routines.tracking : [];
+            data.activity = data.activity || { activitySummary: {} };
+            data.activity.activitySummary = data.activity.activitySummary || {};
+            const concerns = Array.isArray(data.profile.skin_concerns) ? data.profile.skin_concerns : [];
+            const allergies = Array.isArray(data.profile.allergies) ? data.profile.allergies : [];
+            if (data.latestAssessment && !Array.isArray(data.latestAssessment.concerns)) {
+                data.latestAssessment.concerns = [];
+            }
+            
+            let html = `
+                <div class="report-header">
+                    <h1 style="margin: 0 0 10px 0;">📊 ${reportTitle}</h1>
+                    <p style="margin: 0; opacity: 0.9;">Generated: ${new Date(data.generatedAt).toLocaleString()}</p>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9;">Version: ${report.version} · ${report.is_shared ? 'Shared with professionals' : 'Private'}</p>
+                </div>
+                
+                <!-- User Information -->
+                <div class="report-section">
+                    <h3>👤 User Information</h3>
+                    <div class="data-grid">
+                        <div class="data-item">
+                            <div class="data-label">Name</div>
+                            <div class="data-value">${data.user?.name || 'N/A'}</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">Email</div>
+                            <div class="data-value">${data.user?.email || 'N/A'}</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">Member Since</div>
+                            <div class="data-value">${data.user?.created_at ? new Date(data.user.created_at).toLocaleDateString() : 'N/A'}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Skin Profile -->
+                <div class="report-section">
+                    <h3>🧴 Skin Profile</h3>
+                    ${data.profile ? `
+                        <div class="data-grid">
+                            <div class="data-item">
+                                <div class="data-label">Skin Type</div>
+                                <div class="data-value">${data.profile.skin_type || 'N/A'}</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-label">Sensitivity Level</div>
+                                <div class="data-value">${data.profile.sensitivity_level || 'N/A'}</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-label">Last Updated</div>
+                                <div class="data-value">${data.profile.updated_at ? new Date(data.profile.updated_at).toLocaleDateString() : 'N/A'}</div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 16px;">
+                            <div class="data-label">Skin Concerns</div>
+                            <div>
+                                ${concerns.map(concern => 
+                                    `<span class="concern-tag">${concern}</span>`
+                                ).join('') || '<span style="color: var(--muted);">No concerns recorded</span>'}
+                            </div>
+                        </div>
+                        <div style="margin-top: 16px;">
+                            <div class="data-label">Allergies</div>
+                            <div>
+                                ${allergies.map(allergy => 
+                                    `<span class="concern-tag" style="background: rgba(255, 100, 100, 0.15); color: var(--bad);">${allergy}</span>`
+                                ).join('') || '<span style="color: var(--muted);">No allergies recorded</span>'}
+                            </div>
+                        </div>
+                    ` : '<p style="color: var(--muted);">No profile data available</p>'}
+                </div>
+                
+                <!-- Latest Assessment -->
+                <div class="report-section">
+                    <h3>📋 Latest Assessment</h3>
+                    ${data.latestAssessment ? `
+                        <div class="data-grid">
+                            <div class="data-item">
+                                <div class="data-label">Skin Health Score</div>
+                                <div class="data-value">${data.latestAssessment.skin_health_score}/100</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-label">Overall Condition</div>
+                                <div class="data-value">${data.latestAssessment.overall_condition}</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-label">Assessment Date</div>
+                                <div class="data-value">${new Date(data.latestAssessment.assessment_date).toLocaleDateString()}</div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 16px;">
+                            <div class="data-label">Current Concerns</div>
+                            <div>
+                                ${(data.latestAssessment.concerns || []).map(concern => 
+                                    `<span class="concern-tag">${concern}</span>`
+                                ).join('') || '<span style="color: var(--muted);">No concerns recorded</span>'}
+                            </div>
+                        </div>
+                        ${data.latestAssessment.comprehensive_score_value ? `
+                            <div style="margin-top: 16px;">
+                                <div class="data-label">Comprehensive Score: ${data.latestAssessment.comprehensive_score_value}/100</div>
+                                <div class="data-label">Category: ${data.latestAssessment.comprehensive_category}</div>
+                            </div>
+                        ` : ''}
+                    ` : '<p style="color: var(--muted);">No assessment data available</p>'}
+                </div>
+                
+                <!-- Assessment Statistics -->
+                <div class="report-section">
+                    <h3>📊 Assessment Statistics</h3>
+                    <div class="data-grid">
+                        <div class="data-item">
+                            <div class="data-label">Total Assessments</div>
+                            <div class="data-value">${data.assessments.count}</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">Average Score</div>
+                            <div class="data-value">${data.assessments.averageScore || 'N/A'}</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">Score Trend</div>
+                            <div class="data-value">${data.assessments.scoreTrend > 0 ? '+' : ''}${data.assessments.scoreTrend}</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 16px;">
+                        <div class="data-label">Most Common Concerns</div>
+                        <div>
+                            ${data.statistics.mostCommonConcerns.map(c => 
+                                `<span class="concern-tag">${c.concern} (${c.count})</span>`
+                            ).join('') || '<span style="color: var(--muted);">No concerns recorded</span>'}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recommendations -->
+                <div class="report-section">
+                    <h3>💊 Recommendations</h3>
+                    <div class="data-grid">
+                        <div class="data-item">
+                            <div class="data-label">Total Recommendations</div>
+                            <div class="data-value">${data.recommendations.total}</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">Skincare Recommendations</div>
+                            <div class="data-value">${data.recommendations.skincare.length}</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">AI Recommendations</div>
+                            <div class="data-value">${data.recommendations.ai.length}</div>
+                        </div>
+                    </div>
+                    ${data.recommendations.skincare.length > 0 ? `
+                        <div style="margin-top: 16px;">
+                            <div class="data-label">Active Skincare Recommendations</div>
+                            ${data.recommendations.skincare.slice(0, 5).map(rec => `
+                                <div class="recommendation-card">
+                                    <strong>${rec.title}</strong>
+                                    <p style="margin: 4px 0; color: var(--muted); font-size: 0.9rem;">${rec.rationale || ''}</p>
+                                    ${rec.brand ? `<small>${rec.brand} ${rec.product_name || ''}</small>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                    ${data.recommendations.ai.length > 0 ? `
+                        <div style="margin-top: 16px;">
+                            <div class="data-label">AI Recommendations From Activity</div>
+                            ${data.recommendations.ai.slice(0, 10).map(rec => `
+                                <div class="recommendation-card">
+                                    <strong>${rec.title}</strong>
+                                    <p style="margin: 4px 0; color: var(--muted); font-size: 0.9rem;">${rec.rationale || ''}</p>
+                                    <small>${rec.created_at ? new Date(rec.created_at).toLocaleString() : ''}</small>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+                
+                <!-- Routine Adherence -->
+                <div class="report-section">
+                    <h3>✅ Routine Adherence</h3>
+                    <div class="data-grid">
+                        <div class="data-item">
+                            <div class="data-label">Overall Adherence</div>
+                            <div class="data-value">${data.routines.adherence}%</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${data.routines.adherence}%"></div>
+                            </div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">Total Completions</div>
+                            <div class="data-value">${data.routines.totalCompletions}</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">Routines Tracked</div>
+                            <div class="data-value">${data.routines.tracking.length}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Activity Summary -->
+                <div class="report-section">
+                    <h3>📚 Activity Summary</h3>
+                    <div class="data-grid">
+                        ${Object.entries(data.activity.activitySummary).map(([type, count]) => `
+                            <div class="data-item">
+                                <div class="data-label">${type}</div>
+                                <div class="data-value">${count}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+        
+        // Initialize
+        document.getElementById('exportPdfBtn')?.addEventListener('click', () => exportReport('pdf'));
+        document.getElementById('exportExcelBtn')?.addEventListener('click', () => exportReport('excel'));
+        document.getElementById('reportTypeSelect')?.addEventListener('change', () => {
+            loadReport();
+        });
+        loadUserData();
+        loadReport();
+    </script>
+</body>
+</html>

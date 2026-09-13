@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Skin Intelligence - Reminder Center</title>
+    <link rel="stylesheet" href="src/styles.css">
+    <style>
+        :root {
+            --bg: #f4efe6;
+            --panel: #fffaf3;
+            --panel-2: #f6e7d3;
+            --ink: #243041;
+            --muted: #667085;
+            --line: rgba(36, 48, 65, 0.12);
+            --accent: #c08a4b;
+            --accent-2: #6b9a88;
+            --good: #2f855a;
+            --warn: #b7791f;
+            --bad: #c05621;
+            --shadow: 0 24px 70px rgba(36, 48, 65, 0.12);
+            --radius: 22px;
+            --white: #ffffff;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            color: var(--ink);
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(192, 138, 75, 0.16), transparent 28%),
+                radial-gradient(circle at top right, rgba(107, 154, 136, 0.14), transparent 22%),
+                linear-gradient(180deg, #f7f2ea 0%, #f2eadf 100%);
+        }
+
+        .desktop-layout {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: rgba(255, 250, 243, 0.95);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid var(--line);
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: 2px 0 15px rgba(0,0,0,0.03);
+            z-index: 10;
+        }
+
+        .sidebar .brand {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            padding: 0 15px;
+            color: var(--ink);
+        }
+
+        .nav-item {
+            color: var(--muted);
+            font-size: 1rem;
+            text-decoration: none;
+            padding: 14px 18px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 4px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            width: 100%;
+            text-align: left;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(143, 175, 157, 0.15), rgba(200, 169, 106, 0.15));
+            color: var(--ink);
+            transform: translateX(4px);
+        }
+
+        .nav-item.active {
+            border-left: 3px solid var(--accent);
+        }
+
+        .dashboard-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px 60px;
+        }
+
+        .hero-card {
+            background: linear-gradient(135deg, rgba(192, 138, 75, 0.12), rgba(107, 154, 136, 0.14));
+            border: 1px solid rgba(36, 48, 65, 0.08);
+            border-radius: var(--radius);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            padding: 28px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 28px;
+        }
+
+        .hero-card::after {
+            content: "";
+            position: absolute;
+            inset: auto -80px -100px auto;
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(192, 138, 75, 0.2), transparent 72%);
+            pointer-events: none;
+        }
+
+        .card {
+            background: rgba(255, 250, 243, 0.92);
+            border: none;
+            border-radius: var(--radius);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            padding: 24px;
+            min-width: 0;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 22px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(107, 154, 136, 0.12);
+            color: var(--accent-2);
+            font-weight: 700;
+            font-size: 0.84rem;
+            letter-spacing: 0.02em;
+            margin-bottom: 16px;
+        }
+
+        h2 {
+            margin: 0 0 10px;
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            letter-spacing: -0.03em;
+        }
+
+        h3 {
+            margin: 0 0 8px;
+            font-size: 1.15rem;
+            letter-spacing: -0.02em;
+        }
+
+        h4 {
+            margin: 0 0 6px;
+            font-size: 1rem;
+        }
+
+        .muted,
+        .small {
+            color: var(--muted);
+        }
+
+        .small {
+            font-size: 0.8rem;
+        }
+
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .toggle-row:last-child {
+            border-bottom: none;
+        }
+
+        .switch {
+            position: relative;
+            width: 54px;
+            height: 30px;
+            display: inline-block;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            inset: 0;
+            border-radius: 999px;
+            background: rgba(36, 48, 65, 0.2);
+            transition: 0.2s ease;
+        }
+
+        .slider::before {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            left: 4px;
+            top: 4px;
+            border-radius: 50%;
+            background: white;
+            transition: 0.2s ease;
+        }
+
+        .switch input:checked + .slider {
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        }
+
+        .switch input:checked + .slider::before {
+            transform: translateX(24px);
+        }
+
+        .btn-primary,
+        .btn-secondary {
+            border: none;
+            border-radius: 14px;
+            padding: 13px 18px;
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease, background 0.18s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), #d09c5d);
+            color: #fff;
+            box-shadow: 0 12px 28px rgba(192, 138, 75, 0.22);
+        }
+
+        .btn-secondary {
+            background: rgba(107, 154, 136, 0.14);
+            color: var(--accent-2);
+        }
+
+        .timer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-top: 18px;
+        }
+
+        .timer-card {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 16px;
+        }
+
+        .timer-card h4 {
+            margin: 0 0 12px;
+            color: var(--ink);
+        }
+
+        .timer-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            background: rgba(107, 154, 136, 0.12);
+            color: var(--accent-2);
+            margin-bottom: 10px;
+        }
+
+        .countdown {
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: var(--ink);
+            line-height: 1.2;
+        }
+
+        @media (max-width: 900px) {
+            .desktop-layout {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--line);
+                padding: 20px 18px;
+            }
+
+            .dashboard-content {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="desktop-layout">
+        <div class="sidebar">
+            <div class="brand">✨ AI Skin Intelligence</div>
+            <a href="user_dashboard.html" class="nav-item"><span>🏠</span> Dashboard</a>
+            <a href="skin_profile.html" class="nav-item"><span>🧴</span> Skin Profile</a>
+            <a href="routine_manager.html" class="nav-item"><span>🧴</span> My Routines</a>
+            <a href="reminders.html" class="nav-item active"><span>⏰</span> Reminders</a>
+            <a href="intelligence_lab.html" class="nav-item"><span>🧠</span> Intelligence Lab</a>
+            <div style="margin-top:auto; padding:20px 15px; border-top:1px solid var(--line);">
+                <div style="display:flex; align-items:center; gap:12px; padding:12px; background:rgba(255,255,255,0.5); border-radius:12px; margin-bottom:12px;">
+                    <div style="width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg, var(--accent), var(--accent-2)); display:flex; align-items:center; justify-content:center; font-weight:700; color:#fff;" id="userAvatar">U</div>
+                    <div style="flex:1;">
+                        <div style="font-size:0.9rem; font-weight:600; color:var(--ink);" id="userName">User</div>
+                        <div style="font-size:0.75rem; color:var(--muted);" id="userRole">User</div>
+                    </div>
+                </div>
+                <a href="login.html" class="nav-item" style="color: var(--bad);"><span>🚪</span> Logout</a>
+            </div>
+        </div>
+
+        <div class="dashboard-content">
+            <div class="hero-card">
+                <h2>Reminder Center</h2>
+                <p class="muted">Turn reminders on or off and check when your next notification is due.</p>
+            </div>
+
+            <div class="grid">
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+                        <div>
+                            <span class="eyebrow">PREFERENCES</span>
+                            <h3 style="margin:8px 0 0;">Active reminder types</h3>
+                        </div>
+                        <button class="btn-primary" id="savePreferencesBtn" type="button">Save changes</button>
+                    </div>
+                    <form id="reminderPreferencesForm">
+                        <div class="toggle-row">
+                            <div><strong>Routine reminder</strong><div class="small">Daily skincare checklist nudges</div></div>
+                            <label class="switch"><input type="checkbox" name="routine_reminder" checked><span class="slider"></span></label>
+                        </div>
+                        <div class="toggle-row">
+                            <div><strong>Hydration reminder</strong><div class="small">Encourages a hydration check-in</div></div>
+                            <label class="switch"><input type="checkbox" name="hydration_reminder" checked><span class="slider"></span></label>
+                        </div>
+                        <div class="toggle-row">
+                            <div><strong>Sleep reminder</strong><div class="small">PM routine and recovery support</div></div>
+                            <label class="switch"><input type="checkbox" name="sleep_reminder" checked><span class="slider"></span></label>
+                        </div>
+                        <div class="toggle-row">
+                            <div><strong>Product replenishment</strong><div class="small">Restock reminders for active recommendations</div></div>
+                            <label class="switch"><input type="checkbox" name="product_replenishment" checked><span class="slider"></span></label>
+                        </div>
+                        <div class="toggle-row">
+                            <div><strong>Progress alerts</strong><div class="small">Drop in skin health score warning</div></div>
+                            <label class="switch"><input type="checkbox" name="progress_alert" checked><span class="slider"></span></label>
+                        </div>
+                        <div class="toggle-row">
+                            <div><strong>Platform notifications</strong><div class="small">Admin and platform announcements</div></div>
+                            <label class="switch"><input type="checkbox" name="platform_notifications" checked><span class="slider"></span></label>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <span class="eyebrow">TIMER STATUS</span>
+                    <h3 style="margin:8px 0 0;">Next reminder schedule</h3>
+                    <div id="timerList" class="timer-grid">
+                        <div class="small muted">Loading timers…</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://ai-skin.centralindia.cloudapp.azure.com/api';
+        const timerState = new Map();
+
+        async function apiFetch(endpoint, options = {}) {
+            const token = localStorage.getItem('accessToken');
+            const headers = { ...(options.headers || {}) };
+            if (token) headers.Authorization = `Bearer ${token}`;
+
+            let response = await fetch(`${API_BASE}${endpoint}`, {
+                ...options,
+                headers,
+                credentials: 'include',
+            });
+
+            if (response.status === 401) {
+                const refreshResponse = await fetch(`${API_BASE}/auth/refresh`, {
+                    method: 'POST',
+                    credentials: 'include',
+                });
+
+                if (refreshResponse.ok) {
+                    const refreshData = await refreshResponse.json();
+                    if (refreshData.accessToken) {
+                        localStorage.setItem('accessToken', refreshData.accessToken);
+                        headers.Authorization = `Bearer ${refreshData.accessToken}`;
+                        response = await fetch(`${API_BASE}${endpoint}`, {
+                            ...options,
+                            headers,
+                            credentials: 'include',
+                        });
+                    }
+                }
+
+                if (response.status === 401) {
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('currentUser');
+                    document.getElementById('timerList').innerHTML = '<div class="small muted">Please log in to view reminder timers.</div>';
+                    document.getElementById('reminderPreferencesForm').innerHTML = '<div class="small muted">Please log in to manage reminder settings.</div>';
+                    window.location.href = 'login.html';
+                    return response;
+                }
+            }
+
+            return response;
+        }
+
+        function loadUserData() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser) {
+                const user = JSON.parse(currentUser);
+                document.getElementById('userName').textContent = user.name || 'User';
+                document.getElementById('userAvatar').textContent = (user.name || 'U').charAt(0).toUpperCase();
+                document.getElementById('userRole').textContent = user.role || 'User';
+                return user;
+            }
+            return null;
+        }
+
+        function formatDuration(ms) {
+            if (!Number.isFinite(ms) || ms <= 0) return 'Due now';
+            const totalMinutes = Math.floor(ms / 60000);
+            const days = Math.floor(totalMinutes / 1440);
+            const hours = Math.floor((totalMinutes % 1440) / 60);
+            const minutes = totalMinutes % 60;
+            if (days > 0) return `${days}d ${hours}h ${minutes}m`;
+            if (hours > 0) return `${hours}h ${minutes}m`;
+            return `${minutes}m`;
+        }
+
+        function renderTimers(items) {
+            const container = document.getElementById('timerList');
+            if (!items || !items.length) {
+                container.innerHTML = '<div class="small muted">No active reminder timers configured.</div>';
+                return;
+            }
+
+            const rows = items.map(item => {
+                const label = item.label || item.type.replace(/_/g, ' ');
+                const nextInMs = item.nextInMs || 0;
+                const enabled = item.enabled !== false;
+                const statusClass = enabled ? 'rgba(34,197,94,0.12)' : 'rgba(148,163,184,0.14)';
+                const statusText = enabled ? 'Enabled' : 'Disabled';
+                return `
+                    <div class="timer-card">
+                        <div class="timer-badge" style="background:${statusClass};color:${enabled ? '#166534' : '#475569'};">${statusText}</div>
+                        <h4>${label}</h4>
+                        <div class="countdown" data-countdown="${item.nextInMs}">${formatDuration(nextInMs)}</div>
+                        <div class="small muted">Next reminder: ${new Date(item.nextDueAt).toLocaleString()}</div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = rows;
+            timerState.clear();
+            items.forEach(item => timerState.set(item.type, item));
+        }
+
+        function updateCountdowns() {
+            const cards = document.querySelectorAll('[data-countdown]');
+            cards.forEach(card => {
+                const type = card.closest('.timer-card')?.querySelector('h4')?.textContent;
+                const timer = [...timerState.values()].find(item => (item.label || item.type).toLowerCase() === type.toLowerCase());
+                if (!timer) return;
+                const nextInMs = Math.max(0, new Date(timer.nextDueAt).getTime() - Date.now());
+                card.textContent = formatDuration(nextInMs);
+            });
+        }
+
+        async function loadPreferences() {
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                document.getElementById('reminderPreferencesForm').innerHTML = '<div class="small muted">Please log in to manage reminder settings.</div>';
+                return;
+            }
+
+            try {
+                const response = await apiFetch('/notifications/preferences');
+                const payload = await response.json();
+                if (!response.ok) throw new Error(payload.message || 'Unable to load preferences.');
+                const prefs = payload.preferences || {};
+                Object.entries(prefs).forEach(([key, value]) => {
+                    const checkbox = document.querySelector(`[name="${key}"]`);
+                    if (checkbox) checkbox.checked = Boolean(value);
+                });
+            } catch (error) {
+                console.error(error);
+                document.getElementById('reminderPreferencesForm').innerHTML = '<div class="small muted">Unable to load reminder settings.</div>';
+            }
+        }
+
+        async function loadTimers() {
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                document.getElementById('timerList').innerHTML = '<div class="small muted">Please log in to view reminder timers.</div>';
+                return;
+            }
+
+            try {
+                const response = await apiFetch('/notifications/timers');
+                const payload = await response.json();
+                if (!response.ok) throw new Error(payload.message || 'Unable to load timers.');
+                renderTimers(payload.timers || []);
+            } catch (error) {
+                console.error(error);
+                document.getElementById('timerList').innerHTML = '<div class="small muted">Unable to load reminder timers.</div>';
+            }
+        }
+
+        async function savePreferences() {
+            const token = localStorage.getItem('accessToken');
+            if (!token) return;
+            const form = document.getElementById('reminderPreferencesForm');
+            const payload = {};
+            form.querySelectorAll('input[type="checkbox"]').forEach(input => {
+                payload[input.name] = input.checked;
+            });
+
+            try {
+                const response = await apiFetch('/notifications/preferences', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.message || 'Unable to save preferences.');
+                await loadTimers();
+                alert('Reminder preferences saved successfully.');
+            } catch (error) {
+                console.error(error);
+                alert(error.message || 'Unable to save reminder preferences.');
+            }
+        }
+
+        document.getElementById('savePreferencesBtn').addEventListener('click', savePreferences);
+
+        loadUserData();
+        loadPreferences();
+        loadTimers();
+        setInterval(updateCountdowns, 1000);
+    </script>
+</body>
+</html>

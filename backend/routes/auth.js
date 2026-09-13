@@ -38,7 +38,7 @@ router.post('/register', [
   body('name').trim().notEmpty().withMessage('Name is required'),
   body('email').isEmail().normalizeEmail().withMessage('Valid email required'),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 chars'),
-  body('role').optional().isIn(['user', 'consultant']).withMessage('Role must be user or skincare consultant'),
+  body('role').optional().isIn(['user', 'consultant', 'dermatologist']).withMessage('Role must be user, skincare consultant, or dermatologist'),
 ], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -77,7 +77,7 @@ router.post('/register', [
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -141,7 +141,7 @@ router.post('/login', [
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -198,7 +198,7 @@ router.post('/refresh', async (req, res) => {
     res.cookie('refreshToken', newRefreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -242,6 +242,116 @@ router.get('/me', authMiddleware, async (req, res) => {
   }
 });
 
+// ─── PATCH /api/auth/me  (update account profile) ─────────────────────────────
+router.patch('/me', [
+  authMiddleware,
+  body('name').optional().trim().notEmpty().withMessage('Name cannot be empty'),
+  body('email').optional().isEmail().normalizeEmail().withMessage('Valid email required'),
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ success: false, errors: errors.array() });
+  }
+
+  const updates = [];
+  const values = [];
+
+  if (req.body.name !== undefined) {
+    values.push(req.body.name.trim());
+    updates.push(`name = $${values.length}`);
+  }
+  if (req.body.email !== undefined) {
+    values.push(req.body.email);
+    updates.push(`email = $${values.length}`);
+  }
+
+  if (updates.length === 0) {
+    return res.status(400).json({ success: false, message: 'Provide a name or email to update.' });
+  }
+
+  values.push(req.user.id);
+
+  try {
+    const result = await pool.query(
+      `UPDATE users
+       SET ${updates.join(', ')}, updated_at = NOW()
+       WHERE id = $${values.length}
+       RETURNING id, name, email, role, provider, is_active, created_at`,
+      values
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    const user = result.rows[0];
+    return res.json({
+      success: true,
+      user,
+      accessToken: generateAccessToken(user),
+    });
+  } catch (err) {
+    if (err.code === '23505') {
+      return res.status(409).json({ success: false, message: 'Email already registered.' });
+    }
+    console.error('Update profile error:', err);
+    return res.status(500).json({ success: false, message: 'Server error updating profile.' });
+  }
+});
+
+// ─── PUT /api/auth/me/password  (change account password) ────────────────────
+router.put('/me/password', [
+  authMiddleware,
+  body('currentPassword').notEmpty().withMessage('Current password is required'),
+  body('newPassword').isLength({ min: 6 }).withMessage('New password must be at least 6 chars'),
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ success: false, errors: errors.array() });
+  }
+
+  try {
+    const result = await pool.query(
+      'SELECT password_hash, provider FROM users WHERE id = $1',
+      [req.user.id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    const user = result.rows[0];
+    if (user.provider !== 'LOCAL' || !user.password_hash) {
+      return res.status(400).json({
+        success: false,
+        message: 'Google accounts cannot change a password here.',
+      });
+    }
+
+    const currentPasswordMatches = await bcrypt.compare(
+      req.body.currentPassword,
+      user.password_hash
+    );
+    if (!currentPasswordMatches) {
+      return res.status(401).json({ success: false, message: 'Current password is incorrect.' });
+    }
+
+    const passwordHash = await bcrypt.hash(req.body.newPassword, 12);
+    await pool.query(
+      'UPDATE users SET password_hash = $1, updated_at = NOW() WHERE id = $2',
+      [passwordHash, req.user.id]
+    );
+
+    // Revoke existing refresh tokens so the password change signs out other sessions.
+    await pool.query('DELETE FROM refresh_tokens WHERE user_id = $1', [req.user.id]);
+
+    return res.json({ success: true, message: 'Password changed successfully. Please log in again.' });
+  } catch (err) {
+    console.error('Change password error:', err);
+    return res.status(500).json({ success: false, message: 'Server error changing password.' });
+  }
+});
+
 // ─── Google OAuth Routes ───────────────────────────────────────────────────────
 
 // GET /api/auth/google - Initiate Google OAuth flow
@@ -268,7 +378,7 @@ router.get('/google/callback',
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dermatologist Dashboard - AI Skin Intelligence</title>
+    <link rel="stylesheet" href="src/styles.css">
+    <style>
+        .dashboard-content { max-width: 1500px; }
+        .toolbar { display: flex; gap: 12px; flex-wrap: wrap; margin: 18px 0; }
+        .toolbar input, .toolbar select, .message-form textarea, .message-form input {
+            border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px;
+            background: rgba(255,255,255,.75); color: var(--ink); font: inherit;
+        }
+        .toolbar input { flex: 1; min-width: 220px; }
+        .patient-row { display: grid; grid-template-columns: 1.5fr 1fr .7fr 1fr auto; gap: 12px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--line); }
+        .patient-row strong, .patient-row small { display: block; }
+        .patient-row small { color: var(--muted); margin-top: 4px; }
+        .report-modal { display:none; position:fixed; inset:0; background:rgba(20,25,35,.55); z-index:10; align-items:center; justify-content:center; padding:20px; }
+        .report-modal.open { display:flex; }
+        .report-dialog { background:var(--surface); border-radius:18px; max-width:850px; width:100%; max-height:90vh; overflow:auto; padding:26px; }
+        .report-header { display:flex; justify-content:space-between; gap:18px; align-items:flex-start; }
+        .report-section { border-top:1px solid var(--line); margin-top:20px; padding-top:18px; }
+        .report-list { display:grid; gap:10px; }
+        .report-item { padding:12px; border:1px solid var(--line); border-radius:10px; }
+        .message-form { display:grid; gap:10px; }
+        .message-form textarea { min-height:110px; resize:vertical; }
+        @media (max-width: 800px) { .patient-row { grid-template-columns: 1fr 1fr; } .patient-row button { grid-column: span 2; } }
+    </style>
+</head>
+<body>
+    <div class="desktop-layout">
+        <aside class="sidebar">
+            <div class="brand">✨ AI Skin Intelligence</div>
+            <a href="dermatologist_dashboard.html" class="nav-item active"><span>🏠</span> Dashboard</a>
+            <a href="#patients" class="nav-item"><span>👥</span> Patients</a>
+            <a href="#reports" class="nav-item"><span>📋</span> Reports</a>
+            <a href="#treatments" class="nav-item"><span>🧪</span> Treatment plans</a>
+            <a href="#messages" class="nav-item"><span>💬</span> Messages</a>
+            <div style="margin-top:auto;padding:20px 15px;border-top:1px solid var(--line);">
+                <div style="display:flex;align-items:center;gap:12px;padding:12px;background:rgba(255,255,255,.5);border-radius:12px;margin-bottom:12px;">
+                    <div id="doctorAvatar" style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;">D</div>
+                    <div><div id="doctorName" style="font-weight:600;">Dermatologist</div><div style="font-size:.75rem;color:var(--muted);">Dermatologist</div></div>
+                </div>
+                <a href="login.html" class="nav-item" style="color:var(--bad);"><span>🚪</span> Logout</a>
+            </div>
+        </aside>
+        <main class="dashboard-content">
+            <div class="hero-card"><h2>Good morning, Doctor 👋</h2><p>Review shared patient records, assessment reports, treatment plans, and progress analytics.</p></div>
+            <div id="metrics" class="stats-grid" style="margin-top:24px;"><div class="loading-spinner">Loading patient insights...</div></div>
+            <section id="patients" class="card" style="margin-top:28px;">
+                <div class="panel-heading"><div><p class="eyebrow">PATIENT INSIGHTS</p><h3>Patients who shared access</h3></div><button class="btn-secondary" id="refreshPatients">Refresh</button></div>
+                <div class="toolbar"><input id="patientSearch" type="search" placeholder="Search patients by name or email"><select id="conditionFilter"><option value="">All conditions</option></select></div>
+                <div id="patientList"><div class="loading-spinner">Loading patients...</div></div>
+            </section>
+            <div class="dashboard-grid two-col" style="margin-top:28px;">
+                <section id="reports" class="card">
+                    <p class="eyebrow">PATIENT REPORTS</p>
+                    <h3>Reports from shared patients</h3>
+                    <div class="toolbar">
+                        <select id="doctorReportType"><option value="">All report types</option><option value="skin_assessment">Skin assessment</option><option value="product_recommendation">Product recommendations</option><option value="progress">Progress</option><option value="skin_health">Skin health</option><option value="routine">Routine</option></select>
+                        <button class="btn-secondary" id="loadDoctorReports">Refresh reports</button>
+                    </div>
+                    <div id="doctorReports" class="report-list"><span class="help">Loading...</span></div>
+                    <div class="report-section"><p class="eyebrow">CONDITION SUMMARY</p><div id="conditionReports" class="report-list"><span class="help">Loading...</span></div></div>
+                </section>
+                <section id="treatments" class="card"><p class="eyebrow">TREATMENT RECOMMENDATIONS</p><h3>Active treatment plans</h3><div id="treatmentSummary"><span class="help">Select a patient to review their plan.</span></div></section>
+            </div>
+            <section id="messages" class="card" style="margin-top:28px;"><p class="eyebrow">PATIENT MESSAGES</p><h3>Contact a shared patient</h3><p class="section-note">Messages open your configured email client; patient contact details are only shown for active shared access.</p><div class="message-form"><select id="messagePatient"><option value="">Select a patient</option></select><input id="messageSubject" value="AI Skin Intelligence follow-up" aria-label="Message subject"><textarea id="messageBody" placeholder="Write a follow-up message..."></textarea><button class="btn-primary" id="sendMessage">Open email draft</button></div><div id="messageStatus" class="help" role="status"></div></section>
+        </main>
+    </div>
+    <script>
+        const API = 'https://ai-skin.centralindia.cloudapp.azure.com/api';
+        const token = localStorage.getItem('accessToken');
+        const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        if (!token || !currentUser || currentUser.role !== 'dermatologist') window.location.href = 'login.html';
+        document.getElementById('doctorName').textContent = currentUser?.name || 'Dermatologist';
+        document.getElementById('doctorAvatar').textContent = (currentUser?.name || 'D').charAt(0).toUpperCase();
+        let state = { patients: [], summary: null };
+        const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+        async function request(path, options = {}) {
+            const response = await fetch(API + path, { ...options, headers: { Authorization: `Bearer ${token}`, ...(options.headers || {}) } });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'Request failed.');
+            return data;
+        }
+        async function loadDashboard() {
+            try {
+                state.summary = await request('/dashboard/summary');
+                state.patients = state.summary.clients || [];
+                renderMetrics(); renderPatients(); renderConditions(); renderMessagePatients();
+            } catch (error) { document.getElementById('patientList').innerHTML = `<p class="help">${esc(error.message)}</p>`; }
+        }
+        function renderMetrics() {
+            const m = state.summary.metrics || {};
+            document.getElementById('metrics').innerHTML = [
+                ['👥', m.activePeople || 0, 'Shared patients', 'Active permissions'],
+                ['📋', m.recentReports || 0, 'Recent reports', 'Last 7 days'],
+                ['🧾', m.reports || 0, 'Assessment reports', 'Recorded assessments'],
+                ['🧪', m.activeRecommendations || 0, 'Treatment plans', 'Active recommendations']
+            ].map(item => `<div class="stat-card"><div class="stat-icon">${item[0]}</div><div class="stat-value">${item[1]}</div><div class="stat-label">${item[2]}</div><div class="tag" style="margin-top:8px;">${item[3]}</div></div>`).join('');
+        }
+        function renderPatients() {
+            const query = document.getElementById('patientSearch').value.toLowerCase();
+            const condition = document.getElementById('conditionFilter').value;
+            const patients = state.patients.filter(p => (!query || `${p.name} ${p.email}`.toLowerCase().includes(query)) && (!condition || p.overall_condition === condition));
+            document.getElementById('patientList').innerHTML = patients.length ? `<div class="patient-row" style="font-size:.78rem;color:var(--muted);"><span>Patient</span><span>Condition</span><span>Score</span><span>Last assessment</span><span></span></div>${patients.map(p => `<div class="patient-row"><span><strong>${esc(p.name)}</strong><small>${esc(p.email)}</small></span><span>${esc(p.overall_condition || 'Not assessed')}</span><span>${p.skin_health_score == null ? 'No score' : `${p.skin_health_score}/100`}</span><span>${p.assessment_date ? new Date(p.assessment_date).toLocaleDateString() : 'No assessment'}</span><button class="btn-primary view-report" data-id="${esc(p.id)}">View report</button></div>`).join('')}` : '<p class="help">No patients have shared access with you yet.</p>';
+            document.querySelectorAll('.view-report').forEach(button => button.addEventListener('click', () => openReport(button.dataset.id)));
+        }
+        function renderConditions() {
+            const rows = state.summary.conditionReports || [];
+            document.getElementById('conditionFilter').innerHTML = '<option value="">All conditions</option>' + rows.map(r => `<option value="${esc(r.concern)}">${esc(r.concern)} (${r.count})</option>`).join('');
+            document.getElementById('conditionReports').innerHTML = rows.length ? rows.map(r => `<div class="report-item"><strong>${esc(r.concern)}</strong><span class="help">${r.count} reported case${r.count === 1 ? '' : 's'}</span></div>`).join('') : '<span class="help">No condition data available.</span>';
+        }
+        async function loadDoctorReports() {
+            const type = document.getElementById('doctorReportType').value;
+            const container = document.getElementById('doctorReports');
+            const query = type ? `?reportType=${encodeURIComponent(type)}` : '';
+            container.innerHTML = '<span class="help">Loading reports...</span>';
+            try {
+                const payload = await request(`/dermatologist/reports${query}`);
+                const reports = payload.reports || [];
+                container.innerHTML = reports.length ? reports.map(report => `
+                    <div class="report-item">
+                        <strong>${esc(report.patient_name || report.user_name || report.name || 'Patient')}</strong>
+                        <small class="help">${esc(report.patient_email || report.email || '')} · ${esc((report.report_type || 'report').replace(/_/g, ' '))} · ${report.latest_score == null ? 'No score' : `${report.latest_score}/100`}</small>
+                        <div style="display:flex;gap:8px;margin-top:10px;">
+                            ${report.report_id || report.id ? `<button class="btn-secondary doctor-view-report" data-id="${esc(report.report_id || report.id)}">View</button>` : ''}
+                            ${report.user_id ? `<button class="btn-secondary doctor-download-report" data-user="${esc(report.user_id)}" data-type="${esc(report.report_type || 'comprehensive')}">PDF</button>` : ''}
+                        </div>
+                    </div>`).join('') : '<span class="help">No reports available for shared patients.</span>';
+                container.querySelectorAll('.doctor-view-report').forEach(button => button.onclick = () => window.location.href = `report_view.html?id=${encodeURIComponent(button.dataset.id)}&role=dermatologist`);
+                container.querySelectorAll('.doctor-download-report').forEach(button => button.onclick = () => downloadDoctorReport(button.dataset.user, button.dataset.type));
+            } catch (error) {
+                container.innerHTML = `<span class="help">${esc(error.message)}</span>`;
+            }
+        }
+        async function downloadDoctorReport(userId, reportType) {
+            const response = await fetch(`${API}/reports/export`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ userId, reportType, format: 'pdf' })
+            });
+            if (!response.ok) {
+                const payload = await response.json().catch(() => ({}));
+                document.getElementById('messageStatus').textContent = payload.message || 'Unable to download report.';
+                return;
+            }
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(await response.blob());
+            link.download = `${reportType.replace(/_/g, '-')}-${userId}.pdf`;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        }
+        function renderMessagePatients() { document.getElementById('messagePatient').innerHTML = '<option value="">Select a patient</option>' + state.patients.map(p => `<option value="${esc(p.email)}">${esc(p.name)} — ${esc(p.email)}</option>`).join(''); }
+        async function openReport(id) {
+            // Navigate to the comprehensive report view page
+            window.location.href = `report_view.html?userId=${id}&role=dermatologist`;
+        }
+        document.getElementById('patientSearch').oninput = renderPatients; document.getElementById('conditionFilter').onchange = renderPatients; document.getElementById('refreshPatients').onclick = loadDashboard;
+        document.getElementById('loadDoctorReports').onclick = loadDoctorReports;
+        document.getElementById('doctorReportType').onchange = loadDoctorReports;
+        document.getElementById('sendMessage').onclick = () => { const email = document.getElementById('messagePatient').value; if (!email) { document.getElementById('messageStatus').textContent = 'Select a shared patient first.'; return; } window.location.href = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(document.getElementById('messageSubject').value)}&body=${encodeURIComponent(document.getElementById('messageBody').value)}`; };
+        loadDashboard();
+        loadDoctorReports();
+    </script>
+</body>
+</html>

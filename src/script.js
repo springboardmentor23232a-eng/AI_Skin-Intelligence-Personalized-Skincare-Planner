@@ -1,5 +1,5 @@
 // ─── API Configuration ────────────────────────────────────────────────────────
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = 'https://ai-skin.centralindia.cloudapp.azure.com/api';
 
 // ─── Token Management ─────────────────────────────────────────────────────────
 const getToken  = ()        => localStorage.getItem('accessToken');
@@ -50,6 +50,8 @@ async function requireAuth(allowedRoles = []) {
       ? 'admin_dashboard.html'
       : user.role === 'consultant'
       ? 'consultant_dashboard.html'
+      : user.role === 'dermatologist'
+      ? 'dermatologist_dashboard.html'
       : 'user_dashboard.html';
     return null;
   }
@@ -100,6 +102,7 @@ if (loginForm) {
       const dest = {
         admin:      'admin_dashboard.html',
         consultant: 'consultant_dashboard.html',
+        dermatologist: 'dermatologist_dashboard.html',
         user:       'user_dashboard.html',
       }[data.user.role] || 'user_dashboard.html';
 
@@ -161,6 +164,7 @@ if (registerForm) {
       const dest = {
         admin:      'admin_dashboard.html',
         consultant: 'consultant_dashboard.html',
+        dermatologist: 'dashboard.html',
         user:       'user_dashboard.html',
       }[data.user.role] || 'user_dashboard.html';
 

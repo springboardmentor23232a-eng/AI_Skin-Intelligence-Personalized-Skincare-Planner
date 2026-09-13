@@ -9,6 +9,7 @@
 <body>
 
     <div class="desktop-layout">
+        <div id="notificationToast" class="notification-toast" role="status" aria-live="polite"></div>
         
         <!-- Sidebar Navigation -->
         <div class="sidebar">
@@ -22,6 +23,9 @@
             </a>
             <a href="routine_manager.html" class="nav-item">
                 <span>🧴</span> My Routines
+            </a>
+            <a href="reminders.html" class="nav-item">
+                <span>⏰</span> Reminders
             </a>
             <a href="intelligence_lab.html" class="nav-item">
                 <span>🧠</span> Intelligence Lab
@@ -56,6 +60,20 @@
                 <p>Your skin health is improving beautifully. Keep up the great work!</p>
             </div>
 
+            <div class="card" id="notificationPanel" style="margin-bottom: 28px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 12px;">
+                    <div>
+                        <span class="eyebrow">NOTIFICATIONS</span>
+                        <h3 style="margin: 6px 0 0;">Daily reminders & updates</h3>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span id="notificationBadge" class="tag" style="display: inline-flex; min-width: 28px; justify-content: center;">0</span>
+                        <button class="btn-secondary" id="markAllReadBtn" type="button">Mark all read</button>
+                    </div>
+                </div>
+                <div id="notificationList" class="help">Loading notifications…</div>
+            </div>
+
             <!-- Quick Actions -->
             <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; margin-bottom: 28px;">
                 <a href="skin_profile.html" class="card" style="text-align: center; text-decoration: none; color: var(--ink); transition: transform 0.3s ease; min-height: 140px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
@@ -69,6 +87,10 @@
                 <a href="intelligence_lab.html" class="card" style="text-align: center; text-decoration: none; color: var(--ink); transition: transform 0.3s ease; min-height: 140px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
                     <div style="font-size: 2rem; margin-bottom: 8px;">💬</div>
                     <div style="font-size: 0.85rem; font-weight: 600; word-wrap: break-word; overflow-wrap: break-word; white-space: normal; line-height: 1.3;">Ingredient + Product Lab</div>
+                </a>
+                <a href="report_view.html?id=latest" class="card" style="text-align: center; text-decoration: none; color: var(--ink); transition: transform 0.3s ease; min-height: 140px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                    <div style="font-size: 2rem; margin-bottom: 8px;">📄</div>
+                    <div style="font-size: 0.85rem; font-weight: 600; word-wrap: break-word; overflow-wrap: break-word; white-space: normal; line-height: 1.3;">Reports & Export</div>
                 </a>
                 <a href="#" class="card" style="text-align: center; text-decoration: none; color: var(--ink); transition: transform 0.3s ease; min-height: 140px; display: flex; flex-direction: column; justify-content: center; align-items: center;" onclick="openTrackingModal()">
                     <div style="font-size: 2rem; margin-bottom: 8px;">📊</div>
@@ -90,6 +112,54 @@
                     <div class="stat-value" id="dashboardComponentScores">--</div>
                     <div class="stat-label">Component Scores</div>
                     <div class="tag" style="margin-top: 8px;">View breakdown</div>
+                </div>
+            </div>
+
+            <!-- Share Reports With Care Team -->
+            <div class="card care-team-share-card" id="careTeamShareCard" style="margin-top: 28px;">
+                <div class="care-team-share-header">
+                    <div>
+                        <span class="eyebrow">CARE TEAM ACCESS</span>
+                        <h3>Share reports with my dermatologist</h3>
+                    </div>
+                    <span class="tag">Read-only</span>
+                </div>
+                <p>Choose a dermatologist or consultant from your care team. Your reports are shared read-only, and you can revoke access anytime.</p>
+                <div id="careTeamProfessionalList" class="care-team-share-list">
+                    <span class="help">Loading available care professionals...</span>
+                </div>
+                <div id="careTeamShareMessage" class="help" role="status"></div>
+                <div id="careTeamShareList" class="care-team-share-list">
+                    <span class="help">Loading current sharing permissions...</span>
+                </div>
+            </div>
+
+            <div class="card" id="progressAnalyticsCard" style="margin-top: 28px;">
+                <h3>📈 Progress Tracking &amp; Analytics</h3>
+                <p style="color: var(--muted); margin-bottom: 16px;">Track skin progress, routine adherence, improvements, and assessment trends from your real account data.</p>
+                <div id="progressAnalyticsContainer">
+                    <div class="loading-spinner"><p>Loading progress analytics...</p></div>
+                </div>
+            </div>
+
+            <!-- Comprehensive Activity History -->
+            <div class="card" style="margin-top: 28px;">
+                <h3>📚 Activity History</h3>
+                <p style="color: var(--muted); margin-bottom: 16px;">Your complete skincare journey - assessments, AI recommendations, routines, and reports.</p>
+                <div id="activityHistoryContainer">
+                    <div class="loading-spinner"><p>Loading activity history...</p></div>
+                </div>
+            </div>
+
+            <!-- My Reports -->
+            <div class="card" style="margin-top: 28px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h3>📊 My Reports</h3>
+                    <button class="btn-primary" id="generateReportBtn">Generate New Report</button>
+                </div>
+                <p style="color: var(--muted); margin-bottom: 16px;">Comprehensive reports containing all your skincare data, assessments, recommendations, and progress for sharing with healthcare professionals.</p>
+                <div id="reportsContainer">
+                    <div class="loading-spinner"><p>Loading reports...</p></div>
                 </div>
             </div>
 
@@ -341,6 +411,93 @@
             color: var(--muted);
         }
 
+        .notification-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .notification-item {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 12px;
+            align-items: start;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.45);
+        }
+
+        .notification-item.unread {
+            border-left: 4px solid var(--accent);
+        }
+
+        .notification-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(192, 138, 75, 0.12);
+            font-size: 1.1rem;
+        }
+
+        .notification-copy strong {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--ink);
+        }
+
+        .notification-copy small {
+            display: block;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .notification-action {
+            border: none;
+            background: none;
+            color: var(--accent);
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+            .notification-toast {
+                position: fixed;
+                right: 24px;
+                bottom: 24px;
+                z-index: 20;
+                width: min(360px, calc(100vw - 32px));
+                padding: 16px;
+                border: 1px solid var(--line);
+                border-left: 4px solid var(--accent);
+                border-radius: 12px;
+                background: var(--panel);
+                box-shadow: var(--shadow);
+                opacity: 0;
+                transform: translateY(16px);
+                pointer-events: none;
+                transition: opacity .2s ease, transform .2s ease;
+            }
+
+            .notification-toast.show {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            .notification-toast strong,
+            .notification-toast span {
+                display: block;
+            }
+
+            .notification-toast span {
+                margin-top: 5px;
+                color: var(--muted);
+                font-size: .9rem;
+                line-height: 1.4;
+            }
+
         /* Tracking Modal Styles */
         .tracking-modal {
             display: none;
@@ -472,6 +629,110 @@
             background: rgba(255, 255, 255, 0.7);
             border: 1px solid rgba(36, 48, 65, 0.08);
         }
+        .care-team-share-card {
+            border-left: 4px solid var(--accent-2);
+        }
+        .care-team-share-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 10px;
+        }
+        .care-team-share-header .eyebrow {
+            margin-bottom: 8px;
+        }
+        .care-team-share-card p {
+            margin-bottom: 16px;
+            color: var(--muted);
+        }
+        .care-team-share-form {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .care-team-share-form input,
+        .care-team-share-form select {
+            flex: 1;
+            min-width: 190px;
+            padding: 11px 12px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            color: var(--ink);
+            background: rgba(255, 255, 255, 0.8);
+            font-family: inherit;
+        }
+        .care-team-share-list {
+            display: grid;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        .care-team-share-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--line);
+        }
+        .care-team-share-row strong,
+        .care-team-share-row small {
+            display: block;
+        }
+        .care-team-share-row strong {
+            font-size: 0.92rem;
+        }
+        .care-team-share-row small {
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 0.78rem;
+        }
+        .analytics-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+        .analytics-metric,
+        .analytics-comparison {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 14px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.55);
+        }
+        .analytics-metric small,
+        .analytics-comparison small,
+        .analytics-metric span,
+        .analytics-comparison span {
+            color: var(--muted);
+            font-size: 0.78rem;
+        }
+        .analytics-metric strong,
+        .analytics-comparison strong {
+            color: var(--accent);
+            font-size: 1.25rem;
+        }
+        .analytics-comparison strong {
+            color: var(--ink);
+            font-size: 0.9rem;
+        }
+        .analytics-trends {
+            margin-top: 18px;
+        }
+        .analytics-trend-row {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 12px;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--line);
+            font-size: 0.84rem;
+        }
+        .analytics-trend-row small {
+            color: var(--muted);
+        }
         .component-label {
             font-size: 0.85rem;
             color: var(--muted);
@@ -545,6 +806,250 @@
             return 'demo_user'; // Fallback for testing
         }
 
+        function formatNotificationType(type) {
+            return {
+                routine_reminder: 'Routine',
+                product_replenishment: 'Replenishment',
+                hydration_reminder: 'Hydration',
+                sleep_reminder: 'Sleep',
+                progress_alert: 'Progress',
+                platform_notification: 'Platform'
+            }[type] || 'Update';
+        }
+
+        function getNotificationIcon(type) {
+            return {
+                routine_reminder: '🧴',
+                product_replenishment: '📦',
+                hydration_reminder: '💧',
+                sleep_reminder: '🌙',
+                progress_alert: '📈',
+                platform_notification: '📣'
+            }[type] || '🔔';
+        }
+
+        function renderNotifications(items) {
+            const list = document.getElementById('notificationList');
+            const badge = document.getElementById('notificationBadge');
+            const unread = items.filter(item => item.status === 'unread').length;
+            badge.textContent = unread;
+            badge.style.display = unread > 0 ? 'inline-flex' : 'none';
+
+            if (!items.length) {
+                list.innerHTML = '<span class="help">No notifications yet. We will notify you about routines, hydration, and progress updates here.</span>';
+                return;
+            }
+
+            list.innerHTML = '<div class="notification-list">' + items.map(item => `
+                <div class="notification-item ${item.status === 'unread' ? 'unread' : ''}">
+                    <div class="notification-icon">${getNotificationIcon(item.type)}</div>
+                    <div class="notification-copy">
+                        <strong>${item.title}</strong>
+                        <div>${item.message}</div>
+                        <small>${formatNotificationType(item.type)} · ${new Date(item.created_at).toLocaleString()}</small>
+                    </div>
+                    <button class="notification-action" type="button" data-id="${item.id}" ${item.status === 'read' ? 'disabled' : ''}>${item.status === 'read' ? 'Read' : 'Mark read'}</button>
+                </div>
+            `).join('') + '</div>';
+
+            document.querySelectorAll('.notification-action').forEach(button => {
+                button.addEventListener('click', async () => {
+                    const token = localStorage.getItem('accessToken');
+                    if (!token) return;
+                    const id = button.dataset.id;
+                    const response = await fetch(`https://ai-skin.centralindia.cloudapp.azure.com/api/notifications/${id}/read`, {
+                        method: 'PATCH',
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    if (response.ok) {
+                        await loadNotifications();
+                    }
+                });
+            });
+        }
+
+        function showNotificationToast(notification) {
+            const toast = document.getElementById('notificationToast');
+            toast.innerHTML = `<strong>${notification.title}</strong><span>${notification.message}</span>`;
+            toast.classList.add('show');
+            window.clearTimeout(window.notificationToastTimer);
+            window.notificationToastTimer = window.setTimeout(() => {
+                toast.classList.remove('show');
+            }, 6000);
+        }
+
+        async function loadNotifications() {
+            const token = localStorage.getItem('accessToken');
+            const list = document.getElementById('notificationList');
+            if (!token) {
+                list.innerHTML = '<span class="help">Sign in to receive routine, hydration, and progress reminders.</span>';
+                document.getElementById('notificationBadge').style.display = 'none';
+                return;
+            }
+
+            try {
+                await fetch('https://ai-skin.centralindia.cloudapp.azure.com/api/notifications/generate', {
+                    method: 'POST',
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const response = await fetch('https://ai-skin.centralindia.cloudapp.azure.com/api/notifications', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const payload = await response.json();
+                if (!response.ok) throw new Error(payload.message || 'Unable to load notifications.');
+                const notifications = payload.notifications || [];
+                renderNotifications(notifications);
+
+                const seenKey = 'shownReminderNotificationIds';
+                const shownIds = JSON.parse(localStorage.getItem(seenKey) || '[]');
+                const newNotification = notifications
+                    .filter(item => item.status === 'unread' && !shownIds.includes(item.id))
+                    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+                if (newNotification) {
+                    showNotificationToast(newNotification);
+                    const updatedIds = [...shownIds, newNotification.id].slice(-100);
+                    localStorage.setItem(seenKey, JSON.stringify(updatedIds));
+                }
+            } catch (error) {
+                console.error('Notification load error:', error);
+                list.innerHTML = `<span class="help">${error.message}</span>`;
+            }
+        }
+
+        async function markAllNotificationsRead() {
+            const token = localStorage.getItem('accessToken');
+            if (!token) return;
+            try {
+                await fetch('https://ai-skin.centralindia.cloudapp.azure.com/api/notifications/mark-all-read', {
+                    method: 'PATCH',
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                await loadNotifications();
+            } catch (error) {
+                console.error('Mark-all-read error:', error);
+            }
+        }
+
+            async function loadCareTeamSharing() {
+                const list = document.getElementById('careTeamShareList');
+                const professionalList = document.getElementById('careTeamProfessionalList');
+                const token = localStorage.getItem('accessToken');
+                if (!token) {
+                    list.innerHTML = '<span class="help">Sign in to share reports with your care team.</span>';
+                    professionalList.innerHTML = '<span class="help">Sign in to see available professionals.</span>';
+                    return;
+                }
+                try {
+                    const response = await fetch('https://ai-skin.centralindia.cloudapp.azure.com/api/dashboard/sharing', {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    const payload = await response.json();
+                    if (!response.ok) throw new Error(payload.message || 'Unable to load sharing permissions.');
+                    const activeShares = payload.shares.filter(share => share.status === 'active');
+                    list.innerHTML = activeShares.length
+                        ? activeShares.map(share => `
+                            <div class="care-team-share-row">
+                                <div><strong>${share.name}</strong><small>${share.role} · read-only access · granted ${new Date(share.granted_at).toLocaleDateString()}</small></div>
+                                <button type="button" class="btn-secondary revoke-care-team" data-share-id="${share.id}">Revoke</button>
+                            </div>`).join('')
+                        : '<span class="help">No doctor or consultant currently has access.</span>';
+                    document.querySelectorAll('.revoke-care-team').forEach(button => button.addEventListener('click', revokeCareTeamAccess));
+                    
+                    const professionalsResponse = await fetch('https://ai-skin.centralindia.cloudapp.azure.com/api/dashboard/sharing/professionals', {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    const professionalsPayload = await professionalsResponse.json();
+                    if (!professionalsResponse.ok) throw new Error(professionalsPayload.message || 'Unable to load care professionals.');
+                    const sharedIds = new Set(activeShares.map(share => share.professional_id));
+                    professionalList.innerHTML = professionalsPayload.professionals.length
+                        ? professionalsPayload.professionals.map(professional => `
+                            <div class="care-team-share-row">
+                                <div><strong>${professional.name}</strong><small>${professional.role === 'dermatologist' ? 'Dermatologist' : 'Consultant'} · your reports remain read-only</small></div>
+                                ${sharedIds.has(professional.id) ? '<span class="tag">Already shared</span>' : `<button type="button" class="btn-primary share-care-team" data-professional-id="${professional.id}">Share directly</button>`}
+                            </div>`).join('')
+                        : '<span class="help">No active dermatologist or consultant accounts are available yet.</span>';
+                    document.querySelectorAll('.share-care-team').forEach(button => button.addEventListener('click', () => shareReportsWithCareTeam(button.dataset.professionalId)));
+                } catch (error) {
+                    console.error('Care team sharing error:', error);
+                    list.innerHTML = `<span class="help">${error.message}</span>`;
+                    professionalList.innerHTML = `<span class="help">${error.message}</span>`;
+                }
+            }
+
+            async function shareReportsWithCareTeam(professionalId) {
+                const token = localStorage.getItem('accessToken');
+                const message = document.getElementById('careTeamShareMessage');
+                if (!token) {
+                    message.textContent = 'Please sign in before sharing reports.';
+                    return;
+                }
+                try {
+                    const response = await fetch('https://ai-skin.centralindia.cloudapp.azure.com/api/dashboard/sharing', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                        body: JSON.stringify({ professionalId })
+                    });
+                    const payload = await response.json();
+                    message.textContent = response.ok ? `Reports shared with ${payload.share.professional.name}.` : (payload.message || 'Unable to share reports.');
+                    if (response.ok) {
+                        await loadCareTeamSharing();
+                    }
+                } catch (error) {
+                    message.textContent = error.message || 'Unable to share reports.';
+                }
+            }
+
+            async function revokeCareTeamAccess(event) {
+                const token = localStorage.getItem('accessToken');
+                try {
+                    const response = await fetch(`https://ai-skin.centralindia.cloudapp.azure.com/api/dashboard/sharing/${event.currentTarget.dataset.shareId}`, {
+                        method: 'DELETE',
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    document.getElementById('careTeamShareMessage').textContent = response.ok ? 'Access revoked.' : 'Unable to revoke access.';
+                    if (response.ok) await loadCareTeamSharing();
+                } catch (error) {
+                    document.getElementById('careTeamShareMessage').textContent = error.message || 'Unable to revoke access.';
+                }
+            }
+        
+        async function loadProgressAnalytics() {
+            const container = document.getElementById('progressAnalyticsContainer');
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                container.innerHTML = '<p style="color: var(--muted);">Sign in to view your progress analytics.</p>';
+                return;
+            }
+            try {
+                const response = await fetch('https://ai-skin.centralindia.cloudapp.azure.com/api/dashboard/summary', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const payload = await response.json();
+                if (!response.ok) throw new Error(payload.message || 'Unable to load progress analytics.');
+                const analytics = payload.analytics;
+                if (!analytics) {
+                    container.innerHTML = '<p style="color: var(--muted);">Progress analytics are not available yet.</p>';
+                    return;
+                }
+                const direction = analytics.improvement === null ? 'Not enough assessments' : `${analytics.improvement >= 0 ? '+' : ''}${analytics.improvement} points`;
+                const beforeAfter = analytics.beforeAfter
+                    ? `<div class="analytics-comparison"><strong>Before / after</strong><span>${analytics.beforeAfter.before.score}/100 → ${analytics.beforeAfter.after.score}/100</span><small>${new Date(analytics.beforeAfter.before.date).toLocaleDateString()} to ${new Date(analytics.beforeAfter.after.date).toLocaleDateString()}</small></div>`
+                    : '<div class="analytics-comparison"><strong>Before / after</strong><span>Complete another assessment to compare</span></div>';
+                const trends = analytics.trends.length
+                    ? analytics.trends.map(trend => `<div class="analytics-trend-row"><span>${new Date(trend.week).toLocaleDateString()}</span><strong>${trend.average_score}/100</strong><small>${trend.assessments} assessment${trend.assessments === 1 ? '' : 's'}</small></div>`).join('')
+                    : '<p class="help">No assessment trend data yet.</p>';
+                container.innerHTML = `
+                    <div class="analytics-metrics">
+                        <div class="analytics-metric"><small>Routine adherence (30 days)</small><strong>${analytics.adherence.rate}%</strong><span>${analytics.adherence.completedTasks} completed tasks · ${analytics.adherence.activeDays} active days</span></div>
+                        <div class="analytics-metric"><small>Improvement analysis</small><strong>${direction}</strong><span>Compared with your first recorded assessment</span></div>
+                        ${beforeAfter}
+                    </div>
+                    <div class="analytics-trends"><strong>Assessment trend</strong>${trends}</div>`;
+            } catch (error) {
+                container.innerHTML = `<p style="color: var(--muted);">${error.message}</p>`;
+            }
+        }
+
         // Update dashboard with comprehensive score from database
         function updateDashboardWithComprehensiveScore(profile) {
             const overallScoreEl = document.getElementById('dashboardOverallHealthScore');
@@ -607,7 +1112,7 @@
             const container = document.getElementById('assessmentResultsContainer');
             try {
                 const token = localStorage.getItem('accessToken');
-                const response = await fetch('http://localhost:3000/api/skin-profiles/my', {
+                const response = await fetch('https://ai-skin.centralindia.cloudapp.azure.com/api/skin-profiles/my', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -696,7 +1201,7 @@
             const container = document.getElementById('productRecommendationsContainer');
             
             try {
-                const response = await fetch('http://localhost:3000/api/products/recommendations', {
+                const response = await fetch('https://ai-skin.centralindia.cloudapp.azure.com/api/products/recommendations', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -764,242 +1269,405 @@
             }
         }
 
-        
+        // Load comprehensive activity history
+        async function loadActivityHistory() {
+            const container = document.getElementById('activityHistoryContainer');
+            const token = localStorage.getItem('accessToken');
+            
+            if (!token) {
+                container.innerHTML = '<p style="color: var(--muted);">Sign in to view your activity history.</p>';
+                return;
+            }
+            
+            try {
+                const response = await fetch('https://ai-skin.centralindia.cloudapp.azure.com/api/activity/history?limit=20', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const payload = await response.json();
                 
-                if (response.ok) {
-                    const data = await response.json();
-                    
-                    // Update overall score display
-                    overallScoreEl.textContent = data.overall_score.toFixed(1) + '/100';
-                    categoryEl.textContent = data.category;
-                    
-                    // Update trend if available
-                    if (data.improvement && data.improvement.trend) {
-                        const trendEmoji = data.improvement.trend === 'Improving' ? '📈' : 
-                                          data.improvement.trend === 'Declining' ? '📉' : '➡️';
-                        trendEl.textContent = `${trendEmoji} ${data.improvement.trend}`;
-                        if (data.improvement.percentage_change) {
-                            trendEl.textContent += ` (${data.improvement.percentage_change.toFixed(1)}%)`;
-                        }
-                    }
-                    
-                    // Display component scores
-                    container.innerHTML = `
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 16px;">
-                            <div class="component-score-card">
-                                <div class="component-label">Skin Condition (35%)</div>
-                                <div class="component-value">${data.components.condition.toFixed(1)}/100</div>
-                                <div class="component-bar">
-                                    <div class="component-bar-fill" style="width: ${data.components.condition}%"></div>
-                                </div>
-                            </div>
-                            <div class="component-score-card">
-                                <div class="component-label">Lifestyle (20%)</div>
-                                <div class="component-value">${data.components.lifestyle.toFixed(1)}/100</div>
-                                <div class="component-bar">
-                                    <div class="component-bar-fill" style="width: ${data.components.lifestyle}%"></div>
-                                </div>
-                            </div>
-                            <div class="component-score-card">
-                                <div class="component-label">Sleep Quality (15%)</div>
-                                <div class="component-value">${data.components.sleep.toFixed(1)}/100</div>
-                                <div class="component-bar">
-                                    <div class="component-bar-fill" style="width: ${data.components.sleep}%"></div>
-                                </div>
-                            </div>
-                            <div class="component-score-card">
-                                <div class="component-label">Routine Consistency (20%)</div>
-                                <div class="component-value">${data.components.routine.toFixed(1)}/100</div>
-                                <div class="component-bar">
-                                    <div class="component-bar-fill" style="width: ${data.components.routine}%"></div>
-                                </div>
-                            </div>
-                            <div class="component-score-card">
-                                <div class="component-label">Hydration (10%)</div>
-                                <div class="component-value">${data.components.hydration.toFixed(1)}/100</div>
-                                <div class="component-bar">
-                                    <div class="component-bar-fill" style="width: ${data.components.hydration}%"></div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    
-                    // Add CSS for component score cards
-                    if (!document.getElementById('componentScoreStyles')) {
-                        const style = document.createElement('style');
-                        style.id = 'componentScoreStyles';
-                        style.textContent = `
-                            .component-score-card {
-                                padding: 16px;
-                                border-radius: 12px;
-                                background: rgba(255, 255, 255, 0.7);
-                                border: 1px solid rgba(36, 48, 65, 0.08);
-                            }
-                            .component-label {
-                                font-size: 0.85rem;
-                                color: var(--muted);
-                                margin-bottom: 8px;
-                            }
-                            .component-value {
-                                font-size: 1.5rem;
-                                font-weight: 700;
-                                color: var(--accent);
-                                margin-bottom: 8px;
-                            }
-                            .component-bar {
-                                height: 8px;
-                                background: rgba(36, 48, 65, 0.1);
-                                border-radius: 4px;
-                                overflow: hidden;
-                            }
-                            .component-bar-fill {
-                                height: 100%;
-                                background: linear-gradient(90deg, var(--accent), var(--accent-2));
-                                border-radius: 4px;
-                                transition: width 0.3s ease;
-                            }
-                        `;
-                        document.head.appendChild(style);
-                    }
-                    
-                } else if (response.status === 404) {
-                    // No score exists yet - show message
-                    console.log('No score found for user:', userId);
+                if (!response.ok) throw new Error(payload.message || 'Unable to load activity history.');
+                
+                if (!payload.activities || payload.activities.length === 0) {
                     container.innerHTML = `
                         <div style="text-align: center; padding: 20px; color: var(--muted);">
-                            <p>No skin health scores available yet.</p>
-                            <p style="font-size: 0.85rem;">Complete a skin assessment to generate your scores.</p>
+                            <p>No activity recorded yet.</p>
+                            <p style="font-size: 0.85rem;">Complete assessments, use the Intelligence Lab, or track routines to build your history.</p>
                         </div>
                     `;
-                    overallScoreEl.textContent = '--';
-                    categoryEl.textContent = 'No data';
-                } else {
-                    container.innerHTML = `
-                        <div style="text-align: center; padding: 20px; color: var(--muted);">
-                            <p>No skin health scores available yet.</p>
-                            <p style="font-size: 0.85rem;">Complete a skin assessment to generate your scores.</p>
-                        </div>
-                    `;
-                    overallScoreEl.textContent = '--';
-                    categoryEl.textContent = 'No data';
+                    return;
                 }
-
-                        if (createResponse.ok) {
-                            const data = await createResponse.json();
-                            overallScoreEl.textContent = data.overall_score.toFixed(1) + '/100';
-                            categoryEl.textContent = data.category;
-                            trendEl.textContent = '➡️ New score';
-                            
-                            container.innerHTML = `
-                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 16px;">
-                                    <div class="component-score-card">
-                                        <div class="component-label">Skin Condition (35%)</div>
-                                        <div class="component-value">${data.components.condition.toFixed(1)}/100</div>
-                                        <div class="component-bar">
-                                            <div class="component-bar-fill" style="width: ${data.components.condition}%"></div>
-                                        </div>
-                                    </div>
-                                    <div class="component-score-card">
-                                        <div class="component-label">Lifestyle (20%)</div>
-                                        <div class="component-value">${data.components.lifestyle.toFixed(1)}/100</div>
-                                        <div class="component-bar">
-                                            <div class="component-bar-fill" style="width: ${data.components.lifestyle}%"></div>
-                                        </div>
-                                    </div>
-                                    <div class="component-score-card">
-                                        <div class="component-label">Sleep Quality (15%)</div>
-                                        <div class="component-value">${data.components.sleep.toFixed(1)}/100</div>
-                                        <div class="component-bar">
-                                            <div class="component-bar-fill" style="width: ${data.components.sleep}%"></div>
-                                        </div>
-                                    </div>
-                                    <div class="component-score-card">
-                                        <div class="component-label">Routine Consistency (20%)</div>
-                                        <div class="component-value">${data.components.routine.toFixed(1)}/100</div>
-                                        <div class="component-bar">
-                                            <div class="component-bar-fill" style="width: ${data.components.routine}%"></div>
-                                        </div>
-                                    </div>
-                                    <div class="component-score-card">
-                                        <div class="component-label">Hydration (10%)</div>
-                                        <div class="component-value">${data.components.hydration.toFixed(1)}/100</div>
-                                        <div class="component-bar">
-                                            <div class="component-bar-fill" style="width: ${data.components.hydration}%"></div>
-                                        </div>
-                                    </div>
+                
+                // Group activities by type for better display
+                const activityIcons = {
+                    'skin_assessment': '🧴',
+                    'ai_recommendation': '🧠',
+                    'routine_completion': '✅',
+                    'report_generation': '📊',
+                    'report_view': '👁️',
+                    'care_team_share': '👥',
+                    'profile_update': '👤'
+                };
+                
+                const activityLabels = {
+                    'skin_assessment': 'Skin Assessment',
+                    'ai_recommendation': 'AI Recommendation',
+                    'routine_completion': 'Routine Completion',
+                    'report_generation': 'Report Generated',
+                    'report_view': 'Report Viewed',
+                    'care_team_share': 'Care Team Sharing',
+                    'profile_update': 'Profile Update'
+                };
+                
+                let html = '<div style="display: grid; gap: 12px;">';
+                
+                payload.activities.forEach(activity => {
+                    const icon = activityIcons[activity.activity_type] || '📌';
+                    const label = activityLabels[activity.activity_type] || activity.activity_type;
+                    const date = new Date(activity.created_at).toLocaleDateString();
+                    const time = new Date(activity.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    
+                    html += `
+                        <div style="display: flex; align-items: flex-start; gap: 12px; padding: 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(36, 48, 65, 0.08);">
+                            <div style="font-size: 1.5rem;">${icon}</div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; font-size: 0.9rem;">${label}</div>
+                                <div style="font-size: 0.8rem; color: var(--muted); margin-top: 4px;">
+                                    ${activity.activity_subtype ? `<span style="background: rgba(143,175,157,0.1); padding: 2px 8px; border-radius: 12px; margin-right: 8px;">${activity.activity_subtype}</span>` : ''}
+                                    ${date} at ${time}
                                 </div>
-                            `;
-                            
-                            // Add CSS if not already added
-                            if (!document.getElementById('componentScoreStyles')) {
-                                const style = document.createElement('style');
-                                style.id = 'componentScoreStyles';
-                                style.textContent = `
-                                    .component-score-card {
-                                        padding: 16px;
-                                        border-radius: 12px;
-                                        background: rgba(255, 255, 255, 0.7);
-                                        border: 1px solid rgba(36, 48, 65, 0.08);
-                                    }
-                                    .component-label {
-                                        font-size: 0.85rem;
-                                        color: var(--muted);
-                                        margin-bottom: 8px;
-                                    }
-                                    .component-value {
-                                        font-size: 1.5rem;
-                                        font-weight: 700;
-                                        color: var(--accent);
-                                        margin-bottom: 8px;
-                                    }
-                                    .component-bar {
-                                        height: 8px;
-                                        background: rgba(36, 48, 65, 0.1);
-                                        border-radius: 4px;
-                                        overflow: hidden;
-                                    }
-                                    .component-bar-fill {
-                                        height: 100%;
-                                        background: linear-gradient(90deg, var(--accent), var(--accent-2));
-                                        border-radius: 4px;
-                                        transition: width 0.3s ease;
-                                    }
-                                `;
-                                document.head.appendChild(style);
-                            }
-                        }
-                    } catch (createError) {
-                        console.error('Error creating demo score:', createError);
-                        container.innerHTML = `
-                            <div style="text-align: center; padding: 20px; color: var(--muted);">
-                                <p>No skin health scores available yet.</p>
-                                <p style="font-size: 0.85rem;">Complete an assessment to generate your scores.</p>
+                                ${activity.activity_data ? `
+                                    <div style="font-size: 0.8rem; color: var(--muted); margin-top: 8px; max-height: 60px; overflow: hidden; text-overflow: ellipsis;">
+                                        ${JSON.stringify(activity.activity_data).substring(0, 150)}${JSON.stringify(activity.activity_data).length > 150 ? '...' : ''}
+                                    </div>
+                                ` : ''}
                             </div>
-                        `;
-                        overallScoreEl.textContent = '--';
-                        categoryEl.textContent = 'No data';
-                    }
-                } else {
-                    container.innerHTML = `
-                        <div style="text-align: center; padding: 20px; color: var(--muted);">
-                            <p>No skin health scores available yet.</p>
-                            <p style="font-size: 0.85rem;">Complete an assessment to generate your scores.</p>
                         </div>
                     `;
-                    overallScoreEl.textContent = '--';
-                    categoryEl.textContent = 'No data';
-                }
+                });
+                
+                html += '</div>';
+                container.innerHTML = html;
+                
             } catch (error) {
-                console.error('Error loading skin health scores:', error);
-                container.innerHTML = `<p style="color: var(--muted);">Unable to load skin health scores.</p>`;
-                overallScoreEl.textContent = '--';
-                categoryEl.textContent = 'Error';
+                console.error('Error loading activity history:', error);
+                container.innerHTML = `<p style="color: var(--muted);">${error.message}</p>`;
+            }
+        }
+
+        // Load user reports
+        async function loadReports() {
+            const container = document.getElementById('reportsContainer');
+            const token = localStorage.getItem('accessToken');
+            
+            if (!token) {
+                container.innerHTML = '<p style="color: var(--muted);">Sign in to view your reports.</p>';
+                return;
+            }
+            
+            try {
+                const response = await fetch('https://ai-skin.centralindia.cloudapp.azure.com/api/reports', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const payload = await response.json();
+                
+                if (!response.ok) throw new Error(payload.message || 'Unable to load reports.');
+                
+                if (!payload.reports || payload.reports.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 20px; color: var(--muted);">
+                            <p>No reports generated yet.</p>
+                            <p style="font-size: 0.85rem;">Click "Generate New Report" to create your first comprehensive report.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let html = '<div style="display: grid; gap: 12px;">';
+                
+                payload.reports.forEach(report => {
+                    const reportIcons = {
+                        'comprehensive': '📊',
+                        'progress': '📈',
+                        'routine_adherence': '✅',
+                        'skin_health': '🧴'
+                    };
+                    const icon = reportIcons[report.report_type] || '📋';
+                    const date = new Date(report.created_at).toLocaleDateString();
+                    const time = new Date(report.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    
+                    html += `
+                        <div style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(36, 48, 65, 0.08);">
+                            <div style="font-size: 1.5rem;">${icon}</div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; font-size: 0.9rem;">${report.report_type.charAt(0).toUpperCase() + report.report_type.slice(1)} Report</div>
+                                <div style="font-size: 0.8rem; color: var(--muted); margin-top: 4px;">
+                                    ${date} at ${time} · Version ${report.version}
+                                    ${report.is_shared ? '<span style="background: rgba(143,175,157,0.1); padding: 2px 8px; border-radius: 12px; margin-left: 8px;">Shared</span>' : ''}
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn-secondary view-report" data-id="${report.id}" style="padding: 6px 12px; font-size: 0.8rem;">View</button>
+                                <button class="btn-secondary share-report" data-id="${report.id}" style="padding: 6px 12px; font-size: 0.8rem;">Share</button>
+                                <button class="btn-secondary delete-report" data-id="${report.id}" style="padding: 6px 12px; font-size: 0.8rem; color: var(--bad);">Delete</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+                container.innerHTML = html;
+                
+                // Add event listeners
+                document.querySelectorAll('.view-report').forEach(button => {
+                    button.addEventListener('click', () => viewReport(button.dataset.id));
+                });
+                document.querySelectorAll('.share-report').forEach(button => {
+                    button.addEventListener('click', () => shareReport(button.dataset.id));
+                });
+                document.querySelectorAll('.delete-report').forEach(button => {
+                    button.addEventListener('click', () => deleteReport(button.dataset.id));
+                });
+                
+            } catch (error) {
+                console.error('Error loading reports:', error);
+                container.innerHTML = `<p style="color: var(--muted);">${error.message}</p>`;
+            }
+        }
+
+        // Generate new report
+        async function generateReport() {
+            const token = localStorage.getItem('accessToken');
+            const btn = document.getElementById('generateReportBtn');
+            
+            if (!token) {
+                alert('Please sign in to generate reports.');
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.textContent = 'Generating...';
+            
+            try {
+                const response = await fetch('https://ai-skin.centralindia.cloudapp.azure.com/api/reports/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        reportType: 'comprehensive',
+                        generatedFor: 'user'
+                    })
+                });
+                
+                const payload = await response.json();
+                
+                if (!response.ok) throw new Error(payload.message || 'Unable to generate report.');
+                
+                alert('Report generated successfully!');
+                loadReports(); // Refresh the reports list
+                
+            } catch (error) {
+                console.error('Error generating report:', error);
+                alert(`Error: ${error.message}`);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Generate New Report';
+            }
+        }
+
+        // View report
+        function viewReport(reportId) {
+            // Navigate to the dedicated report view page
+            window.location.href = `report_view.html?id=${reportId}`;
+        }
+
+        // Open report modal
+        function openReportModal(report) {
+            const modal = document.createElement('div');
+            modal.className = 'report-modal';
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0,0,0,0.5); z-index: 1000; display: flex;
+                align-items: center; justify-content: center;
+            `;
+            
+            const reportData = report.report_data;
+            
+            modal.innerHTML = `
+                <div style="background: white; padding: 24px; border-radius: 16px; max-width: 900px; max-height: 90vh; overflow-y: auto; width: 95%;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3 style="margin: 0;">Comprehensive Skincare Report</h3>
+                        <button class="close-modal" style="padding: 8px 16px; background: var(--line); border: none; border-radius: 8px; cursor: pointer;">Close</button>
+                    </div>
+                    
+                    <div style="line-height: 1.6;">
+                        <div class="report-section">
+                            <strong>👤 User Information</strong>
+                            <p>${reportData.user?.name || 'N/A'} · ${reportData.user?.email || 'N/A'}</p>
+                            <p><small>Report generated: ${new Date(reportData.generatedAt).toLocaleString()}</small></p>
+                        </div>
+                        
+                        <div class="report-section">
+                            <strong>🧴 Latest Assessment</strong>
+                            ${reportData.latestAssessment ? `
+                                <p>Skin Score: <strong>${reportData.latestAssessment.skin_health_score}/100</strong></p>
+                                <p>Condition: ${reportData.latestAssessment.overall_condition}</p>
+                                <p>Concerns: ${(reportData.latestAssessment.concerns || []).join(', ')}</p>
+                            ` : '<p>No assessment data available</p>'}
+                        </div>
+                        
+                        <div class="report-section">
+                            <strong>📊 Assessment Statistics</strong>
+                            <p>Total Assessments: ${reportData.assessments.count}</p>
+                            <p>Average Score: ${reportData.assessments.averageScore || 'N/A'}</p>
+                            <p>Score Trend: ${reportData.assessments.scoreTrend > 0 ? '+' : ''}${reportData.assessments.scoreTrend}</p>
+                            <p>Top Concerns: ${reportData.statistics.mostCommonConcerns.map(c => `${c.concern} (${c.count})`).join(', ')}</p>
+                        </div>
+                        
+                        <div class="report-section">
+                            <strong>💊 Recommendations</strong>
+                            <p>Total Recommendations: ${reportData.recommendations.total}</p>
+                            <p>Skincare Recommendations: ${reportData.recommendations.skincare.length}</p>
+                            <p>AI Recommendations: ${reportData.recommendations.ai.length}</p>
+                        </div>
+                        
+                        <div class="report-section">
+                            <strong>✅ Routine Adherence</strong>
+                            <p>Overall Adherence: ${reportData.routines.adherence}%</p>
+                            <p>Total Completions: ${reportData.routines.totalCompletions}</p>
+                            <p>Total Routines Tracked: ${reportData.routines.tracking.length}</p>
+                        </div>
+                        
+                        <div class="report-section">
+                            <strong>📚 Activity Summary</strong>
+                            ${Object.entries(reportData.activity.activitySummary).map(([type, count]) => 
+                                `<p>${type}: ${count}</p>`
+                            ).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            modal.querySelector('.close-modal').addEventListener('click', () => {
+                document.body.removeChild(modal);
+            });
+            
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    document.body.removeChild(modal);
+                }
+            });
+        }
+
+        // Share report
+        async function shareReport(reportId) {
+            const token = localStorage.getItem('accessToken');
+            
+            try {
+                // First get available professionals
+                const profResponse = await fetch('https://ai-skin.centralindia.cloudapp.azure.com/api/dashboard/sharing/professionals', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const profPayload = await profResponse.json();
+                
+                if (!profResponse.ok || !profPayload.professionals.length) {
+                    alert('No professionals available to share with.');
+                    return;
+                }
+                
+                // Create simple sharing interface
+                const shareList = profPayload.professionals.map(prof => 
+                    `${prof.id}:${prof.name} (${prof.role})`
+                ).join('\n');
+                
+                const selected = prompt(`Available professionals:\n${shareList}\n\nEnter the ID of the professional you want to share with:`);
+                
+                if (!selected) return;
+                
+                const response = await fetch(`https://ai-skin.centralindia.cloudapp.azure.com/api/reports/${reportId}/share`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ professionalIds: [selected] })
+                });
+                
+                const payload = await response.json();
+                
+                if (!response.ok) throw new Error(payload.message || 'Unable to share report.');
+                
+                alert('Report shared successfully!');
+                loadReports(); // Refresh to show shared status
+                
+            } catch (error) {
+                console.error('Error sharing report:', error);
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        // Delete report
+        async function deleteReport(reportId) {
+            const token = localStorage.getItem('accessToken');
+            
+            if (!confirm('Are you sure you want to delete this report?')) return;
+            
+            try {
+                const response = await fetch(`https://ai-skin.centralindia.cloudapp.azure.com/api/reports/${reportId}`, {
+                    method: 'DELETE',
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                
+                const payload = await response.json();
+                
+                if (!response.ok) throw new Error(payload.message || 'Unable to delete report.');
+                
+                alert('Report deleted successfully!');
+                loadReports(); // Refresh the reports list
+                
+            } catch (error) {
+                console.error('Error deleting report:', error);
+                alert(`Error: ${error.message}`);
             }
         }
 
         // Initialize
         loadUserData();
         loadAssessmentResults();
+        loadNotifications();
+        loadCareTeamSharing();
+        loadProgressAnalytics();
+        loadActivityHistory();
+        loadReports();
+        
+        // Event listeners
+        document.getElementById('generateReportBtn').addEventListener('click', generateReport);
+        document.getElementById('markAllReadBtn').addEventListener('click', markAllNotificationsRead);
+        
+        // Add CSS for report sections
+        const reportStyles = document.createElement('style');
+        reportStyles.textContent = `
+            .report-section {
+                margin-bottom: 20px;
+                padding: 16px;
+                background: rgba(255, 255, 255, 0.7);
+                border-radius: 12px;
+                border: 1px solid rgba(36, 48, 65, 0.08);
+            }
+            .report-section strong {
+                display: block;
+                margin-bottom: 8px;
+                color: var(--ink);
+            }
+            .report-section p {
+                margin: 4px 0;
+                color: var(--muted);
+            }
+        `;
+        document.head.appendChild(reportStyles);
     </script>
 </body>
 </html>

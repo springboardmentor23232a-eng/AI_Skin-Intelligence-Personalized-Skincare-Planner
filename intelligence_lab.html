@@ -455,7 +455,7 @@
             resultEl.innerHTML = '<span class="result-loading">Analyzing ingredient with your skin profile...</span>';
 
             try {
-                const response = await fetch('http://localhost:3000/api/ingredient/analyze', {
+                const response = await fetch('https://ai-skin.centralindia.cloudapp.azure.com/api/ingredient/analyze', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -473,6 +473,26 @@
                 }
 
                 displayIngredientResult(data);
+                
+                // Log the AI recommendation activity
+                await fetch('https://ai-skin.centralindia.cloudapp.azure.com/api/activity/log', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                    },
+                    body: JSON.stringify({
+                        activityType: 'ai_recommendation',
+                        activitySubtype: 'ingredient_analysis',
+                        activityData: {
+                            ingredient: ingredient,
+                            skin_type: skinType,
+                            suitability_score: data.suitability_score,
+                            recommendation: data.recommendation
+                        },
+                        sourcePage: 'intelligence_lab.html'
+                    })
+                }).catch(err => console.error('Failed to log activity:', err));
             } catch (error) {
                 resultEl.innerHTML = `<span class="result-loading">${escapeHtml(error.message)}. Make sure the Node API (port 3000) and Python engine (port 8001) are running.</span>`;
             }
@@ -602,7 +622,7 @@
             resultEl.innerHTML = '<span class="result-loading">Matching products from the catalog...</span>';
 
             try {
-                const response = await fetch('http://localhost:3000/api/products/recommendations', {
+                const response = await fetch('https://ai-skin.centralindia.cloudapp.azure.com/api/products/recommendations', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -616,6 +636,27 @@
                 if (!response.ok) {
                     throw new Error(data.error || 'Failed to generate recommendations');
                 }
+
+                // Log the AI recommendation activity
+                await fetch('https://ai-skin.centralindia.cloudapp.azure.com/api/activity/log', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                    },
+                    body: JSON.stringify({
+                        activityType: 'ai_recommendation',
+                        activitySubtype: 'product_recommendation',
+                        activityData: {
+                            skin_type: skinType,
+                            concerns: concerns,
+                            budget_tier: budget,
+                            total_products: data.total_products,
+                            recommendation_count: data.recommendations?.length || 0
+                        },
+                        sourcePage: 'intelligence_lab.html'
+                    })
+                }).catch(err => console.error('Failed to log activity:', err));
 
                 const groups = data.recommendations || [];
                 if (!groups.length) {
@@ -706,7 +747,7 @@
             const searchTerms = buildSearchVariants(query);
 
             for (const term of searchTerms) {
-                const response = await fetch(`http://localhost:3000/api/products/search/${encodeURIComponent(term)}`);
+                const response = await fetch(`https://ai-skin.centralindia.cloudapp.azure.com/api/products/search/${encodeURIComponent(term)}`);
                 if (!response.ok) continue;
 
                 const payload = await response.json();
@@ -736,7 +777,7 @@
                 const userSkinType = localStorage.getItem('userSkinType') || 'normal';
                 const userConcerns = JSON.parse(localStorage.getItem('userConcerns') || '[]');
 
-                const comparisonResponse = await fetch('http://localhost:3000/api/products/compare', {
+                const comparisonResponse = await fetch('https://ai-skin.centralindia.cloudapp.azure.com/api/products/compare', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

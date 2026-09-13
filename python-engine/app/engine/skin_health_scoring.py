@@ -61,14 +61,18 @@ class SkinHealthScoringEngine:
         Returns:
             Overall weighted score (0-100)
         """
-        # Apply weights to each component
+        condition_score = self.validate_score(condition_score)
+        lifestyle_score = self.validate_score(lifestyle_score)
+        sleep_score = self.validate_score(sleep_score)
+        routine_score = self.validate_score(routine_score)
+        hydration_score = self.validate_score(hydration_score)
+
         weighted_condition = condition_score * self.WEIGHT_CONDITION
         weighted_lifestyle = lifestyle_score * self.WEIGHT_LIFESTYLE
         weighted_sleep = sleep_score * self.WEIGHT_SLEEP
         weighted_routine = routine_score * self.WEIGHT_ROUTINE
         weighted_hydration = hydration_score * self.WEIGHT_HYDRATION
-        
-        # Calculate overall score
+
         overall_score = (
             weighted_condition +
             weighted_lifestyle +
@@ -76,25 +80,10 @@ class SkinHealthScoringEngine:
             weighted_routine +
             weighted_hydration
         )
-        
-        # CRITICAL CASE HANDLING: Apply severe penalties for extreme unhealthy conditions
-        critical_penalty = 0.0
-        
-        # Critical dehydration: 0 water intake or < 0.5L
-        if hydration_score == 0.0:
-            critical_penalty += 15.0  # Massive penalty for zero water intake
-        
-        # Critical sleep deprivation: < 3 hours
-        if sleep_score <= 20.0:
-            critical_penalty += 15.0  # Massive penalty for extreme sleep deprivation
-        
-        # Apply critical penalty
-        overall_score -= critical_penalty
-        
-        # Round to 2 decimal places and clamp to 0-100
+
         overall_score = round(overall_score, 2)
         overall_score = max(0.0, min(100.0, overall_score))
-        
+
         return overall_score
     
     def get_score_category(self, score: float) -> str:
@@ -358,32 +347,31 @@ class SkinHealthScoringEngine:
             Hydration score (0-100)
         """
         try:
-            # Get hydration data
-            water_intake = assessment_data.get('water_intake', 2.0)  # in liters
-            target_intake = assessment_data.get('target_intake', 2.5)  # default target: 2.5L
-            
-            # Handle case where target is 0 or invalid
+            water_intake = assessment_data.get('water_intake', 2.0)
+            target_intake = assessment_data.get('target_intake', 2.5)
+
+            try:
+                water_intake = float(water_intake)
+                target_intake = float(target_intake)
+            except (TypeError, ValueError):
+                water_intake = 2.0
+                target_intake = 2.5
+
             if target_intake <= 0:
-                target_intake = 2.5  # Use default target
-            
-            # Calculate hydration percentage
+                target_intake = 2.5
+
             if water_intake <= 0:
-                return 0.0  # Zero water intake = zero score
-            
-            # Additional penalty for very low water intake
-            if water_intake < 1.0:
-                # Less than 1L is extremely dehydrated
-                hydration_percentage = (water_intake / target_intake) * 50.0  # Additional 50% penalty
+                return 0.0
 
             hydration_percentage = (water_intake / target_intake) * 100.0
-            
-            # Clamp to valid range (don't reward exceeding target)
+
+            if water_intake < 1.0:
+                hydration_percentage *= 0.5
+
             hydration_percentage = max(0.0, min(100.0, hydration_percentage))
-            
             return round(hydration_percentage, 2)
-            
-        except Exception as e:
-            # Default to neutral score if calculation fails
+
+        except Exception:
             return 70.0
     
     def calculate_improvement_metrics(
@@ -401,27 +389,31 @@ class SkinHealthScoringEngine:
         Returns:
             Dictionary containing absolute_change, percentage_change, and trend
         """
-        if previous_score is None or previous_score == 0:
+        if previous_score is None:
             return {
                 'absolute_change': None,
                 'percentage_change': None,
                 'trend': None
             }
-        
-        # Calculate absolute change
-        absolute_change = current_score - previous_score
-        
-        # Calculate percentage change
-        percentage_change = (absolute_change / previous_score) * 100.0
-        
-        # Determine trend
+
+        absolute_change = float(current_score) - float(previous_score)
+
+        if previous_score == 0:
+            return {
+                'absolute_change': round(absolute_change, 2),
+                'percentage_change': None,
+                'trend': None
+            }
+
+        percentage_change = (absolute_change / float(previous_score)) * 100.0
+
         if abs(percentage_change) < self.TREND_THRESHOLD:
             trend = "Stable"
         elif percentage_change > 0:
             trend = "Improving"
         else:
             trend = "Declining"
-        
+
         return {
             'absolute_change': round(absolute_change, 2),
             'percentage_change': round(percentage_change, 2),
@@ -508,7 +500,14 @@ class SkinHealthScoringEngine:
             # Determine if score is complete
             is_complete = all(data_completeness.values())
             
-            # Prepare calculation details
+            component_scores = {
+                'condition': condition_score,
+                'lifestyle': lifestyle_score,
+                'sleep': sleep_score,
+                'routine': routine_score,
+                'hydration': hydration_score
+            }
+
             calculation_details = {
                 'weights': {
                     'condition': self.WEIGHT_CONDITION,
@@ -524,13 +523,8 @@ class SkinHealthScoringEngine:
                     'routine': round(routine_score * self.WEIGHT_ROUTINE, 2),
                     'hydration': round(hydration_score * self.WEIGHT_HYDRATION, 2)
                 },
-                'component_scores': {
-                    'condition': condition_score,
-                    'lifestyle': lifestyle_score,
-                    'sleep': sleep_score,
-                    'routine': routine_score,
-                    'hydration': hydration_score
-                },
+                'component_scores': component_scores,
+                'components': component_scores,
                 'data_completeness': data_completeness,
                 'is_complete': is_complete
             }

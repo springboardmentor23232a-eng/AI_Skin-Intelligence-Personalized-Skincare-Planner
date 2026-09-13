@@ -6,7 +6,8 @@ async function migrate() {
         console.log('Running database migration...');
 
         // Read the migration SQL file
-        const migrationSQL = fs.readFileSync('./migrations/add_assessment_fields.sql', 'utf8');
+        const migrationFile = process.argv[2] || 'add_assessment_fields.sql';
+        const migrationSQL = fs.readFileSync(`./migrations/${migrationFile}`, 'utf8');
 
         // Split by semicolon and execute each statement
         const statements = migrationSQL.split(';').filter(stmt => stmt.trim());

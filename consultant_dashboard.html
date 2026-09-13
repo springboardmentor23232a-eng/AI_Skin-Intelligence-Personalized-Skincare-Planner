@@ -49,8 +49,8 @@
             
             <!-- Welcome Banner -->
             <div class="hero-card">
-                <h2>Good Morning, Admin! 👋</h2>
-                <p>You have 5 new assessments and 12 routines awaiting your review today.</p>
+                <h2 id="welcomeTitle">Good Morning, Consultant! 👋</h2>
+                <p id="welcomeMessage">Loading your client data...</p>
             </div>
 
             <!-- Quick Actions -->
@@ -77,84 +77,34 @@
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-icon">👥</div>
-                    <div class="stat-value">24</div>
+                    <div class="stat-value" id="totalClients">0</div>
                     <div class="stat-label">Active Clients</div>
-                    <div class="tag" style="margin-top: 8px;">↑ 3 new this week</div>
+                    <div class="tag" style="margin-top: 8px;">Shared with you</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon">📋</div>
-                    <div class="stat-value">5</div>
-                    <div class="stat-label">New Assessments</div>
-                    <div class="tag warn" style="margin-top: 8px;">↑ Requires attention</div>
+                    <div class="stat-value" id="activeClients">0</div>
+                    <div class="stat-label">With Assessments</div>
+                    <div class="tag" style="margin-top: 8px;">Skin scores available</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon">⏰</div>
-                    <div class="stat-value">12</div>
-                    <div class="stat-label">Routines to Review</div>
-                    <div class="tag" style="margin-top: 8px;">→ 4 pending > 24h</div>
+                    <div class="stat-value" id="recentAssessments">0</div>
+                    <div class="stat-label">Recent Assessments</div>
+                    <div class="tag" style="margin-top: 8px;">Last 30 days</div>
                 </div>
             </div>
 
-            <div style="margin-top: 40px; margin-bottom: 20px;">
-                <h3 style="color: var(--ink);">📋 Recent Client Reports</h3>
-            </div>
-
-            <!-- Client Card 1 -->
-            <div class="card" style="margin-bottom: 20px; border-left: 4px solid var(--accent);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <div>
-                        <div style="font-size: 1.2rem; font-weight: 700; color: var(--ink);">Jane Doe</div>
-                        <div style="font-size: 0.8rem; color: var(--muted); font-family: monospace;">ID: #CLI-2024-0892</div>
-                    </div>
-                    <span class="tag bad" style="padding: 4px 10px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">High Priority</span>
-                </div>
-                
-                <div style="display: inline-block; background: rgba(200, 169, 106, 0.15); color: var(--accent); padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-bottom: 12px;">Hyperpigmentation</div>
-                
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px;">
-                    <div style="font-size: 0.9rem; color: var(--muted);"><strong>Last Visit:</strong> 2 days ago</div>
-                    <div style="font-size: 0.9rem; color: var(--muted);"><strong>Skin Type:</strong> Combination</div>
-                    <div style="font-size: 0.9rem; color: var(--muted);"><strong>Routine Age:</strong> 5 days old</div>
-                    <div style="font-size: 0.9rem; color: var(--muted);"><strong>Progress:</strong> +15% improvement</div>
-                </div>
-                
-                <div style="margin-bottom: 16px;">
-                    <span class="status-badge" style="background: rgba(200, 169, 106, 0.2); color: #b45309;">Routine Adjusted - Awaiting Feedback</span>
-                </div>
-                
+            <div style="margin-top: 40px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="color: var(--ink);">📋 Client Reports</h3>
                 <div style="display: flex; gap: 12px; align-items: center;">
-                    <button class="btn-primary">View Full Report</button>
-                    <button class="btn-secondary">Send Reminder</button>
+                    <input type="text" id="clientSearch" placeholder="Search clients..." style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--line); width: 200px;">
+                    <button class="btn-secondary" id="refreshClients">Refresh</button>
                 </div>
             </div>
-
-            <!-- Client Card 2 -->
-            <div class="card" style="margin-bottom: 20px; border-left: 4px solid var(--accent-2);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <div>
-                        <div style="font-size: 1.2rem; font-weight: 700; color: var(--ink);">John Smith</div>
-                        <div style="font-size: 0.8rem; color: var(--muted); font-family: monospace;">ID: #CLI-2024-0895</div>
-                    </div>
-                    <span class="tag warn" style="padding: 4px 10px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Medium Priority</span>
-                </div>
-                
-                <div style="display: inline-block; background: rgba(200, 169, 106, 0.15); color: var(--accent); padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-bottom: 12px;">Acne Treatment</div>
-                
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px;">
-                    <div style="font-size: 0.9rem; color: var(--muted);"><strong>Last Visit:</strong> Today</div>
-                    <div style="font-size: 0.9rem; color: var(--muted);"><strong>Skin Type:</strong> Oily</div>
-                    <div style="font-size: 0.9rem; color: var(--muted);"><strong>Routine Age:</strong> New assessment</div>
-                    <div style="font-size: 0.9rem; color: var(--muted);"><strong>Progress:</strong> First consultation</div>
-                </div>
-                
-                <div style="margin-bottom: 16px;">
-                    <span class="status-badge" style="background: rgba(143, 175, 157, 0.2); color: #15803d;">New Assessment Received</span>
-                </div>
-                
-                <div style="display: flex; gap: 12px; align-items: center;">
-                    <button class="btn-primary">Review Assessment</button>
-                    <button class="btn-secondary">Schedule Follow-up</button>
-                </div>
+            <!-- Dynamic Client List -->
+            <div id="clientList">
+                <div class="loading-spinner"><p>Loading client data...</p></div>
             </div>
 
         </div>
@@ -171,6 +121,21 @@
     </style>
 
     <script>
+        const API_BASE = 'https://ai-skin.centralindia.cloudapp.azure.com/api';
+        const state = { clients: [], summary: {} };
+
+        function esc(str) { return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+        async function request(path, options = {}) {
+            const token = localStorage.getItem('accessToken');
+            const res = await fetch(`${API_BASE}${path}`, {
+                ...options,
+                headers: { ...(options.headers || {}), Authorization: `Bearer ${token}` }
+            });
+            if (!res.ok) throw new Error((await res.json()).message || res.statusText);
+            return res.json();
+        }
+
         // Load user data
         function loadUserData() {
             const currentUser = localStorage.getItem('currentUser');
@@ -182,8 +147,80 @@
             }
         }
 
+        async function loadDashboard() {
+            try {
+                const data = await request('/dashboard/summary');
+                state.clients = data.clients || [];
+                state.summary = data.summary || { recentAssessments: 0 };
+                renderClients();
+                renderSummary();
+            } catch (error) {
+                console.error('Dashboard load error:', error);
+                document.getElementById('clientList').innerHTML = `<p class="help">${esc(error.message)}</p>`;
+            }
+        }
+
+        function renderClients() {
+            const query = document.getElementById('clientSearch').value.toLowerCase();
+            const clients = state.clients.filter(c => !query || `${c.name} ${c.email}`.toLowerCase().includes(query));
+            document.getElementById('clientList').innerHTML = clients.length ? 
+                clients.map(c => `
+                    <div class="card" style="margin-bottom: 20px; border-left: 4px solid var(--accent);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <div>
+                                <div style="font-size: 1.2rem; font-weight: 700; color: var(--ink);">${esc(c.name)}</div>
+                                <div style="font-size: 0.8rem; color: var(--muted); font-family: monospace;">${esc(c.email)}</div>
+                            </div>
+                            <span class="tag" style="padding: 4px 10px; font-size: 0.75rem; font-weight: 700;">Shared Client</span>
+                        </div>
+                        
+                        ${c.overall_condition ? `
+                            <div style="display: inline-block; background: rgba(200, 169, 106, 0.15); color: var(--accent); padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-bottom: 12px;">${esc(c.overall_condition)}</div>
+                        ` : ''}
+                        
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px;">
+                            <div style="font-size: 0.9rem; color: var(--muted);"><strong>Last Assessment:</strong> ${c.assessment_date ? new Date(c.assessment_date).toLocaleDateString() : 'No assessment'}</div>
+                            <div style="font-size: 0.9rem; color: var(--muted);"><strong>Skin Score:</strong> ${c.skin_health_score != null ? `${c.skin_health_score}/100` : 'No score'}</div>
+                            <div style="font-size: 0.9rem; color: var(--muted);"><strong>Skin Type:</strong> ${esc(c.skin_type || 'Unknown')}</div>
+                            <div style="font-size: 0.9rem; color: var(--muted);"><strong>Assessments:</strong> ${c.assessment_count || 0}</div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 12px; align-items: center;">
+                            <button class="btn-primary view-report" data-id="${esc(c.id)}">View Full Report</button>
+                            <button class="btn-secondary" onclick="window.location.href='mailto:${encodeURIComponent(c.email)}'">Contact Client</button>
+                        </div>
+                    </div>
+                `).join('') : 
+                '<p class="help">No clients have shared their data with you yet. Ask clients to share their reports from their dashboard.</p>';
+            
+            document.querySelectorAll('.view-report').forEach(button => button.addEventListener('click', () => openReport(button.dataset.id)));
+        }
+
+        function renderSummary() {
+            document.getElementById('totalClients').textContent = state.clients.length;
+            document.getElementById('activeClients').textContent = state.clients.filter(c => c.skin_health_score != null).length;
+            document.getElementById('recentAssessments').textContent = state.summary.recentAssessments || 0;
+            
+            // Update welcome message
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            if (state.clients.length > 0) {
+                welcomeMessage.textContent = `You have ${state.clients.length} client${state.clients.length === 1 ? '' : 's'} who have shared their data with you.`;
+            } else {
+                welcomeMessage.textContent = 'No clients have shared their data yet. Ask clients to share reports from their dashboard.';
+            }
+        }
+
+        async function openReport(id) {
+            // Navigate to the comprehensive report view page
+            window.location.href = `report_view.html?userId=${id}&role=consultant`;
+        }
+
+        document.getElementById('clientSearch').oninput = renderClients;
+        document.getElementById('refreshClients').onclick = loadDashboard;
+
         // Initialize
         loadUserData();
+        loadDashboard();
     </script>
 </body>
 </html>

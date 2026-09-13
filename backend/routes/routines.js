@@ -1,6 +1,8 @@
 const express = require('express');
 const axios = require('axios');
 const router = express.Router();
+const pool = require('../db/pool');
+const { authMiddleware } = require('../middleware/auth');
 
 // Python API base URL
 const PYTHON_API_URL = 'http://localhost:8001/api';
@@ -166,6 +168,67 @@ router.post('/routine/:routineId/regenerate', async (req, res) => {
         } else {
             res.status(500).json({ error: 'Failed to regenerate routine: ' + error.message });
         }
+    }
+});
+
+// Track routine completion
+router.post('/tracking', authMiddleware, async (req, res, next) => {
+    try {
+        const { routine_type, routine_name, steps, completion_status, completion_percentage, performed_date, notes } = req.body;
+        
+        const result = await pool.query(
+            `INSERT INTO routine_tracking 
+             (user_id, routine_type, routine_name, steps, completion_status, completion_percentage, performed_date, notes)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+             RETURNING *`,
+            [
+                req.user.id,
+                routine_type,
+                routine_name,
+                JSON.stringify(steps),
+                completion_status,
+                completion_percentage,
+                performed_date,
+                notes || null
+            ]
+        );
+        
+        return res.json({
+            success: true,
+            tracking: result.rows[0]
+        });
+    } catch (error) {
+        return next(error);
+    }
+});
+
+// Get routine tracking history
+router.get('/tracking', authMiddleware, async (req, res, next) => {
+    try {
+        const { limit = 30, routineType } = req.query;
+        
+        let query = `
+            SELECT * FROM routine_tracking
+            WHERE user_id = $1
+        `;
+        const params = [req.user.id];
+        
+        if (routineType) {
+            query += ` AND routine_type = $${params.length + 1}`;
+            params.push(routineType);
+        }
+        
+        query += ` ORDER BY performed_date DESC, created_at DESC LIMIT $${params.length + 1}`;
+        params.push(parseInt(limit));
+        
+        const result = await pool.query(query, params);
+        
+        return res.json({
+            success: true,
+            tracking: result.rows
+        });
+    } catch (error) {
+        return next(error);
     }
 });
 

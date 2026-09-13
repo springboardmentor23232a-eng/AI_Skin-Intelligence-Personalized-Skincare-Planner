@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Role-aware dashboard and analytics for AI Skin Intelligence.">
+    <title>Dashboard & Analytics - AI Skin Intelligence</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <a class="brand" href="index.html">
+                <span class="brand-mark">✦</span>
+                <span>AI Skin<br><strong>Intelligence</strong></span>
+            </a>
+            <div class="workspace-label">Workspace</div>
+            <nav class="nav-list" aria-label="Dashboard navigation">
+                <button class="nav-link active" data-section="overview"><span>⌂</span>Overview</button>
+                <button class="nav-link" data-section="insights"><span>◌</span>Insights</button>
+                <button class="nav-link" data-section="recommendations"><span>✧</span>Recommendations</button>
+                <button class="nav-link" data-section="progress"><span>↗</span>Progress</button>
+                <button class="nav-link" data-section="reports"><span>▤</span>Reports</button>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="support-card">
+                    <span class="support-icon">?</span>
+                    <div><strong>Need guidance?</strong><small>Talk to your care team</small></div>
+                </div>
+                <a class="logout-link" href="login.html">↪ <span>Sign out</span></a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div class="mobile-brand"><span class="brand-mark">✦</span> AI Skin Intelligence</div>
+                <div class="topbar-actions">
+                    <button class="icon-button" aria-label="Notifications" title="Notifications">♢<span class="notification-dot"></span></button>
+                    <div class="profile-menu">
+                        <div class="avatar" id="profileAvatar">AM</div>
+                        <div class="profile-copy"><strong id="profileName">Alex Morgan</strong><small id="profileRole">Member</small></div>
+                        <span class="chevron">⌄</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-wrap">
+                <section class="welcome-row">
+                    <div>
+                        <p class="kicker" id="workspaceKicker">PERSONAL WELLNESS</p>
+                        <h1 id="pageTitle">Good morning, Alex <span aria-hidden="true">✦</span></h1>
+                        <p id="pageSubtitle">Small, consistent steps are adding up. Here is your skin intelligence at a glance.</p>
+                    </div>
+                    <button class="button share-primary-button" id="openShareDetails">Share reports with my dermatologist</button>
+                    <div class="role-switcher" aria-label="Preview dashboard role" hidden>
+                        <label for="roleSelect">View as</label>
+                        <select id="roleSelect">
+                            <option value="user">Member</option>
+                            <option value="consultant">Consultant</option>
+                            <option value="dermatologist">Dermatologist</option>
+                            <option value="admin">Administrator</option>
+                        </select>
+                    </div>
+                </section>
+
+                <section id="dashboardView" aria-live="polite"></section>
+                <div class="report-modal" id="reportModal" hidden>
+                    <div class="report-dialog" role="dialog" aria-modal="true" aria-labelledby="reportTitle">
+                        <button class="report-close" id="closeReport" aria-label="Close report">×</button>
+                        <p class="eyebrow">SHARED CARE REPORT</p>
+                        <h2 id="reportTitle">Patient report</h2>
+                        <div id="reportBody"></div>
+                    </div>
+                </div>
+                <div class="toast" id="toast" role="status"></div>
+            </div>
+        </main>
+    </div>
+    <script>
+        const API_BASE = "https://ai-skin.centralindia.cloudapp.azure.com/api";
+        let dashboardState = { checklist: [], skinHealth: null, metrics: null, clients: [], users: [], live: false };
+        const userTasks = [
+            { id: "cleanse", label: "Gentle cleanser", detail: "AM · 60 sec" },
+            { id: "serum", label: "Vitamin C serum", detail: "AM · 2 drops" },
+            { id: "moisturise", label: "Barrier moisturiser", detail: "AM · 1 pump" },
+            { id: "spf", label: "Broad spectrum SPF 50", detail: "AM · Reapply at noon" },
+            { id: "retinol", label: "Retinol treatment", detail: "PM · 2 nights/week" }
+        ];
+        const dashboardData = {
+            user: {
+                title: "Good morning, Alex", subtitle: "Small, consistent steps are adding up. Here is your skin intelligence at a glance.",
+                kicker: "PERSONAL WELLNESS", name: "Alex Morgan", role: "Member", avatar: "AM"
+            },
+            consultant: {
+                title: "Good morning, Maya", subtitle: "You have 5 assessments and 3 recommendations waiting for your attention.",
+                kicker: "CLIENT CARE WORKSPACE", name: "Maya Patel", role: "Skincare consultant", avatar: "MP"
+            },
+            dermatologist: {
+                title: "Good morning, Dr. Chen", subtitle: "Review patient signals and keep every treatment decision grounded in progress data.",
+                kicker: "CLINICAL WORKSPACE", name: "Dr. Sarah Chen", role: "Dermatologist", avatar: "SC"
+            },
+            admin: {
+                title: "Platform overview", subtitle: "Monitor platform health, recommendation quality, and the people you support.",
+                kicker: "OPERATIONS WORKSPACE", name: "Jordan Lee", role: "Administrator", avatar: "JL"
+            }
+        };
+
+        const icon = (name) => ({spark: "✦", arrow: "↗", check: "✓", clock: "◷", users: "♧", report: "▤", shield: "⌾", product: "◉", trend: "⌁"}[name] || "•");
+        const actionButton = (label, variant = "") => `<button class="button ${variant}" data-action="${label}">${label}</button>`;
+        const stat = (value, label, change, tone = "green") => `<article class="metric-card"><div class="metric-top"><span class="metric-label">${label}</span><span class="metric-icon">${icon("trend")}</span></div><strong class="metric-value">${value}</strong><span class="metric-change ${tone}">${change}</span></article>`;
+
+        function userView() {
+            const completed = dashboardState.live ? dashboardState.checklist : JSON.parse(localStorage.getItem("skinChecklist") || "[]");
+            const completion = Math.round((completed.length / userTasks.length) * 100);
+            const score = dashboardState.skinHealth?.skin_health_score ?? 0;
+            const condition = dashboardState.skinHealth?.overall_condition || "No assessment yet";
+            const recommendations = dashboardState.recommendations || [];
+            const shares = dashboardState.shares || [];
+            const routine = dashboardState.profile?.routine_morning || dashboardState.profile?.routine_evening || "No personalized routine saved yet.";
+            return `
+                <div class="metrics-grid">${stat(score, "Skin health score", dashboardState.live ? "Live from latest assessment" : "No assessment yet")} ${stat(`${completed.length} / ${userTasks.length}`, "Today's routine", `${completion}% complete`, completion === 100 ? "green" : "gold")} ${stat("—", "Current streak", "More check-ins needed", "neutral")} ${stat(recommendations.length, "Active recommendations", recommendations.length ? "From your care plan" : "None saved", "neutral")}</div>
+                <div class="dashboard-grid two-col">
+                    <article class="panel score-panel">
+                        <div class="panel-heading"><div><p class="eyebrow">YOUR SKIN HEALTH</p><h2>${condition}</h2></div><button class="more-button" aria-label="More score options">•••</button></div>
+                        <div class="score-content"><div class="score-ring" style="--score:${score}"><span>${score}<small>/100</small></span></div><div class="score-copy"><p>${dashboardState.skinHealth ? "This score is synced with your latest assessment." : "Complete a skin assessment to see your personal score."}</p><div class="legend"><span><i class="dot green-dot"></i>Excellent</span><span><i class="dot gold-dot"></i>Needs attention</span></div></div></div>
+                        <div class="score-trend"><span>Last 30 days</span><strong>+6.4%</strong><svg viewBox="0 0 320 52" role="img" aria-label="Skin score trending upward"><path d="M0 43 C24 38, 34 45, 52 35 S82 39, 99 27 S125 34, 145 25 S171 29, 192 18 S219 25, 240 14 S268 19, 289 8 S307 12, 320 3" fill="none" stroke="currentColor" stroke-width="3"/></svg></div>
+                    </article>
+                    <article class="panel routine-panel">
+                        <div class="panel-heading"><div><p class="eyebrow">TODAY'S ROUTINE</p><h2>Keep the momentum</h2></div><span class="progress-percent">${completion}%</span></div>
+                        <div class="progress-track"><span style="width:${completion}%"></span></div>
+                        <div class="checklist">${userTasks.map(task => `<label class="check-item ${completed.includes(task.id) ? "checked" : ""}"><input type="checkbox" data-task="${task.id}" ${completed.includes(task.id) ? "checked" : ""}><span class="custom-check">${icon("check")}</span><span><strong>${task.label}</strong><small>${task.detail}</small></span></label>`).join("")}</div>
+                    </article>
+                </div>
+                <div class="dashboard-grid three-col">
+                    <article class="panel"><div class="panel-heading"><div><p class="eyebrow">PERSONALIZED ROUTINE</p><h2>Your care plan</h2></div>${actionButton("View routine", "text-button")}</div><p class="routine-copy">${routine}</p>${recommendations.length ? recommendations.map(item => `<div class="recommendation"><div class="product-image serum">✧</div><div><strong>${item.name}</strong><small>${item.reason || "Personalized recommendation"}</small></div></div>`).join("") : `<div class="empty-state">No active recommendations yet. A consultant can add recommendations after reviewing your assessment.</div>`}</article>
+                    <article class="panel insight-card"><p class="eyebrow">SKIN INTELLIGENCE</p><h2>Hydration is your growth area</h2><p>Adding one extra glass of water and using your barrier serum consistently could improve your score by 4–7 points.</p>${actionButton("Explore insights", "button-outline")}<div class="insight-glow">✦</div></article>
+                    <article class="panel"><div class="panel-heading"><div><p class="eyebrow">THIS WEEK</p><h2>Progress snapshot</h2></div>${actionButton("Details", "text-button")}</div><div class="mini-bars"><span style="height:52%"><i>Mon</i></span><span style="height:70%"><i>Tue</i></span><span style="height:62%"><i>Wed</i></span><span style="height:82%"><i>Thu</i></span><span style="height:76%"><i>Fri</i></span><span style="height:91%"><i>Sat</i></span><span class="today" style="height:67%"><i>Sun</i></span></div><div class="bar-caption"><span>Routine consistency</span><strong>74%</strong></div></article>
+                </div>
+                <article class="panel sharing-panel" id="careTeamAccess"><div class="panel-heading"><div><p class="eyebrow">CARE TEAM ACCESS</p><h2>Share reports with my doctor</h2></div><span class="status good">You control access</span></div><p class="section-note">Share your skin score, assessment reports, progress, routine, and recommendations with a dermatologist or consultant. Access is read-only and revocable.</p><div class="share-form"><input id="shareEmail" type="email" placeholder="Enter dermatologist or consultant email" aria-label="Professional email"><select id="shareRole" aria-label="Professional role"><option value="dermatologist">Dermatologist</option><option value="consultant">Consultant</option></select><button class="button" id="shareAccess">Share my reports</button></div><div class="share-list">${shares.length ? shares.map(share => `<div class="share-row"><div><strong>${share.name}</strong><small>${share.role} · read-only access · granted ${new Date(share.granted_at).toLocaleDateString()}</small></div><button class="row-action revoke-share" data-share-id="${share.id}">Revoke access</button></div>`).join("") : `<div class="empty-state">You have not shared your details with anyone yet.</div>`}</div></article>`;
+        }
+
+        function consultantView() {
+            const clients = dashboardState.clients || [];
+            const rows = clients.length ? clients.map(client => {
+                const score = client.skin_health_score == null ? "No score" : `${client.skin_health_score}/100`;
+                const status = client.skin_health_score == null ? "Needs assessment" : client.skin_health_score < 60 ? "Review due" : "On track";
+                const tone = client.skin_health_score == null || client.skin_health_score < 60 ? "gold" : "good";
+                return `<div class="table-row"><strong><span class="table-avatar">${client.name.split(" ").map(n=>n[0]).join("")}</span>${client.name}</strong><span>${client.overall_condition || "Not assessed"}</span><span class="progress-value">${score}</span><span class="status ${tone}">${status}</span><button class="row-action shared-report-button" data-report-user-id="${client.id}">View shared report</button></div>`;
+            }).join("") : `<div class="empty-state">No client records are available yet.</div>`;
+            return `<div class="metrics-grid">${stat(dashboardState.metrics?.activePeople ?? 0, "Active clients", "From registered users")} ${stat(dashboardState.metrics?.recentReports ?? 0, "New assessments", "Last 7 days", "gold")} ${stat(dashboardState.metrics?.reports ?? 0, "Assessment reports", "All recorded reports", "neutral")} ${stat("—", "Client retention", "Not enough data", "neutral")}</div><div class="dashboard-grid wide-left"><article class="panel table-panel"><div class="panel-heading"><div><p class="eyebrow">CLIENT PROFILES</p><h2>Registered clients</h2></div>${actionButton("Refresh clients", "text-button")}</div><div class="toolbar"><input type="search" placeholder="⌕ Search clients" aria-label="Search clients"><select aria-label="Filter client priority"><option>All clients</option><option>Needs assessment</option><option>On track</option></select></div><div class="data-table"><div class="table-row table-head"><span>Client</span><span>Latest condition</span><span>Score</span><span>Status</span><span></span></div>${rows}</div></article><article class="panel"><p class="eyebrow">ASSESSMENT QUEUE</p><h2>Reports to review</h2><div class="queue-list"><div class="empty-state">${dashboardState.metrics?.recentReports ? `${dashboardState.metrics.recentReports} new reports recorded in the last 7 days.` : "No recent reports to review."}</div></div>${actionButton("Review reports", "button-outline")}</article></div><div class="dashboard-grid two-col"><article class="panel"><div class="panel-heading"><div><p class="eyebrow">PROGRESS MONITORING</p><h2>Client outcomes</h2></div></div><div class="empty-state">Progress analytics will appear as clients complete follow-up assessments.</div></article><article class="panel insight-card"><p class="eyebrow">RECOMMENDATION MANAGEMENT</p><h2>Recommendation data</h2><p>Recommendations will appear here when they are created for your clients.</p>${actionButton("Open recommendation manager", "button-outline")}</article></div>`;
+        }
+
+        function dermatologistView() {
+            if (dashboardState.live) {
+                const clients = dashboardState.clients || [];
+                const conditions = dashboardState.conditionReports || [];
+                const trend = dashboardState.progress || [];
+                return `<div class="metrics-grid">${stat(dashboardState.metrics?.activePeople ?? 0, "Active patients", "From registered users")} ${stat(dashboardState.metrics?.recentReports ?? 0, "Recent reports", "Last 7 days", "gold")} ${stat(dashboardState.metrics?.reports ?? 0, "Condition reports", "All recorded reports", "neutral")} ${stat(dashboardState.metrics?.activeRecommendations ?? 0, "Treatment plans", "Active recommendations", "neutral")}</div><div class="dashboard-grid wide-left"><article class="panel table-panel"><div class="panel-heading"><div><p class="eyebrow">PATIENT INSIGHTS</p><h2>Registered patient records</h2></div>${actionButton("Refresh patients", "text-button")}</div><div class="data-table"><div class="table-row table-head"><span>Patient</span><span>Condition</span><span>Score</span><span>Last assessment</span><span></span></div>${clients.length ? clients.map(client => `<div class="table-row"><strong><span class="table-avatar">${client.name.split(" ").map(n=>n[0]).join("")}</span>${client.name}</strong><span>${client.overall_condition || "Not assessed"}</span><span class="progress-value">${client.skin_health_score == null ? "No score" : `${client.skin_health_score}/100`}</span><span>${client.assessment_date ? new Date(client.assessment_date).toLocaleDateString() : "No assessment"}</span><button class="row-action shared-report-button" data-report-user-id="${client.id}">View shared report</button></div>`).join("") : `<div class="empty-state">No patient records are available yet.</div>`}</div></article><article class="panel"><p class="eyebrow">SKIN CONDITION REPORTS</p><h2>Recorded conditions</h2><div class="condition-list">${conditions.length ? conditions.map(item => `<div><span class="condition-dot gold"></span><strong>${item.concern}</strong><span>${item.count} reports</span></div>`).join("") : `<div class="empty-state">No condition concerns recorded.</div>`}</div></article></div><div class="dashboard-grid two-col"><article class="panel"><div class="panel-heading"><div><p class="eyebrow">PROGRESS ANALYTICS</p><h2>Assessment trend</h2></div></div>${trend.length ? `<div class="outcome"><strong>${trend[trend.length - 1].score}</strong><span>latest average score</span><div class="wide-progress"><i style="width:${Math.min(100, trend[trend.length - 1].score)}%"></i></div></div><div class="empty-state">${trend.length} dated data points available for review.</div>` : `<div class="empty-state">Progress analytics will appear after assessments are recorded.</div>`}</article><article class="panel insight-card"><p class="eyebrow">TREATMENT RECOMMENDATIONS</p><h2>${dashboardState.metrics?.activeRecommendations ?? 0} active plans</h2><p>Recommendations are counted from the shared care-plan table. Review them before making clinical decisions.</p>${actionButton("Review treatment plans", "button-outline")}</article></div>`;
+            }
+            return `<div class="metrics-grid">${stat("48", "Active patients", "↑ 6 this month")} ${stat("14", "Condition reports", "4 new today", "gold")} ${stat("87%", "Treatment adherence", "↑ 5.1% this month")} ${stat("92%", "Follow-up rate", "Above target")}</div><div class="dashboard-grid wide-left"><article class="panel table-panel"><div class="panel-heading"><div><p class="eyebrow">PATIENT INSIGHTS</p><h2>Patient progress overview</h2></div>${actionButton("Export report", "button-outline")}</div><div class="data-table"><div class="table-row table-head"><span>Patient</span><span>Condition</span><span>Change</span><span>Next step</span><span></span></div>${[["Elena Garcia","Acne","-28% lesions","Review treatment","good"],["Noah Williams","Eczema","Stable","Follow-up 12 Sep","gold"],["Liam Chen","Rosacea","-14% redness","Monitor","good"],["Sofia Patel","Melasma","+6% coverage","Adjust plan","high"]].map(p => `<div class="table-row"><strong><span class="table-avatar">${p[0].split(" ").map(n=>n[0]).join("")}</span>${p[0]}</strong><span>${p[1]}</span><span class="progress-value">${p[2]}</span><span>${p[3]}</span><button class="row-action" data-action="Open ${p[0]}'s insights">View</button></div>`).join("")}</div></article><article class="panel"><p class="eyebrow">CONDITION REPORTS</p><h2>Signals this week</h2><div class="condition-list"><div><span class="condition-dot coral"></span><strong>Acne</strong><span>18 patients</span><b>↓ 12%</b></div><div><span class="condition-dot gold"></span><strong>Melasma</strong><span>11 patients</span><b>↑ 4%</b></div><div><span class="condition-dot green"></span><strong>Eczema</strong><span>7 patients</span><b>↓ 8%</b></div></div>${actionButton("View clinical reports", "button-outline")}</article></div><div class="dashboard-grid two-col"><article class="panel"><div class="panel-heading"><div><p class="eyebrow">PROGRESS ANALYTICS</p><h2>Treatment response</h2></div><span class="select-like">Quarterly⌄</span></div><div class="clinical-chart"><div class="chart-y"><span>100</span><span>75</span><span>50</span><span>25</span><span>0</span></div><div class="chart-area"><i style="height:42%"></i><i style="height:54%"></i><i style="height:48%"></i><i style="height:68%"></i><i style="height:75%"></i><i style="height:84%"></i><i style="height:91%"></i></div></div></article><article class="panel insight-card"><p class="eyebrow">TREATMENT RECOMMENDATIONS</p><h2>6 plans ready for review</h2><p>AI-assisted suggestions are ranked by evidence and patient response. Final clinical judgment stays with you.</p>${actionButton("Review treatment plans", "button-outline")}</article></div>`;
+        }
+
+        function adminView() {
+            if (dashboardState.live) {
+                const users = dashboardState.users || [];
+                const recommendationStatuses = dashboardState.recommendationStatuses || [];
+                const system = dashboardState.system || {};
+                return `<div class="metrics-grid">${stat(dashboardState.metrics?.totalUsers ?? 0, "Total users", "From registered users")} ${stat(dashboardState.metrics?.activeUsers ?? 0, "Active users", "Current status")} ${stat(dashboardState.metrics?.newUsers ?? 0, "New users", "Last 30 days", "gold")} ${stat(dashboardState.metrics?.assessments ?? 0, "Assessments", "All recorded assessments", "neutral")}</div><div class="dashboard-grid wide-left"><article class="panel table-panel"><div class="panel-heading"><div><p class="eyebrow">USER MANAGEMENT</p><h2>Registered users</h2></div>${actionButton("Refresh users", "text-button")}</div><div class="toolbar"><input id="adminUserSearch" type="search" placeholder="⌕ Search name or email" aria-label="Search users"><select id="adminRoleFilter" aria-label="Filter user role"><option value="">All roles</option><option value="user">Users</option><option value="consultant">Consultants</option><option value="dermatologist">Dermatologists</option><option value="admin">Admins</option></select></div><div class="data-table"><div class="table-row table-head"><span>User</span><span>Role</span><span>Joined</span><span>Status</span><span>Action</span></div>${users.length ? users.map(user => `<div class="table-row admin-user-row" data-name="${user.name.toLowerCase()} ${user.email.toLowerCase()}" data-role="${user.role}"><strong><span class="table-avatar">${user.name.split(" ").map(n=>n[0]).join("")}</span>${user.name}<small class="user-email">${user.email}</small></strong><span>${user.role}</span><span>${new Date(user.created_at).toLocaleDateString()}</span><span class="status ${user.is_active ? "good" : "high"}">${user.is_active ? "Active" : "Inactive"}</span><button class="row-action toggle-user" data-user-id="${user.id}" data-user-name="${user.name}" data-user-active="${user.is_active}">${user.is_active ? "Deactivate" : "Activate"}</button></div>`).join("") : `<div class="empty-state">No user records are available yet.</div>`}</div></article><article class="panel"><p class="eyebrow">RECOMMENDATION MONITORING</p><h2>Recommendation status</h2><div class="condition-list">${recommendationStatuses.length ? recommendationStatuses.map(item => `<div><span class="condition-dot ${item.status === "active" ? "green" : "gold"}"></span><strong>${item.status}</strong><span>${item.count} records</span></div>`).join("") : `<div class="empty-state">No recommendations recorded.</div>`}</div>${actionButton("Open recommendation reports", "button-outline")}</article></div><div class="dashboard-grid two-col"><article class="panel"><p class="eyebrow">PLATFORM ANALYTICS</p><h2>Database-backed totals</h2><div class="engagement-stats"><div><strong>${dashboardState.metrics?.assessments ?? 0}</strong><span>Assessments</span></div><div><strong>${dashboardState.metrics?.activeUsers ?? 0}</strong><span>Active accounts</span></div><div><strong>${dashboardState.metrics?.newUsers ?? 0}</strong><span>New in 30 days</span></div></div></article><article class="panel"><p class="eyebrow">SYSTEM REPORTS</p><h2>Operational health</h2><div class="system-list"><div><span class="health-pulse"></span><span>API services</span><strong>${system.api || "unknown"}</strong></div><div><span class="health-pulse"></span><span>PostgreSQL</span><strong>${system.database || "unknown"}</strong></div></div>${actionButton("Refresh system reports", "button-outline")}</article></div>`;
+            }
+            return `<div class="metrics-grid">${stat("12,840", "Total users", "↑ 8.6% this month")} ${stat("9,420", "Monthly active", "73.4% engagement")} ${stat("94.8%", "Recommendation quality", "↑ 2.1% this month")} ${stat("99.98%", "System uptime", "All systems healthy")}</div><div class="dashboard-grid wide-left"><article class="panel table-panel"><div class="panel-heading"><div><p class="eyebrow">USER MANAGEMENT</p><h2>Recent account activity</h2></div>${actionButton("Manage users", "button-outline")}</div><div class="toolbar"><input type="search" placeholder="⌕ Search name or email" aria-label="Search users"><select aria-label="Filter user role"><option>All roles</option><option>Members</option><option>Consultants</option><option>Dermatologists</option></select></div><div class="data-table"><div class="table-row table-head"><span>User</span><span>Role</span><span>Joined</span><span>Status</span><span></span></div>${[["Amelia Stone","Member","Today","Active","good"],["Dr. Omar Khan","Dermatologist","Yesterday","Active","good"],["Maya Patel","Consultant","2 days ago","Active","good"],["Chris Taylor","Member","3 days ago","Pending","gold"]].map(u=>`<div class="table-row"><strong><span class="table-avatar">${u[0].split(" ").map(n=>n[0]).join("")}</span>${u[0]}</strong><span>${u[1]}</span><span>${u[2]}</span><span class="status ${u[4]}">${u[3]}</span><button class="row-action" data-action="Open ${u[0]}'s account">View</button></div>`).join("")}</div></article><article class="panel"><p class="eyebrow">RECOMMENDATION MONITORING</p><h2>Quality signals</h2><div class="signal-score"><span>94.8</span><small>/100</small><div class="score-bar"><i style="width:94.8%"></i></div></div><div class="signal-row"><span>Accepted by users</span><strong>82%</strong></div><div class="signal-row"><span>Flagged for review</span><strong class="warning-text">1.4%</strong></div><div class="signal-row"><span>Clinician approved</span><strong>96%</strong></div>${actionButton("Monitor recommendations", "button-outline")}</article></div><div class="dashboard-grid two-col"><article class="panel"><div class="panel-heading"><div><p class="eyebrow">PLATFORM ANALYTICS</p><h2>Engagement overview</h2></div><span class="select-like">Last 30 days⌄</span></div><div class="engagement-stats"><div><strong>68.4k</strong><span>Assessments completed</span></div><div><strong>42.8k</strong><span>Routine check-ins</span></div><div><strong>18.2k</strong><span>Products explored</span></div></div><div class="mini-bars admin-bars"><span style="height:45%"></span><span style="height:62%"></span><span style="height:55%"></span><span style="height:78%"></span><span style="height:68%"></span><span style="height:89%"></span><span class="today" style="height:74%"></span></div></article><article class="panel"><p class="eyebrow">SYSTEM REPORTS</p><h2>Operational health</h2><div class="system-list"><div><span class="health-pulse"></span><span>API services</span><strong>Healthy</strong></div><div><span class="health-pulse"></span><span>AI scoring engine</span><strong>Healthy</strong></div><div><span class="health-pulse"></span><span>Recommendation queue</span><strong>42 pending</strong></div><div><span class="health-pulse warning"></span><span>Data exports</span><strong>1 delayed</strong></div></div>${actionButton("Open system reports", "button-outline")}</article></div>`;
+        }
+
+        async function loadDashboard(role) {
+            const token = localStorage.getItem("accessToken");
+            if (!token) {
+                dashboardState = { checklist: JSON.parse(localStorage.getItem("skinChecklist") || "[]"), skinHealth: null, metrics: null, shares: [], live: false };
+                return;
+            }
+            try {
+                const response = await fetch(`${API_BASE}/dashboard/summary`, { headers: { Authorization: `Bearer ${token}` } });
+                if (!response.ok) throw new Error("Dashboard API unavailable");
+                const payload = await response.json();
+                const shareResponse = role === "user" ? await fetch(`${API_BASE}/dashboard/sharing`, { headers: { Authorization: `Bearer ${token}` } }) : null;
+                const sharePayload = shareResponse?.ok ? await shareResponse.json() : { shares: [] };
+                dashboardState = { ...payload, shares: sharePayload.shares || [], live: true };
+                localStorage.setItem("skinChecklist", JSON.stringify(payload.checklist || []));
+            } catch (error) {
+                dashboardState = { checklist: JSON.parse(localStorage.getItem("skinChecklist") || "[]"), skinHealth: null, metrics: null, shares: [], live: false };
+                showToast("Showing saved dashboard data. Backend connection unavailable.");
+            }
+        }
+
+        async function render(role = "user") {
+            const data = dashboardData[role];
+            document.getElementById("pageTitle").innerHTML = data.title + (role === "user" ? ' <span aria-hidden="true">✦</span>' : "");
+            document.getElementById("pageSubtitle").textContent = data.subtitle;
+            document.getElementById("workspaceKicker").textContent = data.kicker;
+            document.getElementById("profileName").textContent = data.name;
+            document.getElementById("profileRole").textContent = data.role;
+            document.getElementById("profileAvatar").textContent = data.avatar;
+            document.getElementById("openShareDetails").hidden = role !== "user";
+            await loadDashboard(role);
+            document.getElementById("dashboardView").innerHTML = role === "user" ? userView() : role === "consultant" ? consultantView() : role === "dermatologist" ? dermatologistView() : adminView();
+            bindInteractions(role);
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            toast.textContent = message;
+            toast.classList.add("show");
+            window.clearTimeout(window.toastTimer);
+            window.toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2600);
+        }
+
+        function bindInteractions(role) {
+            document.querySelectorAll("[data-action]").forEach(button => button.addEventListener("click", () => showToast(`${button.dataset.action} is ready for your workspace.`)));
+            document.querySelectorAll(".shared-report-button").forEach(button => button.addEventListener("click", async () => {
+                const token = localStorage.getItem("accessToken");
+                try {
+                    const response = await fetch(`${API_BASE}/dashboard/shared-report/${button.dataset.reportUserId}`, { headers: { Authorization: `Bearer ${token}` } });
+                    const payload = await response.json();
+                    if (!response.ok) throw new Error(payload.message || "Unable to load shared report.");
+                    const latest = payload.assessments[0];
+                    document.getElementById("reportTitle").textContent = `${payload.user.name}'s report`;
+                    document.getElementById("reportBody").innerHTML = `<div class="report-score"><strong>${latest?.skin_health_score ?? "—"}</strong><span>latest skin health score</span></div><p class="report-muted">${latest?.overall_condition || "No assessment condition recorded"}${latest?.assessment_date ? ` · ${new Date(latest.assessment_date).toLocaleDateString()}` : ""}</p><h3>Assessment history</h3><div class="report-history">${payload.assessments.length ? payload.assessments.map(item => `<div><strong>${item.skin_health_score}/100</strong><span>${item.overall_condition || "Assessment"} · ${new Date(item.assessment_date).toLocaleDateString()}</span></div>`).join("") : `<p class="report-muted">No shared assessments available.</p>`}</div><h3>Shared recommendations</h3><p class="report-muted">${payload.recommendations.length ? payload.recommendations.map(item => item.title).join(" · ") : "No active recommendations."}</p>`;
+                    document.getElementById("reportModal").hidden = false;
+                } catch (error) {
+                    showToast(error.message);
+                }
+            }));
+            document.querySelectorAll(".toggle-user").forEach(button => button.addEventListener("click", async () => {
+                const token = localStorage.getItem("accessToken");
+                if (!token) {
+                    showToast("Sign in as an administrator to manage users.");
+                    return;
+                }
+                try {
+                    const response = await fetch(`${API_BASE}/users/${button.dataset.userId}/toggle`, {
+                        method: "PATCH",
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    const payload = await response.json();
+                    if (!response.ok) throw new Error(payload.message || "Unable to update user.");
+                    showToast(`${button.dataset.userName} is now ${payload.user.is_active ? "active" : "inactive"}.`);
+                    await render(role);
+                } catch (error) {
+                    showToast(error.message);
+                }
+            }));
+            const adminSearch = document.getElementById("adminUserSearch");
+            const adminRole = document.getElementById("adminRoleFilter");
+            const filterUsers = () => document.querySelectorAll(".admin-user-row").forEach(row => {
+                row.hidden = Boolean((adminSearch?.value || "") && !row.dataset.name.includes(adminSearch.value.toLowerCase())) ||
+                    Boolean((adminRole?.value || "") && row.dataset.role !== adminRole.value);
+            });
+            adminSearch?.addEventListener("input", filterUsers);
+            adminRole?.addEventListener("change", filterUsers);
+            document.getElementById("shareAccess")?.addEventListener("click", async () => {
+                const token = localStorage.getItem("accessToken");
+                const email = document.getElementById("shareEmail").value;
+                const role = document.getElementById("shareRole").value;
+                if (!token) return showToast("Sign in to manage care-team access.");
+                const response = await fetch(`${API_BASE}/dashboard/sharing`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ email, role }) });
+                const payload = await response.json();
+                if (!response.ok) return showToast(payload.message || "Unable to grant access.");
+                showToast("Care-team access granted.");
+                await render("user");
+            });
+            document.querySelectorAll(".revoke-share").forEach(button => button.addEventListener("click", async () => {
+                const token = localStorage.getItem("accessToken");
+                const response = await fetch(`${API_BASE}/dashboard/sharing/${button.dataset.shareId}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+                if (!response.ok) return showToast("Unable to revoke access.");
+                showToast("Care-team access revoked.");
+                await render(role);
+            }));
+            document.querySelectorAll("[data-task]").forEach(input => input.addEventListener("change", async event => {
+                const completed = JSON.parse(localStorage.getItem("skinChecklist") || "[]");
+                const next = event.target.checked ? [...new Set([...completed, event.target.dataset.task])] : completed.filter(id => id !== event.target.dataset.task);
+                localStorage.setItem("skinChecklist", JSON.stringify(next));
+                const token = localStorage.getItem("accessToken");
+                if (token) {
+                    try {
+                        const response = await fetch(`${API_BASE}/dashboard/checklist`, {
+                            method: "PUT",
+                            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                            body: JSON.stringify({ taskId: event.target.dataset.task, completed: event.target.checked })
+                        });
+                        if (!response.ok) throw new Error("Checklist update failed");
+                        const payload = await response.json();
+                        dashboardState.checklist = payload.checklist || next;
+                        dashboardState.live = true;
+                    } catch (error) {
+                        showToast("Checklist saved locally; server update failed.");
+                    }
+                }
+                render(role);
+                showToast(event.target.checked ? "Routine step completed." : "Routine step marked incomplete.");
+            }));
+        }
+
+        document.getElementById("roleSelect").addEventListener("change", event => render(event.target.value));
+        document.getElementById("openShareDetails").addEventListener("click", () => {
+            document.getElementById("careTeamAccess")?.scrollIntoView({ behavior: "smooth", block: "center" });
+            document.getElementById("shareEmail")?.focus();
+        });
+        document.getElementById("closeReport").addEventListener("click", () => { document.getElementById("reportModal").hidden = true; });
+        document.querySelectorAll(".nav-link").forEach(link => link.addEventListener("click", () => {
+            document.querySelectorAll(".nav-link").forEach(item => item.classList.remove("active"));
+            link.classList.add("active");
+            showToast(`${link.textContent.trim()} view selected.`);
+        }));
+        const storedUser = JSON.parse(localStorage.getItem("currentUser") || "null");
+        const initialRole = ["user", "consultant", "dermatologist", "admin"].includes(storedUser?.role) ? storedUser.role : "user";
+        document.getElementById("roleSelect").value = initialRole;
+        render(initialRole);
+    </script>
+</body>
+</html>
