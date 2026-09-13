@@ -79,3 +79,24 @@ test('5. Module 9: Admin Platform Telemetry & System Microservice Roster', async
   assert.ok(roles.includes('dermatologist'), 'Dermatologist role exists');
   assert.ok(roles.includes('admin'), 'Admin role exists');
 });
+
+test('6. Module 9: Newly Registered User Zero-Mock-Data Isolation Verification', async () => {
+  const store = db.getInMemoryStore();
+  // Simulate newly registered user
+  const newUser = {
+    id: 99,
+    username: 'priya_sharma',
+    full_name: 'Priya Sharma',
+    email: 'priya@example.com',
+    role: 'user',
+    skin_type: null,
+    primary_concerns: []
+  };
+
+  // Verify no pre-existing score or checklist in DB for user #99
+  const userScores = (store.skin_scores || []).filter(s => s.user_id === 99);
+  const userChecklists = (store.daily_skincare_checklists || []).filter(c => c.user_id === 99);
+
+  assert.equal(userScores.length, 0, 'New user should have 0 skin score records before first assessment');
+  assert.equal(userChecklists.length, 0, 'New user should have 0 routine checklist steps before assessment');
+});

@@ -662,14 +662,14 @@ const inMemoryStore = {
     }
   ],
   daily_skincare_checklists: [
-    { id: 1, user_id: 1, check_date: new Date().toISOString().split('T')[0], routine_type: 'morning', step_id: 'am_cleanse', step_name: 'Gentle Hydrating Cleanser', completed: true, completed_at: new Date().toISOString() },
-    { id: 2, user_id: 1, check_date: new Date().toISOString().split('T')[0], routine_type: 'morning', step_id: 'am_treat', step_name: 'Antioxidant Vitamin C Serum', completed: true, completed_at: new Date().toISOString() },
-    { id: 3, user_id: 1, check_date: new Date().toISOString().split('T')[0], routine_type: 'morning', step_id: 'am_moisturize', step_name: 'Barrier Support Moisture Gel', completed: true, completed_at: new Date().toISOString() },
-    { id: 4, user_id: 1, check_date: new Date().toISOString().split('T')[0], routine_type: 'morning', step_id: 'am_spf', step_name: 'Broad Spectrum SPF 50+ Sunscreen', completed: true, completed_at: new Date().toISOString() },
-    { id: 5, user_id: 1, check_date: new Date().toISOString().split('T')[0], routine_type: 'evening', step_id: 'pm_oil_cleanse', step_name: 'Micellar Cleansing Water', completed: false, completed_at: null },
-    { id: 6, user_id: 1, check_date: new Date().toISOString().split('T')[0], routine_type: 'evening', step_id: 'pm_cleanse', step_name: 'Soothing Gel Cleanser', completed: false, completed_at: null },
-    { id: 7, user_id: 1, check_date: new Date().toISOString().split('T')[0], routine_type: 'evening', step_id: 'pm_actives', step_name: 'Adapalene 0.1% / Retinoid Repair', completed: false, completed_at: null },
-    { id: 8, user_id: 1, check_date: new Date().toISOString().split('T')[0], routine_type: 'evening', step_id: 'pm_ceramide', step_name: 'Ceramide Overnight Recovery Cream', completed: false, completed_at: null }
+    { id: 1, user_id: 1, check_date: new Date().toISOString().split('T')[0], routine_type: 'morning', step_order: 1, step_id: 'am_cleanse', step_name: 'Gentle Hydrating Gel Cleanser', title: 'Gentle Hydrating Gel Cleanser', step: '🧼 Cleansing', category: '🧼 Cleansing', product_name: 'The Derma Co 2% Salicylic Acid Face Wash with Witch Hazel', product_recommendation: 'The Derma Co 2% Salicylic Acid Face Wash with Witch Hazel', key_ingredients: ['Salicylic Acid 2%', 'Witch Hazel'], time: '8:00 AM', instructions: 'Massage onto damp face for 30s. Rinse with lukewarm water.', completed: 1, completed_at: new Date().toISOString() },
+    { id: 2, user_id: 1, check_date: new Date().toISOString().split('T')[0], routine_type: 'morning', step_order: 2, step_id: 'am_treat', step_name: '10% Niacinamide & Zinc Serum', title: '10% Niacinamide & Zinc Serum', step: '💧 Treatment', category: '💧 Treatment', product_name: 'Minimalist 10% Niacinamide Face Serum with Zinc PCA', product_recommendation: 'Minimalist 10% Niacinamide Face Serum with Zinc PCA', key_ingredients: ['Niacinamide 10%', 'Zinc PCA 1%', 'EUK-134'], time: '8:05 AM', instructions: 'Apply 3-4 drops evenly to balance oil & brighten skin.', completed: 1, completed_at: new Date().toISOString() },
+    { id: 3, user_id: 1, check_date: new Date().toISOString().split('T')[0], routine_type: 'morning', step_order: 3, step_id: 'am_moisturize', step_name: 'Ceramide Barrier Relief Cream', title: 'Ceramide Barrier Relief Cream', step: '🧴 Moisturizing', category: '🧴 Moisturizing', product_name: 'CeraVe Moisturizing Cream with 3 Essential Ceramides', product_recommendation: 'CeraVe Moisturizing Cream with 3 Essential Ceramides', key_ingredients: ['Ceramides NP/AP/EOP', 'Hyaluronic Acid'], time: '8:10 AM', instructions: 'Smooth lightweight barrier cream over face & neck.', completed: 1, completed_at: new Date().toISOString() },
+    { id: 4, user_id: 1, check_date: new Date().toISOString().split('T')[0], routine_type: 'morning', step_order: 4, step_id: 'am_spf', step_name: 'Broad Spectrum SPF 50+ Invisible Fluid', title: 'Broad Spectrum SPF 50+ Invisible Fluid', step: '☀️ Sun Protection', category: '☀️ Sun Protection', product_name: 'Aqualogica Radiance+ Dewy Sunscreen SPF 50+ PA++++', product_recommendation: 'Aqualogica Radiance+ Dewy Sunscreen SPF 50+ PA++++', key_ingredients: ['Watermelon Extract', 'Niacinamide', 'Hyaluronic Acid'], time: '8:15 AM', instructions: 'Apply 2 finger lengths as final morning defense.', completed: 1, completed_at: new Date().toISOString() },
+    { id: 5, user_id: 1, check_date: new Date().toISOString().split('T')[0], routine_type: 'evening', step_order: 1, step_id: 'pm_oil_cleanse', step_name: 'PM Double Cleansing Micellar Water', title: 'PM Double Cleansing Micellar Water', step: '🧼 Cleansing', category: '🧼 Cleansing', product_name: 'Bioderma Sensibio H2O Soothing Micellar Water', product_recommendation: 'Bioderma Sensibio H2O Soothing Micellar Water', key_ingredients: ['Micellar Fatty Acid Esters', 'Cucumber Extract'], time: '9:00 PM', instructions: 'Dissolve sunscreen & impurities thoroughly.', completed: 0, completed_at: null },
+    { id: 6, user_id: 1, check_date: new Date().toISOString().split('T')[0], routine_type: 'evening', step_order: 2, step_id: 'pm_cleanse', step_name: '2% BHA Salicylic Acid Liquid Exfoliant', title: '2% BHA Salicylic Acid Liquid Exfoliant', step: '✨ Exfoliation', category: '✨ Exfoliation', product_name: "Paula's Choice Skin Perfecting 2% BHA Liquid Exfoliant", product_recommendation: "Paula's Choice Skin Perfecting 2% BHA Liquid Exfoliant", key_ingredients: ['Salicylic Acid 2%', 'Green Tea Extract'], time: '9:05 PM', instructions: 'Apply with cotton pad 2-3 evenings per week.', completed: 0, completed_at: null },
+    { id: 7, user_id: 1, check_date: new Date().toISOString().split('T')[0], routine_type: 'evening', step_order: 3, step_id: 'pm_actives', step_name: 'Night Renewal Retinol / Azelaic Serum', title: 'Night Renewal Retinol / Azelaic Serum', step: '💧 Treatment', category: '💧 Treatment', product_name: 'Minimalist 0.3% Retinol Face Serum with CoQ10', product_recommendation: 'Minimalist 0.3% Retinol Face Serum with CoQ10', key_ingredients: ['Retinol 0.3%', 'Coenzyme Q10', 'Squalane'], time: '9:10 PM', instructions: 'Apply pea-sized amount to dry skin to stimulate cell turnover.', completed: 0, completed_at: null },
+    { id: 8, user_id: 1, check_date: new Date().toISOString().split('T')[0], routine_type: 'evening', step_order: 4, step_id: 'pm_ceramide', step_name: 'Overnight Recovery Barrier Seal', title: 'Overnight Recovery Barrier Seal', step: '🧴 Moisturizing', category: '🧴 Moisturizing', product_name: 'Dot & Key Cica Calming Blemish Clearing Night Gel', product_recommendation: 'Dot & Key Cica Calming Blemish Clearing Night Gel', key_ingredients: ['Centella Asiatica (Cica)', 'Niacinamide'], time: '9:15 PM', instructions: 'Massage rich layer to seal hydration overnight.', completed: 0, completed_at: null }
   ],
   hydration_logs: [
     {
@@ -728,6 +728,96 @@ const inMemoryStore = {
     { id: 102, actor: 'Elena Vance, LE', role: 'consultant', action: 'Updated Regimen Formulation Notes for User #1', ip: '192.168.1.18', time: '28 mins ago' },
     { id: 103, actor: 'System Admin', role: 'admin', action: 'Verified & Approved Clinician Account #5', ip: '127.0.0.1', time: '1 hr ago' },
     { id: 104, actor: 'Lumina AI Copilot', role: 'system', action: 'Flagged Retinoid + BHA Contraindication for User #5', ip: '127.0.0.1', time: '2 hrs ago' }
+  ],
+  progress_checkpoints: [
+    {
+      id: 1,
+      user_id: 1,
+      log_date: 'Oct 24, 2025',
+      scan_date: '2025-10-24T10:00:00.000Z',
+      checkpoint_title: 'Baseline Intake Scan',
+      tag: 'Baseline (Day 1)',
+      overall_skin_health_score: 68.5,
+      hydration_level: 48.0,
+      oiliness_level: 74.0,
+      sensitivity_level: 38.0,
+      acne_severity: 42.0,
+      pigmentation_score: 35.0,
+      wrinkles_score: 18.0,
+      barrier_strength: 52.0,
+      redness_reactivity: 36.0,
+      photo_url: 'assets/hero_skin_scan.png',
+      routine_adherence_rate: 60.0,
+      clinical_notes: 'Initial intake: Moderate transepidermal water loss, active follicular congestion along T-zone, and barrier reactivity.',
+      key_improvements: ['Baseline Established'],
+      active_concerns_snapshot: ['Acne & Breakouts', 'Barrier Impairment', 'Post-Acne Melanin']
+    },
+    {
+      id: 2,
+      user_id: 1,
+      log_date: 'Nov 02, 2025',
+      scan_date: '2025-11-02T10:00:00.000Z',
+      checkpoint_title: 'Week 2 - Active Introduction',
+      tag: 'Week 2 Checkpoint',
+      overall_skin_health_score: 72.0,
+      hydration_level: 56.0,
+      oiliness_level: 68.0,
+      sensitivity_level: 32.0,
+      acne_severity: 32.0,
+      pigmentation_score: 32.0,
+      wrinkles_score: 16.0,
+      barrier_strength: 64.0,
+      redness_reactivity: 28.0,
+      photo_url: 'assets/hero_skin_scan.png',
+      routine_adherence_rate: 88.0,
+      clinical_notes: 'Niacinamide 10% + BHA 2% response: Sebum output reduced by 8%, active inflammatory papules drying up.',
+      key_improvements: ['+8% Hydration', '-10% Sebum Congestion', 'Inflammation Soothed'],
+      active_concerns_snapshot: ['Acne & Breakouts', 'Post-Acne Melanin']
+    },
+    {
+      id: 3,
+      user_id: 1,
+      log_date: 'Nov 14, 2025',
+      scan_date: '2025-11-14T10:00:00.000Z',
+      checkpoint_title: 'Week 4 - Barrier Consolidation',
+      tag: 'Week 4 Checkpoint',
+      overall_skin_health_score: 75.8,
+      hydration_level: 65.0,
+      oiliness_level: 58.0,
+      sensitivity_level: 24.0,
+      acne_severity: 20.0,
+      pigmentation_score: 26.0,
+      wrinkles_score: 14.0,
+      barrier_strength: 76.0,
+      redness_reactivity: 22.0,
+      photo_url: 'assets/hero_skin_scan.png',
+      routine_adherence_rate: 93.5,
+      clinical_notes: 'Ceramide barrier cream stabilized lipid membrane. Redness reactivity plummeted by 38% compared to baseline.',
+      key_improvements: ['+17% Hydration', '-22% Acne Severity', '+24% Barrier Strength'],
+      active_concerns_snapshot: ['Post-Acne Melanin']
+    },
+    {
+      id: 4,
+      user_id: 1,
+      log_date: 'Nov 24, 2025',
+      scan_date: '2025-11-24T10:00:00.000Z',
+      checkpoint_title: 'Current 30-Day Milestone Scan',
+      tag: 'Current (Day 30)',
+      overall_skin_health_score: 79.4,
+      hydration_level: 74.0,
+      oiliness_level: 52.0,
+      sensitivity_level: 18.0,
+      acne_severity: 12.0,
+      pigmentation_score: 19.5,
+      wrinkles_score: 11.0,
+      barrier_strength: 86.0,
+      redness_reactivity: 15.0,
+      photo_url: 'assets/hero_skin_scan.png',
+      routine_adherence_rate: 96.0,
+      clinical_notes: 'Outstanding clinical progress: Stratum corneum moisture restored, zero active cystic flares, hyperpigmentation fading noticeably.',
+      key_improvements: ['+26% Hydration Plumpness', '-71% Acne Severity Reduction', '+34% Barrier Resilience', '-58% Redness Flushes'],
+      active_concerns_snapshot: ['Maintenance & Sun Protection']
+    }
   ]
 };
 
@@ -744,33 +834,85 @@ export async function query(text, params = []) {
   // Parse simple SQL queries for In-Memory Fallback
   const cleanText = text.trim();
 
-  // SELECT user by username or email
-  if (cleanText.includes('FROM users WHERE username = $1 OR email = $1') || cleanText.includes('FROM users WHERE username = $1')) {
-    const searchVal = (params[0] || '').toLowerCase();
-    const found = inMemoryStore.users.filter(u => u.username.toLowerCase() === searchVal || u.email.toLowerCase() === searchVal);
+  // SELECT user by username or email or identifier
+  if (
+    cleanText.startsWith('SELECT') && (
+      cleanText.includes('FROM users WHERE username = $1 OR email = $1') ||
+      cleanText.includes('FROM users WHERE username = $1') ||
+      cleanText.includes('FROM users WHERE email = $1') ||
+      cleanText.includes('FROM users WHERE LOWER(email) = $1') ||
+      cleanText.includes('FROM users WHERE username = $1 OR email = $2')
+    )
+  ) {
+    const searchVal1 = (params[0] || '').toLowerCase();
+    const searchVal2 = (params[1] || searchVal1).toLowerCase();
+    const found = inMemoryStore.users.filter(u =>
+      (u.username && (u.username.toLowerCase() === searchVal1 || u.username.toLowerCase() === searchVal2)) ||
+      (u.email && (u.email.toLowerCase() === searchVal1 || u.email.toLowerCase() === searchVal2))
+    );
     return { rows: found, rowCount: found.length };
   }
 
   // SELECT user by ID
-  if (cleanText.includes('FROM users WHERE id = $1')) {
+  if (cleanText.startsWith('SELECT') && cleanText.includes('FROM users WHERE id = $1')) {
     const idVal = parseInt(params[0], 10);
     const found = inMemoryStore.users.filter(u => u.id === idVal);
     return { rows: found, rowCount: found.length };
   }
 
   // SELECT user by google_id
-  if (cleanText.includes('FROM users WHERE google_id = $1')) {
+  if (cleanText.startsWith('SELECT') && cleanText.includes('FROM users WHERE google_id = $1')) {
     const googleId = params[0];
     const found = inMemoryStore.users.filter(u => u.google_id === googleId);
     return { rows: found, rowCount: found.length };
   }
 
   // DELETE FROM users
-  if (cleanText.includes('DELETE FROM users WHERE id = $1')) {
-    const idVal = parseInt(params[0], 10);
+  if (cleanText.includes('DELETE FROM users')) {
+    const target = params && params.length > 0 ? params[0] : null;
     const initialLen = inMemoryStore.users.length;
-    inMemoryStore.users = inMemoryStore.users.filter(u => u.id !== idVal);
+    if (target !== null && target !== undefined) {
+      const idVal = parseInt(target, 10);
+      const strVal = String(target).toLowerCase();
+      inMemoryStore.users = inMemoryStore.users.filter(u => {
+        const matchId = !isNaN(idVal) && u.id === idVal;
+        const matchEmail = u.email && u.email.toLowerCase() === strVal;
+        const matchUsername = u.username && u.username.toLowerCase() === strVal;
+        return !(matchId || matchEmail || matchUsername);
+      });
+      if (!isNaN(idVal)) {
+        inMemoryStore.skin_scores = (inMemoryStore.skin_scores || []).filter(s => s.user_id !== idVal);
+        inMemoryStore.consultations = (inMemoryStore.consultations || []).filter(c => c.user_id !== idVal);
+        inMemoryStore.daily_skincare_checklists = (inMemoryStore.daily_skincare_checklists || []).filter(c => c.user_id !== idVal);
+        inMemoryStore.notifications = (inMemoryStore.notifications || []).filter(n => n.user_id !== idVal);
+        inMemoryStore.reminders = (inMemoryStore.reminders || []).filter(r => r.user_id !== idVal);
+        inMemoryStore.hydration_logs = (inMemoryStore.hydration_logs || []).filter(h => h.user_id !== idVal);
+        inMemoryStore.sleep_logs = (inMemoryStore.sleep_logs || []).filter(s => s.user_id !== idVal);
+        inMemoryStore.product_replenishment_tracking = (inMemoryStore.product_replenishment_tracking || []).filter(p => p.user_id !== idVal);
+        inMemoryStore.generated_reports = (inMemoryStore.generated_reports || []).filter(g => g.user_id !== idVal);
+        inMemoryStore.progress_checkpoints = (inMemoryStore.progress_checkpoints || []).filter(pc => pc.user_id !== idVal);
+      }
+    }
     return { rows: [], rowCount: initialLen - inMemoryStore.users.length };
+  }
+
+  // Generic DELETE FROM child tables (e.g. skin_scores, reminders, notifications, etc.)
+  if (cleanText.startsWith('DELETE FROM')) {
+    const target = params && params.length > 0 ? params[0] : null;
+    const idVal = parseInt(target, 10);
+    if (!isNaN(idVal)) {
+      if (cleanText.includes('skin_scores')) inMemoryStore.skin_scores = (inMemoryStore.skin_scores || []).filter(s => s.user_id !== idVal);
+      if (cleanText.includes('daily_skincare_checklists')) inMemoryStore.daily_skincare_checklists = (inMemoryStore.daily_skincare_checklists || []).filter(c => c.user_id !== idVal);
+      if (cleanText.includes('notifications')) inMemoryStore.notifications = (inMemoryStore.notifications || []).filter(n => n.user_id !== idVal);
+      if (cleanText.includes('reminders')) inMemoryStore.reminders = (inMemoryStore.reminders || []).filter(r => r.user_id !== idVal);
+      if (cleanText.includes('hydration_logs')) inMemoryStore.hydration_logs = (inMemoryStore.hydration_logs || []).filter(h => h.user_id !== idVal);
+      if (cleanText.includes('sleep_logs')) inMemoryStore.sleep_logs = (inMemoryStore.sleep_logs || []).filter(s => s.user_id !== idVal);
+      if (cleanText.includes('product_replenishment_tracking')) inMemoryStore.product_replenishment_tracking = (inMemoryStore.product_replenishment_tracking || []).filter(p => p.user_id !== idVal);
+      if (cleanText.includes('generated_reports')) inMemoryStore.generated_reports = (inMemoryStore.generated_reports || []).filter(g => g.user_id !== idVal);
+      if (cleanText.includes('consultations')) inMemoryStore.consultations = (inMemoryStore.consultations || []).filter(c => c.user_id !== idVal);
+      if (cleanText.includes('progress_checkpoints')) inMemoryStore.progress_checkpoints = (inMemoryStore.progress_checkpoints || []).filter(pc => pc.user_id !== idVal);
+    }
+    return { rows: [], rowCount: 1 };
   }
 
   // SELECT all users
@@ -797,6 +939,18 @@ export async function query(text, params = []) {
     const userObj = inMemoryStore.users.find(u => u.id === parseInt(target, 10) || u.username === target);
     if (userObj) {
       userObj.role = roleVal;
+      return { rows: [userObj], rowCount: 1 };
+    }
+    return { rows: [], rowCount: 0 };
+  }
+
+  // UPDATE users SET password_hash
+  if (cleanText.includes('UPDATE users SET password_hash')) {
+    const passHash = params[0];
+    const target = params[1];
+    const userObj = inMemoryStore.users.find(u => u.id === parseInt(target, 10) || u.username === target || (u.email && u.email.toLowerCase() === String(target).toLowerCase()));
+    if (userObj) {
+      userObj.password_hash = passHash;
       return { rows: [userObj], rowCount: 1 };
     }
     return { rows: [], rowCount: 0 };
@@ -936,9 +1090,38 @@ export async function query(text, params = []) {
     return { rows: inMemoryStore.chat_messages, rowCount: inMemoryStore.chat_messages.length };
   }
 
-  // SELECT products
-  if (cleanText.includes('FROM products')) {
-    return { rows: inMemoryStore.products, rowCount: inMemoryStore.products.length };
+  // SELECT progress_checkpoints
+  if (cleanText.includes('FROM progress_checkpoints WHERE user_id = $1')) {
+    const idVal = parseInt(params[0], 10);
+    const found = (inMemoryStore.progress_checkpoints || []).filter(p => p.user_id === idVal);
+    return { rows: found, rowCount: found.length };
+  }
+
+  if (cleanText.includes('FROM progress_checkpoints')) {
+    return { rows: inMemoryStore.progress_checkpoints || [], rowCount: (inMemoryStore.progress_checkpoints || []).length };
+  }
+
+  // INSERT INTO progress_checkpoints
+  if (cleanText.includes('INSERT INTO progress_checkpoints')) {
+    const newCheckpoint = {
+      id: ((inMemoryStore.progress_checkpoints || []).length ? Math.max(...inMemoryStore.progress_checkpoints.map(c => c.id)) : 0) + 1,
+      user_id: parseInt(params[0] || 1, 10),
+      overall_skin_health_score: parseFloat(params[1] || 75.0),
+      hydration_level: parseFloat(params[2] || 65.0),
+      oiliness_level: parseFloat(params[3] || 50.0),
+      barrier_strength: parseFloat(params[4] || 75.0),
+      acne_severity: parseFloat(params[5] || 15.0),
+      redness_reactivity: parseFloat(params[6] || 18.0),
+      pigmentation_score: parseFloat(params[7] || 20.0),
+      photo_url: params[8] || 'assets/hero_skin_scan.png',
+      tag: params[9] || 'Recent Assessment',
+      checkpoint_title: params[10] || 'Optical Diagnostic AI Scan',
+      log_date: params[11] || new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+      scan_date: new Date().toISOString()
+    };
+    if (!inMemoryStore.progress_checkpoints) inMemoryStore.progress_checkpoints = [];
+    inMemoryStore.progress_checkpoints.push(newCheckpoint);
+    return { rows: [newCheckpoint], rowCount: 1 };
   }
 
   // Generic fallback query response

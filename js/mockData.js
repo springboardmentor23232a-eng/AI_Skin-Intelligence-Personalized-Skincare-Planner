@@ -1687,6 +1687,142 @@ export const MOCK_GENERATED_REPORTS = [
   }
 ];
 
+export function compileClinicalReportHTML(reportType = 'skin_health', userProfile = null, reportObj = null) {
+  const titles = {
+    assessment: 'Cutaneous Biomarker & Optical Diagnostic Assessment Report',
+    routine: 'Chronological AM/PM Personalized Regimen & Treatment Plan',
+    product_recs: 'AI Formulation Compatibility & Product Prescription Dossier',
+    progress: '30-Day Longitudinal Skin Health Trajectory & Adherence Audit',
+    skin_health: 'Executive Comprehensive Skin Intelligence & Clinical Health Dossier'
+  };
+
+  const title = (reportObj && reportObj.title) || titles[reportType] || 'Clinical Skin Health Dossier';
+  const name = (userProfile && (userProfile.full_name || userProfile.name)) || (reportObj && reportObj.report_data && reportObj.report_data.patient_name) || 'Alex Rivera';
+  const patientId = (reportObj && reportObj.report_data && reportObj.report_data.patient_id) || 'PX-00001';
+  const score = (reportObj && reportObj.report_data && (reportObj.report_data.overall_health_score || reportObj.report_data.overall_score)) || 79.4;
+  const dateStr = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  const refId = (reportObj && reportObj.id) ? `RPT-${String(reportObj.id).padStart(5, '0')}` : 'RPT-00001';
+
+  return `
+    <div class="report-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #C59B27; padding-bottom: 16px; margin-bottom: 20px;">
+      <div>
+        <div style="font-family: 'Playfair Display', Georgia, serif; font-size: 24px; font-weight: 700; color: #0F172A; letter-spacing: 1px;">PanaceaAI</div>
+        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #C59B27; font-weight: 700; margin-top: 2px;">Clinical Dermatology & Skin Intelligence Platform</div>
+      </div>
+      <div style="text-align: right; font-size: 11px; color: #64748B; line-height: 1.4;">
+        <div><strong>Document:</strong> ${title}</div>
+        <div><strong>Date:</strong> ${dateStr}</div>
+        <div><strong>Reference:</strong> ${refId}</div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 14px; margin-bottom: 20px;">
+      <div>
+        <span style="display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #94A3B8; font-weight: 700; margin-bottom: 3px;">Patient Name</span>
+        <strong style="font-size: 13px; color: #0F172A;">${name}</strong>
+      </div>
+      <div>
+        <span style="display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #94A3B8; font-weight: 700; margin-bottom: 3px;">Patient ID</span>
+        <strong style="font-size: 13px; color: #0F172A;">${patientId}</strong>
+      </div>
+      <div>
+        <span style="display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #94A3B8; font-weight: 700; margin-bottom: 3px;">Assigned Clinician</span>
+        <strong style="font-size: 13px; color: #0F172A;">Dr. Julian Rostova, MD</strong>
+      </div>
+      <div>
+        <span style="display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #94A3B8; font-weight: 700; margin-bottom: 3px;">Clinical Status</span>
+        <strong style="font-size: 13px; color: #15803D;">Active / Regimen Maintained</strong>
+      </div>
+    </div>
+
+    <div style="display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); color: #FFFFFF; border-radius: 8px; padding: 18px 24px; margin-bottom: 20px;">
+      <div>
+        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #94A3B8; font-weight: 700;">Holistic Cutaneous Health Score</div>
+        <div style="font-size: 12px; color: #CBD5E1; margin-top: 3px;">Weighted 5-Factor Quantitative Skin Assessment Index</div>
+      </div>
+      <div style="font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 700; color: #F7D070;">${score} / 100</div>
+    </div>
+
+    <div style="font-family: 'Playfair Display', Georgia, serif; font-size: 14px; font-weight: 700; color: #0F172A; border-left: 4px solid #C59B27; padding-left: 10px; margin: 18px 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px;">
+      Clinical Diagnostic Summary & Protocol Notes
+    </div>
+    <p style="color: #334155; margin-bottom: 16px; font-size: 12.5px; line-height: 1.5;">
+      ${(reportObj && reportObj.summary) || 'Comprehensive multi-parameter quantitative evaluation indicating stratum corneum lipid normalization, stable sebum balance, and sustained barrier recovery over a 30-day clinical monitoring window.'}
+    </p>
+
+    <div style="font-family: 'Playfair Display', Georgia, serif; font-size: 14px; font-weight: 700; color: #0F172A; border-left: 4px solid #C59B27; padding-left: 10px; margin: 18px 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px;">
+      Cutaneous Biomarker & Metric Analysis
+    </div>
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 18px; font-size: 12px;">
+      <thead>
+        <tr style="background: #F1F5F9; color: #475569; font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px;">
+          <th style="padding: 8px 10px; text-align: left; border-bottom: 1px solid #E2E8F0;">Biomarker Metric</th>
+          <th style="padding: 8px 10px; text-align: left; border-bottom: 1px solid #E2E8F0;">Baseline (Day 1)</th>
+          <th style="padding: 8px 10px; text-align: left; border-bottom: 1px solid #E2E8F0;">Current Level</th>
+          <th style="padding: 8px 10px; text-align: left; border-bottom: 1px solid #E2E8F0;">Target Clinical Range</th>
+          <th style="padding: 8px 10px; text-align: left; border-bottom: 1px solid #E2E8F0;">Trajectory Delta</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #E2E8F0;"><strong>Stratum Corneum Hydration</strong></td>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #E2E8F0;">48.0%</td>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #E2E8F0;"><strong>74.0%</strong></td>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #E2E8F0;">70.0% – 85.0%</td>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #E2E8F0;"><span style="display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; background: #DCFCE7; color: #15803D;">+26.0% (Normalized)</span></td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #E2E8F0;"><strong>Sebum Secretion Balance</strong></td>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #E2E8F0;">64.0%</td>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #E2E8F0;"><strong>52.0%</strong></td>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #E2E8F0;">45.0% – 55.0%</td>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #E2E8F0;"><span style="display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; background: #DCFCE7; color: #15803D;">-12.0% (Optimal)</span></td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #E2E8F0;"><strong>Epidermal Barrier Resilience</strong></td>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #E2E8F0;">54.0%</td>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #E2E8F0;"><strong>86.0%</strong></td>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #E2E8F0;">80.0% – 100.0%</td>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #E2E8F0;"><span style="display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; background: #DCFCE7; color: #15803D;">+32.0% (Resilient)</span></td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #E2E8F0;"><strong>Comedonal & Acne Severity</strong></td>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #E2E8F0;">42.0%</td>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #E2E8F0;"><strong>12.0%</strong></td>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #E2E8F0;">&lt; 15.0%</td>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #E2E8F0;"><span style="display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; background: #DCFCE7; color: #15803D;">-30.0% (Remission)</span></td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #E2E8F0;"><strong>Erythema & Facial Redness</strong></td>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #E2E8F0;">38.0%</td>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #E2E8F0;"><strong>15.0%</strong></td>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #E2E8F0;">&lt; 20.0%</td>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #E2E8F0;"><span style="display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; background: #DCFCE7; color: #15803D;">-23.0% (Quenched)</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="background: #FFFBEB; border: 1px solid #FEF3C7; border-left: 4px solid #D97706; border-radius: 6px; padding: 12px 14px; margin-bottom: 20px; font-size: 12px;">
+      <strong style="color: #B45309;">📋 ACTIVE CLINICAL PRESCRIPTION & REGIMEN DIRECTIVES:</strong>
+      <p style="margin: 4px 0 0 0; color: #78350F; line-height: 1.45;">
+        Topical Adapalene 0.1% (PM 3x/wk) + Azelaic Acid 15% (AM) + Ceramide NP Moisture Barrier Seal. 
+        High routine adherence (93.5%) maintained across 14-day consistency streak.
+      </p>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid #E2E8F0;">
+      <div style="text-align: center; width: 200px;">
+        <div style="border-bottom: 1px solid #94A3B8; margin-bottom: 6px; height: 28px;"></div>
+        <small style="color: #475569;"><strong>Elena Vance, LE</strong><br>Lead Clinical Esthetician</small>
+      </div>
+      <div style="text-align: center; width: 200px;">
+        <div style="border-bottom: 1px solid #94A3B8; margin-bottom: 6px; height: 28px;"></div>
+        <small style="color: #475569;"><strong>Dr. Julian Rostova, MD</strong><br>Board-Certified Dermatologist (Lic #MED-84920)</small>
+      </div>
+    </div>
+  `;
+}
+
 export function compileClinicalReport(reportType = 'skin_health', userId = 1) {
   const titles = {
     assessment: 'Cutaneous Biomarker & Optical Diagnostic Assessment Report',
@@ -1704,7 +1840,7 @@ export function compileClinicalReport(reportType = 'skin_health', userId = 1) {
     skin_health: 'Executive comprehensive skin intelligence dossier integrating cutaneous scoring, diagnostic screening, personalized routines, and 30-day clinical progress.'
   };
 
-  return {
+  const reportObj = {
     id: MOCK_GENERATED_REPORTS.length + 1,
     user_id: userId,
     report_type: reportType,
@@ -1728,6 +1864,9 @@ export function compileClinicalReport(reportType = 'skin_health', userId = 1) {
       sleep_circadian_index: '7.5 hrs / Night (Optimal Mitosis)'
     }
   };
+
+  reportObj.html_preview = compileClinicalReportHTML(reportType, null, reportObj);
+  return reportObj;
 }
 
 

@@ -220,6 +220,13 @@ class ApiClient {
     return await this.request('/api/auth/me', { method: 'GET' });
   }
 
+  async setupOAuthPassword(password) {
+    return await this.request('/api/auth/set-password', {
+      method: 'POST',
+      body: JSON.stringify({ password })
+    });
+  }
+
   // Data Operations (Express)
   async getSkinScore() {
     return await this.request('/api/user/skin-score', { method: 'GET' });
@@ -962,6 +969,101 @@ class ApiClient {
 
   getCsvExportUrl(exportType = 'progress') {
     return `${API_BASE_URL}/api/reports/export/csv?type=${exportType}`;
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // MODULE 8: PROGRESS TRACKING & ANALYTICS CLIENT METHODS
+  // ════════════════════════════════════════════════════════════════
+
+  async applyScanResults(scanData) {
+    try {
+      return await this.request('/api/assessment/apply-scan', {
+        method: 'POST',
+        body: JSON.stringify(scanData)
+      });
+    } catch (e) {
+      console.warn('[API Client] Apply scan fallback:', e.message);
+      return { success: false, error: e.message };
+    }
+  }
+
+  async getProgressHistory(userId = 1) {
+    try {
+      const res = await this.request(`/api/progress/history?user_id=${userId}`, { method: 'GET' });
+      if (res && res.success) return res;
+    } catch (e) {
+      console.warn('[API Client] Progress history fallback:', e.message);
+    }
+    return { success: false, history: [] };
+  }
+
+  async getProgressCompare(userId = 1) {
+    try {
+      const res = await this.request(`/api/progress/compare?user_id=${userId}`, { method: 'GET' });
+      if (res && res.success) return res;
+    } catch (e) {
+      console.warn('[API Client] Progress compare fallback:', e.message);
+    }
+    return { success: false };
+  }
+
+  async getProgressAdherence(userId = 1) {
+    try {
+      const res = await this.request(`/api/progress/adherence?user_id=${userId}`, { method: 'GET' });
+      if (res && res.success) return res;
+    } catch (e) {
+      console.warn('[API Client] Progress adherence fallback:', e.message);
+    }
+    return { success: false };
+  }
+
+  async getProgressTrends(userId = 1, timeframe = '30d') {
+    try {
+      const res = await this.request(`/api/progress/trends?user_id=${userId}&timeframe=${timeframe}`, { method: 'GET' });
+      if (res && res.success) return res;
+    } catch (e) {
+      console.warn('[API Client] Progress trends fallback:', e.message);
+    }
+    return { success: false };
+  }
+
+  async getProgressSummary(userId = 1) {
+    try {
+      const res = await this.request(`/api/progress/summary?user_id=${userId}`, { method: 'GET' });
+      if (res && res.success) return res;
+    } catch (e) {
+      console.warn('[API Client] Progress summary fallback:', e.message);
+    }
+    return { success: false };
+  }
+
+  async getUserProgressData(userId = 1) {
+    try {
+      const [historyRes, compareRes, adherenceRes, trendsRes, summaryRes] = await Promise.all([
+        this.getProgressHistory(userId),
+        this.getProgressCompare(userId),
+        this.getProgressAdherence(userId),
+        this.getProgressTrends(userId, '30d'),
+        this.getProgressSummary(userId)
+      ]);
+
+      return {
+        success: true,
+        user_id: userId,
+        history: historyRes?.history || [],
+        total_checkpoints: historyRes?.total_checkpoints || 0,
+        baseline_score: historyRes?.baseline_score,
+        current_score: historyRes?.current_score,
+        overall_improvement_pts: historyRes?.overall_improvement_pts || 0,
+        beforeAfterComparison: compareRes?.success ? compareRes : null,
+        adherence: adherenceRes?.success ? adherenceRes : null,
+        trendData: trendsRes?.success ? trendsRes : null,
+        summary: summaryRes?.success ? summaryRes : null
+      };
+    } catch (e) {
+      console.warn('[API Client] Full progress data fetch fallback:', e.message);
+      return { success: false };
+    }
   }
 }
 

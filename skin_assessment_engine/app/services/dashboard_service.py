@@ -27,6 +27,46 @@ def get_user_dashboard_analytics(db: Session, user_id: int = 1) -> Dict[str, Any
     # 1. Fetch latest assessment
     assessment = db.query(SkinAssessment).filter(SkinAssessment.user_id == user_id).order_by(SkinAssessment.assessment_date.desc()).first()
     
+    # If user is a new user without assessments (and not demo user 1), return clean onboarding state
+    if not assessment and user_id != 1:
+        today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        hydration_record = db.query(HydrationLog).filter(HydrationLog.user_id == user_id, HydrationLog.log_date == today_str).first()
+        sleep_record = db.query(SleepLog).filter(SleepLog.user_id == user_id, SleepLog.log_date == today_str).first()
+        unread_notifs = db.query(Notification).filter(Notification.user_id == user_id, Notification.is_read == 0).count()
+        recs_count = db.query(ProductRecommendation).filter(ProductRecommendation.user_id == user_id).count()
+
+        return {
+            "success": True,
+            "has_assessment": False,
+            "user_id": user_id,
+            "user_name": f"User #{user_id}",
+            "overall_health_score": None,
+            "score_breakdown": [],
+            "skin_type": None,
+            "primary_concerns": [],
+            "current_streak": 0,
+            "adherence_rate": 0.0,
+            "daily_checklist": {
+                "success": True,
+                "user_id": user_id,
+                "date": today_str,
+                "total_steps": 0,
+                "completed_steps": 0,
+                "completion_pct": 0.0,
+                "morning_routine": [],
+                "evening_routine": [],
+                "weekly_routine": [],
+                "streak_days": 0
+            },
+            "hydration_intake_ml": hydration_record.intake_ml if hydration_record else 0,
+            "hydration_target_ml": hydration_record.target_ml if hydration_record else 2500,
+            "hydration_progress_pct": min(100.0, round((hydration_record.intake_ml / hydration_record.target_ml) * 100.0, 1)) if hydration_record else 0.0,
+            "sleep_hours": float(sleep_record.sleep_hours) if sleep_record else None,
+            "sleep_quality": sleep_record.sleep_quality if sleep_record else None,
+            "recommended_products_count": recs_count,
+            "unread_notifications_count": unread_notifs
+        }
+
     overall_score = float(assessment.skin_health_score) if assessment else 78.0
     skin_type = assessment.skin_type if assessment else "Combination"
     

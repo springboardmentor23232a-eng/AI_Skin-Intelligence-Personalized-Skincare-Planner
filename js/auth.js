@@ -120,6 +120,7 @@ class AuthController {
       return {
         success: true,
         user: apiRes.user,
+        isNewOAuthUser: Boolean(apiRes.isNewOAuthUser),
         message: apiRes.message
       };
     }

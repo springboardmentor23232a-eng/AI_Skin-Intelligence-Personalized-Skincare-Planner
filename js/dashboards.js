@@ -165,71 +165,59 @@ export function renderLandingPage() {
         </div>
       </section>
 
-      <!-- SECTION 4: CLINICAL CONSULTATIONS & DATA SHARING HUB -->
+      <!-- SECTION 4: CONSULT A CERTIFIED DERMATOLOGIST -->
       <section id="consult-doctors" class="doctors-section section-margin-lg">
-        <div class="section-tag-pill reveal">• CLINICAL CARE & PRIVACY</div>
+        <div class="section-tag-pill reveal">• DOCTORS & DERMATOLOGISTS</div>
         <div class="doctors-header-row reveal delay-1">
           <div>
-            <h2 class="editorial-section-title">Clinical Consultations & Consent Hub</h2>
-            <p class="editorial-section-subtitle">Connect with your assigned licensed esthetician & board-certified dermatologist. Control granular data sharing consent in real time.</p>
+            <h2 class="editorial-section-title">Consult a Certified Dermatologist</h2>
+            <p class="editorial-section-subtitle">When you need a professional opinion, connect directly with board-certified dermatologists and optical skin specialists.</p>
           </div>
           <button class="btn btn-primary" onclick="window.app.navigateToView('consultations')" style="font-weight: 700; padding: 0.6rem 1.4rem;">
-            Open Consultations & Privacy Hub →
+            Clinical Portal & Appointments →
           </button>
         </div>
 
         <div class="doctors-grid">
-          <!-- Specialist 1: Elena Vance -->
-          <div class="doctor-card reveal delay-1" style="background: #FFFFFF; border-radius: var(--radius-md); border: 1px solid var(--border-light); padding: 1.25rem;">
-            <div class="doctor-img-box" style="position: relative; margin-bottom: 1rem;">
-              <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300" alt="Elena Vance, LE" class="doctor-img" style="width: 100%; height: 180px; object-fit: cover; border-radius: var(--radius-sm);">
-              <span class="badge badge-success status-tag" style="position: absolute; top: 10px; right: 10px;">🟢 Assigned Consultant</span>
+          <!-- Doctor 1: Dr. Julian Rostova, MD -->
+          <div class="doctor-card reveal delay-1">
+            <div class="doctor-img-box">
+              <img src="assets/doctor_sarah.png" alt="Dr. Julian Rostova, MD" class="doctor-img">
+              <span class="badge badge-success status-tag">🟢 Available</span>
             </div>
             <div class="doctor-info">
-              <h3 style="margin: 0 0 0.25rem; font-family: 'Playfair Display', serif;">Elena Vance, LE</h3>
-              <span class="doctor-spec" style="font-size: 0.72rem; color: var(--gold-primary); font-weight: 800; letter-spacing: 0.08em; display: block; margin-bottom: 0.4rem;">LEAD CLINICAL ESTHETICIAN</span>
-              <p class="doctor-exp" style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.75rem;">Specializes in barrier consolidation, lipid balance, and bespoke AM/PM routines.</p>
-              <div style="display: flex; gap: 0.5rem;">
-                <button class="btn btn-sm btn-primary" onclick="window.app.navigateToView('consultations')" style="width: 50%; font-size: 0.76rem; font-weight: 700;">Notes & Rx</button>
-                <button class="btn btn-sm btn-outline" onclick="window.app.openChatWithContact('2')" style="width: 50%; font-size: 0.76rem; font-weight: 700;">💬 Message</button>
-              </div>
+              <h3>Dr. Julian Rostova, MD</h3>
+              <span class="doctor-spec">BOARD-CERTIFIED DERMATOLOGIST</span>
+              <p class="doctor-exp">Lead clinical dermatologist specializing in cutaneous barrier restoration, acne protocols, and digital lesion diagnostics.</p>
+              <button class="btn-link" onclick="window.app.navigateToView('consultations')">CONSULT NOW &gt;</button>
             </div>
           </div>
 
-          <!-- Specialist 2: Dr. Julian Rostova -->
-          <div class="doctor-card reveal delay-2" style="background: #FFFFFF; border-radius: var(--radius-md); border: 1px solid var(--border-light); padding: 1.25rem;">
-            <div class="doctor-img-box" style="position: relative; margin-bottom: 1rem;">
-              <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=300" alt="Dr. Julian Rostova, MD" class="doctor-img" style="width: 100%; height: 180px; object-fit: cover; border-radius: var(--radius-sm);">
-              <span class="badge badge-success status-tag" style="position: absolute; top: 10px; right: 10px; background: #2E7D32;">🟢 Assigned Physician</span>
+          <!-- Doctor 2: Dr. Michael Chen -->
+          <div class="doctor-card reveal delay-2">
+            <div class="doctor-img-box">
+              <img src="assets/doctor_michael.png" alt="Dr. Michael Chen" class="doctor-img">
+              <span class="badge badge-success status-tag">🟢 Available</span>
             </div>
             <div class="doctor-info">
-              <h3 style="margin: 0 0 0.25rem; font-family: 'Playfair Display', serif;">Dr. Julian Rostova, MD</h3>
-              <span class="doctor-spec" style="font-size: 0.72rem; color: #2E7D32; font-weight: 800; letter-spacing: 0.08em; display: block; margin-bottom: 0.4rem;">BOARD-CERTIFIED DERMATOLOGIST</span>
-              <p class="doctor-exp" style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.75rem;">Clinical director oversee active medical prescriptions (Rx) and optical lesion screenings.</p>
-              <div style="display: flex; gap: 0.5rem;">
-                <button class="btn btn-sm btn-primary" onclick="window.app.navigateToView('consultations')" style="width: 50%; font-size: 0.76rem; font-weight: 700; background: #2E7D32; border-color: #2E7D32;">Review Rx</button>
-                <button class="btn btn-sm btn-outline" onclick="window.app.openChatWithContact('3')" style="width: 50%; font-size: 0.76rem; font-weight: 700;">💬 Message</button>
-              </div>
+              <h3>Dr. Michael Chen</h3>
+              <span class="doctor-spec">EYE & SKIN SPECIALIST</span>
+              <p class="doctor-exp">15 years experience in optical lesion diagnostics and cellular photo-aging.</p>
+              <button class="btn-link" onclick="window.app.navigateToView('consultations')">CONSULT NOW &gt;</button>
             </div>
           </div>
 
-          <!-- Specialist 3: Lumina AI Skincare Copilot -->
-          <div class="doctor-card reveal delay-3" style="background: #FFFFFF; border-radius: var(--radius-md); border: 1px solid var(--gold-primary); padding: 1.25rem; box-shadow: 0 4px 20px rgba(212,175,55,0.12);">
-            <div class="doctor-img-box" style="position: relative; margin-bottom: 1rem;">
-              <div style="width: 100%; height: 180px; background: #000; border-radius: var(--radius-sm); display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--gold-primary);">
-                <span style="font-size: 2.8rem; margin-bottom: 0.35rem;">✨</span>
-                <span style="font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #FFFFFF; font-weight: 700;">Lumina AI Copilot</span>
-                <span style="font-size: 0.68rem; letter-spacing: 0.1em; color: var(--gold-primary); font-weight: 800;">24/7 INSTANT INTELLIGENCE</span>
-              </div>
-              <span class="badge badge-accent status-tag" style="position: absolute; top: 10px; right: 10px;">⚡ AI Instant</span>
+          <!-- Doctor 3: Dr. Emily Roberts -->
+          <div class="doctor-card reveal delay-3">
+            <div class="doctor-img-box">
+              <img src="assets/doctor_emily.png" alt="Dr. Emily Roberts" class="doctor-img">
+              <span class="badge badge-success status-tag">🟢 Available</span>
             </div>
             <div class="doctor-info">
-              <h3 style="margin: 0 0 0.25rem; font-family: 'Playfair Display', serif;">Lumina AI Copilot</h3>
-              <span class="doctor-spec" style="font-size: 0.72rem; color: var(--gold-primary); font-weight: 800; letter-spacing: 0.08em; display: block; margin-bottom: 0.4rem;">CLINICAL DERMA ASSISTANT</span>
-              <p class="doctor-exp" style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.75rem;">Instant ingredient safety, formulation conflict checks, barrier recovery advice, and routine guidance.</p>
-              <div style="display: flex; gap: 0.5rem;">
-                <button class="btn btn-sm btn-primary" onclick="window.app.openChatWithContact('lumina_ai')" style="width: 100%; font-size: 0.78rem; font-weight: 700;">💬 Chat with Lumina AI →</button>
-              </div>
+              <h3>Dr. Emily Roberts</h3>
+              <span class="doctor-spec">OPTOMETRIST / DERM</span>
+              <p class="doctor-exp">12 years experience in sensitive cutaneous reactive states and bespoke regimens.</p>
+              <button class="btn-link" onclick="window.app.navigateToView('consultations')">CONSULT NOW &gt;</button>
             </div>
           </div>
         </div>
@@ -408,17 +396,48 @@ export function renderLandingPage() {
   `;
 }
 
-export function renderUserDashboard() {
-  const data = MOCK_USER_DATA;
+export function renderUserDashboard(metricsData = null, currentUser = null) {
+  const user = currentUser || auth.getCurrentUser();
+  const isDemoUser = (!user || user.id === 1 || user.username === 'user');
+  const hasUserScore = (user && (user.skin_score !== undefined && user.skin_score !== null)) || (metricsData && metricsData.overall_health_score !== null && metricsData.has_assessment !== false);
+  const isNewUser = !isDemoUser && !hasUserScore;
 
-  const totalSteps = data.routine.morning.length + data.routine.evening.length;
-  const completedSteps = data.routine.morning.filter(s => s.completed).length + data.routine.evening.filter(s => s.completed).length;
-  const routinePct = Math.round((completedSteps / totalSteps) * 100);
+  const profileName = (user && (user.full_name || user.username)) || (metricsData && metricsData.user_name) || (isDemoUser ? MOCK_USER_DATA.profile.name : 'Valued Patient');
+  const monogram = (profileName || 'U').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'PX';
+  const skinType = (user && (user.skin_type || user.profile?.skinType)) || (metricsData && metricsData.skin_type) || (isDemoUser ? MOCK_USER_DATA.profile.skinType : 'Not Assessed Yet');
+  const ageGroup = (user && user.profile?.ageGroup) || (isDemoUser ? MOCK_USER_DATA.profile.ageGroup : 'Not Specified');
 
-  // Default active concerns if not yet populated from API
-  const activeConcerns = data.profile.primaryConcerns && data.profile.primaryConcerns.length > 0
-    ? data.profile.primaryConcerns
-    : ['Transepidermal Water Loss', 'Acne & Breakouts'];
+  const overallScore = (metricsData && metricsData.overall_health_score !== null)
+    ? metricsData.overall_health_score
+    : (user && user.skin_score ? user.skin_score : (isNewUser ? null : MOCK_USER_DATA.skinScore.overall));
+  const scoreGrade = overallScore !== null ? (overallScore >= 80 ? 'Optimal' : (overallScore >= 65 ? 'Good' : 'Needs Care')) : 'Pending';
+
+  const scoreBreakdown = (metricsData && metricsData.score_breakdown && metricsData.score_breakdown.length > 0)
+    ? metricsData.score_breakdown
+    : (isNewUser ? [] : MOCK_USER_DATA.skinScore.breakdown);
+
+  const morningRoutine = (metricsData && metricsData.daily_checklist && metricsData.daily_checklist.morning_routine && metricsData.daily_checklist.morning_routine.length > 0)
+    ? metricsData.daily_checklist.morning_routine
+    : (isNewUser ? [] : MOCK_USER_DATA.routine.morning);
+
+  const eveningRoutine = (metricsData && metricsData.daily_checklist && metricsData.daily_checklist.evening_routine && metricsData.daily_checklist.evening_routine.length > 0)
+    ? metricsData.daily_checklist.evening_routine
+    : (isNewUser ? [] : MOCK_USER_DATA.routine.evening);
+
+  const totalSteps = morningRoutine.length + eveningRoutine.length;
+  const completedSteps = morningRoutine.filter(s => s.completed).length + eveningRoutine.filter(s => s.completed).length;
+  const routinePct = totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
+
+  const hydrationMl = metricsData ? metricsData.hydration_intake_ml : (isNewUser ? 0 : MOCK_USER_DATA.hydrationMl);
+  const currentStreak = metricsData ? metricsData.current_streak : (isNewUser ? 0 : 18);
+
+  const activeConcerns = (user && user.primary_concerns && user.primary_concerns.length > 0)
+    ? user.primary_concerns
+    : ((metricsData && metricsData.primary_concerns && metricsData.primary_concerns.length > 0)
+      ? metricsData.primary_concerns
+      : (isNewUser ? [] : ['Transepidermal Water Loss', 'Acne & Breakouts']));
+
+  const recommendedProducts = isNewUser ? [] : (MOCK_USER_DATA.recommendedProducts || []);
 
   return `
     <div class="dashboard-wrapper">
@@ -428,22 +447,28 @@ export function renderUserDashboard() {
 
         <!-- LEFT: FROSTED GLASS SKIN PROFILE CARD -->
         <div class="glass-profile-card">
-          <!-- Top Row: AR Monogram Seal, Title, Active Badge, Settings Gear -->
+          <!-- Top Row: Monogram Seal, Title, Active Badge, Settings Gear -->
           <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.85rem;">
             <div style="display: flex; align-items: center; gap: 0.95rem;">
               <!-- Metallic Embossed Seal -->
               <div class="monogram-seal-ar">
-                <span class="monogram-seal-text">${(data.profile.name || 'A').split(' ').map(n => n[0]).join('').slice(0, 2) || 'AR'}</span>
+                <span class="monogram-seal-text">${monogram}</span>
               </div>
               <div>
-                <div style="font-size: 0.7rem; font-weight: 800; color: #8A8177; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.15rem;">SKIN PROFILE</div>
+                <div style="font-size: 0.7rem; font-weight: 800; color: #8A8177; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.15rem;">PATIENT SKIN PROFILE</div>
                 <div style="display: flex; align-items: center; gap: 0.6rem;">
                   <h2 style="font-family: 'Playfair Display', serif; font-size: 1.55rem; color: #181614; margin: 0; font-weight: 700; line-height: 1.15;">
-                    ${data.profile.name}
+                    ${profileName}
                   </h2>
-                  <span style="display: inline-flex; align-items: center; gap: 0.35rem; background: rgba(46, 125, 50, 0.12); border: 1px solid rgba(46, 125, 50, 0.3); color: #2E7D32; font-size: 0.68rem; font-weight: 800; padding: 0.18rem 0.55rem; border-radius: 14px; letter-spacing: 0.05em; box-shadow: 0 0 10px rgba(46, 125, 50, 0.15);">
-                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #2E7D32; box-shadow: 0 0 6px #2E7D32; display: inline-block;"></span> ACTIVE
-                  </span>
+                  ${isNewUser ? `
+                    <span style="display: inline-flex; align-items: center; gap: 0.35rem; background: rgba(197, 155, 39, 0.15); border: 1px solid rgba(197, 155, 39, 0.4); color: #8A6400; font-size: 0.68rem; font-weight: 800; padding: 0.18rem 0.55rem; border-radius: 14px; letter-spacing: 0.05em; box-shadow: 0 0 10px rgba(197, 155, 39, 0.15);">
+                      <span style="width: 6px; height: 6px; border-radius: 50%; background: #C59B27; box-shadow: 0 0 6px #C59B27; display: inline-block;"></span> ✨ NEW PATIENT
+                    </span>
+                  ` : `
+                    <span style="display: inline-flex; align-items: center; gap: 0.35rem; background: rgba(46, 125, 50, 0.12); border: 1px solid rgba(46, 125, 50, 0.3); color: #2E7D32; font-size: 0.68rem; font-weight: 800; padding: 0.18rem 0.55rem; border-radius: 14px; letter-spacing: 0.05em; box-shadow: 0 0 10px rgba(46, 125, 50, 0.15);">
+                      <span style="width: 6px; height: 6px; border-radius: 50%; background: #2E7D32; box-shadow: 0 0 6px #2E7D32; display: inline-block;"></span> ACTIVE
+                    </span>
+                  `}
                 </div>
               </div>
             </div>
@@ -460,25 +485,25 @@ export function renderUserDashboard() {
               🧑‍⚕️
             </div>
             <div style="display: flex; align-items: center; gap: 0.55rem; flex: 1; flex-wrap: wrap;">
-              <span><strong>${data.profile.skinType} Skin</strong></span>
+              <span>Skin: <strong>${skinType}</strong></span>
               <span style="color: #C2BBB2;">|</span>
-              <span>Age <strong>${data.profile.ageGroup}</strong></span>
+              <span>Age: <strong>${ageGroup}</strong></span>
               <span style="color: #C2BBB2;">|</span>
-              <span>Barrier: <strong style="color: #2E7D32;">Healthy</strong> ✔</span>
+              <span>Barrier: <strong style="color: ${isNewUser ? '#8A6400' : '#2E7D32'};">${isNewUser ? 'Awaiting Scan' : 'Healthy ✔'}</strong></span>
               <span style="color: #C2BBB2;">|</span>
-              <span>Score: <strong style="color: var(--text-primary);">${data.skinScore.overall}/100</strong></span>
+              <span>Score: <strong style="color: var(--text-primary);">${overallScore !== null ? `${overallScore}/100` : '--/100'}</strong></span>
             </div>
           </div>
 
           <!-- Bottom: Routine Adherence & Analysis Timestamp -->
           <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; padding: 0 0.25rem; font-size: 0.74rem; color: #767069; flex-wrap: wrap; gap: 0.4rem;">
             <div style="display: flex; align-items: center; gap: 0.4rem;">
-              <span>Routine Adherence: <strong>95%</strong></span>
+              <span>Routine Adherence: <strong>${isNewUser ? '0%' : '95%'}</strong></span>
               <span style="display: inline-block; width: 24px; height: 10px; background: #E2DDD4; border-radius: 3px; overflow: hidden; border: 1px solid #BFB8AC; vertical-align: middle;">
-                <span style="display: block; width: 95%; height: 100%; background: #2E7D32;"></span>
+                <span style="display: block; width: ${isNewUser ? '0%' : '95%'}; height: 100%; background: #2E7D32;"></span>
               </span>
             </div>
-            <div>Last Full Analysis: <strong>2 days ago</strong></div>
+            <div>Last Full Analysis: <strong>${isNewUser ? 'Pending First Scan' : '2 days ago'}</strong></div>
           </div>
         </div>
 
@@ -501,8 +526,12 @@ export function renderUserDashboard() {
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
         <div class="glass-card" style="padding: 1.1rem; border-left: 4px solid var(--gold-primary);">
           <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Weighted Skin Health Score</div>
-          <div style="font-size: 1.8rem; font-weight: 800; color: var(--text-primary); margin: 0.2rem 0;">${data.skinScore.overall}<small style="font-size: 0.9rem; font-weight: 500; color: var(--text-muted);">/100</small></div>
-          <div style="font-size: 0.78rem; color: var(--accent-emerald); font-weight: 600;">+4 pts since last evaluation</div>
+          <div style="font-size: 1.8rem; font-weight: 800; color: var(--text-primary); margin: 0.2rem 0;">
+            ${overallScore !== null ? overallScore : '--'}<small style="font-size: 0.9rem; font-weight: 500; color: var(--text-muted);">/100</small>
+          </div>
+          <div style="font-size: 0.78rem; color: ${isNewUser ? 'var(--gold-primary)' : 'var(--accent-emerald)'}; font-weight: 600;">
+            ${isNewUser ? 'Pending evaluation scan' : '+4 pts since last evaluation'}
+          </div>
         </div>
 
         <div class="glass-card" style="padding: 1.1rem; border-left: 4px solid var(--accent-emerald);">
@@ -513,36 +542,61 @@ export function renderUserDashboard() {
 
         <div class="glass-card" style="padding: 1.1rem; border-left: 4px solid var(--accent-amber);">
           <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Daily Hydration</div>
-          <div style="font-size: 1.8rem; font-weight: 800; color: var(--text-primary); margin: 0.2rem 0;">${data.hydrationMl} <small style="font-size: 0.9rem; font-weight: 500;">ml</small></div>
+          <div style="font-size: 1.8rem; font-weight: 800; color: var(--text-primary); margin: 0.2rem 0;">${hydrationMl} <small style="font-size: 0.9rem; font-weight: 500;">ml</small></div>
           <div style="font-size: 0.78rem; color: var(--text-muted);">Target: 2,500 ml / day</div>
         </div>
 
         <div class="glass-card" style="padding: 1.1rem; border-left: 4px solid var(--pink-blush);">
           <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Habit Streak & Progress</div>
-          <div style="font-size: 1.8rem; font-weight: 800; color: var(--text-primary); margin: 0.2rem 0;">18 Days <small style="font-size: 1rem;">🔥</small></div>
-          <div style="font-size: 0.78rem; color: var(--accent-emerald); font-weight: 600; cursor: pointer;" onclick="window.app.navigateToView('progress')">
-            +10.9 pts gain &bull; View Analytics &rarr;
+          <div style="font-size: 1.8rem; font-weight: 800; color: var(--text-primary); margin: 0.2rem 0;">${currentStreak} Days <small style="font-size: 1rem;">🔥</small></div>
+          <div style="font-size: 0.78rem; color: ${isNewUser ? 'var(--gold-primary)' : 'var(--accent-emerald)'}; font-weight: 600; cursor: pointer;" onclick="window.app.navigateToView('progress')">
+            ${isNewUser ? 'Start your streak today &rarr;' : '+10.9 pts gain • View Analytics &rarr;'}
           </div>
         </div>
       </div>
 
-      <!-- PROGRESS TRACKING & BEFORE/AFTER BANNER -->
-      <div style="background: linear-gradient(135deg, #FAF8F5 0%, #F5EFE4 100%); border: 1px solid var(--border-gold); border-radius: var(--radius-sm); padding: 1rem 1.25rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; box-shadow: 0 2px 10px rgba(0,0,0,0.02);">
-        <div style="display: flex; align-items: center; gap: 0.9rem;">
-          <div style="width: 42px; height: 42px; border-radius: 50%; background: #181614; color: var(--gold-primary); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; border: 1px solid var(--border-gold);">
-            📈
+      <!-- NEW USER ONBOARDING WELCOME BANNER -->
+      ${isNewUser ? `
+        <div style="background: linear-gradient(135deg, #FAF8F5 0%, #F5EFE4 100%); border: 1px solid var(--border-gold); border-radius: var(--radius-sm); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 48px; height: 48px; border-radius: 50%; background: #181614; color: var(--gold-primary); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; border: 1px solid var(--border-gold);">
+              ✨
+            </div>
+            <div>
+              <strong style="font-size: 1.05rem; color: var(--text-primary);">Welcome to PanaceaAI Skin Intelligence, ${profileName}!</strong>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.2rem 0 0 0; max-width: 680px;">
+                Your personalized skincare journey begins with a baseline clinical evaluation. Take your first optical webcam/photo scan or complete our assessment survey to unlock your custom AM/PM regimen and formulation matches.
+              </p>
+            </div>
           </div>
-          <div>
-            <strong style="font-size: 0.95rem; color: var(--text-primary);">Skin Progress Monitoring & 30-Day Transformation</strong>
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0.1rem 0 0 0;">
-              Your 18-day adherence streak has driven an optical transformation from 68.5 to 79.4 / 100 with a 71.4% reduction in acne severity.
-            </p>
+          <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+            <button class="btn btn-primary btn-sm" onclick="window.app.openModal('photo-scan-modal')" style="font-weight: 700; padding: 0.55rem 1.2rem;">
+              📸 Take AI Skin Scan
+            </button>
+            <button class="btn btn-outline btn-sm" onclick="window.app.openModal('assessment-modal')" style="font-weight: 700; padding: 0.55rem 1.2rem; background: #FFFFFF;">
+              📋 Start Assessment Survey
+            </button>
           </div>
         </div>
-        <button class="btn btn-primary btn-sm" onclick="window.app.navigateToView('progress')" style="font-weight: 700; padding: 0.5rem 1.2rem; font-size: 0.82rem;">
-          📊 Open Progress & Analytics Lab &rarr;
-        </button>
-      </div>
+      ` : `
+        <!-- PROGRESS TRACKING & BEFORE/AFTER BANNER -->
+        <div style="background: linear-gradient(135deg, #FAF8F5 0%, #F5EFE4 100%); border: 1px solid var(--border-gold); border-radius: var(--radius-sm); padding: 1rem 1.25rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; box-shadow: 0 2px 10px rgba(0,0,0,0.02);">
+          <div style="display: flex; align-items: center; gap: 0.9rem;">
+            <div style="width: 42px; height: 42px; border-radius: 50%; background: #181614; color: var(--gold-primary); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; border: 1px solid var(--border-gold);">
+              📈
+            </div>
+            <div>
+              <strong style="font-size: 0.95rem; color: var(--text-primary);">Skin Progress Monitoring & 30-Day Transformation</strong>
+              <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0.1rem 0 0 0;">
+                Your 18-day adherence streak has driven an optical transformation from 68.5 to 79.4 / 100 with a 71.4% reduction in acne severity.
+              </p>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="window.app.navigateToView('progress')" style="font-weight: 700; padding: 0.5rem 1.2rem; font-size: 0.82rem;">
+            📊 Open Progress & Analytics Lab &rarr;
+          </button>
+        </div>
+      `}
 
       <!-- MAIN DASHBOARD GRID -->
       <div class="dashboard-grid">
@@ -553,27 +607,34 @@ export function renderUserDashboard() {
               <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem;">Cutaneous Health Score Breakdown</h3>
               <p class="text-muted" style="font-size: 0.8rem; margin-top: 0.1rem;">Weighted multi-parameter diagnostic telemetry</p>
             </div>
-            <span class="badge badge-success" style="font-weight: 600;">${data.skinScore.grade}</span>
+            <span class="badge badge-success" style="font-weight: 600;">${scoreGrade}</span>
           </div>
           
           <div class="score-display-container" style="margin-bottom: 1.25rem;">
-            <div class="score-circle" style="--score-pct: ${data.skinScore.overall}%;">
-              <div class="score-number">${data.skinScore.overall}</div>
-              <div class="score-label">OVERALL INDEX</div>
+            <div class="score-circle" style="--score-pct: ${overallScore !== null ? overallScore : 0}%;">
+              <div class="score-number" style="${overallScore === null ? 'font-size: 1.6rem; color: var(--text-muted);' : ''}">${overallScore !== null ? overallScore : '--'}</div>
+              <div class="score-label">${overallScore !== null ? 'OVERALL INDEX' : 'PENDING SCAN'}</div>
             </div>
             <div class="score-info">
-              <h4 class="score-grade" style="font-family: 'Playfair Display', serif; font-size: 1.15rem;">${data.skinScore.grade}</h4>
+              <h4 class="score-grade" style="font-family: 'Playfair Display', serif; font-size: 1.15rem;">
+                ${isNewUser ? 'Awaiting Baseline Diagnostic' : (metricsData?.grade || MOCK_USER_DATA.skinScore.grade || 'Good - Improving')}
+              </h4>
               <p class="score-desc" style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">
-                Calculated across 5 clinical diagnostic factors including stratum corneum moisture, sebum regulation, inflammatory index, structural elasticity, and lifestyle resilience.
+                ${isNewUser
+                  ? 'Your holistic score is calculated across 5 clinical diagnostic factors: stratum corneum moisture, sebum regulation, inflammatory acne severity, barrier elasticity, and lifestyle stress.'
+                  : 'Calculated across 5 clinical diagnostic factors including stratum corneum moisture, sebum regulation, inflammatory index, structural elasticity, and lifestyle resilience.'}
               </p>
+              ${isNewUser ? `
+                <button class="btn btn-sm btn-primary" onclick="window.app.openModal('photo-scan-modal')" style="margin-top: 0.5rem; font-size: 0.78rem;">📸 Launch AI Skin Scan</button>
+              ` : ''}
             </div>
           </div>
 
           <div class="score-breakdown-list" style="display: flex; flex-direction: column; gap: 0.85rem;">
-            ${data.skinScore.breakdown.map(item => {
-    const statusColor = item.score >= 80 ? 'var(--accent-emerald)' : item.score >= 65 ? 'var(--gold-primary)' : 'var(--accent-amber)';
-    const statusText = item.score >= 80 ? 'Optimal' : item.score >= 65 ? 'Good' : 'Needs Attention';
-    return `
+            ${scoreBreakdown.length > 0 ? scoreBreakdown.map(item => {
+              const statusColor = item.score >= 80 ? 'var(--accent-emerald)' : item.score >= 65 ? 'var(--gold-primary)' : 'var(--accent-amber)';
+              const statusText = item.score >= 80 ? 'Optimal' : item.score >= 65 ? 'Good' : 'Needs Attention';
+              return `
                 <div class="breakdown-item" style="padding: 0.65rem 0.85rem; background: #FAF9F6; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
                   <div class="breakdown-label" style="margin-bottom: 0.35rem; display: flex; justify-content: space-between; align-items: center;">
                     <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary);">${item.name} <small class="text-muted">(${item.weight})</small></span>
@@ -584,14 +645,18 @@ export function renderUserDashboard() {
                   </div>
                 </div>
               `;
-  }).join('')}
+            }).join('') : `
+              <div style="padding: 1.25rem; background: #FAF9F6; border-radius: var(--radius-sm); border: 1px dashed var(--border-light); text-align: center; color: var(--text-muted); font-size: 0.85rem;">
+                No biomarker evaluations recorded yet. Complete your first skin scan to view detailed condition, lifestyle, sleep, consistency, and hydration factor contributions.
+              </div>
+            `}
           </div>
 
           <!-- Interactive Trackers -->
           <div class="tracker-row" style="margin-top: 1.25rem;">
             <div class="tracker-box" style="background: rgba(197, 155, 39, 0.05); border: 1px solid var(--border-gold); padding: 1rem; border-radius: var(--radius-sm);">
               <small style="color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em;">💧 Daily Hydration Tracker</small>
-              <div class="tracker-val" style="font-size: 1.4rem; font-weight: 800; margin: 0.2rem 0;">${data.hydrationMl} <small style="font-size: 0.85rem; font-weight: 500;">ml</small></div>
+              <div class="tracker-val" style="font-size: 1.4rem; font-weight: 800; margin: 0.2rem 0;">${hydrationMl} <small style="font-size: 0.85rem; font-weight: 500;">ml</small></div>
               <button class="btn btn-sm btn-primary" style="width: 100%; font-size: 0.75rem; padding: 0.4rem;" onclick="window.app.addHydration(250)">+ Log 250ml Water 💧</button>
             </div>
 
@@ -605,17 +670,6 @@ export function renderUserDashboard() {
 
         <!-- Personalized Routine Generator Module -->
         <div class="glass-card routine-card" style="background: #FFFFFF; padding: 1.5rem;">
-          <!-- Adaptive Routine Banner -->
-          ${data.routine.adaptiveNotes ? `
-            <div style="background: linear-gradient(135deg, rgba(232, 153, 165, 0.12), rgba(142, 36, 170, 0.05)); border: 1px solid var(--accent-rose); border-radius: var(--radius-sm); padding: 0.85rem 1.1rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
-              <div>
-                <span class="badge" style="background: var(--accent-rose); color: #fff; font-size: 0.72rem; font-weight: 800; padding: 0.2rem 0.6rem; border-radius: 12px;">${data.routine.adaptiveNotes.mode}</span>
-                <p style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin: 0.3rem 0 0 0;">${data.routine.adaptiveNotes.message}</p>
-              </div>
-              <button class="btn btn-sm" style="background: var(--accent-rose); color: #fff; font-size: 0.75rem; border-radius: 16px; padding: 0.3rem 0.85rem;" onclick="window.app.reGeneratePersonalizedRoutine()">🔄 Re-Generate Routine</button>
-            </div>
-          ` : ''}
-
           <div class="card-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 0.85rem; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
             <div>
               <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3rem;">Personalized Routine Generator</h3>
@@ -635,18 +689,18 @@ export function renderUserDashboard() {
               <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">SEQUENCE: 🧼 Cleansing → 💧 Treatment → 🧴 Moisturizing → ☀️ Sun Protection</div>
               <button class="btn btn-sm btn-outline" style="font-size: 0.75rem; padding: 0.25rem 0.65rem;" onclick="window.app.openCreateStepModal('morning')">➕ Add Custom AM Step</button>
             </div>
-            ${data.routine.morning.map(item => `
+            ${morningRoutine.length > 0 ? morningRoutine.map(item => `
               <div class="step-item ${item.completed ? 'completed' : ''}" onclick="window.app.toggleStep('morning', '${item.id}')" style="cursor: pointer; padding: 0.9rem 1.1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-light); margin-bottom: 0.65rem; background: ${item.completed ? '#F8FBF8' : '#FAF9F6'}; transition: var(--transition); position: relative;">
                 <div style="display: flex; align-items: flex-start; width: 100%;">
                   <div class="step-checkbox" style="width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid ${item.completed ? 'var(--accent-emerald)' : 'var(--text-muted)'}; background: ${item.completed ? 'var(--accent-emerald)' : 'transparent'}; color: #fff; font-weight: 700; font-size: 0.8rem; margin-top: 0.2rem;">${item.completed ? '✓' : ''}</div>
                   <div class="step-details" style="flex: 1; margin-left: 0.85rem; padding-right: 1.5rem;">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.2rem;">
-                      <span class="step-type" style="font-size: 0.72rem; font-weight: 800; color: var(--gold-primary); text-transform: uppercase; letter-spacing: 0.05em;">${item.step || item.category}</span>
-                      <span class="step-time" style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted);">${item.time}</span>
+                      <span class="step-type" style="font-size: 0.72rem; font-weight: 800; color: var(--gold-primary); text-transform: uppercase; letter-spacing: 0.05em;">${item.step || item.category || (item.step_order ? 'Step ' + item.step_order : 'Step')}</span>
+                      <span class="step-time" style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted);">${item.time || '1 min'}</span>
                     </div>
-                    <h4 class="step-title" style="font-size: 0.95rem; font-weight: 700; margin: 0 0 0.25rem 0; ${item.completed ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${item.title}</h4>
-                    <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0 0 0.4rem 0;">💡 <strong>Rec:</strong> ${item.product_recommendation || item.title}</p>
-                    ${item.key_ingredients ? `
+                    <h4 class="step-title" style="font-size: 0.95rem; font-weight: 700; margin: 0 0 0.25rem 0; ${item.completed ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${item.title || item.step_name || item.name || 'Personalized Step'}</h4>
+                    <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0 0 0.4rem 0;">💡 <strong>Rec:</strong> ${item.product_recommendation || item.product_name || item.instructions || item.title || item.name || 'Recommended Formulation'}</p>
+                    ${item.key_ingredients && item.key_ingredients.length > 0 ? `
                       <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
                         ${item.key_ingredients.map(ing => `<span style="background: rgba(197, 155, 39, 0.12); color: #7A5F13; font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 10px;">${ing}</span>`).join('')}
                       </div>
@@ -655,7 +709,16 @@ export function renderUserDashboard() {
                   <button title="Remove step" onclick="event.stopPropagation(); window.app.deleteStep('morning', '${item.id}')" style="position: absolute; top: 10px; right: 10px; background: transparent; border: none; font-size: 1.1rem; color: var(--text-muted); cursor: pointer;">&times;</button>
                 </div>
               </div>
-            `).join('')}
+            `).join('') : `
+              <div style="text-align: center; padding: 2rem 1rem; background: #FAF9F6; border-radius: var(--radius-sm); border: 1px dashed var(--border-gold);">
+                <div style="font-size: 1.8rem; margin-bottom: 0.4rem;">🌅</div>
+                <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem;">No Active Morning Routine Steps</h4>
+                <p style="font-size: 0.82rem; color: var(--text-muted); max-width: 420px; margin: 0 auto 0.85rem auto;">
+                  Complete your skin assessment or take an optical scan to receive an AI-tailored morning regimen.
+                </p>
+                <button class="btn btn-sm btn-primary" onclick="window.app.openModal('assessment-modal')" style="font-weight: 700;">📋 Take Skin Assessment</button>
+              </div>
+            `}
           </div>
 
           <!-- PM Routine View -->
@@ -664,18 +727,18 @@ export function renderUserDashboard() {
               <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">SEQUENCE: 🧼 Cleansing → ✨ Exfoliation → 💧 Treatment → 🧴 Moisturizing → 🌙 Night Care</div>
               <button class="btn btn-sm btn-outline" style="font-size: 0.75rem; padding: 0.25rem 0.65rem;" onclick="window.app.openCreateStepModal('evening')">➕ Add Custom PM Step</button>
             </div>
-            ${data.routine.evening.map(item => `
+            ${eveningRoutine.length > 0 ? eveningRoutine.map(item => `
               <div class="step-item ${item.completed ? 'completed' : ''}" onclick="window.app.toggleStep('evening', '${item.id}')" style="cursor: pointer; padding: 0.9rem 1.1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-light); margin-bottom: 0.65rem; background: ${item.completed ? '#F8FBF8' : '#FAF9F6'}; transition: var(--transition); position: relative;">
                 <div style="display: flex; align-items: flex-start; width: 100%;">
                   <div class="step-checkbox" style="width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid ${item.completed ? 'var(--accent-emerald)' : 'var(--text-muted)'}; background: ${item.completed ? 'var(--accent-emerald)' : 'transparent'}; color: #fff; font-weight: 700; font-size: 0.8rem; margin-top: 0.2rem;">${item.completed ? '✓' : ''}</div>
                   <div class="step-details" style="flex: 1; margin-left: 0.85rem; padding-right: 1.5rem;">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.2rem;">
-                      <span class="step-type" style="font-size: 0.72rem; font-weight: 800; color: var(--gold-primary); text-transform: uppercase; letter-spacing: 0.05em;">${item.step || item.category}</span>
-                      <span class="step-time" style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted);">${item.time}</span>
+                      <span class="step-type" style="font-size: 0.72rem; font-weight: 800; color: var(--gold-primary); text-transform: uppercase; letter-spacing: 0.05em;">${item.step || item.category || (item.step_order ? 'Step ' + item.step_order : 'Step')}</span>
+                      <span class="step-time" style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted);">${item.time || '2 mins'}</span>
                     </div>
-                    <h4 class="step-title" style="font-size: 0.95rem; font-weight: 700; margin: 0 0 0.25rem 0; ${item.completed ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${item.title}</h4>
-                    <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0 0 0.4rem 0;">💡 <strong>Rec:</strong> ${item.product_recommendation || item.title}</p>
-                    ${item.key_ingredients ? `
+                    <h4 class="step-title" style="font-size: 0.95rem; font-weight: 700; margin: 0 0 0.25rem 0; ${item.completed ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${item.title || item.step_name || item.name || 'Personalized Step'}</h4>
+                    <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0 0 0.4rem 0;">💡 <strong>Rec:</strong> ${item.product_recommendation || item.product_name || item.instructions || item.title || item.name || 'Recommended Formulation'}</p>
+                    ${item.key_ingredients && item.key_ingredients.length > 0 ? `
                       <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
                         ${item.key_ingredients.map(ing => `<span style="background: rgba(142, 36, 170, 0.12); color: #5B1370; font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 10px;">${ing}</span>`).join('')}
                       </div>
@@ -684,7 +747,16 @@ export function renderUserDashboard() {
                   <button title="Remove step" onclick="event.stopPropagation(); window.app.deleteStep('evening', '${item.id}')" style="position: absolute; top: 10px; right: 10px; background: transparent; border: none; font-size: 1.1rem; color: var(--text-muted); cursor: pointer;">&times;</button>
                 </div>
               </div>
-            `).join('')}
+            `).join('') : `
+              <div style="text-align: center; padding: 2rem 1rem; background: #FAF9F6; border-radius: var(--radius-sm); border: 1px dashed var(--border-gold);">
+                <div style="font-size: 1.8rem; margin-bottom: 0.4rem;">🌙</div>
+                <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem;">No Active Evening Routine Steps</h4>
+                <p style="font-size: 0.82rem; color: var(--text-muted); max-width: 420px; margin: 0 auto 0.85rem auto;">
+                  Complete your skin assessment or take an optical scan to receive an AI-tailored evening regimen.
+                </p>
+                <button class="btn btn-sm btn-primary" onclick="window.app.openModal('assessment-modal')" style="font-weight: 700;">📋 Take Skin Assessment</button>
+              </div>
+            `}
           </div>
 
           <!-- Weekly Treatment Plan View -->
@@ -694,11 +766,11 @@ export function renderUserDashboard() {
               <button class="btn btn-sm btn-outline" style="font-size: 0.75rem; padding: 0.25rem 0.65rem;" onclick="window.app.openModal('create-weekly-modal')">➕ Create Custom Weekly Treatment</button>
             </div>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.85rem;">
-              ${(data.routine.weeklyPlan || [
-      { day: 'Wednesday & Sunday', focus: 'BHA Chemical Exfoliation', category: '✨ Exfoliation', treatment_name: '2% Salicylic Acid Exfoliant Liquid', instructions: 'Pore clearing & smooth texture renewal.', icon: '✨' },
-      { day: 'Friday Evening', focus: 'Deep Moisture Sheet Mask', category: '💧 Treatment', treatment_name: 'Ceramide & Hyaluronic Sheet Mask', instructions: 'Intense moisture infusion for 15-20 min.', icon: '💧' },
-      { day: 'Saturday Morning', focus: 'Weekend Lip & Eye Ritual', category: '🌙 Night Care', treatment_name: 'Peptide Lip Butter & Cooling Eye Serum', instructions: 'Nourish delicate eye & lip zones.', icon: '🌙' }
-    ]).map((w, idx) => `
+              ${(isNewUser ? [] : (MOCK_USER_DATA.routine.weeklyPlan || [
+                { day: 'Wednesday & Sunday', focus: 'BHA Chemical Exfoliation', category: '✨ Exfoliation', treatment_name: '2% Salicylic Acid Exfoliant Liquid', instructions: 'Pore clearing & smooth texture renewal.', icon: '✨' },
+                { day: 'Friday Evening', focus: 'Deep Moisture Sheet Mask', category: '💧 Treatment', treatment_name: 'Ceramide & Hyaluronic Sheet Mask', instructions: 'Intense moisture infusion for 15-20 min.', icon: '💧' },
+                { day: 'Saturday Morning', focus: 'Weekend Lip & Eye Ritual', category: '🌙 Night Care', treatment_name: 'Peptide Lip Butter & Cooling Eye Serum', instructions: 'Nourish delicate eye & lip zones.', icon: '🌙' }
+              ])).map((w, idx) => `
                 <div style="padding: 1rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm); position: relative;">
                   <button title="Remove treatment" onclick="event.stopPropagation(); window.app.deleteWeeklyItem(${idx})" style="position: absolute; top: 8px; right: 8px; background: transparent; border: none; font-size: 1.1rem; color: var(--text-muted); cursor: pointer;">&times;</button>
                   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem; padding-right: 1.5rem;">
@@ -710,6 +782,16 @@ export function renderUserDashboard() {
                   <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">${w.instructions}</p>
                 </div>
               `).join('')}
+              ${isNewUser ? `
+                <div style="grid-column: 1 / -1; text-align: center; padding: 2rem 1rem; background: #FAF9F6; border-radius: var(--radius-sm); border: 1px dashed var(--border-gold);">
+                  <div style="font-size: 1.8rem; margin-bottom: 0.4rem;">📅</div>
+                  <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem;">No Periodic Weekly Treatments Scheduled</h4>
+                  <p style="font-size: 0.82rem; color: var(--text-muted); max-width: 420px; margin: 0 auto 0.85rem auto;">
+                    Targeted periodic treatments (e.g. chemical peels, deep moisture masks) will populate after clinical assessment.
+                  </p>
+                  <button class="btn btn-sm btn-primary" onclick="window.app.openModal('assessment-modal')" style="font-weight: 700;">📋 Take Skin Assessment</button>
+                </div>
+              ` : ''}
             </div>
           </div>
 
@@ -717,18 +799,16 @@ export function renderUserDashboard() {
           <div id="routine-list-seasonal" class="routine-step-list hidden">
             <div style="padding: 1.1rem; background: linear-gradient(135deg, rgba(204, 251, 241, 0.3), rgba(240, 253, 250, 0.8)); border: 1px solid rgba(45, 212, 191, 0.3); border-radius: var(--radius-sm);">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                <h4 style="font-family: 'Playfair Display', serif; font-size: 1.1rem; margin: 0;">Season: ${data.routine.seasonalTips ? data.routine.seasonalTips.season : 'Summer ☀️'}</h4>
+                <h4 style="font-family: 'Playfair Display', serif; font-size: 1.1rem; margin: 0;">Season: Summer ☀️</h4>
                 <span class="badge" style="background: #0D9488; color: #fff; font-size: 0.72rem;">Active Climate Protocol</span>
               </div>
-              <p style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">🌍 <strong>Impact:</strong> ${data.routine.seasonalTips ? data.routine.seasonalTips.climate_impact : 'High UV index, elevated humidity & sweat production.'}</p>
+              <p style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">🌍 <strong>Impact:</strong> High UV index, elevated humidity & sweat production.</p>
               
               <div style="margin-top: 0.75rem;">
                 <h5 style="font-size: 0.82rem; font-weight: 700; text-transform: uppercase; color: #0F766E; margin-bottom: 0.35rem;">Recommended Adjustments:</h5>
                 <ul style="margin: 0; padding-left: 1.2rem; font-size: 0.82rem; color: var(--text-secondary);">
-                  ${(data.routine.seasonalTips && data.routine.seasonalTips.routine_adjustments ? data.routine.seasonalTips.routine_adjustments : [
-      'Switch heavy creams to lightweight oil-free gel moisturizers.',
-      'Ensure daily SPF is 50+ and water/sweat resistant.'
-    ]).map(tip => `<li style="margin-bottom: 0.25rem;">${tip}</li>`).join('')}
+                  <li style="margin-bottom: 0.25rem;">Switch heavy creams to lightweight oil-free gel moisturizers.</li>
+                  <li style="margin-bottom: 0.25rem;">Ensure daily SPF is 50+ and water/sweat resistant.</li>
                 </ul>
               </div>
 
@@ -736,7 +816,9 @@ export function renderUserDashboard() {
                 <div>
                   <small style="font-size: 0.72rem; font-weight: 800; color: #047857; text-transform: uppercase;">Best Ingredients:</small>
                   <div style="display: flex; gap: 0.3rem; margin-top: 0.2rem; flex-wrap: wrap;">
-                    ${(data.routine.seasonalTips && data.routine.seasonalTips.recommended_ingredients ? data.routine.seasonalTips.recommended_ingredients : ['Niacinamide', 'Zinc Oxide', 'Squalane']).map(i => `<span style="background: #D1FAE5; color: #065F46; font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.45rem; border-radius: 8px;">${i}</span>`).join('')}
+                    <span style="background: #D1FAE5; color: #065F46; font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.45rem; border-radius: 8px;">Niacinamide</span>
+                    <span style="background: #D1FAE5; color: #065F46; font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.45rem; border-radius: 8px;">Zinc Oxide</span>
+                    <span style="background: #D1FAE5; color: #065F46; font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.45rem; border-radius: 8px;">Squalane</span>
                   </div>
                 </div>
               </div>
@@ -753,43 +835,33 @@ export function renderUserDashboard() {
             <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem;">Active Dermatological Concerns & Treatment Protocol</h3>
             <p class="text-muted" style="font-size: 0.8rem; margin-top: 0.1rem;">Clinical severity categorization and targeted ingredient guidance</p>
           </div>
-          <span class="badge badge-accent" style="font-weight: 600;">2 Active Factors</span>
+          <span class="badge badge-accent" style="font-weight: 600;">${activeConcerns.length} Active Factors</span>
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem;">
-          <div style="padding: 1.1rem; background: #FAF9F6; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-              <span style="font-size: 0.7rem; font-weight: 800; color: var(--accent-amber); text-transform: uppercase; letter-spacing: 0.05em;">PRIORITY #1 • MOISTURE & BARRIER</span>
-              <span class="badge badge-warning" style="font-size: 0.75rem;">Moderate Severity</span>
-            </div>
-            <h4 style="font-family: 'Playfair Display', serif; font-size: 1.05rem; margin-bottom: 0.35rem;">Transepidermal Water Loss (TEWL)</h4>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">Impaired lipid barrier permitting moisture evaporation and surface tightness.</p>
-            <div style="margin-bottom: 0.5rem;">
-              <small style="font-size: 0.75rem; font-weight: 700; color: var(--text-primary);">Recommended Active Ingredients:</small>
-              <div class="tag-cloud" style="margin-top: 0.25rem; display: flex; gap: 0.35rem; flex-wrap: wrap;">
-                <span class="tag" style="background: rgba(197,155,39,0.12); color: var(--gold-primary); font-size: 0.75rem; padding: 0.2rem 0.55rem; border-radius: 4px;">Ceramides NP/AP</span>
-                <span class="tag" style="background: rgba(197,155,39,0.12); color: var(--gold-primary); font-size: 0.75rem; padding: 0.2rem 0.55rem; border-radius: 4px;">Multi-Hyaluronic Acid</span>
-                <span class="tag" style="background: rgba(197,155,39,0.12); color: var(--gold-primary); font-size: 0.75rem; padding: 0.2rem 0.55rem; border-radius: 4px;">Centella Asiatica</span>
+          ${activeConcerns.length > 0 ? activeConcerns.map((c, idx) => `
+            <div style="padding: 1.1rem; background: #FAF9F6; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <span style="font-size: 0.7rem; font-weight: 800; color: var(--accent-amber); text-transform: uppercase; letter-spacing: 0.05em;">PRIORITY #${idx + 1}</span>
+                <span class="badge badge-warning" style="font-size: 0.75rem;">Active Focus</span>
+              </div>
+              <h4 style="font-family: 'Playfair Display', serif; font-size: 1.05rem; margin-bottom: 0.35rem;">${c}</h4>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">Clinical monitoring and personalized active ingredient intervention.</p>
+              <div style="margin-bottom: 0.5rem;">
+                <small style="font-size: 0.75rem; font-weight: 700; color: var(--text-primary);">Recommended Active Ingredients:</small>
+                <div class="tag-cloud" style="margin-top: 0.25rem; display: flex; gap: 0.35rem; flex-wrap: wrap;">
+                  <span class="tag" style="background: rgba(197,155,39,0.12); color: var(--gold-primary); font-size: 0.75rem; padding: 0.2rem 0.55rem; border-radius: 4px;">Ceramides</span>
+                  <span class="tag" style="background: rgba(197,155,39,0.12); color: var(--gold-primary); font-size: 0.75rem; padding: 0.2rem 0.55rem; border-radius: 4px;">Niacinamide</span>
+                  <span class="tag" style="background: rgba(197,155,39,0.12); color: var(--gold-primary); font-size: 0.75rem; padding: 0.2rem 0.55rem; border-radius: 4px;">Hyaluronic Acid</span>
+                </div>
               </div>
             </div>
-          </div>
-
-          <div style="padding: 1.1rem; background: #FAF9F6; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-              <span style="font-size: 0.7rem; font-weight: 800; color: var(--accent-rose); text-transform: uppercase; letter-spacing: 0.05em;">PRIORITY #2 • INFLAMMATORY</span>
-              <span class="badge badge-warning" style="font-size: 0.75rem;">Moderate Severity</span>
+          `).join('') : `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 2rem 1rem; background: #FAF9F6; border-radius: var(--radius-sm); border: 1px dashed var(--border-light); color: var(--text-muted);">
+              <p style="font-size: 0.85rem; margin-bottom: 0.75rem;">No active dermatological concerns recorded yet. Complete your first skin assessment to identify specific concerns and targeted formulations.</p>
+              <button class="btn btn-sm btn-primary" onclick="window.app.openModal('assessment-modal')" style="font-weight: 700;">📋 Take Skin Assessment</button>
             </div>
-            <h4 style="font-family: 'Playfair Display', serif; font-size: 1.05rem; margin-bottom: 0.35rem;">Post-Inflammatory Hyperpigmentation</h4>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">Melanin clustering following active congestion and UV exposure.</p>
-            <div style="margin-bottom: 0.5rem;">
-              <small style="font-size: 0.75rem; font-weight: 700; color: var(--text-primary);">Recommended Active Ingredients:</small>
-              <div class="tag-cloud" style="margin-top: 0.25rem; display: flex; gap: 0.35rem; flex-wrap: wrap;">
-                <span class="tag" style="background: rgba(46,125,50,0.12); color: var(--accent-emerald); font-size: 0.75rem; padding: 0.2rem 0.55rem; border-radius: 4px;">Azelaic Acid 10%</span>
-                <span class="tag" style="background: rgba(46,125,50,0.12); color: var(--accent-emerald); font-size: 0.75rem; padding: 0.2rem 0.55rem; border-radius: 4px;">Niacinamide 5%</span>
-                <span class="tag" style="background: rgba(46,125,50,0.12); color: var(--accent-emerald); font-size: 0.75rem; padding: 0.2rem 0.55rem; border-radius: 4px;">Alpha Arbutin 2%</span>
-              </div>
-            </div>
-          </div>
+          `}
         </div>
       </div>
 
@@ -811,7 +883,7 @@ export function renderUserDashboard() {
         </div>
         
         <div class="products-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;">
-          ${(data.recommendedProducts || []).map(p => `
+          ${recommendedProducts.length > 0 ? recommendedProducts.map(p => `
             <div class="product-card" style="background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 1.15rem; display: flex; flex-direction: column; justify-content: space-between; position: relative;">
               <div>
                 <div class="product-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
@@ -857,7 +929,19 @@ export function renderUserDashboard() {
                 <button class="btn btn-sm btn-outline" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;" onclick="window.app.viewSaferAlternatives('${p.id}')" title="Find Dupes & Safer Alternatives">🛡️ Alt</button>
               </div>
             </div>
-          `).join('')}
+          `).join('') : `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 2.5rem 1.5rem; background: #FAF9F6; border-radius: var(--radius-sm); border: 1px dashed var(--border-gold);">
+              <div style="font-size: 2rem; margin-bottom: 0.5rem;">🧴</div>
+              <h4 style="font-family: 'Playfair Display', serif; font-size: 1.15rem; margin-bottom: 0.35rem;">Product Matches Awaiting Assessment</h4>
+              <p style="font-size: 0.85rem; color: var(--text-muted); max-width: 480px; margin: 0 auto 1.25rem auto; line-height: 1.45;">
+                Formulation compatibility scoring & dupe rankings are personalized to your skin biomarkers. Complete your first scan or explore the 30+ product catalog.
+              </p>
+              <div style="display: flex; justify-content: center; gap: 0.75rem; flex-wrap: wrap;">
+                <button class="btn btn-sm btn-primary" onclick="window.app.navigateToView('products')" style="font-weight: 700; padding: 0.5rem 1.2rem;">🛍️ Browse All Products (30+)</button>
+                <button class="btn btn-sm btn-outline" onclick="window.app.openModal('photo-scan-modal')" style="font-weight: 700; padding: 0.5rem 1.2rem; background: #FFFFFF;">📸 Take Skin Scan</button>
+              </div>
+            </div>
+          `}
         </div>
 
         <!-- Full Catalog Navigation Prompt Banner -->
@@ -963,7 +1047,7 @@ export function renderUserDashboard() {
             <div><strong>Hydration (10%):</strong> 80.0 pts &rarr; <span style="color: var(--accent-emerald);">8.00 contribution</span></div>
           </div>
           <div style="margin-top: 0.65rem; font-size: 0.95rem; font-weight: 800; color: var(--text-primary);">
-            Overall Weighted Score: <span style="color: var(--accent-emerald); font-size: 1.1rem;">77.8 / 100</span> (Grade: Good - Improving)
+            Overall Weighted Score: <span style="color: var(--accent-emerald); font-size: 1.1rem;">${overallScore !== null ? `${overallScore} / 100` : '-- / 100'}</span> (Grade: ${scoreGrade})
           </div>
         </div>
       </div>
@@ -1685,11 +1769,11 @@ export function renderAdminDashboard(liveUsers = null) {
                     <td style="padding: 0.75rem; color: #94a3b8; font-size: 0.8rem;">${regDate}</td>
                     <td style="padding: 0.75rem; text-align: right; display: flex; gap: 0.5rem; justify-content: flex-end;">
                       ${isPending ? `
-                        <button class="btn btn-primary btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; background: #22c55e;" onclick="window.app.handleAdminApproveUser(${u.id}, '${u.username}')">
+                        <button class="btn btn-primary btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; background: #22c55e;" onclick="window.app.handleAdminApproveUser('${u.id}', '${encodeURIComponent(u.username || u.email || '')}')">
                           ✅ Approve User
                         </button>
                       ` : ''}
-                      <button class="btn btn-outline btn-sm" style="color: var(--accent-rose); border-color: rgba(244, 63, 94, 0.3); padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="window.app.handleAdminDeleteUser(${u.id}, '${u.username}')">
+                      <button class="btn btn-outline btn-sm" style="color: var(--accent-rose); border-color: rgba(244, 63, 94, 0.3); padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="window.app.handleAdminDeleteUser('${u.id}', '${encodeURIComponent(u.username || u.email || '')}')">
                         🗑️ Delete
                       </button>
                     </td>
@@ -1846,12 +1930,16 @@ export function renderLoginPage() {
 }
 
 export function renderUserSettingsPage() {
-  const data = MOCK_USER_DATA;
   const user = auth.getCurrentUser();
+  const isDemo = (!user || user.id === 1 || user.username === 'user');
   const avatarUrl = user?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${user?.username || 'default'}`;
-  const displayName = data.profile?.name || user?.username || 'Alex Rivera';
+  const displayName = user?.full_name || (isDemo ? 'Alex Rivera' : (user?.username || 'User'));
   const displayEmail = user?.email || `${(user?.username || 'alex').toLowerCase()}@panacea.ai`;
-  const roleTitle = 'Skincare Consumer';
+  const roleTitle = auth.getCurrentRoleInfo()?.title || 'Skincare Consumer';
+  const skinType = user?.skin_type || user?.profile?.skinType || (isDemo ? MOCK_USER_DATA.profile.skinType : '');
+  const ageGroup = user?.profile?.ageGroup || (isDemo ? MOCK_USER_DATA.profile.ageGroup : '');
+  const primaryConcerns = user?.primary_concerns || user?.profile?.primaryConcerns || (isDemo ? MOCK_USER_DATA.profile.primaryConcerns : []);
+  const allergies = user?.allergies || user?.profile?.allergies || (isDemo ? MOCK_USER_DATA.profile.allergies : []);
 
   return `
     <div class="editorial-container reveal" style="padding-top: 1.5rem; max-width: 1200px; margin: 0 auto;">
@@ -1942,21 +2030,21 @@ export function renderUserSettingsPage() {
                 <div class="form-group">
                   <label for="page-settings-skintype" style="font-weight: 600; font-size: 0.85rem;">Skin Type Classification</label>
                   <select id="page-settings-skintype" class="form-control">
-                    <option value="Combination / Sensitive" ${data.profile.skinType.includes('Combination') ? 'selected' : ''}>Combination / Sensitive</option>
-                    <option value="Dry / Dehydrated" ${data.profile.skinType.includes('Dry') ? 'selected' : ''}>Dry / Dehydrated</option>
-                    <option value="Oily / Acne-Prone" ${data.profile.skinType.includes('Oily') ? 'selected' : ''}>Oily / Acne-Prone</option>
-                    <option value="Normal / Balanced" ${data.profile.skinType.includes('Normal') ? 'selected' : ''}>Normal / Balanced</option>
-                    <option value="Sensitive / Rosacea-Prone" ${data.profile.skinType.includes('Rosacea') ? 'selected' : ''}>Sensitive / Rosacea-Prone</option>
+                    <option value="Combination / Sensitive" ${skinType.includes('Combination') ? 'selected' : ''}>Combination / Sensitive</option>
+                    <option value="Dry / Dehydrated" ${skinType.includes('Dry') ? 'selected' : ''}>Dry / Dehydrated</option>
+                    <option value="Oily / Acne-Prone" ${skinType.includes('Oily') ? 'selected' : ''}>Oily / Acne-Prone</option>
+                    <option value="Normal / Balanced" ${skinType.includes('Normal') ? 'selected' : ''}>Normal / Balanced</option>
+                    <option value="Sensitive / Rosacea-Prone" ${skinType.includes('Rosacea') ? 'selected' : ''}>Sensitive / Rosacea-Prone</option>
                   </select>
                 </div>
                 <div class="form-group">
                   <label for="page-settings-agegroup" style="font-weight: 600; font-size: 0.85rem;">Age Demographic</label>
                   <select id="page-settings-agegroup" class="form-control">
-                    <option value="18 - 24" ${data.profile.ageGroup === '18 - 24' ? 'selected' : ''}>18 - 24 years</option>
-                    <option value="25 - 34" ${data.profile.ageGroup === '25 - 34' ? 'selected' : ''}>25 - 34 years</option>
-                    <option value="35 - 44" ${data.profile.ageGroup === '35 - 44' ? 'selected' : ''}>35 - 44 years</option>
-                    <option value="45 - 54" ${data.profile.ageGroup === '45 - 54' ? 'selected' : ''}>45 - 54 years</option>
-                    <option value="55+" ${data.profile.ageGroup === '55+' ? 'selected' : ''}>55+ years</option>
+                    <option value="18 - 24" ${ageGroup === '18 - 24' ? 'selected' : ''}>18 - 24 years</option>
+                    <option value="25 - 34" ${ageGroup === '25 - 34' ? 'selected' : ''}>25 - 34 years</option>
+                    <option value="35 - 44" ${ageGroup === '35 - 44' ? 'selected' : ''}>35 - 44 years</option>
+                    <option value="45 - 54" ${ageGroup === '45 - 54' ? 'selected' : ''}>45 - 54 years</option>
+                    <option value="55+" ${ageGroup === '55+' ? 'selected' : ''}>55+ years</option>
                   </select>
                 </div>
               </div>
@@ -1971,12 +2059,12 @@ export function renderUserSettingsPage() {
 
               <div class="form-group">
                 <label for="page-settings-goals" style="font-weight: 600; font-size: 0.85rem;">Primary Skincare Focus & Target Goals</label>
-                <input type="text" id="page-settings-goals" class="form-control" value="${(data.profile.primaryConcerns || []).join(', ')}" placeholder="e.g. Barrier Repair, Acne & Breakouts">
+                <input type="text" id="page-settings-goals" class="form-control" value="${primaryConcerns.join(', ')}" placeholder="e.g. Barrier Repair, Acne & Breakouts">
               </div>
 
               <div class="form-group">
                 <label for="page-settings-allergies" style="font-weight: 600; font-size: 0.85rem;">Known Allergies & Sensitivity Triggers</label>
-                <input type="text" id="page-settings-allergies" class="form-control" value="${(data.profile.allergies || []).join(', ')}" placeholder="e.g. Fragrance (Parfum), Essential Oils">
+                <input type="text" id="page-settings-allergies" class="form-control" value="${allergies.join(', ')}" placeholder="e.g. Fragrance (Parfum), Essential Oils">
               </div>
             </div>
 
@@ -2019,14 +2107,24 @@ export function renderUserSettingsPage() {
 // DEDICATED SKINCARE PRODUCTS EXPLORER & INTELLIGENCE MARKETPLACE
 // ════════════════════════════════════════════════════════════════
 
-export function renderProductsExplorerPage(options = {}, profile = MOCK_USER_DATA.profile) {
+export function renderProductsExplorerPage(options = {}, profile = null) {
+  const user = auth.getCurrentUser();
+  const isDemo = (!user || user.id === 1 || user.username === 'user');
+  const activeProfile = profile || user?.profile || {
+    name: user?.full_name || user?.username || (isDemo ? MOCK_USER_DATA.profile.name : 'User'),
+    skinType: user?.skin_type || user?.profile?.skinType || (isDemo ? MOCK_USER_DATA.profile.skinType : 'Combination'),
+    ageGroup: user?.profile?.ageGroup || (isDemo ? MOCK_USER_DATA.profile.ageGroup : '25 - 34'),
+    primaryConcerns: user?.primary_concerns || user?.profile?.primaryConcerns || (isDemo ? MOCK_USER_DATA.profile.primaryConcerns : []),
+    allergies: user?.allergies || user?.profile?.allergies || (isDemo ? MOCK_USER_DATA.profile.allergies : [])
+  };
+
   const currentOptions = {
     query: options.query || '',
     category: options.category || 'All',
     budget_tier: options.budget_tier || 'All',
     min_price: options.min_price || 0,
     max_price: options.max_price || 5000,
-    skin_type: options.skin_type || profile.skinType || 'Combination',
+    skin_type: options.skin_type || activeProfile.skinType || 'Combination',
     target_concern: options.target_concern || 'All',
     brand: options.brand || 'All',
     min_score: options.min_score || 0,
@@ -2034,8 +2132,8 @@ export function renderProductsExplorerPage(options = {}, profile = MOCK_USER_DAT
   };
 
   const currentProfile = {
-    ...profile,
-    skinType: currentOptions.skin_type || profile.skinType
+    ...activeProfile,
+    skinType: currentOptions.skin_type || activeProfile.skinType
   };
 
   const filteredProducts = filterProductCatalog(currentOptions, currentProfile);
@@ -2120,7 +2218,7 @@ export function renderProductsExplorerPage(options = {}, profile = MOCK_USER_DAT
               ${currentProfile.skinType} Skin
             </div>
             <div style="font-size: 0.78rem; color: #94A3B8;">
-              Score: <strong style="color: #FFFFFF;">${MOCK_USER_DATA.skinScore.overall}/100</strong> • ${currentProfile.primaryConcerns?.length || 0} Concerns
+              Score: <strong style="color: #FFFFFF;">${user?.skin_score || (isDemo ? `${MOCK_USER_DATA.skinScore.overall}/100` : 'Pending')}</strong> • ${currentProfile.primaryConcerns?.length || 0} Concerns
             </div>
           </div>
         </div>
@@ -2620,13 +2718,131 @@ export function renderSuitabilityBreakdown(scoreData) {
 // MODULE 8: PROGRESS TRACKING & ANALYTICS EDITORIAL VIEW RENDERER
 // ════════════════════════════════════════════════════════════════
 
-export function renderProgressAnalyticsPage() {
-  const data = MOCK_PROGRESS_TRACKING_DATA;
-  const comp = data.beforeAfterComparison;
-  const adherence = data.adherence;
-  const report = data.improvementReport;
+export function renderProgressAnalyticsPage(progressData = null, currentUser = null, localScans = []) {
+  const fallback = MOCK_PROGRESS_TRACKING_DATA;
+  const userId = currentUser?.id || progressData?.user_id || 1;
+
+  // 1. Resolve checkpoints / scan history
+  let history = progressData?.history || [];
+  if (history.length === 0 && Array.isArray(localScans) && localScans.length > 0) {
+    history = localScans;
+  }
+  if (history.length === 0 && userId === 1 && !progressData) {
+    history = fallback.checkpoints || [];
+  }
+
+  const totalScans = history.length;
+  const isZeroState = totalScans === 0;
+  const isSingleScan = totalScans === 1;
+
+  // 2. Resolve Comparison Data
+  let comp = progressData?.beforeAfterComparison;
+  if (comp && (!comp.has_data || comp.baseline_score === null || comp.current_score === null)) {
+    comp = null;
+  }
+
+  if (!comp && totalScans >= 2) {
+    const baseline = history[0];
+    const current = history[history.length - 1];
+    const bScore = Number(baseline.overall_skin_health_score || baseline.skin_health_score || 70);
+    const cScore = Number(current.overall_skin_health_score || current.skin_health_score || 78);
+    const scoreDelta = Math.round((cScore - bScore) * 10) / 10;
+    const bHydr = Number(baseline.hydration_level || baseline.biomarkers?.hydration_level || 50);
+    const cHydr = Number(current.hydration_level || current.biomarkers?.hydration_level || 70);
+    const hydrDelta = Math.round((cHydr - bHydr) * 10) / 10;
+    const hydrPct = bHydr > 0 ? Math.round((hydrDelta / bHydr) * 1000) / 10 : 0;
+
+    const bAcne = Number(baseline.acne_severity || baseline.biomarkers?.acne_severity || 30);
+    const cAcne = Number(current.acne_severity || current.biomarkers?.acne_severity || 12);
+    const acneDelta = Math.round((cAcne - bAcne) * 10) / 10;
+    const acnePct = bAcne > 0 ? Math.round((acneDelta / bAcne) * 1000) / 10 : 0;
+
+    const bBarrier = Number(baseline.barrier_strength || baseline.biomarkers?.barrier_strength || 60);
+    const cBarrier = Number(current.barrier_strength || current.biomarkers?.barrier_strength || 85);
+    const barrierDelta = Math.round((cBarrier - bBarrier) * 10) / 10;
+    const barrierPct = bBarrier > 0 ? Math.round((barrierDelta / bBarrier) * 1000) / 10 : 0;
+
+    const bSens = Number(baseline.redness_reactivity || baseline.sensitivity_level || baseline.biomarkers?.sensitivity_level || 30);
+    const cSens = Number(current.redness_reactivity || current.sensitivity_level || current.biomarkers?.sensitivity_level || 15);
+    const rednessDelta = Math.round((cSens - bSens) * 10) / 10;
+    const rednessPct = bSens > 0 ? Math.round((rednessDelta / bSens) * 1000) / 10 : 0;
+
+    const bPigm = Number(baseline.pigmentation_score || baseline.biomarkers?.pigmentation_score || 30);
+    const cPigm = Number(current.pigmentation_score || current.biomarkers?.pigmentation_score || 20);
+    const pigmDelta = Math.round((cPigm - bPigm) * 10) / 10;
+    const pigmPct = bPigm > 0 ? Math.round((pigmDelta / bPigm) * 1000) / 10 : 0;
+
+    comp = {
+      has_data: true,
+      days_elapsed: 30,
+      baseline_date: baseline.log_date || 'Baseline Scan',
+      current_date: current.log_date || 'Recent Scan',
+      baseline_image: baseline.photo_url || baseline.image_url || 'assets/hero_skin_scan.png',
+      current_image: current.photo_url || current.image_url || 'assets/hero_skin_scan.png',
+      baseline_score: bScore,
+      current_score: cScore,
+      score_delta: scoreDelta,
+      verdict: scoreDelta > 0 ? `Significant Improvement (+${scoreDelta} pts) 🏆` : `Skin Health Maintained (${scoreDelta} pts)`,
+      clinical_summary: `Cutaneous health evolved from ${bScore} to ${cScore}/100. Hydration ${hydrPct >= 0 ? '+' : ''}${hydrPct}%, Barrier ${barrierPct >= 0 ? '+' : ''}${barrierPct}%, Acne ${acnePct}%.`,
+      biomarker_deltas: [
+        { parameter: 'Hydration (Moisture Plumpness)', baseline_val: bHydr, current_val: cHydr, delta_val: hydrDelta, delta_percentage: hydrPct, status: hydrDelta >= 0 ? 'Improved' : 'Needs Care', color: '#0284C7', clinical_insight: `Intracellular water binding capacity ${hydrPct >= 0 ? 'increased by +' + hydrPct + '%' : 'decreased by ' + hydrPct + '%'}.` },
+        { parameter: 'Acne & Blemish Severity', baseline_val: bAcne, current_val: cAcne, delta_val: acneDelta, delta_percentage: acnePct, status: acneDelta <= 0 ? 'Significantly Improved' : 'Active Concern', color: '#2E7D32', clinical_insight: `Micro-comedones & blemish density ${acnePct <= 0 ? 'down ' + Math.abs(acnePct) + '%' : 'up +' + acnePct + '%'}.` },
+        { parameter: 'Barrier Integrity Score', baseline_val: bBarrier, current_val: cBarrier, delta_val: barrierDelta, delta_percentage: barrierPct, status: barrierDelta >= 0 ? 'Significantly Improved' : 'Needs Care', color: '#C59B27', clinical_insight: `Lipid bilayer consolidation ${barrierPct >= 0 ? 'boosted by +' + barrierPct + '%' : 'shifted'}.` },
+        { parameter: 'Erythema & Redness Reactivity', baseline_val: bSens, current_val: cSens, delta_val: rednessDelta, delta_percentage: rednessPct, status: rednessDelta <= 0 ? 'Significantly Improved' : 'Moderate', color: '#8E24AA', clinical_insight: `Vascular flushing ${rednessPct <= 0 ? 'calmed by ' + Math.abs(rednessPct) + '%' : 'monitored'}.` },
+        { parameter: 'Post-Inflammatory Pigmentation', baseline_val: bPigm, current_val: cPigm, delta_val: pigmDelta, delta_percentage: pigmPct, status: pigmDelta <= 0 ? 'Improved' : 'Monitored', color: '#D97706', clinical_insight: `Melanin clustering ${pigmPct <= 0 ? 'faded by ' + Math.abs(pigmPct) + '%' : 'monitored'}.` }
+      ],
+      top_positive_drivers: fallback.beforeAfterComparison.top_positive_drivers,
+      remaining_targets: fallback.beforeAfterComparison.remaining_targets
+    };
+  } else if (!comp && isSingleScan) {
+    const single = history[0];
+    const sScore = Number(single.overall_skin_health_score || single.skin_health_score || 75);
+    const sHydr = Number(single.hydration_level || single.biomarkers?.hydration_level || 65);
+    const sAcne = Number(single.acne_severity || single.biomarkers?.acne_severity || 18);
+    const sBarrier = Number(single.barrier_strength || single.biomarkers?.barrier_strength || 75);
+    const sSens = Number(single.redness_reactivity || single.sensitivity_level || single.biomarkers?.sensitivity_level || 20);
+    const sPigm = Number(single.pigmentation_score || single.biomarkers?.pigmentation_score || 20);
+
+    comp = {
+      has_data: true,
+      is_single: true,
+      days_elapsed: 0,
+      baseline_date: single.log_date || 'Baseline Intake',
+      current_date: single.log_date || 'Baseline Intake',
+      baseline_image: single.photo_url || single.image_url || 'assets/hero_skin_scan.png',
+      current_image: single.photo_url || single.image_url || 'assets/hero_skin_scan.png',
+      baseline_score: sScore,
+      current_score: sScore,
+      score_delta: 0,
+      verdict: `Baseline Established (${sScore}/100) 🎯`,
+      clinical_summary: `Initial intake assessment recorded. Health Score: ${sScore}/100. Hydration: ${sHydr}%, Barrier: ${sBarrier}%, Acne: ${sAcne}%.`,
+      biomarker_deltas: [
+        { parameter: 'Hydration (Moisture Plumpness)', baseline_val: sHydr, current_val: sHydr, delta_val: 0, delta_percentage: 0, status: 'Baseline Established', color: '#0284C7', clinical_insight: `Initial baseline moisture capacity indexed at ${sHydr}%.` },
+        { parameter: 'Acne & Blemish Severity', baseline_val: sAcne, current_val: sAcne, delta_val: 0, delta_percentage: 0, status: 'Baseline Established', color: '#2E7D32', clinical_insight: `Initial blemish index recorded at ${sAcne}%.` },
+        { parameter: 'Barrier Integrity Score', baseline_val: sBarrier, current_val: sBarrier, delta_val: 0, delta_percentage: 0, status: 'Baseline Established', color: '#C59B27', clinical_insight: `Lipid barrier resilience recorded at ${sBarrier}%.` },
+        { parameter: 'Erythema & Redness Reactivity', baseline_val: sSens, current_val: sSens, delta_val: 0, delta_percentage: 0, status: 'Baseline Established', color: '#8E24AA', clinical_insight: `Capillary sensitivity indexed at ${sSens}%.` },
+        { parameter: 'Post-Inflammatory Pigmentation', baseline_val: sPigm, current_val: sPigm, delta_val: 0, delta_percentage: 0, status: 'Baseline Established', color: '#D97706', clinical_insight: `Melanin distribution score indexed at ${sPigm}%.` }
+      ],
+      top_positive_drivers: fallback.beforeAfterComparison.top_positive_drivers,
+      remaining_targets: ['Complete daily routine logs to build habit streak.', 'Take follow-up scan in 7-14 days.']
+    };
+  } else if (!comp && !isZeroState && userId === 1) {
+    comp = fallback.beforeAfterComparison;
+  }
+
+  // 3. Resolve Adherence, Calendar, Trends, Report
+  const adherence = progressData?.adherence || (isZeroState ? {
+    monthly_compliance_pct: 0,
+    current_streak_days: 0,
+    longest_streak_days: 0,
+    total_sessions_logged: 0
+  } : fallback.adherence);
+
+  const report = progressData?.improvementReport || fallback.improvementReport;
   const calendarDays = generateCalendar30Days();
-  const trendData = generateTrendTrajectoryData('30d');
+  const baseScoreVal = isZeroState ? '--' : (comp && comp.baseline_score !== null ? comp.baseline_score : (history[0]?.overall_skin_health_score || 70));
+  const curScoreVal = isZeroState ? '--' : (comp && comp.current_score !== null ? comp.current_score : (history[history.length - 1]?.overall_skin_health_score || 70));
+  const deltaScoreVal = isZeroState ? 0 : (comp && comp.score_delta !== null ? comp.score_delta : Math.round((Number(curScoreVal) - Number(baseScoreVal)) * 10) / 10);
 
   return `
     <div class="editorial-container progress-analytics-page" style="padding-top: 1.5rem;">
@@ -2639,7 +2855,7 @@ export function renderProgressAnalyticsPage() {
               <span class="section-tag-pill" style="font-size: 0.72rem; padding: 0.2rem 0.65rem; background: rgba(197, 155, 39, 0.15); color: #8A6400; font-weight: 800;">
                 MODULE 8 • PROGRESS TRACKING & ANALYTICS
               </span>
-              <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">• 30-Day Clinical Telemetry</span>
+              <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">• ${currentUser ? (currentUser.full_name || currentUser.username) : 'Alex Rivera'} Clinical Profile</span>
             </div>
             <h1 style="font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--text-primary); margin: 0 0 0.4rem 0; font-weight: 700;">
               Skin Progress Monitoring & Analytics Lab
@@ -2652,7 +2868,7 @@ export function renderProgressAnalyticsPage() {
           <!-- Action Buttons -->
           <div style="display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center;">
             <button class="btn btn-primary btn-sm" onclick="window.app.openModal('photo-scan-modal')" style="font-weight: 700; padding: 0.55rem 1.1rem; box-shadow: 0 4px 12px rgba(197,155,39,0.25);">
-              📸 New Progress Scan
+              📸 ${isZeroState ? 'Take Baseline AI Scan' : 'New Progress Scan'}
             </button>
             <button class="btn btn-outline btn-sm" onclick="window.app.handleDailyAdherenceCheckIn()" style="font-weight: 700; padding: 0.55rem 1.1rem; background: #FFFFFF;">
               ✅ Check-In Today (+2.5 pts)
@@ -2668,9 +2884,13 @@ export function renderProgressAnalyticsPage() {
           <div style="background: rgba(255,255,255,0.85); backdrop-filter: blur(8px); border: 1px solid var(--border-light); border-left: 4px solid var(--gold-primary); border-radius: var(--radius-sm); padding: 1rem 1.15rem;">
             <div style="font-size: 0.72rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Cutaneous Health Delta</div>
             <div style="font-size: 1.65rem; font-weight: 800; color: var(--text-primary); margin: 0.2rem 0;">
-              68.5 &rarr; 79.4 <span style="font-size: 0.95rem; color: var(--accent-emerald); font-weight: 700;">(+10.9 pts)</span>
+              ${isZeroState ? 'Awaiting Scan' : isSingleScan ? `${curScoreVal} / 100` : `${baseScoreVal} &rarr; ${curScoreVal}`}
+              ${!isZeroState && !isSingleScan ? `<span style="font-size: 0.95rem; color: ${deltaScoreVal >= 0 ? 'var(--accent-emerald)' : 'var(--accent-rose)'}; font-weight: 700;">(${deltaScoreVal >= 0 ? '+' : ''}${deltaScoreVal} pts)</span>` : ''}
+              ${isSingleScan ? `<span style="font-size: 0.78rem; color: var(--gold-primary); font-weight: 700; display: block;">Day 1 Baseline Intake</span>` : ''}
             </div>
-            <div style="font-size: 0.76rem; color: var(--text-muted);">Velocity: <strong>+2.54 pts / week</strong></div>
+            <div style="font-size: 0.76rem; color: var(--text-muted);">
+              ${isZeroState ? 'Perform intake scan to start tracking' : isSingleScan ? 'Follow routine & rescan in 7-14 days' : `Velocity: <strong>+${(Math.max(0.1, deltaScoreVal / 4.3)).toFixed(2)} pts / week</strong>`}
+            </div>
           </div>
 
           <div style="background: rgba(255,255,255,0.85); backdrop-filter: blur(8px); border: 1px solid var(--border-light); border-left: 4px solid var(--accent-emerald); border-radius: var(--radius-sm); padding: 1rem 1.15rem;">
@@ -2678,7 +2898,9 @@ export function renderProgressAnalyticsPage() {
             <div style="font-size: 1.65rem; font-weight: 800; color: var(--text-primary); margin: 0.2rem 0;">
               ${adherence.monthly_compliance_pct}%
             </div>
-            <div style="font-size: 0.76rem; color: var(--accent-emerald); font-weight: 600;">58 of 60 AM/PM steps logged</div>
+            <div style="font-size: 0.76rem; color: var(--accent-emerald); font-weight: 600;">
+              ${adherence.total_sessions_logged > 0 ? `${adherence.total_sessions_logged} sessions logged` : '0 AM/PM steps logged'}
+            </div>
           </div>
 
           <div style="background: rgba(255,255,255,0.85); backdrop-filter: blur(8px); border: 1px solid var(--border-light); border-left: 4px solid var(--accent-amber); border-radius: var(--radius-sm); padding: 1rem 1.15rem;">
@@ -2686,127 +2908,178 @@ export function renderProgressAnalyticsPage() {
             <div style="font-size: 1.65rem; font-weight: 800; color: var(--text-primary); margin: 0.2rem 0;">
               ${adherence.current_streak_days} Days <span style="font-size: 1.1rem;">🔥</span>
             </div>
-            <div style="font-size: 0.76rem; color: var(--text-muted);">Personal Best: <strong>${adherence.longest_streak_days} Days</strong></div>
+            <div style="font-size: 0.76rem; color: var(--text-muted);">Personal Best: <strong>${Math.max(adherence.current_streak_days, adherence.longest_streak_days)} Days</strong></div>
           </div>
 
           <div style="background: rgba(255,255,255,0.85); backdrop-filter: blur(8px); border: 1px solid var(--border-light); border-left: 4px solid var(--pink-blush); border-radius: var(--radius-sm); padding: 1rem 1.15rem;">
             <div style="font-size: 0.72rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Clinical Transformation Verdict</div>
-            <div style="font-size: 1.15rem; font-weight: 800; color: var(--accent-emerald); margin: 0.35rem 0 0.15rem 0;">
-              Significant Improvement 🏆
+            <div style="font-size: 1.15rem; font-weight: 800; color: ${isZeroState ? 'var(--gold-primary)' : 'var(--accent-emerald)'}; margin: 0.35rem 0 0.15rem 0;">
+              ${isZeroState ? 'Intake Scan Required 📸' : isSingleScan ? 'Baseline Established 🎯' : (comp?.verdict || 'Significant Improvement 🏆')}
             </div>
-            <div style="font-size: 0.76rem; color: var(--text-muted);">Acne -71.4% &bull; Barrier +65.4%</div>
+            <div style="font-size: 0.76rem; color: var(--text-muted);">
+              ${isZeroState ? 'Establish baseline to unlock analytics' : isSingleScan ? 'Rescan in 7-14 days for optical diffing' : 'Hydration Boost & Barrier Lipid Seal'}
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- SECTION 1: INTERACTIVE BEFORE / AFTER SPLIT-SCREEN COMPARISON -->
-      <section class="glass-card section-margin" style="background: #FFFFFF; padding: 1.75rem; border-radius: var(--radius-md); border: 1px solid var(--border-light); margin-bottom: 2rem;">
-        <div class="card-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 0.85rem; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
-          <div>
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <span style="font-size: 1.2rem;">📸</span>
-              <h2 style="font-family: 'Playfair Display', serif; font-size: 1.35rem; margin: 0;">Interactive Before & After Optical Comparison</h2>
+      ${isZeroState ? `
+        <!-- ZERO STATE ONBOARDING CARD -->
+        <section class="glass-card section-margin" style="background: #FFFFFF; padding: 2.5rem; border-radius: var(--radius-md); border: 1px solid var(--border-gold); margin-bottom: 2rem; text-align: center;">
+          <div style="max-width: 650px; margin: 0 auto;">
+            <div style="width: 72px; height: 72px; border-radius: 50%; background: rgba(197, 155, 39, 0.1); color: var(--gold-primary); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; margin: 0 auto 1.25rem; border: 2px solid var(--border-gold);">
+              📸
             </div>
-            <p class="text-muted" style="font-size: 0.82rem; margin-top: 0.15rem;">
-              Drag the interactive slider handle left/right to visually inspect cutaneous resolution over time
+            <h2 style="font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--text-primary); margin: 0 0 0.6rem 0;">
+              Awaiting Initial Clinical AI Scan
+            </h2>
+            <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1.5rem;">
+              You have not recorded any optical facial scans yet. Launch the Panacea AI camera scanner or upload a close-up photo to establish your baseline skin health score, detect biomarkers, and unlock personalized Before & After comparison tracking.
             </p>
-          </div>
-
-          <!-- Milestone Pair Switcher -->
-          <div style="display: flex; gap: 0.35rem; background: #FAF9F6; padding: 0.25rem; border-radius: 20px; border: 1px solid var(--border-light);">
-            <button class="tab-btn active" id="btn-pair-30d" onclick="window.app.switchBeforeAfterPair('30d')" style="font-size: 0.76rem; padding: 0.3rem 0.8rem;">
-              Day 1 Baseline vs Day 30 ✨
-            </button>
-            <button class="tab-btn" id="btn-pair-14d" onclick="window.app.switchBeforeAfterPair('14d')" style="font-size: 0.76rem; padding: 0.3rem 0.8rem;">
-              Day 1 vs Week 2
-            </button>
-            <button class="tab-btn" id="btn-pair-w4" onclick="window.app.switchBeforeAfterPair('w4')" style="font-size: 0.76rem; padding: 0.3rem 0.8rem;">
-              Week 2 vs Week 4
+            <button class="btn btn-primary" onclick="window.app.openModal('photo-scan-modal')" style="font-weight: 700; padding: 0.8rem 2rem; font-size: 1rem; box-shadow: 0 4px 16px rgba(197,155,39,0.35);">
+              📸 Launch AI Camera Scanner &rarr;
             </button>
           </div>
-        </div>
 
-        <!-- SPLIT COMPARISON SLIDER & BIOMARKER MATRIX SPLIT -->
-        <div style="display: grid; grid-template-columns: minmax(320px, 460px) 1fr; gap: 1.5rem; align-items: start;">
-          
-          <!-- LEFT: DRAGGABLE BEFORE/AFTER SLIDER CONTAINER -->
-          <div class="before-after-slider-container" id="before-after-slider-box" style="position: relative; width: 100%; height: 380px; border-radius: var(--radius-sm); overflow: hidden; border: 2px solid var(--border-gold); box-shadow: 0 8px 24px rgba(0,0,0,0.1); user-select: none;">
-            <!-- AFTER IMAGE (Underneath, Full Width) -->
-            <img src="${comp.current_image}" alt="After Treatment Skin" class="ba-image-after" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-top: 2.5rem; text-align: left;">
+            <div style="padding: 1.2rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm); border-top: 3px solid var(--gold-primary);">
+              <strong style="font-size: 0.9rem; color: var(--text-primary); display: block; margin-bottom: 0.35rem;">🔍 1. Optical Biomarker Extraction</strong>
+              <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Multi-parameter analysis measuring hydration plumpness, sebum output, barrier resilience, and vascular redness.</p>
+            </div>
+            <div style="padding: 1.2rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm); border-top: 3px solid var(--accent-emerald);">
+              <strong style="font-size: 0.9rem; color: var(--text-primary); display: block; margin-bottom: 0.35rem;">📈 2. Before & After Diffing</strong>
+              <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Interactive split-slider comparing your day 1 baseline photo directly against your latest skin transformation milestone.</p>
+            </div>
+            <div style="padding: 1.2rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm); border-top: 3px solid var(--accent-amber);">
+              <strong style="font-size: 0.9rem; color: var(--text-primary); display: block; margin-bottom: 0.35rem;">📅 3. Habit Fidelity Tracking</strong>
+              <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Daily morning and evening protocol logs with active streak acceleration and predictive AI score forecasting.</p>
+            </div>
+          </div>
+        </section>
+      ` : `
+        <!-- SECTION 1: INTERACTIVE BEFORE / AFTER SPLIT-SCREEN COMPARISON -->
+        <section class="glass-card section-margin" style="background: #FFFFFF; padding: 1.75rem; border-radius: var(--radius-md); border: 1px solid var(--border-light); margin-bottom: 2rem;">
+          <div class="card-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 0.85rem; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-size: 1.2rem;">📸</span>
+                <h2 style="font-family: 'Playfair Display', serif; font-size: 1.35rem; margin: 0;">
+                  ${isSingleScan ? 'Baseline Clinical Optical Assessment' : 'Interactive Before & After Optical Comparison'}
+                </h2>
+              </div>
+              <p class="text-muted" style="font-size: 0.82rem; margin-top: 0.15rem;">
+                ${isSingleScan ? 'Baseline optical telemetry captured and indexed. Take follow-up scans to unlock optical before/after diffing.' : 'Drag the interactive slider handle left/right to visually inspect cutaneous resolution over time.'}
+              </p>
+            </div>
+
+            ${!isSingleScan ? `
+              <!-- Milestone Pair Switcher -->
+              <div style="display: flex; gap: 0.35rem; background: #FAF9F6; padding: 0.25rem; border-radius: 20px; border: 1px solid var(--border-light);">
+                <button class="tab-btn active" id="btn-pair-30d" onclick="window.app.switchBeforeAfterPair('30d')" style="font-size: 0.76rem; padding: 0.3rem 0.8rem;">
+                  Baseline vs Latest ✨
+                </button>
+                <button class="tab-btn" id="btn-pair-14d" onclick="window.app.switchBeforeAfterPair('14d')" style="font-size: 0.76rem; padding: 0.3rem 0.8rem;">
+                  Day 1 vs Checkpoint
+                </button>
+              </div>
+            ` : `
+              <span class="badge badge-accent" style="font-weight: 700; font-size: 0.78rem;">🎯 Baseline Intake Scan (1 of 1)</span>
+            `}
+          </div>
+
+          <!-- SPLIT COMPARISON SLIDER & BIOMARKER MATRIX SPLIT -->
+          <div style="display: grid; grid-template-columns: minmax(320px, 460px) 1fr; gap: 1.5rem; align-items: start;">
             
-            <!-- BEFORE IMAGE (Clipped on top) -->
-            <div class="ba-image-before-wrapper" id="ba-before-wrapper" style="position: absolute; top: 0; left: 0; width: 50%; height: 100%; overflow: hidden;">
-              <img src="${comp.baseline_image}" alt="Baseline Skin" class="ba-image-before" style="width: 460px; height: 380px; object-fit: cover; max-width: none; display: block;">
-              <!-- Label Pill Before -->
-              <div style="position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.75); backdrop-filter: blur(6px); color: #fff; padding: 0.25rem 0.65rem; border-radius: 12px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.05em; border: 1px solid rgba(255,255,255,0.2);">
-                BEFORE • ${comp.baseline_date} (68.5)
-              </div>
-            </div>
-
-            <!-- Label Pill After -->
-            <div style="position: absolute; top: 12px; right: 12px; background: rgba(46, 125, 50, 0.85); backdrop-filter: blur(6px); color: #fff; padding: 0.25rem 0.65rem; border-radius: 12px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.05em; border: 1px solid rgba(255,255,255,0.2);">
-              AFTER • ${comp.current_date} (79.4)
-            </div>
-
-            <!-- DRAGGABLE DIVIDER LINE & HANDLE -->
-            <div class="ba-divider-handle" id="ba-divider-handle" style="position: absolute; top: 0; bottom: 0; left: 50%; width: 4px; background: #FFFFFF; box-shadow: 0 0 10px rgba(0,0,0,0.4); cursor: ew-resize; transform: translateX(-50%);">
-              <div class="ba-handle-circle" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 36px; height: 36px; border-radius: 50%; background: #FFFFFF; border: 2px solid var(--gold-primary); box-shadow: 0 2px 10px rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 900; color: var(--gold-primary);">
-                &lang;&rang;
-              </div>
-            </div>
-
-            <!-- Position Pill at Bottom -->
-            <div style="position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.65); color: #FFFFFF; font-size: 0.68rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 10px; pointer-events: none;">
-              &larr; Drag to Compare &rarr;
-            </div>
-          </div>
-
-          <!-- RIGHT: OPTICAL BIOMARKERS DELTA MATRIX TABLE -->
-          <div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-              <h4 style="font-family: 'Playfair Display', serif; font-size: 1.1rem; margin: 0;">Optical Biomarker Delta Matrix</h4>
-              <span class="badge badge-success" style="font-size: 0.72rem; font-weight: 700;">${comp.days_elapsed} Days Elapsed</span>
-            </div>
-
-            <div style="display: flex; flex-direction: column; gap: 0.6rem;">
-              ${comp.biomarker_deltas.map(b => {
-    const isGain = b.delta_percentage > 0;
-    const isGood = b.parameter.includes('Acne') || b.parameter.includes('Redness') || b.parameter.includes('Pigmentation') || b.parameter.includes('Sebum') ? !isGain : isGain;
-    const badgeColor = isGood ? 'var(--accent-emerald)' : 'var(--accent-rose)';
-    const deltaSign = b.delta_val > 0 ? `+${b.delta_val}` : `${b.delta_val}`;
-    const pctSign = b.delta_percentage > 0 ? `+${b.delta_percentage}%` : `${b.delta_percentage}%`;
-
-    return `
-                  <div style="padding: 0.75rem 0.95rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-                    <div style="flex: 1; min-width: 180px;">
-                      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.15rem;">
-                        <strong style="font-size: 0.85rem; color: var(--text-primary);">${b.parameter}</strong>
-                      </div>
-                      <p style="font-size: 0.76rem; color: var(--text-muted); margin: 0; line-height: 1.35;">${b.clinical_insight}</p>
-                    </div>
-
-                    <div style="text-align: right; min-width: 110px;">
-                      <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.15rem;">
-                        ${b.baseline_val} &rarr; <strong style="color: var(--text-primary); font-size: 0.85rem;">${b.current_val}</strong>
-                      </div>
-                      <span style="display: inline-block; background: rgba(46, 125, 50, 0.1); color: ${badgeColor}; font-size: 0.75rem; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 6px;">
-                        ${pctSign} (${deltaSign})
-                      </span>
-                    </div>
+            <!-- LEFT: BEFORE/AFTER SLIDER OR SINGLE BASELINE PHOTO -->
+            <div class="before-after-slider-container" id="before-after-slider-box" style="position: relative; width: 100%; height: 380px; border-radius: var(--radius-sm); overflow: hidden; border: 2px solid var(--border-gold); box-shadow: 0 8px 24px rgba(0,0,0,0.1); user-select: none;">
+              <!-- AFTER / CURRENT IMAGE -->
+              <img src="${comp.current_image}" alt="Clinical Skin Evaluation" class="ba-image-after" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+              
+              ${!isSingleScan ? `
+                <!-- BEFORE IMAGE (Clipped on top) -->
+                <div class="ba-image-before-wrapper" id="ba-before-wrapper" style="position: absolute; top: 0; left: 0; width: 50%; height: 100%; overflow: hidden;">
+                  <img src="${comp.baseline_image}" alt="Baseline Skin" class="ba-image-before" style="width: 460px; height: 380px; object-fit: cover; max-width: none; display: block;">
+                  <!-- Label Pill Before -->
+                  <div style="position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.75); backdrop-filter: blur(6px); color: #fff; padding: 0.25rem 0.65rem; border-radius: 12px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.05em; border: 1px solid rgba(255,255,255,0.2);">
+                    BEFORE • ${comp.baseline_date} (${comp.baseline_score})
                   </div>
-                `;
-  }).join('')}
+                </div>
+
+                <!-- Label Pill After -->
+                <div style="position: absolute; top: 12px; right: 12px; background: rgba(46, 125, 50, 0.85); backdrop-filter: blur(6px); color: #fff; padding: 0.25rem 0.65rem; border-radius: 12px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.05em; border: 1px solid rgba(255,255,255,0.2);">
+                  AFTER • ${comp.current_date} (${comp.current_score})
+                </div>
+
+                <!-- DRAGGABLE DIVIDER LINE & HANDLE -->
+                <div class="ba-divider-handle" id="ba-divider-handle" style="position: absolute; top: 0; bottom: 0; left: 50%; width: 4px; background: #FFFFFF; box-shadow: 0 0 10px rgba(0,0,0,0.4); cursor: ew-resize; transform: translateX(-50%);">
+                  <div class="ba-handle-circle" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 36px; height: 36px; border-radius: 50%; background: #FFFFFF; border: 2px solid var(--gold-primary); box-shadow: 0 2px 10px rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 900; color: var(--gold-primary);">
+                    &lang;&rang;
+                  </div>
+                </div>
+
+                <!-- Position Pill at Bottom -->
+                <div style="position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.65); color: #FFFFFF; font-size: 0.68rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 10px; pointer-events: none;">
+                  &larr; Drag to Compare &rarr;
+                </div>
+              ` : `
+                <div style="position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.75); backdrop-filter: blur(6px); color: #fff; padding: 0.25rem 0.65rem; border-radius: 12px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.05em; border: 1px solid rgba(255,255,255,0.2);">
+                  BASELINE SCAN • ${comp.baseline_date} (${comp.baseline_score}/100)
+                </div>
+                <div style="position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background: rgba(197, 155, 39, 0.9); color: #FFFFFF; font-size: 0.72rem; font-weight: 700; padding: 0.3rem 0.8rem; border-radius: 12px; pointer-events: none; white-space: nowrap;">
+                  ✨ Baseline Telemetry Indexed
+                </div>
+              `}
             </div>
 
-            <!-- Clinical Summary Box -->
-            <div style="margin-top: 1rem; padding: 0.85rem 1.1rem; background: rgba(197, 155, 39, 0.06); border-left: 3px solid var(--gold-primary); border-radius: 4px;">
-              <strong style="font-size: 0.82rem; color: #8A6400; text-transform: uppercase;">Dermatologist Clinical Verdict:</strong>
-              <p style="font-size: 0.82rem; color: var(--text-primary); margin: 0.25rem 0 0 0; line-height: 1.4;">${comp.clinical_summary}</p>
+            <!-- RIGHT: OPTICAL BIOMARKERS DELTA MATRIX TABLE -->
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <h4 style="font-family: 'Playfair Display', serif; font-size: 1.1rem; margin: 0;">Optical Biomarker ${isSingleScan ? 'Intake Metrics' : 'Delta Matrix'}</h4>
+                <span class="badge ${isSingleScan ? 'badge-accent' : 'badge-success'}" style="font-size: 0.72rem; font-weight: 700;">
+                  ${isSingleScan ? 'Day 1 Baseline' : `${comp.days_elapsed} Days Elapsed`}
+                </span>
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+                ${comp.biomarker_deltas.map(b => {
+                  const isGain = b.delta_percentage > 0;
+                  const isGood = b.parameter.includes('Acne') || b.parameter.includes('Redness') || b.parameter.includes('Pigmentation') || b.parameter.includes('Sebum') ? !isGain : isGain;
+                  const badgeColor = isSingleScan ? 'var(--gold-primary)' : (isGood ? 'var(--accent-emerald)' : 'var(--accent-rose)');
+                  const deltaSign = b.delta_val > 0 ? `+${b.delta_val}` : `${b.delta_val}`;
+                  const pctSign = b.delta_percentage > 0 ? `+${b.delta_percentage}%` : `${b.delta_percentage}%`;
+
+                  return `
+                    <div style="padding: 0.75rem 0.95rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                      <div style="flex: 1; min-width: 180px;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.15rem;">
+                          <strong style="font-size: 0.85rem; color: var(--text-primary);">${b.parameter}</strong>
+                        </div>
+                        <p style="font-size: 0.76rem; color: var(--text-muted); margin: 0; line-height: 1.35;">${b.clinical_insight}</p>
+                      </div>
+
+                      <div style="text-align: right; min-width: 110px;">
+                        <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.15rem;">
+                          ${isSingleScan ? `<strong style="color: var(--text-primary); font-size: 0.88rem;">${b.current_val}%</strong>` : `${b.baseline_val} &rarr; <strong style="color: var(--text-primary); font-size: 0.85rem;">${b.current_val}</strong>`}
+                        </div>
+                        <span style="display: inline-block; background: ${isSingleScan ? 'rgba(197, 155, 39, 0.12)' : 'rgba(46, 125, 50, 0.1)'}; color: ${badgeColor}; font-size: 0.75rem; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 6px;">
+                          ${isSingleScan ? 'Baseline Indexed' : `${pctSign} (${deltaSign})`}
+                        </span>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+
+              <!-- Clinical Summary Box -->
+              <div style="margin-top: 1rem; padding: 0.85rem 1.1rem; background: rgba(197, 155, 39, 0.06); border-left: 3px solid var(--gold-primary); border-radius: 4px;">
+                <strong style="font-size: 0.82rem; color: #8A6400; text-transform: uppercase;">Dermatologist Clinical Verdict:</strong>
+                <p style="font-size: 0.82rem; color: var(--text-primary); margin: 0.25rem 0 0 0; line-height: 1.4;">${comp.clinical_summary}</p>
+              </div>
             </div>
+
           </div>
-
-        </div>
-      </section>
+        </section>
+      `}
 
       <!-- SECTION 2: 60-DAY HISTORICAL & 30-DAY AI PREDICTIVE TREND ANALYSIS -->
       <section class="glass-card section-margin" style="background: #FFFFFF; padding: 1.75rem; border-radius: var(--radius-md); border: 1px solid var(--border-light); margin-bottom: 2rem;">
@@ -2817,7 +3090,7 @@ export function renderProgressAnalyticsPage() {
               <h2 style="font-family: 'Playfair Display', serif; font-size: 1.35rem; margin: 0;">Skin Health Trajectory & 30-Day Predictive AI Forecast</h2>
             </div>
             <p class="text-muted" style="font-size: 0.82rem; margin-top: 0.15rem;">
-              Statistical regression modeling based on your 18-day active streak and optical biomarker response
+              Statistical regression modeling based on your ${adherence.current_streak_days}-day active streak and optical biomarker response
             </p>
           </div>
 
@@ -2849,7 +3122,7 @@ export function renderProgressAnalyticsPage() {
             </div>
 
             <div style="font-size: 0.78rem; color: var(--text-muted);">
-              Current Velocity: <strong style="color: var(--accent-emerald);">+2.54 pts / week</strong> &bull; Estimated to 85+: <strong>22 Days</strong>
+              Current Velocity: <strong style="color: var(--accent-emerald);">+${(Math.max(0.1, deltaScoreVal / 4.3)).toFixed(2)} pts / week</strong> &bull; Estimated to 85+: <strong>${Math.max(7, Math.round((85 - curScoreVal) / 0.36) || 22)} Days</strong>
             </div>
           </div>
 
@@ -2886,59 +3159,78 @@ export function renderProgressAnalyticsPage() {
 
               <!-- Middle Divider (Today) -->
               <line x1="410" y1="20" x2="410" y2="210" stroke="#475569" stroke-width="1.5" stroke-dasharray="3 3"/>
-              <text x="390" y="15" font-size="11" font-weight="bold" fill="#181614" font-family="sans-serif">TODAY (79.4)</text>
+              <text x="390" y="15" font-size="11" font-weight="bold" fill="#181614" font-family="sans-serif">TODAY (${curScoreVal})</text>
 
               <!-- Historical Area Fill -->
               <polygon points="50,158 110,147 170,136 230,126 290,118 350,112 410,107 410,210 50,210" fill="url(#scoreAreaGrad)"/>
               
-              <!-- Historical Line (Score: 68.5 -> 79.4) -->
+              <!-- Historical Line -->
               <path d="M 50,158 Q 170,135 290,118 T 410,107" fill="none" stroke="#C59B27" stroke-width="3.5" stroke-linecap="round"/>
 
               <!-- Checkpoint Circles on Historical Line -->
               <circle cx="50" cy="158" r="5" fill="#FFFFFF" stroke="#C59B27" stroke-width="3"/>
-              <text x="45" y="180" font-size="10" font-weight="bold" fill="#716A61" text-anchor="middle">Day 1 (68.5)</text>
+              <text x="45" y="180" font-size="10" font-weight="bold" fill="#716A61" text-anchor="middle">Day 1 (${baseScoreVal})</text>
 
               <circle cx="170" cy="136" r="4.5" fill="#FFFFFF" stroke="#C59B27" stroke-width="2.5"/>
-              <text x="170" y="125" font-size="9" fill="#716A61" text-anchor="middle">W2 (72.0)</text>
+              <text x="170" y="125" font-size="9" fill="#716A61" text-anchor="middle">W2 (${Math.round((baseScoreVal + (curScoreVal - baseScoreVal) * 0.35) * 10) / 10})</text>
 
               <circle cx="290" cy="118" r="4.5" fill="#FFFFFF" stroke="#C59B27" stroke-width="2.5"/>
-              <text x="290" y="106" font-size="9" fill="#716A61" text-anchor="middle">W4 (75.8)</text>
+              <text x="290" y="106" font-size="9" fill="#716A61" text-anchor="middle">W4 (${Math.round((baseScoreVal + (curScoreVal - baseScoreVal) * 0.7) * 10) / 10})</text>
 
               <circle cx="410" cy="107" r="6" fill="#2E7D32" stroke="#FFFFFF" stroke-width="2"/>
 
               <!-- Projected Forecast Area Fill -->
               <polygon points="410,107 470,95 530,86 590,78 650,72 710,68 770,65 770,210 410,210" fill="url(#projAreaGrad)"/>
 
-              <!-- Projected Forecast Line (Score: 79.4 -> 86.5) -->
+              <!-- Projected Forecast Line -->
               <path d="M 410,107 Q 530,85 650,72 T 770,65" fill="none" stroke="#2E7D32" stroke-width="3" stroke-dasharray="6 4" stroke-linecap="round"/>
 
               <!-- Projected End Circle -->
               <circle cx="770" cy="65" r="5" fill="#FFFFFF" stroke="#2E7D32" stroke-width="3"/>
-              <text x="760" y="52" font-size="10" font-weight="bold" fill="#2E7D32" text-anchor="middle">+30d (84.5)</text>
+              <text x="760" y="52" font-size="10" font-weight="bold" fill="#2E7D32" text-anchor="middle">+30d (${Math.min(96, Math.round((curScoreVal + 5.1) * 10) / 10)})</text>
 
               <!-- X-Axis Labels -->
-              <text x="50" y="228" font-size="10" fill="#94A3B8" text-anchor="middle">Oct 24</text>
-              <text x="170" y="228" font-size="10" fill="#94A3B8" text-anchor="middle">Nov 02</text>
-              <text x="290" y="228" font-size="10" fill="#94A3B8" text-anchor="middle">Nov 14</text>
-              <text x="410" y="228" font-size="10" font-weight="bold" fill="#181614" text-anchor="middle">Nov 24 (Today)</text>
-              <text x="530" y="228" font-size="10" fill="#94A3B8" text-anchor="middle">Dec 04</text>
-              <text x="650" y="228" font-size="10" fill="#94A3B8" text-anchor="middle">Dec 14</text>
-              <text x="770" y="228" font-size="10" fill="#94A3B8" text-anchor="middle">Dec 24</text>
+              <text x="50" y="228" font-size="10" fill="#94A3B8" text-anchor="middle">-30 Days</text>
+              <text x="170" y="228" font-size="10" fill="#94A3B8" text-anchor="middle">-20 Days</text>
+              <text x="290" y="228" font-size="10" fill="#94A3B8" text-anchor="middle">-10 Days</text>
+              <text x="410" y="228" font-size="10" font-weight="bold" fill="#181614" text-anchor="middle">Today (${curScoreVal})</text>
+              <text x="530" y="228" font-size="10" fill="#94A3B8" text-anchor="middle">+10 Days</text>
+              <text x="650" y="228" font-size="10" fill="#94A3B8" text-anchor="middle">+20 Days</text>
+              <text x="770" y="228" font-size="10" fill="#94A3B8" text-anchor="middle">+30 Days</text>
             </svg>
           </div>
         </div>
 
         <!-- 4 KEY TREND INDICATORS -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.85rem;">
-          ${trendData.key_trend_indicators.map(ind => `
-            <div style="padding: 0.9rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm);">
-              <div style="font-size: 0.73rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">${ind.indicator}</div>
-              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 0.25rem;">
-                <strong style="font-size: 0.95rem; color: var(--text-primary);">${ind.trend}</strong>
-                <span style="font-size: 0.85rem; font-weight: 800; color: var(--accent-emerald);">${ind.delta}</span>
-              </div>
+          <div style="padding: 0.9rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm);">
+            <div style="font-size: 0.73rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Barrier Restoration Index</div>
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 0.25rem;">
+              <strong style="font-size: 0.95rem; color: var(--text-primary);">Rapid Ascent</strong>
+              <span style="font-size: 0.85rem; font-weight: 800; color: var(--accent-emerald);">+65.4%</span>
             </div>
-          `).join('')}
+          </div>
+          <div style="padding: 0.9rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm);">
+            <div style="font-size: 0.73rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Sebum Secretion Stability</div>
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 0.25rem;">
+              <strong style="font-size: 0.95rem; color: var(--text-primary);">Normalized Balance</strong>
+              <span style="font-size: 0.85rem; font-weight: 800; color: var(--accent-emerald);">-29.7%</span>
+            </div>
+          </div>
+          <div style="padding: 0.9rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm);">
+            <div style="font-size: 0.73rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Micro-Vascular Sensitivity</div>
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 0.25rem;">
+              <strong style="font-size: 0.95rem; color: var(--text-primary);">Steady Cooling</strong>
+              <span style="font-size: 0.85rem; font-weight: 800; color: var(--accent-emerald);">-52.6%</span>
+            </div>
+          </div>
+          <div style="padding: 0.9rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm);">
+            <div style="font-size: 0.73rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Photodamage Repair Rate</div>
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 0.25rem;">
+              <strong style="font-size: 0.95rem; color: var(--text-primary);">Continuous Gradual</strong>
+              <span style="font-size: 0.85rem; font-weight: 800; color: var(--accent-emerald);">+44.3%</span>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -2971,16 +3263,16 @@ export function renderProgressAnalyticsPage() {
         <div style="margin-bottom: 1.5rem;">
           <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(34px, 1fr)); gap: 0.45rem;">
             ${calendarDays.map(day => {
-    const bg = day.compliance_pct === 100 ? '#2E7D32' : (day.compliance_pct >= 70 ? '#D97706' : '#DC2626');
-    const isToday = day.day_number === 24;
-    return `
+              const bg = day.compliance_pct === 100 ? '#2E7D32' : (day.compliance_pct >= 70 ? '#D97706' : '#DC2626');
+              const isToday = day.day_number === new Date().getDate();
+              return `
                 <div class="adherence-day-pill" title="${day.date} (${day.day_name}): ${day.compliance_pct}% Adherence" style="background: #FAF9F6; border: 1px solid ${isToday ? 'var(--gold-primary)' : 'var(--border-light)'}; border-radius: 6px; padding: 0.35rem 0.2rem; text-align: center; cursor: pointer; transition: var(--transition); position: relative;" onclick="alert('Adherence details for ${day.date}: ${day.compliance_pct}% completed. AM: ${day.morning_pct}%, PM: ${day.evening_pct}%')">
                   <div style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600;">${day.day_name}</div>
                   <div style="font-size: 0.8rem; font-weight: 800; color: var(--text-primary); margin: 0.1rem 0;">${day.day_number}</div>
                   <div style="width: 8px; height: 8px; border-radius: 50%; background: ${bg}; margin: 0 auto; box-shadow: 0 0 4px ${bg};"></div>
                 </div>
               `;
-  }).join('')}
+            }).join('')}
           </div>
         </div>
 
@@ -3659,26 +3951,30 @@ export function renderClinicChatPage(conversations = [], activeContactId = 'lumi
             </div>
 
             <!-- Messages List -->
-            <div id="chat-page-messages-list" style="display: flex; flex-direction: column; gap: 1rem;">
+            <div id="chat-page-messages-list" style="display: flex; flex-direction: column; gap: 0.75rem;">
               ${(activeMessages && activeMessages.length > 0 ? activeMessages : []).map(m => {
                 const isMe = String(m.sender_id) === String(currentUserId) && m.sender_role !== 'ai_assistant';
                 const isAi = m.sender_id === 'lumina_ai' || m.message_type === 'ai_response';
+                const avatarUrl = m.sender_avatar || activeContact.contact_avatar || 'assets/logo.png';
+                const formatted = (typeof window !== 'undefined' && window.app && window.app.formatChatMessage) ? window.app.formatChatMessage(m.message) : m.message.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+                const timeStr = m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
                 return `
                   <div class="chat-bubble-row ${isMe ? 'my-message' : 'their-message'}">
                     ${!isMe ? `
-                      <img src="${m.sender_avatar || activeContact.contact_avatar}" alt="${m.sender_name}" class="chat-msg-avatar" onerror="this.src='assets/logo.png'">
+                      <img src="${avatarUrl}" alt="${m.sender_name || 'Contact'}" class="chat-msg-avatar" onerror="this.src='assets/logo.png'">
                     ` : ''}
                     <div class="chat-bubble ${isMe ? 'bubble-me' : isAi ? 'bubble-ai' : 'bubble-them'}">
                       ${!isMe ? `
                         <div class="chat-bubble-sender">
-                          ${m.sender_name} ${isAi ? '<span class="ai-sparkle-pill">✨ AI COPILOT</span>' : ''}
+                          <span>${m.sender_name || (isAi ? 'Lumina AI Copilot' : 'Care Team')}</span>
+                          ${isAi ? '<span class="ai-sparkle-pill">✨ AI COPILOT</span>' : ''}
                         </div>
                       ` : ''}
                       <div class="chat-bubble-text">
-                        ${m.message.replace(/\n/g, '<br>')}
+                        ${formatted}
                       </div>
                       <div class="chat-bubble-footer">
-                        <span>${m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</span>
+                        <span>${timeStr}</span>
                         ${isMe ? '<span class="chat-check-icon">✓✓</span>' : ''}
                       </div>
                     </div>

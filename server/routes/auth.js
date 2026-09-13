@@ -311,6 +311,8 @@ router.post('/google', async (req, res) => {
       [googleUser.google_id, googleUser.email]
     );
 
+    const isNewOAuthUser = existingGoogleUser.rows.length === 0;
+
     let dbUser = null;
 
     if (existingGoogleUser.rows.length > 0) {
@@ -351,7 +353,10 @@ router.post('/google', async (req, res) => {
 
     return res.json({
       success: true,
-      message: `Google OAuth login successful! Welcome ${dbUser.username}`,
+      isNewOAuthUser,
+      message: isNewOAuthUser
+        ? `Google OAuth registration successful! Please set a master password to secure your account.`
+        : `Google OAuth login successful! Welcome ${dbUser.username}`,
       token: appToken,
       user: {
         id: dbUser.id,
@@ -368,6 +373,70 @@ router.post('/google', async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Google OAuth authentication failed.',
+      error: err.message
+    });
+  }
+});
+
+/**
+ * @route   POST /api/auth/set-password
+ * @desc    Configure master password for OAuth or registered user account
+ */
+router.post('/set-password', async (req, res) => {
+  try {
+    const { password, new_password, user_id } = req.body;
+    const rawPass = password || new_password;
+
+    if (!rawPass || typeof rawPass !== 'string' || rawPass.trim().length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters in length.'
+      });
+    }
+
+    let targetUserId = null;
+
+    // Check authorization header first
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      try {
+        const token = authHeader.split(' ')[1];
+        const jwtSecret = process.env.JWT_SECRET || 'panacea_ai_skin_intelligence_jwt_secret_key_2026_super_secret';
+        const decoded = jwt.verify(token, jwtSecret);
+        if (decoded && decoded.id) {
+          targetUserId = decoded.id;
+        }
+      } catch (e) {
+        // invalid token
+      }
+    }
+
+    if (!targetUserId && user_id) {
+      targetUserId = parseInt(user_id, 10);
+    }
+
+    if (!targetUserId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Unauthorized: Valid user session or token required to set password.'
+      });
+    }
+
+    // Hash password with bcrypt
+    const passwordHash = await bcrypt.hash(rawPass.trim(), 10);
+
+    // Update in database / store
+    await db.query('UPDATE users SET password_hash = $1 WHERE id = $2', [passwordHash, targetUserId]);
+
+    return res.json({
+      success: true,
+      message: 'Master password configured and stored securely. You may now sign in using your credentials.'
+    });
+  } catch (err) {
+    console.error('[Set Password API Error]', err);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to configure account password.',
       error: err.message
     });
   }

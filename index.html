@@ -15,17 +15,13 @@
 <body>
   <!-- Navigation Header -->
   <header class="navbar">
-    <div class="brand" id="brand-home" onclick="window.app.navigateToView('dashboard')">
+    <div class="brand" id="brand-home" onclick="window.app.navigateToView('landing')" style="cursor: pointer;" title="Panacea AI - Home / Landing Page">
       <img src="assets/logo.png" alt="PanaceaAI Logo" class="brand-logo-img">
       <span>Panacea AI</span>
     </div>
 
     <!-- Center Luxury Clinic Navigation Capsule (Active only upon authenticated login) -->
     <nav class="center-nav-capsule hidden" id="center-nav-capsule">
-      <button class="nav-capsule-item active" id="nav-item-profile" onclick="window.app.navigateToView('dashboard')">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-        <span>Client Profile</span>
-      </button>
       <button class="nav-capsule-item" id="nav-item-products" onclick="window.app.navigateToView('products')">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
         <span>Products</span>
@@ -52,8 +48,8 @@
         <input type="text" placeholder="Search..." onkeydown="if(event.key==='Enter'){window.app.navigateToView('products'); window.app.handleProductSearchInput(this.value);}">
       </div>
 
-      <!-- Notifications Icon & Trigger -->
-      <button id="nav-notifications-btn" class="nav-icon-circle-btn" onclick="window.app.toggleNotificationDrawer()" title="Notifications & Reminders">
+      <!-- Notifications Icon & Trigger (Visible only upon authenticated login) -->
+      <button id="nav-notifications-btn" class="nav-icon-circle-btn hidden" onclick="window.app.toggleNotificationDrawer()" title="Notifications & Reminders" style="display: none;">
         <span>🔔</span>
         <span id="nav-notification-badge" class="nav-icon-badge-num">0</span>
       </button>
@@ -232,6 +228,49 @@
           <span id="google-btn-text">Continue with Google</span>
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- OAuth First-Time Password Setup Modal -->
+  <div id="oauth-password-modal" class="modal-backdrop hidden" style="z-index: 10500;">
+    <div class="modal-card" style="max-width: 460px; padding: 2rem; border-radius: var(--radius-md); box-shadow: var(--shadow-xl); background: #FFFFFF;">
+      <div class="modal-header" style="margin-bottom: 1.25rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+            <span style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: rgba(197, 160, 89, 0.15); border-radius: 50%; color: var(--gold-primary);">
+              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            </span>
+            <h3 style="font-family: var(--font-serif); font-size: 1.35rem; color: var(--navy-primary); margin: 0;">Security: Create Password</h3>
+          </div>
+          <p style="font-size: 0.84rem; color: var(--text-muted); margin: 0; line-height: 1.45;">Welcome! Since you registered with Google OAuth, please create a secure master password to enable credential access for future logins.</p>
+        </div>
+      </div>
+
+      <form id="oauth-password-form" onsubmit="window.app.handleOAuthPasswordSubmit(event)" autocomplete="off" novalidate>
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label for="oauth-new-password" style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.35rem; display: block;">Create Password (min 6 characters)</label>
+          <div style="position: relative;">
+            <input type="password" id="oauth-new-password" class="form-control" placeholder="Enter new password" autocomplete="new-password" required minlength="6" style="padding-right: 42px;">
+            <button type="button" class="password-toggle-btn" title="Toggle Password Visibility" onclick="window.app.togglePasswordVisibility('oauth-new-password', this)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+          <label for="oauth-confirm-password" style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.35rem; display: block;">Confirm Password</label>
+          <div style="position: relative;">
+            <input type="password" id="oauth-confirm-password" class="form-control" placeholder="Re-enter password" autocomplete="new-password" required minlength="6" style="padding-right: 42px;">
+            <button type="button" class="password-toggle-btn" title="Toggle Password Visibility" onclick="window.app.togglePasswordVisibility('oauth-confirm-password', this)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+          </div>
+        </div>
+
+        <div id="oauth-password-alert" class="login-alert-box hidden" style="margin-bottom: 1rem;"></div>
+
+        <button type="submit" id="oauth-password-submit-btn" class="btn btn-primary" style="width: 100%; padding: 0.8rem; font-weight: 600; font-size: 0.95rem; border-radius: var(--radius-sm);">Save Password & Proceed to Portal</button>
+      </form>
     </div>
   </div>
 
@@ -639,7 +678,7 @@
           <button id="btn-dialog-reanalyze" class="btn btn-gold" style="flex: 1; font-weight: 700; font-size: 0.82rem; padding: 0.65rem; background: var(--gold-primary); color: #fff; border: none;" onclick="window.app.reAnalyzeCurrentScan()">
             🔄 RE-ANALYZE SCAN
           </button>
-          <button class="btn btn-primary" style="flex: 1.2; font-weight: 700; font-size: 0.82rem; padding: 0.65rem;" onclick="window.app.applyScanResultsToDashboard()">
+          <button id="btn-dialog-apply" class="btn btn-primary" style="flex: 1.2; font-weight: 700; font-size: 0.82rem; padding: 0.65rem; cursor: pointer;" onclick="window.app.applyScanResultsToDashboard()">
             ✨ Apply to Dashboard
           </button>
         </div>

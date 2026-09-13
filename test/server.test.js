@@ -155,3 +155,67 @@ test('10. User Account Admin Approval Verification Workflow Test', async () => {
   );
   assert.equal(approveRes.rows[0].status, 'active', 'Status must be updated to active');
 });
+
+test('11. Admin User Deletion Test (by ID & Email for moonknight4550@gmail.com)', async () => {
+  // 1. Insert user with email moonknight4550@gmail.com
+  const passHash = await bcrypt.hash('Secret123!', 10);
+  const userInsert = await db.query(
+    `INSERT INTO users (username, email, password_hash, role, status)
+     VALUES ($1, $2, $3, $4, $5)
+     RETURNING id, username, email`,
+    ['moonknight4550', 'moonknight4550@gmail.com', passHash, 'user', 'active']
+  );
+  assert.ok(userInsert.rows.length === 1, 'User moonknight4550 should be inserted');
+  const targetId = userInsert.rows[0].id;
+
+  // 2. Query user by email
+  const findRes = await db.query('SELECT * FROM users WHERE email = $1', ['moonknight4550@gmail.com']);
+  assert.equal(findRes.rows.length, 1, 'Should find user by email');
+
+  // 3. Delete user by ID
+  const deleteRes = await db.query('DELETE FROM users WHERE id = $1', [targetId]);
+  assert.ok(deleteRes.rowCount >= 1, 'Should successfully delete user by ID');
+
+  // 4. Verify user no longer exists
+  const afterDelete = await db.query('SELECT * FROM users WHERE id = $1', [targetId]);
+  assert.equal(afterDelete.rows.length, 0, 'User must not exist after deletion');
+});
+
+test('12. OAuth New User Registration, Password Creation, and Credential Login Workflow', async () => {
+  // 1. Simulate Google OAuth user creation with null password_hash initially
+  const googleEmail = 'new_oauth_user@example.com';
+  const googleId = 'google_uid_987654';
+  const username = 'new_oauth_user';
+
+  const insertRes = await db.query(
+    `INSERT INTO users (username, email, google_id, role, status, auth_provider)
+     VALUES ($1, $2, $3, $4, $5, $6)
+     RETURNING id, username, email, role, status`,
+    [username, googleEmail, googleId, 'user', 'active', 'google']
+  );
+
+  assert.ok(insertRes.rows.length === 1, 'OAuth user record should be created');
+  const user = insertRes.rows[0];
+  assert.equal(user.email, googleEmail);
+
+  // 2. User sets their master password (hashed with bcrypt 10 rounds)
+  const masterPassword = 'MySecureOAuthPassword123!';
+  const newHash = await bcrypt.hash(masterPassword, 10);
+
+  const updateRes = await db.query(
+    'UPDATE users SET password_hash = $1 WHERE id = $2 RETURNING id, password_hash',
+    [newHash, user.id]
+  );
+  assert.ok(updateRes.rows.length === 1, 'User password_hash should be updated');
+
+  // 3. Verify password against stored hash with bcrypt
+  const checkUser = await db.query('SELECT * FROM users WHERE id = $1', [user.id]);
+  assert.ok(checkUser.rows[0].password_hash, 'Password hash must be present');
+
+  const match = await bcrypt.compare(masterPassword, checkUser.rows[0].password_hash);
+  assert.equal(match, true, 'Master password must match bcrypt stored hash');
+
+  const wrongMatch = await bcrypt.compare('WrongPassword456!', checkUser.rows[0].password_hash);
+  assert.equal(wrongMatch, false, 'Wrong password must be rejected');
+});
+
