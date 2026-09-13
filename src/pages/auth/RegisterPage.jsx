@@ -27,11 +27,17 @@ export default function RegisterPage() {
     setSuccessMessage(null);
     setAccessDeniedMessage(null);
 
+    const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    if (!googleClientId) {
+      setErrorMessage('Google OAuth is not configured. Please set VITE_GOOGLE_CLIENT_ID.');
+      return;
+    }
+
     /* global google */
     if (window.google?.accounts?.id) {
       try {
         window.google.accounts.id.initialize({
-                client_id: '512806936655-b2pn6icqqr18p3qjs0pkvvba3mo3dj5r.apps.googleusercontent.com',
+                client_id: googleClientId,
           callback: async (resp) => {
             if (resp?.credential) {
               try {
@@ -50,7 +56,7 @@ export default function RegisterPage() {
           if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
             if (window.google?.accounts?.oauth2) {
               const client = window.google.accounts.oauth2.initTokenClient({
-                      client_id: '512806936655-b2pn6icqqr18p3qjs0pkvvba3mo3dj5r.apps.googleusercontent.com',
+                      client_id: googleClientId,
                 scope: 'email profile openid',
                 callback: async (tokenResp) => {
                   if (tokenResp?.access_token) {
@@ -150,7 +156,7 @@ export default function RegisterPage() {
       setIsLoading(false);
       setErrorMessage(
         lastError?.message?.includes('Failed to fetch') || lastError?.message?.includes('NetworkError')
-          ? 'Unable to connect to backend server at http://127.0.0.1:8000. Ensure FastAPI backend is running.'
+          ? 'Unable to connect to backend server. Ensure the backend is running.'
           : lastError?.message || 'Google OAuth Sign-Up failed.'
       );
     }

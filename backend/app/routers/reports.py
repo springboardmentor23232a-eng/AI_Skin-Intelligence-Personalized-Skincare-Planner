@@ -520,20 +520,24 @@ def get_skin_health_report(
     """
     Returns skin health report with current scores, breakdown, and recommendations.
     Reuses existing scoring engine calculations.
+    Optimized to eliminate N+1 query pattern.
     """
     try:
-        # Get latest assessment
-        latest_assessment = db.query(models.Assessment).filter(
+        # Get all assessment history in one query (descending for latest first)
+        assessments = db.query(models.Assessment).filter(
             models.Assessment.user_id == current_user.id
-        ).order_by(models.Assessment.assessment_time.desc()).first()
+        ).order_by(models.Assessment.assessment_time.desc()).all()
         
-        if latest_assessment is None:
+        if not assessments:
             return {
                 "report_type": "skin_health",
                 "generated_at": datetime.utcnow().isoformat(),
                 "data": None,
                 "message": "No assessment found. Complete an assessment first."
             }
+        
+        # Latest assessment is the first one
+        latest_assessment = assessments[0]
         
         # Calculate factor scores using existing scoring engine functions
         skin_condition = calculate_skin_condition_score(latest_assessment)
@@ -554,18 +558,14 @@ def get_skin_health_report(
         # Get score category
         category = get_score_category(overall_score)
         
-        # Get assessment history for trend
-        history = db.query(models.Assessment).filter(
-            models.Assessment.user_id == current_user.id
-        ).order_by(models.Assessment.assessment_time.asc()).all()
-        
+        # Use already-fetched assessments for trend (reverse for chronological order)
         assessment_trend = [
             {
                 "id": a.id,
                 "assessment_time": _serialize_datetime(a.assessment_time),
                 "health_score": a.health_score
             }
-            for a in history
+            for a in reversed(assessments)
         ]
         
         # Get adherence summary

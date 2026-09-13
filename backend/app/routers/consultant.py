@@ -15,8 +15,9 @@ Existing business logic is reused without modification:
 """
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from typing import Any, Dict, Optional
+from sqlalchemy.orm import Session, aliased
+from sqlalchemy import func, select
+from typing import Any, Dict, List, Optional
 from pydantic import BaseModel
 from datetime import datetime
 import io
@@ -75,14 +76,13 @@ def _latest_assessment(client_id: int, db: Session) -> Optional[models.Assessmen
     )
 
 
-def _build_client_summary(user: models.User, db: Session) -> dict:
+def _build_client_summary_from_joined(user: models.User, latest_assessment: Optional[models.Assessment] = None) -> dict:
     """
     Builds a lightweight client profile dict that includes the latest
     assessment summary (if any).  Password and auth fields are never
     included.
+    Optimized version that accepts pre-fetched assessment to avoid N+1 queries.
     """
-    latest = _latest_assessment(user.id, db)
-
     base = {
         "id": user.id,
         "full_name": user.full_name,
@@ -90,19 +90,26 @@ def _build_client_summary(user: models.User, db: Session) -> dict:
         "created_at": user.created_at,
     }
 
-    if latest:
+    if latest_assessment:
         base["latest_assessment"] = {
-            "assessment_id": latest.id,
-            "health_score": latest.health_score,
-            "predicted_skin_type": latest.predicted_skin_type,
-            "overall_condition": latest.overall_condition,
-            "vision_predicted_concern": latest.vision_predicted_concern,
-            "assessment_time": latest.assessment_time,
+            "assessment_id": latest_assessment.id,
+            "health_score": latest_assessment.health_score,
+            "predicted_skin_type": latest_assessment.predicted_skin_type,
+            "overall_condition": latest_assessment.overall_condition,
+            "vision_predicted_concern": latest_assessment.vision_predicted_concern,
+            "assessment_time": latest_assessment.assessment_time,
         }
     else:
         base["latest_assessment"] = None
 
     return base
+
+def _build_client_summary(user: models.User, db: Session) -> dict:
+    """
+    Legacy function for single client lookup - calls the optimized version.
+    """
+    latest = _latest_assessment(user.id, db)
+    return _build_client_summary_from_joined(user, latest)
 
 
 # ---------------------------------------------------------------------------
@@ -118,18 +125,69 @@ def list_clients(
     Returns all users with role = 'USER', enriched with their latest
     assessment summary.  Passwords and authentication fields are never
     returned.
+    Optimized to avoid N+1 queries by joining with latest assessments.
     """
-    users = (
-        db.query(models.User)
+    # Subquery to get the latest assessment for each user
+    from sqlalchemy import desc
+    
+    # Create a subquery that ranks assessments for each user by recency
+    subquery = (
+        db.query(
+            models.Assessment.user_id,
+            models.Assessment.id,
+            models.Assessment.health_score,
+            models.Assessment.predicted_skin_type,
+            models.Assessment.overall_condition,
+            models.Assessment.vision_predicted_concern,
+            models.Assessment.assessment_time,
+            func.row_number().over(
+                partition_by=models.Assessment.user_id,
+                order_by=desc(models.Assessment.assessment_time)
+            ).label('row_num')
+        )
+        .subquery()
+    )
+    
+    # Query users and join with their latest assessment
+    users_with_latest_assessment = (
+        db.query(
+            models.User,
+            subquery.c.id.label('assessment_id'),
+            subquery.c.health_score,
+            subquery.c.predicted_skin_type,
+            subquery.c.overall_condition,
+            subquery.c.vision_predicted_concern,
+            subquery.c.assessment_time
+        )
+        .outerjoin(
+            subquery,
+            (models.User.id == subquery.c.user_id) & (subquery.c.row_num == 1)
+        )
         .filter(models.User.role == "USER")
         .order_by(models.User.created_at.desc())
         .all()
     )
+    
+    # Build client summaries using pre-joined data
+    clients = []
+    for user, assessment_id, health_score, predicted_skin_type, overall_condition, vision_predicted_concern, assessment_time in users_with_latest_assessment:
+        latest_assessment = None
+        if assessment_id:
+            latest_assessment = models.Assessment(
+                id=assessment_id,
+                health_score=health_score,
+                predicted_skin_type=predicted_skin_type,
+                overall_condition=overall_condition,
+                vision_predicted_concern=vision_predicted_concern,
+                assessment_time=assessment_time
+            )
+        
+        clients.append(_build_client_summary_from_joined(user, latest_assessment))
 
     return {
         "status": "success",
-        "total": len(users),
-        "clients": [_build_client_summary(u, db) for u in users],
+        "total": len(clients),
+        "clients": clients,
     }
 
 

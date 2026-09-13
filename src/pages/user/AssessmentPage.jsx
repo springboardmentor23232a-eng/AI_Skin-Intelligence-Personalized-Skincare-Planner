@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
-import { SKIN_CONCERNS, SKIN_TYPES } from '@/lib/constants';
+import { SKIN_CONCERNS, SKIN_TYPES, API_BASE_URL } from '@/lib/constants';
 import { AlertCircle, Sparkles, Sliders } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
@@ -197,7 +197,7 @@ formData.append('allergies', JSON.stringify(
 formData.append('image', imageFile);
 
       const response = await fetchWithAuth(
-        'http://127.0.0.1:8000/assessment/combined',
+        `${API_BASE_URL}/assessment/combined`,
         {
           method: 'POST',
           body: formData,

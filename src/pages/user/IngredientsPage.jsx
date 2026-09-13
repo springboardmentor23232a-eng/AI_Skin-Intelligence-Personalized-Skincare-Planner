@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Badge } from '@/components/ui/Badge';
 import { useAuth } from '@/context/AuthContext';
+import { API_BASE_URL } from '@/lib/constants';
 
 import {
   FlaskConical,
@@ -62,7 +63,7 @@ export default function IngredientsPage() {
 
     try {
       const response = await fetchWithAuth(
-        'http://localhost:8000/ingredient/intelligence',
+        `${API_BASE_URL}/ingredient/intelligence`,
         {
           method: 'POST',
           body: JSON.stringify({

@@ -8,8 +8,7 @@ import { ProductReport } from '@/components/reports/ProductReport';
 import { ProgressReport } from '@/components/reports/ProgressReport';
 import { SkinHealthReport } from '@/components/reports/SkinHealthReport';
 import { FileText, ListTodo, ShoppingBag, TrendingUp, HeartPulse, ChevronRight, Loader2, Download, FileSpreadsheet } from 'lucide-react';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
+import { API_BASE_URL } from '@/lib/constants';
 
 const REPORT_TYPES = [
   {

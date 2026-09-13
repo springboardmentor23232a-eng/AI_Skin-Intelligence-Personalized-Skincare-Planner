@@ -37,21 +37,25 @@ def get_scoring_summary(
     """
     Returns the user's Skin Health Score summary, factor breakdowns,
     weighted overall score, threshold category, and assessment score history trend.
+    Optimized to reduce N+1 query pattern.
     """
 
-    # 1. Fetch latest skin assessment for authenticated user
-    latest_assessment = (
+    # Fetch all assessments for user in a single query, ordered by time
+    assessments = (
         db.query(models.Assessment)
         .filter(models.Assessment.user_id == current_user.id)
         .order_by(models.Assessment.assessment_time.desc())
-        .first()
+        .all()
     )
 
-    if latest_assessment is None:
+    if not assessments:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="No skin assessment found. Please complete an assessment first."
         )
+
+    # Latest assessment is the first one in the descending order
+    latest_assessment = assessments[0]
 
     # 2. Calculate five component factor scores (0-100)
     skin_condition = calculate_skin_condition_score(latest_assessment)
@@ -72,21 +76,14 @@ def get_scoring_summary(
     # 4. Determine score category and UI badge styling
     category = get_score_category(overall_score)
 
-    # 5. Fetch assessment score trend history
-    history = (
-        db.query(models.Assessment)
-        .filter(models.Assessment.user_id == current_user.id)
-        .order_by(models.Assessment.assessment_time.asc())
-        .all()
-    )
-
+    # 5. Use already fetched assessments for trend history (reverse for chronological order)
     assessment_trend = [
         {
             "assessment_id": a.id,
             "assessment_time": a.assessment_time.isoformat() if a.assessment_time else None,
             "health_score": a.health_score
         }
-        for a in history
+        for a in reversed(assessments)  # Reverse to get ascending order
     ]
 
     return {

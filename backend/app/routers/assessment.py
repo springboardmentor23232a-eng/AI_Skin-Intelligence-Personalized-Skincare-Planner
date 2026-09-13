@@ -48,49 +48,53 @@ async def combined_assessment_api(
     """
 
     temp_file_path = None
+    perm_file_path = None
 
     try:
         # --------------------------------------------------
-        # 1. Save uploaded image permanently
+        # 1. Validate file extension
         # --------------------------------------------------
 
         ext = os.path.splitext(image.filename or "")[1].lower()
         allowed_extensions = {".jpg", ".jpeg", ".png", ".webp"}
+        
         if ext not in allowed_extensions:
-            ext = ".jpg"
-
-        filename = f"{uuid.uuid4().hex}{ext}"
-
-        router_dir = os.path.dirname(os.path.abspath(__file__))
-        backend_dir = os.path.dirname(os.path.dirname(router_dir))
-        uploads_assessments_dir = os.path.join(backend_dir, "uploads", "assessments")
-        os.makedirs(uploads_assessments_dir, exist_ok=True)
-
-        perm_file_path = os.path.join(uploads_assessments_dir, filename)
-
-        try:
-            with open(perm_file_path, "wb") as perm_file:
-                shutil.copyfileobj(image.file, perm_file)
-        except Exception as img_err:
-            print(f"[ERROR] Failed to save permanent image: {img_err}")
             raise HTTPException(
-                status_code=500,
-                detail="Unable to store assessment scan image."
+                status_code=400,
+                detail=f"Invalid file type. Allowed types: {', '.join(allowed_extensions)}"
             )
 
-        image_url = f"/uploads/assessments/{filename}"
+        # --------------------------------------------------
+        # 2. Validate file size (max 10MB)
+        # --------------------------------------------------
+        
+        MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB in bytes
+        
+        # Read file content to check size
+        file_content = await image.read()
+        file_size = len(file_content)
+        
+        if file_size > MAX_FILE_SIZE:
+            raise HTTPException(
+                status_code=400,
+                detail=f"File too large. Maximum size: {MAX_FILE_SIZE / (1024*1024)}MB"
+            )
+        
+        if file_size == 0:
+            raise HTTPException(
+                status_code=400,
+                detail="Uploaded file is empty"
+            )
 
         # --------------------------------------------------
-        # 2. Save uploaded image temporarily for Vision AI
+        # 3. Save to temporary file for validation
         # --------------------------------------------------
 
         with tempfile.NamedTemporaryFile(
             delete=False,
             suffix=ext
         ) as temp_file:
-
-            image.file.seek(0)
-            shutil.copyfileobj(image.file, temp_file)
+            temp_file.write(file_content)
             temp_file_path = temp_file.name
 
         # --------------------------------------------------
@@ -139,7 +143,7 @@ async def combined_assessment_api(
         }
 
         # --------------------------------------------------
-        # 4. Run existing AI assessment engine
+        # 4. Run existing AI assessment engine (validates image)
         # --------------------------------------------------
 
         result = combined_assessment(
@@ -149,16 +153,40 @@ async def combined_assessment_api(
 
         if not result or "error" in result:
             raise HTTPException(
-                status_code=500,
+                status_code=400,
                 detail=result.get(
                     "error",
-                    "Combined assessment failed."
+                    "Image validation or assessment failed."
                 ) if isinstance(result, dict) else
-                "Combined assessment failed."
+                "Image validation or assessment failed."
             )
 
         # --------------------------------------------------
-        # 5. Extract assessment results
+        # 5. Validation successful - save permanently
+        # --------------------------------------------------
+
+        filename = f"{uuid.uuid4().hex}{ext}"
+
+        router_dir = os.path.dirname(os.path.abspath(__file__))
+        backend_dir = os.path.dirname(os.path.dirname(router_dir))
+        uploads_assessments_dir = os.path.join(backend_dir, "uploads", "assessments")
+        os.makedirs(uploads_assessments_dir, exist_ok=True)
+
+        perm_file_path = os.path.join(uploads_assessments_dir, filename)
+
+        try:
+            shutil.copy2(temp_file_path, perm_file_path)
+        except Exception as img_err:
+            print(f"[ERROR] Failed to save permanent image: {img_err}")
+            raise HTTPException(
+                status_code=500,
+                detail="Unable to store assessment scan image."
+            )
+
+        image_url = f"/uploads/assessments/{filename}"
+
+        # --------------------------------------------------
+        # 6. Extract assessment results
         # --------------------------------------------------
 
         summary = result.get("assessment_summary", {})
@@ -166,7 +194,7 @@ async def combined_assessment_api(
         recommendations = result.get("recommendations", {})
 
         # --------------------------------------------------
-        # 6. Create PostgreSQL assessment record
+        # 7. Create PostgreSQL assessment record
         # --------------------------------------------------
 
         assessment_record = models.Assessment(
@@ -217,7 +245,7 @@ async def combined_assessment_api(
         )
 
         # --------------------------------------------------
-        # 7. Save to PostgreSQL
+        # 8. Save to PostgreSQL
         # --------------------------------------------------
 
         db.add(assessment_record)
@@ -225,7 +253,7 @@ async def combined_assessment_api(
         db.refresh(assessment_record)
 
         # --------------------------------------------------
-        # 8. Return assessment response
+        # 9. Return assessment response
         # --------------------------------------------------
 
         result["assessment_id"] = assessment_record.id
@@ -238,10 +266,22 @@ async def combined_assessment_api(
 
     except HTTPException:
         db.rollback()
+        # Clean up permanent file if it was saved but commit failed
+        if perm_file_path and os.path.exists(perm_file_path):
+            try:
+                os.remove(perm_file_path)
+            except Exception as e:
+                print(f"[WARNING] Failed to remove orphaned file: {e}")
         raise
 
     except Exception as e:
         db.rollback()
+        # Clean up permanent file if it was saved but processing failed
+        if perm_file_path and os.path.exists(perm_file_path):
+            try:
+                os.remove(perm_file_path)
+            except Exception as e2:
+                print(f"[WARNING] Failed to remove orphaned file: {e2}")
 
         print(
             f"[ERROR] Assessment API failed: {e}"
@@ -254,14 +294,17 @@ async def combined_assessment_api(
 
     finally:
         # --------------------------------------------------
-        # 8. Delete temporary uploaded image
+        # 10. Delete temporary uploaded image
         # --------------------------------------------------
 
         if (
             temp_file_path
             and os.path.exists(temp_file_path)
         ):
-            os.remove(temp_file_path)
+            try:
+                os.remove(temp_file_path)
+            except Exception as e:
+                print(f"[WARNING] Failed to remove temp file: {e}")
 
 
 @router.get("/history")

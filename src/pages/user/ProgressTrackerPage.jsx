@@ -48,7 +48,7 @@ export default function ProgressTrackerPage() {
         setError('');
 
         const response = await fetchWithAuth(
-          'http://127.0.0.1:8000/assessment/history',
+          `${API_BASE_URL}/assessment/history`,
           {
             method: 'GET',
           }
@@ -84,7 +84,7 @@ export default function ProgressTrackerPage() {
       setAdherenceError('');
 
       const response = await fetchWithAuth(
-        'http://127.0.0.1:8000/scoring/adherence/history',
+        `${API_BASE_URL}/scoring/adherence/history`,
         {
           method: 'GET',
         }
@@ -234,7 +234,7 @@ export default function ProgressTrackerPage() {
     if (cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://')) {
       return cleanUrl;
     }
-    return `http://127.0.0.1:8000${cleanUrl.startsWith('/') ? '' : '/'}${cleanUrl}`;
+    return `${API_BASE_URL}${cleanUrl.startsWith('/') ? '' : '/'}${cleanUrl}`;
   };
 
   const assessmentsWithImages = sortedAssessments.filter(

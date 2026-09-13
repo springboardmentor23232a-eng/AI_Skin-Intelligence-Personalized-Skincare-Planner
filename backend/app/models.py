@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Float, Date, Boolean, Time
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Float, Date, Boolean, Time, Index
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.sql import func
 from app.database import Base
@@ -108,6 +108,10 @@ class Routine(Base):
 
 class RoutineLog(Base):
     __tablename__ = "routine_logs"
+    __table_args__ = (
+        # Composite index for efficient filtering by user_id and log_date range queries
+        Index('ix_routine_logs_user_date', 'user_id', 'log_date'),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { USER_ROLES } from '@/lib/constants';
@@ -6,18 +6,29 @@ import { RootLayout } from '@/components/layout/RootLayout';
 import LandingPage from '@/pages/LandingPage';
 import LoginPage from '@/pages/auth/LoginPage';
 import RegisterPage from '@/pages/auth/RegisterPage';
-import UserOverviewPage from '@/pages/user/UserOverviewPage';
-import AssessmentPage from '@/pages/user/AssessmentPage';
-import RoutinePlannerPage from '@/pages/user/RoutinePlannerPage';
-import IngredientsPage from '@/pages/user/IngredientsPage';
-import ProductsPage from '@/pages/user/ProductsPage';
-import ProgressTrackerPage from '@/pages/user/ProgressTrackerPage';
-import ConsultantDashboardPage from '@/pages/consultant/ConsultantDashboardPage';
-import DermatologistDashboardPage from '@/pages/dermatologist/DermatologistDashboardPage';
-import AdminDashboardPage from '@/pages/admin/AdminDashboardPage';
-import NotificationCenterPage from '@/pages/notifications/NotificationCenterPage';
-import ProfilePage from '@/pages/ProfilePage';
-import ReportsPage from '@/pages/reports/ReportsPage';
+
+// Lazy load larger pages for better performance
+const UserOverviewPage = lazy(() => import('@/pages/user/UserOverviewPage'));
+const AssessmentPage = lazy(() => import('@/pages/user/AssessmentPage'));
+const RoutinePlannerPage = lazy(() => import('@/pages/user/RoutinePlannerPage'));
+const IngredientsPage = lazy(() => import('@/pages/user/IngredientsPage'));
+const ProductsPage = lazy(() => import('@/pages/user/ProductsPage'));
+const ProgressTrackerPage = lazy(() => import('@/pages/user/ProgressTrackerPage'));
+const ConsultantDashboardPage = lazy(() => import('@/pages/consultant/ConsultantDashboardPage'));
+const DermatologistDashboardPage = lazy(() => import('@/pages/dermatologist/DermatologistDashboardPage'));
+const AdminDashboardPage = lazy(() => import('@/pages/admin/AdminDashboardPage'));
+const NotificationCenterPage = lazy(() => import('@/pages/notifications/NotificationCenterPage'));
+const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
+const ReportsPage = lazy(() => import('@/pages/reports/ReportsPage'));
+
+// Loading fallback component
+function LoadingFallback() {
+  return (
+    <div className="flex items-center justify-center h-64">
+      <div className="text-slate-400 text-sm">Loading...</div>
+    </div>
+  );
+}
 // Protected Route Guard with RBAC Enforcement
 function ProtectedRoute({ children, allowedRoles }) {
   const { isAuthenticated, user, setAccessDeniedMessage } = useAuth();
@@ -64,7 +75,9 @@ export function AppRouter() {
   path="profile"
   element={
     <ProtectedRoute>
-      <ProfilePage />
+      <Suspense fallback={<LoadingFallback />}>
+        <ProfilePage />
+      </Suspense>
     </ProtectedRoute>
   }
 />
@@ -72,7 +85,9 @@ export function AppRouter() {
             path="notifications"
             element={
               <ProtectedRoute>
-                <NotificationCenterPage />
+                <Suspense fallback={<LoadingFallback />}>
+                  <NotificationCenterPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -81,7 +96,9 @@ export function AppRouter() {
             path="dashboard/user"
             element={
               <ProtectedRoute allowedRoles={[USER_ROLES.CONSUMER, USER_ROLES.ADMIN]}>
-                <UserOverviewPage />
+                <Suspense fallback={<LoadingFallback />}>
+                  <UserOverviewPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -89,7 +106,9 @@ export function AppRouter() {
             path="dashboard/user/assessment"
             element={
               <ProtectedRoute allowedRoles={[USER_ROLES.CONSUMER, USER_ROLES.ADMIN]}>
-                <AssessmentPage />
+                <Suspense fallback={<LoadingFallback />}>
+                  <AssessmentPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -97,7 +116,9 @@ export function AppRouter() {
             path="dashboard/user/routine"
             element={
               <ProtectedRoute allowedRoles={[USER_ROLES.CONSUMER, USER_ROLES.ADMIN]}>
-                <RoutinePlannerPage />
+                <Suspense fallback={<LoadingFallback />}>
+                  <RoutinePlannerPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -105,7 +126,9 @@ export function AppRouter() {
             path="dashboard/user/ingredients"
             element={
               <ProtectedRoute allowedRoles={[USER_ROLES.CONSUMER, USER_ROLES.ADMIN]}>
-                <IngredientsPage />
+                <Suspense fallback={<LoadingFallback />}>
+                  <IngredientsPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -113,7 +136,9 @@ export function AppRouter() {
             path="dashboard/user/products"
             element={
               <ProtectedRoute allowedRoles={[USER_ROLES.CONSUMER, USER_ROLES.ADMIN]}>
-                <ProductsPage />
+                <Suspense fallback={<LoadingFallback />}>
+                  <ProductsPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -121,7 +146,9 @@ export function AppRouter() {
             path="dashboard/user/progress"
             element={
               <ProtectedRoute allowedRoles={[USER_ROLES.CONSUMER, USER_ROLES.ADMIN]}>
-                <ProgressTrackerPage />
+                <Suspense fallback={<LoadingFallback />}>
+                  <ProgressTrackerPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -129,7 +156,9 @@ export function AppRouter() {
             path="reports"
             element={
               <ProtectedRoute allowedRoles={[USER_ROLES.CONSUMER, USER_ROLES.ADMIN]}>
-                <ReportsPage />
+                <Suspense fallback={<LoadingFallback />}>
+                  <ReportsPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -139,7 +168,9 @@ export function AppRouter() {
             path="dashboard/consultant"
             element={
               <ProtectedRoute allowedRoles={[USER_ROLES.CONSULTANT, USER_ROLES.ADMIN]}>
-                <ConsultantDashboardPage />
+                <Suspense fallback={<LoadingFallback />}>
+                  <ConsultantDashboardPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -149,7 +180,9 @@ export function AppRouter() {
             path="dashboard/dermatologist"
             element={
               <ProtectedRoute allowedRoles={[USER_ROLES.DERMATOLOGIST, USER_ROLES.ADMIN]}>
-                <DermatologistDashboardPage />
+                <Suspense fallback={<LoadingFallback />}>
+                  <DermatologistDashboardPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -159,7 +192,9 @@ export function AppRouter() {
             path="dashboard/admin"
             element={
               <ProtectedRoute allowedRoles={[USER_ROLES.ADMIN]}>
-                <AdminDashboardPage />
+                <Suspense fallback={<LoadingFallback />}>
+                  <AdminDashboardPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />

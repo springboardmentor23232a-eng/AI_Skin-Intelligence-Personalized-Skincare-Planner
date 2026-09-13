@@ -3,7 +3,8 @@
  * Based on Project Requirements Document
  */
 
-export const API_BASE_URL = 'http://127.0.0.1:8000';
+// Use environment variable for API base URL with fallback for development
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
 
 export const USER_ROLES = {
   CONSUMER: 'user',

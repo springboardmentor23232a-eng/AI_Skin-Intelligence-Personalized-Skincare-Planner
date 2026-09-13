@@ -11,7 +11,13 @@ from app import models
 
 load_dotenv()
 
-SECRET_KEY = os.getenv("SECRET_KEY", "super_secret_jwt_key_2026")
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise ValueError(
+        "FATAL: SECRET_KEY environment variable is not set. "
+        "This is required for JWT token signing. "
+        "Generate a secure key with: python -c \"import secrets; print(secrets.token_urlsafe(32))\""
+    )
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -57,9 +63,10 @@ def require_role(allowed_roles: List[str]) -> Callable:
         normalized_allowed = [r.upper() for r in allowed_roles]
 
         # Administrator has complete access to the entire platform without restriction
-        if user_role == "ADMIN" or "ADMIN" in normalized_allowed:
+        if user_role == "ADMIN":
             return current_user
 
+        # Check if user's role is in the allowed roles list
         if user_role not in normalized_allowed:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

@@ -47,62 +47,60 @@ export default function UserOverviewPage() {
     { id: 4, text: 'Broad Spectrum SPF 50+ Sunscreen', done: false },
   ]);
 
-  // Load Latest Skin Assessment History
-  useEffect(() => {
-    const loadLatestAssessment = async () => {
-      try {
-        setAssessmentLoading(true);
-        const response = await fetchWithAuth(`${API_BASE_URL}/assessment/history`, {
-          method: 'GET',
-        });
-        const data = await response.json();
+  // Combined data loading for better performance - reduces API calls
+  const loadDashboardData = useCallback(async () => {
+    try {
+      setAssessmentLoading(true);
+      setScoringLoading(true);
+      setScoringError(null);
 
-        if (!response.ok) {
-          throw new Error(data?.detail || 'Unable to load assessment data.');
-        }
+      // Use Promise.all to fetch data in parallel but consolidated
+      const [assessmentResponse, scoringResponse] = await Promise.allSettled([
+        fetchWithAuth(`${API_BASE_URL}/assessment/history`, { method: 'GET' }),
+        fetchWithAuth(`${API_BASE_URL}/scoring/summary`, { method: 'GET' })
+      ]);
 
-        if (Array.isArray(data) && data.length > 0) {
-          const sorted = [...data].sort(
+      // Process assessment data
+      if (assessmentResponse.status === 'fulfilled' && assessmentResponse.value.ok) {
+        const assessmentData = await assessmentResponse.value.json();
+        if (Array.isArray(assessmentData) && assessmentData.length > 0) {
+          const sorted = [...assessmentData].sort(
             (a, b) => new Date(b.assessment_time) - new Date(a.assessment_time)
           );
           setLatestAssessment(sorted[0]);
         }
-      } catch (error) {
-        console.error('Failed to load latest assessment:', error);
-      } finally {
-        setAssessmentLoading(false);
-      }
-    };
-
-    loadLatestAssessment();
-  }, [fetchWithAuth]);
-
-  // Module 7: Fetch Weighted Skin Health Score Summary
-  const loadScoringSummary = useCallback(async () => {
-    try {
-      setScoringLoading(true);
-      setScoringError(null);
-      const response = await fetchWithAuth(`${API_BASE_URL}/scoring/summary`, {
-        method: 'GET',
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data?.detail || 'Unable to load scoring summary.');
+      } else {
+        console.warn('Failed to load assessment data');
       }
 
-      setScoringSummary(data);
+      // Process scoring data
+      if (scoringResponse.status === 'fulfilled' && scoringResponse.value.ok) {
+        const scoringData = await scoringResponse.value.json();
+        setScoringSummary(scoringData);
+      } else {
+        const error = scoringResponse.status === 'rejected' 
+          ? scoringResponse.reason 
+          : scoringResponse.value?.statusText || 'Unable to load scoring summary';
+        console.error('Failed to load scoring summary:', error);
+        setScoringError(error.message || 'Unable to load skin health score.');
+      }
     } catch (error) {
-      console.error('Failed to load scoring summary:', error);
+      console.error('Error loading dashboard data:', error);
       setScoringError(error.message || 'Unable to load skin health score.');
     } finally {
+      setAssessmentLoading(false);
       setScoringLoading(false);
     }
   }, [fetchWithAuth]);
 
   useEffect(() => {
-    loadScoringSummary();
-  }, [loadScoringSummary]);
+    loadDashboardData();
+  }, [loadDashboardData]);
+
+  // Refresh function that users can call manually
+  const refreshDashboard = useCallback(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
 
   // Toggle Checklist Item & Log Routine Adherence to Backend API
   const toggleItem = async (id) => {
@@ -129,36 +127,34 @@ export default function UserOverviewPage() {
       });
 
       if (response.ok) {
-        // Silently reload scoring summary to update Routine Consistency factor score
-        loadScoringSummary();
+        // Refresh dashboard data to update scoring
+        refreshDashboard();
       }
     } catch (err) {
       console.error('Failed to log routine adherence:', err);
     }
   };
 
-  // Dynamic Trend Chart derived from Assessment Trend History or Fallback
-    // Format assessment dates for the progress chart
-  const formatAssessmentDate = (value, index) => {
-    if (!value) {
-      return `Assessment ${index + 1}`;
-    }
+  // Memoized trend data calculation to prevent unnecessary re-renders
+  const trendData = React.useMemo(() => {
+    const formatAssessmentDate = (value, index) => {
+      if (!value) {
+        return `Assessment ${index + 1}`;
+      }
 
-    const date = new Date(value);
+      const date = new Date(value);
 
-    if (Number.isNaN(date.getTime())) {
-      return `Assessment ${index + 1}`;
-    }
+      if (Number.isNaN(date.getTime())) {
+        return `Assessment ${index + 1}`;
+      }
 
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-    }).format(date);
-  };
+      return new Intl.DateTimeFormat('en-US', {
+        month: 'short',
+        day: 'numeric',
+      }).format(date);
+    };
 
-  // Dynamic Trend Chart derived from Assessment Trend History or Fallback
-  const trendData =
-    scoringSummary?.assessment_trend?.length > 0
+    return scoringSummary?.assessment_trend?.length > 0
       ? scoringSummary.assessment_trend.map((item, idx) => ({
           label: formatAssessmentDate(
             item.assessment_time ?? item.date ?? item.created_at,
@@ -172,15 +168,26 @@ export default function UserOverviewPage() {
           { label: 'Week 3', value: 76 },
           { label: 'Week 4', value: 82 },
         ];
+  }, [scoringSummary?.assessment_trend]);
 
-  const userActivities = [
+  // Memoized overall score calculation
+  const overallScoreVal = React.useMemo(() => 
+    scoringSummary?.overall_score ?? latestAssessment?.health_score ?? 0,
+    [scoringSummary?.overall_score, latestAssessment?.health_score]
+  );
+
+  // Memoized category data
+  const categoryData = React.useMemo(() => 
+    scoringSummary?.category,
+    [scoringSummary?.category]
+  );
+
+  // Memoized activity data
+  const userActivities = React.useMemo(() => [
     { title: 'Morning Routine Logged', description: '3 out of 4 steps checked off', time: '8:30 AM' },
     { title: 'Hydration Goal Logged', description: 'Reached 2.4L daily target', time: '1:15 PM' },
     { title: 'Sun Protection Reminder', description: 'Reapplied SPF 50 sunscreen', time: '2:00 PM' },
-  ];
-
-  const overallScoreVal = scoringSummary?.overall_score ?? latestAssessment?.health_score ?? 0;
-  const categoryData = scoringSummary?.category;
+  ], []);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-6">
@@ -362,7 +369,7 @@ export default function UserOverviewPage() {
               <AlertCircle className="w-4 h-4 shrink-0 text-amber-400" />
               <span>{scoringError} Complete an assessment to see your full scoring engine breakdown.</span>
             </div>
-            <Button size="sm" onClick={loadScoringSummary} className="bg-amber-500/20 text-amber-300 hover:bg-amber-500/30">
+            <Button size="sm" onClick={refreshDashboard} className="bg-amber-500/20 text-amber-300 hover:bg-amber-500/30">
               <RefreshCw className="w-3 h-3 mr-1" /> Retry
             </Button>
           </GlassCard>
