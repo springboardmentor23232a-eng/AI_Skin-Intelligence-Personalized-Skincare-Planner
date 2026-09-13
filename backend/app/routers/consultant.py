@@ -18,6 +18,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import Any, Dict, Optional
 from pydantic import BaseModel
+from datetime import datetime
+import io
 
 from app.database import get_db
 from app import models
@@ -569,3 +571,127 @@ def get_consultant_stats(
         "pending_reviews": None,   # no schema-backed definition; not fabricated
         "skin_type_distribution": skin_type_distribution,
     }
+
+
+# ---------------------------------------------------------------------------
+# Module 11 — Consultant Skin Assessment Report
+# ---------------------------------------------------------------------------
+
+@router.get("/reports/assessment/{client_id}/pdf")
+def download_consultant_assessment_pdf(
+    client_id: int,
+    current_user: models.User = Depends(require_role(["CONSULTANT", "ADMIN"])),
+    db: Session = Depends(get_db)
+):
+    """
+    Generate PDF Skin Assessment Report for a specific client.
+    Authorization: CONSULTANT or ADMIN only.
+    """
+    from fastapi.responses import StreamingResponse
+    from app.report_generators import generate_assessment_pdf
+    import io
+    
+    # Verify client exists and is a USER
+    client = _get_user_client(client_id, db)
+    
+    # Fetch latest assessment
+    latest_assessment = db.query(models.Assessment).filter(
+        models.Assessment.user_id == client_id
+    ).order_by(models.Assessment.assessment_time.desc()).first()
+    
+    if not latest_assessment:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No assessment found for this client."
+        )
+    
+    # Build assessment data
+    assessment_data = {
+        "client_name": client.full_name,
+        "client_email": client.email,
+        "assessment_time": latest_assessment.assessment_time.strftime("%Y-%m-%d %H:%M:%S") if latest_assessment.assessment_time else None,
+        "predicted_skin_type": latest_assessment.predicted_skin_type,
+        "health_score": latest_assessment.health_score,
+        "overall_condition": latest_assessment.overall_condition,
+        "skin_properties": {
+            "sensitivity": latest_assessment.sensitivity,
+            "hydration_level": latest_assessment.hydration_level,
+            "oil_level": latest_assessment.oil_level,
+        },
+        "concerns": latest_assessment.concerns if latest_assessment.concerns else [],
+        "vision_predicted_concern": latest_assessment.vision_predicted_concern,
+        "vision_confidence": latest_assessment.vision_confidence,
+        "recommendations": latest_assessment.recommendations if latest_assessment.recommendations else []
+    }
+    
+    # Generate PDF
+    pdf_buffer = generate_assessment_pdf(assessment_data)
+    pdf_buffer.seek(0)
+    
+    filename = f"consultant_assessment_{client_id}_{datetime.now().strftime('%Y%m%d')}.pdf"
+    
+    return StreamingResponse(
+        io.BytesIO(pdf_buffer.read()),
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+    )
+
+
+@router.get("/reports/assessment/{client_id}/excel")
+def download_consultant_assessment_excel(
+    client_id: int,
+    current_user: models.User = Depends(require_role(["CONSULTANT", "ADMIN"])),
+    db: Session = Depends(get_db)
+):
+    """
+    Generate Excel Skin Assessment Report for a specific client.
+    Authorization: CONSULTANT or ADMIN only.
+    """
+    from fastapi.responses import StreamingResponse
+    from app.report_excel_generators import generate_assessment_excel
+    import io
+    
+    # Verify client exists and is a USER
+    client = _get_user_client(client_id, db)
+    
+    # Fetch latest assessment
+    latest_assessment = db.query(models.Assessment).filter(
+        models.Assessment.user_id == client_id
+    ).order_by(models.Assessment.assessment_time.desc()).first()
+    
+    if not latest_assessment:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No assessment found for this client."
+        )
+    
+    # Build assessment data
+    assessment_data = {
+        "client_name": client.full_name,
+        "client_email": client.email,
+        "assessment_time": latest_assessment.assessment_time.strftime("%Y-%m-%d %H:%M:%S") if latest_assessment.assessment_time else None,
+        "predicted_skin_type": latest_assessment.predicted_skin_type,
+        "health_score": latest_assessment.health_score,
+        "overall_condition": latest_assessment.overall_condition,
+        "skin_properties": {
+            "sensitivity": latest_assessment.sensitivity,
+            "hydration_level": latest_assessment.hydration_level,
+            "oil_level": latest_assessment.oil_level,
+        },
+        "concerns": latest_assessment.concerns if latest_assessment.concerns else [],
+        "vision_predicted_concern": latest_assessment.vision_predicted_concern,
+        "vision_confidence": latest_assessment.vision_confidence,
+        "recommendations": latest_assessment.recommendations if latest_assessment.recommendations else []
+    }
+    
+    # Generate Excel
+    excel_buffer = generate_assessment_excel(assessment_data)
+    excel_buffer.seek(0)
+    
+    filename = f"consultant_assessment_{client_id}_{datetime.now().strftime('%Y%m%d')}.xlsx"
+    
+    return StreamingResponse(
+        io.BytesIO(excel_buffer.read()),
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+    )

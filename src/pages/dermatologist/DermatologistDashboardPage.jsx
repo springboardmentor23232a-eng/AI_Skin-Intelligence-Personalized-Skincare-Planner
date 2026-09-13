@@ -18,6 +18,8 @@ import {
   TrendingUp,
   CheckCircle2,
   Image as ImageIcon,
+  Download,
+  FileSpreadsheet,
   Sun,
   Moon,
   Save,
@@ -178,6 +180,8 @@ function SkinConditionReportsPanel({ patientId, fetchWithAuth }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [expanded, setExpanded] = useState(null);
+  const [downloadingPDF, setDownloadingPDF] = useState(false);
+  const [downloadingExcel, setDownloadingExcel] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -191,6 +195,50 @@ function SkinConditionReportsPanel({ patientId, fetchWithAuth }) {
       .catch(e => setError(e.message || 'Network error.'))
       .finally(() => setLoading(false));
   }, [patientId, fetchWithAuth]);
+
+  const handleDownloadPDF = async () => {
+    setDownloadingPDF(true);
+    try {
+      const response = await fetchWithAuth(`${API_BASE}/dermatologist/reports/skin-condition/${patientId}/pdf`);
+      if (!response.ok) throw new Error(`Failed to generate PDF: ${response.status} ${response.statusText}`);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `dermatologist_condition_${patientId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error('PDF Download Error:', err);
+      alert(`PDF export failed: ${err.message}`);
+    } finally {
+      setDownloadingPDF(false);
+    }
+  };
+
+  const handleDownloadExcel = async () => {
+    setDownloadingExcel(true);
+    try {
+      const response = await fetchWithAuth(`${API_BASE}/dermatologist/reports/skin-condition/${patientId}/excel`);
+      if (!response.ok) throw new Error(`Failed to generate Excel: ${response.status} ${response.statusText}`);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `dermatologist_condition_${patientId}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error('Excel Download Error:', err);
+      alert(`Excel export failed: ${err.message}`);
+    } finally {
+      setDownloadingExcel(false);
+    }
+  };
 
   if (loading) return <LoadingSpinner />;
   if (error) return <ErrorBanner message={error} />;
@@ -206,6 +254,44 @@ function SkinConditionReportsPanel({ patientId, fetchWithAuth }) {
 
   return (
     <div className="space-y-3">
+      {data && data.total > 0 && (
+        <div className="flex gap-2 mb-4">
+          <button
+            onClick={handleDownloadPDF}
+            disabled={downloadingPDF}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-sm font-medium hover:bg-emerald-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          >
+            {downloadingPDF ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Generating PDF...
+              </>
+            ) : (
+              <>
+                <Download className="w-4 h-4" />
+                Download PDF
+              </>
+            )}
+          </button>
+          <button
+            onClick={handleDownloadExcel}
+            disabled={downloadingExcel}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 text-sm font-medium hover:bg-cyan-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          >
+            {downloadingExcel ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Generating Excel...
+              </>
+            ) : (
+              <>
+                <FileSpreadsheet className="w-4 h-4" />
+                Download Excel
+              </>
+            )}
+          </button>
+        </div>
+      )}
       <p className="text-xs text-slate-400">{data.total} assessment{data.total !== 1 ? 's' : ''} on record</p>
       {data.assessments.map((a) => {
         const isOpen = expanded === a.id;

@@ -53,7 +53,6 @@ export function Navbar() {
       label: 'User Dashboard', 
       href: '/dashboard/user' 
     },
-    
   ); 
 }
 

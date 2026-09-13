@@ -26,6 +26,7 @@ from sqlalchemy import func
 from typing import Any, Dict, Optional, List
 from pydantic import BaseModel
 from datetime import datetime, timedelta
+import io
 
 from app.database import get_db
 from app import models
@@ -565,3 +566,145 @@ def update_patient_treatment_notes(
         "message": "Dermatologist clinical notes updated successfully.",
         "recommendations": latest.recommendations,
     }
+
+
+# ---------------------------------------------------------------------------
+# Module 11 — Dermatologist Skin Condition Report
+# ---------------------------------------------------------------------------
+
+@router.get("/reports/skin-condition/{patient_id}/pdf")
+def download_dermatologist_condition_pdf(
+    patient_id: int,
+    current_user: models.User = Depends(require_role(["DERMATOLOGIST", "ADMIN"])),
+    db: Session = Depends(get_db)
+):
+    """
+    Generate PDF Skin Condition Report for a specific patient.
+    Authorization: DERMATOLOGIST or ADMIN only.
+    """
+    from fastapi.responses import StreamingResponse
+    from app.report_generators import generate_assessment_pdf
+    import io
+    
+    # Verify patient exists and is a USER
+    patient = db.query(models.User).filter(
+        models.User.id == patient_id,
+        models.User.role == "USER"
+    ).first()
+    
+    if not patient:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Patient not found or invalid."
+        )
+    
+    # Fetch latest assessment
+    latest_assessment = db.query(models.Assessment).filter(
+        models.Assessment.user_id == patient_id
+    ).order_by(models.Assessment.assessment_time.desc()).first()
+    
+    if not latest_assessment:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No assessment found for this patient."
+        )
+    
+    # Build condition data
+    condition_data = {
+        "patient_name": patient.full_name,
+        "patient_email": patient.email,
+        "assessment_time": latest_assessment.assessment_time.strftime("%Y-%m-%d %H:%M:%S") if latest_assessment.assessment_time else None,
+        "predicted_skin_type": latest_assessment.predicted_skin_type,
+        "health_score": latest_assessment.health_score,
+        "overall_condition": latest_assessment.overall_condition,
+        "skin_properties": {
+            "sensitivity": latest_assessment.sensitivity,
+            "hydration_level": latest_assessment.hydration_level,
+            "oil_level": latest_assessment.oil_level,
+        },
+        "concerns": latest_assessment.concerns if latest_assessment.concerns else [],
+        "vision_predicted_concern": latest_assessment.vision_predicted_concern,
+        "vision_confidence": latest_assessment.vision_confidence,
+        "recommendations": latest_assessment.recommendations if latest_assessment.recommendations else []
+    }
+    
+    # Generate PDF (reuse assessment generator)
+    pdf_buffer = generate_assessment_pdf(condition_data)
+    pdf_buffer.seek(0)
+    
+    filename = f"dermatologist_condition_{patient_id}_{datetime.now().strftime('%Y%m%d')}.pdf"
+    
+    return StreamingResponse(
+        io.BytesIO(pdf_buffer.read()),
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+    )
+
+
+@router.get("/reports/skin-condition/{patient_id}/excel")
+def download_dermatologist_condition_excel(
+    patient_id: int,
+    current_user: models.User = Depends(require_role(["DERMATOLOGIST", "ADMIN"])),
+    db: Session = Depends(get_db)
+):
+    """
+    Generate Excel Skin Condition Report for a specific patient.
+    Authorization: DERMATOLOGIST or ADMIN only.
+    """
+    from fastapi.responses import StreamingResponse
+    from app.report_excel_generators import generate_assessment_excel
+    import io
+    
+    # Verify patient exists and is a USER
+    patient = db.query(models.User).filter(
+        models.User.id == patient_id,
+        models.User.role == "USER"
+    ).first()
+    
+    if not patient:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Patient not found or invalid."
+        )
+    
+    # Fetch latest assessment
+    latest_assessment = db.query(models.Assessment).filter(
+        models.Assessment.user_id == patient_id
+    ).order_by(models.Assessment.assessment_time.desc()).first()
+    
+    if not latest_assessment:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No assessment found for this patient."
+        )
+    
+    # Build condition data
+    condition_data = {
+        "patient_name": patient.full_name,
+        "patient_email": patient.email,
+        "assessment_time": latest_assessment.assessment_time.strftime("%Y-%m-%d %H:%M:%S") if latest_assessment.assessment_time else None,
+        "predicted_skin_type": latest_assessment.predicted_skin_type,
+        "health_score": latest_assessment.health_score,
+        "overall_condition": latest_assessment.overall_condition,
+        "skin_properties": {
+            "sensitivity": latest_assessment.sensitivity,
+            "hydration_level": latest_assessment.hydration_level,
+            "oil_level": latest_assessment.oil_level,
+        },
+        "concerns": latest_assessment.concerns if latest_assessment.concerns else [],
+        "vision_predicted_concern": latest_assessment.vision_predicted_concern,
+        "vision_confidence": latest_assessment.vision_confidence,
+        "recommendations": latest_assessment.recommendations if latest_assessment.recommendations else []
+    }
+    
+    # Generate Excel
+    excel_buffer = generate_assessment_excel(condition_data)
+    excel_buffer.seek(0)
+    
+    filename = f"dermatologist_condition_{patient_id}_{datetime.now().strftime('%Y%m%d')}.xlsx"
+    
+    return StreamingResponse(
+        io.BytesIO(excel_buffer.read()),
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+    )

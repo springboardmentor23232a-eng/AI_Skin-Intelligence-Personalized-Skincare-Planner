@@ -78,10 +78,9 @@ export function AuthProvider({ children }) {
     ...(options.headers || {}),
   };
 
-  // Don't manually set Content-Type for FormData.
-  // The browser automatically sets:
-  // multipart/form-data; boundary=...
-  if (!(options.body instanceof FormData)) {
+  // Don't set Content-Type for FormData or GET requests
+  const method = (options.method || 'GET').toUpperCase();
+  if (!(options.body instanceof FormData) && method !== 'GET') {
     headers['Content-Type'] = 'application/json';
   }
 

@@ -6,7 +6,6 @@ import { ScoreGauge } from '@/components/ui/ScoreGauge';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { StatCard } from '@/components/dashboard/StatCard';
-import { QuickActionBar } from '@/components/dashboard/QuickActionBar';
 import { TrendBarChart } from '@/components/dashboard/TrendBarChart';
 import { ActivityFeedCard } from '@/components/dashboard/ActivityFeedCard';
 import { HydrationWidget } from '@/components/health/HydrationWidget';
@@ -26,6 +25,7 @@ import {
   ShoppingBag,
   RefreshCw,
   AlertCircle,
+  FileText,
 } from 'lucide-react';
 
 export default function UserOverviewPage() {
@@ -137,11 +137,6 @@ export default function UserOverviewPage() {
     }
   };
 
-  const quickActions = [
-    { label: 'Log Water Intake', icon: Droplets },
-    { label: 'Mark Night Routine Done', icon: Moon },
-  ];
-
   // Dynamic Trend Chart derived from Assessment Trend History or Fallback
     // Format assessment dates for the progress chart
   const formatAssessmentDate = (value, index) => {
@@ -247,6 +242,14 @@ export default function UserOverviewPage() {
           </Link>
 
           <Link
+            to="/reports"
+            className="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-900/80 border border-transparent hover:border-slate-800 transition-all"
+          >
+            <FileText className="w-4 h-4 text-violet-400" />
+            <span className="text-sm font-medium">Reports</span>
+          </Link>
+
+          <Link
             to="/profile"
             className="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-900/80 border border-transparent hover:border-slate-800 transition-all"
           >
@@ -267,7 +270,6 @@ export default function UserOverviewPage() {
                   ? `Welcome ${user?.name ? user.name.split(' ')[0] : 'User'}`
                   : `Welcome back, ${user?.name ? user.name.split(' ')[0] : 'User'}`}
               </h1>
-              <Badge variant="emerald">Module 7 Dashboard</Badge>
             </div>
             <p className="text-xs sm:text-sm text-slate-400">
               Skin Profile:{' '}
@@ -280,10 +282,6 @@ export default function UserOverviewPage() {
                 {latestAssessment?.vision_predicted_concern || 'Not assessed'}
               </span>
             </p>
-          </div>
-
-          <div className="flex flex-wrap gap-3">
-            <QuickActionBar actions={quickActions} />
           </div>
         </div>
 

@@ -83,7 +83,7 @@ class UpdateNotificationPreferenceRequest(BaseModel):
 def get_notifications(
     limit: int = Query(20, ge=1, le=100),
     offset: int = Query(0, ge=0),
-    filter: str = Query("all", regex="^(all|unread)$"),
+    filter: str = Query("all", pattern="^(all|unread)$"),
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
