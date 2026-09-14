@@ -42,6 +42,17 @@ function normalizeRole(role = 'user') {
 }
 
 /**
+ * @route   GET /api/auth/config
+ * @desc    Provide public OAuth client ID configuration to frontend
+ */
+router.get('/config', (req, res) => {
+  res.json({
+    success: true,
+    googleClientId: process.env.GOOGLE_CLIENT_ID || '435046043372-n2nmis20orleg8q57rh6o0muo7qpi0c3.apps.googleusercontent.com'
+  });
+});
+
+/**
  * @route   POST /api/auth/register
  * @desc    Register a new user account (Requires Admin Verification)
  */

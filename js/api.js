@@ -216,6 +216,10 @@ class ApiClient {
     return res;
   }
 
+  async getAuthConfig() {
+    return await this.request('/api/auth/config', { method: 'GET' });
+  }
+
   async getAuthenticatedUser() {
     return await this.request('/api/auth/me', { method: 'GET' });
   }

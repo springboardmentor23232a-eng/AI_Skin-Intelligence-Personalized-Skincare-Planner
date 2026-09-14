@@ -991,8 +991,9 @@ class App {
         const customBtn = document.getElementById('google-oauth-btn');
         if (container) {
           container.innerHTML = '';
+          const clientId = await this.getGoogleClientId();
           window.google.accounts.id.initialize({
-            client_id: '435046043372-n2nmis20orleg8q57rh6o0muo7qpi0c3.apps.googleusercontent.com',
+            client_id: clientId,
             callback: async (response) => {
               if (response.credential) {
                 const roleSelect = document.getElementById('modal-oauth-role');
@@ -1293,6 +1294,21 @@ class App {
     }
   }
 
+  async getGoogleClientId() {
+    if (this._cachedGoogleClientId) return this._cachedGoogleClientId;
+    try {
+      const config = await api.getAuthConfig();
+      if (config && config.googleClientId) {
+        this._cachedGoogleClientId = config.googleClientId;
+        return this._cachedGoogleClientId;
+      }
+    } catch (e) {
+      // fallback
+    }
+    this._cachedGoogleClientId = '435046043372-n2nmis20orleg8q57rh6o0muo7qpi0c3.apps.googleusercontent.com';
+    return this._cachedGoogleClientId;
+  }
+
   async handleGoogleOAuthLogin() {
     const alertBox = document.getElementById('modal-login-alert');
     const btnText = document.getElementById('google-btn-text');
@@ -1301,12 +1317,12 @@ class App {
 
     if (btnText) btnText.innerText = 'Connecting to Google Security Services...';
 
-    const GOOGLE_CLIENT_ID = '435046043372-n2nmis20orleg8q57rh6o0muo7qpi0c3.apps.googleusercontent.com';
+    const clientId = await this.getGoogleClientId();
 
     if (window.google && window.google.accounts && window.google.accounts.id) {
       try {
         window.google.accounts.id.initialize({
-          client_id: GOOGLE_CLIENT_ID,
+          client_id: clientId,
           callback: async (response) => {
             if (response.credential) {
               const res = await auth.loginWithGoogle(response.credential, selectedRole);
