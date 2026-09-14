@@ -114,21 +114,16 @@ def register_user(db: Session, user_data: UserCreate) -> User:
     # Validate and process requested role
     raw_role = (getattr(user_data, "role", None) or "USER").strip().upper()
 
-    if raw_role == "ADMIN":
+    ALLOWED_REGISTRATION_ROLES = ["USER", "SKINCARE_CONSULTANT", "DERMATOLOGIST", "ADMIN"]
+    if raw_role not in ALLOWED_REGISTRATION_ROLES:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Self-registration for the ADMIN role is strictly forbidden. Admin accounts must be provisioned by an administrator."
-        )
-
-    if raw_role not in ["USER", "SKINCARE_CONSULTANT", "DERMATOLOGIST"]:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid account role '{raw_role}'. Allowed roles: USER, SKINCARE_CONSULTANT, DERMATOLOGIST."
+            detail=f"Invalid account role '{raw_role}'. Allowed demonstration roles: {', '.join(ALLOWED_REGISTRATION_ROLES)}."
         )
 
     assigned_role = raw_role
-    # Standard users are is_verified=1; consultants and dermatologists undergo review (is_verified=0)
-    user_is_verified = 1 if assigned_role == "USER" else 0
+    # In public demonstration mode, enable immediate active access across all demo roles
+    user_is_verified = 1
 
     try:
         hashed_pwd = hash_password(user_data.password)

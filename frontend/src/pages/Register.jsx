@@ -205,13 +205,17 @@ function Register() {
                       <option value="USER">User (Standard Access)</option>
                       <option value="SKINCARE_CONSULTANT">Skincare Consultant (Professional Review)</option>
                       <option value="DERMATOLOGIST">Dermatologist (Clinical Review)</option>
-                      <option value="ADMIN" disabled>System Administrator (Invite Only)</option>
+                      <option value="ADMIN">System Administrator (Full Platform Access)</option>
                     </select>
                     <small className="text-muted mt-1 d-block" style={{ fontSize: "0.75rem" }}>
-                      {role === "USER"
-                        ? "Standard user account with immediate access to skincare analysis and routine planning."
-                        : "Professional accounts undergo clinical verification before specialist features are enabled."}
+                      {role === "USER" && "Standard user account: personalized routines, AI assessment, and progress tracking."}
+                      {role === "SKINCARE_CONSULTANT" && "Consultant account: client collaboration, routine management, and consultations."}
+                      {role === "DERMATOLOGIST" && "Dermatologist account: clinical triage, high-risk reviews, and specialist care."}
+                      {role === "ADMIN" && "Administrator account: full telemetry, user management, and system audit logs."}
                     </small>
+                    <div className="mt-2 p-2 rounded small" style={{ backgroundColor: "var(--bg-surface-elevated)", fontSize: "0.72rem", color: "var(--text-secondary)" }}>
+                      ℹ️ <strong>Public Demonstration Mode:</strong> All roles are open for reviewer and mentor evaluation.
+                    </div>
                   </div>
 
                   <button

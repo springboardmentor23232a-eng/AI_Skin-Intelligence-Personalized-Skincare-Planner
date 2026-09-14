@@ -10,7 +10,9 @@ from app.db.session import get_db
 from app.models import (
     User, UserRole, AuthProvider, SkinProfile, SkinAssessment, SkincareRoutine,
     Consultation, ClinicalReview, Notification, AdminAuditLog,
-    ProductRecommendation
+    ProductRecommendation, SkincareLog, SkinProgressPhoto, ReminderSetting,
+    ImageAnalysis, EmailVerificationToken, PhoneOtpVerification,
+    IngredientCompatibilityCheck, Ingredient, Product
 )
 from app.auth import get_current_user, require_roles
 from app.auth.service import hash_password
@@ -678,3 +680,104 @@ def bootstrap_admin(
             role=new_admin.role,
             user_id=new_admin.id
         )
+
+
+@router.post("/reset-demo-data")
+def reset_demo_data(
+    x_bootstrap_secret: Optional[str] = Header(None, alias="X-Bootstrap-Secret"),
+    db: Session = Depends(get_db)
+):
+    """
+    Secure administrative data reset endpoint for demonstration environment.
+    Guarded by server-side secret (JWT_SECRET_KEY or ADMIN_BOOTSTRAP_SECRET).
+    Safely purges all user accounts, sessions, skin assessments, routines,
+    progress photos, consultations, clinical reviews, logs, notifications,
+    reminders, audit logs, and tokens.
+    Preserves:
+    - Alembic migration state (alembic_version)
+    - Core catalog tables (ingredients, products)
+    """
+    valid_secret = os.environ.get("ADMIN_BOOTSTRAP_SECRET", settings.JWT_SECRET_KEY)
+    if not x_bootstrap_secret or not secrets.compare_digest(x_bootstrap_secret, valid_secret):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Forbidden: Invalid or missing administrative reset secret key."
+        )
+
+    before_counts = {
+        "users": db.query(User).count(),
+        "skin_profiles": db.query(SkinProfile).count(),
+        "skin_assessments": db.query(SkinAssessment).count(),
+        "skincare_routines": db.query(SkincareRoutine).count(),
+        "product_recommendations": db.query(ProductRecommendation).count(),
+        "skincare_logs": db.query(SkincareLog).count(),
+        "skin_progress_photos": db.query(SkinProgressPhoto).count(),
+        "consultations": db.query(Consultation).count(),
+        "clinical_reviews": db.query(ClinicalReview).count(),
+        "notifications": db.query(Notification).count(),
+        "reminder_settings": db.query(ReminderSetting).count(),
+        "image_analyses": db.query(ImageAnalysis).count(),
+        "admin_audit_logs": db.query(AdminAuditLog).count(),
+        "email_tokens": db.query(EmailVerificationToken).count(),
+        "phone_otps": db.query(PhoneOtpVerification).count(),
+        "ingredient_checks": db.query(IngredientCompatibilityCheck).count(),
+        "catalog_ingredients": db.query(Ingredient).count(),
+        "catalog_products": db.query(Product).count(),
+    }
+
+    try:
+        db.query(AdminAuditLog).delete(synchronize_session=False)
+        db.query(ClinicalReview).delete(synchronize_session=False)
+        db.query(Consultation).delete(synchronize_session=False)
+        db.query(PhoneOtpVerification).delete(synchronize_session=False)
+        db.query(EmailVerificationToken).delete(synchronize_session=False)
+        db.query(ImageAnalysis).delete(synchronize_session=False)
+        db.query(ReminderSetting).delete(synchronize_session=False)
+        db.query(Notification).delete(synchronize_session=False)
+        db.query(SkinProgressPhoto).delete(synchronize_session=False)
+        db.query(SkincareLog).delete(synchronize_session=False)
+        db.query(ProductRecommendation).delete(synchronize_session=False)
+        db.query(IngredientCompatibilityCheck).delete(synchronize_session=False)
+        db.query(SkincareRoutine).delete(synchronize_session=False)
+        db.query(SkinAssessment).delete(synchronize_session=False)
+        db.query(SkinProfile).delete(synchronize_session=False)
+
+        # Clear self-referencing foreign key before deleting users
+        db.query(User).update({"blocked_by": None}, synchronize_session=False)
+        db.query(User).delete(synchronize_session=False)
+
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to reset application data: {str(e)}"
+        )
+
+    after_counts = {
+        "users": db.query(User).count(),
+        "skin_profiles": db.query(SkinProfile).count(),
+        "skin_assessments": db.query(SkinAssessment).count(),
+        "skincare_routines": db.query(SkincareRoutine).count(),
+        "product_recommendations": db.query(ProductRecommendation).count(),
+        "skincare_logs": db.query(SkincareLog).count(),
+        "skin_progress_photos": db.query(SkinProgressPhoto).count(),
+        "consultations": db.query(Consultation).count(),
+        "clinical_reviews": db.query(ClinicalReview).count(),
+        "notifications": db.query(Notification).count(),
+        "reminder_settings": db.query(ReminderSetting).count(),
+        "image_analyses": db.query(ImageAnalysis).count(),
+        "admin_audit_logs": db.query(AdminAuditLog).count(),
+        "email_tokens": db.query(EmailVerificationToken).count(),
+        "phone_otps": db.query(PhoneOtpVerification).count(),
+        "ingredient_checks": db.query(IngredientCompatibilityCheck).count(),
+        "catalog_ingredients": db.query(Ingredient).count(),
+        "catalog_products": db.query(Product).count(),
+    }
+
+    return {
+        "status": "success",
+        "message": "Application data reset successfully. All user accounts and activity records purged.",
+        "before_counts": before_counts,
+        "after_counts": after_counts
+    }

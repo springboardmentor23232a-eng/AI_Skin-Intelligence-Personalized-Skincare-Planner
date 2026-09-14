@@ -165,17 +165,29 @@ def test_3_admin_get_me_returns_admin_role(admin_lifecycle_fixture):
     assert user_data["email"] == f["admin_email"]
 
 
-def test_4_public_admin_self_registration_strictly_blocked():
-    """Attempting public self-registration with role='ADMIN' must fail with HTTP 400."""
+def test_4_public_admin_self_registration_in_demo_mode():
+    """In demonstration mode, public self-registration with role='ADMIN' succeeds with HTTP 201."""
     ts = int(time.time() * 1000)
     res = client.post("/api/auth/register", json={
-        "full_name": f"Malicious Admin {ts}",
-        "email": f"hacker_{ts}@skincare.com",
+        "full_name": f"Demo Admin {ts}",
+        "email": f"demo_admin_{ts}@skincare.com",
         "password": "Password123!",
         "role": "ADMIN"
     })
-    assert res.status_code == 400
-    assert "Self-registration for the ADMIN role is strictly forbidden" in res.json()["detail"]
+    assert res.status_code == 201
+    data = res.json()
+    assert data["user"]["role"] == "ADMIN"
+    assert data["access_token"] is not None
+
+    # Verify invalid role is still strictly rejected with HTTP 400
+    bad_res = client.post("/api/auth/register", json={
+        "full_name": f"Bad Role User {ts}",
+        "email": f"bad_role_{ts}@skincare.com",
+        "password": "Password123!",
+        "role": "UNSUPPORTED_ROLE"
+    })
+    assert bad_res.status_code == 400
+    assert "Invalid account role" in bad_res.json()["detail"]
 
 
 def test_5_admin_telemetry_stats_allowed(admin_lifecycle_fixture):

@@ -13,6 +13,8 @@ An enterprise-grade, multi-role AI-powered skincare platform offering clinical s
 > ⚠️ **CRITICAL SECURITY NOTICE**: Do NOT commit `.env` files or production secrets to version control. All environment variables must be configured via environment injection or `.env.example` / `.env.production.example`.
 >
 > ℹ️ **MEDICAL DISCLAIMER**: The system provides AI-assisted skin assessment and personalized skincare planning for cosmetic and routine support. It is NOT a medical diagnostic device and does not substitute for clinical dermatological evaluation.
+>
+> 🌟 **PUBLIC DEMONSTRATION MODE**: Public demonstration mode allows role selection (`USER`, `SKINCARE_CONSULTANT`, `DERMATOLOGIST`, `ADMIN`) during registration so reviewers, mentors, and testers can evaluate the complete role-based workspaces. Note: This configuration is intended for comprehensive evaluation and review of all platform roles and should not be represented as enterprise-hardened production access control.
 
 To clone and run the complete project from scratch:
 
