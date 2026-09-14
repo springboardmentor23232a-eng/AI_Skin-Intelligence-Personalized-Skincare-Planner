@@ -39,3 +39,7 @@ __pycache__/
 .env
 .vercel
 .env*
+*.db
+*.sqlite
+scratch/
+
