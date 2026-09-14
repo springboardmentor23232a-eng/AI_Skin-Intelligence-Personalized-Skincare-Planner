@@ -41,8 +41,17 @@ class ProductCompareRequest(BaseModel):
     skin_type: Optional[str] = "Combination"
     skin_concerns: Optional[List[str]] = None
 
+class CustomRecommendationRequest(BaseModel):
+    skin_type: Optional[str] = "Combination"
+    skin_concerns: Optional[List[str]] = None
+    category: Optional[str] = None
+    max_price: Optional[float] = None
+    budget_only: Optional[bool] = False
+    sort_by: Optional[str] = "suitability"
+
 class ProductComparisonResponse(BaseModel):
     products: List[ProductMatchResponse]
     best_overall_id: Optional[int] = None
     best_budget_id: Optional[int] = None
     comparison_summary: str
+

@@ -9,7 +9,8 @@ import uvicorn
 # Include current directory in path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app.database import engine, Base, SessionLocal, FallbackSessionLocal, fallback_engine
+from app.database import engine, Base, SessionLocal
+
 from app.routers import (
     assessment_router, routine_router, gemini_router,
     ingredient_router, product_router, progress_router, analytics_router, scoring_router, notification_router, reports_router
@@ -96,16 +97,10 @@ async def lifespan(app: FastAPI):
         seed_database(SessionLocal)
     except Exception as e:
         print(f"[FastAPI Skin Engine Warning] Could not auto-create/seed Primary DB: {e}")
-
-    try:
-        Base.metadata.create_all(bind=fallback_engine)
-        seed_database(FallbackSessionLocal)
-        print("[FastAPI Skin Engine] Fallback SQLite database verified & seeded successfully.")
-    except Exception as e:
-        print(f"[FastAPI Skin Engine Warning] Could not seed Fallback DB: {e}")
     yield
     # Shutdown logic
     print("[FastAPI Skin Engine] Shutting down clean.")
+
 
 app = FastAPI(
     title="AI Skin Intelligence & Skincare Planner Engine API",
@@ -118,13 +113,25 @@ app = FastAPI(
 )
 
 # CORS Setup
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+cors_origins_raw = os.getenv("CORS_ORIGIN", "*")
+if cors_origins_raw == "*":
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=False,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+else:
+    allowed_origins = [o.strip() for o in cors_origins_raw.split(",") if o.strip()]
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=allowed_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
 
 # Exception Handlers
 @app.exception_handler(Exception)
@@ -158,5 +165,6 @@ def health_check():
     }
 
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 8000))
+    port = int(os.getenv("FASTAPI_PORT") or os.getenv("ENGINE_PORT") or 8000)
     uvicorn.run("app.main:app", host="0.0.0.0", port=port, reload=False)
+

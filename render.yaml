@@ -44,4 +44,21 @@ services:
         value: "demo_key"
 
 
+  # ----------------------------------------------------
+  # 3. React Frontend Static Web Site
+  # ----------------------------------------------------
+  - type: static
+    name: ai-skincare-intelligence
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        value: "https://ai-skincare-express-backend.onrender.com/api"
+
+
+
 

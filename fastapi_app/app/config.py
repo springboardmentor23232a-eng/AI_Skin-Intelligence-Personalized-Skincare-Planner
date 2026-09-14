@@ -14,12 +14,17 @@ DB_NAME = os.getenv("DB_NAME", "ai_skincare")
 DB_USER = os.getenv("DB_USER", "postgres")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "asdfghjkl")
 
-# SQLAlchemy connection string
-raw_db_url = os.getenv("DATABASE_URL", "")
-if not raw_db_url or "localhost" in raw_db_url or "7410" in raw_db_url or "127.0.0.1" in raw_db_url:
-    DATABASE_URL = ""
+# SQLAlchemy connection string construction
+raw_db_url = os.getenv("DATABASE_URL", "").strip()
+if not raw_db_url:
+    DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 else:
-    DATABASE_URL = raw_db_url
+    # Normalize postgres:// to postgresql:// for SQLAlchemy compatibility
+    if raw_db_url.startswith("postgres://"):
+        DATABASE_URL = raw_db_url.replace("postgres://", "postgresql://", 1)
+    else:
+        DATABASE_URL = raw_db_url
+
 
 
 # JWT Configuration
@@ -28,3 +33,4 @@ JWT_ALGORITHM = "HS256"
 
 # Gemini API Configuration
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+

@@ -54,9 +54,23 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
             403 Access Denied
           </h2>
           <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: 1.5 }}>
-            Your account role (<strong>{user.role}</strong>) does not have permission to view this module. Redirecting to your assigned dashboard...
+            Your account role (<strong>{user.role}</strong>) does not have permission to view this module.
           </p>
-          <Navigate to={targetDashboard} replace />
+          <a
+            href={targetDashboard}
+            style={{
+              display: 'inline-block',
+              padding: '0.75rem 1.5rem',
+              borderRadius: '10px',
+              background: 'var(--primary-color, #10b981)',
+              color: '#ffffff',
+              fontWeight: 600,
+              textDecoration: 'none',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            Go to Assigned Dashboard
+          </a>
         </div>
       </div>
     );

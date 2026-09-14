@@ -7,13 +7,23 @@ dotenv.config();
 const { Pool } = pg;
 
 // Create PostgreSQL connection pool using node-postgres (pg)
-export const pool = new Pool({
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '7410', 10),
-  database: process.env.DB_NAME || 'ai_skincare',
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'asdfghjkl',
-});
+const dbUrl = process.env.DATABASE_URL ? process.env.DATABASE_URL.trim() : null;
+const poolConfig = dbUrl
+  ? {
+      connectionString: dbUrl,
+      ssl: (process.env.DB_SSL === 'true' || (process.env.NODE_ENV === 'production' && !dbUrl.includes('localhost') && !dbUrl.includes('127.0.0.1')))
+        ? { rejectUnauthorized: false }
+        : false
+    }
+  : {
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT || '7410', 10),
+      database: process.env.DB_NAME || 'ai_skincare',
+      user: process.env.DB_USER || 'postgres',
+      password: process.env.DB_PASSWORD || 'asdfghjkl'
+    };
+
+export const pool = new Pool(poolConfig);
 
 let isPostgresAvailable = false;
 
@@ -96,10 +106,15 @@ export const initDb = async () => {
     client.release();
     console.log('[PostgreSQL] Users table verified and seed accounts initialized (akp73733@gmail.com ready).');
   } catch (err) {
+    if (process.env.NODE_ENV === 'production' || process.env.RENDER) {
+      console.error(`[CRITICAL DATABASE ERROR] Failed to connect to production PostgreSQL: ${err.message}`);
+      throw new Error(`Production PostgreSQL database connection required: ${err.message}`);
+    }
     console.warn(`[PostgreSQL Warning] Could not connect to PostgreSQL on port ${process.env.DB_PORT || 7410}: ${err.message}`);
-    console.warn('[PostgreSQL Note] Backend will utilize memory store fallback if database service is starting or offline.');
+    console.warn('[PostgreSQL Note] Development mode: Backend will utilize memory store fallback if database service is starting or offline.');
     isPostgresAvailable = false;
   }
 };
+
 
 export const getIsPostgresAvailable = () => isPostgresAvailable;

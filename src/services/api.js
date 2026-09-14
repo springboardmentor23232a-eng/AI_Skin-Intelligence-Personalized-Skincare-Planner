@@ -106,6 +106,22 @@ export const apiService = {
       throw err.response ? err.response.data : new Error(err.message);
     }
   },
+  updateUserRole: async (userId, role) => {
+    try {
+      const res = await axiosInstance.put(`/admin/users/${userId}`, { role });
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
+  deleteUser: async (userId) => {
+    try {
+      const res = await axiosInstance.delete(`/admin/users/${userId}`);
+      return res.data;
+    } catch (err) {
+      throw err.response ? err.response.data : new Error(err.message);
+    }
+  },
 
   // Module 3: Skin Assessment Engine APIs
   createAssessment: async (assessmentData) => {

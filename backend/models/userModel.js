@@ -305,3 +305,22 @@ export const getAllUsers = async () => {
   }
   return fallbackUsers.map(({ password: _password, ...u }) => u);
 };
+
+export const deleteUserById = async (id) => {
+  const numericId = parseInt(id, 10);
+  if (getIsPostgresAvailable()) {
+    try {
+      const res = await pool.query('DELETE FROM users WHERE id = $1 RETURNING *', [numericId]);
+      return res.rows[0] || null;
+    } catch (err) {
+      console.error('PostgreSQL Query Error (deleteUserById):', err.message);
+    }
+  }
+  const idx = fallbackUsers.findIndex(u => u.id === numericId);
+  if (idx !== -1) {
+    const deleted = fallbackUsers.splice(idx, 1);
+    return deleted[0];
+  }
+  return null;
+};
+
