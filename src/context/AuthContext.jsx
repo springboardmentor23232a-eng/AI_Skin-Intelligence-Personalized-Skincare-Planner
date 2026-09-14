@@ -85,14 +85,9 @@ export const AuthProvider = ({ children }) => {
           }
         }
       } else {
-        // Initial Demo user setup if no token exists
-        const defaultUser = DEMO_ROLE_PROFILES.USER;
-        setUser(defaultUser);
-        const demoToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJqb2huQGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzIyMzMyODAwLCJleHAiOjE5MjIzMzI4MDB9.signature";
-        setToken(demoToken);
-        setTokenPayload(parseJwt(demoToken));
-        localStorage.setItem("app_token", demoToken);
-        localStorage.setItem("app_user", JSON.stringify(defaultUser));
+        setUser(null);
+        setToken(null);
+        setTokenPayload(null);
       }
       setLoading(false);
     };
