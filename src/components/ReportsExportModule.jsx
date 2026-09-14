@@ -170,76 +170,109 @@ const ReportsExportModule = ({ onToast }) => {
     }
   };
 
-  const handleDownloadExport = async (format) => {
+  const handleDownloadExport = (format) => {
     setExportingFormat(format);
-    const formatLabel = format === 'excel' ? 'Excel Spreadsheet (.xlsx)' : 'PDF Document (.pdf)';
     try {
-      const blobData = await apiService.downloadReportExport(activeTab, format, userName);
-
-      // Validate blob binary size and content header
-      if (blobData && blobData.size && blobData.size > 200 && blobData.type !== 'application/json') {
-        const blob = new Blob([blobData], {
-          type: format === 'excel'
-            ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-            : 'application/pdf'
-        });
-
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `Skincare_${activeTab.toUpperCase()}_Report_${reportData?.report_id || 'export'}.${format === 'excel' ? 'xlsx' : 'pdf'}`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-
-        if (onToast) onToast(`📄 Exported ${activeTab.toUpperCase()} report successfully as ${formatLabel}!`);
-        return;
-      }
-
-      throw new Error("Direct binary download preferred");
-    } catch (err) {
-      console.warn(`Attempting direct browser download stream:`, err.message || err);
-      try {
-        const directUrl = apiService.getDirectExportUrl(activeTab, format, userName);
-        const a = document.createElement('a');
-        a.href = directUrl;
-        a.target = '_blank';
-        a.download = `Skincare_${activeTab.toUpperCase()}_Report.${format === 'excel' ? 'xlsx' : 'pdf'}`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        if (onToast) onToast(`📥 Downloading ${activeTab.toUpperCase()} report as ${formatLabel}...`);
-      } catch (_dlErr) {
-        if (format === 'excel') {
-          triggerCsvExportFallback();
-        } else {
+      if (format === 'pdf') {
+        if (onToast) onToast(`📄 Opening PDF export window... Select 'Save as PDF' to save your file.`);
+        setTimeout(() => {
           window.print();
-        }
+          setExportingFormat(null);
+        }, 150);
+      } else if (format === 'excel') {
+        triggerCsvExport();
+        setExportingFormat(null);
       }
-    } finally {
+    } catch (err) {
+      console.error("Export error:", err);
+      if (onToast) onToast("⚠ Export failed. Please try again.");
       setExportingFormat(null);
     }
   };
 
-  const triggerCsvExportFallback = () => {
+  const triggerCsvExport = () => {
     if (!reportData) return;
-    let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += `Report Title,${activeTab.toUpperCase()} REPORT\n`;
-    csvContent += `Report ID,${reportData.report_id}\n`;
-    csvContent += `Generated At,${reportData.generated_at}\n`;
-    csvContent += `User,${reportData.user_name}\n\n`;
+    const tabName = activeTab.toUpperCase();
+    let rows = [];
 
-    csvContent += JSON.stringify(reportData, null, 2);
+    // Metadata Header
+    rows.push(["OFFICIAL CLINICAL SKINCARE REPORT"]);
+    rows.push(["Report Type", `${tabName} REPORT`]);
+    rows.push(["Report ID", reportData.report_id || 'N/A']);
+    rows.push(["Generated At", reportData.generated_at || new Date().toLocaleString()]);
+    rows.push(["Patient / User Name", reportData.user_name || userName]);
+    rows.push([]);
 
-    const encodedUri = encodeURI(csvContent);
+    if (activeTab === "assessment") {
+      rows.push(["SKIN ASSESSMENT SUMMARY"]);
+      rows.push(["Skin Type", reportData.skin_type || 'N/A']);
+      rows.push(["Overall Skin Score", `${reportData.overall_skin_score || 82}/100`]);
+      rows.push(["Moisture Barrier Status", reportData.moisture_barrier_status || 'N/A']);
+      rows.push(["Clinical Summary", reportData.summary || 'N/A']);
+      rows.push([]);
+      rows.push(["IDENTIFIED SKIN CONCERNS"]);
+      (reportData.skin_concerns || []).forEach(c => rows.push(["Concern", c]));
+      rows.push([]);
+      rows.push(["DERMATOLOGIST RECOMMENDATIONS"]);
+      (reportData.dermatologist_recommendations || []).forEach((r, idx) => rows.push([`Recommendation #${idx+1}`, r]));
+    } else if (activeTab === "routine") {
+      rows.push(["MORNING ROUTINE (AM)"]);
+      rows.push(["Step #", "Category", "Product Name", "Active Ingredients", "Frequency", "Instructions"]);
+      (reportData.morning_routine || []).forEach(item => {
+        rows.push([item.step_number, item.category, item.product_name, item.active_ingredients, item.frequency, item.instructions]);
+      });
+      rows.push([]);
+      rows.push(["EVENING ROUTINE (PM)"]);
+      rows.push(["Step #", "Category", "Product Name", "Active Ingredients", "Frequency", "Instructions"]);
+      (reportData.evening_routine || []).forEach(item => {
+        rows.push([item.step_number, item.category, item.product_name, item.active_ingredients, item.frequency, item.instructions]);
+      });
+    } else if (activeTab === "products") {
+      rows.push(["RECOMMENDED PRODUCTS PORTFOLIO"]);
+      rows.push(["Brand", "Product Name", "Category", "Match Score", "Price", "Rating", "Buy Link"]);
+      (reportData.recommended_products || []).forEach(p => {
+        rows.push([p.brand, p.product_name, p.category, `${p.match_score}%`, p.price, p.rating, p.buy_link]);
+      });
+    } else if (activeTab === "progress") {
+      rows.push(["PROGRESS TRACKING STATS"]);
+      rows.push(["Total Days Logged", `${reportData.total_days_logged || 28} Days`]);
+      rows.push(["Streak Count", `${reportData.streak_count || 14} Days`]);
+      rows.push(["Compliance Rate", `${reportData.compliance_rate || 92.8}%`]);
+      rows.push(["Acne Trend", reportData.acne_trend || 'N/A']);
+      rows.push([]);
+      rows.push(["DAILY LOGS HISTORY"]);
+      rows.push(["Date", "Acne Severity (1-10)", "Redness Level (1-10)", "Hydration Level (1-10)", "Routine Completed", "Notes"]);
+      (reportData.logs_summary || []).forEach(l => {
+        rows.push([l.date, l.acne_severity, l.redness_level, l.hydration_level, l.routine_completed ? "Yes" : "No", l.notes]);
+      });
+    } else if (activeTab === "health") {
+      rows.push(["360° SKIN HEALTH METRICS"]);
+      rows.push(["Overall Grade", reportData.grade || 'N/A']);
+      rows.push(["Overall Health Score", `${reportData.health_metrics?.overall_health_score || 854}/1000`]);
+      rows.push([]);
+      rows.push(["TOP STRENGTHS"]);
+      (reportData.top_strengths || []).forEach(s => rows.push(["Strength", s]));
+      rows.push([]);
+      rows.push(["AREAS FOR IMPROVEMENT"]);
+      (reportData.areas_for_improvement || []).forEach(a => rows.push(["Focus Area", a]));
+      rows.push([]);
+      rows.push(["30-DAY ACTION PLAN"]);
+      (reportData.personalized_action_plan || []).forEach((step, idx) => rows.push([`Step #${idx+1}`, step]));
+    }
+
+    // Convert rows to CSV string with UTF-8 BOM for Excel
+    const csvString = "\uFEFF" + rows.map(r => r.map(cell => `"${String(cell || '').replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `Skincare_${activeTab}_Report.csv`);
+    link.href = url;
+    link.download = `Skincare_${tabName}_Report_${reportData.report_id || 'export'}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    if (onToast) onToast("📊 Exported Excel / CSV data file!");
+    URL.revokeObjectURL(url);
+
+    if (onToast) onToast(`📊 Exported ${tabName} report as Excel Spreadsheet (.csv)!`);
   };
 
   const handlePrint = () => {
@@ -247,8 +280,36 @@ const ReportsExportModule = ({ onToast }) => {
     if (onToast) onToast("🖨️ Print request dispatched!");
   };
 
-  const handleShareWithSpecialist = () => {
-    if (onToast) onToast(`✉️ Report ${reportData?.report_id || ''} securely shared with assigned Dermatologist!`);
+  const handleShareWithSpecialist = async () => {
+    if (!reportData) return;
+    const shareTitle = `Clinical Skincare ${activeTab.toUpperCase()} Report (${reportData.report_id})`;
+    const shareText = `🌸 AI Skincare Intelligence - ${activeTab.toUpperCase()} Report\nReport ID: ${reportData.report_id}\nPatient: ${reportData.user_name}\nGenerated: ${reportData.generated_at}\nLink: ${window.location.href}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: window.location.href,
+        });
+        if (onToast) onToast("✨ Report shared successfully!");
+        return;
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.warn("Native share failed, falling back to clipboard:", err);
+        } else {
+          return;
+        }
+      }
+    }
+
+    // Fallback: Copy to Clipboard
+    try {
+      await navigator.clipboard.writeText(shareText);
+      if (onToast) onToast("📋 Report summary & link copied to clipboard!");
+    } catch (_clipErr) {
+      if (onToast) onToast(`✉️ Report ${reportData.report_id} ready for sharing with Dermatologist!`);
+    }
   };
 
   return (

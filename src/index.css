@@ -1322,6 +1322,7 @@ input::placeholder, textarea::placeholder {
   /* Main container formatting for 1-2 page print layout */
   .glass-card,
   #reports,
+  .printable-report-area,
   .report-preview-container {
     background: #ffffff !important;
     color: #111827 !important;

@@ -102,10 +102,7 @@ app.all([
   '/api/notifications', '/api/notifications/*',
   '/api/reports', '/api/reports/*'
 ], async (req, res) => {
-  let fastApiBase = 'https://ai-skincare-fastapi-backend.onrender.com';
-  if (process.env.FASTAPI_URL && !process.env.FASTAPI_URL.includes('localhost') && !process.env.FASTAPI_URL.includes('127.0.0.1')) {
-    fastApiBase = process.env.FASTAPI_URL.trim().replace(/\/+$/, '');
-  }
+  let fastApiBase = process.env.FASTAPI_URL ? process.env.FASTAPI_URL.trim().replace(/\/+$/, '') : 'https://ai-skincare-fastapi-backend.onrender.com';
 
   let targetUrl = `${fastApiBase}${req.originalUrl}`;
   if (req.originalUrl.startsWith('/api/assessment')) {
