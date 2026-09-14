@@ -1,0 +1,17 @@
+# Root Dockerignore for fast, lean builds
+.git
+.gitignore
+.env
+.env.*
+node_modules/
+frontend/node_modules/
+frontend/dist/
+backend/venv/
+backend/.pytest_cache/
+backend/__pycache__/
+ml/skin_type_classification_dataset/
+*.log
+*.pdf
+*.xlsx
+.DS_Store
+Thumbs.db

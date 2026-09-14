@@ -4,9 +4,15 @@ from dotenv import load_dotenv
 # Load env variables from backend root directory
 load_dotenv()
 
+def _get_database_url() -> str:
+    raw_url = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/skin_intelligence")
+    if raw_url.startswith("postgres://"):
+        return raw_url.replace("postgres://", "postgresql://", 1)
+    return raw_url
+
 class Settings:
-    # Database URL
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/skin_intelligence")
+    # Database URL (safely normalizes Render postgres:// to postgresql:// for SQLAlchemy 2.0)
+    DATABASE_URL: str = _get_database_url()
     
     # JWT Authentication config
     JWT_SECRET: str = os.getenv("JWT_SECRET", "YOUR_FALLBACK_DEV_SECRET_KEY_FOR_LOCAL_DEV_ONLY")

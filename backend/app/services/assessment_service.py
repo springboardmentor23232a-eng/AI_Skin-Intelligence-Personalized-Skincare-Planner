@@ -11,10 +11,28 @@ import torchvision.transforms as transforms
 
 logger = logging.getLogger("uvicorn")
 
-# Setup relative paths to the model directory
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-MODEL_PATH = os.path.join(BASE_DIR, "..", "ml", "models", "skin_assessment_model.pth")
-MODEL_PATH = os.path.normpath(MODEL_PATH)
+# Setup relative paths to the model directory with multi-environment fallbacks
+def _resolve_model_path() -> str:
+    env_path = os.getenv("MODEL_PATH")
+    if env_path and os.path.exists(env_path):
+        return os.path.normpath(env_path)
+    
+    base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    candidate_paths = [
+        os.path.join(base_dir, "..", "ml", "models", "skin_assessment_model.pth"),
+        os.path.join(base_dir, "ml", "models", "skin_assessment_model.pth"),
+        "/ml/models/skin_assessment_model.pth",
+        "/app/ml/models/skin_assessment_model.pth",
+        os.path.join(os.getcwd(), "ml", "models", "skin_assessment_model.pth"),
+        os.path.join(os.getcwd(), "..", "ml", "models", "skin_assessment_model.pth"),
+    ]
+    for p in candidate_paths:
+        normalized = os.path.normpath(p)
+        if os.path.exists(normalized):
+            return normalized
+    return os.path.normpath(os.path.join(base_dir, "..", "ml", "models", "skin_assessment_model.pth"))
+
+MODEL_PATH = _resolve_model_path()
 
 LABEL_COLUMNS = [
     'Acne_Severity (0-5)', 'blackheads', 'whiteheads', 'Open pores (0-5)', 

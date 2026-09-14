@@ -36,8 +36,8 @@ services:
   # -----------------------------------------------------------------------
   backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: backend/Dockerfile
     container_name: skin_ai_backend
     restart: unless-stopped
     depends_on:

@@ -23,6 +23,9 @@ runs/
 *.pth
 *.pt
 *.ckpt
+!models/skin_assessment_model.pth
+!models/
+
 
 # Kaggle dataset
 skin_type_classification_dataset/
