@@ -83,8 +83,8 @@ def login(credentials: LoginRequest, response: Response, db: Session = Depends(g
 @router.post("/logout", response_model=GenericMessage)
 def logout(response: Response):
     is_prod = os.environ.get("ENVIRONMENT", "").lower() == "production"
-    response.delete_cookie(key="access_token", path="/", samesite="lax", secure=is_prod)
-    response.delete_cookie(key="refresh_token", path="/", samesite="lax", secure=is_prod)
+    response.delete_cookie(key="access_token", path="/", httponly=True, samesite="lax", secure=is_prod)
+    response.delete_cookie(key="refresh_token", path="/", httponly=True, samesite="lax", secure=is_prod)
     return {"message": "Successfully logged out"}
 
 @router.post("/refresh", response_model=Token)

@@ -115,3 +115,17 @@ class AdminStatsResponse(BaseModel):
     total_audit_logs: int
     system_status: str
     timestamp: datetime
+
+
+class AdminBootstrapRequest(BaseModel):
+    email: str
+    password: str
+    full_name: Optional[str] = "System Administrator"
+
+
+class AdminBootstrapResponse(BaseModel):
+    status: str
+    message: str
+    email: str
+    role: str
+    user_id: int

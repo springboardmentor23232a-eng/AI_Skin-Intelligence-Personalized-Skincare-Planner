@@ -1,16 +1,20 @@
+import os
+import secrets
 from datetime import datetime
 from typing import Optional, List, Dict, Any
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Header
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_, desc, asc
 
 from app.db.session import get_db
 from app.models import (
-    User, UserRole, SkinProfile, SkinAssessment, SkincareRoutine,
+    User, UserRole, AuthProvider, SkinProfile, SkinAssessment, SkincareRoutine,
     Consultation, ClinicalReview, Notification, AdminAuditLog,
     ProductRecommendation
 )
 from app.auth import get_current_user, require_roles
+from app.auth.service import hash_password
+from app.core.config import settings
 from app.schemas_admin import (
     AdminUserSummary,
     AdminUserListResponse,
@@ -19,7 +23,9 @@ from app.schemas_admin import (
     AdminUserRoleUpdate,
     AdminAuditLogResponse,
     AdminAuditLogListResponse,
-    AdminStatsResponse
+    AdminStatsResponse,
+    AdminBootstrapRequest,
+    AdminBootstrapResponse
 )
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
@@ -567,3 +573,108 @@ def get_audit_logs(
         total_pages=total_pages,
         logs=log_responses
     )
+
+
+# =========================================================
+# 8. SECURE ADMINISTRATIVE BOOTSTRAP / INITIAL PROVISIONING
+# =========================================================
+
+@router.post("/bootstrap", response_model=AdminBootstrapResponse)
+def bootstrap_admin(
+    payload: AdminBootstrapRequest,
+    x_bootstrap_secret: Optional[str] = Header(None, alias="X-Bootstrap-Secret"),
+    db: Session = Depends(get_db)
+):
+    """
+    Secure administrative initial provisioning / recovery endpoint.
+    Guarded by server-side secret (JWT_SECRET_KEY or ADMIN_BOOTSTRAP_SECRET).
+    Allows creating or synchronizing the primary platform administrator in cloud databases
+    without opening public self-registration.
+    """
+    valid_secret = os.environ.get("ADMIN_BOOTSTRAP_SECRET", settings.JWT_SECRET_KEY)
+    if not x_bootstrap_secret or not secrets.compare_digest(x_bootstrap_secret, valid_secret):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Forbidden: Invalid or missing administrative bootstrap secret key."
+        )
+
+    norm_email = payload.email.strip().lower()
+    if not norm_email or "@" not in norm_email:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="A valid email address is required.")
+
+    if not payload.password or len(payload.password) < 8:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password must be at least 8 characters.")
+
+    user = db.query(User).filter(User.email == norm_email).first()
+    hashed = hash_password(payload.password)
+    now = datetime.utcnow()
+
+    if user:
+        user.role = "ADMIN"
+        user.password = hashed
+        user.full_name = payload.full_name.strip() if payload.full_name else user.full_name
+        user.is_active = 1
+        user.is_blocked = 0
+        user.is_verified = 1
+        user.email_verified = True
+        user.email_verified_at = user.email_verified_at or now
+        user.updated_at = now
+
+        audit = AdminAuditLog(
+            admin_user_id=user.id,
+            target_user_id=user.id,
+            action="ADMIN_BOOTSTRAP_API",
+            previous_value="EXISTING",
+            new_value="ADMIN",
+            reason=f"Administrator account {norm_email} updated via secure bootstrap API.",
+            created_at=now
+        )
+        db.add(audit)
+        db.commit()
+        db.refresh(user)
+
+        return AdminBootstrapResponse(
+            status="success",
+            message=f"Administrator account {norm_email} successfully updated and verified.",
+            email=user.email,
+            role=user.role,
+            user_id=user.id
+        )
+    else:
+        new_admin = User(
+            full_name=payload.full_name.strip() if payload.full_name else "System Administrator",
+            email=norm_email,
+            password=hashed,
+            role="ADMIN",
+            provider=AuthProvider.LOCAL.value if hasattr(AuthProvider, "LOCAL") else "LOCAL",
+            is_active=1,
+            is_blocked=0,
+            is_verified=1,
+            email_verified=True,
+            email_verified_at=now,
+            created_at=now,
+            updated_at=now
+        )
+        db.add(new_admin)
+        db.commit()
+        db.refresh(new_admin)
+
+        audit = AdminAuditLog(
+            admin_user_id=new_admin.id,
+            target_user_id=new_admin.id,
+            action="ADMIN_BOOTSTRAP_API",
+            previous_value="NONE",
+            new_value="ADMIN",
+            reason=f"Administrator account {norm_email} provisioned via secure bootstrap API.",
+            created_at=now
+        )
+        db.add(audit)
+        db.commit()
+
+        return AdminBootstrapResponse(
+            status="success",
+            message=f"Administrator account {norm_email} successfully provisioned and verified.",
+            email=new_admin.email,
+            role=new_admin.role,
+            user_id=new_admin.id
+        )
