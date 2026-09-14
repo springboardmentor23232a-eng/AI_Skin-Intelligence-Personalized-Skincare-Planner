@@ -1,3 +1,4 @@
+import gc
 import os
 import logging
 from io import BytesIO
@@ -8,6 +9,13 @@ import torch
 import torch.nn as nn
 from torchvision import models
 import torchvision.transforms as transforms
+
+# Optimize PyTorch CPU threading and memory for constrained environments (e.g. Render Free 512MB)
+torch.set_num_threads(1)
+try:
+    torch.set_num_interop_threads(1)
+except Exception:
+    pass
 
 logger = logging.getLogger("uvicorn")
 
@@ -85,6 +93,11 @@ try:
         state_dict = torch.load(MODEL_PATH, map_location=device)
         backbone.load_state_dict(state_dict)
         backbone.eval()
+        
+        # Free loaded state_dict dictionary immediately to reduce memory footprint
+        del state_dict
+        gc.collect()
+        
         model = backbone
         model_loaded = True
         logger.info(f"ML Model successfully loaded from: {MODEL_PATH}")
@@ -127,7 +140,8 @@ def run_skin_inference(image_bytes: bytes) -> dict:
                 detail=f"Invalid image format. Ensure you upload a valid JPG/PNG file: {e}"
             )
             
-        with torch.no_grad():
+        # Execute inference in lightweight inference_mode to avoid tracking autograd graphs
+        with torch.inference_mode():
             outputs = model(tensor).cpu().numpy()[0]
             
     # 1. The 18 model output predictions before scaling
