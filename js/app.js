@@ -963,7 +963,7 @@ class App {
     this.navigateToView('dashboard');
   }
 
-  openLoginModal(defaultRole = null, promptMessage = null) {
+  async openLoginModal(defaultRole = null, promptMessage = null) {
     const userInput = document.getElementById('modal-login-username');
     const passInput = document.getElementById('modal-login-password');
     const roleSelect = document.getElementById('modal-login-role');
