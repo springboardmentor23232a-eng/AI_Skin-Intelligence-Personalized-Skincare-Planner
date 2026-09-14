@@ -2,10 +2,6 @@ import axios from "axios";
 
 const getBaseApiUrl = () => {
   if (import.meta.env.PROD) {
-    const custom = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL;
-    if (custom && !custom.includes("localhost") && !custom.includes("127.0.0.1")) {
-      return custom.replace(/\/auth\/?$/, "").replace(/\/+$/, "");
-    }
     return "/api";
   }
   const devUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "/api";

@@ -79,7 +79,7 @@ def db():
 # 1 & 2. FAKE email_verified & FAKE role FROM FRONTEND
 # -------------------------------------------------------------
 def test_security_1_and_2_fake_email_verified_and_fake_role(db):
-    """Test that frontend-provided role and email_verified are rejected/overridden server-side."""
+    """Test that unauthorized roles are rejected server-side and verification flags enforced."""
     rand_id = secrets.token_hex(4)
     test_email = f"security_user_{rand_id}@example.com"
 
@@ -87,12 +87,24 @@ def test_security_1_and_2_fake_email_verified_and_fake_role(db):
         full_name="Attacker Attempting Escalation",
         email=test_email,
         password="ValidPassword123!",
-        role="ADMIN"  # Malicious attempt
+        role="MALICIOUS_SUPERUSER"  # Malicious unsupported role
     )
-    user = register_user(db, user_data)
+    with pytest.raises(HTTPException) as exc_info:
+        register_user(db, user_data)
+    assert exc_info.value.status_code == 400
+    assert "Invalid account role" in exc_info.value.detail
+
+    # Valid registration preserves email_verified=False
+    valid_data = UserCreate(
+        full_name="Valid Demo User",
+        email=test_email,
+        password="ValidPassword123!",
+        role="USER"
+    )
+    user = register_user(db, valid_data)
     try:
-        assert user.role == "USER", "Security failure: user was allowed to assign role 'ADMIN'"
-        assert user.email_verified is False, "Security failure: user was created as verified"
+        assert user.role == "USER"
+        assert user.email_verified is False
         assert user.phone_verified is False
     finally:
         db.query(EmailVerificationToken).filter(EmailVerificationToken.user_id == user.id).delete()

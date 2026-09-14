@@ -40,19 +40,31 @@ def db():
 
 
 def test_registration_role_escalation_protection(db):
-    """Test that self-registration strictly forces role='USER' and ignores attempted escalation."""
+    """Test that self-registration in demo mode validates roles and strictly rejects unauthorized roles."""
     test_email = f"test_reg_{secrets.token_hex(4)}@example.com"
     user_data = UserCreate(
         email=test_email,
         password="SecurePassword123!",
         full_name="Privilege Escalation Tester",
-        role="ADMIN"  # Attempt to self-assign ADMIN
+        role="UNAUTHORIZED_SUPERUSER"  # Attempt to self-assign invalid role
     )
 
-    registered = register_user(db, user_data)
+    with pytest.raises(HTTPException) as exc_info:
+        register_user(db, user_data)
+    assert exc_info.value.status_code == 400
+    assert "Invalid account role" in exc_info.value.detail
+
+    # Test standard valid USER registration
+    valid_data = UserCreate(
+        email=test_email,
+        password="SecurePassword123!",
+        full_name="Privilege Escalation Tester",
+        role="USER"
+    )
+    registered = register_user(db, valid_data)
     try:
         assert registered.email == test_email.lower()
-        assert registered.role == "USER", "Role must be strictly forced to USER on self-registration"
+        assert registered.role == "USER"
         assert registered.email_verified is False, "New registration must be unverified"
         assert registered.email_verified_at is None
         assert registered.phone_verified is False
