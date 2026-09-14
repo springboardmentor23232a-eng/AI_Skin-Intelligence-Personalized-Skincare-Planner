@@ -1,0 +1,65 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: skin_planner_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-skin_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-skin_password}
+      POSTGRES_DB: ${POSTGRES_DB:-skin_planner}
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-skin_user} -d ${POSTGRES_DB:-skin_planner}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: skin_planner_backend
+    restart: always
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://skin_user:skin_password@db:5432/skin_planner}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-super_secret_jwt_key_change_in_production_12345}
+      JWT_ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 1440
+      ENVIRONMENT: production
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost,http://localhost:80,http://localhost:3000}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - backend_uploads:/app/uploads
+      - ./ml:/ml:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: skin_planner_frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:80"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  postgres_data:
+  backend_uploads:

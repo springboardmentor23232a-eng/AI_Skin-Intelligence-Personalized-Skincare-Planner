@@ -1,0 +1,61 @@
+# ==============================================================================
+# AI Skin Intelligence Platform - Root Docker Ignore Configuration
+# ==============================================================================
+
+# Version Control
+.git/
+.gitignore
+
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+!.env.production.example
+
+# Python Cache & Virtual Environments
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node & Frontend Build Artifacts
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+.vite/
+frontend/.vite/
+
+# Database & Runtime Data
+*.db
+*.sqlite
+*.sqlite3
+backend/skin_db.db
+test_gaps.db
+
+# Uploads & Temporary Media
+backend/uploads/*
+!backend/uploads/.gitkeep
+backend/tests/downloaded_exports/*
+!backend/tests/downloaded_exports/.gitkeep
+
+# Logs & Temporary Files
+*.log
+logs/
+*.tmp
+*.temp
+*.bak
+rendered_page_*.png
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
