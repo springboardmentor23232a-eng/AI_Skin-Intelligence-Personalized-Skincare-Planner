@@ -97,6 +97,12 @@ async function startServer() {
   });
 }
 
-startServer();
+// Only start standalone listener when not in Vercel Serverless environment
+if (!process.env.VERCEL) {
+  startServer();
+} else {
+  // Cold-start seed check for serverless instances
+  initAndSeedDb().catch(console.error);
+}
 
 export default app;
