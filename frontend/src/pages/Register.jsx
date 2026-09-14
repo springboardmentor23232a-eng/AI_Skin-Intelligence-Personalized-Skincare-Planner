@@ -239,7 +239,9 @@ function Register() {
                         shape="pill"
                         size="large"
                         text="signup_with"
-                        width="100%"
+                        width="320"
+                        useOneTap={false}
+                        auto_select={false}
                       />
                     </div>
                   ) : (

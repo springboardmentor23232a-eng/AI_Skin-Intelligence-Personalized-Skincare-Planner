@@ -140,8 +140,10 @@ function Login() {
                     theme="outline"
                     shape="pill"
                     size="large"
-                    text="continue_with"
-                    width="100%"
+                    text="signin_with"
+                    width="320"
+                    useOneTap={false}
+                    auto_select={false}
                   />
                 </div>
               ) : (
