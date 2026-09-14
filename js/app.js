@@ -281,11 +281,13 @@ class App {
       }
     });
 
-    // BUG 1 FIX: Restore session from existing JWT token on page load
-    const restored = await auth.restoreSession();
-    if (!restored) {
-      this.render();
-    }
+    // Instant initial render so landing page displays without waiting for network
+    this.render();
+
+    // BUG 1 FIX: Restore session from existing JWT token on page load in background
+    auth.restoreSession().catch(err => {
+      console.warn('[Session Restore Warning]', err);
+    });
   }
 
   render() {
@@ -3871,9 +3873,14 @@ if (typeof window !== 'undefined') {
 }
 
 if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', () => {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      app.init();
+    });
+  } else {
+    // DOM is already ready (interactive or complete), initialize immediately!
     app.init();
-  });
+  }
 }
 
 
