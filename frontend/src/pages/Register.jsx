@@ -213,9 +213,6 @@ function Register() {
                       {role === "DERMATOLOGIST" && "Dermatologist account: clinical triage, high-risk reviews, and specialist care."}
                       {role === "ADMIN" && "Administrator account: full telemetry, user management, and system audit logs."}
                     </small>
-                    <div className="mt-2 p-2 rounded small" style={{ backgroundColor: "var(--bg-surface-elevated)", fontSize: "0.72rem", color: "var(--text-secondary)" }}>
-                      ℹ️ <strong>Public Demonstration Mode:</strong> All roles are open for reviewer and mentor evaluation.
-                    </div>
                   </div>
 
                   <button
