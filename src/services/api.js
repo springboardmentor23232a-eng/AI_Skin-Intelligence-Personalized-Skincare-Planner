@@ -1,8 +1,9 @@
 // REST API Client Layer connecting React Frontend to Express & PostgreSQL Backend
 import axios from 'axios';
 
-const rawBase = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:5000/api' : 'https://ai-skincare-express-backend.onrender.com/api');
+const rawBase = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:5000/api' : '/api');
 const BASE_URL = String(rawBase).trim().replace(/\/+$/, '');
+
 
 
 const axiosInstance = axios.create({
