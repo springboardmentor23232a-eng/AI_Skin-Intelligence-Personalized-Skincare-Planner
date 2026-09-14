@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Dict
 from pydantic import BaseModel, EmailStr, ConfigDict
 
 
@@ -92,6 +92,9 @@ class SkinAssessmentOut(BaseModel):
     detected_skin_type: Optional[str]
     image_path: Optional[str]
     notes: Optional[str]
+    improvement_score: Optional[float] = None
+    improvement_trend: Optional[str] = None
+    score_breakdown: Optional[Dict[str, float]] = None
     concerns: List[SkinConcernOut] = []
     risk_factors: List[RiskFactorOut] = []
 
@@ -162,6 +165,17 @@ class ProductCreate(BaseModel):
     image_url: Optional[str] = None
 
 
+class ProductRecommendationOut(ProductOut):
+    """ProductOut plus an explainable suitability score for the current user."""
+    match_score: int  # 0-100
+    match_reasons: List[str]
+
+
+class ProductCompareOut(BaseModel):
+    products: List[ProductOut]
+    attributes: List[str]
+
+
 # ---------------- PROGRESS ----------------
 class ProgressLogCreate(BaseModel):
     assessment_id: Optional[str] = None
@@ -188,6 +202,11 @@ class NotificationOut(BaseModel):
     category: str
     is_read: bool
     created_at: datetime
+
+
+class PlatformNotificationCreate(BaseModel):
+    title: str
+    message: str
 
 
 # ---------------- GEMINI AI CHAT ----------------

@@ -4,7 +4,7 @@ from datetime import datetime
 
 from sqlalchemy import (
     Column, String, Integer, Float, Boolean, ForeignKey, DateTime,
-    Text, Enum as SAEnum
+    Text, Enum as SAEnum, JSON
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
@@ -105,6 +105,12 @@ class SkinAssessment(Base):
     detected_skin_type = Column(SAEnum(SkinTypeEnum), nullable=True)
     image_path = Column(String(255), nullable=True)
     notes = Column(Text, nullable=True)
+    # Skin improvement scoring (vs. this user's first-ever assessment)
+    improvement_score = Column(Float, nullable=True)
+    improvement_trend = Column(String(20), nullable=True)  # improving, declining, stable, baseline
+    # Full Weighted Scoring Model breakdown: skin_condition_assessment, lifestyle_habits,
+    # sleep_quality, routine_consistency, hydration_level (each 0-100)
+    score_breakdown = Column(JSON, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", back_populates="assessments")

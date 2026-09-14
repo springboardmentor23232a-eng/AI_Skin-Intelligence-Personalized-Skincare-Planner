@@ -196,14 +196,39 @@ email/password JWT auth and the rule-based engine if you don't set them.
    concern match, with comparison and alternatives endpoints.
 7. **Skin Health Scoring Engine** — weighted formula:
    `Condition 35% + Lifestyle 20% + Sleep 15% + Routine Consistency 20% + Hydration 10%`.
-8. **Progress Tracking & Analytics** — logs, trend detection, before/after
-   comparison.
-9. **Dashboards** — tailored views per role (User, Consultant,
-   Dermatologist, Admin platform analytics).
-10. **Notifications & Reminders** — routine, hydration, sleep, replenishment.
-11. **Gemini AI Assistant** — contextual chat using the user's profile +
+8. **Progress Tracking & Analytics** — skin progress monitoring, routine
+   adherence tracking, improvement analysis, before/after comparison, and
+   trend detection, all surfaced in the user dashboard's Progress tab.
+9. **Dashboards** —
+   - **User:** skin health score, personalized routine, product
+     recommendations, progress tracking, and a **daily skincare checklist**
+     with streak tracking.
+   - **Consultant / Dermatologist:** client/patient profiles, linked-client
+     management, **skin assessment / condition reports** with full
+     progress-monitoring detail (per-client "View Report"), and
+     recommendation management.
+   - **Admin:** user management, platform analytics, **recommendation
+     monitoring** (every recommendation issued platform-wide), and
+     **system reports** (role breakdown, 30-day activity, notification
+     volume, top skin concerns).
+10. **Notifications & Reminders** — routine, hydration, sleep, and product
+    replenishment reminders; automatic **progress alerts** (fired when a
+    user's skin health score swings ≥5 points or routine adherence drops
+    below 50%); and admin-issued **platform-wide notifications**.
+11. **Reports & Export System** — skin assessment reports, routine reports,
+    product recommendation reports, progress reports, and a consolidated
+    skin health report — each downloadable as **PDF** or **Excel** from the
+    user dashboard's Reports tab (`/api/reports/*?format=pdf|excel`).
+12. **Final Integration, Testing & Deployment** — all routers wired into one
+    FastAPI app; a `pytest` suite (`backend/tests/`) covering auth, API
+    validation, and a full end-to-end workflow across assessment → routine →
+    progress → notifications → reports; request-ID correlated logging and
+    baseline security headers on every response; Docker Compose with a
+    backend healthcheck for containerized deployment; see
+    `DEPLOYMENT.md` and `USER_GUIDE.md`.
+13. **Gemini AI Assistant** — contextual chat using the user's profile +
     latest assessment.
-12. **Postman Collection** — every endpoint pre-wired with an auth flow
+14. **Postman Collection** — every endpoint pre-wired with an auth flow
     (`postman/AI_Skin_Intelligence.postman_collection.json`).
 
 ---

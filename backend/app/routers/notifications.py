@@ -3,9 +3,47 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app import models, schemas
-from app.deps import get_current_user
+from app.deps import get_current_user, require_admin
 
 router = APIRouter(prefix="/api/notifications", tags=["Notifications & Reminders"])
+
+
+# ---------------------------------------------------------------------------
+# Shared helper: used by this router as well as progress.py / assessment.py
+# to raise a "progress alert" notification whenever something noteworthy
+# happens to a user's skin health score or routine adherence.
+# ---------------------------------------------------------------------------
+def create_progress_alert(db: Session, user_id: str, title: str, message: str, commit: bool = True):
+    n = models.Notification(user_id=user_id, title=title, message=message, category="progress")
+    db.add(n)
+    if commit:
+        db.commit()
+    return n
+
+
+def check_score_change_alert(db: Session, user_id: str, new_score: float, previous_score: float | None, threshold: float = 5.0):
+    """Raises a progress alert if the skin health score moved by >= threshold points."""
+    if previous_score is None:
+        return None
+    delta = round(new_score - previous_score, 1)
+    if abs(delta) < threshold:
+        return None
+    if delta > 0:
+        title, message = "Skin Health Improving", f"Your skin health score rose by {delta} points since your last check-in. Keep it up!"
+    else:
+        title, message = "Skin Health Score Dropped", f"Your skin health score fell by {abs(delta)} points since your last check-in. Consider reviewing your routine."
+    return create_progress_alert(db, user_id, title, message, commit=False)
+
+
+def check_adherence_alert(db: Session, user_id: str, adherence_pct: float | None, threshold: float = 50.0):
+    """Raises a progress alert if routine adherence is below the threshold."""
+    if adherence_pct is None or adherence_pct >= threshold:
+        return None
+    return create_progress_alert(
+        db, user_id, "Low Routine Adherence",
+        f"Your routine adherence is at {adherence_pct}%, below your {int(threshold)}% target. A consistent routine drives better results.",
+        commit=False,
+    )
 
 
 @router.get("", response_model=list[schemas.NotificationOut])
@@ -54,3 +92,17 @@ def generate_reminders(db: Session = Depends(get_db), current_user: models.User 
 
     db.commit()
     return {"created": created}
+
+
+@router.post("/platform", status_code=201)
+def broadcast_platform_notification(
+    payload: schemas.PlatformNotificationCreate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(require_admin),
+):
+    """Admin-only: broadcast a platform-wide announcement/notification to every active user."""
+    users = db.query(models.User).filter(models.User.is_active == True).all()  # noqa: E712
+    for u in users:
+        db.add(models.Notification(user_id=u.id, title=payload.title, message=payload.message, category="platform"))
+    db.commit()
+    return {"message": f"Notification sent to {len(users)} user(s)."}

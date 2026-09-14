@@ -12,6 +12,8 @@ from app.config import settings
 from app.utils.image_utils import load_image_bgr, extract_skin_features, feature_vector
 from app.ml.predict import predict_skin_type
 from app.ml.scoring_engine import compute_skin_health_score, identify_concerns, analyze_risk_factors
+from app.ml.skin_health_scoring_engine import score_skin_improvement
+from app.routers.notifications import check_score_change_alert
 
 router = APIRouter(prefix="/api/assessment", tags=["Skin Assessment"])
 
@@ -35,6 +37,17 @@ def _latest_adherence_pct(db: Session, user_id: str):
     return log.routine_adherence_pct if log else None
 
 
+def _historical_scores(db: Session, user_id: str) -> list:
+    """All previous skin_health_score values for this user, oldest first."""
+    rows = (
+        db.query(models.SkinAssessment.skin_health_score)
+        .filter(models.SkinAssessment.user_id == user_id)
+        .order_by(models.SkinAssessment.assessment_date.asc())
+        .all()
+    )
+    return [r[0] for r in rows]
+
+
 @router.post("", response_model=schemas.SkinAssessmentOut, status_code=201)
 def create_assessment(
     payload: schemas.SkinAssessmentCreate,
@@ -44,8 +57,12 @@ def create_assessment(
     """Create an assessment WITHOUT an image (profile + manual concerns only)."""
     profile = db.query(models.SkinProfile).filter(models.SkinProfile.user_id == current_user.id).first()
     adherence = _latest_adherence_pct(db, current_user.id)
+    history = _historical_scores(db, current_user.id)
 
-    score_result = compute_skin_health_score(profile=profile, image_features=None, routine_adherence_pct=adherence)
+    score_result = compute_skin_health_score(
+        profile=profile, image_features=None, routine_adherence_pct=adherence, historical_scores=history
+    )
+    improvement = score_result["skin_improvement"]
     concerns = identify_concerns(image_features=None, profile=profile, manual_concerns=payload.concerns)
     risks = analyze_risk_factors(profile=profile, image_features=None)
 
@@ -55,6 +72,9 @@ def create_assessment(
         overall_condition=score_result["overall_condition"],
         detected_skin_type=profile.skin_type if profile else None,
         notes=payload.notes,
+        improvement_score=improvement["improvement_score"],
+        improvement_trend=improvement["trend"],
+        score_breakdown=score_result["breakdown"],
     )
     db.add(assessment)
     db.flush()
@@ -63,6 +83,8 @@ def create_assessment(
         db.add(models.SkinConcern(assessment_id=assessment.id, **c))
     for r in risks:
         db.add(models.RiskFactor(assessment_id=assessment.id, **r))
+
+    check_score_change_alert(db, current_user.id, score_result["skin_health_score"], history[-1] if history else None)
 
     db.commit()
     db.refresh(assessment)
@@ -98,7 +120,11 @@ def analyze_image(
     profile.skin_type = ml_result["skin_type"]
 
     adherence = _latest_adherence_pct(db, current_user.id)
-    score_result = compute_skin_health_score(profile=profile, image_features=features, routine_adherence_pct=adherence)
+    history = _historical_scores(db, current_user.id)
+    score_result = compute_skin_health_score(
+        profile=profile, image_features=features, routine_adherence_pct=adherence, historical_scores=history
+    )
+    improvement = score_result["skin_improvement"]
     concerns = identify_concerns(image_features=features, profile=profile)
     risks = analyze_risk_factors(profile=profile, image_features=features)
 
@@ -109,6 +135,9 @@ def analyze_image(
         detected_skin_type=ml_result["skin_type"],
         image_path=path,
         notes=f"Auto-analyzed. ML confidence: {ml_result['probabilities']}",
+        improvement_score=improvement["improvement_score"],
+        improvement_trend=improvement["trend"],
+        score_breakdown=score_result["breakdown"],
     )
     db.add(assessment)
     db.flush()
@@ -117,6 +146,8 @@ def analyze_image(
         db.add(models.SkinConcern(assessment_id=assessment.id, **c))
     for r in risks:
         db.add(models.RiskFactor(assessment_id=assessment.id, **r))
+
+    check_score_change_alert(db, current_user.id, score_result["skin_health_score"], history[-1] if history else None)
 
     db.commit()
     db.refresh(assessment)
@@ -154,6 +185,43 @@ def latest_score(db: Session = Depends(get_db), current_user: models.User = Depe
     if not latest:
         raise HTTPException(status_code=404, detail="No assessments found.")
     return {"skin_health_score": latest.skin_health_score, "overall_condition": latest.overall_condition}
+
+
+@router.get("/improvement")
+def improvement_score(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    """Full skin-improvement scoring breakdown (component 4 of the Scoring Engine)."""
+    history = _historical_scores(db, current_user.id)
+    if not history:
+        raise HTTPException(status_code=404, detail="No assessments found.")
+    current = history[-1]
+    baseline_history = history[:-1]  # everything before the latest assessment
+    return score_skin_improvement(current, baseline_history)
+
+
+@router.get("/scoring-engine")
+def scoring_engine_summary(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    """
+    Full Skin Health Scoring Engine summary (section 7):
+    skin condition / lifestyle impact / routine adherence / skin improvement
+    sub-scores, plus the overall weighted skin_health_score.
+    """
+    latest = (
+        db.query(models.SkinAssessment)
+        .filter(models.SkinAssessment.user_id == current_user.id)
+        .order_by(models.SkinAssessment.assessment_date.desc())
+        .first()
+    )
+    if not latest:
+        raise HTTPException(status_code=404, detail="No assessments found. Run a skin scan first.")
+    return {
+        "skin_health_score": latest.skin_health_score,
+        "overall_condition": latest.overall_condition,
+        "breakdown": latest.score_breakdown,
+        "skin_improvement": {
+            "improvement_score": latest.improvement_score,
+            "trend": latest.improvement_trend,
+        },
+    }
 
 
 @router.get("/risks", response_model=list[schemas.RiskFactorOut])

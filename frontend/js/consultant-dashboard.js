@@ -26,8 +26,9 @@ async function loadDashboard() {
           </div>
           <div>
             ${c.latest_score != null
-              ? `<span class="pill pill-low">${c.latest_score} · ${c.overall_condition}</span>`
-              : `<span class="muted">No assessment yet</span>`}
+              ? `<span class="pill pill-low" style="margin-right:8px;">${c.latest_score} · ${c.overall_condition}</span>`
+              : `<span class="muted" style="margin-right:8px;">No assessment yet</span>`}
+            <button class="btn btn-outline btn-sm" onclick="viewClientReport('${c.client_id}')">View Report</button>
           </div>
         </div>
       `).join("");
@@ -73,4 +74,57 @@ async function sendRecommendation() {
   } catch (err) {
     toast(err.message, true);
   }
+}
+
+// ---------------- CLIENT REPORT (Module 9: Skin assessment reports & Progress monitoring) ----------------
+async function viewClientReport(clientId) {
+  const panel = document.getElementById("client-report-panel");
+  const body = document.getElementById("client-report-body");
+  panel.style.display = "block";
+  body.innerHTML = '<div class="muted">Loading report…</div>';
+  panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+  try {
+    const r = await Api.consultantClientReport(clientId);
+    renderClientReport(body, r);
+  } catch (err) {
+    body.innerHTML = "";
+    toast(err.message, true);
+  }
+}
+
+function renderClientReport(body, r) {
+  const latest = r.latest_assessment;
+  const trend = r.trend_analysis;
+  const adherence = r.routine_adherence_tracking;
+
+  body.innerHTML = `
+    <div class="grid grid-3" style="margin-bottom:16px;">
+      <div class="card">
+        <div class="card-title">Latest Skin Health Score</div>
+        <div class="stat-value">${latest ? latest.skin_health_score : "--"}</div>
+        <div class="stat-label">${latest ? latest.overall_condition : "No assessment yet"}</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Trend</div>
+        <div class="stat-value" style="text-transform:capitalize;">${trend ? trend.direction : "--"}</div>
+        <div class="stat-label">${trend ? `First ${trend.first_score} → Latest ${trend.latest_score}` : "Not enough data yet"}</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Routine Adherence</div>
+        <div class="stat-value">${adherence ? adherence.latest_pct + "%" : "--"}</div>
+        <div class="stat-label">${adherence ? `Avg ${adherence.average_pct}% · ${adherence.trend}` : "No logs yet"}</div>
+      </div>
+    </div>
+    <h3>Assessment History</h3>
+    ${r.assessment_history.length ? r.assessment_history.slice().reverse().map((a) => `
+      <div class="list-row">
+        <div>
+          <strong>${new Date(a.assessment_date).toLocaleDateString()}</strong> — ${a.overall_condition || "-"}
+          ${a.concerns && a.concerns.length ? `<div class="muted" style="font-size:0.8rem;">${a.concerns.map((c) => c.concern_name).join(", ")}</div>` : ""}
+        </div>
+        <div><span class="pill pill-low">Score: ${a.skin_health_score}</span></div>
+      </div>
+    `).join("") : '<div class="empty-state">No assessments yet.</div>'}
+  `;
 }

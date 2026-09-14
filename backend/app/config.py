@@ -1,5 +1,5 @@
-﻿import os
-from pydantic_settings import BaseSettings, SettingsConfigDict
+import os
+from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     APP_NAME: str = "AI Skin Intelligence"
@@ -18,7 +18,8 @@ class Settings(BaseSettings):
 
     UPLOAD_DIR: str = os.getenv("UPLOAD_DIR", "uploads")
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    class Config:
+        env_file = ".env"
 
 settings = Settings()
 os.makedirs(settings.UPLOAD_DIR, exist_ok=True)

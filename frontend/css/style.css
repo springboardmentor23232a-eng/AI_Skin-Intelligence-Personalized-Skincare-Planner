@@ -247,6 +247,50 @@ a { color: var(--sage); }
 .pill-moderate { background: #fbeecb; color: #8a6112; }
 .pill-high { background: #f7ded9; color: var(--danger); }
 
+/* ---------- Scoring Engine sub-score bars ---------- */
+.score-bar-row { margin-bottom: 16px; }
+.score-bar-row:last-child { margin-bottom: 0; }
+.score-bar-label {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 6px; font-size: 0.9rem;
+}
+.score-bar-label .weight { color: var(--ink-soft); font-size: 0.78rem; }
+.score-bar-track {
+  width: 100%; height: 10px; border-radius: 999px;
+  background: var(--sage-tint); overflow: hidden;
+}
+.score-bar-fill {
+  height: 100%; border-radius: 999px; background: var(--sage);
+  transition: width 0.6s ease;
+}
+
+/* ---------- Category chips (product filters) ---------- */
+.chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line);
+  background: #fff; color: var(--ink-soft); font-size: 0.82rem; font-weight: 600;
+  cursor: pointer; transition: background 0.15s ease, color 0.15s ease;
+}
+.chip:hover { background: var(--sage-tint); }
+.chip.active { background: var(--sage); color: #fff; border-color: var(--sage); }
+
+/* ---------- Match score badge ---------- */
+.match-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-mono); font-size: 0.75rem; font-weight: 600;
+  padding: 4px 10px; border-radius: 999px; background: var(--sage-tint); color: var(--sage-deep);
+  margin-bottom: 8px;
+}
+.match-badge.mid { background: #fbeecb; color: #8a6112; }
+.match-badge.low { background: #f2f2ef; color: var(--ink-soft); }
+
+/* ---------- Comparison table ---------- */
+.compare-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+.compare-table th, .compare-table td {
+  text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top;
+}
+.compare-table th { color: var(--ink-soft); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
 /* ---------- Tables & lists ---------- */
 .list-row {
   display: flex; align-items: center; justify-content: space-between;

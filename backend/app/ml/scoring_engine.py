@@ -1,124 +1,32 @@
 """
-Rule-based skin health scoring, concern identification, risk analysis,
-and routine generation. Combines the ML skin-type prediction (when an
-image is supplied) with the user's SkinProfile lifestyle data to produce
-an explainable weighted score, as specified in the project brief:
+Rule-based concern identification, risk analysis, and routine generation.
+Combines the ML skin-type prediction (when an image is supplied) with the
+user's SkinProfile lifestyle data.
 
-Skin Health Score =
-    Skin Condition Assessment (35%) +
-    Lifestyle Habits          (20%) +
-    Sleep Quality             (15%) +
-    Routine Consistency       (20%) +
-    Hydration Level           (10%)
+The actual Skin Health Score (condition / lifestyle / sleep / routine /
+hydration weighted model, plus skin-improvement scoring) lives in
+app.ml.skin_health_scoring_engine — that module is section 7's "Skin
+Health Scoring Engine". compute_skin_health_score is re-exported here so
+existing imports in this codebase keep working unchanged.
 """
 from typing import Optional
 
-
-def _condition_score_from_image_features(features: Optional[dict]) -> float:
-    """0-100 score derived from image features; higher = healthier skin."""
-    if not features:
-        return 65.0  # neutral default when no image supplied
-    score = 100.0
-    # High redness -> irritation
-    if features["redness"] > 0.40:
-        score -= 20
-    elif features["redness"] > 0.36:
-        score -= 10
-    # Excess oil sheen -> imbalance
-    if features["oil_sheen_ratio"] > 0.15:
-        score -= 10
-    # High texture variance -> roughness/dryness/uneven texture
-    if features["texture_variance"] > 150:
-        score -= 15
-    elif features["texture_variance"] > 110:
-        score -= 7
-    # Low brightness -> dullness
-    if features["brightness"] < 130:
-        score -= 10
-    # High edge density -> visible pores/fine lines/texture
-    if features["edge_density"] > 0.10:
-        score -= 8
-    return max(0.0, min(100.0, score))
-
-
-def _lifestyle_score(profile) -> float:
-    if not profile or not profile.lifestyle_habits:
-        return 60.0
-    habits = [h.strip().lower() for h in profile.lifestyle_habits.split(",") if h.strip()]
-    score = 80.0
-    negative = {"smoking", "alcohol", "high stress", "junk food", "no exercise", "poor diet"}
-    positive = {"exercise", "balanced diet", "no smoking", "low stress", "healthy diet"}
-    for h in habits:
-        if h in negative:
-            score -= 12
-        elif h in positive:
-            score += 6
-    return max(0.0, min(100.0, score))
-
-
-def _sleep_score(profile) -> float:
-    if not profile or profile.sleep_quality is None:
-        return 60.0
-    return max(0.0, min(100.0, profile.sleep_quality * 10))
-
-
-def _routine_consistency_score(adherence_pct: Optional[float]) -> float:
-    if adherence_pct is None:
-        return 60.0  # neutral default for a brand-new user
-    return max(0.0, min(100.0, adherence_pct))
-
-
-def _hydration_score(profile) -> float:
-    if not profile:
-        return 60.0
-    if profile.hydration_level is not None:
-        return max(0.0, min(100.0, profile.hydration_level * 10))
-    if profile.water_intake_liters is not None:
-        # 2.5L/day considered ideal baseline
-        return max(0.0, min(100.0, (profile.water_intake_liters / 2.5) * 100))
-    return 60.0
+from app.ml.skin_health_scoring_engine import compute_overall_skin_health_score
 
 
 def compute_skin_health_score(
     profile=None,
     image_features: Optional[dict] = None,
     routine_adherence_pct: Optional[float] = None,
+    historical_scores: Optional[list] = None,
 ) -> dict:
-    condition = _condition_score_from_image_features(image_features)
-    lifestyle = _lifestyle_score(profile)
-    sleep = _sleep_score(profile)
-    routine = _routine_consistency_score(routine_adherence_pct)
-    hydration = _hydration_score(profile)
-
-    total = (
-        condition * 0.35
-        + lifestyle * 0.20
-        + sleep * 0.15
-        + routine * 0.20
-        + hydration * 0.10
+    """Thin wrapper kept for backward compatibility with existing call sites."""
+    return compute_overall_skin_health_score(
+        profile=profile,
+        image_features=image_features,
+        routine_adherence_pct=routine_adherence_pct,
+        historical_scores=historical_scores,
     )
-    total = round(total, 2)
-
-    if total >= 80:
-        overall = "Excellent"
-    elif total >= 65:
-        overall = "Good"
-    elif total >= 45:
-        overall = "Fair"
-    else:
-        overall = "Needs Attention"
-
-    return {
-        "skin_health_score": total,
-        "overall_condition": overall,
-        "breakdown": {
-            "skin_condition_assessment": round(condition, 2),
-            "lifestyle_habits": round(lifestyle, 2),
-            "sleep_quality": round(sleep, 2),
-            "routine_consistency": round(routine, 2),
-            "hydration_level": round(hydration, 2),
-        },
-    }
 
 
 def identify_concerns(image_features: Optional[dict], profile=None, manual_concerns=None) -> list:

@@ -23,7 +23,10 @@ async function loadDashboard() {
               <strong>${p.full_name}</strong>
               <div class="muted" style="font-size:0.8rem;">ID: ${p.patient_id} · Score: ${p.score}</div>
             </div>
-            <div>${p.risk_factors.map((r) => `<span class="pill pill-high" style="margin-left:6px;">${r}</span>`).join("")}</div>
+            <div>
+              ${p.risk_factors.map((r) => `<span class="pill pill-high" style="margin-left:6px;">${r}</span>`).join("")}
+              <button class="btn btn-outline btn-sm" style="margin-left:8px;" onclick="viewPatientReport('${p.patient_id}')">View Report</button>
+            </div>
           </div>
         `).join("")
       : '<div class="empty-state">No high-risk patients right now.</div>';
@@ -57,4 +60,52 @@ async function sendRecommendation() {
   } catch (err) {
     toast(err.message, true);
   }
+}
+
+// ---------------- PATIENT REPORT (Module 9: Skin condition reports & Progress analytics) ----------------
+async function viewPatientReport(patientId) {
+  const panel = document.getElementById("patient-report-panel");
+  const body = document.getElementById("patient-report-body");
+  panel.style.display = "block";
+  body.innerHTML = '<div class="muted">Loading report…</div>';
+  panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+  try {
+    const r = await Api.dermatologistPatientReport(patientId);
+    renderPatientReport(body, r);
+  } catch (err) {
+    body.innerHTML = "";
+    toast(err.message, true);
+  }
+}
+
+function renderPatientReport(body, r) {
+  const latest = r.latest_assessment;
+  const trend = r.trend_analysis;
+
+  body.innerHTML = `
+    <div class="grid grid-2" style="margin-bottom:16px;">
+      <div class="card">
+        <div class="card-title">Latest Skin Health Score</div>
+        <div class="stat-value">${latest ? latest.skin_health_score : "--"}</div>
+        <div class="stat-label">${latest ? latest.overall_condition : "No assessment yet"}</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Trend</div>
+        <div class="stat-value" style="text-transform:capitalize;">${trend ? trend.direction : "--"}</div>
+        <div class="stat-label">${trend ? `First ${trend.first_score} → Latest ${trend.latest_score}` : "Not enough data yet"}</div>
+      </div>
+    </div>
+    <h3>Risk Factors (Latest Assessment)</h3>
+    ${r.risk_factors && r.risk_factors.length
+      ? `<ul>${r.risk_factors.map((rf) => `<li><strong>${rf.risk_name}</strong> (${rf.risk_level}) — ${rf.description || ""}</li>`).join("")}</ul>`
+      : '<div class="empty-state">No risk factors flagged.</div>'}
+    <h3>Assessment History</h3>
+    ${r.assessment_history.length ? r.assessment_history.slice().reverse().map((a) => `
+      <div class="list-row">
+        <div><strong>${new Date(a.assessment_date).toLocaleDateString()}</strong> — ${a.overall_condition || "-"}</div>
+        <div><span class="pill pill-low">Score: ${a.skin_health_score}</span></div>
+      </div>
+    `).join("") : '<div class="empty-state">No assessments yet.</div>'}
+  `;
 }

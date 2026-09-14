@@ -14,6 +14,9 @@
     <div class="nav-role-badge">Administrator</div>
     <a class="nav-link active" data-tab="overview">Platform Analytics</a>
     <a class="nav-link" data-tab="users">User Management</a>
+    <a class="nav-link" data-tab="recommendations">Recommendation Monitoring</a>
+    <a class="nav-link" data-tab="reports">System Reports</a>
+    <a class="nav-link" data-tab="broadcast">Platform Notifications</a>
     <div class="nav-spacer"></div>
     <button class="logout-btn" onclick="logout()">Sign out</button>
   </aside>
@@ -28,6 +31,48 @@
       <div class="page-header"><h1>User Management</h1></div>
       <div class="card">
         <div id="users-list"></div>
+      </div>
+    </section>
+
+    <section id="tab-recommendations" style="display:none;">
+      <div class="page-header"><h1>Recommendation Monitoring</h1></div>
+      <div class="card">
+        <div id="admin-recs-list">Loading…</div>
+      </div>
+    </section>
+
+    <section id="tab-reports" style="display:none;">
+      <div class="page-header"><h1>System Reports</h1></div>
+      <div class="grid grid-4" id="report-role-cards" style="margin-bottom:18px;"></div>
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>Platform Activity (Last 30 Days)</h3>
+          <div id="report-activity"></div>
+        </div>
+        <div class="card">
+          <h3>Notifications Sent by Category</h3>
+          <div id="report-notifications"></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:18px;">
+        <h3>Top Skin Concerns Platform-Wide</h3>
+        <div id="report-concerns"></div>
+      </div>
+    </section>
+
+    <section id="tab-broadcast" style="display:none;">
+      <div class="page-header"><h1>Platform Notifications</h1></div>
+      <div class="card">
+        <p class="muted">Send an announcement to every active user's Notifications tab.</p>
+        <div class="field">
+          <label>Title</label>
+          <input type="text" id="broadcast-title" placeholder="e.g. Scheduled Maintenance" />
+        </div>
+        <div class="field">
+          <label>Message</label>
+          <textarea id="broadcast-message" rows="4" placeholder="e.g. The platform will be briefly unavailable tonight at 11 PM for maintenance."></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="sendBroadcast()">Send to All Users</button>
       </div>
     </section>
   </main>

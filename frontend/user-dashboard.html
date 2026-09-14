@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>My Dashboard AI Skin Intelligence</title>
+<title>My Dashboard · AI Skin Intelligence</title>
 <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -15,10 +15,14 @@
     <a class="nav-link active" data-tab="overview">Overview</a>
     <a class="nav-link" data-tab="scan">Skin Scan</a>
     <a class="nav-link" data-tab="routine">My Routine</a>
+    <a class="nav-link" data-tab="checklist">Daily Checklist</a>
     <a class="nav-link" data-tab="products">Products</a>
     <a class="nav-link" data-tab="ingredients">Ingredient Check</a>
     <a class="nav-link" data-tab="progress">Progress</a>
+    <a class="nav-link" data-tab="scoring-engine">Scoring Engine</a>
     <a class="nav-link" data-tab="recommendations">Recommendations</a>
+    <a class="nav-link" data-tab="notifications">Notifications</a>
+    <a class="nav-link" data-tab="reports">Reports</a>
     <a class="nav-link" data-tab="assistant">AI Assistant</a>
     <a class="nav-link" data-tab="profile">Skin Profile</a>
     <div class="nav-spacer"></div>
@@ -64,7 +68,7 @@
 
       <div class="card">
         <h3>Top Concerns</h3>
-        <div id="overview-concerns" class="muted">No data yet run a skin scan to get started.</div>
+        <div id="overview-concerns" class="muted">No data yet — run a skin scan to get started.</div>
       </div>
     </section>
 
@@ -112,9 +116,65 @@
       <div id="routine-list" class="grid grid-2"></div>
     </section>
 
+    <!-- DAILY SKINCARE CHECKLIST -->
+    <section id="tab-checklist" style="display:none;">
+      <div class="page-header">
+        <h1>Daily Skincare Checklist</h1>
+        <div class="stat-label" id="checklist-date"></div>
+      </div>
+      <div class="card" style="margin-bottom:18px;">
+        <div class="grid grid-2">
+          <div>
+            <div class="card-title">Today's Completion</div>
+            <div class="stat-value" id="checklist-pct">0%</div>
+          </div>
+          <div>
+            <div class="card-title">Current Streak</div>
+            <div class="stat-value" id="checklist-streak">0 days</div>
+            <div class="stat-label">Consecutive fully-completed days</div>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>Morning Routine</h3>
+          <div id="checklist-morning"></div>
+        </div>
+        <div class="card">
+          <h3>Evening Routine</h3>
+          <div id="checklist-evening"></div>
+        </div>
+      </div>
+    </section>
+
     <!-- PRODUCTS -->
     <section id="tab-products" style="display:none;">
       <div class="page-header"><h1>Recommended Products</h1></div>
+
+      <div class="card" style="margin-bottom:16px;">
+        <div id="category-filters" class="chip-row"></div>
+        <div class="grid grid-2" style="margin-top:14px; align-items:end;">
+          <div class="field" style="margin-bottom:0;">
+            <label>Max budget (₹)</label>
+            <input type="number" id="product-budget" min="0" placeholder="No limit" />
+          </div>
+          <div>
+            <button class="btn btn-primary" onclick="loadProducts()">Apply Filters</button>
+            <button class="btn btn-outline" onclick="clearProductFilters()">Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="compare-tray" class="card" style="margin-bottom:16px; display:none;">
+        <div class="card-title">Comparing (<span id="compare-count">0</span>/3)</div>
+        <div id="compare-tray-items" style="display:flex; gap:8px; flex-wrap:wrap; margin:8px 0;"></div>
+        <button class="btn btn-clay btn-sm" onclick="runCompare()">Compare Selected</button>
+        <button class="btn btn-outline btn-sm" onclick="clearCompare()">Clear</button>
+      </div>
+
+      <div id="comparison-panel" class="card" style="margin-bottom:16px; display:none;"></div>
+      <div id="alternatives-panel" class="card" style="margin-bottom:16px; display:none;"></div>
+
       <div id="products-list" class="grid grid-3"></div>
     </section>
 
@@ -133,7 +193,7 @@
 
     <!-- PROGRESS -->
     <section id="tab-progress" style="display:none;">
-      <div class="page-header"><h1>Progress Tracking</h1></div>
+      <div class="page-header"><h1>Progress Tracking &amp; Analytics</h1></div>
       <div class="card">
         <h3>Log Today's Progress</h3>
         <div class="grid grid-2">
@@ -148,9 +208,137 @@
         </div>
         <button class="btn btn-primary" onclick="submitProgress()">Save Log</button>
       </div>
+
+      <div id="progress-analytics-empty" class="card" style="margin-top:16px; display:none;">
+        <p class="muted">No assessments found yet — run a skin scan first.</p>
+      </div>
+
+      <div id="progress-analytics-body" style="display:none;">
+        <div class="grid grid-2" style="margin-top:16px;">
+          <div class="card">
+            <h3>1. Skin Progress Monitoring</h3>
+            <div id="pa-monitoring" class="muted">--</div>
+          </div>
+          <div class="card">
+            <h3>2. Routine Adherence Tracking</h3>
+            <div id="pa-adherence" class="muted">--</div>
+          </div>
+        </div>
+
+        <div class="grid grid-2" style="margin-top:16px;">
+          <div class="card">
+            <h3>3. Improvement Analysis</h3>
+            <div id="pa-improvement" class="muted">--</div>
+          </div>
+          <div class="card">
+            <h3>5. Trend Analysis</h3>
+            <div id="pa-trend" class="muted">--</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:16px;">
+          <h3>4. Before / After Comparison</h3>
+          <div id="pa-before-after-empty" class="muted" style="display:none;">
+            Need at least two assessments to compare.
+          </div>
+          <div id="pa-before-after" class="grid grid-2" style="display:none;">
+            <div>
+              <div class="card-title">Before</div>
+              <img id="pa-before-img" style="width:100%; border-radius:12px; margin-bottom:8px; display:none;" />
+              <div id="pa-before-text"></div>
+            </div>
+            <div>
+              <div class="card-title">After</div>
+              <img id="pa-after-img" style="width:100%; border-radius:12px; margin-bottom:8px; display:none;" />
+              <div id="pa-after-text"></div>
+            </div>
+          </div>
+          <div id="pa-score-change" style="margin-top:12px; font-weight:600;"></div>
+        </div>
+      </div>
+
       <div class="card" style="margin-top:16px;">
-        <h3>Trend</h3>
+        <h3>Trend (log-based)</h3>
         <div id="progress-trend" class="muted">No logs yet.</div>
+      </div>
+    </section>
+
+    <!-- SKIN HEALTH SCORING ENGINE -->
+    <section id="tab-scoring-engine" style="display:none;">
+      <div class="page-header"><h1>Skin Health Scoring Engine</h1></div>
+      <div id="scoring-engine-empty" class="card" style="display:none;">
+        <p class="muted">No assessments found yet — run a skin scan first.</p>
+      </div>
+      <div id="scoring-engine-body" style="display:none;">
+        <div class="grid grid-3" style="margin-bottom:18px;">
+          <div class="card">
+            <div class="card-title">Overall Skin Health Score</div>
+            <div class="score-ring-wrap">
+              <div class="score-ring">
+                <svg width="96" height="96" viewBox="0 0 96 96">
+                  <circle class="track" cx="48" cy="48" r="42" stroke-width="9" fill="none"/>
+                  <circle id="se-score-fill" class="fill" cx="48" cy="48" r="42" stroke-width="9" fill="none"
+                    stroke-dasharray="264" stroke-dashoffset="264"/>
+                </svg>
+                <div class="num" id="se-score-num">--</div>
+              </div>
+              <div class="stat-label" id="se-overall-condition"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Skin Improvement Scoring</div>
+            <div class="stat-value" id="se-improvement-score">--</div>
+            <div class="stat-label" id="se-improvement-trend">Run more scans to track improvement</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Weighted Scoring Model</h3>
+          <p class="muted" style="margin-bottom:16px;">
+            Skin Condition Assessment (35%) + Lifestyle Habits (20%) + Sleep Quality (15%)
+            + Routine Consistency (20%) + Hydration Level (10%)
+          </p>
+
+          <div class="score-bar-row">
+            <div class="score-bar-label">
+              <span>1. Skin Condition Scoring</span>
+              <span class="weight" id="se-condition-val">-- / 100 · 35%</span>
+            </div>
+            <div class="score-bar-track"><div class="score-bar-fill" id="se-condition-bar" style="width:0%;"></div></div>
+          </div>
+
+          <div class="score-bar-row">
+            <div class="score-bar-label">
+              <span>2. Lifestyle Impact Scoring</span>
+              <span class="weight" id="se-lifestyle-val">-- / 100 · 20%</span>
+            </div>
+            <div class="score-bar-track"><div class="score-bar-fill" id="se-lifestyle-bar" style="width:0%;"></div></div>
+          </div>
+
+          <div class="score-bar-row">
+            <div class="score-bar-label">
+              <span>Sleep Quality</span>
+              <span class="weight" id="se-sleep-val">-- / 100 · 15%</span>
+            </div>
+            <div class="score-bar-track"><div class="score-bar-fill" id="se-sleep-bar" style="width:0%;"></div></div>
+          </div>
+
+          <div class="score-bar-row">
+            <div class="score-bar-label">
+              <span>3. Routine Adherence Scoring</span>
+              <span class="weight" id="se-routine-val">-- / 100 · 20%</span>
+            </div>
+            <div class="score-bar-track"><div class="score-bar-fill" id="se-routine-bar" style="width:0%;"></div></div>
+          </div>
+
+          <div class="score-bar-row">
+            <div class="score-bar-label">
+              <span>Hydration Level</span>
+              <span class="weight" id="se-hydration-val">-- / 100 · 10%</span>
+            </div>
+            <div class="score-bar-track"><div class="score-bar-fill" id="se-hydration-bar" style="width:0%;"></div></div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -158,15 +346,34 @@
     <section id="tab-recommendations" style="display:none;">
       <div class="page-header"><h1>Recommendations From Your Care Team</h1></div>
       <div class="card">
-        <div id="recommendations-list">Loading</div>
+        <div id="recommendations-list">Loading…</div>
       </div>
+    </section>
+
+    <!-- NOTIFICATIONS & REMINDERS -->
+    <section id="tab-notifications" style="display:none;">
+      <div class="page-header">
+        <h1>Notifications &amp; Reminders</h1>
+        <button class="btn btn-outline btn-sm" onclick="generateReminders()">Refresh Reminders</button>
+      </div>
+      <div class="card">
+        <div id="notifications-list">Loading…</div>
+      </div>
+    </section>
+
+    <!-- REPORTS & EXPORT (Module 11) -->
+    <section id="tab-reports" style="display:none;">
+      <div class="page-header">
+        <h1>Reports &amp; Export</h1>
+      </div>
+      <div class="grid grid-2" id="reports-grid"></div>
     </section>
 
     <!-- AI ASSISTANT -->
     <section id="tab-assistant" style="display:none;">
       <div class="page-header"><h1>AI Skincare Assistant</h1></div>
       <div class="card">
-        <p class="muted">Ask about ingredients, routines, or your latest assessment. Powered by Gemini general guidance only, not a medical diagnosis.</p>
+        <p class="muted">Ask about ingredients, routines, or your latest assessment. Powered by Gemini — general guidance only, not a medical diagnosis.</p>
         <div class="field">
           <textarea id="ai-prompt" rows="3" placeholder="e.g. Why did my skin score drop this week?"></textarea>
         </div>
