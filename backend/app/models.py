@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Float, ForeignKey, func, JSON, Boolean
+from sqlalchemy import Column, Integer, String, DateTime, Float, ForeignKey, func, JSON, Boolean, Date, Text
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -27,6 +27,9 @@ class User(Base):
     routines = relationship("Routine", back_populates="user", cascade="all, delete-orphan")
     health_scores = relationship("SkinHealthScoreRecord", back_populates="user", cascade="all, delete-orphan")
     checklist_logs = relationship("DailyChecklistLog", back_populates="user", cascade="all, delete-orphan")
+    notifications = relationship("Notification", back_populates="user", cascade="all, delete-orphan")
+    notification_preferences = relationship("NotificationPreference", back_populates="user", uselist=False, cascade="all, delete-orphan")
+    product_trackers = relationship("UserProductTracker", back_populates="user", cascade="all, delete-orphan")
 
 
 class SkinAssessment(Base):
@@ -198,6 +201,7 @@ class Product(Base):
     precautions = Column(String(500), nullable=False)
     irritation_level = Column(String(50), nullable=False) # Low, Medium, High
     rating = Column(Float, default=4.5, nullable=False)
+    image_url = Column(String(500), nullable=True) # Real product image URL / CDN asset
     is_active = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
@@ -248,3 +252,113 @@ class DailyChecklistLog(Base):
 
     # Relationships
     user = relationship("User", back_populates="checklist_logs")
+
+
+# --- Module 10: Notification & Reminder System Models ---
+
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    type = Column(String(50), nullable=False) # ROUTINE, REPLENISHMENT, HYDRATION, SLEEP, PROGRESS, PLATFORM, CONSULTANT, DOCTOR, ADMIN
+    target_role = Column(String(50), nullable=False, default="USER") # Target user role
+    title = Column(String(200), nullable=False)
+    message = Column(Text, nullable=False)
+    priority = Column(String(20), default="NORMAL", nullable=False) # LOW, NORMAL, HIGH, URGENT
+    action_url = Column(String(255), nullable=True)
+    related_entity_type = Column(String(50), nullable=True) # routine, product, assessment, user, system
+    related_entity_id = Column(Integer, nullable=True)
+    dedup_key = Column(String(255), nullable=True, index=True)
+    is_read = Column(Boolean, default=False, nullable=False)
+    read_at = Column(DateTime(timezone=True), nullable=True)
+    email_delivery_status = Column(String(50), default="NOT_REQUESTED", nullable=False)
+    email_sent_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    expires_at = Column(DateTime(timezone=True), nullable=True)
+
+    # Relationships
+    user = relationship("User", back_populates="notifications")
+
+
+class NotificationPreference(Base):
+    __tablename__ = "notification_preferences"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False, index=True)
+    
+    # USER In-App Notification Preferences
+    routine_reminders_enabled = Column(Boolean, default=True, nullable=False)
+    morning_reminder_time = Column(String(10), default="08:00", nullable=False)
+    evening_reminder_time = Column(String(10), default="20:00", nullable=False)
+    
+    replenishment_reminders_enabled = Column(Boolean, default=True, nullable=False)
+    
+    hydration_reminders_enabled = Column(Boolean, default=True, nullable=False)
+    hydration_interval_hours = Column(Integer, default=4, nullable=False)
+    
+    sleep_reminders_enabled = Column(Boolean, default=True, nullable=False)
+    sleep_reminder_time = Column(String(10), default="22:00", nullable=False)
+    
+    progress_alerts_enabled = Column(Boolean, default=True, nullable=False)
+    platform_announcements_enabled = Column(Boolean, default=True, nullable=False)
+    
+    # CONSULTANT In-App Preferences
+    consultant_client_updates_enabled = Column(Boolean, default=True, nullable=False)
+    consultant_progress_enabled = Column(Boolean, default=True, nullable=False)
+    consultant_assessment_enabled = Column(Boolean, default=True, nullable=False)
+    consultant_routine_enabled = Column(Boolean, default=True, nullable=False)
+    
+    # DOCTOR/DERMATOLOGIST In-App Preferences
+    doctor_patient_alerts_enabled = Column(Boolean, default=True, nullable=False)
+    doctor_assessment_enabled = Column(Boolean, default=True, nullable=False)
+    doctor_progress_enabled = Column(Boolean, default=True, nullable=False)
+    doctor_treatment_enabled = Column(Boolean, default=True, nullable=False)
+    
+    # ADMIN In-App Preferences
+    admin_system_alerts_enabled = Column(Boolean, default=True, nullable=False)
+    admin_user_alerts_enabled = Column(Boolean, default=True, nullable=False)
+    admin_analytics_alerts_enabled = Column(Boolean, default=True, nullable=False)
+    admin_recommendation_alerts_enabled = Column(Boolean, default=True, nullable=False)
+    admin_reports_alerts_enabled = Column(Boolean, default=True, nullable=False)
+    
+    # Email Notification Preferences (Explicit Consent - Default OFF for privacy)
+    email_notifications_enabled = Column(Boolean, default=False, nullable=False)
+    email_routine_enabled = Column(Boolean, default=True, nullable=False)
+    email_replenishment_enabled = Column(Boolean, default=True, nullable=False)
+    email_hydration_enabled = Column(Boolean, default=True, nullable=False)
+    email_sleep_enabled = Column(Boolean, default=True, nullable=False)
+    email_progress_enabled = Column(Boolean, default=True, nullable=False)
+    email_platform_enabled = Column(Boolean, default=True, nullable=False)
+    email_consultant_enabled = Column(Boolean, default=True, nullable=False)
+    email_doctor_enabled = Column(Boolean, default=True, nullable=False)
+    email_admin_enabled = Column(Boolean, default=True, nullable=False)
+    
+    quiet_hours_enabled = Column(Boolean, default=False, nullable=False)
+    quiet_hours_start = Column(String(10), default="22:30", nullable=False)
+    quiet_hours_end = Column(String(10), default="07:00", nullable=False)
+    
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+
+    # Relationships
+    user = relationship("User", back_populates="notification_preferences")
+
+
+class UserProductTracker(Base):
+    __tablename__ = "user_product_trackers"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    routine_item_id = Column(Integer, ForeignKey("routine_items.id", ondelete="SET NULL"), nullable=True)
+    
+    product_name = Column(String(150), nullable=False)
+    opened_on = Column(Date, default=func.current_date(), nullable=False)
+    cycle_days = Column(Integer, default=45, nullable=False) # e.g. 30, 45, 60, 90 days
+    is_active = Column(Boolean, default=True, nullable=False)
+    
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    # Relationships
+    user = relationship("User", back_populates="product_trackers")
+    routine_item = relationship("RoutineItem")

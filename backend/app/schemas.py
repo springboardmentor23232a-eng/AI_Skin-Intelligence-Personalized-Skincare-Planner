@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from typing import Optional, List, Any, Dict
 from pydantic import BaseModel, EmailStr, Field
 
@@ -234,6 +234,7 @@ class ProductResponse(BaseModel):
     precautions: str
     irritation_level: str
     rating: float
+    image_url: Optional[str] = None
     is_active: bool
     created_at: datetime
     updated_at: datetime
@@ -285,12 +286,12 @@ class ScoreComponentBreakdown(BaseModel):
 class SkinHealthScoreResponse(BaseModel):
     id: Optional[int] = None
     user_id: int
-    overall_score: int
-    condition_score: float
-    lifestyle_score: float
-    sleep_score: float
-    routine_score: float
-    hydration_score: float
+    overall_score: Optional[int] = None
+    condition_score: Optional[float] = None
+    lifestyle_score: Optional[float] = None
+    sleep_score: Optional[float] = None
+    routine_score: Optional[float] = None
+    hydration_score: Optional[float] = None
     status: str
     status_color: str
     delta_change: Optional[int] = 0
@@ -299,6 +300,7 @@ class SkinHealthScoreResponse(BaseModel):
     insights: List[str] = []
     calculated_at: datetime
     has_profile: bool = True
+    has_score: bool = True
     has_assessment_scan: bool = True
 
     class Config:
@@ -427,4 +429,182 @@ class SnapshotItem(BaseModel):
     date: datetime
     label: str
     score: Optional[int] = None
+
+
+# --- Module 10: Notification & Reminder System Schemas ---
+
+class NotificationResponse(BaseModel):
+    id: int
+    user_id: int
+    type: str
+    title: str
+    message: str
+    priority: str
+    target_role: Optional[str] = None
+    action_url: Optional[str] = None
+    related_entity_type: Optional[str] = None
+    related_entity_id: Optional[int] = None
+    is_read: bool
+    read_at: Optional[datetime] = None
+    email_delivery_status: Optional[str] = "NOT_REQUESTED"
+    email_sent_at: Optional[datetime] = None
+    created_at: datetime
+    expires_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+class NotificationListResponse(BaseModel):
+    notifications: List[NotificationResponse] = []
+    total: int
+    unread_count: int
+    page: int
+    pages: int
+
+class UnreadCountResponse(BaseModel):
+    unread_count: int
+
+class NotificationPreferenceResponse(BaseModel):
+    id: int
+    user_id: int
+    user_role: Optional[str] = "USER"
+    registered_email: Optional[str] = None
+    
+    # USER In-App Preferences
+    routine_reminders_enabled: bool = True
+    morning_reminder_time: str = "08:00"
+    evening_reminder_time: str = "20:00"
+    replenishment_reminders_enabled: bool = True
+    hydration_reminders_enabled: bool = True
+    hydration_interval_hours: int = 4
+    sleep_reminders_enabled: bool = True
+    sleep_reminder_time: str = "22:00"
+    progress_alerts_enabled: bool = True
+    
+    # CONSULTANT In-App Preferences
+    consultant_client_updates_enabled: bool = True
+    consultant_progress_enabled: bool = True
+    consultant_assessment_enabled: bool = True
+    consultant_routine_enabled: bool = True
+    
+    # DOCTOR/DERMATOLOGIST In-App Preferences
+    doctor_patient_alerts_enabled: bool = True
+    doctor_assessment_enabled: bool = True
+    doctor_progress_enabled: bool = True
+    doctor_treatment_enabled: bool = True
+    
+    # ADMIN In-App Preferences
+    admin_system_alerts_enabled: bool = True
+    admin_user_alerts_enabled: bool = True
+    admin_analytics_alerts_enabled: bool = True
+    admin_recommendation_alerts_enabled: bool = True
+    admin_reports_alerts_enabled: bool = True
+    
+    # Platform & Quiet Hours
+    platform_announcements_enabled: bool = True
+    quiet_hours_enabled: bool = False
+    quiet_hours_start: str = "22:30"
+    quiet_hours_end: str = "07:00"
+    
+    # Email Preferences
+    email_notifications_enabled: bool = False
+    email_routine_enabled: bool = True
+    email_replenishment_enabled: bool = True
+    email_hydration_enabled: bool = True
+    email_sleep_enabled: bool = True
+    email_progress_enabled: bool = True
+    email_platform_enabled: bool = True
+    email_consultant_enabled: bool = True
+    email_doctor_enabled: bool = True
+    email_admin_enabled: bool = True
+    
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class NotificationPreferenceUpdate(BaseModel):
+    # USER
+    routine_reminders_enabled: Optional[bool] = None
+    morning_reminder_time: Optional[str] = None
+    evening_reminder_time: Optional[str] = None
+    replenishment_reminders_enabled: Optional[bool] = None
+    hydration_reminders_enabled: Optional[bool] = None
+    hydration_interval_hours: Optional[int] = None
+    sleep_reminders_enabled: Optional[bool] = None
+    sleep_reminder_time: Optional[str] = None
+    progress_alerts_enabled: Optional[bool] = None
+    
+    # CONSULTANT
+    consultant_client_updates_enabled: Optional[bool] = None
+    consultant_progress_enabled: Optional[bool] = None
+    consultant_assessment_enabled: Optional[bool] = None
+    consultant_routine_enabled: Optional[bool] = None
+    
+    # DOCTOR
+    doctor_patient_alerts_enabled: Optional[bool] = None
+    doctor_assessment_enabled: Optional[bool] = None
+    doctor_progress_enabled: Optional[bool] = None
+    doctor_treatment_enabled: Optional[bool] = None
+    
+    # ADMIN
+    admin_system_alerts_enabled: Optional[bool] = None
+    admin_user_alerts_enabled: Optional[bool] = None
+    admin_analytics_alerts_enabled: Optional[bool] = None
+    admin_recommendation_alerts_enabled: Optional[bool] = None
+    admin_reports_alerts_enabled: Optional[bool] = None
+    
+    # Platform & Quiet Hours
+    platform_announcements_enabled: Optional[bool] = None
+    quiet_hours_enabled: Optional[bool] = None
+    quiet_hours_start: Optional[str] = None
+    quiet_hours_end: Optional[str] = None
+    
+    # Email Preferences
+    email_notifications_enabled: Optional[bool] = None
+    email_routine_enabled: Optional[bool] = None
+    email_replenishment_enabled: Optional[bool] = None
+    email_hydration_enabled: Optional[bool] = None
+    email_sleep_enabled: Optional[bool] = None
+    email_progress_enabled: Optional[bool] = None
+    email_platform_enabled: Optional[bool] = None
+    email_consultant_enabled: Optional[bool] = None
+    email_doctor_enabled: Optional[bool] = None
+    email_admin_enabled: Optional[bool] = None
+
+class ProductTrackerCreate(BaseModel):
+    product_name: str
+    opened_on: Optional[date] = None
+    cycle_days: Optional[int] = 45
+    routine_item_id: Optional[int] = None
+
+class ProductTrackerResponse(BaseModel):
+    id: int
+    user_id: int
+    routine_item_id: Optional[int] = None
+    product_name: str
+    opened_on: date
+    cycle_days: int
+    is_active: bool
+    days_elapsed: int
+    days_remaining: int
+    is_depletion_imminent: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class BroadcastNotificationRequest(BaseModel):
+    title: str
+    message: str
+    priority: Optional[str] = "NORMAL" # LOW, NORMAL, HIGH, URGENT
+    target_role: Optional[str] = "ALL" # ALL, USER, CONSULTANT, DOCTOR
+    target_user_id: Optional[int] = None
+    action_url: Optional[str] = None
+
+class BroadcastNotificationResponse(BaseModel):
+    success: bool
+    recipients_count: int
+    message: str
 

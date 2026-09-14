@@ -19,5 +19,15 @@ class Settings:
     
     # CORS Origins (fallback to wildcard if not provided)
     CORS_ORIGINS: str = os.getenv("CORS_ORIGINS", "*")
+    
+    # Email / SMTP Delivery Config
+    EMAIL_ENABLED: bool = os.getenv("EMAIL_ENABLED", "false").lower() in ("true", "1", "yes")
+    SMTP_HOST: str = os.getenv("SMTP_HOST", "smtp.gmail.com")
+    SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
+    SMTP_USERNAME: str = os.getenv("SMTP_USERNAME", "")
+    SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
+    EMAIL_FROM: str = os.getenv("EMAIL_FROM", "noreply@aiskinintelligence.com")
+    EMAIL_FROM_NAME: str = os.getenv("EMAIL_FROM_NAME", "AI Skin Intelligence")
+    SMTP_USE_TLS: bool = os.getenv("SMTP_USE_TLS", "true").lower() in ("true", "1", "yes")
 
 settings = Settings()

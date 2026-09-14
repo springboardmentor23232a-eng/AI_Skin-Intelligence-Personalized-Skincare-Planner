@@ -27,20 +27,26 @@ def run_score_tests():
     headers = {"Authorization": f"Bearer {token}"}
     print(f"Logged in successfully. User: {email}")
     
-    print("\n--- 2. Testing Initial Score Calculation without profile (Default Baseline) ---")
+    print("\n--- 2. Testing Score Endpoint for New User without Profile (Must be 'Not yet available') ---")
     score_res = client.get("/api/score/current", headers=headers)
     assert score_res.status_code == 200, f"Score GET failed: {score_res.text}"
     score_data = score_res.json()
     print("Initial Score Data:", score_data)
-    assert 0 <= score_data["overall_score"] <= 100
-    assert len(score_data["components"]) == 5
-    initial_id = score_data["id"]
+    assert score_data["overall_score"] is None, "New user without profile must NOT have overall_score"
+    assert score_data["status"] == "Not yet available"
+    assert score_data["has_profile"] is False
+    assert score_data["has_score"] is False
+    print("PASS: Score correctly shows 'Not yet available' for unprofiled user.")
     
-    print("\n--- 3. Verifying GET /api/score/current does not duplicate history records ---")
-    score_res2 = client.get("/api/score/current", headers=headers)
-    assert score_res2.status_code == 200
-    assert score_res2.json()["id"] == initial_id, "GET /api/score/current created duplicate record!"
-    print("PASS: GET /api/score/current correctly fetched cached latest record without creating duplicates.")
+    print("\n--- 3. Verifying GET /api/score/current does not insert records into DB for unprofiled user ---")
+    hist_empty_res = client.get("/api/score/history", headers=headers)
+    assert hist_empty_res.status_code == 200
+    assert len(hist_empty_res.json()) == 0, "No score records should exist before profile completion!"
+    
+    # Calculate without profile should fail with 400
+    calc_fail = client.post("/api/score/calculate", headers=headers)
+    assert calc_fail.status_code == 400, "Calculate without profile must return 400"
+    print("PASS: No database records created and direct calculate correctly blocked for unprofiled user.")
     
     print("\n--- 4. Creating 28-Question Profile with Known Values ---")
     profile_payload = {
@@ -78,7 +84,7 @@ def run_score_tests():
     assert prof_res.status_code == 200, f"Profile save failed: {prof_res.text}"
     print("PASS: 28-Question Profile saved.")
     
-    print("\n--- 5. Explicitly Recalculating Score via POST /api/score/calculate ---")
+    print("\n--- 5. Explicitly Calculating Score via POST /api/score/calculate ---")
     calc_res = client.post("/api/score/calculate", headers=headers)
     assert calc_res.status_code == 200, f"Recalculate failed: {calc_res.text}"
     calc_data = calc_res.json()
@@ -87,8 +93,9 @@ def run_score_tests():
     assert calc_data["status"] == "Excellent"
     assert calc_data["sleep_score"] == 100.0
     assert calc_data["hydration_score"] == 100.0
-    assert calc_data["delta_direction"] in ["improved", "maintained"]
-    print("PASS: Weighted scoring calculated accurately.")
+    assert calc_data["has_profile"] is True
+    assert calc_data["has_score"] is True
+    print("PASS: Weighted scoring calculated accurately after profile.")
     
     print("\n--- 6. Logging Daily Checklist Adherence ---")
     log_res = client.post("/api/score/checklist-log", json={
@@ -103,7 +110,7 @@ def run_score_tests():
     assert hist_res.status_code == 200, f"History fetch failed: {hist_res.text}"
     history = hist_res.json()
     print(f"History records count: {len(history)}")
-    assert len(history) >= 2, "Expected at least 2 history records after calculate!"
+    assert len(history) >= 1, "Expected at least 1 history record after calculate!"
     print("PASS: Score history tracking verified.")
 
     print("\n=======================================================")
@@ -112,3 +119,4 @@ def run_score_tests():
 
 if __name__ == "__main__":
     run_score_tests()
+

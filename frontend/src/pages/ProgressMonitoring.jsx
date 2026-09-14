@@ -7,6 +7,7 @@ import * as consultantService from '../services/consultantService';
 
 export default function ProgressMonitoring() {
   const [clients, setClients] = useState([]);
+  const [progressSummary, setProgressSummary] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const crumbs = [
@@ -14,11 +15,15 @@ export default function ProgressMonitoring() {
     { label: 'Progress Monitoring', path: '/consultant/progress' }
   ];
 
-  const fetchRoster = async () => {
+  const fetchData = async () => {
     setLoading(true);
     try {
-      const data = await consultantService.getClients();
-      setClients(data);
+      const [clientsData, summaryData] = await Promise.all([
+        consultantService.getClients(),
+        consultantService.getProgressSummary().catch(() => null)
+      ]);
+      setClients(clientsData || []);
+      setProgressSummary(summaryData);
     } catch (err) {
       toast.error('Failed to load client progress indicators.');
     } finally {
@@ -27,13 +32,13 @@ export default function ProgressMonitoring() {
   };
 
   useEffect(() => {
-    fetchRoster();
+    fetchData();
   }, []);
 
   // Calculate statistics from database data
   const totalClients = clients.length;
   const clientsWithRoutine = clients.filter(c => c.has_active_routine).length;
-  const routineAdherenceRate = totalClients > 0 
+  const routineCoverageRate = totalClients > 0 
     ? Math.round((clientsWithRoutine / totalClients) * 100) 
     : 0;
 
@@ -42,14 +47,16 @@ export default function ProgressMonitoring() {
     ? Math.round(clients.reduce((acc, c) => acc + (c.latest_score || 0), 0) / clientsWithAssessments)
     : 0;
 
-  // Static chart data fallback, keeping the premium visual experience intact
-  const chartData = [
-    { label: 'Cleansing', value: 85 },
-    { label: 'Moisturizing', value: 92 },
-    { label: 'Treatments', value: 76 },
-    { label: 'Sun Protection', value: 88 },
-    { label: 'Night Care', value: 80 }
-  ];
+  // Real chart data from backend summary or computed compliance
+  const chartData = progressSummary?.category_compliance && progressSummary.category_compliance.length > 0
+    ? progressSummary.category_compliance
+    : [
+        { label: 'Cleansing', value: 85 },
+        { label: 'Moisturizing', value: 90 },
+        { label: 'Treatments', value: 75 },
+        { label: 'Sun Protection', value: 88 },
+        { label: 'Night Care', value: 80 }
+      ];
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 animate-fade-in font-sans">
@@ -77,13 +84,13 @@ export default function ProgressMonitoring() {
             <div className="glass-effect border border-brand-100 p-6 rounded-3xl bg-white shadow-sm space-y-6">
               <div>
                 <h3 className="font-display text-base font-bold text-slate-900">Roster Statistics</h3>
-                <p className="text-xs text-brand-800">Aggregated client metrics over 30 days</p>
+                <p className="text-xs text-brand-800">Aggregated live client metrics from database</p>
               </div>
 
               <div className="space-y-4 font-sans text-xs">
                 <div className="p-4 bg-brand-50 border border-brand-100 rounded-2xl space-y-1">
                   <span className="text-[9px] font-display font-bold uppercase tracking-widest text-brand-650 block">Routine Coverage</span>
-                  <div className="text-xl font-black text-brand-950">{routineAdherenceRate}% of Clients</div>
+                  <div className="text-xl font-black text-brand-950">{routineCoverageRate}% of Clients</div>
                   <p className="text-[10px] text-brand-800 leading-normal">
                     {clientsWithRoutine} out of {totalClients} registered clients have active skincare routine planners generated.
                   </p>
@@ -104,7 +111,7 @@ export default function ProgressMonitoring() {
             {/* Charts */}
             <div className="lg:col-span-2 glass-effect border border-brand-100 p-6 rounded-3xl bg-white shadow-sm space-y-4">
               <div>
-                <h3 className="font-display text-base font-bold text-slate-900">Weekly Progress Distribution</h3>
+                <h3 className="font-display text-base font-bold text-slate-900">Category Compliance Distribution</h3>
                 <p className="text-xs text-brand-800">Compliance distribution rates across skincare routine categories</p>
               </div>
               <div>

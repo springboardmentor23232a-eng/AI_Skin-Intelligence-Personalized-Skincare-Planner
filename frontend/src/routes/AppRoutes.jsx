@@ -19,6 +19,9 @@ import ConsultantDashboard from '../pages/ConsultantDashboard';
 import DermatologistDashboard from '../pages/DermatologistDashboard';
 import AdminDashboard from '../pages/AdminDashboard';
 import Profile from '../pages/Profile';
+import Notifications from '../pages/Notifications';
+import Settings from '../pages/Settings';
+import Reports from '../pages/Reports';
 import NotFound from '../pages/NotFound';
 
 // User Sidebar Sub-Pages
@@ -194,6 +197,21 @@ export default function AppRoutes() {
         <Route path="/profile" element={
           <ProtectedRoute allowedRoles={['user', 'consultant', 'dermatologist', 'admin']}>
             <Profile />
+          </ProtectedRoute>
+        } />
+        <Route path="/dashboard/notifications" element={
+          <ProtectedRoute allowedRoles={['user', 'consultant', 'dermatologist', 'admin']}>
+            <Notifications />
+          </ProtectedRoute>
+        } />
+        <Route path="/dashboard/settings" element={
+          <ProtectedRoute allowedRoles={['user', 'consultant', 'dermatologist', 'admin']}>
+            <Settings />
+          </ProtectedRoute>
+        } />
+        <Route path="/dashboard/reports" element={
+          <ProtectedRoute allowedRoles={['user', 'consultant', 'dermatologist', 'admin']}>
+            <Reports />
           </ProtectedRoute>
         } />
       </Route>

@@ -16,6 +16,7 @@ import toast from 'react-hot-toast';
 
 export default function ConsultantDashboard() {
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [dashboardData, setDashboardData] = useState(null);
 
   const crumbs = [
@@ -25,10 +26,12 @@ export default function ConsultantDashboard() {
 
   const fetchDashboardData = async () => {
     setLoading(true);
+    setError(null);
     try {
       const data = await consultantService.getDashboard();
       setDashboardData(data);
     } catch (err) {
+      setError('Unable to load consultant dashboard telemetry.');
       toast.error('Failed to load dashboard data.');
     } finally {
       setLoading(false);
@@ -41,18 +44,12 @@ export default function ConsultantDashboard() {
 
   const totalClients = dashboardData?.stats?.total_clients ?? 0;
   const pendingReviewsCount = dashboardData?.stats?.pending_reviews ?? 0;
+  const completedConsultations = dashboardData?.stats?.completed_consultations ?? 0;
 
   const quickStats = [
-    { label: 'Clients Assigned', val: totalClients, icon: User, color: 'brand' },
+    { label: 'Clients Registered', val: totalClients, icon: User, color: 'brand' },
     { label: 'Reviews Pending', val: pendingReviewsCount, icon: AlertCircle, color: 'accent' },
-    { label: 'Consultations Completed', val: 0, icon: TrendingUp, color: 'indigo' },
-  ];
-
-  const quickAccess = [
-    { label: 'Client Profiles', path: '/consultant/profiles', desc: 'Audit client skin types & habits', icon: User },
-    { label: 'Assessment Reports', path: '/consultant/reports', desc: 'Audit diagnostic skin scans', icon: Camera },
-    { label: 'Recommendation Mgmt', path: '/consultant/recommendations', desc: 'Create & edit active overrides', icon: Sparkles },
-    { label: 'Progress Monitoring', path: '/consultant/progress', desc: 'Monitor adherence and improvements', icon: LineChart },
+    { label: 'Consultations Completed', val: completedConsultations, icon: TrendingUp, color: 'indigo' },
   ];
 
   return (
@@ -79,6 +76,17 @@ export default function ConsultantDashboard() {
         <div className="py-12 flex flex-col items-center justify-center gap-2">
           <div className="w-8 h-8 border-3 border-brand-600 border-t-transparent rounded-full animate-spin" />
           <span className="text-xs text-brand-850 font-semibold">Loading dashboard indicators...</span>
+        </div>
+      ) : error ? (
+        <div className="border border-red-200 bg-red-50/70 p-6 rounded-3xl text-center space-y-3">
+          <AlertCircle className="w-8 h-8 text-red-600 mx-auto" />
+          <h3 className="font-display text-sm font-bold text-red-900">{error}</h3>
+          <button 
+            onClick={fetchDashboardData}
+            className="px-4 py-2 bg-brand-900 text-white rounded-xl text-xs font-semibold hover:bg-brand-950 cursor-pointer"
+          >
+            Retry Telemetry
+          </button>
         </div>
       ) : (
         <>
@@ -125,10 +133,10 @@ export default function ConsultantDashboard() {
               <div className="space-y-2.5">
                 {dashboardData?.pending_queue && dashboardData.pending_queue.length > 0 ? (
                   dashboardData.pending_queue.map(report => (
-                    <div key={report.id} className="flex items-center justify-between p-2 bg-slate-50 border border-brand-55/60 rounded-xl text-xs">
+                    <div key={report.id} className="flex items-center justify-between p-2.5 bg-slate-50 border border-brand-100/60 rounded-xl text-xs">
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-lg bg-brand-200 border border-brand-300 flex items-center justify-center font-display font-bold text-xs text-brand-800">
-                          {report.clientName[0]}
+                          {report.clientName ? report.clientName[0] : 'C'}
                         </div>
                         <div>
                           <div className="font-semibold text-slate-900">{report.clientName}</div>
@@ -148,61 +156,50 @@ export default function ConsultantDashboard() {
             <div className="glass-effect border border-brand-100 p-6 rounded-3xl bg-white shadow-sm space-y-4">
               <div className="flex justify-between items-center pb-2 border-b border-brand-100/60">
                 <div>
-                  <h3 className="font-display text-base font-bold text-slate-900">Upcoming Consultations</h3>
-                  <p className="text-[11px] text-brand-800 font-sans">Scheduled consultation channels</p>
+                  <h3 className="font-display text-base font-bold text-slate-900">Consultation Schedule</h3>
+                  <p className="text-[11px] text-brand-800 font-sans">Active client session channels</p>
                 </div>
-                <button className="text-[10px] font-display font-bold text-brand-600 hover:text-brand-850">Calendar</button>
+                <span className="text-[10px] font-display font-bold text-brand-700 bg-brand-50 border border-brand-200 px-2 py-0.5 rounded-full">Active</span>
               </div>
 
-              <div className="space-y-3 font-sans text-xs text-brand-900">
-                <p className="text-xs text-slate-500 text-center py-6">No upcoming consultations</p>
+              <div className="space-y-3 font-sans text-xs text-brand-900 pt-2">
+                <div className="p-3 bg-brand-50/40 border border-brand-100/60 rounded-xl space-y-1">
+                  <span className="font-bold text-slate-900 block">Adherence Audits</span>
+                  <p className="text-[10.5px] text-brand-800 leading-normal">
+                    Review completed routines and checklist adherence rates in the Client Profiles module.
+                  </p>
+                </div>
               </div>
             </div>
 
-            {/* Recent Client Activity */}
+            {/* Consultant Directives */}
             <div className="glass-effect border border-brand-100 p-6 rounded-3xl bg-white shadow-sm space-y-4 flex flex-col justify-between">
               <div>
-                <h3 className="font-display text-base font-bold text-slate-900">Recent Client Activity</h3>
-                <p className="text-[11px] text-brand-800">Client compliance audit logs</p>
+                <h3 className="font-display text-base font-bold text-slate-900">Advisory Directives</h3>
+                <p className="text-[11px] text-brand-800">Skincare recommendation workflow</p>
               </div>
 
-              <div className="space-y-3.5 font-sans text-xs flex-1 pt-4 text-center">
-                <p className="text-xs text-slate-500 py-6">No client activity yet</p>
+              <div className="space-y-3 font-sans text-xs flex-1 pt-2">
+                <div className="p-3 bg-brand-50 border border-brand-100 rounded-xl space-y-1">
+                  <span className="text-[9px] font-display font-bold uppercase tracking-wider text-brand-700 block">Consultant Protocol</span>
+                  <p className="text-[10.5px] text-brand-900 leading-normal">
+                    You can inspect client diagnostic reports, adjust product recommendations, and save clinical notes.
+                  </p>
+                </div>
               </div>
+
+              <Link 
+                to="/consultant/profiles"
+                className="w-full bg-brand-50 hover:bg-brand-100 text-brand-850 py-2.5 rounded-xl text-center text-xs font-display font-bold flex items-center justify-center gap-1.5 transition-colors border border-brand-100"
+              >
+                Inspect Clients Directory
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
             </div>
 
           </div>
         </>
       )}
-
-      {/* Quick Access Cards */}
-      <div className="space-y-4">
-        <div>
-          <h3 className="font-display text-base font-bold text-slate-950">Skincare Modules Quick Access</h3>
-          <p className="text-xs text-brand-800 font-sans">Navigate directly to detailed layouts</p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {quickAccess.map((qa, idx) => {
-            const Icon = qa.icon;
-            return (
-              <Link 
-                key={idx}
-                to={qa.path}
-                className="border border-brand-100 bg-white p-4.5 rounded-2xl hover:shadow-md transition-all duration-300 flex flex-col justify-between group"
-              >
-                <div className="p-2.5 bg-brand-50 border border-brand-100 text-brand-655 rounded-xl w-fit group-hover:scale-105 transition-transform shrink-0">
-                  <Icon className="w-5 h-5" />
-                </div>
-                <div className="pt-3.5 space-y-0.5">
-                  <h4 className="font-display text-xs font-bold text-slate-950 group-hover:text-brand-700 transition-colors">{qa.label}</h4>
-                  <p className="text-[10px] text-brand-800 font-sans leading-normal">{qa.desc}</p>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      </div>
 
     </div>
   );

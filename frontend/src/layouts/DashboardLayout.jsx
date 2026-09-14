@@ -18,9 +18,11 @@ import {
   X,
   ChevronDown,
   LogOut,
-  CheckCircle2
+  CheckCircle2,
+  FileText
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import HeaderNotificationBell from '../components/layout/HeaderNotificationBell';
 
 export default function DashboardLayout() {
   const location = useLocation();
@@ -62,6 +64,9 @@ export default function DashboardLayout() {
     { label: 'Platform Analytics', path: '/admin/analytics', icon: LineChart, roles: ['admin'] },
     { label: 'Recommendation Monitoring', path: '/admin/monitoring', icon: Sparkles, roles: ['admin'] },
     { label: 'System Reports', path: '/admin/reports', icon: SettingsIcon, roles: ['admin'] },
+
+    // Cross-Role Module 11 Reports & Exports
+    { label: 'Reports & Exports', path: '/dashboard/reports', icon: FileText, roles: ['user', 'consultant', 'dermatologist', 'admin'] },
   ];
 
   // Filter items matching active role
@@ -74,11 +79,11 @@ export default function DashboardLayout() {
   };
 
   return (
-    <div className="min-h-screen flex bg-brand-50 font-sans">
+    <div className="h-screen flex overflow-hidden bg-brand-50 font-sans">
       
-      {/* Sidebar for Desktop */}
-      <aside className="hidden lg:flex lg:flex-col lg:w-64 bg-brand-950 text-brand-100 border-r border-brand-900 shrink-0">
-        <div className="h-16 flex items-center px-6 border-b border-brand-900">
+      {/* Sidebar for Desktop - Fixed & Independent */}
+      <aside className="hidden lg:flex lg:flex-col lg:w-64 bg-brand-950 text-brand-100 border-r border-brand-900 shrink-0 h-screen sticky top-0 overflow-hidden">
+        <div className="h-16 flex items-center px-6 border-b border-brand-900 shrink-0">
           <Link to="/" className="flex items-center gap-2 group">
             <div className="p-2 bg-brand-900 rounded-lg text-brand-400 group-hover:scale-105 transition-transform">
               <Sparkles className="w-5 h-5 animate-pulse" />
@@ -112,7 +117,7 @@ export default function DashboardLayout() {
         </nav>
 
         {/* Desktop Profile Panel */}
-        <div className="p-4 border-t border-brand-900 bg-brand-950 flex flex-col gap-2">
+        <div className="p-4 border-t border-brand-900 bg-brand-950 flex flex-col gap-2 shrink-0">
           {user && (
             <Link 
               to="/profile" 
@@ -142,10 +147,10 @@ export default function DashboardLayout() {
       </aside>
 
       {/* Main Layout Area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
         
-        {/* Header Bar (WITHOUT testing role dropdown switcher) */}
-        <header className="h-16 bg-white border-b border-brand-100 flex items-center justify-between px-4 sm:px-6 lg:px-8 z-40 sticky top-0">
+        {/* Header Bar */}
+        <header className="h-16 bg-white border-b border-brand-100 flex items-center justify-between px-4 sm:px-6 lg:px-8 z-30 shrink-0">
           <div className="flex items-center gap-4">
             <button 
               onClick={() => setIsMobileOpen(true)}
@@ -154,11 +159,21 @@ export default function DashboardLayout() {
               <Menu className="w-5 h-5" />
             </button>
             <span className="font-display font-bold text-lg text-brand-950 lg:block hidden">
-              Client Portal
+              AI Skin Intelligence
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <HeaderNotificationBell />
+            
+            <Link 
+              to="/dashboard/settings"
+              className="p-2 text-brand-800 hover:bg-brand-100/60 rounded-xl transition-colors hidden sm:flex items-center justify-center"
+              title="Settings & Reminders"
+            >
+              <SettingsIcon className="w-4.5 h-4.5 text-brand-800" />
+            </Link>
+
             <span className="text-[10px] font-display font-bold uppercase tracking-wider text-brand-700 bg-brand-100/50 px-3 py-1 rounded-full capitalize">
               Role: {currentRole}
             </span>

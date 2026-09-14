@@ -373,9 +373,22 @@ export default function ProductRecommendations() {
                       }`}
                     >
                       <div>
-                        {/* Image panel placeholder */}
-                        <div className="aspect-video w-full bg-brand-50 border border-brand-100/60 rounded-2xl mb-4 flex items-center justify-center relative overflow-hidden group">
-                          <ShoppingBag className="w-10 h-10 text-brand-350 stroke-1 group-hover:scale-105 transition-transform duration-300" />
+                        {/* Image panel with fallback */}
+                        <div className="aspect-video w-full bg-brand-50/70 border border-brand-100/60 rounded-2xl mb-4 flex items-center justify-center relative overflow-hidden group">
+                          {prod.image_url ? (
+                            <img 
+                              src={prod.image_url} 
+                              alt={prod.name}
+                              className="w-full h-full object-contain p-3 transition-transform duration-300 group-hover:scale-105"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                              }}
+                            />
+                          ) : null}
+                          <div className={`w-full h-full flex items-center justify-center ${prod.image_url ? 'hidden' : ''}`}>
+                            <ShoppingBag className="w-10 h-10 text-brand-350 stroke-1 group-hover:scale-105 transition-transform duration-300" />
+                          </div>
                           
                           {/* Match rating badge */}
                           {hasProfile && (
@@ -472,15 +485,27 @@ export default function ProductRecommendations() {
             <div className="space-y-6">
               {/* Header */}
               <div className="flex justify-between items-start border-b border-slate-100 pb-4">
-                <div>
-                  <span className="text-[10px] font-display font-bold uppercase tracking-wider text-brand-650">{selectedProduct.brand}</span>
-                  <h2 className="font-display text-xl font-black text-slate-900 leading-snug">{selectedProduct.name}</h2>
-                  <span className="inline-block mt-1 text-xs font-display font-bold text-slate-900">Price: ₹{selectedProduct.price}</span>
-                  <ShoppingLinks links={getProductShoppingLinks(selectedProduct)} className="mt-1" />
+                <div className="flex items-start gap-4">
+                  {selectedProduct.image_url ? (
+                    <div className="w-16 h-16 rounded-xl border border-brand-100 bg-brand-50/50 p-1 shrink-0 overflow-hidden">
+                      <img 
+                        src={selectedProduct.image_url} 
+                        alt={selectedProduct.name}
+                        className="w-full h-full object-contain"
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                      />
+                    </div>
+                  ) : null}
+                  <div>
+                    <span className="text-[10px] font-display font-bold uppercase tracking-wider text-brand-650">{selectedProduct.brand}</span>
+                    <h2 className="font-display text-xl font-black text-slate-900 leading-snug">{selectedProduct.name}</h2>
+                    <span className="inline-block mt-1 text-xs font-display font-bold text-slate-900">Price: ₹{selectedProduct.price}</span>
+                    <ShoppingLinks links={getProductShoppingLinks(selectedProduct)} className="mt-1" />
+                  </div>
                 </div>
                 <button 
                   onClick={() => setSelectedProduct(null)}
-                  className="p-1 hover:bg-slate-150 rounded-full cursor-pointer"
+                  className="p-1 hover:bg-slate-150 rounded-full cursor-pointer shrink-0"
                 >
                   <X className="w-5 h-5 text-slate-500" />
                 </button>
@@ -620,11 +645,23 @@ export default function ProductRecommendations() {
                         key={item.product.id}
                         className="border border-slate-150 p-4 rounded-2xl bg-white hover:border-brand-200 transition-all space-y-2.5"
                       >
-                        <div className="flex justify-between items-start gap-1">
-                          <div>
-                            <span className="text-[9px] font-display font-bold uppercase tracking-wider text-brand-650">{item.product.brand}</span>
-                            <h4 className="font-display text-sm font-bold text-slate-950 leading-tight">{item.product.name}</h4>
-                            <span className="inline-block mt-0.5 text-xs text-slate-900 font-semibold font-display">₹{item.product.price}</span>
+                        <div className="flex justify-between items-start gap-2">
+                          <div className="flex items-start gap-2.5">
+                            {item.product.image_url ? (
+                              <div className="w-10 h-10 rounded-lg border border-brand-100 bg-brand-50/50 p-0.5 shrink-0 overflow-hidden">
+                                <img 
+                                  src={item.product.image_url} 
+                                  alt={item.product.name}
+                                  className="w-full h-full object-contain"
+                                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                />
+                              </div>
+                            ) : null}
+                            <div>
+                              <span className="text-[9px] font-display font-bold uppercase tracking-wider text-brand-650">{item.product.brand}</span>
+                              <h4 className="font-display text-sm font-bold text-slate-950 leading-tight">{item.product.name}</h4>
+                              <span className="inline-block mt-0.5 text-xs text-slate-900 font-semibold font-display">₹{item.product.price}</span>
+                            </div>
                           </div>
                           <span className="bg-emerald-50 text-emerald-800 text-[10px] font-display font-black px-2 py-0.5 rounded-full shrink-0">
                             {item.suitability_score}% Match

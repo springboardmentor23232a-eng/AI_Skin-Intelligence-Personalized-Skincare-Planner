@@ -19,3 +19,9 @@ export const getAllAssessments = async () => {
   const response = await api.get('/api/consultant/assessments');
   return response.data;
 };
+
+export const getProgressSummary = async () => {
+  const response = await api.get('/api/consultant/progress-summary');
+  return response.data;
+};
+

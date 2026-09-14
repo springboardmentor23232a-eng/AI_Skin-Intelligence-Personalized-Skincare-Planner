@@ -43,7 +43,15 @@ async def recalculate_score(
     """
     Explicitly recalculates the user's 5-component weighted Skin Health Score
     and appends a new record snapshot into PostgreSQL score history.
+    Requires user to have completed their 28-question profile.
     """
+    from app.models import RoutineProfile
+    profile = db.query(RoutineProfile).filter(RoutineProfile.user_id == current_user.id).first()
+    if not profile:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot calculate skin health score. Please complete the 28-question profile questionnaire first."
+        )
     logger.info(f"API Module 7 POST /api/score/calculate (Recalculation trigger): user={current_user.email}")
     score_data = evaluate_overall_skin_health(db, current_user, persist=True)
     return score_data

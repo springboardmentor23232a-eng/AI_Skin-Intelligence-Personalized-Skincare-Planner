@@ -451,6 +451,7 @@ def evaluate_overall_skin_health(
         "insights": all_insights,
         "calculated_at": calculated_at,
         "has_profile": has_profile,
+        "has_score": True,
         "has_assessment_scan": has_scan
     }
 
@@ -458,7 +459,10 @@ def evaluate_overall_skin_health(
 def get_or_create_current_score(db: Session, user: User) -> Dict[str, Any]:
     """
     Fetches latest calculated score from database.
-    If no score has been calculated yet for the user, calculates and stores the initial record.
+    If no score has been recorded yet:
+    - If user has NOT completed their 28-question profile, returns a clean 'Not yet available' state
+      without creating/persisting fake or baseline score records.
+    - If user HAS completed their profile, calculates and stores their initial baseline score snapshot.
     Avoids creating redundant duplicates on ordinary page refreshes.
     """
     last_record = db.query(SkinHealthScoreRecord)\
@@ -466,6 +470,9 @@ def get_or_create_current_score(db: Session, user: User) -> Dict[str, Any]:
         .order_by(SkinHealthScoreRecord.calculated_at.desc())\
         .first()
         
+    profile = db.query(RoutineProfile).filter(RoutineProfile.user_id == user.id).first()
+    has_profile = profile is not None
+
     if last_record:
         # Check previous record to compute delta
         prev_record = db.query(SkinHealthScoreRecord)\
@@ -510,7 +517,6 @@ def get_or_create_current_score(db: Session, user: User) -> Dict[str, Any]:
             status_label = "Needs Attention"
             status_color = "#ef4444"
 
-        profile = db.query(RoutineProfile).filter(RoutineProfile.user_id == user.id).first()
         has_scan = last_record.assessment_id is not None
         
         return {
@@ -529,9 +535,32 @@ def get_or_create_current_score(db: Session, user: User) -> Dict[str, Any]:
             "components": components,
             "insights": insights,
             "calculated_at": last_record.calculated_at,
-            "has_profile": profile is not None,
+            "has_profile": has_profile,
+            "has_score": True,
             "has_assessment_scan": has_scan
         }
     else:
-        # First time calculation: calculate and persist initial score
+        # If user has not completed their profile questionnaire, do not auto-calculate or save default scores
+        if not has_profile:
+            return {
+                "id": None,
+                "user_id": user.id,
+                "overall_score": None,
+                "condition_score": None,
+                "lifestyle_score": None,
+                "sleep_score": None,
+                "routine_score": None,
+                "hydration_score": None,
+                "status": "Not yet available",
+                "status_color": "#94a3b8",
+                "delta_change": 0,
+                "delta_direction": "none",
+                "components": [],
+                "insights": ["Complete your 28-question profile questionnaire to generate your personalized Skin Health Score."],
+                "calculated_at": datetime.utcnow(),
+                "has_profile": False,
+                "has_score": False,
+                "has_assessment_scan": False
+            }
+        # First time calculation for profiled user: calculate and persist initial score
         return evaluate_overall_skin_health(db, user, persist=True)
