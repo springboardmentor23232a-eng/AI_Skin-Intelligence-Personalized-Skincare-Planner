@@ -15,9 +15,9 @@
 <body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
 
     <!-- Sidebar Navigation -->
-    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex shrink-0">
-        <div>
-            <div class="p-6 flex items-center gap-3 border-b border-slate-100">
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col hidden md:flex shrink-0 h-full">
+        
+            <div class="p-6 flex items-center gap-3 border-b border-slate-100 shrink-0">
                 <div class="bg-teal-600 text-white p-2.5 rounded-2xl">
                     <i data-lucide="sparkles" class="w-5 h-5"></i>
                 </div>
@@ -27,7 +27,7 @@
                 </div>
             </div>
 
-            <nav class="p-4 space-y-1 text-sm font-medium">
+            <nav class="flex-1 overflow-y-auto p-4 space-y-1 text-sm font-medium">
                 <a href="/consultant_dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
                     <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
                 </a>
@@ -47,9 +47,9 @@
                     <i data-lucide="sliders" class="w-4 h-4"></i> Recommendations
                 </a>
             </nav>
-        </div>
+        
 
-        <div class="p-4 border-t border-slate-100 bg-slate-50/50">
+        <div class="p-4 border-t border-slate-100 bg-slate-50/50 shrink-0">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3 min-w-0">
                     <div class="min-w-0">
@@ -65,7 +65,7 @@
     </aside>
 
     <!-- Main Content Workstation -->
-    <main class="flex-1 overflow-y-auto p-8 space-y-6">
+    <main class="flex-1 overflow-y-auto p-8 space-y-6 relative">
         
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
@@ -74,6 +74,10 @@
             </div>
             
             <div class="flex items-center gap-3">
+                <!-- MODULE 11: Export Hub Trigger -->
+                <button onclick="openExportHub()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition flex items-center gap-2 cursor-pointer shadow-md shadow-indigo-600/20">
+                    <i data-lucide="file-output" class="w-4 h-4"></i> Advanced Export Hub
+                </button>
                 <div class="bg-white border border-slate-200 px-4 py-2 rounded-xl text-center shadow-sm">
                     <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Total Reports</p>
                     <p id="stat-total" class="text-lg font-extrabold text-slate-800">0</p>
@@ -90,7 +94,7 @@
             
             <div class="flex items-center gap-2 w-full sm:w-auto shrink-0">
                 <div class="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-semibold">
-                    <button id="view-unique-btn" onclick="setViewMode('unique')" class="px-3 py-1.5 rounded-lg bg-white text-slate-900 shadow-sm transition">
+                    <button id="view-unique-btn" onclick="setViewMode('unique')" class="px-3 py-1.5 rounded-lg bg-white text-slate-900 shadow-sm transition font-bold">
                         Active Profiles
                     </button>
                     <button id="view-all-btn" onclick="setViewMode('all')" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">
@@ -114,6 +118,206 @@
         </div>
     </main>
 
+    <!-- MODULE 11: ADVANCED EXPORT & REPORTING HUB MODAL -->
+    <div id="exportHubModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col shadow-2xl border border-slate-200">
+            <!-- Header -->
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50 z-10 shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="bg-indigo-100 text-indigo-700 p-2 rounded-xl">
+                        <i data-lucide="folder-output" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900 leading-tight">Advanced Reporting & Export Hub</h2>
+                        <p class="text-[11px] text-slate-500 font-medium">Module 11: Bulk Exports, Segmentation & Automation</p>
+                    </div>
+                </div>
+                <button onclick="closeExportHub()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-lg transition cursor-pointer">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="flex border-b border-slate-200 text-xs font-bold bg-white px-6 pt-3 shrink-0">
+                <button onclick="switchExportTab('bulk')" id="tab-btn-bulk" class="pb-3 px-4 border-b-2 border-indigo-600 text-indigo-700 transition cursor-pointer">Single / Bulk Export</button>
+                <button onclick="switchExportTab('segment')" id="tab-btn-segment" class="pb-3 px-4 border-b-2 border-transparent text-slate-400 hover:text-slate-700 transition cursor-pointer">Client Segmentation</button>
+                <button onclick="switchExportTab('compare')" id="tab-btn-compare" class="pb-3 px-4 border-b-2 border-transparent text-slate-400 hover:text-slate-700 transition cursor-pointer">Cross-Client Comparison</button>
+                <button onclick="switchExportTab('automate')" id="tab-btn-automate" class="pb-3 px-4 border-b-2 border-transparent text-slate-400 hover:text-slate-700 transition cursor-pointer">Report Automation</button>
+            </div>
+            
+            <!-- Modal Body Area -->
+            <div class="p-6 bg-white overflow-y-auto flex-1 text-sm text-slate-700">
+                
+                <!-- TAB 1: BULK EXPORT -->
+                <div id="tab-content-bulk" class="space-y-5 block">
+                    <p class="text-xs text-slate-500 mb-2">Export comprehensive clinical data for one or multiple clients.</p>
+                    
+                    <div class="space-y-2">
+                        <label class="font-bold text-slate-800 text-xs">Select Clients for Export</label>
+                        <select id="bulk-client-select" class="w-full p-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-indigo-500 outline-none text-xs">
+                            <option value="all">Export All Active Clients (Bulk)</option>
+                            <!-- JS Will Populate Individual Clients Here -->
+                        </select>
+                    </div>
+
+                    <div class="space-y-2 pt-2">
+                        <label class="font-bold text-slate-800 text-xs">Export Format</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="flex items-center gap-3 p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition">
+                                <input type="radio" name="bulk-format" value="pdf" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500" checked>
+                                <div>
+                                    <span class="font-bold text-slate-800 text-xs block">Clinical PDF</span>
+                                    <span class="text-[10px] text-slate-500">Visual reports for sharing</span>
+                                </div>
+                            </label>
+                            <label class="flex items-center gap-3 p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition">
+                                <input type="radio" name="bulk-format" value="csv" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500">
+                                <div>
+                                    <span class="font-bold text-slate-800 text-xs block">Excel / CSV Data</span>
+                                    <span class="text-[10px] text-slate-500">Detailed multi-client telemetry</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button onclick="executeBulkExport()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl shadow-sm transition flex items-center justify-center gap-2 mt-4 cursor-pointer">
+                        <i data-lucide="download" class="w-4 h-4"></i> Generate Export
+                    </button>
+                </div>
+
+                <!-- TAB 2: SEGMENTATION -->
+                <div id="tab-content-segment" class="space-y-5 hidden">
+                    <p class="text-xs text-slate-500 mb-2">Group clients by skin profile or primary concern and export aggregated metrics as Excel/CSV to analyze trends across demographics.</p>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="font-bold text-slate-800 text-xs">Filter by Skin Type</label>
+                            <select id="seg-skin-type" class="w-full p-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-indigo-500 outline-none text-xs">
+                                <option value="all">Any Skin Type</option>
+                                <option value="oily">Oily</option>
+                                <option value="dry">Dry</option>
+                                <option value="combination">Combination</option>
+                                <option value="sensitive">Sensitive</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="font-bold text-slate-800 text-xs">Filter by Primary Concern</label>
+                            <select id="seg-concern" class="w-full p-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-indigo-500 outline-none text-xs">
+                                <option value="all">Any Concern</option>
+                                <option value="acne">Acne</option>
+                                <option value="pigmentation">Pigmentation</option>
+                                <option value="erythema">Erythema / Redness</option>
+                                <option value="aging">Aging / Wrinkles</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button onclick="executeSegmentation()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl shadow-sm transition flex items-center justify-center gap-2 mt-4 cursor-pointer">
+                        <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Export Segmented CSV
+                    </button>
+                </div>
+
+                <!-- TAB 3: CROSS-CLIENT COMPARISON -->
+                <div id="tab-content-compare" class="space-y-5 hidden">
+                    <p class="text-xs text-slate-500 mb-2">Select two clients to generate a side-by-side comparative analysis report of adherence, product effectiveness, and risk level.</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                        <div class="space-y-2">
+                            <label class="font-bold text-slate-800 text-xs">Client A (Baseline)</label>
+                            <select id="comp-client-a" class="w-full p-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-indigo-500 outline-none text-xs dynamic-client-list">
+                                <!-- Populated by JS -->
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="font-bold text-slate-800 text-xs">Client B (Comparison)</label>
+                            <select id="comp-client-b" class="w-full p-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-indigo-500 outline-none text-xs dynamic-client-list">
+                                <!-- Populated by JS -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <button onclick="executeComparison()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 rounded-xl shadow-sm transition flex items-center justify-center gap-2 mt-4 cursor-pointer">
+                        <i data-lucide="split" class="w-4 h-4"></i> Generate Comparison View
+                    </button>
+
+                    <!-- Comparison Results Box (Hidden until triggered) -->
+                    <div id="compare-results-box" class="hidden mt-4 border border-slate-200 rounded-xl overflow-hidden">
+                        <div class="p-3 bg-slate-50 border-b border-slate-200 font-bold text-xs flex justify-between">
+                            <span>Comparative Analysis</span>
+                            <button class="text-indigo-600 hover:underline"><i data-lucide="download" class="w-3 h-3 inline"></i> Save PDF</button>
+                        </div>
+                        <div class="grid grid-cols-3 text-xs divide-x divide-slate-100 bg-white">
+                            <div class="p-3 space-y-2 font-semibold text-slate-500 bg-slate-50/50">
+                                <p>Client Name</p><p>Health Score</p><p>Adherence</p><p>Hydration Avg</p><p>Risk Level</p>
+                            </div>
+                            <div class="p-3 space-y-2 text-center" id="comp-res-a">
+                                <!-- Populated by JS -->
+                            </div>
+                            <div class="p-3 space-y-2 text-center" id="comp-res-b">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 4: REPORT AUTOMATION -->
+                <div id="tab-content-automate" class="space-y-5 hidden">
+                    <div class="p-4 bg-teal-50 border border-teal-100 rounded-xl flex items-start gap-3">
+                        <i data-lucide="mail-check" class="w-5 h-5 text-teal-600 shrink-0 mt-0.5"></i>
+                        <div>
+                            <p class="font-bold text-teal-900 text-sm">Automated Monthly Delivery</p>
+                            <p class="text-xs text-teal-700 leading-relaxed mt-1">Enable this to automatically generate and email a comprehensive PDF progress report to the client at the end of every month.</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="font-bold text-slate-800 text-xs">Select Client to Configure Automation</label>
+                        <div class="flex items-center gap-3">
+                            <select id="auto-client-select" class="flex-1 p-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-indigo-500 outline-none text-xs dynamic-client-list">
+                                <!-- Populated by JS -->
+                            </select>
+                            <button onclick="toggleAutoReport(true)" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-xl shadow-sm transition text-xs cursor-pointer">Enable</button>
+                            <button onclick="toggleAutoReport(false)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2.5 px-4 rounded-xl transition text-xs cursor-pointer">Pause</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- HISTORICAL REPORTS MODAL -->
+    <div id="historyModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white rounded-3xl max-w-3xl w-full max-h-[85vh] overflow-hidden flex flex-col shadow-2xl border border-slate-200">
+            <!-- Modal Header -->
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-white z-10 shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="bg-indigo-100 text-indigo-700 p-2 rounded-xl">
+                        <i data-lucide="history" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900 leading-tight">Patient Assessment History</h2>
+                        <p class="text-xs text-slate-500 font-medium" id="history-modal-client-name">Loading patient data...</p>
+                    </div>
+                </div>
+                <button onclick="closeHistoryModal()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition cursor-pointer">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <!-- Modal Content (Scrollable Timeline) -->
+            <div class="p-6 bg-slate-50 overflow-y-auto flex-1" id="historyModalContent">
+                <div class="text-center text-slate-400 py-8">
+                    <i data-lucide="loader" class="w-6 h-6 animate-spin mx-auto mb-2 text-teal-600"></i>
+                    <p class="text-xs font-semibold">Fetching historical records...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
     <script>
         let allReports = [];
         let viewMode = 'unique'; 
@@ -124,6 +328,220 @@
             if (window.lucide) lucide.createIcons();
         });
 
+        // ---------------------------------------------------------
+        // MODULE 11: ADVANCED EXPORT HUB LOGIC
+        // ---------------------------------------------------------
+        function openExportHub() {
+            const modal = document.getElementById('exportHubModal');
+            modal.classList.remove('hidden');
+            populateExportDropdowns();
+        }
+
+        function closeExportHub() {
+            document.getElementById('exportHubModal').classList.add('hidden');
+            document.getElementById('compare-results-box').classList.add('hidden');
+        }
+
+        function switchExportTab(tabName) {
+            ['bulk', 'segment', 'compare', 'automate'].forEach(t => {
+                document.getElementById(`tab-content-${t}`).classList.add('hidden');
+                const btn = document.getElementById(`tab-btn-${t}`);
+                btn.className = "pb-3 px-4 border-b-2 border-transparent text-slate-400 hover:text-slate-700 transition cursor-pointer";
+            });
+            document.getElementById(`tab-content-${tabName}`).classList.remove('hidden');
+            document.getElementById(`tab-btn-${tabName}`).className = "pb-3 px-4 border-b-2 border-indigo-600 text-indigo-700 transition cursor-pointer";
+        }
+
+        function populateExportDropdowns() {
+            const uniques = getUniqueReports(allReports);
+            let optionsHtml = '';
+            uniques.forEach(r => {
+                const name = r.client_name || r.name || r.user_name || 'Client';
+                const email = r.email || r.client_email || r.user_email || '';
+                if(email) {
+                    optionsHtml += `<option value="${escapeHtml(email)}">${escapeHtml(name)} (${escapeHtml(email)})</option>`;
+                }
+            });
+
+            // Populate all dynamic lists
+            const bulkSelect = document.getElementById('bulk-client-select');
+            bulkSelect.innerHTML = '<option value="all">Export All Active Clients (Bulk)</option>' + optionsHtml;
+
+            document.querySelectorAll('.dynamic-client-list').forEach(el => {
+                if (el.id !== 'bulk-client-select') {
+                    el.innerHTML = optionsHtml;
+                }
+            });
+        }
+
+        async function executeBulkExport() {
+            const target = document.getElementById('bulk-client-select').value;
+            const format = document.querySelector('input[name="bulk-format"]:checked').value;
+            
+            showToast(`Initiating ${format.toUpperCase()} export...`, 'info');
+
+            if (format === 'pdf' && target !== 'all') {
+                // If PDF and single user, reuse the robust html2pdf generator
+                const report = allReports.find(r => (r.email || r.client_email) === target);
+                if (report) {
+                    generateClientPDF(report.report_id || report.id, null);
+                    closeExportHub();
+                    return;
+                }
+            }
+
+            // Otherwise, hit backend for Bulk CSV or multi-client logic
+            try {
+                const consultantEmail = localStorage.getItem('email') || '';
+                const payload = {
+                    consultant_email: consultantEmail,
+                    client_emails: target === 'all' ? [] : [target],
+                    format: format
+                };
+                
+                const res = await fetch('/api/export/consultant/bulk-export', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(payload)
+                });
+                
+                if (res.ok) {
+                    // Trigger native browser download for the Blob
+                    const blob = await res.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = `DermaAI_Export_${Date.now()}.${format}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    showToast("Export completed successfully.", "success");
+                    closeExportHub();
+                } else {
+                    showToast("Failed to generate bulk export on server.", "error");
+                }
+            } catch (err) {
+                showToast("Network error during export.", "error");
+            }
+        }
+
+        async function executeSegmentation() {
+            const skinType = document.getElementById('seg-skin-type').value;
+            const concern = document.getElementById('seg-concern').value;
+            const consultantEmail = localStorage.getItem('email') || '';
+
+            showToast("Generating segmented cohort data...", "info");
+
+            try {
+                const payload = {
+                    consultant_email: consultantEmail,
+                    segment_skin_type: skinType,
+                    segment_concern: concern,
+                    format: 'csv'
+                };
+                
+                const res = await fetch('/api/export/consultant/bulk-export', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(payload)
+                });
+                
+                if (res.ok) {
+                    const blob = await res.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = `Segmented_Cohort_${skinType}_${concern}.csv`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    showToast("Segmentation Export complete.", "success");
+                    closeExportHub();
+                }
+            } catch (err) {
+                showToast("Network error during segmentation export.", "error");
+            }
+        }
+
+        async function executeComparison() {
+            const clientA = document.getElementById('comp-client-a').value;
+            const clientB = document.getElementById('comp-client-b').value;
+
+            if (clientA === clientB) {
+                showToast("Please select two different clients to compare.", "error");
+                return;
+            }
+
+            const resBox = document.getElementById('compare-results-box');
+            resBox.classList.remove('hidden');
+            document.getElementById('comp-res-a').innerHTML = '<i data-lucide="loader" class="animate-spin w-4 h-4 mx-auto text-indigo-600"></i>';
+            document.getElementById('comp-res-b').innerHTML = '<i data-lucide="loader" class="animate-spin w-4 h-4 mx-auto text-indigo-600"></i>';
+            if (window.lucide) lucide.createIcons();
+
+            try {
+                const payload = { client_a_email: clientA, client_b_email: clientB };
+                const res = await fetch('/api/export/consultant/compare', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(payload)
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    
+                    const formatCol = (c) => `
+                        <p class="font-bold text-slate-800">${escapeHtml(c.name)}</p>
+                        <p class="font-extrabold text-teal-600">${c.health_score}</p>
+                        <p class="font-semibold text-slate-700">${c.adherence}</p>
+                        <p class="text-slate-600">${c.hydration}</p>
+                        <p class="${c.risk_level === 'Low' ? 'text-emerald-600' : 'text-amber-600'} font-bold">${c.risk_level}</p>
+                    `;
+
+                    document.getElementById('comp-res-a').innerHTML = formatCol(data.client_a);
+                    document.getElementById('comp-res-b').innerHTML = formatCol(data.client_b);
+                } else {
+                    showToast("Failed to load comparison data.", "error");
+                    resBox.classList.add('hidden');
+                }
+            } catch (err) {
+                showToast("Network error during comparison.", "error");
+                resBox.classList.add('hidden');
+            }
+        }
+
+        async function toggleAutoReport(enable) {
+            const clientEmail = document.getElementById('auto-client-select').value;
+            const consultantEmail = localStorage.getItem('email') || '';
+
+            showToast("Updating automation settings...", "info");
+
+            try {
+                const payload = {
+                    consultant_email: consultantEmail,
+                    client_email: clientEmail,
+                    enable_automation: enable
+                };
+                
+                const res = await fetch('/api/export/consultant/automation', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(payload)
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    showToast(data.message, "success");
+                } else {
+                    showToast("Failed to update automation state.", "error");
+                }
+            } catch (err) {
+                showToast("Network error configuring automation.", "error");
+            }
+        }
+        // ---------------------------------------------------------
+
         function getToken() {
             return localStorage.getItem('auth_token') || localStorage.getItem('token') || '';
         }
@@ -133,6 +551,24 @@
                 'Authorization': `Bearer ${getToken()}`,
                 'Content-Type': 'application/json'
             };
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            let bgClass = 'bg-slate-800';
+            if (type === 'error' || type === false) bgClass = 'bg-rose-600';
+            if (type === 'success' || type === true) bgClass = 'bg-emerald-600';
+            if (type === 'info') bgClass = 'bg-indigo-600';
+            
+            toast.className = `${bgClass} text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-lg transition-all duration-300 pointer-events-auto flex items-center gap-2`;
+            toast.innerHTML = `<span>${escapeHtml(message)}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-[-10px]');
+                setTimeout(() => toast.remove(), 4000);
+            }, 4000);
         }
 
         function checkAuthState() {
@@ -249,27 +685,60 @@
                 const reportId = r.report_id || r.id || (idx + 1);
                 const clientName = r.client_name || r.name || r.user_name || 'Client';
                 const clientEmail = r.email || r.client_email || r.user_email || 'N/A';
-                const score = Number.isFinite(r.score) ? r.score : 75;
+                
+                const isPrivate = r.is_private === true;
+                const scoreVal = Number.isFinite(r.score) ? r.score : 75;
+                
+                const topBadgeHealthScore = isPrivate ? '<span class="flex items-center gap-1"><i data-lucide="lock" class="w-3 h-3"></i> Private</span>' : `${scoreVal}/100`;
+                
+                const assessmentScoreVal = r.assessment_score ?? r.skin_assessment_score ?? r.skin_health_score ?? scoreVal;
+                const scanScoreDisplay = `${assessmentScoreVal}/100`;
+                
+                const waterDisplay = isPrivate ? '<span class="text-rose-500 font-bold"><i data-lucide="lock" class="w-3 h-3 inline"></i> Private</span>' : `${escapeHtml(String(r.water_intake || '2.0'))} L/day`;
+                const sleepDisplay = isPrivate ? '<span class="text-rose-500 font-bold"><i data-lucide="lock" class="w-3 h-3 inline"></i> Private</span>' : `${escapeHtml(String(r.sleep_quality || '7.5'))} hrs/night`;
 
-                let rawConcerns = '';
-                if (Array.isArray(r.concerns)) {
-                    rawConcerns = r.concerns.join(', ');
-                } else if (typeof r.concerns === 'string') {
-                    rawConcerns = r.concerns.replace(/[{}]/g, '');
+                let concernsHtml = '';
+                if (Array.isArray(r.concerns) && r.concerns.length > 0) {
+                    concernsHtml = r.concerns.map(c => {
+                        if (typeof c === 'object') {
+                            const name = c.name || c.concern_name || 'Unknown';
+                            const severity = c.severity || 'Moderate';
+                            return `
+                                <div class="bg-white border border-slate-200 px-2 py-1.5 rounded text-[10px] font-bold text-slate-700 flex justify-between items-center mb-1">
+                                    <span>${escapeHtml(name)}</span>
+                                    <span class="text-teal-600">${escapeHtml(severity)}</span>
+                                </div>
+                            `;
+                        } else {
+                            return `<span class="bg-white border border-slate-200 px-2 py-1 rounded text-[10px] font-bold text-slate-700 inline-block mr-1 mb-1">${escapeHtml(c)}</span>`;
+                        }
+                    }).join('');
                 } else {
-                    rawConcerns = r.primary_concern || 'General Maintenance';
+                    concernsHtml = '<span class="text-slate-400 italic text-[10px]">No major concerns logged</span>';
                 }
 
-                let recommendations = r.recommendation || r.consultant_recommendation || r.recommendations || r.dermatologist_notes || 'Routine evaluation on file.';
+                let aiSummary = r.ai_summary || 'No clinical synthesis available.';
+                if (isPrivate) {
+                    aiSummary = '<span class="font-semibold text-rose-600"><i data-lucide="lock" class="w-3 h-3 inline"></i> Patient lifestyle insights are paused due to active privacy settings. Baseline clinical data remains visible.</span>';
+                }
+                const recommendations = r.recommendation || r.consultant_recommendation || r.recommendations || r.dermatologist_notes || 'Routine evaluation on file.';
 
                 let scoreBadge = 'bg-teal-50 text-teal-700 border-teal-200';
-                if (score < 60) scoreBadge = 'bg-amber-50 text-amber-700 border-amber-200';
-                if (score < 40) scoreBadge = 'bg-rose-50 text-rose-700 border-rose-200';
+                if (scoreVal < 60) scoreBadge = 'bg-amber-50 text-amber-700 border-amber-200';
+                if (scoreVal < 40) scoreBadge = 'bg-rose-50 text-rose-700 border-rose-200';
+                if (isPrivate) scoreBadge = 'bg-slate-100 text-rose-500 border-rose-200';
+
+                let riskLevel = r.inflammation_level || 'Low';
+                let riskBadge = 'bg-emerald-100 text-emerald-700';
+                if (riskLevel.toLowerCase() === 'high') riskBadge = 'bg-rose-100 text-rose-700';
+                if (riskLevel.toLowerCase() === 'moderate' || riskLevel.toLowerCase() === 'medium') riskBadge = 'bg-amber-100 text-amber-700';
 
                 const formattedDate = formatDate(r.updated_at || r.created_at || r.timestamp || r.date);
 
                 return `
                     <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition space-y-4">
+                        
+                        <!-- Header Bar -->
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
                             <div class="flex items-center gap-3">
                                 <div class="bg-slate-100 p-2.5 rounded-xl text-slate-700 font-bold text-xs flex items-center gap-1.5">
@@ -282,36 +751,65 @@
                                 </div>
                             </div>
                             <div class="flex items-center gap-2">
-                                <button onclick="generateClientPDF('${reportId}')" class="bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 font-bold text-xs px-3 py-1.5 rounded-lg transition flex items-center gap-1 cursor-pointer">
-                                    <i data-lucide="download" class="w-3.5 h-3.5"></i> Export PDF
+                                <span class="${riskBadge} text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border border-transparent shadow-sm">${escapeHtml(riskLevel)} Risk</span>
+                                
+                                <button onclick="viewHistory('${escapeHtml(clientEmail)}', '${escapeHtml(clientName)}')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs px-3 py-1.5 rounded-lg transition flex items-center gap-1 cursor-pointer">
+                                    <i data-lucide="history" class="w-3.5 h-3.5"></i> Past Reports
                                 </button>
-                                <span class="${scoreBadge} border text-xs font-bold px-3 py-1 rounded-lg">Health Score: ${score}/100</span>
+
+                                <button onclick="generateClientPDF('${reportId}', event)" class="bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 font-bold text-xs px-3 py-1.5 rounded-lg transition flex items-center gap-1 cursor-pointer">
+                                    <i data-lucide="download" class="w-3.5 h-3.5"></i> Export Official Plan
+                                </button>
+                                <span class="${scoreBadge} border text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm">Health Score: ${topBadgeHealthScore}</span>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-xs">
-                            <div class="p-3 bg-slate-50/80 rounded-xl border border-slate-100 space-y-1">
-                                <p class="font-bold text-slate-700 text-[11px] uppercase tracking-wider">Profile & Skin Type</p>
-                                <p class="text-slate-600 font-semibold">${escapeHtml(r.skin_type || 'Combination')}</p>
-                                <p class="text-slate-400 text-[10px]">Age Group: ${escapeHtml(r.age_group || '25-34')}</p>
+                        <!-- Grid Blocks: Vitals, Telemetry, Allergies, Concerns -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                            <div class="p-3 bg-slate-50/80 rounded-xl border border-slate-100 space-y-1.5">
+                                <p class="font-bold text-slate-400 text-[10px] uppercase tracking-wider"><i data-lucide="user" class="w-3 h-3 inline"></i> Profile & Vitals</p>
+                                <p class="text-slate-700 font-semibold">${escapeHtml(r.skin_type || 'Combination')} Skin</p>
+                                <p class="text-slate-500 text-[11px]">Age: ${escapeHtml(r.age_group || '25-34')} | Env: ${escapeHtml(r.environment || 'Urban')}</p>
                             </div>
-                            <div class="p-3 bg-slate-50/80 rounded-xl border border-slate-100 space-y-1">
-                                <p class="font-bold text-slate-700 text-[11px] uppercase tracking-wider">Sensitivities & Allergies</p>
-                                <p class="text-slate-600">${escapeHtml(r.sensitivities || 'None reported')}</p>
-                                <p class="text-slate-400 text-[10px]">Allergies: ${escapeHtml(r.allergies || 'None')}</p>
+                            
+                            <div class="p-3 bg-slate-50/80 rounded-xl border border-slate-100 space-y-1.5">
+                                <p class="font-bold text-slate-400 text-[10px] uppercase tracking-wider"><i data-lucide="activity" class="w-3 h-3 inline"></i> Daily Telemetry</p>
+                                <p class="text-slate-700 font-semibold">Water: ${waterDisplay}</p>
+                                <p class="text-slate-500 text-[11px]">Sleep: ${sleepDisplay}</p>
                             </div>
-                            <div class="p-3 bg-slate-50/80 rounded-xl border border-slate-100 space-y-1">
-                                <p class="font-bold text-slate-700 text-[11px] uppercase tracking-wider">Primary Concerns</p>
-                                <p class="text-slate-600 font-medium">${escapeHtml(rawConcerns || 'General Maintenance')}</p>
+
+                            <div class="p-3 bg-slate-50/80 rounded-xl border border-slate-100 space-y-1.5">
+                                <p class="font-bold text-slate-400 text-[10px] uppercase tracking-wider"><i data-lucide="shield-alert" class="w-3 h-3 inline"></i> Sensitivities</p>
+                                <p class="text-slate-700 font-semibold truncate" title="${escapeHtml(r.sensitivities || 'None')}">${escapeHtml(r.sensitivities || 'None')}</p>
+                                <p class="text-rose-500 font-medium text-[11px] truncate" title="${escapeHtml(r.allergies || 'None')}">Allergies: ${escapeHtml(r.allergies || 'None')}</p>
                             </div>
-                            <div class="p-3 bg-teal-50/50 rounded-xl border border-teal-100/80 space-y-1 md:col-span-2">
-                                <p class="font-bold text-teal-800 text-[11px] uppercase tracking-wider">Consultant Recommendation</p>
-                                <p class="text-teal-900 font-medium leading-relaxed">${escapeHtml(recommendations)}</p>
+
+                            <div class="p-3 bg-slate-50/80 rounded-xl border border-slate-100 space-y-1.5">
+                                <p class="font-bold text-slate-400 text-[10px] uppercase tracking-wider"><i data-lucide="target" class="w-3 h-3 inline"></i> Target Concerns</p>
+                                <div class="flex flex-col overflow-y-auto max-h-16 pr-1">
+                                    ${concernsHtml}
+                                </div>
                             </div>
                         </div>
 
+                        <!-- Full-Width Blocks: Diagnostic Synthesis & Active Plan -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                            <div class="p-4 bg-indigo-50/50 rounded-xl border border-indigo-100 space-y-2">
+                                <div class="flex justify-between items-center border-b border-indigo-200/60 pb-1.5 mb-1.5">
+                                    <p class="font-bold text-indigo-800 text-[10px] uppercase tracking-wider flex items-center gap-1.5"><i data-lucide="brain-circuit" class="w-3.5 h-3.5"></i> AI Diagnostic Synthesis</p>
+                                    <span class="text-xs font-bold text-indigo-700">Assessment Score: ${scanScoreDisplay}</span>
+                                </div>
+                                <p class="text-indigo-950 font-medium leading-relaxed">${aiSummary}</p>
+                            </div>
+                            <div class="p-4 bg-teal-50/50 rounded-xl border border-teal-100 space-y-2 relative">
+                                <p class="font-bold text-teal-800 text-[10px] uppercase tracking-wider flex items-center gap-1.5"><i data-lucide="stethoscope" class="w-3.5 h-3.5"></i> Active Clinical Plan</p>
+                                <p class="text-teal-950 font-medium leading-relaxed">${escapeHtml(recommendations)}</p>
+                            </div>
+                        </div>
+
+                        <!-- Footer Actions -->
                         <div class="pt-2 flex flex-wrap justify-between items-center gap-3 border-t border-slate-100">
-                            <span class="text-[11px] text-slate-400">
+                            <span class="text-[11px] text-slate-400 font-medium">
                                 Last Updated: ${formattedDate}
                             </span>
                             <a href="/consultant_dashboard/recommendations.html?client=${encodeURIComponent(clientEmail)}" class="text-xs font-bold text-teal-700 hover:text-teal-800 hover:underline flex items-center gap-1">
@@ -325,7 +823,107 @@
             if (window.lucide) lucide.createIcons();
         }
 
-        function generateClientPDF(reportId) {
+        // ================= HISTORY MODAL =================
+        async function viewHistory(clientEmail, clientName) {
+            const modal = document.getElementById('historyModal');
+            const content = document.getElementById('historyModalContent');
+            const nameLabel = document.getElementById('history-modal-client-name');
+            
+            modal.classList.remove('hidden');
+            nameLabel.innerText = `${clientName} (${clientEmail})`;
+            content.innerHTML = `
+                <div class="text-center text-slate-400 py-12 flex flex-col items-center">
+                    <i data-lucide="loader" class="w-8 h-8 animate-spin mx-auto mb-3 text-teal-600"></i>
+                    <p class="text-sm font-semibold">Fetching historical assessment records...</p>
+                </div>
+            `;
+            if (window.lucide) lucide.createIcons();
+
+            try {
+                const res = await fetch(`/api/assessment/history?email=${encodeURIComponent(clientEmail)}`, { 
+                    headers: getAuthHeaders() 
+                });
+                
+                if (res.ok) {
+                    const json = await res.json();
+                    const history = json.data || [];
+                    
+                    if (history.length === 0) {
+                        content.innerHTML = `
+                            <div class="text-center text-slate-500 py-12">
+                                <i data-lucide="folder-search" class="w-10 h-10 mx-auto mb-3 text-slate-300"></i>
+                                <p class="font-medium">No past assessments found for this client.</p>
+                            </div>
+                        `;
+                        if (window.lucide) lucide.createIcons();
+                        return;
+                    }
+                    
+                    let html = '<div class="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-slate-200">';
+                    
+                    history.forEach((item, index) => {
+                        const asm = item.assessment;
+                        const rawDate = asm.created_at || asm.assessment_date;
+                        const formattedDate = new Date(rawDate).toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' });
+                        const score = asm.skin_health_score || 75;
+                        
+                        let badge = 'bg-teal-100 text-teal-800 border-teal-200';
+                        if (score < 60) badge = 'bg-amber-100 text-amber-800 border-amber-200';
+                        if (score < 40) badge = 'bg-rose-100 text-rose-800 border-rose-200';
+                        
+                        let concernsText = 'None reported';
+                        if (item.concerns && item.concerns.length > 0) {
+                            concernsText = item.concerns.map(c => c.concern_name || c.name || c[0]).join(', ');
+                        }
+
+                        const condition = asm.overall_condition || 'Routine Evaluation';
+                        const notes = asm.notes || 'No specific notes logged.';
+
+                        html += `
+                            <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                                <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-slate-100 text-slate-400 shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-sm z-10">
+                                    <i data-lucide="${index === 0 ? 'check-circle' : 'file-clock'}" class="w-4 h-4 ${index === 0 ? 'text-teal-600' : ''}"></i>
+                                </div>
+                                
+                                <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-xs font-extrabold text-slate-500 uppercase tracking-wider">${formattedDate}</span>
+                                            ${index === 0 ? '<span class="px-2 py-0.5 bg-indigo-100 text-indigo-700 text-[9px] font-bold rounded uppercase">Latest</span>' : ''}
+                                        </div>
+                                        <span class="px-2.5 py-1 rounded-md text-[10px] font-bold border ${badge}">Assessment Score: ${score}</span>
+                                    </div>
+                                    <h4 class="font-bold text-slate-800 text-sm mb-1">${escapeHtml(condition)}</h4>
+                                    <p class="text-[11px] text-slate-500 font-medium mb-2 truncate">Concerns: ${escapeHtml(concernsText)}</p>
+                                    <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-100">
+                                        <p class="text-[10px] text-slate-600 italic line-clamp-3">"${escapeHtml(notes)}"</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                    content.innerHTML = html;
+                    if (window.lucide) lucide.createIcons();
+
+                } else {
+                    content.innerHTML = `<div class="text-center text-rose-500 py-8 text-sm font-semibold">Failed to load history (HTTP ${res.status}).</div>`;
+                }
+            } catch (e) {
+                console.error(e);
+                content.innerHTML = '<div class="text-center text-rose-500 py-8 text-sm font-semibold">Database connection error.</div>';
+            }
+        }
+        
+        function closeHistoryModal() {
+            document.getElementById('historyModal').classList.add('hidden');
+        }
+
+        // ==========================================
+        // PDF EXPORT ENGINE 
+        // ==========================================
+        function generateClientPDF(reportId, evt) {
             const reportData = allReports.find(r => (r.report_id || r.id || '') == reportId) || allReports[0];
 
             if (!reportData) {
@@ -334,52 +932,176 @@
             }
 
             const pdfContainer = document.createElement('div');
-            pdfContainer.className = 'p-8 bg-white text-slate-800 font-sans space-y-6';
-            pdfContainer.style.width = '750px';
+            pdfContainer.style.fontFamily = "'Helvetica Neue', Helvetica, Arial, sans-serif";
+            pdfContainer.style.color = "#1e293b";
+            pdfContainer.style.maxWidth = "800px";
+            pdfContainer.style.margin = "0 auto";
+            pdfContainer.style.padding = "30px";
+            pdfContainer.style.backgroundColor = "#ffffff";
+
+            let concernsPdf = '';
+            if (Array.isArray(reportData.concerns) && reportData.concerns.length > 0) {
+                concernsPdf = reportData.concerns.map(c => {
+                    return typeof c === 'object' ? `<strong>${escapeHtml(c.name || c.concern_name)}</strong> (Severity: ${escapeHtml(c.severity || 'Moderate')})` : `<strong>${escapeHtml(c)}</strong>`;
+                }).join('<br>');
+            } else {
+                concernsPdf = 'General Maintenance';
+            }
+
+            let amSteps = Array.isArray(reportData.routine_am) && reportData.routine_am.length > 0 
+                ? reportData.routine_am.map(s => `<li style="margin-bottom: 4px;">${escapeHtml(s)}</li>`).join('') 
+                : '<li style="margin-bottom: 4px;">Gentle AM Cleansing</li><li style="margin-bottom: 4px;">Broad-Spectrum SPF 50+</li>';
+                
+            let pmSteps = Array.isArray(reportData.routine_pm) && reportData.routine_pm.length > 0 
+                ? reportData.routine_pm.map(s => `<li style="margin-bottom: 4px;">${escapeHtml(s)}</li>`).join('') 
+                : '<li style="margin-bottom: 4px;">Double Cleansing Protocol</li><li style="margin-bottom: 4px;">Barrier Recovery Moisturizer</li>';
+
+            const isPrivate = reportData.is_private === true;
+            
+            const healthScoreDisplay = isPrivate ? "🔒 Private" : `${reportData.score !== null && reportData.score !== undefined ? reportData.score : 75}/100`;
+            const assessmentScoreVal = reportData.assessment_score ?? reportData.skin_assessment_score ?? reportData.skin_health_score ?? (Number.isFinite(reportData.score) ? reportData.score : 75);
+            const scanScoreDisplay = `${assessmentScoreVal}/100`; 
+            
+            const waterDisplay = isPrivate ? "🔒 Private" : `${escapeHtml(String(reportData.water_intake || '2.0'))} L/day`;
+            const sleepDisplay = isPrivate ? "🔒 Private" : `${escapeHtml(String(reportData.sleep_quality || '7.5'))} hrs/night`;
+            const aiSummaryDisplay = isPrivate ? "Patient telemetry and insights are currently paused due to active privacy settings." : escapeHtml(reportData.ai_summary || 'Routine evaluation on file. No acute active inflammation detected during scan.');
+
+            const riskLevel = reportData.inflammation_level || 'Low';
+            let riskColor = '#10b981'; // Emerald
+            if (riskLevel.toLowerCase() === 'high') riskColor = '#e11d48'; // Rose
+            if (riskLevel.toLowerCase() === 'moderate') riskColor = '#d97706'; // Amber
 
             pdfContainer.innerHTML = `
-                <div style="border-bottom: 2px solid #0d9488; padding-bottom: 12px; margin-bottom: 20px;">
-                    <h1 style="font-size: 24px; font-weight: bold; color: #0f766e;">DermaAI Consultant Evaluation Report</h1>
-                    <p style="font-size: 12px; color: #64748b;">Report ID: #SR-${reportId} • Date: ${new Date().toLocaleDateString()}</p>
+                <!-- Header -->
+                <div style="border-bottom: 3px solid #0f766e; padding-bottom: 15px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div>
+                        <h1 style="font-size: 26px; font-weight: 800; color: #0f766e; margin: 0;">DermaAI Clinical Workstation</h1>
+                        <p style="font-size: 13px; color: #64748b; margin: 5px 0 0 0; text-transform: uppercase; letter-spacing: 1px;">Official Patient Assessment & Treatment Plan</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <p style="font-size: 12px; font-weight: bold; margin: 0; color: #334155;">Report ID: #SR-${reportId}</p>
+                        <p style="font-size: 11px; color: #64748b; margin: 3px 0 0 0;">Generated: ${new Date().toLocaleDateString()}</p>
+                    </div>
                 </div>
 
-                <div style="background-color: #f8fafc; padding: 15px; border-radius: 8px; font-size: 12px; line-height: 1.8;">
-                    <h3 style="font-size: 14px; font-weight: bold; color: #0f766e; margin-bottom: 8px;">Client Information</h3>
-                    <p><strong>Name:</strong> ${reportData.client_name || reportData.name || 'Client'} (${reportData.email || reportData.client_email || ''})</p>
-                    <p><strong>Skin Type:</strong> ${reportData.skin_type || 'Combination'} | <strong>Age Group:</strong> ${reportData.age_group || '25-34'}</p>
-                    <p><strong>Health Score:</strong> ${reportData.score !== undefined ? reportData.score : 75}/100</p>
-                    <p><strong>Allergies:</strong> ${reportData.allergies || 'None'}</p>
+                <!-- Patient Vitals Table -->
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 12px; border: 1px solid #e2e8f0;">
+                    <tr style="background-color: #f8fafc;">
+                        <td style="padding: 12px; border: 1px solid #e2e8f0;"><strong>Patient Name:</strong><br>${escapeHtml(reportData.client_name || reportData.name || 'Client')}</td>
+                        <td style="padding: 12px; border: 1px solid #e2e8f0;"><strong>Skin Type:</strong><br>${escapeHtml(reportData.skin_type || 'Combination')}</td>
+                        <td style="padding: 12px; border: 1px solid #e2e8f0;"><strong>Age Group:</strong><br>${escapeHtml(reportData.age_group || '25-34')}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #e2e8f0;"><strong>Overall Health Score:</strong><br><span style="font-size: 16px; font-weight: bold; color: #0f766e;">${healthScoreDisplay}</span></td>
+                        <td style="padding: 12px; border: 1px solid #e2e8f0;"><strong>Clinical Risk Level:</strong><br><span style="color: ${riskColor}; font-weight: bold; text-transform: uppercase;">${escapeHtml(riskLevel)}</span></td>
+                        <td style="padding: 12px; border: 1px solid #e2e8f0;"><strong>Reported Allergies:</strong><br><span style="color: #e11d48; font-weight: bold;">${escapeHtml(reportData.allergies || 'None')}</span></td>
+                    </tr>
+                </table>
+
+                <!-- Clinical Diagnostics -->
+                <div style="margin-bottom: 25px;">
+                    <h3 style="font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #0f766e; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; margin-bottom: 10px;">1. Clinical Diagnosis & Synthesis</h3>
+                    
+                    <div style="margin-bottom: 12px; font-size: 12px; line-height: 1.6;">
+                        <span style="font-weight: bold; color: #475569;">Diagnostic Scan Score:</span> <span style="font-weight: bold; color: #0f766e;">${scanScoreDisplay}</span><br><br>
+                        <span style="font-weight: bold; color: #475569;">Identified Active Concerns:</span><br>
+                        ${concernsPdf}
+                    </div>
+
+                    <div style="font-size: 12px; line-height: 1.6; background-color: #f1f5f9; padding: 12px; border-left: 4px solid #64748b; color: #334155; border-radius: 0 4px 4px 0;">
+                        <strong>Diagnostic Notes:</strong><br>
+                        ${aiSummaryDisplay}
+                    </div>
                 </div>
 
-                <div style="font-size: 12px; color: #334155; line-height: 1.6; margin-top: 20px;">
-                    <h3 style="font-weight: bold; color: #0f766e; margin-bottom: 5px;">Consultant Recommendation & Notes</h3>
-                    <p style="background: #f0fdfa; padding: 12px; border-radius: 6px; border: 1px solid #ccfbf1;">
-                        ${reportData.recommendation || reportData.consultant_recommendation || reportData.dermatologist_notes || 'Routine evaluation on file.'}
+                <!-- Prescribed Routine -->
+                <div style="margin-bottom: 25px;">
+                    <h3 style="font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #0f766e; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; margin-bottom: 15px;">2. Prescribed Daily Regimen</h3>
+                    <div style="display: flex; gap: 20px;">
+                        <div style="flex: 1; border: 1px solid #fef3c7; background-color: #fffbeb; padding: 15px; border-radius: 8px;">
+                            <h4 style="font-size: 13px; color: #d97706; margin-top: 0; margin-bottom: 10px; border-bottom: 1px solid #fde68a; padding-bottom: 5px;">☀️ Morning Protocol</h4>
+                            <ul style="font-size: 12px; padding-left: 18px; margin: 0; line-height: 1.6; color: #92400e;">
+                                ${amSteps}
+                            </ul>
+                        </div>
+                        <div style="flex: 1; border: 1px solid #e0e7ff; background-color: #eef2ff; padding: 15px; border-radius: 8px;">
+                            <h4 style="font-size: 13px; color: #4338ca; margin-top: 0; margin-bottom: 10px; border-bottom: 1px solid #c7d2fe; padding-bottom: 5px;">🌙 Evening Protocol</h4>
+                            <ul style="font-size: 12px; padding-left: 18px; margin: 0; line-height: 1.6; color: #3730a3;">
+                                ${pmSteps}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lifestyle & Notes -->
+                <div style="margin-bottom: 25px;">
+                    <h3 style="font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #0f766e; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; margin-bottom: 10px;">3. Telemetry Targets & Consultant Directives</h3>
+                    
+                    <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                        <div style="flex: 1; background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; font-size: 11px; text-align: center;">
+                            <strong style="color: #475569; display: block; margin-bottom: 2px;">Hydration Target</strong>
+                            <span style="font-size: 14px; font-weight: bold; color: #0284c7;">${waterDisplay}</span>
+                        </div>
+                        <div style="flex: 1; background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; font-size: 11px; text-align: center;">
+                            <strong style="color: #475569; display: block; margin-bottom: 2px;">Restoration Target</strong>
+                            <span style="font-size: 14px; font-weight: bold; color: #6366f1;">${sleepDisplay}</span>
+                        </div>
+                        <div style="flex: 1; background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; font-size: 11px; text-align: center;">
+                            <strong style="color: #475569; display: block; margin-bottom: 2px;">Environment Index</strong>
+                            <span style="font-size: 14px; font-weight: bold; color: #d97706;">${escapeHtml(reportData.environment || 'Urban')}</span>
+                        </div>
+                    </div>
+
+                    <div style="font-size: 12px; line-height: 1.6; border: 1px solid #ccfbf1; background-color: #f0fdfa; padding: 15px; border-radius: 8px; color: #115e59;">
+                        <strong style="font-size: 13px;">Official Consultant Notes & Plan:</strong><br>
+                        <div style="margin-top: 5px;">${escapeHtml(reportData.recommendation || reportData.consultant_recommendation || reportData.dermatologist_notes || 'Routine evaluation on file. Continue standard adherence protocols.')}</div>
+                    </div>
+                </div>
+
+                <!-- Sign off -->
+                <div style="margin-top: 60px; display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div>
+                        <div style="border-bottom: 1px solid #64748b; width: 220px; margin-bottom: 8px;"></div>
+                        <p style="font-size: 11px; font-weight: bold; color: #334155; margin: 0;">Consultant / Dermatologist Signature</p>
+                        <p style="font-size: 10px; color: #64748b; margin: 2px 0 0 0;">Authorized Clinical Care Provider</p>
+                    </div>
+                    <p style="font-size: 9px; color: #94a3b8; text-align: right; margin: 0; line-height: 1.4;">
+                        Securely generated by DermaAI Module 7 Workstation.<br>
+                        Confidential Medical Information. Not for public distribution.
                     </p>
-                </div>
-
-                <div style="margin-top: 40px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 10px; color: #94a3b8; text-align: center;">
-                    Generated securely by DermaAI Clinical Workstation.
                 </div>
             `;
 
             const opt = {
-                margin:       10,
-                filename:     `DermaAI_Report_${reportId}.pdf`,
+                margin:       [10, 10, 10, 10],
+                filename:     `DermaAI_Clinical_Plan_${reportId}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2 },
+                html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            html2pdf().set(opt).from(pdfContainer).save().catch(err => {
+            const btn = evt ? evt.currentTarget : null;
+            let originalText = "";
+            if (btn) {
+                originalText = btn.innerHTML;
+                btn.innerHTML = '<i data-lucide="loader" class="w-3.5 h-3.5 animate-spin"></i> Generating...';
+                if (window.lucide) lucide.createIcons();
+            }
+
+            html2pdf().set(opt).from(pdfContainer).save().then(() => {
+                if(btn) btn.innerHTML = originalText;
+                if (window.lucide) lucide.createIcons();
+            }).catch(err => {
+                if(btn) btn.innerHTML = originalText;
+                if (window.lucide) lucide.createIcons();
                 alert("PDF generation notice: " + err.message);
             });
         }
 
         function formatDate(dateString) {
-            if (!dateString) return 'Aug 23, 2026';
+            if (!dateString) return 'Today';
             const parsed = new Date(dateString);
-            return isNaN(parsed.getTime()) ? 'Aug 23, 2026' : parsed.toLocaleDateString();
+            return isNaN(parsed.getTime()) ? 'Today' : parsed.toLocaleDateString();
         }
 
         function escapeHtml(str) {
