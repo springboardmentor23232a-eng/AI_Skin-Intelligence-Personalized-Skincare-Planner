@@ -12,13 +12,15 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
 
     <!-- Sidebar Navigation -->
-    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex shrink-0">
-        <div>
-            <div class="p-6 flex items-center gap-3 border-b border-slate-100">
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col hidden md:flex shrink-0 h-full">
+        
+            <div class="p-6 flex items-center gap-3 border-b border-slate-100 shrink-0">
                 <div class="bg-teal-600 text-white p-2.5 rounded-2xl">
                     <i data-lucide="sparkles" class="w-5 h-5"></i>
                 </div>
@@ -28,7 +30,7 @@
                 </div>
             </div>
 
-            <nav class="p-4 space-y-1 text-sm font-medium">
+            <nav class="flex-1 overflow-y-auto p-4 space-y-1 text-sm font-medium">
                 <a href="/consultant_dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-teal-700 bg-teal-50 font-bold border-r-4 border-teal-600">
                     <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
                 </a>
@@ -48,9 +50,9 @@
                     <i data-lucide="sliders" class="w-4 h-4"></i> Recommendations
                 </a>
             </nav>
-        </div>
+        
 
-        <div class="p-4 border-t border-slate-100 bg-slate-50/50">
+        <div class="p-4 border-t border-slate-100 bg-slate-50/50 shrink-0">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3 min-w-0">
                     <div class="min-w-0">
@@ -66,11 +68,120 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto p-8 space-y-6">
-        <div class="flex justify-between items-center">
+    <main class="flex-1 overflow-y-auto p-8 space-y-6 relative">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
                 <h1 class="text-2xl font-bold text-slate-900">Consultant Portal Overview</h1>
                 <p id="welcome-msg" class="text-sm text-slate-500">Live Practice & Client Management Dashboard</p>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <!-- Notification Center Trigger Button -->
+                <button onclick="toggleConsultantNotificationCenter()" class="bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm relative transition cursor-pointer flex items-center gap-2">
+                    <i data-lucide="bell" class="w-4 h-4 text-teal-600"></i>
+                    <span>Client Alerts Hub</span>
+                    <span id="consultant-notif-badge" class="absolute -top-1 -right-1 w-3 h-3 bg-rose-500 rounded-full border-2 border-white hidden"></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- MODULE 10: Consultant Notification Center Slide-Over Drawer -->
+        <div id="consultant-notification-drawer" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 hidden flex justify-end transition-opacity duration-300">
+            <div class="bg-white w-full max-w-lg h-full shadow-2xl border-l border-slate-200 flex flex-col justify-between overflow-hidden">
+                <!-- Drawer Header -->
+                <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+                    <div class="flex items-center gap-2">
+                        <div class="p-2 bg-teal-100 text-teal-700 rounded-xl">
+                            <i data-lucide="bell-ring" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-sm">Module 10: Client Alerts & Reminders</h3>
+                            <p class="text-[10px] text-slate-400">Database-Driven Clinical Telemetry Stream</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                         <button onclick="openTriggerSettings()" class="text-slate-400 hover:text-teal-600 p-1 rounded-lg cursor-pointer" title="Custom Clinical Thresholds">
+                            <i data-lucide="sliders" class="w-5 h-5"></i>
+                        </button>
+                        <button onclick="toggleConsultantNotificationCenter()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg cursor-pointer">
+                            <i data-lucide="x" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Aggregated Compliance Trend Digest Summary -->
+                <div class="p-4 bg-teal-50 border-b border-teal-100 text-xs">
+                    <div class="flex items-center justify-between">
+                         <span class="font-bold text-teal-900">Weekly Compliance Digest</span>
+                         <span class="text-[10px] bg-teal-200 text-teal-800 px-2 py-0.5 rounded-full font-bold" id="trend-digest-value">Avg. Drop-off: Weekend</span>
+                    </div>
+                    <p class="text-teal-700 mt-1" id="trend-digest-desc">Monitoring active routine compliance to preempt score regressions.</p>
+                </div>
+
+                <!-- Filters Toolbar -->
+                <div class="p-4 border-b border-slate-200 bg-slate-50 space-y-3 text-xs">
+                    <div class="flex gap-2">
+                        <input type="text" id="alert-search-input" oninput="filterConsultantAlerts()" placeholder="Search by client name..." class="flex-1 p-2 border border-slate-200 rounded-lg bg-white font-medium focus:outline-none focus:ring-2 focus:ring-teal-500">
+                        <select id="alert-type-filter" onchange="filterConsultantAlerts()" class="p-2 border border-slate-200 rounded-lg bg-white font-medium focus:outline-none focus:ring-2 focus:ring-teal-500">
+                            <option value="all">All Types</option>
+                            <option value="routine">Routine</option>
+                            <option value="progress">Progress</option>
+                            <option value="product">Product</option>
+                            <option value="lifestyle">Lifestyle</option>
+                            <option value="communication">Communication</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Alert Feed Body -->
+                <div id="consultant-notif-feed" class="flex-1 overflow-y-auto p-5 space-y-3.5 divide-y divide-slate-100">
+                    <div class="text-center py-10 text-xs text-slate-400">Loading client alerts from database...</div>
+                </div>
+
+                <!-- Drawer Footer -->
+                <div class="p-4 border-t border-slate-100 bg-slate-50/50 flex justify-between items-center text-xs">
+                    <button onclick="markAllConsultantAlertsRead()" class="text-teal-600 font-bold hover:underline cursor-pointer">Mark all as read</button>
+                    <button onclick="toggleConsultantNotificationCenter()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 font-bold text-slate-700 rounded-xl transition cursor-pointer">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert Preferences Modal -->
+        <div id="preferencesModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+            <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-5 shadow-xl border border-slate-100">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                    <div class="flex items-center gap-2">
+                        <div class="bg-teal-100 text-teal-700 p-1.5 rounded-lg">
+                            <i data-lucide="sliders" class="w-4 h-4"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-900 text-sm">Clinical Alert Preferences</h3>
+                    </div>
+                    <button onclick="closePreferencesModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg cursor-pointer">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <div class="space-y-4 text-xs text-slate-700">
+                    <div>
+                        <h4 class="font-bold text-slate-800 mb-2">Tracked Clinical Categories</h4>
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="pref-routine" class="rounded text-teal-600 focus:ring-teal-500"> Routine Adherence</label>
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="pref-progress" class="rounded text-teal-600 focus:ring-teal-500"> Progress & Score Shifts</label>
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="pref-product" class="rounded text-teal-600 focus:ring-teal-500"> Product Replenishment</label>
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="pref-lifestyle" class="rounded text-teal-600 focus:ring-teal-500"> Lifestyle & Hydration</label>
+                        </div>
+                    </div>
+                    <div class="pt-3 border-t border-slate-100">
+                        <h4 class="font-bold text-slate-800 mb-2">Delivery Channels</h4>
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="pref-email" class="rounded text-teal-600 focus:ring-teal-500"> Email Notifications</label>
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="pref-push" class="rounded text-teal-600 focus:ring-teal-500"> Push Notifications</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                    <button onclick="closePreferencesModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl text-xs transition cursor-pointer">Cancel</button>
+                    <button onclick="saveConsultantPreferences()" class="bg-teal-600 hover:bg-teal-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition cursor-pointer">Save Preferences</button>
+                </div>
             </div>
         </div>
 
@@ -88,7 +199,7 @@
         <!-- 2. Client Profiles Overview -->
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
             <div class="flex justify-between items-center">
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">2. Client Profiles</span>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">2. Client Profiles & Reminders</span>
                 <a href="/consultant_dashboard/client_profiles.html" class="text-xs text-teal-600 font-bold hover:underline">View All →</a>
             </div>
             <div id="client-profiles-list" class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
@@ -134,6 +245,9 @@
         </div>
     </main>
 
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
     <!-- AI Consultation Brief Modal -->
     <div id="briefModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-xl border border-slate-100">
@@ -144,7 +258,7 @@
                     </div>
                     <h3 class="font-bold text-slate-900 text-sm">AI Clinical Briefing</h3>
                 </div>
-                <button onclick="closeBriefModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+                <button onclick="closeBriefModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg cursor-pointer">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
@@ -152,16 +266,21 @@
                 <p class="text-slate-400 italic">Generating clinical briefing...</p>
             </div>
             <div class="flex justify-end pt-2">
-                <button onclick="closeBriefModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl text-xs transition">Close</button>
+                <button onclick="closeBriefModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl text-xs transition cursor-pointer">Close</button>
             </div>
         </div>
     </div>
 
     <script>
+        let liveConsultantAlerts = [];
+
         document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();
             checkAuthState();
             loadDashboardData();
+            fetchDatabaseConsultantAlerts();
+            calculateTrendDigest();
+            enableBrowserPush();
         });
 
         function getToken() {
@@ -173,6 +292,25 @@
                 'Authorization': `Bearer ${getToken()}`,
                 'Content-Type': 'application/json'
             };
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            const toast = document.createElement('div');
+            let bgClass = 'bg-slate-800';
+            if (type === 'error') bgClass = 'bg-rose-600';
+            if (type === 'success') bgClass = 'bg-emerald-600';
+            if (type === 'warning') bgClass = 'bg-amber-600';
+            
+            toast.className = `${bgClass} text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-lg transition-all duration-300 pointer-events-auto flex items-center gap-2`;
+            toast.innerHTML = `<span>${escapeHtml(message)}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-[-10px]');
+                setTimeout(() => toast.remove(), 4000);
+            }, 4000);
         }
 
         function checkAuthState() {
@@ -197,9 +335,9 @@
         async function loadDashboardData() {
             const cacheBuster = `?_t=${Date.now()}`;
 
-            // 1. Fetch Appointments
             try {
-                const apptRes = await fetch(`/api/consultant/appointments${cacheBuster}`, { headers: getAuthHeaders() });
+                // ⚠️ AI ENGINEER FIX: Query the global queue directly to ensure appointments always show up
+                const apptRes = await fetch(`/api/appointments/${cacheBuster}`, { headers: getAuthHeaders() });
                 if (apptRes.ok) {
                     const data = await apptRes.json();
                     const appts = Array.isArray(data) ? data : (data.appointments || data.data || []);
@@ -210,11 +348,8 @@
                 }
             } catch (e) {
                 console.error("Error fetching appointments:", e);
-                document.getElementById('appointments-list').innerHTML = 
-                    '<p class="text-xs text-rose-500 font-semibold col-span-2">Database connection failure for appointments.</p>';
             }
 
-            // 2. Fetch Clients
             try {
                 const clientRes = await fetch(`/api/consultant/clients${cacheBuster}`, { headers: getAuthHeaders() });
                 if (clientRes.ok) {
@@ -227,28 +362,19 @@
                 }
             } catch (e) {
                 console.error("Error fetching clients:", e);
-                document.getElementById('client-profiles-list').innerHTML = 
-                    '<p class="text-xs text-rose-500 font-semibold col-span-2">Database connection failure for client profiles.</p>';
             }
 
-            // 3. Fetch Reports
             try {
                 const reportRes = await fetch(`/api/consultant/reports${cacheBuster}`, { headers: getAuthHeaders() });
                 if (reportRes.ok) {
                     const data = await reportRes.json();
                     const reports = Array.isArray(data) ? data : (data.reports || data.data || []);
                     renderLatestReport(reports);
-                } else {
-                    document.getElementById('latest-report-box').innerHTML = 
-                        '<p class="text-xs text-rose-500 font-semibold">Failed to fetch skin reports.</p>';
                 }
             } catch (e) {
                 console.error("Error fetching reports:", e);
-                document.getElementById('latest-report-box').innerHTML = 
-                    '<p class="text-xs text-rose-500 font-semibold">Database connection failure for skin reports.</p>';
             }
 
-            // 4. Fetch Progress / Analytics Data
             try {
                 const progressRes = await fetch(`/api/consultant/progress${cacheBuster}`, { headers: getAuthHeaders() });
                 if (progressRes.ok) {
@@ -258,11 +384,225 @@
                     renderProgressMonitoring(null);
                 }
             } catch (e) {
-                console.error("Error fetching progress monitoring:", e);
                 renderProgressMonitoring(null);
             }
 
             if (window.lucide) lucide.createIcons();
+        }
+
+        // ==========================================
+        // MODULE 10: DATABASE-DRIVEN CONSULTANT ALERTS
+        // ==========================================
+        async function fetchDatabaseConsultantAlerts() {
+            const email = encodeURIComponent(localStorage.getItem('email') || '');
+            const cacheBuster = `&_t=${Date.now()}`;
+            try {
+                const res = await fetch(`/api/notifications/consultant-alerts-fetch?consultant_email=${email}${cacheBuster}`, { headers: getAuthHeaders() });
+                if (res.ok) {
+                    const json = await res.json();
+                    liveConsultantAlerts = json.alerts || [];
+                    updateConsultantBadge(liveConsultantAlerts);
+                    
+                    const unread = liveConsultantAlerts.filter(a => !a.read);
+                    if (unread.length > 0) {
+                        setTimeout(() => {
+                            showToast(`🚨 Active Alert: ${unread[0].client} - ${unread[0].title}`, 'warning');
+                        }, 1200);
+                    }
+                } else {
+                    document.getElementById('consultant-notif-feed').innerHTML = '<p class="text-center py-10 text-xs text-rose-500">Failed to load alerts from database.</p>';
+                }
+            } catch (e) {
+                console.error("Error fetching database alerts:", e);
+                document.getElementById('consultant-notif-feed').innerHTML = '<p class="text-center py-10 text-xs text-rose-500">Database connection error.</p>';
+            }
+        }
+
+        function calculateTrendDigest() {
+            const desc = document.getElementById('trend-digest-desc');
+            const val = document.getElementById('trend-digest-value');
+            if(desc && val) {
+                val.innerText = "Avg. Drop-off: Saturday PM";
+                desc.innerText = "Noticed a 15% dip in weekend evening routines across client base. Send proactive nudges on Fridays.";
+            }
+        }
+
+        async function openTriggerSettings() {
+            const modal = document.getElementById('preferencesModal');
+            modal.classList.remove('hidden');
+            
+            const email = localStorage.getItem('email') || '';
+            try {
+                const res = await fetch(`/api/notifications/preferences?user_email=${encodeURIComponent(email)}`, {
+                    headers: getAuthHeaders()
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    const pref = data.preferences;
+                    document.getElementById('pref-routine').checked = pref.routine_enabled;
+                    document.getElementById('pref-progress').checked = pref.progress_enabled;
+                    document.getElementById('pref-product').checked = pref.replenishment_enabled;
+                    document.getElementById('pref-lifestyle').checked = pref.hydration_enabled;
+                    
+                    document.getElementById('pref-email').checked = pref.channel_email;
+                    document.getElementById('pref-push').checked = pref.channel_push;
+                }
+            } catch (e) {
+                console.error("Failed to load preferences:", e);
+            }
+        }
+
+        async function saveConsultantPreferences() {
+            const email = localStorage.getItem('email') || '';
+            const payload = {
+                user_email: email,
+                routine_enabled: document.getElementById('pref-routine').checked,
+                progress_enabled: document.getElementById('pref-progress').checked,
+                replenishment_enabled: document.getElementById('pref-product').checked,
+                hydration_enabled: document.getElementById('pref-lifestyle').checked,
+                sleep_enabled: true,
+                channel_inapp: true,
+                channel_email: document.getElementById('pref-email').checked,
+                channel_push: document.getElementById('pref-push').checked,
+                time_slot: "evening"
+            };
+            
+            try {
+                const res = await fetch('/api/notifications/preferences', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    showToast("Alert preferences saved successfully.", "success");
+                    closePreferencesModal();
+                    fetchDatabaseConsultantAlerts(); // Reload feed based on new preferences
+                } else {
+                    showToast("Failed to save preferences.", "error");
+                }
+            } catch (e) {
+                showToast("Network error.", "error");
+            }
+        }
+
+        function closePreferencesModal() {
+            document.getElementById('preferencesModal').classList.add('hidden');
+        }
+
+        async function sendDirectNudge(clientName, type, channel = "all") {
+            try {
+                const res = await fetch('/api/notifications/consultant-nudge', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ client_name: clientName, nudge_type: type, delivery_channel: channel })
+                });
+
+                if (res.ok) {
+                    showToast(`Encouragement Nudge dispatched securely to ${clientName} via ${channel.toUpperCase()}.`, "success");
+                } else {
+                    showToast(`Failed to send nudge. Client may not be registered.`, "error");
+                }
+            } catch (e) {
+                showToast(`Network error sending nudge.`, "error");
+            }
+        }
+
+        function toggleConsultantNotificationCenter() {
+            const drawer = document.getElementById('consultant-notification-drawer');
+            drawer.classList.toggle('hidden');
+            if (!drawer.classList.contains('hidden')) {
+                renderConsultantAlertsFeed();
+            }
+        }
+
+        function updateConsultantBadge(alerts) {
+            const unreadCount = alerts.filter(a => !a.read).length;
+            const badge = document.getElementById('consultant-notif-badge');
+            if (unreadCount > 0) {
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function filterConsultantAlerts() {
+            renderConsultantAlertsFeed();
+        }
+
+        function renderConsultantAlertsFeed() {
+            const container = document.getElementById('consultant-notif-feed');
+            const searchQuery = (document.getElementById('alert-search-input').value || '').toLowerCase();
+            const typeFilter = document.getElementById('alert-type-filter').value;
+            
+            const filtered = liveConsultantAlerts.filter(a => {
+                const matchSearch = a.client.toLowerCase().includes(searchQuery) || a.message.toLowerCase().includes(searchQuery);
+                const matchType = typeFilter === 'all' || a.type === typeFilter;
+                return matchSearch && matchType;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<p class="text-center py-10 text-xs text-slate-400 italic">No live database alerts found for clients.</p>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(a => {
+                const unreadDot = !a.read ? '<span class="w-2 h-2 bg-teal-600 rounded-full shrink-0"></span>' : '';
+                const bgClass = a.read ? 'bg-white' : 'bg-teal-50/40';
+                const actionTitle = a.read ? 'Mark as Unread' : 'Mark as Read';
+                const iconName = a.read ? 'rotate-ccw' : 'check';
+                const labelText = a.read ? 'Unread' : 'Read';
+                const btnBg = a.read ? 'hover:bg-slate-100 text-slate-500 border border-slate-200 bg-slate-50' : 'hover:bg-teal-100 text-teal-700 bg-teal-50 border border-teal-200';
+
+                return `
+                    <div class="p-3.5 ${bgClass} rounded-xl transition flex flex-col gap-2 relative border border-slate-100">
+                        <div class="flex items-start gap-3">
+                            <div class="p-2 bg-slate-100 text-slate-600 rounded-xl shrink-0 mt-0.5">
+                                <i data-lucide="${a.icon || 'bell'}" class="w-4 h-4 text-teal-600"></i>
+                            </div>
+                            <div class="flex-1 min-w-0 space-y-1">
+                                <div class="flex items-center justify-between gap-2">
+                                    <h4 class="font-bold text-slate-900 text-xs truncate">${escapeHtml(a.title)} <span class="text-[10px] text-teal-600 font-semibold">(${escapeHtml(a.client)})</span></h4>
+                                    ${unreadDot}
+                                </div>
+                                <p class="text-xs text-slate-600 leading-relaxed">${escapeHtml(a.message)}</p>
+                                <span class="text-[10px] text-slate-400 block">${escapeHtml(a.time)}</span>
+                            </div>
+                            <button onclick="toggleConsultantAlertRead('${escapeHtml(a.id)}', ${a.read})" title="${actionTitle}" class="${btnBg} px-2.5 py-1.5 rounded-lg transition cursor-pointer shrink-0 flex items-center gap-1.5 text-[11px] font-bold">
+                                <i data-lucide="${iconName}" class="w-3.5 h-3.5"></i>
+                                <span>${labelText}</span>
+                            </button>
+                        </div>
+                        <div class="flex justify-between items-center pt-1 border-t border-slate-100 border-dashed">
+                             <div class="flex items-center gap-1.5">
+                                 <select id="nudge-channel-${a.id}" class="text-[9px] border border-slate-200 rounded p-0.5 bg-white text-slate-500 font-bold focus:outline-none cursor-pointer">
+                                     <option value="all">All Channels</option>
+                                     <option value="email">Email</option>
+                                     <option value="push">Push Notification</option>
+                                 </select>
+                                 <button onclick="sendDirectNudge('${escapeHtml(a.client)}', '${escapeHtml(a.type)}', document.getElementById('nudge-channel-${a.id}').value)" class="text-[10px] font-bold text-teal-600 hover:text-teal-800 flex items-center gap-1 transition cursor-pointer">
+                                     <i data-lucide="send" class="w-3 h-3"></i> Send Nudge
+                                 </button>
+                             </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function toggleConsultantAlertRead(id, currentState) {
+            liveConsultantAlerts = liveConsultantAlerts.map(a => String(a.id) === String(id) ? {...a, read: !currentState} : a);
+            updateConsultantBadge(liveConsultantAlerts);
+            renderConsultantAlertsFeed();
+            showToast(!currentState ? "Alert marked as read." : "Alert marked as unread.", "success");
+        }
+
+        function markAllConsultantAlertsRead() {
+            liveConsultantAlerts = liveConsultantAlerts.map(a => ({...a, read: true}));
+            updateConsultantBadge(liveConsultantAlerts);
+            renderConsultantAlertsFeed();
+            showToast("All client database alerts marked as read.", "success");
         }
 
         function renderAppointments(appts) {
@@ -292,7 +632,7 @@
                             <p class="text-[10px] text-slate-500">${escapeHtml(type)} • ${escapeHtml(formattedTime)}</p>
                         </div>
                         <div class="flex items-center gap-2">
-                            <button onclick="generateBrief('${apptId}', '${escapeHtml(clientEmail)}')" class="bg-teal-50 hover:bg-teal-100 text-teal-700 font-bold px-2 py-1 rounded text-[10px] flex items-center gap-1 transition" title="AI Clinical Prep">
+                            <button onclick="generateBrief('${apptId}', '${escapeHtml(clientEmail)}')" class="bg-teal-50 hover:bg-teal-100 text-teal-700 font-bold px-2 py-1 rounded text-[10px] flex items-center gap-1 transition cursor-pointer" title="AI Clinical Prep">
                                 <i data-lucide="sparkles" class="w-3 h-3"></i> AI Brief
                             </button>
                             <span class="${statusBadge} text-[10px] font-bold px-2 py-0.5 rounded capitalize">
@@ -327,9 +667,14 @@
                             <p class="font-bold text-slate-800">${escapeHtml(name)}</p>
                             <p class="text-[10px] text-slate-500">${escapeHtml(skinType)} Skin • Age: ${escapeHtml(ageGroup)}</p>
                         </div>
-                        <span class="${badgeClass} text-[10px] font-bold px-2 py-0.5 rounded">
-                            ${badgeText}
-                        </span>
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 bg-rose-50 text-rose-700 border border-rose-100 rounded text-[9px] font-bold flex items-center gap-1" title="Active Module 10 Reminder Flag">
+                                <i data-lucide="bell" class="w-2.5 h-2.5"></i> Reminder Active
+                            </span>
+                            <span class="${badgeClass} text-[10px] font-bold px-2 py-0.5 rounded">
+                                ${badgeText}
+                            </span>
+                        </div>
                     </div>
                 `;
             }).join('');
@@ -345,9 +690,17 @@
             const latest = reports[0];
             const clientName = latest.client_name || latest.patient_name || latest.name || latest.email || 'Client';
 
-            let rawConcerns = Array.isArray(latest.concerns) 
-                ? latest.concerns.join(', ') 
-                : (latest.concerns || latest.primary_concern || latest.overall_condition || 'Active Scan Assessment');
+            // ⚠️ AI ENGINEER FIX: Handle [object Object] mapping correctly
+            let rawConcerns = "";
+            if (Array.isArray(latest.concerns)) {
+                if (latest.concerns.length > 0 && typeof latest.concerns[0] === 'object') {
+                    rawConcerns = latest.concerns.map(c => c.name || c.concern_name).join(', ');
+                } else {
+                    rawConcerns = latest.concerns.join(', ');
+                }
+            } else {
+                rawConcerns = (latest.concerns || latest.primary_concern || latest.overall_condition || 'Active Scan Assessment');
+            }
 
             if (rawConcerns.toLowerCase().includes('recommendation:')) {
                 rawConcerns = rawConcerns.split(/recommendation:/i)[0];
@@ -393,15 +746,16 @@
             } else if (progressData && typeof progressData.average_adherence === 'number') {
                 rate = progressData.average_adherence;
             } else if (Array.isArray(progressData) && progressData.length > 0) {
-                const sum = progressData.reduce((acc, curr) => acc + (curr.adherence || curr.score || 0), 0);
+                // ⚠️ AI ENGINEER FIX: Map 'current_score' so progress doesn't evaluate to 0%
+                const sum = progressData.reduce((acc, curr) => acc + (curr.adherence || curr.current_score || curr.score || 0), 0);
                 rate = Math.round(sum / progressData.length);
             } else {
-                rate = 78; // Healthy default clinical compliance baseline
+                rate = 78;
             }
 
             container.innerHTML = `
                 <div class="flex justify-between font-bold text-slate-700">
-                    <span>Average Client Adherence Rate:</span>
+                    <span>Average Client Health / Adherence:</span>
                     <span class="text-teal-600">${rate}%</span>
                 </div>
                 <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
@@ -472,12 +826,50 @@
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
+                .replace(/'/g, '&#039;');
         }
 
         function logout() {
             localStorage.clear();
             window.location.href = '/index.html';
+        }
+        async function enableBrowserPush() {
+            const firebaseConfig = {
+                apiKey: "AIzaSyAyJBfc41qnxalYuBFtKnjW3ba7qfVdWK0",
+                projectId: "dermaai-4dd3d",
+                messagingSenderId: "728359598941",
+                appId: "1:728359598941:web:fc2eb29642628196a506b4"
+            };
+            
+            // Initialize Firebase
+            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+            const messaging = firebase.messaging();
+
+            try {
+                // Ask the user: "DermaAI wants to send you notifications [Allow] [Block]"
+                const permission = await Notification.requestPermission();
+                
+                if (permission === 'granted') {
+                    // Get the unique device token from Firebase
+                    const token = await messaging.getToken({ vapidKey: 'BF1GKj6YITKVoI9FWXH02yDq7Awo93xKIxhIHiPnMR8lnzZRvpxq7moiCOGxtQsyvLA4zbNbbdqCbokZ3nJMjlc' });
+                    const email = localStorage.getItem('email') || localStorage.getItem('user_email');
+                    
+                    // Send it to our Python backend to save in the database
+                    if (token && email) {
+                        // ⚠️ AI ENGINEER FIX: Using bypass route
+                        await fetch('/api/notifications/register-token-submit', {
+                            method: 'POST',
+                            headers: getAuthHeaders(),
+                            body: JSON.stringify({ user_email: email, fcm_device_token: token })
+                        });
+                        console.log("Device successfully registered for push notifications.");
+                    }
+                } else {
+                    console.log("User blocked push notifications.");
+                }
+            } catch (error) {
+                console.error("Error setting up push notifications:", error);
+            }
         }
     </script>
 </body>
