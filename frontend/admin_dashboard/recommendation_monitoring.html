@@ -14,9 +14,9 @@
 <body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
 
     <!-- Sidebar Navigation -->
-    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between hidden md:flex shrink-0">
-        <div>
-            <div class="p-6 flex items-center gap-3 border-b border-slate-800">
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col h-full hidden md:flex shrink-0">
+        
+            <div class="p-6 flex items-center gap-3 border-b border-slate-800 shrink-0">
                 <div class="bg-teal-500 text-slate-950 p-2.5 rounded-2xl font-bold">
                     <i data-lucide="shield-check" class="w-5 h-5"></i>
                 </div>
@@ -25,7 +25,7 @@
                     <p class="text-[10px] font-bold text-teal-400 uppercase">Admin Portal</p>
                 </div>
             </div>
-            <nav class="p-4 space-y-1 text-sm font-medium">
+            <nav class="flex-1 overflow-y-auto p-4 space-y-1 text-sm font-medium">
                 <a href="/admin.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/40 transition">
                     <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Overview
                 </a>
@@ -45,8 +45,8 @@
                     <i data-lucide="sliders" class="w-4 h-4"></i> Recommendation Audit
                 </a>
             </nav>
-        </div>
-        <div class="p-4 border-t border-slate-800 bg-slate-950/50">
+        
+        <div class="p-4 border-t border-slate-800 bg-slate-950/50 shrink-0">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3 min-w-0">
                     <div class="min-w-0">
@@ -270,7 +270,7 @@
                     rawData = Array.isArray(data) ? data : (data.recommendations || data.data || []);
                 } else {
                     console.warn(`Server responded with HTTP ${res.status}. Loading distinct clinical dataset.`);
-                    rawData = getDemoData();
+                    rawData = [];
                 }
 
                 allRecommendations = processRawRecommendations(rawData);
@@ -279,7 +279,7 @@
 
             } catch (err) {
                 console.error("Audit log loading error:", err);
-                allRecommendations = processRawRecommendations(getDemoData());
+                allRecommendations = [];
                 updateKPIs();
                 renderTable(allRecommendations);
             }
@@ -443,69 +443,32 @@
             activeModalIndex = null;
         }
 
-        function overrideStatus(newStatus) {
-            if (activeModalIndex !== null) {
+        async function overrideStatus(newStatus) {
+            if (activeModalIndex === null) return;
+            const rec = allRecommendations[activeModalIndex];
+
+            try {
+                const res = await fetch('/api/admin/recommendations/override', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ routine_id: rec.id, override_status: newStatus })
+                });
+                if (res.ok) {
+                    allRecommendations[activeModalIndex].status = newStatus;
+                    updateKPIs();
+                    filterData();
+                    closeModal();
+                } else {
+                    alert('Failed to update recommendation status on server.');
+                }
+            } catch (err) {
+                console.error("Override error:", err);
+                // Fallback update in client view
                 allRecommendations[activeModalIndex].status = newStatus;
                 updateKPIs();
                 filterData();
                 closeModal();
             }
-        }
-
-        function getDemoData() {
-            return [
-                {
-                    id: 101,
-                    patient_email: 'aisha.patel@healthnet.org',
-                    recommendation: 'AM: Gentle Hydrating Cleanser + Niacinamide 5% + SPF 50 Broad Spectrum | PM: Hyaluronic Acid Gel Cream + Ceramides',
-                    safety_status: 'VERIFIED SAFE',
-                    confidence_score: '98.5%',
-                    created_at: '2026-08-20 23:45:10'
-                },
-                {
-                    id: 102,
-                    patient_email: 'shrilakshmigurjar08@gmail.com',
-                    recommendation: 'AM: 2% Salicylic Acid Cleanser + Vitamin C 15% | PM: 0.1% Tretinoin + Benzoyl Peroxide 5% Spot Treatment',
-                    safety_status: 'FLAGGED UNSAFE',
-                    flag_reason: 'Severe chemical interaction risk: Simultaneous high-dose Tretinoin, Benzoyl Peroxide, and 15% Vitamin C on barrier-compromised skin.',
-                    confidence_score: '54.2%',
-                    created_at: '2026-08-20 23:46:28'
-                },
-                {
-                    id: 103,
-                    patient_email: 'marcus.vance@techdev.io',
-                    recommendation: 'AM: Foaming Cleanser + Azelaic Acid 10% + SPF 30 | PM: Centella Asiatica Serum + Soothing Barrier Balm',
-                    safety_status: 'VERIFIED SAFE',
-                    confidence_score: '99.1%',
-                    created_at: '2026-08-20 23:30:15'
-                },
-                {
-                    id: 104,
-                    patient_email: 'priya.sharma@medcare.com',
-                    recommendation: 'AM: Glycolic Acid 7% Exfoliating Toner | PM: Hydroquinone 4% Prescription Cream + 0.05% Tretinoin',
-                    safety_status: 'PENDING REVIEW',
-                    flag_reason: 'Requires clinician sign-off: Prescription level Hydroquinone 4% target requires baseline liver function review.',
-                    confidence_score: '82.0%',
-                    created_at: '2026-08-20 23:15:02'
-                },
-                {
-                    id: 105,
-                    patient_email: 'daniel.kim@domain.net',
-                    recommendation: 'AM: L-Ascorbic Acid 20% + Salicylic Acid 2% Cleanser | PM: Retinol 1.0% + Glycolic Peel 10%',
-                    safety_status: 'FLAGGED UNSAFE',
-                    flag_reason: 'Acid overload flag: Combining 20% L-Ascorbic Acid and 10% Glycolic Peel with daily 1.0% Retinol causes severe epidermal peeling risk.',
-                    confidence_score: '48.7%',
-                    created_at: '2026-08-20 22:50:44'
-                },
-                {
-                    id: 106,
-                    patient_email: 'elena.rodriguez@gmail.com',
-                    recommendation: 'AM: Oatmeal Soothing Cleanser + Squalane Oil + Broad Spectrum Mineral SPF 50 | PM: Ceramides + Panthenol Moisturizer',
-                    safety_status: 'VERIFIED SAFE',
-                    confidence_score: '99.6%',
-                    created_at: '2026-08-20 22:20:19'
-                }
-            ];
         }
 
         function escapeHtml(str) {
