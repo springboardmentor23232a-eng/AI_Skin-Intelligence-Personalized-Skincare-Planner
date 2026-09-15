@@ -268,8 +268,9 @@ router.post('/login', async (req, res) => {
  */
 router.post('/google', async (req, res) => {
   try {
-    const { credential, idToken, role = 'user' } = req.body;
+    const { credential, idToken, accessToken, access_token, role = 'user' } = req.body;
     const tokenToVerify = credential || idToken;
+    const tokenAccessToken = accessToken || access_token;
 
     const requestedRole = normalizeRole(role);
 
@@ -281,17 +282,18 @@ router.post('/google', async (req, res) => {
       });
     }
 
-    if (!tokenToVerify) {
+    if (!tokenToVerify && !tokenAccessToken) {
       return res.status(400).json({
         success: false,
-        message: 'Google OAuth ID token (credential) is required.'
+        message: 'Google OAuth credential (ID token) or access token is required.'
       });
     }
 
     let googleUser = null;
     const activeClientId = process.env.GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID;
 
-    if (activeClientId) {
+    // 1. Verify via ID Token if provided
+    if (tokenToVerify && activeClientId) {
       try {
         const client = new OAuth2Client(activeClientId);
         const ticket = await client.verifyIdToken({
@@ -306,11 +308,31 @@ router.post('/google', async (req, res) => {
           picture: payload.picture
         };
       } catch (oauthErr) {
-        console.warn('[Google OAuth Verification Warning] Invalid Token signature or audience mismatch:', oauthErr.message);
+        console.warn('[Google OAuth Verification Warning] ID Token verification failed:', oauthErr.message);
       }
     }
 
-    // BUG 9 FIX: If Google token verification failed, reject — no raw base64 fallback
+    // 2. Fallback: Fetch user info via OAuth2 Access Token
+    if (!googleUser && tokenAccessToken) {
+      try {
+        const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${tokenAccessToken}` }
+        });
+        if (userInfoRes.ok) {
+          const payload = await userInfoRes.json();
+          googleUser = {
+            google_id: payload.sub,
+            email: payload.email,
+            name: payload.name || payload.given_name || 'Google User',
+            picture: payload.picture
+          };
+        }
+      } catch (fetchErr) {
+        console.warn('[Google OAuth UserInfo Warning] Failed to fetch Google UserInfo:', fetchErr.message);
+      }
+    }
+
+    // Reject if verification failed
     if (!googleUser) {
       return res.status(401).json({
         success: false,

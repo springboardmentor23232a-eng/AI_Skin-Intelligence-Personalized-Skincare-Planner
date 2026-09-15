@@ -9,7 +9,7 @@
   <link rel="shortcut icon" href="assets/logo.png" type="image/png">
   <link rel="stylesheet" href="css/style.css">
   <!-- Google Identity Services SDK for OAuth 2.0 -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://accounts.google.com/gsi/client" async defer onload="window.app && window.app.renderGoogleButton && window.app.renderGoogleButton()"></script>
 </head>
 
 <body>

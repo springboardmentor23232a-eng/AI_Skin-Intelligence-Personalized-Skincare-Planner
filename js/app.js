@@ -1332,6 +1332,51 @@ class App {
 
     const clientId = await this.getGoogleClientId();
 
+    // 1. Direct OAuth 2.0 Popup Client (Forces standard browser popup window)
+    if (window.google && window.google.accounts && window.google.accounts.oauth2) {
+      try {
+        const tokenClient = window.google.accounts.oauth2.initTokenClient({
+          client_id: clientId,
+          scope: 'email profile openid',
+          callback: async (tokenResponse) => {
+            if (tokenResponse && tokenResponse.access_token) {
+              if (btnText) btnText.innerText = 'Verifying with Google...';
+              const res = await auth.loginWithGoogle(null, selectedRole, tokenResponse.access_token);
+              if (res.success) {
+                this.closeLoginModal();
+                if (res.isNewOAuthUser) {
+                  this.openOAuthPasswordModal();
+                } else {
+                  this.executePendingRedirectOrDashboard();
+                }
+              } else if (alertBox) {
+                alertBox.className = 'login-alert-box alert-error';
+                alertBox.innerText = res.message || 'Google authentication failed.';
+                alertBox.classList.remove('hidden');
+              }
+            }
+            if (btnText) btnText.innerText = 'Continue with Google';
+          },
+          error_callback: (err) => {
+            console.warn('[Google OAuth2 Popup Error]', err);
+            if (btnText) btnText.innerText = 'Continue with Google';
+            if (alertBox) {
+              alertBox.className = 'login-alert-box alert-error';
+              alertBox.innerText = 'Google Sign-In popup was closed. Please try again.';
+              alertBox.classList.remove('hidden');
+            }
+          }
+        });
+
+        tokenClient.requestAccessToken({ prompt: 'select_account' });
+        if (btnText) btnText.innerText = 'Continue with Google';
+        return;
+      } catch (err) {
+        console.warn('[Google OAuth2 Init Fallback]', err.message);
+      }
+    }
+
+    // 2. Fallback to Google Identity Services One-Tap / ID Prompt
     if (window.google && window.google.accounts && window.google.accounts.id) {
       try {
         window.google.accounts.id.initialize({
@@ -1363,9 +1408,9 @@ class App {
             if (alertBox) {
               alertBox.className = 'login-alert-box alert-error';
               if (reason === 'opt_out_or_no_session') {
-                alertBox.innerText = 'No active Google session found or One-Tap is opted out. Please sign in to Google or use username/password.';
+                alertBox.innerText = 'No active Google session found. Please try again or sign in with username/password.';
               } else {
-                alertBox.innerText = 'Google Sign-In prompt unavailable or origin not authorized. Please check Google Cloud Console Authorized Origins or sign in with username/password.';
+                alertBox.innerText = 'Google Sign-In prompt was blocked. Please allow popups or use username/password.';
               }
               alertBox.classList.remove('hidden');
             }

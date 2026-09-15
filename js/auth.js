@@ -110,8 +110,8 @@ class AuthController {
     };
   }
 
-  async loginWithGoogle(credential, role = 'user') {
-    const apiRes = await api.loginWithGoogle(credential, role);
+  async loginWithGoogle(credential, role = 'user', accessToken = null) {
+    const apiRes = await api.loginWithGoogle(credential, role, accessToken);
     if (apiRes && apiRes.success && apiRes.token) {
       this.currentUser = apiRes.user;
       this.jwtToken = apiRes.token;

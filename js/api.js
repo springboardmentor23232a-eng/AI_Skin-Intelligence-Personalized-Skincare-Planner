@@ -204,10 +204,10 @@ class ApiClient {
     return res;
   }
 
-  async loginWithGoogle(credential, role = 'user') {
+  async loginWithGoogle(credential, role = 'user', accessToken = null) {
     const res = await this.request('/api/auth/google', {
       method: 'POST',
-      body: JSON.stringify({ credential, role })
+      body: JSON.stringify({ credential, role, accessToken, access_token: accessToken })
     });
 
     if (res.success && res.token) {
