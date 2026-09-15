@@ -1,6 +1,5 @@
 
 
-
 -- Enable UUID extension for ingredient intelligence
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
@@ -186,11 +185,13 @@ CREATE TABLE PROGRESS_LOGS (
     SKIN_FEELING_RATING INT DEFAULT 5,
     NOTES TEXT,
     LOG_DATE DATE DEFAULT CURRENT_DATE,
-	CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT unique_user_daily_log UNIQUE (USER_ID, LOG_DATE) -- Rectified: Prevents duplicate daily entries
+    WATER_INTAKE NUMERIC(3, 1) DEFAULT 2.5,
+    SLEEP_HOURS NUMERIC(3, 1) DEFAULT 7.5,
+    PHOTO_URL VARCHAR(500),
+    CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT unique_user_daily_log UNIQUE (USER_ID, LOG_DATE)
 );
 SELECT * FROM PROGRESS_LOGS;
-
 CREATE TABLE CONSULTANT_RECOMMENDATIONS (
     ID SERIAL PRIMARY KEY,
     USER_ID INT REFERENCES USERS(ID) ON DELETE CASCADE,
@@ -253,13 +254,54 @@ CREATE TABLE skin_health_scores (
 );
 SELECT * FROM skin_health_scores;
 
-ALTER TABLE PROGRESS_LOGS 
-ADD COLUMN WATER_INTAKE NUMERIC(3, 1) DEFAULT 2.5,
-ADD COLUMN SLEEP_HOURS NUMERIC(3, 1) DEFAULT 7.5,
-ADD COLUMN PHOTO_URL VARCHAR(500);
-
 ALTER TABLE skin_health_scores 
 ADD COLUMN actionable_takeaway TEXT;
+ALTER TABLE users ADD COLUMN fcm_device_token TEXT;
+
+CREATE TABLE notifications (
+    id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(id) ON DELETE CASCADE,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    notification_type VARCHAR(50) NOT NULL DEFAULT 'routine', -- 'routine', 'hydration', 'sleep', 'replenishment', 'progress', 'system'
+    is_read BOOLEAN DEFAULT FALSE,
+    delivery_channel VARCHAR(50) DEFAULT 'in-app', -- 'in-app', 'email', 'push'
+    scheduled_for TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_notifications_user_id ON notifications(user_id);
+
+-- Create persistent platform settings table
+CREATE TABLE PLATFORM_SETTINGS (
+    ID INT PRIMARY KEY DEFAULT 1,
+    PLATFORM_NAME VARCHAR(100) DEFAULT 'DermaAI Enterprise',
+    OAUTH_CLIENT_ID VARCHAR(255) DEFAULT '',
+    REQUIRE_APPROVAL BOOLEAN DEFAULT TRUE,
+    UPDATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT SINGLETON_ROW CHECK (ID = 1)
+);
+
+-- Seed initial default configuration
+INSERT INTO PLATFORM_SETTINGS (ID, PLATFORM_NAME, REQUIRE_APPROVAL)
+VALUES (1, 'DermaAI Enterprise', TRUE)
+ON CONFLICT (ID) DO NOTHING;
+
+-- 8. NOTIFICATION PREFERENCES
+CREATE TABLE notification_preferences (
+    user_id INT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    time_slot VARCHAR(50) DEFAULT 'evening',
+    routine_enabled BOOLEAN DEFAULT TRUE,
+    hydration_enabled BOOLEAN DEFAULT TRUE,
+    sleep_enabled BOOLEAN DEFAULT TRUE,
+    replenishment_enabled BOOLEAN DEFAULT TRUE,
+    progress_enabled BOOLEAN DEFAULT TRUE,
+    channel_inapp BOOLEAN DEFAULT TRUE,
+    channel_email BOOLEAN DEFAULT TRUE,
+    channel_push BOOLEAN DEFAULT TRUE,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+SELECT * FROM notification_preferences;
 
 -- PERFORMANCE & AI QUERY OPTIMIZATION INDEXES
 CREATE INDEX idx_ingredients_inci ON ingredients_master(canonical_inci_name);
