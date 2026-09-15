@@ -51,8 +51,8 @@ Frontend views are delivered via responsive, component-driven HTML5, Tailwind CS
 
 The backend is built with FastAPI to deliver high-throughput, asynchronous API operations:
 
-* **`app.py` / `main.py**`: The central application factory that bootstraps FastAPI, initializes CORS middleware, mounts static files, and aggregates all domain routers.
-* **`*_router.py`**: Dedicated REST controllers encapsulating business logic:
+* **`app.py` / `main.py`**: The central application factory that bootstraps FastAPI, initializes CORS middleware, mounts static files, and aggregates all domain routers.
+* **`router.py`**: Dedicated REST controllers encapsulating business logic:
 * `appointments_router.py`: Handles appointment lifecycle, booking, status transitions, and clinician briefs.
 * `dermatologist_router.py`: Manages prescriptions, medical overrides, and patient telemetry.
 * `ingredient_router.py`: Serves ingredient safety checks and INCI risk breakdowns.
@@ -87,7 +87,7 @@ Computational modules isolate heavy analytical and machine learning workloads fr
 * **PostgreSQL**: Primary relational database maintaining referential integrity across users, clinical records, routines, appointments, and telemetry logs.
 * **`DB.sql`**: Definitive relational schema defining tables, indexes, constraints, and user-role enumerations.
 * **`data/`**: Static repository directory storing curated domain datasets.
-* **Documentation**: Includes comprehensive setup and architectural guides (`Documentation.pdf`, `Documentation.docx`, `user guide.pdf`, `user guide.docx`).
+* **Documentation**: Includes comprehensive setup and architectural guides (`Documentation.pdf`, `user guide.pdf`).
 
 ---
 
