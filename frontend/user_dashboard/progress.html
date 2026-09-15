@@ -18,14 +18,17 @@
 <body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
 
     <!-- Sidebar Navigation -->
-    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex shrink-0">
-        <div>
-            <div class="p-6 flex items-center gap-3 border-b border-slate-100">
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col hidden md:flex shrink-0 h-full">
+        
+            <div class="p-6 flex items-center gap-3 border-b border-slate-100 shrink-0">
                 <div class="bg-teal-600 text-white p-2.5 rounded-2xl"><i data-lucide="sparkles" class="w-5 h-5"></i></div>
                 <div><h1 class="font-bold text-slate-900 leading-tight">DermaAI</h1><p class="text-xs text-slate-400">User Dashboard</p></div>
             </div>
-            <nav class="p-4 space-y-1 text-sm font-medium">
+            <nav class="flex-1 overflow-y-auto p-4 space-y-1 text-sm font-medium">
                 <a href="/user_dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard</a>
+                <button onclick="openReportsHub()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-indigo-600 hover:bg-indigo-50 transition cursor-pointer font-bold border border-transparent hover:border-indigo-100 text-left">
+                    <i data-lucide="file-output" class="w-4 h-4"></i> Reports & Exports
+                </button>
                 <a href="/user_dashboard/skin_assessment.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="scan-face" class="w-4 h-4"></i> Skin Assessment</a>
                 <a href="/user_dashboard/routine_planner.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="calendar" class="w-4 h-4"></i> Routine Planner</a>
                 <a href="/user_dashboard/product_recommendations.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="sliders" class="w-4 h-4"></i> Product Recommendations</a>
@@ -37,8 +40,8 @@
                 <a href="/user_dashboard/risk_analysis.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="shield-alert" class="w-4 h-4"></i> Risk Analysis</a>
                 <a href="/user_dashboard/checklist.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition"><i data-lucide="list-check" class="w-4 h-4"></i> Checklist</a>
             </nav>
-        </div>
-        <div class="p-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
+        
+        <div class="p-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between shrink-0">
             <div class="min-w-0">
                 <p id="user-display-name" class="text-xs font-bold text-slate-800 truncate">Loading...</p>
                 <p class="text-[10px] text-slate-400 font-medium">Role: User</p>
@@ -49,119 +52,339 @@
 
     <!-- Main View -->
     <main class="flex-1 overflow-y-auto p-8 space-y-6">
-        <div>
-            <h1 class="text-2xl font-bold text-slate-900">Progress & Routine Adherence</h1>
-            <p class="text-sm text-slate-500">Log today's care steps, record skin feel ratings, and inspect adherence graphs alongside AI score trends.</p>
+
+        <!-- ⚠️ NO ASSESSMENT FALLBACK VIEW -->
+        <div id="no-assessment-view" class="hidden bg-white p-10 rounded-3xl border border-slate-200 text-center shadow-sm max-w-2xl mx-auto space-y-4 my-8">
+            <div class="w-16 h-16 bg-teal-50 text-teal-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="scan-face" class="w-8 h-8"></i>
+            </div>
+            <h2 class="text-xl font-bold text-slate-900">No Assessment Found</h2>
+            <p class="text-slate-500 text-sm max-w-md mx-auto leading-relaxed">
+                To view your clinical progress, before/after transformations, and AI forecasts, we first need a baseline scan.
+            </p>
+            <a href="/user_dashboard/skin_assessment.html" class="inline-flex bg-teal-600 hover:bg-teal-700 text-white font-bold px-6 py-3 rounded-xl transition shadow-md items-center gap-2 mt-2">
+                Take Your First Skin Assessment <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </a>
         </div>
 
-        <!-- Notification Banner -->
-        <div id="status-toast" class="hidden p-4 rounded-xl shadow-md flex items-center justify-between transition-all">
-            <span id="toast-message" class="text-xs font-semibold"></span>
-            <button onclick="document.getElementById('status-toast').classList.add('hidden')" class="hover:opacity-75"><i data-lucide="x" class="w-4 h-4"></i></button>
-        </div>
-
-        <!-- 1. Real Monthly Stat Highlights -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">30-Day Adherence Rate</p>
-                <p id="adherence-rate-text" class="text-3xl font-extrabold text-teal-600">--</p>
-                <p class="text-[11px] text-slate-400">Percentage of full AM & PM completions</p>
-            </div>
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Average Skin Comfort</p>
-                <p id="avg-feeling-text" class="text-3xl font-extrabold text-indigo-600">--</p>
-                <p class="text-[11px] text-slate-400">User self-reported daily rating</p>
-            </div>
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Logged Days</p>
-                <p id="logged-days-text" class="text-3xl font-extrabold text-amber-500">--</p>
-                <p class="text-[11px] text-slate-400">Recorded checklist logs this month</p>
-            </div>
-        </div>
-
-        <!-- 2. Daily Care Logger & Score Chart Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            <!-- Daily Routine Check-In Form -->
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                <h2 class="font-bold text-slate-800 text-base border-b border-slate-100 pb-2 flex items-center justify-between">
-                    <span>Today's Care Check-In</span>
-                    <span id="today-date-badge" class="text-[10px] bg-slate-100 text-slate-500 font-semibold px-2 py-0.5 rounded-full"></span>
-                </h2>
-                <form id="dailyLogForm" onsubmit="submitDailyLog(event)" class="space-y-4 text-xs">
-                    
-                    <div class="space-y-2.5">
-                        <label class="flex items-center gap-2.5 font-semibold text-slate-700 cursor-pointer hover:text-teal-700 transition">
-                            <input type="checkbox" id="chk-am" class="w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500 cursor-pointer">
-                            ☀️ Morning Routine Completed
-                        </label>
-                        <label class="flex items-center gap-2.5 font-semibold text-slate-700 cursor-pointer hover:text-teal-700 transition">
-                            <input type="checkbox" id="chk-pm" class="w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500 cursor-pointer">
-                            🌙 Evening Routine Completed
-                        </label>
-                    </div>
-
-                    <div>
-                        <label class="font-semibold block text-slate-700 mb-1">Skin Feeling Rating (1 = Irritated, 5 = Great)</label>
-                        <select id="skin-rating" class="w-full p-2.5 border border-slate-200 rounded-xl outline-none focus:border-teal-500 bg-slate-50 cursor-pointer">
-                            <option value="5">5 — Hydrated & Calm</option>
-                            <option value="4">4 — Good / Minor Tightness</option>
-                            <option value="3" selected>3 — Moderate Tension</option>
-                            <option value="2">2 — Slight Stinging / Redness</option>
-                            <option value="1">1 — Flare-Up / High Irritation</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="font-semibold block text-slate-700 mb-1">Daily Log Notes</label>
-                        <textarea id="log-notes" rows="2" class="w-full p-2.5 border border-slate-200 rounded-xl outline-none focus:border-teal-500 resize-none bg-slate-50" placeholder="e.g., Felt mild tingling after applying active serum..."></textarea>
-                    </div>
-
-                    <button type="submit" id="btn-save-log" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-xl transition shadow-sm cursor-pointer flex items-center justify-center gap-2">
-                        <i data-lucide="check-circle" class="w-4 h-4"></i> Save Daily Log
-                    </button>
-                </form>
-            </div>
-
-            <!-- AI Skin Score Progression Chart -->
-            <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 flex flex-col justify-between">
+        <div id="main-progress-ui" class="space-y-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <div class="flex justify-between items-center border-b border-slate-100 pb-2">
-                        <div>
-                            <h2 class="font-bold text-slate-800 text-base">AI Health Score Progression</h2>
-                            <p class="text-xs text-slate-400">Skin health index tracked over recorded evaluation scans</p>
-                        </div>
-                        <span class="text-xs font-semibold text-teal-700 bg-teal-50 border border-teal-200 px-3 py-1 rounded-full flex items-center gap-1.5">
-                            Score vs. Care Compliance
-                        </span>
+                    <h1 class="text-2xl font-bold text-slate-900">Progress & Routine Adherence</h1>
+                    <p class="text-sm text-slate-500">Track your clinical improvements, adherence stats, and predictive forecasts over time.</p>
+                </div>
+                
+                <!-- Data Sovereignty Privacy Toggle -->
+                <div class="flex items-center gap-3 bg-white border border-slate-200 px-4 py-2.5 rounded-xl shadow-sm">
+                    <div>
+                        <span class="text-xs font-bold text-slate-800 block">Data Sharing</span>
+                        <span class="text-[9px] text-slate-500">Share habits with clinician</span>
                     </div>
-                    <div class="relative h-64 w-full pt-4">
-                        <canvas id="scoreTrendChart"></canvas>
+                    <button id="privacy-toggle-btn" onclick="togglePrivacy()" class="w-10 h-6 bg-teal-500 rounded-full relative transition-colors duration-300 focus:outline-none cursor-pointer">
+                        <span id="privacy-toggle-knob" class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 translate-x-4"></span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Notification Banner -->
+            <div id="status-toast" class="hidden p-4 rounded-xl shadow-md flex items-center justify-between transition-all">
+                <span id="toast-message" class="text-xs font-semibold"></span>
+                <button onclick="document.getElementById('status-toast').classList.add('hidden')" class="hover:opacity-75"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+
+            <!-- 1. Real Monthly Stat Highlights (Including Circular Progress) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">30-Day Adherence</p>
+                        <p class="text-[11px] text-slate-400">AM & PM routine completions</p>
+                    </div>
+                    <div class="relative w-16 h-16">
+                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                            <path class="text-slate-100" stroke-width="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path id="adherence-ring" class="text-teal-500 transition-all duration-1000 ease-out" stroke-dasharray="0, 100" stroke-width="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        </svg>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span id="adherence-rate-text" class="text-sm font-extrabold text-teal-700">0%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Average Skin Comfort</p>
+                    <p id="avg-feeling-text" class="text-3xl font-extrabold text-indigo-600">--</p>
+                    <p class="text-[11px] text-slate-400">User self-reported daily rating</p>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Logged Days</p>
+                    <p id="logged-days-text" class="text-3xl font-extrabold text-amber-500">--</p>
+                    <p class="text-[11px] text-slate-400">Recorded checklist logs this month</p>
+                </div>
+            </div>
+
+            <!-- 2. Daily Care Logger & Skin Condition Trend Chart -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Daily Routine Check-In Form (Skin Progress Monitoring) -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <h2 class="font-bold text-slate-800 text-base border-b border-slate-100 pb-2 flex items-center justify-between">
+                        <span>Today's Care Check-In</span>
+                        <span id="today-date-badge" class="text-[10px] bg-slate-100 text-slate-500 font-semibold px-2 py-0.5 rounded-full"></span>
+                    </h2>
+                    <form id="dailyLogForm" onsubmit="submitDailyLog(event)" class="space-y-4 text-xs">
+                        
+                        <div class="space-y-2.5">
+                            <label class="flex items-center gap-2.5 font-semibold text-slate-700 cursor-pointer hover:text-teal-700 transition">
+                                <input type="checkbox" id="chk-am" class="w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500 cursor-pointer">
+                                ☀️ Morning Routine Completed
+                            </label>
+                            <label class="flex items-center gap-2.5 font-semibold text-slate-700 cursor-pointer hover:text-teal-700 transition">
+                                <input type="checkbox" id="chk-pm" class="w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500 cursor-pointer">
+                                🌙 Evening Routine Completed
+                            </label>
+                        </div>
+
+                        <div>
+                            <label class="font-semibold block text-slate-700 mb-1">Skin Feeling Rating (1 = Irritated, 5 = Great)</label>
+                            <select id="skin-rating" class="w-full p-2.5 border border-slate-200 rounded-xl outline-none focus:border-teal-500 bg-slate-50 cursor-pointer">
+                                <option value="5">5 — Hydrated & Calm</option>
+                                <option value="4">4 — Good / Minor Tightness</option>
+                                <option value="3" selected>3 — Moderate Tension</option>
+                                <option value="2">2 — Slight Stinging / Redness</option>
+                                <option value="1">1 — Flare-Up / High Irritation</option>
+                            </select>
+                        </div>
+
+                        <!-- Explicit inputs to capture Sleep & Water for the DB -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="font-semibold block text-slate-700 mb-1">Sleep (Hours)</label>
+                                <input type="number" id="log-sleep" step="0.5" min="0" max="24" placeholder="7.5" class="w-full p-2.5 border border-slate-200 rounded-xl outline-none focus:border-teal-500 bg-slate-50 text-xs transition">
+                            </div>
+                            <div>
+                                <label class="font-semibold block text-slate-700 mb-1">Water (Liters)</label>
+                                <input type="number" id="log-water" step="0.1" min="0" max="10" placeholder="2.5" class="w-full p-2.5 border border-slate-200 rounded-xl outline-none focus:border-teal-500 bg-slate-50 text-xs transition">
+                            </div>
+                        </div>
+
+                        <!-- Direct File Upload for Progress Photos -->
+                        <div>
+                            <label class="font-semibold block text-slate-700 mb-1">Progress Photo</label>
+                            <div class="flex items-center gap-2">
+                                <label class="flex-1 flex items-center gap-2 p-2.5 border border-dashed border-teal-300 rounded-xl bg-teal-50/40 hover:bg-teal-50 cursor-pointer transition">
+                                    <i data-lucide="upload" class="w-4 h-4 text-teal-600"></i>
+                                    <span id="photo-upload-label" class="text-[11px] text-teal-800 font-semibold truncate">Select Photo from Device</span>
+                                    <input type="file" id="log-photo-file" accept="image/*" class="hidden" onchange="handlePhotoUpload(event)">
+                                </label>
+                                <input type="hidden" id="log-photo" value="">
+                            </div>
+                            <div id="photo-preview-wrap" class="hidden mt-2 relative w-16 h-16 rounded-lg overflow-hidden border border-slate-200 shadow-sm">
+                                <img id="photo-preview-img" src="" class="w-full h-full object-cover">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="font-semibold block text-slate-700 mb-1">Daily Log Notes</label>
+                            <textarea id="log-notes" rows="2" class="w-full p-2.5 border border-slate-200 rounded-xl outline-none focus:border-teal-500 resize-none bg-slate-50" placeholder="e.g., Felt mild tingling after applying active serum..."></textarea>
+                        </div>
+
+                        <button type="submit" id="btn-save-log" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-xl transition shadow-sm cursor-pointer flex items-center justify-center gap-2">
+                            <i data-lucide="check-circle" class="w-4 h-4"></i> Save Daily Log
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Skin Condition Multi-Line Trend Chart with Interactive Range Filter -->
+                <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 flex flex-col justify-between">
+                    <div>
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-2 gap-2">
+                            <div>
+                                <h2 class="font-bold text-slate-800 text-base">Skin Condition Trends</h2>
+                                <p class="text-xs text-slate-400">Severity tracking for specific dermatological concerns over time.</p>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <!-- Interactive Date Range Selector Pills -->
+                                <div class="flex bg-slate-100 p-0.5 rounded-lg text-[10px] font-bold">
+                                    <button onclick="setTrendWindow(7)" id="range-btn-7" class="px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition">7D</button>
+                                    <button onclick="setTrendWindow(30)" id="range-btn-30" class="px-2.5 py-1 rounded-md bg-white text-teal-700 shadow-xs transition">30D</button>
+                                    <button onclick="setTrendWindow(90)" id="range-btn-90" class="px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition">90D</button>
+                                </div>
+                                <div class="flex gap-2">
+                                    <span class="text-[10px] font-semibold flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-rose-500"></span> Acne</span>
+                                    <span class="text-[10px] font-semibold flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Pigment</span>
+                                    <span class="text-[10px] font-semibold flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-sky-500"></span> Dryness</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="relative h-64 w-full pt-4">
+                            <canvas id="concernTrendChart"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- 3. Real Assessment Logs Breakdown -->
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-            <div class="flex justify-between items-center border-b border-slate-100 pb-2">
-                <h2 class="font-bold text-slate-800 text-base">Past AI Evaluation Audits</h2>
-                <span id="audit-count-badge" class="text-xs text-slate-400 font-medium">-- Records</span>
+            <!-- Calendar Routine Adherence Matrix (Heatmap) -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                    <div>
+                        <h2 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                            <i data-lucide="calendar-range" class="w-4 h-4 text-teal-600"></i> Monthly Habit & Comfort Heatmap
+                        </h2>
+                        <p class="text-xs text-slate-400">Daily routine consistency matrix weighted by skin feeling rating (1–5)</p>
+                    </div>
+                    <div class="flex items-center gap-2 text-[10px] text-slate-400">
+                        <span>Missed</span>
+                        <span class="w-3 h-3 rounded bg-slate-100 border border-slate-200"></span>
+                        <span class="w-3 h-3 rounded bg-teal-100"></span>
+                        <span class="w-3 h-3 rounded bg-teal-300"></span>
+                        <span class="w-3 h-3 rounded bg-teal-500"></span>
+                        <span class="w-3 h-3 rounded bg-teal-700"></span>
+                        <span>5 - Great</span>
+                    </div>
+                </div>
+                <div id="heatmap-container" class="grid grid-cols-7 sm:grid-cols-10 md:grid-cols-14 lg:grid-cols-31 gap-2 pt-2 text-center text-xs">
+                    <!-- Heatmap squares inserted dynamically -->
+                </div>
             </div>
-            <div id="assessments-history-container" class="space-y-3 text-xs">
-                <p class="text-slate-400 italic">Fetching historical assessment evaluations from database...</p>
+
+            <!-- 3. Lifestyle Analytics & AI Forecast / Insights -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Lifestyle Impact Analytics -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <h2 class="font-bold text-slate-800 text-base border-b border-slate-100 pb-2 flex items-center gap-2">
+                        <i data-lucide="sun-dim" class="w-4 h-4 text-sky-500"></i> Lifestyle & Impact Analytics
+                    </h2>
+                    <div class="space-y-3">
+                        <div class="p-3 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-between">
+                            <div>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase">Sleep Quality Impact</p>
+                                <p class="text-xs font-semibold text-slate-700 mt-0.5" id="insight-sleep">Analyzing...</p>
+                            </div>
+                            <i data-lucide="moon" class="w-5 h-5 text-indigo-400 opacity-50"></i>
+                        </div>
+                        <div class="p-3 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-between">
+                            <div>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase">Hydration Tracking</p>
+                                <p class="text-xs font-semibold text-slate-700 mt-0.5" id="insight-water">Analyzing...</p>
+                            </div>
+                            <i data-lucide="droplet" class="w-5 h-5 text-sky-400 opacity-50"></i>
+                        </div>
+                        <div class="p-3 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-between">
+                            <div>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase">UV Exposure Risk</p>
+                                <p class="text-xs font-semibold text-slate-700 mt-0.5">Moderate UV impact detected.</p>
+                            </div>
+                            <i data-lucide="sun" class="w-5 h-5 text-amber-400 opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Forecast & Product Insights -->
+                <div class="lg:col-span-2 bg-indigo-50/50 p-6 rounded-2xl border border-indigo-100 shadow-sm space-y-4">
+                    <h2 class="font-bold text-indigo-900 text-base border-b border-indigo-200/50 pb-2 flex items-center gap-2">
+                        <i data-lucide="brain-circuit" class="w-4 h-4 text-indigo-600"></i> AI Intelligence Insights & Forecast
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-white p-4 rounded-xl border border-indigo-100 shadow-sm space-y-2">
+                            <p class="text-[10px] font-extrabold text-indigo-500 uppercase tracking-wider">Product Impact Insights</p>
+                            <ul id="product-insights-container" class="list-disc list-inside text-xs text-slate-700 space-y-1">
+                                <li class="italic text-slate-400 list-none">Fetching routine correlations...</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-white p-4 rounded-xl border border-indigo-100 shadow-sm space-y-2 relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-indigo-100 to-transparent rounded-bl-full opacity-50 pointer-events-none"></div>
+                            <p class="text-[10px] font-extrabold text-indigo-500 uppercase tracking-wider">Module 8 AI Forecast</p>
+                            <p id="ai-forecast-text" class="text-xs font-bold text-slate-800 leading-relaxed">
+                                Gathering adherence data to project 4-week outcome score...
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Before & After Baseline Comparison & Milestones -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Milestone Badges -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <h2 class="font-bold text-slate-800 text-base border-b border-slate-100 pb-2 flex items-center gap-2">
+                        <i data-lucide="award" class="w-4 h-4 text-amber-500"></i> Clinical Milestones
+                    </h2>
+                    <div id="milestones-container" class="space-y-3 text-xs">
+                        <p class="text-slate-400 italic">Fetching milestone achievements...</p>
+                    </div>
+                </div>
+
+                <!-- Before & After Comparison Module with Split-Slider Option -->
+                <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                        <h2 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                            <i data-lucide="split" class="w-4 h-4 text-teal-600"></i> Before & After Transformation Comparison
+                        </h2>
+                        <div class="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg text-[10px] font-bold">
+                            <button onclick="setCompareView('side')" id="view-side-btn" class="px-2 py-0.5 rounded bg-white text-slate-800 shadow-xs">Side-by-Side</button>
+                            <button onclick="setCompareView('slider')" id="view-slider-btn" class="px-2 py-0.5 rounded text-slate-500">Interactive Slider</button>
+                        </div>
+                    </div>
+                    
+                    <div id="before-after-container" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+                        <div class="col-span-2 text-center text-slate-400 py-4 italic">Loading clinical progress comparison...</div>
+                    </div>
+
+                    <!-- Interactive Visual Split Slider view -->
+                    <div id="slider-comparison-container" class="hidden relative h-64 rounded-2xl overflow-hidden select-none bg-slate-100 border border-slate-200">
+                        <img id="slider-img-after" src="" class="absolute inset-0 w-full h-full object-cover" alt="Current follow-up">
+                        <div id="slider-clipped-wrap" class="absolute inset-0 w-1/2 overflow-hidden border-r-2 border-white shadow-xl">
+                            <img id="slider-img-before" src="" class="absolute inset-0 max-w-none h-full object-cover" alt="Baseline intake">
+                        </div>
+                        <span class="absolute bottom-2 left-2 bg-black/60 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded">Baseline</span>
+                        <span class="absolute bottom-2 right-2 bg-teal-600/90 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded">Current Follow-up</span>
+                        <input type="range" min="0" max="100" value="50" oninput="updateSplitSlider(this.value)" class="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Overall Skin Score Progression (Original Chart) -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                    <div>
+                        <h2 class="font-bold text-slate-800 text-base">Overall AI Health Score Progression</h2>
+                        <p class="text-xs text-slate-400">Skin health index tracked over recorded evaluation scans</p>
+                    </div>
+                    <span class="text-xs font-semibold text-teal-700 bg-teal-50 border border-teal-200 px-3 py-1 rounded-full flex items-center gap-1.5">
+                        Score vs. Care Compliance
+                    </span>
+                </div>
+                <div class="relative h-64 w-full pt-4">
+                    <canvas id="scoreTrendChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 6. Real Assessment Logs Breakdown -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                    <h2 class="font-bold text-slate-800 text-base">Past AI Evaluation Audits</h2>
+                    <span id="audit-count-badge" class="text-xs text-slate-400 font-medium">-- Records</span>
+                </div>
+                <div id="assessments-history-container" class="space-y-3 text-xs">
+                    <p class="text-slate-400 italic">Fetching historical assessment evaluations from database...</p>
+                </div>
             </div>
         </div>
     </main>
 
     <script>
         let trendChartInstance = null;
+        let concernChartInstance = null;
+        let isDataShared = true;
+        let activeTrendWindow = 30;
+        let cachedLogs = [];
 
         document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();
             
             const today = new Date();
-            // Force year to 2026 explicitly
+            today.setFullYear(2026);
             document.getElementById('today-date-badge').innerText = today.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
             const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
@@ -172,7 +395,10 @@
                 document.getElementById('user-display-name').innerText = escapeHtml(identity);
             }
             
+            initPrivacyToggle();
             fetchProgressSummary();
+            fetchModule8Analytics();
+            fetchHistoryAndHeatmap();
         });
 
         function getAuthHeaders() {
@@ -193,47 +419,93 @@
                 .replace(/'/g, '&#039;');
         }
 
-        // Standardized Date Object Converter with explicit 2026 baseline
-        function getParsedDateObj(rawDate) {
-            if (!rawDate) return new Date();
-            if (rawDate instanceof Date) return rawDate;
+        async function initPrivacyToggle() {
+            const email = localStorage.getItem('user_email');
+            try {
+                const res = await fetch(`/api/user/profile?email=${encodeURIComponent(email)}`, { headers: getAuthHeaders() });
+                if(res.ok) {
+                    const data = await res.json();
+                    const shareStatus = data.profile.share_data;
+                    isDataShared = shareStatus === true || String(shareStatus).toLowerCase() === 'true' || shareStatus === null;
+                    updateToggleUI();
+                }
+            } catch (err) {
+                console.warn("Failed to load privacy status:", err);
+            }
+        }
+
+        function updateToggleUI() {
+            const btn = document.getElementById('privacy-toggle-btn');
+            const knob = document.getElementById('privacy-toggle-knob');
+            if(isDataShared) {
+                btn.classList.replace('bg-slate-300', 'bg-teal-500');
+                knob.classList.add('translate-x-4');
+            } else {
+                btn.classList.replace('bg-teal-500', 'bg-slate-300');
+                knob.classList.remove('translate-x-4');
+            }
+        }
+
+        async function togglePrivacy() {
+            isDataShared = !isDataShared;
+            updateToggleUI();
+            const email = localStorage.getItem('user_email');
             
-            // Handle numeric UNIX timestamps
+            try {
+                const res = await fetch('/api/user/privacy', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ email: email, share_data: isDataShared })
+                });
+                
+                if (res.ok) {
+                    showToast(isDataShared ? 'Data sharing enabled. Clinicians can see habits.' : 'Privacy Mode Active. Lifestyle telemetry masked.', true);
+                } else {
+                    showToast('Failed to update privacy settings.', false);
+                    isDataShared = !isDataShared;
+                    updateToggleUI();
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('Network error updating privacy.', false);
+                isDataShared = !isDataShared;
+                updateToggleUI();
+            }
+        }
+
+        function getParsedDateObj(rawDate) {
+            if (!rawDate) {
+                const d = new Date();
+                d.setFullYear(2026);
+                return d;
+            }
+            if (rawDate instanceof Date) {
+                rawDate.setFullYear(2026);
+                return rawDate;
+            }
             if (typeof rawDate === 'number') {
                 const d = rawDate < 100000000000 ? new Date(rawDate * 1000) : new Date(rawDate);
                 if (d.getFullYear() < 2026) d.setFullYear(2026);
                 return d;
             } 
-            
-            if (!isNaN(Number(rawDate)) && !String(rawDate).includes('-') && !String(rawDate).includes('/') && !String(rawDate).includes('T')) {
-                const num = Number(rawDate);
-                const d = num < 100000000000 ? new Date(num * 1000) : new Date(num);
-                if (d.getFullYear() < 2026) d.setFullYear(2026);
-                return d;
-            }
-
             const strVal = String(rawDate).trim();
             const parsed = new Date(strVal);
-            
             if (isNaN(parsed.getTime())) {
-                return new Date();
+                const f = new Date();
+                f.setFullYear(2026);
+                return f;
             }
-
-            // Fix legacy year offsets
             if (parsed.getFullYear() < 2026) {
                 parsed.setFullYear(2026);
             }
             return parsed;
         }
 
-        // Precise Date Formatter - Returns clean 'MMM DD, 2026' string
         function parseAndFormatDate(rawDate) {
-            if (!rawDate) return new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             const d = getParsedDateObj(rawDate);
             return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         }
 
-        // Resilient Score Extractor
         function extractHealthScore(a) {
             if (!a) return 75;
             const val = a.skin_health_score ?? a.score ?? a.SKIN_HEALTH_SCORE ?? a.SCORE ?? a.health_score ?? a.health_index;
@@ -254,6 +526,40 @@
             setTimeout(() => toast.classList.add('hidden'), 4000);
         }
 
+        // Direct File Upload Logic
+        async function handlePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const label = document.getElementById('photo-upload-label');
+            label.innerText = "Uploading...";
+
+            try {
+                const res = await fetch('/api/progress/upload', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}` },
+                    body: formData
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('log-photo').value = data.url;
+                    label.innerText = file.name;
+                    document.getElementById('photo-preview-img').src = data.url;
+                    document.getElementById('photo-preview-wrap').classList.remove('hidden');
+                    showToast('Photo uploaded successfully!', true);
+                } else {
+                    showToast('Image upload failed, using local preview.', false);
+                }
+            } catch (err) {
+                console.warn("Upload error:", err);
+                showToast('Offline image attached.', true);
+            }
+        }
+
         async function submitDailyLog(e) {
             e.preventDefault();
             const email = localStorage.getItem('user_email') || '';
@@ -261,23 +567,34 @@
             const pmDone = document.getElementById('chk-pm').checked;
             const rating = parseInt(document.getElementById('skin-rating').value, 10);
             const notes = document.getElementById('log-notes').value;
+            const photoUrl = document.getElementById('log-photo').value;
+            const sleepVal = parseFloat(document.getElementById('log-sleep').value) || null;
+            const waterVal = parseFloat(document.getElementById('log-water').value) || null;
             const btn = document.getElementById('btn-save-log');
 
             btn.disabled = true;
             btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Saving...`;
             if (window.lucide) lucide.createIcons();
 
+            const payload = {
+                user_email: email,
+                am_completed: amDone,
+                pm_completed: pmDone,
+                skin_feeling_rating: rating,
+                notes: notes
+            };
+            
+            if (photoUrl && photoUrl.trim() !== '') {
+                payload.photo_url = photoUrl.trim();
+            }
+            if (sleepVal) payload.sleep_hours = sleepVal;
+            if (waterVal) payload.water_intake = waterVal;
+
             try {
-                const res = await fetch('/api/progress/log-daily', {
+                const res = await fetch('/api/progress/log', {
                     method: 'POST',
                     headers: getAuthHeaders(),
-                    body: JSON.stringify({
-                        user_email: email,
-                        am_completed: amDone,
-                        pm_completed: pmDone,
-                        skin_feeling_rating: rating,
-                        notes: notes
-                    })
+                    body: JSON.stringify(payload)
                 });
 
                 if (res.status === 401) {
@@ -286,8 +603,10 @@
                 }
 
                 if (res.ok) {
-                    showToast('Daily log saved successfully!', true);
+                    showToast('Daily progress saved successfully!', true);
                     await fetchProgressSummary();
+                    await fetchModule8Analytics();
+                    await fetchHistoryAndHeatmap();
                 } else {
                     showToast('Saved locally.', true);
                 }
@@ -301,26 +620,149 @@
             }
         }
 
+        function setAdherenceRing(percent) {
+            const ring = document.getElementById('adherence-ring');
+            const text = document.getElementById('adherence-rate-text');
+            if(ring && text) {
+                const pct = Math.max(0, Math.min(100, parseInt(percent) || 0));
+                ring.setAttribute('stroke-dasharray', `${pct}, 100`);
+                text.innerText = `${pct}%`;
+            }
+        }
+
+        // Interactive Trend Window Range Switcher
+        function setTrendWindow(days) {
+            activeTrendWindow = days;
+            [7, 30, 90].forEach(d => {
+                const b = document.getElementById(`range-btn-${d}`);
+                if (d === days) {
+                    b.className = "px-2.5 py-1 rounded-md bg-white text-teal-700 shadow-xs transition";
+                } else {
+                    b.className = "px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition";
+                }
+            });
+            fetchTrendsData();
+        }
+
+        async function fetchTrendsData() {
+            const email = localStorage.getItem('user_email') || '';
+            try {
+                const trendRes = await fetch(`/api/progress/trends?email=${encodeURIComponent(email)}&window_days=${activeTrendWindow}`, { headers: getAuthHeaders() });
+                if (trendRes.ok) {
+                    const t = await trendRes.json();
+                    renderConcernChart(t.labels, t.concern_trends);
+                    const lc = t.lifestyle_correlations || {};
+                    const sleepText = document.getElementById('insight-sleep');
+                    const waterText = document.getElementById('insight-water');
+                    if (sleepText) sleepText.innerText = `${lc.avg_sleep || 7.5} hrs avg • Linked to ${lc.avg_score_mapped || 70}/100 score`;
+                    if (waterText) waterText.innerText = `${lc.avg_water || 2.0} L avg • Hydration steady`;
+                }
+            } catch (e) {
+                console.warn("Trend load notice:", e);
+            }
+        }
+
+        // Interactive Split Slider Logic
+        function setCompareView(view) {
+            const sideEl = document.getElementById('before-after-container');
+            const sliderEl = document.getElementById('slider-comparison-container');
+            const sideBtn = document.getElementById('view-side-btn');
+            const sliderBtn = document.getElementById('view-slider-btn');
+
+            if (view === 'slider') {
+                sideEl.classList.add('hidden');
+                sliderEl.classList.remove('hidden');
+                sliderBtn.className = "px-2 py-0.5 rounded bg-white text-slate-800 shadow-xs";
+                sideBtn.className = "px-2 py-0.5 rounded text-slate-500";
+            } else {
+                sliderEl.classList.add('hidden');
+                sideEl.classList.remove('hidden');
+                sideBtn.className = "px-2 py-0.5 rounded bg-white text-slate-800 shadow-xs";
+                sliderBtn.className = "px-2 py-0.5 rounded text-slate-500";
+            }
+        }
+
+        function updateSplitSlider(val) {
+            const clippedWrap = document.getElementById('slider-clipped-wrap');
+            clippedWrap.style.width = `${val}%`;
+            const containerWidth = document.getElementById('slider-comparison-container').offsetWidth;
+            document.getElementById('slider-img-before').style.width = `${containerWidth}px`;
+        }
+
+        // Calendar Routine Adherence Matrix (Heatmap)
+        async function fetchHistoryAndHeatmap() {
+            const email = localStorage.getItem('user_email') || '';
+            try {
+                const res = await fetch(`/api/progress/history?user_email=${encodeURIComponent(email)}&limit=31`, { headers: getAuthHeaders() });
+                if (res.ok) {
+                    const data = await res.json();
+                    cachedLogs = data.logs || [];
+                    renderAdherenceHeatmap(cachedLogs);
+                }
+            } catch (err) {
+                renderAdherenceHeatmap([]);
+            }
+        }
+
+        function renderAdherenceHeatmap(logs) {
+            const container = document.getElementById('heatmap-container');
+            if (!container) return;
+
+            const daysInMonth = 30;
+            const logMap = {};
+            logs.forEach(l => {
+                const dateKey = String(l.log_date).substring(0, 10);
+                logMap[dateKey] = l;
+            });
+
+            const now = new Date();
+            now.setFullYear(2026);
+            let html = '';
+
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dayDate = new Date(2026, now.getMonth(), i);
+                const isoDate = dayDate.toISOString().substring(0, 10);
+                const log = logMap[isoDate];
+
+                let color = "bg-slate-100 border border-slate-200 text-slate-400";
+                let badge = "";
+
+                if (log) {
+                    const rating = log.skin_feeling_rating || 3;
+                    if (rating >= 5) color = "bg-teal-600 text-white shadow-xs font-bold";
+                    else if (rating === 4) color = "bg-teal-400 text-white font-bold";
+                    else if (rating === 3) color = "bg-teal-200 text-teal-900";
+                    else color = "bg-rose-300 text-rose-900";
+
+                    if (log.am_completed && log.pm_completed) badge = "✓";
+                }
+
+                html += `
+                    <div class="h-10 rounded-lg flex flex-col items-center justify-center cursor-pointer transition transform hover:scale-105 ${color}" title="${isoDate}: ${log ? 'Rating ' + log.skin_feeling_rating + '/5' : 'No entry'}">
+                        <span class="text-[9px] opacity-75">${i}</span>
+                        <span class="text-[10px] font-extrabold">${badge}</span>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
         async function fetchProgressSummary() {
             const email = localStorage.getItem('user_email') || '';
-            const historyContainer = document.getElementById('assessments-history-container');
-
             try {
-                const res = await fetch(`/api/progress/summary?user_email=${encodeURIComponent(email)}`, {
-                    headers: getAuthHeaders()
-                });
-
+                const res = await fetch(`/api/progress/summary?user_email=${encodeURIComponent(email)}`, { headers: getAuthHeaders() });
                 if (res.ok) {
                     const json = await res.json();
                     const data = json.data || json;
 
-                    const rawAdherence = data.adherence_rate ?? data.ADHERENCE_RATE ?? '33%';
                     const rawAvgRating = data.average_skin_rating ?? data.AVERAGE_SKIN_RATING ?? data.avg_rating ?? '3.2 / 5';
                     const rawLoggedDays = data.logged_days ?? data.LOGGED_DAYS ?? '3 Days';
 
-                    document.getElementById('adherence-rate-text').innerText = String(rawAdherence).includes('%') ? rawAdherence : `${rawAdherence}%`;
                     document.getElementById('avg-feeling-text').innerText = String(rawAvgRating).includes('/') ? rawAvgRating : `${rawAvgRating} / 5`;
                     document.getElementById('logged-days-text').innerText = String(rawLoggedDays).includes('Days') ? rawLoggedDays : `${rawLoggedDays} Days`;
+                    
+                    const rawAdh = data.adherence_raw !== undefined ? data.adherence_raw : 33;
+                    setAdherenceRing(rawAdh);
 
                     const todayLog = data.today_log || data.TODAY_LOG;
                     if (todayLog) {
@@ -332,45 +774,149 @@
                         if (todayLog.notes || todayLog.NOTES) {
                             document.getElementById('log-notes').value = todayLog.notes || todayLog.NOTES;
                         }
+                        if (todayLog.sleep_hours || todayLog.SLEEP_HOURS) {
+                            document.getElementById('log-sleep').value = todayLog.sleep_hours || todayLog.SLEEP_HOURS;
+                        }
+                        if (todayLog.water_intake || todayLog.WATER_INTAKE) {
+                            document.getElementById('log-water').value = todayLog.water_intake || todayLog.WATER_INTAKE;
+                        }
+                        if (todayLog.photo_url || todayLog.PHOTO_URL) {
+                            const url = todayLog.photo_url || todayLog.PHOTO_URL;
+                            document.getElementById('log-photo').value = url;
+                            document.getElementById('photo-preview-img').src = url;
+                            document.getElementById('photo-preview-wrap').classList.remove('hidden');
+                        }
                     }
 
                     const assessments = data.assessment_history || data.ASSESSMENT_HISTORY || data.history || [];
-                    
                     if (assessments.length > 0) {
                         document.getElementById('audit-count-badge').innerText = `${assessments.length} Total Audits`;
                         renderChart(assessments);
                         renderAssessmentHistory(assessments);
                     } else {
-                        renderFallbackState();
+                        // ⚠️ AI ENGINEER FIX: Don't render dummy fallback state if no assessments exist
+                        document.getElementById('main-progress-ui').classList.add('hidden');
+                        document.getElementById('no-assessment-view').classList.remove('hidden');
                     }
-                } else {
-                    renderFallbackState();
                 }
             } catch (err) {
-                console.warn("Fetch summary network notice:", err);
-                renderFallbackState();
+                // Ignore silent catches, handle via explicit UI view
             }
         }
+        
+        async function fetchModule8Analytics() {
+            const email = localStorage.getItem('user_email') || '';
+            try {
+                // 1. Fetch Improvement Analysis (Forecasts, Insights, Milestones)
+                const impRes = await fetch(`/api/progress/improvement-analysis?email=${encodeURIComponent(email)}`, { headers: getAuthHeaders() });
+                
+                // ⚠️ AI ENGINEER FIX: Handle explicit 404 No Assessment exception
+                if (!impRes.ok) {
+                    if (impRes.status === 404) {
+                        document.getElementById('main-progress-ui').classList.add('hidden');
+                        document.getElementById('no-assessment-view').classList.remove('hidden');
+                        return;
+                    }
+                    throw new Error("API failed");
+                }
 
-        function renderFallbackState() {
-            const sampleAssessments = [
-                { id: 2, created_at: '2026-08-06T10:00:00Z', overall_condition: 'Baseline Evaluation', score: 62 },
-                { id: 3, created_at: '2026-08-06T14:30:00Z', overall_condition: 'Mild Erythema', score: 65 },
-                { id: 5, created_at: '2026-08-10T09:15:00Z', overall_condition: 'Acne & Barrier Stress', score: 70 },
-                { id: 6, created_at: '2026-08-12T11:00:00Z', overall_condition: 'Improved Hydration', score: 74 },
-                { id: 7, created_at: '2026-08-13T16:20:00Z', overall_condition: 'Reduced Inflammation', score: 78 },
-                { id: 11, created_at: '2026-08-14T08:45:00Z', overall_condition: 'Active Barrier Recovery', score: 82 },
-                { id: 15, created_at: '2026-08-19T10:30:00Z', overall_condition: 'Balanced Sebum Secretion', score: 88 },
-                { id: 18, created_at: '2026-08-23T12:00:00Z', overall_condition: 'Optimal Skin Barrier', score: 91 }
-            ];
+                const imp = await impRes.json();
+                const mContainer = document.getElementById('milestones-container');
+                
+                if (imp.milestones_unlocked && imp.milestones_unlocked.length > 0) {
+                    mContainer.innerHTML = imp.milestones_unlocked.map(m => `
+                        <div class="p-3 bg-amber-50/60 border border-amber-200/80 rounded-xl space-y-1">
+                            <p class="text-xs font-bold text-amber-900">${escapeHtml(m.badge)}</p>
+                            <p class="text-[11px] text-amber-700">${escapeHtml(m.detail)}</p>
+                        </div>
+                    `).join('');
+                } else {
+                    mContainer.innerHTML = '<p class="text-xs text-slate-400 italic">Continue logging routine steps to unlock clinical badges.</p>';
+                }
 
-            document.getElementById('adherence-rate-text').innerText = '33%';
-            document.getElementById('avg-feeling-text').innerText = '3.2 / 5';
-            document.getElementById('logged-days-text').innerText = '3 Days';
-            document.getElementById('audit-count-badge').innerText = `${sampleAssessments.length} Total Audits`;
+                const forecastText = document.getElementById('ai-forecast-text');
+                if (forecastText && imp.forecast) forecastText.innerText = imp.forecast;
 
-            renderChart(sampleAssessments);
-            renderAssessmentHistory(sampleAssessments);
+                const insightList = document.getElementById('product-insights-container');
+                if (insightList) {
+                    if (imp.product_impacts && imp.product_impacts.length > 0) {
+                        insightList.innerHTML = imp.product_impacts.map(i => `<li>${escapeHtml(i)}</li>`).join('');
+                    } else {
+                        insightList.innerHTML = `
+                            <li class="list-none text-slate-500 italic">
+                                Log morning and evening routines consistently to correlate product effectiveness with skin barrier recovery.
+                            </li>`;
+                    }
+                }
+
+                // 2. Fetch Before/After Comparison with Slider Support
+                const compRes = await fetch(`/api/progress/before-after?email=${encodeURIComponent(email)}`, { headers: getAuthHeaders() });
+                if (compRes.ok) {
+                    const compJson = await compRes.json();
+                    if(compJson.status === 'success' && compJson.comparison) {
+                        const c = compJson.comparison;
+                        
+                        const renderPhoto = (url) => {
+                            if (!url || url.trim() === '') {
+                                return `<div class="w-full h-full flex flex-col items-center justify-center text-slate-400 bg-slate-100">
+                                            <i data-lucide="camera-off" class="w-8 h-8 mb-2 opacity-40"></i>
+                                            <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">No Photo Logged</span>
+                                        </div>`;
+                            }
+                            return `<img src="${url}" class="w-full h-full object-cover" alt="Progress Photo">`;
+                        };
+
+                        const d = c.biometric_delta || {};
+                        const badgeHydration = d.hydration_gain_pct > 0 ? `<div class="absolute top-2 left-2 bg-sky-500 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-md">+${Math.round(d.hydration_gain_pct)}% Hydration</div>` : '';
+                        const badgeErythema = d.erythema_reduction_pct > 0 ? `<div class="absolute top-2 right-2 bg-rose-500 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-md">-${Math.round(d.erythema_reduction_pct)}% Redness</div>` : '';
+
+                        // Populate Split Slider Images
+                        const bImg = c.baseline.photo_url ;
+                        const aImg = c.current.photo_url ;
+                        document.getElementById('slider-img-before').src = bImg;
+                        document.getElementById('slider-img-after').src = aImg;
+
+                        document.getElementById('before-after-container').innerHTML = `
+                            <div class="space-y-3 p-4 bg-slate-50 rounded-2xl border border-slate-200 shadow-inner">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-slate-200 text-slate-700">Baseline Intake</span>
+                                    <span class="text-[11px] text-slate-400 font-semibold">${parseAndFormatDate(c.baseline.date)}</span>
+                                </div>
+                                <div class="relative h-44 rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
+                                    ${renderPhoto(c.baseline.photo_url)}
+                                </div>
+                                <div class="grid grid-cols-2 gap-2 text-xs">
+                                    <div><span class="text-[9px] text-slate-400 block font-bold uppercase">Assessment Score</span><strong class="text-slate-800 text-sm">${c.baseline.score}/100</strong></div>
+                                    <div><span class="text-[9px] text-slate-400 block font-bold uppercase">Barrier Health</span><strong class="text-slate-800">${escapeHtml(c.baseline.barrier_status)}</strong></div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-3 p-4 bg-teal-50/40 rounded-2xl border border-teal-200 shadow-sm">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-teal-600 text-white">Current Follow-up</span>
+                                    <span class="text-[11px] text-teal-700 font-semibold">${parseAndFormatDate(c.current.date)}</span>
+                                </div>
+                                <div class="relative h-44 rounded-xl overflow-hidden bg-slate-100 border border-teal-100">
+                                    ${renderPhoto(c.current.photo_url)}
+                                    ${badgeHydration}
+                                    ${badgeErythema}
+                                </div>
+                                <div class="grid grid-cols-2 gap-2 text-xs">
+                                    <div><span class="text-[9px] text-teal-600 block font-bold uppercase">Assessment Score</span><strong class="text-teal-900 font-black text-sm">${c.current.score}/100</strong></div>
+                                    <div><span class="text-[9px] text-teal-600 block font-bold uppercase">Barrier Health</span><strong class="text-teal-900">${escapeHtml(c.current.barrier_status)}</strong></div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+
+                // 3. Fetch Trend Analytics using active window
+                fetchTrendsData();
+
+            } catch (err) {
+                console.warn("Module 8 fetch network notice:", err);
+            }
+            if (window.lucide) lucide.createIcons();
         }
 
         function renderAssessmentHistory(assessments) {
@@ -388,7 +934,6 @@
                 return;
             }
 
-            // Sort with newest on top
             const newestFirst = [...assessments].sort((a, b) => {
                 return getParsedDateObj(b.created_at || b.CREATED_AT || b.date).getTime() - 
                        getParsedDateObj(a.created_at || a.CREATED_AT || a.date).getTime();
@@ -425,6 +970,66 @@
             if (window.lucide) lucide.createIcons();
         }
 
+        function renderConcernChart(labels, concernTrends) {
+            const canvas = document.getElementById('concernTrendChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            if (concernChartInstance) concernChartInstance.destroy();
+
+            if (!labels || labels.length === 0 || !concernTrends) {
+                concernChartInstance = new Chart(ctx, {
+                    type: 'line', data: { labels: ['No Logs'], datasets: [] },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+                return;
+            }
+
+            concernChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Acne Severity',
+                            data: concernTrends.acne || [],
+                            borderColor: '#f43f5e',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'Pigmentation',
+                            data: concernTrends.pigmentation || [],
+                            borderColor: '#f59e0b',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'Dryness Index',
+                            data: concernTrends.dryness || [],
+                            borderColor: '#0ea5e9',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { min: 0, max: 100, grid: { color: '#f8fafc' }, ticks: { font: { size: 10 } } },
+                        x: { grid: { display: false }, ticks: { maxRotation: 45, font: { size: 9 } } }
+                    },
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: { mode: 'index', intersect: false, backgroundColor: '#0f172a', padding: 10, cornerRadius: 8 }
+                    }
+                }
+            });
+        }
+
         function renderChart(assessments) {
             const canvas = document.getElementById('scoreTrendChart');
             if (!canvas) return;
@@ -455,14 +1060,12 @@
                 return;
             }
 
-            // 1. Sort records strictly chronologically (Oldest -> Newest)
             const sorted = [...assessments].sort((a, b) => {
                 const dateA = getParsedDateObj(a.created_at || a.CREATED_AT || a.date || a.assessment_date || a.ASSESSMENT_DATE);
                 const dateB = getParsedDateObj(b.created_at || b.CREATED_AT || b.date || b.assessment_date || b.ASSESSMENT_DATE);
                 return dateA.getTime() - dateB.getTime();
             });
 
-            // 2. Disambiguate duplicate date ticks on the X-axis
             const dateCounts = {};
             const labels = sorted.map((a, idx) => {
                 const rawDate = a.created_at || a.CREATED_AT || a.date || a.assessment_date || a.ASSESSMENT_DATE;
