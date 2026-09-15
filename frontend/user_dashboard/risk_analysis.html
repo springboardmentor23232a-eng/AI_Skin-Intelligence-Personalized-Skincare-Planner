@@ -14,16 +14,19 @@
 <body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
 
     <!-- Sidebar Navigation -->
-    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex shrink-0">
-        <div>
-            <div class="p-6 flex items-center gap-3 border-b border-slate-100">
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col hidden md:flex shrink-0 h-full">
+        
+            <div class="p-6 flex items-center gap-3 border-b border-slate-100 shrink-0">
                 <div class="bg-teal-600 text-white p-2.5 rounded-2xl"><i data-lucide="sparkles" class="w-5 h-5"></i></div>
                 <div><h1 class="font-bold text-slate-900 leading-tight">DermaAI</h1><p class="text-xs text-slate-400">User Dashboard</p></div>
             </div>
-            <nav class="p-4 space-y-1 text-sm font-medium">
+            <nav class="flex-1 overflow-y-auto p-4 space-y-1 text-sm font-medium">
                 <a href="/user_dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
                     <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
                 </a>
+               <button onclick="openReportsHub()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-indigo-600 hover:bg-indigo-50 transition cursor-pointer font-bold border border-transparent hover:border-indigo-100 text-left">
+                    <i data-lucide="file-output" class="w-4 h-4"></i> Reports & Exports
+                </button>
                 <a href="/user_dashboard/skin_assessment.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
                     <i data-lucide="scan-face" class="w-4 h-4"></i> Skin Assessment
                 </a>
@@ -55,8 +58,8 @@
                     <i data-lucide="list-check" class="w-4 h-4"></i> Checklist
                 </a>
             </nav>
-        </div>
-        <div class="p-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
+        
+        <div class="p-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between shrink-0">
             <div class="min-w-0">
                 <p id="user-display-name" class="text-xs font-bold text-slate-800 truncate">Loading...</p>
                 <p class="text-[10px] text-slate-400 font-medium">Role: User</p>
