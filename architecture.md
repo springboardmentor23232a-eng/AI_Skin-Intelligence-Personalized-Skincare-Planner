@@ -78,11 +78,14 @@ The computational core translates user data (like images and ingredient lists) i
 ├── DB.sql                          # Primary database relational schema definitions
 ├── dermatologist_dashboard.html    # Root landing page for Dermatologists
 ├── dermatologist_router.py         # API endpoints for dermatologist logic
+├── export_router.py                # API endpoints to export pdf and csv files
 ├── index.html                      # Core project welcome/login portal
 ├── ingredient_engine.py            # Computational engine for ingredient analysis
 ├── ingredient_router.py            # API endpoints for ingredient lookups
 ├── main.py                         # Secondary or alternative system entry point
 ├── ml_engine.py                    # Core Machine Learning prediction logic
+├── notification_router.py          # API endpoints for notifications
+├── notification_dispatcher.py      # Computational engine for notifications
 ├── product_router.py               # API endpoints for product recommendation
 ├── product_engine.py               # Computational engine for product recommendations
 ├── progress_router.py              # API endpoints for user tracking data
