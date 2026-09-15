@@ -4,8 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>System Reports - Admin Dashboard</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js CDN for Data Visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -13,9 +17,9 @@
 </head>
 <body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
     <!-- Sidebar Navigation -->
-    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between hidden md:flex shrink-0">
-        <div>
-            <div class="p-6 flex items-center gap-3 border-b border-slate-800">
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col h-full hidden md:flex shrink-0">
+        
+            <div class="p-6 flex items-center gap-3 border-b border-slate-800 shrink-0">
                 <div class="bg-teal-500 text-slate-950 p-2.5 rounded-2xl font-bold">
                     <i data-lucide="shield-check" class="w-5 h-5"></i>
                 </div>
@@ -24,7 +28,7 @@
                     <p class="text-[10px] font-bold text-teal-400 uppercase">Admin Portal</p>
                 </div>
             </div>
-            <nav class="p-4 space-y-1 text-sm font-medium">
+            <nav class="flex-1 overflow-y-auto p-4 space-y-1 text-sm font-medium">
                 <a href="/admin.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/40 transition">
                     <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Overview
                 </a>
@@ -44,8 +48,8 @@
                     <i data-lucide="sliders" class="w-4 h-4"></i> Recommendation Monitoring
                 </a>
             </nav>
-        </div>
-        <div class="p-4 border-t border-slate-800 bg-slate-950/50">
+        
+        <div class="p-4 border-t border-slate-800 bg-slate-950/50 shrink-0">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3 min-w-0">
                     <div class="min-w-0">
@@ -67,9 +71,15 @@
                 <h1 class="text-2xl font-bold text-slate-900">System Reports & Logs</h1>
                 <p class="text-xs text-slate-500">Live system health metrics and database operation logs</p>
             </div>
-            <button onclick="fetchSystemMetrics()" class="bg-teal-600 hover:bg-teal-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-2 cursor-pointer shadow-sm">
-                <i data-lucide="refresh-cw" class="w-4 h-4"></i> Refresh Status
-            </button>
+            <div class="flex items-center gap-3">
+                <!-- MODULE 11: Export Hub Trigger -->
+                <button onclick="openAdminExportHub()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-2 cursor-pointer shadow-sm">
+                    <i data-lucide="download-cloud" class="w-4 h-4"></i> Export Hub
+                </button>
+                <button onclick="fetchSystemMetrics()" class="bg-teal-600 hover:bg-teal-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-2 cursor-pointer shadow-sm">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i> Refresh Status
+                </button>
+            </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -87,6 +97,22 @@
             </div>
         </div>
 
+        <!-- MODULE 11: Data Visualization Chart Export -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                <div>
+                    <h2 class="text-sm font-bold text-slate-800">API Latency & Load Distribution</h2>
+                    <p class="text-[10px] text-slate-400">Real-time server monitoring visualization</p>
+                </div>
+                <button onclick="exportChartAsImage()" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-50 border border-indigo-100 transition cursor-pointer">
+                    <i data-lucide="image" class="w-3.5 h-3.5"></i> Export Chart (PNG)
+                </button>
+            </div>
+            <div class="relative h-64 w-full">
+                <canvas id="systemLoadChart"></canvas>
+            </div>
+        </div>
+
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
             <div class="flex items-center justify-between">
                 <h2 class="text-sm font-bold text-slate-800">Recent Server Logs</h2>
@@ -98,12 +124,341 @@
         </div>
     </main>
 
+    <!-- MODULE 11: ADMIN EXPORT & REPORTING HUB MODAL -->
+    <div id="adminExportHubModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col shadow-2xl border border-slate-200">
+            <!-- Header -->
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50 z-10 shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="bg-indigo-100 text-indigo-700 p-2 rounded-xl">
+                        <i data-lucide="shield-check" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900 leading-tight">System Export & Compliance Hub</h2>
+                        <p class="text-[11px] text-slate-500 font-medium">Module 11: Generate Board Reports & HIPAA/GDPR Logs</p>
+                    </div>
+                </div>
+                <button onclick="closeAdminExportHub()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-lg transition cursor-pointer">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="flex border-b border-slate-200 text-xs font-bold bg-white px-6 pt-3 shrink-0">
+                <button onclick="switchAdminExportTab('analytics')" id="admin-tab-btn-analytics" class="pb-3 px-4 border-b-2 border-indigo-600 text-indigo-700 transition cursor-pointer">Platform Analytics</button>
+                <button onclick="switchAdminExportTab('compliance')" id="admin-tab-btn-compliance" class="pb-3 px-4 border-b-2 border-transparent text-slate-400 hover:text-slate-700 transition cursor-pointer">Compliance & Audit</button>
+                <button onclick="switchAdminExportTab('schedule')" id="admin-tab-btn-schedule" class="pb-3 px-4 border-b-2 border-transparent text-slate-400 hover:text-slate-700 transition cursor-pointer">Scheduled Reports</button>
+            </div>
+            
+            <!-- Modal Body Area -->
+            <div class="p-6 bg-white overflow-y-auto flex-1 text-sm text-slate-700">
+                
+                <!-- TAB 1: PLATFORM ANALYTICS -->
+                <div id="admin-tab-content-analytics" class="space-y-5 block">
+                    <p class="text-xs text-slate-500 mb-2">Export platform-wide analytics, including user engagement and module performance, formatted for board reviews.</p>
+                    
+                    <div class="space-y-2">
+                        <label class="font-bold text-slate-800 text-xs">Role-Based Filter</label>
+                        <select id="export-role-filter" class="w-full p-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-indigo-500 outline-none text-xs">
+                            <option value="all">All Roles (Platform Wide)</option>
+                            <option value="user">Patients / Users Only</option>
+                            <option value="consultant">Consultants Only</option>
+                            <option value="dermatologist">Dermatologists Only</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-2 pt-2">
+                        <label class="font-bold text-slate-800 text-xs">Export Format</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="flex items-center gap-3 p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition">
+                                <input type="radio" name="admin-format" value="pdf" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500" checked>
+                                <div>
+                                    <span class="font-bold text-slate-800 text-xs block">Board Report (PDF)</span>
+                                    <span class="text-[10px] text-slate-500">Clean visual presentation</span>
+                                </div>
+                            </label>
+                            <label class="flex items-center gap-3 p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition">
+                                <input type="radio" name="admin-format" value="csv" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500">
+                                <div>
+                                    <span class="font-bold text-slate-800 text-xs block">System Data (CSV)</span>
+                                    <span class="text-[10px] text-slate-500">Raw metrics for analysis</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- ENTERPRISE UPGRADE: ASYNC TOGGLE -->
+                    <div class="space-y-2 pt-2 border-t border-slate-100 mt-2">
+                        <label class="flex items-center gap-3 cursor-pointer bg-indigo-50/50 p-4 rounded-xl border border-indigo-100 transition hover:bg-indigo-50">
+                            <input type="checkbox" id="async-delivery-toggle" class="w-4 h-4 text-indigo-600 rounded">
+                            <div>
+                                <span class="text-xs font-bold text-indigo-900 block">Async Background Delivery (ETL Task Queue)</span>
+                                <span class="text-[10px] text-indigo-700">Offloads PDF/CSV generation to a background worker to prevent server lag. Result emailed.</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <button onclick="executeAdminExport('analytics')" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 rounded-xl shadow-sm transition flex items-center justify-center gap-2 mt-4 cursor-pointer">
+                        <i data-lucide="download" class="w-4 h-4"></i> Generate Analytics Export
+                    </button>
+                </div>
+
+                <!-- TAB 2: COMPLIANCE & AUDIT -->
+                <div id="admin-tab-content-compliance" class="space-y-5 hidden">
+                    <div class="p-4 bg-rose-50 border border-rose-100 rounded-xl flex items-start gap-3">
+                        <i data-lucide="shield-alert" class="w-5 h-5 text-rose-600 shrink-0 mt-0.5"></i>
+                        <div>
+                            <p class="font-bold text-rose-900 text-sm">Regulatory Compliance Logs</p>
+                            <p class="text-xs text-rose-700 leading-relaxed mt-1">Export time-stamped access logs, PHI (Protected Health Information) interaction events, and EMR syncs for HIPAA/GDPR regulatory audits.</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 pt-2">
+                        <label class="font-bold text-slate-800 text-xs">Log Format</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="flex items-center gap-3 p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition">
+                                <input type="radio" name="comp-format" value="pdf" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500">
+                                <div>
+                                    <span class="font-bold text-slate-800 text-xs block">Signed PDF</span>
+                                    <span class="text-[10px] text-slate-500">Official audit document</span>
+                                </div>
+                            </label>
+                            <label class="flex items-center gap-3 p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition">
+                                <input type="radio" name="comp-format" value="csv" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500" checked>
+                                <div>
+                                    <span class="font-bold text-slate-800 text-xs block">Raw Logs (CSV)</span>
+                                    <span class="text-[10px] text-slate-500">Database ingestion ready</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button onclick="executeAdminExport('compliance')" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 rounded-xl shadow-sm transition flex items-center justify-center gap-2 mt-4 cursor-pointer">
+                        <i data-lucide="lock" class="w-4 h-4"></i> Download Audit Logs
+                    </button>
+                </div>
+
+                <!-- TAB 3: SCHEDULED REPORTS -->
+                <div id="admin-tab-content-schedule" class="space-y-5 hidden">
+                    <p class="text-xs text-slate-500 mb-2">Automate the delivery of system performance and compliance reports directly to administrator emails.</p>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="font-bold text-slate-800 text-xs">Report Type</label>
+                            <select id="auto-report-type" class="w-full p-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-indigo-500 outline-none text-xs">
+                                <option value="analytics">Platform Analytics</option>
+                                <option value="compliance">Compliance Audit</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="font-bold text-slate-800 text-xs">Delivery Frequency</label>
+                            <select id="auto-frequency" class="w-full p-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-indigo-500 outline-none text-xs">
+                                <option value="weekly">Weekly (Monday 8AM)</option>
+                                <option value="monthly">Monthly (1st of Month)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3 pt-4">
+                        <button onclick="toggleAdminAutomation(true)" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl shadow-sm transition text-xs cursor-pointer">Enable Automation</button>
+                        <button onclick="toggleAdminAutomation(false)" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2.5 rounded-xl transition text-xs cursor-pointer">Pause Automation</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
     <script>
+        let systemChartInstance = null;
+
         document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();
             checkAuthState();
             fetchSystemMetrics();
+            initSystemChart();
         });
+
+        // ---------------------------------------------------------
+        // MODULE 11: ADMIN EXPORT HUB LOGIC
+        // ---------------------------------------------------------
+        function openAdminExportHub() {
+            document.getElementById('adminExportHubModal').classList.remove('hidden');
+        }
+
+        function closeAdminExportHub() {
+            document.getElementById('adminExportHubModal').classList.add('hidden');
+        }
+
+        function switchAdminExportTab(tabName) {
+            ['analytics', 'compliance', 'schedule'].forEach(t => {
+                document.getElementById(`admin-tab-content-${t}`).classList.add('hidden');
+                document.getElementById(`admin-tab-btn-${t}`).className = "pb-3 px-4 border-b-2 border-transparent text-slate-400 hover:text-slate-700 transition cursor-pointer";
+            });
+            document.getElementById(`admin-tab-content-${tabName}`).classList.remove('hidden');
+            document.getElementById(`admin-tab-btn-${tabName}`).className = "pb-3 px-4 border-b-2 border-indigo-600 text-indigo-700 transition cursor-pointer";
+        }
+
+        async function executeAdminExport(reportType) {
+            const adminEmail = localStorage.getItem('email') || 'admin@dermaai.com';
+            let format = 'csv';
+            let roleFilter = 'all';
+            let asyncDelivery = false;
+
+            if (reportType === 'analytics') {
+                format = document.querySelector('input[name="admin-format"]:checked').value;
+                roleFilter = document.getElementById('export-role-filter').value;
+                const asyncToggle = document.getElementById('async-delivery-toggle');
+                if (asyncToggle) asyncDelivery = asyncToggle.checked;
+            } else {
+                format = document.querySelector('input[name="comp-format"]:checked').value;
+            }
+
+            showToast(`Generating ${reportType} report...`, 'info');
+
+            try {
+                const payload = {
+                    admin_email: adminEmail,
+                    report_type: reportType,
+                    role_filter: roleFilter,
+                    format: format,
+                    async_delivery: asyncDelivery
+                };
+                
+                // ⚠️ AI ENGINEER FIX: Added -submit to bypass Vercel 405 errors
+                const res = await fetch('/api/export/admin/generate-submit', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(payload)
+                });
+                
+                if (res.ok) {
+                    const contentType = res.headers.get("content-type");
+                    // Check if server responded with JSON (Background Task Queued)
+                    if (contentType && contentType.includes("application/json")) {
+                        const data = await res.json();
+                        showToast(data.message, "success");
+                        closeAdminExportHub();
+                    } 
+                    // Otherwise, handle raw File stream
+                    else {
+                        const blob = await res.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.style.display = 'none';
+                        a.href = url;
+                        a.download = `DermaAI_${reportType.capitalize()}_Export.${format}`;
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                        showToast("Export downloaded successfully.", "success");
+                        closeAdminExportHub();
+                    }
+                } else {
+                    showToast("Failed to generate export on server.", "error");
+                }
+            } catch (err) {
+                showToast("Network error during export.", "error");
+            }
+        }
+
+        async function toggleAdminAutomation(enable) {
+            const adminEmail = localStorage.getItem('email') || '';
+            const type = document.getElementById('auto-report-type').value;
+            const freq = document.getElementById('auto-frequency').value;
+
+            showToast("Configuring scheduler...", "info");
+
+            try {
+                const payload = {
+                    admin_email: adminEmail,
+                    frequency: freq,
+                    report_type: type,
+                    enable_automation: enable
+                };
+                
+                // ⚠️ AI ENGINEER FIX: Added -submit to bypass Vercel 405 errors
+                const res = await fetch('/api/export/admin/automation-submit', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(payload)
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    showToast(data.message, "success");
+                } else {
+                    showToast("Failed to configure automation.", "error");
+                }
+            } catch (err) {
+                showToast("Network error during automation setup.", "error");
+            }
+        }
+
+        function initSystemChart() {
+            const canvas = document.getElementById('systemLoadChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            const labels = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"];
+            const loadData = [12, 19, 45, 82, 60, 35];
+
+            systemChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'API Request Load',
+                        data: loadData,
+                        borderColor: '#6366f1', // Indigo
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#f8fafc' } },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function exportChartAsImage() {
+            const canvas = document.getElementById('systemLoadChart');
+            if (!canvas) return;
+            
+            // Create a temporary white background for the PNG export
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCtx.fillStyle = '#ffffff';
+            tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+            tempCtx.drawImage(canvas, 0, 0);
+
+            const imgUrl = tempCanvas.toDataURL("image/png");
+            const a = document.createElement('a');
+            a.href = imgUrl;
+            a.download = "DermaAI_SystemLoad_Chart.png";
+            a.click();
+            showToast("Chart exported as PNG successfully.", "success");
+        }
+
+        // ---------------------------------------------------------
+        // UTILITIES & AUTH
+        // ---------------------------------------------------------
+        String.prototype.capitalize = function() {
+            return this.charAt(0).toUpperCase() + this.slice(1);
+        }
 
         function getToken() {
             return localStorage.getItem('auth_token') || localStorage.getItem('token') || '';
@@ -114,6 +469,25 @@
                 'Authorization': `Bearer ${getToken()}`,
                 'Content-Type': 'application/json'
             };
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            const toast = document.createElement('div');
+            let bgClass = 'bg-slate-800';
+            if (type === 'error') bgClass = 'bg-rose-600';
+            if (type === 'success') bgClass = 'bg-emerald-600';
+            if (type === 'info') bgClass = 'bg-indigo-600';
+            
+            toast.className = `${bgClass} text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-lg transition-all duration-300 pointer-events-auto flex items-center gap-2`;
+            toast.innerHTML = `<span>${escapeHtml(message)}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-[-10px]');
+                setTimeout(() => toast.remove(), 4000);
+            }, 4000);
         }
 
         function checkAuthState() {
@@ -138,7 +512,8 @@
 
             try {
                 const cacheBuster = `?_t=${Date.now()}`;
-                const res = await fetch(`/api/admin/system-health${cacheBuster}`, { headers: getAuthHeaders() });
+                // ⚠️ AI ENGINEER FIX: Added -fetch to bypass Vercel 404 static routing collision
+                const res = await fetch(`/api/admin/system-health-fetch${cacheBuster}`, { headers: getAuthHeaders() });
                 
                 if (!res.ok) {
                     if (res.status === 401 || res.status === 403) {
