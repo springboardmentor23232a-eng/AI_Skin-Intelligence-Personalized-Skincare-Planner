@@ -987,48 +987,7 @@ class App {
     }
 
     // Pre-initialize & render Google Identity Services button for instant 0-lag sign in
-    if (window.google && window.google.accounts && window.google.accounts.id) {
-      try {
-        const container = document.getElementById('google-gsi-button-container');
-        const customBtn = document.getElementById('google-oauth-btn');
-        if (container) {
-          container.innerHTML = '';
-          const clientId = await this.getGoogleClientId();
-          window.google.accounts.id.initialize({
-            client_id: clientId,
-            callback: async (response) => {
-              if (response.credential) {
-                const roleSelect = document.getElementById('modal-oauth-role');
-                const selectedRole = roleSelect ? roleSelect.value : 'user';
-                const res = await auth.loginWithGoogle(response.credential, selectedRole);
-                if (res.success) {
-                  this.closeLoginModal();
-                  if (res.isNewOAuthUser) {
-                    this.openOAuthPasswordModal();
-                  } else {
-                    this.executePendingRedirectOrDashboard();
-                  }
-                } else if (alertBox) {
-                  alertBox.className = 'login-alert-box alert-error';
-                  alertBox.innerText = res.message;
-                  alertBox.classList.remove('hidden');
-                }
-              }
-            }
-          });
-          window.google.accounts.id.renderButton(container, {
-            theme: 'outline',
-            size: 'large',
-            width: 320,
-            text: 'continue_with',
-            shape: 'rectangular'
-          });
-          if (customBtn) customBtn.style.display = 'none';
-        }
-      } catch (err) {
-        console.warn('[GSI Render Warning]', err.message);
-      }
-    }
+    this.renderGoogleButton();
 
     this.loginModal.classList.add('active');
   }
@@ -1296,6 +1255,58 @@ class App {
     }
   }
 
+  async renderGoogleButton() {
+    const container = document.getElementById('google-gsi-button-container');
+    const customBtn = document.getElementById('google-oauth-btn');
+    const alertBox = document.getElementById('modal-login-alert');
+    if (!container) return;
+
+    if (window.google && window.google.accounts && window.google.accounts.id) {
+      try {
+        container.innerHTML = '';
+        const clientId = await this.getGoogleClientId();
+        window.google.accounts.id.initialize({
+          client_id: clientId,
+          callback: async (response) => {
+            if (response.credential) {
+              const roleSelect = document.getElementById('modal-oauth-role');
+              const selectedRole = roleSelect ? roleSelect.value : 'user';
+              const res = await auth.loginWithGoogle(response.credential, selectedRole);
+              if (res.success) {
+                this.closeLoginModal();
+                if (res.isNewOAuthUser) {
+                  this.openOAuthPasswordModal();
+                } else {
+                  this.executePendingRedirectOrDashboard();
+                }
+              } else if (alertBox) {
+                alertBox.className = 'login-alert-box alert-error';
+                alertBox.innerText = res.message;
+                alertBox.classList.remove('hidden');
+              }
+            }
+          }
+        });
+        window.google.accounts.id.renderButton(container, {
+          theme: 'outline',
+          size: 'large',
+          width: 320,
+          text: 'continue_with',
+          shape: 'rectangular'
+        });
+        if (customBtn) customBtn.style.display = 'none';
+      } catch (err) {
+        console.warn('[GSI Render Warning]', err.message);
+      }
+    } else {
+      setTimeout(() => {
+        if (window.google && window.google.accounts && window.google.accounts.id) {
+          this.renderGoogleButton();
+        }
+      }, 500);
+    }
+  }
+
   async getGoogleClientId() {
     if (this._cachedGoogleClientId) return this._cachedGoogleClientId;
     try {
@@ -1347,10 +1358,15 @@ class App {
 
         window.google.accounts.id.prompt((notification) => {
           if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-            console.warn('[Google OAuth Info] Prompt not displayed:', notification.getNotDisplayedReason?.() || 'unknown reason');
+            const reason = notification.getNotDisplayedReason?.() || 'unknown reason';
+            console.warn('[Google OAuth Info] Prompt not displayed:', reason);
             if (alertBox) {
               alertBox.className = 'login-alert-box alert-error';
-              alertBox.innerText = 'Google Sign-In popup was blocked or unavailable. Please allow popups or try username/password login.';
+              if (reason === 'opt_out_or_no_session') {
+                alertBox.innerText = 'No active Google session found or One-Tap is opted out. Please sign in to Google or use username/password.';
+              } else {
+                alertBox.innerText = 'Google Sign-In prompt unavailable or origin not authorized. Please check Google Cloud Console Authorized Origins or sign in with username/password.';
+              }
               alertBox.classList.remove('hidden');
             }
           }

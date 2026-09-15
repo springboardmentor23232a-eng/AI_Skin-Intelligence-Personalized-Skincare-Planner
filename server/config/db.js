@@ -860,10 +860,19 @@ export async function query(text, params = []) {
     return { rows: found, rowCount: found.length };
   }
 
-  // SELECT user by google_id
-  if (cleanText.startsWith('SELECT') && cleanText.includes('FROM users WHERE google_id = $1')) {
+  // SELECT user by google_id or email (used in Google OAuth route)
+  if (
+    cleanText.startsWith('SELECT') && (
+      cleanText.includes('FROM users WHERE google_id = $1 OR email = $2') ||
+      cleanText.includes('FROM users WHERE google_id = $1')
+    )
+  ) {
     const googleId = params[0];
-    const found = inMemoryStore.users.filter(u => u.google_id === googleId);
+    const emailVal = (params[1] || '').toLowerCase();
+    const found = inMemoryStore.users.filter(u =>
+      (googleId && u.google_id === googleId) ||
+      (emailVal && u.email && u.email.toLowerCase() === emailVal)
+    );
     return { rows: found, rowCount: found.length };
   }
 
@@ -951,6 +960,18 @@ export async function query(text, params = []) {
     const userObj = inMemoryStore.users.find(u => u.id === parseInt(target, 10) || u.username === target || (u.email && u.email.toLowerCase() === String(target).toLowerCase()));
     if (userObj) {
       userObj.password_hash = passHash;
+      return { rows: [userObj], rowCount: 1 };
+    }
+    return { rows: [], rowCount: 0 };
+  }
+
+  // UPDATE users SET google_id
+  if (cleanText.includes('UPDATE users SET google_id')) {
+    const googleId = params[0];
+    const target = params[1];
+    const userObj = inMemoryStore.users.find(u => u.id === parseInt(target, 10) || u.username === target || (u.email && u.email.toLowerCase() === String(target).toLowerCase()));
+    if (userObj) {
+      userObj.google_id = googleId;
       return { rows: [userObj], rowCount: 1 };
     }
     return { rows: [], rowCount: 0 };

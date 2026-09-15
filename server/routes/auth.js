@@ -289,12 +289,14 @@ router.post('/google', async (req, res) => {
     }
 
     let googleUser = null;
+    const activeClientId = process.env.GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID;
 
-    if (GOOGLE_CLIENT_ID) {
+    if (activeClientId) {
       try {
-        const ticket = await googleClient.verifyIdToken({
+        const client = new OAuth2Client(activeClientId);
+        const ticket = await client.verifyIdToken({
           idToken: tokenToVerify,
-          audience: GOOGLE_CLIENT_ID
+          audience: activeClientId
         });
         const payload = ticket.getPayload();
         googleUser = {
@@ -304,7 +306,7 @@ router.post('/google', async (req, res) => {
           picture: payload.picture
         };
       } catch (oauthErr) {
-        console.warn('[Google OAuth Verification Warning] Invalid Token signature, attempting payload decode:', oauthErr.message);
+        console.warn('[Google OAuth Verification Warning] Invalid Token signature or audience mismatch:', oauthErr.message);
       }
     }
 
