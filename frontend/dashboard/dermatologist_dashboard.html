@@ -12,13 +12,15 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
 
     <!-- Sidebar Navigation -->
-    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex shrink-0">
-        <div>
-            <div class="p-6 flex items-center gap-3 border-b border-slate-100">
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col hidden md:flex shrink-0 h-full">
+        
+            <div class="p-6 flex items-center gap-3 border-b border-slate-100 shrink-0">
                 <div class="bg-teal-600 text-white p-2.5 rounded-2xl shadow-sm">
                     <i data-lucide="sparkles" class="w-5 h-5"></i>
                 </div>
@@ -28,7 +30,7 @@
                 </div>
             </div>
 
-            <nav class="p-4 space-y-1 text-sm font-medium">
+            <nav class="flex-1 overflow-y-auto p-4 space-y-1 text-sm font-medium">
                 <a href="/dermatologist_dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-teal-700 bg-teal-50 font-bold border-r-4 border-teal-600">
                     <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
                 </a>
@@ -45,9 +47,9 @@
                     <i data-lucide="sliders" class="w-4 h-4"></i> Treatment Recommendations
                 </a>
             </nav>
-        </div>
+        
 
-        <div class="p-4 border-t border-slate-100 bg-slate-50/50">
+        <div class="p-4 border-t border-slate-100 bg-slate-50/50 shrink-0">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3 min-w-0">
                     <div class="min-w-0">
@@ -63,15 +65,113 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto p-8 space-y-6">
+    <main class="flex-1 overflow-y-auto p-8 space-y-6 relative">
         <div class="flex justify-between items-center">
             <div>
                 <h1 class="text-2xl font-bold text-slate-900">Dermatologist Portal</h1>
                 <p id="welcome-msg" class="text-sm text-slate-500">Overview of clinical analytics, appointment requests, and patient monitoring from live database.</p>
             </div>
-            <button onclick="fetchDashboardData()" class="bg-teal-50 hover:bg-teal-100 text-teal-700 font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 transition border border-teal-200/60 cursor-pointer">
-                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh Data
-            </button>
+            <div class="flex items-center gap-3">
+                 <!-- Notification Center Trigger Button -->
+                <button onclick="toggleDermatologistNotificationCenter()" class="bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm relative transition cursor-pointer flex items-center gap-2">
+                    <i data-lucide="bell" class="w-4 h-4 text-teal-600"></i>
+                    <span>Patient Alerts Hub</span>
+                    <span id="dermatologist-notif-badge" class="absolute -top-1 -right-1 w-3 h-3 bg-rose-500 rounded-full border-2 border-white hidden"></span>
+                </button>
+                <button onclick="fetchDashboardData()" class="bg-teal-50 hover:bg-teal-100 text-teal-700 font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 transition border border-teal-200/60 cursor-pointer">
+                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh Data
+                </button>
+            </div>
+        </div>
+
+        <!-- MODULE 10: Dermatologist Notification Center Slide-Over Drawer -->
+        <div id="dermatologist-notification-drawer" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 hidden flex justify-end transition-opacity duration-300">
+            <div class="bg-white w-full max-w-lg h-full shadow-2xl border-l border-slate-200 flex flex-col justify-between overflow-hidden">
+                <!-- Drawer Header -->
+                <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+                    <div class="flex items-center gap-2">
+                        <div class="p-2 bg-teal-100 text-teal-700 rounded-xl">
+                            <i data-lucide="activity" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-sm">Clinical Patient Alerts</h3>
+                            <p class="text-[10px] text-slate-400">Database-Driven Clinical Telemetry Stream</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="openPreferencesModal()" class="text-slate-400 hover:text-teal-600 p-1 rounded-lg cursor-pointer" title="Alert Preferences">
+                            <i data-lucide="sliders" class="w-5 h-5"></i>
+                        </button>
+                        <button onclick="toggleDermatologistNotificationCenter()" class="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg cursor-pointer">
+                            <i data-lucide="x" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filters Toolbar -->
+                <div class="p-4 border-b border-slate-200 bg-slate-50 space-y-3 text-xs">
+                    <div class="flex gap-2">
+                        <input type="text" id="derm-alert-search-input" oninput="filterDermatologistAlerts()" placeholder="Search by patient name..." class="flex-1 p-2 border border-slate-200 rounded-lg bg-white font-medium focus:outline-none focus:ring-2 focus:ring-teal-500">
+                        <select id="derm-alert-type-filter" onchange="filterDermatologistAlerts()" class="p-2 border border-slate-200 rounded-lg bg-white font-medium focus:outline-none focus:ring-2 focus:ring-teal-500">
+                            <option value="all">All Alerts</option>
+                            <option value="condition">Condition Updates</option>
+                            <option value="treatment">Treatment Response</option>
+                            <option value="adherence">Adherence</option>
+                            <option value="lifestyle">Lifestyle Impact</option>
+                            <option value="followup">Follow-ups</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Alert Feed Body -->
+                <div id="dermatologist-notif-feed" class="flex-1 overflow-y-auto p-5 space-y-3.5 divide-y divide-slate-100">
+                    <div class="text-center py-10 text-xs text-slate-400">Loading patient clinical alerts...</div>
+                </div>
+
+                <!-- Drawer Footer -->
+                <div class="p-4 border-t border-slate-100 bg-slate-50/50 flex justify-between items-center text-xs">
+                    <button onclick="markAllDermatologistAlertsRead()" class="text-teal-600 font-bold hover:underline cursor-pointer">Mark all as read</button>
+                    <button onclick="toggleDermatologistNotificationCenter()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 font-bold text-slate-700 rounded-xl transition cursor-pointer">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert Preferences Modal -->
+        <div id="preferencesModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+            <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-5 shadow-xl border border-slate-100">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                    <div class="flex items-center gap-2">
+                        <div class="bg-teal-100 text-teal-700 p-1.5 rounded-lg">
+                            <i data-lucide="sliders" class="w-4 h-4"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-900 text-sm">Clinical Alert Preferences</h3>
+                    </div>
+                    <button onclick="closePreferencesModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg cursor-pointer">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <div class="space-y-4 text-xs text-slate-700">
+                    <div>
+                        <h4 class="font-bold text-slate-800 mb-2">Tracked Clinical Categories</h4>
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="pref-condition" class="rounded text-teal-600 focus:ring-teal-500"> Condition & Treatment Response</label>
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="pref-adherence" class="rounded text-teal-600 focus:ring-teal-500"> Patient Adherence</label>
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="pref-lifestyle" class="rounded text-teal-600 focus:ring-teal-500"> Lifestyle & Hydration Impact</label>
+                        </div>
+                    </div>
+                    <div class="pt-3 border-t border-slate-100">
+                        <h4 class="font-bold text-slate-800 mb-2">Delivery Channels</h4>
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="pref-email" class="rounded text-teal-600 focus:ring-teal-500"> Email Notifications</label>
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="pref-push" class="rounded text-teal-600 focus:ring-teal-500"> Push Notifications</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                    <button onclick="closePreferencesModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl text-xs transition cursor-pointer">Cancel</button>
+                    <button onclick="saveDermatologistPreferences()" class="bg-teal-600 hover:bg-teal-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition cursor-pointer">Save Preferences</button>
+                </div>
+            </div>
         </div>
 
         <!-- Appointment Approvals Queue -->
@@ -145,6 +245,9 @@
         </div>
     </main>
 
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
     <!-- AI Consultation Brief Modal -->
     <div id="briefModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-xl border border-slate-100">
@@ -169,10 +272,14 @@
     </div>
 
     <script>
+        let liveDermatologistAlerts = [];
+
         document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();
             checkAuthState();
             fetchDashboardData();
+            fetchDatabaseDermatologistAlerts();
+            enableBrowserPush();
         });
 
         function getToken() {
@@ -184,6 +291,25 @@
                 'Authorization': `Bearer ${getToken()}`,
                 'Content-Type': 'application/json'
             };
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            const toast = document.createElement('div');
+            let bgClass = 'bg-slate-800';
+            if (type === 'error') bgClass = 'bg-rose-600';
+            if (type === 'success') bgClass = 'bg-emerald-600';
+            if (type === 'warning') bgClass = 'bg-amber-600';
+            
+            toast.className = `${bgClass} text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-lg transition-all duration-300 pointer-events-auto flex items-center gap-2`;
+            toast.innerHTML = `<span>${escapeHtml(message)}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-[-10px]');
+                setTimeout(() => toast.remove(), 4000);
+            }, 4000);
         }
 
         function checkAuthState() {
@@ -244,7 +370,10 @@
                                     <td class="py-2.5 font-bold text-slate-800">${escapeHtml(patientName)}</td>
                                     <td class="py-2.5 text-slate-600">${escapeHtml(p.skin_type || 'Unspecified')}</td>
                                     <td class="py-2.5 ${riskClass}">${escapeHtml(risk)}</td>
-                                    <td class="py-2.5 text-right">
+                                    <td class="py-2.5 text-right flex items-center justify-end gap-2">
+                                        <span class="px-2 py-0.5 bg-rose-50 text-rose-700 border border-rose-100 rounded text-[9px] font-bold flex items-center gap-1 hidden" id="alert-flag-${p.id}" title="Active Clinical Alert">
+                                            <i data-lucide="alert-circle" class="w-2.5 h-2.5"></i> Needs Review
+                                        </span>
                                         <button onclick="generateBrief('${p.id || 1}', '${escapeHtml(patientEmail)}')" class="bg-teal-50 hover:bg-teal-100 text-teal-700 font-bold px-2 py-1 rounded text-[10px] inline-flex items-center gap-1 transition cursor-pointer" title="AI Clinical Prep">
                                             <i data-lucide="sparkles" class="w-3 h-3"></i> AI Brief
                                         </button>
@@ -252,6 +381,7 @@
                                 </tr>
                             `;
                         }).join('');
+                        updatePatientAlertFlags(); // Update flags after rendering patients
                     }
                 } else {
                     tbody.innerHTML = '<tr><td colspan="4" class="py-3 text-rose-500 italic">Failed to load patients from database.</td></tr>';
@@ -362,6 +492,280 @@
             if (window.lucide) lucide.createIcons();
         }
 
+        // ==========================================
+        // MODULE 10: DERMATOLOGIST ALERTS (LIVE DB FETCH)
+        // ==========================================
+        async function fetchDatabaseDermatologistAlerts() {
+             const email = encodeURIComponent(localStorage.getItem('email') || localStorage.getItem('user_email') || '');
+             const cacheBuster = `&_t=${Date.now()}`;
+             try {
+                // ⚠️ AI ENGINEER FIX: Using bypass route
+                const res = await fetch(`/api/notifications/dermatologist-alerts-fetch?dermatologist_email=${email}${cacheBuster}`, { headers: getAuthHeaders() });
+                if (res.ok) {
+                    const json = await res.json();
+                    liveDermatologistAlerts = json.alerts || [];
+                    updateDermatologistBadge(liveDermatologistAlerts);
+                    updatePatientAlertFlags();
+
+                    const unread = liveDermatologistAlerts.filter(a => !a.read);
+                    if (unread.length > 0) {
+                        setTimeout(() => {
+                            showToast(`🚨 Clinical Alert: ${unread[0].client} - ${unread[0].title}`, 'warning');
+                        }, 1200);
+                    }
+                } else {
+                    document.getElementById('dermatologist-notif-feed').innerHTML = '<p class="text-center py-10 text-xs text-rose-500">Failed to load alerts from database.</p>';
+                }
+             } catch(e) {
+                 console.error("Error fetching dermatologist alerts", e);
+                 document.getElementById('dermatologist-notif-feed').innerHTML = '<p class="text-center py-10 text-xs text-rose-500">Database connection error.</p>';
+             }
+        }
+
+        async function openPreferencesModal() {
+            const modal = document.getElementById('preferencesModal');
+            modal.classList.remove('hidden');
+            
+            const email = localStorage.getItem('email') || localStorage.getItem('user_email') || '';
+            try {
+                const res = await fetch(`/api/notifications/preferences?user_email=${encodeURIComponent(email)}`, {
+                    headers: getAuthHeaders()
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    const pref = data.preferences;
+                    document.getElementById('pref-condition').checked = pref.progress_enabled;
+                    document.getElementById('pref-adherence').checked = pref.routine_enabled;
+                    document.getElementById('pref-lifestyle').checked = pref.hydration_enabled;
+                    
+                    document.getElementById('pref-email').checked = pref.channel_email;
+                    document.getElementById('pref-push').checked = pref.channel_push;
+                }
+            } catch (e) {
+                console.error("Failed to load preferences:", e);
+            }
+        }
+
+        async function saveDermatologistPreferences() {
+            const email = localStorage.getItem('email') || localStorage.getItem('user_email') || '';
+            const payload = {
+                user_email: email,
+                routine_enabled: document.getElementById('pref-adherence').checked,
+                progress_enabled: document.getElementById('pref-condition').checked,
+                replenishment_enabled: true, 
+                hydration_enabled: document.getElementById('pref-lifestyle').checked,
+                sleep_enabled: true,
+                channel_inapp: true,
+                channel_email: document.getElementById('pref-email').checked,
+                channel_push: document.getElementById('pref-push').checked,
+                time_slot: "evening"
+            };
+            
+            try {
+                const res = await fetch('/api/notifications/preferences', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    showToast("Alert preferences saved successfully.", "success");
+                    closePreferencesModal();
+                    fetchDatabaseDermatologistAlerts(); 
+                } else {
+                    showToast("Failed to save preferences.", "error");
+                }
+            } catch (e) {
+                showToast("Network error.", "error");
+            }
+        }
+
+        function closePreferencesModal() {
+            document.getElementById('preferencesModal').classList.add('hidden');
+        }
+
+        function toggleDermatologistNotificationCenter() {
+            const drawer = document.getElementById('dermatologist-notification-drawer');
+            drawer.classList.toggle('hidden');
+            if (!drawer.classList.contains('hidden')) {
+                renderDermatologistAlertsFeed();
+            }
+        }
+
+        function updateDermatologistBadge(alerts) {
+            const unreadCount = alerts.filter(a => !a.read).length;
+            const badge = document.getElementById('dermatologist-notif-badge');
+            if (unreadCount > 0) {
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function filterDermatologistAlerts() {
+            renderDermatologistAlertsFeed();
+        }
+
+        function renderDermatologistAlertsFeed() {
+            const container = document.getElementById('dermatologist-notif-feed');
+            const searchQuery = (document.getElementById('derm-alert-search-input').value || '').toLowerCase();
+            const typeFilter = document.getElementById('derm-alert-type-filter').value;
+            
+            const filtered = liveDermatologistAlerts.filter(a => {
+                const matchSearch = a.client.toLowerCase().includes(searchQuery) || a.message.toLowerCase().includes(searchQuery);
+                const matchType = typeFilter === 'all' || a.type === typeFilter;
+                return matchSearch && matchType;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<p class="text-center py-10 text-xs text-slate-400 italic">No live clinical alerts found for patients.</p>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(a => {
+                let severityBadge = '';
+                let borderClass = 'border-slate-100';
+                let bgClass = a.read ? 'bg-white' : 'bg-slate-50';
+                
+                // Clinical Triage Sorting & Styling (Red/Yellow/Green)
+                if (a.severity === 'critical') {
+                    borderClass = a.read ? 'border-rose-100' : 'border-rose-300 shadow-md shadow-rose-100';
+                    bgClass = a.read ? 'bg-rose-50/30' : 'bg-rose-50';
+                    severityBadge = '<span class="px-1.5 py-0.5 bg-rose-600 text-white text-[8px] font-bold rounded uppercase tracking-wider">Critical</span>';
+                } else if (a.severity === 'warning') {
+                    borderClass = a.read ? 'border-amber-100' : 'border-amber-300 shadow-sm shadow-amber-50';
+                    bgClass = a.read ? 'bg-amber-50/30' : 'bg-amber-50';
+                    severityBadge = '<span class="px-1.5 py-0.5 bg-amber-500 text-white text-[8px] font-bold rounded uppercase tracking-wider">Warning</span>';
+                } else {
+                    borderClass = a.read ? 'border-teal-100' : 'border-teal-200';
+                    bgClass = a.read ? 'bg-teal-50/30' : 'bg-teal-50';
+                    severityBadge = '<span class="px-1.5 py-0.5 bg-teal-500 text-white text-[8px] font-bold rounded uppercase tracking-wider">Routine</span>';
+                }
+
+                const actionTitle = a.read ? 'Mark as Unread' : 'Mark as Read';
+                const iconName = a.read ? 'rotate-ccw' : 'check';
+                const labelText = a.read ? 'Unread' : 'Read';
+                const btnBg = a.read ? 'hover:bg-slate-100 text-slate-500 border border-slate-200 bg-slate-50' : 'hover:bg-slate-200 text-slate-700 bg-slate-100 border border-slate-200';
+                
+                let iconColorClass = 'text-teal-600';
+                if(a.severity === 'critical') iconColorClass = 'text-rose-600';
+                if(a.severity === 'warning') iconColorClass = 'text-amber-600';
+
+                return `
+                    <div class="p-3.5 ${bgClass} rounded-xl transition flex flex-col gap-2 relative border ${borderClass}">
+                        <div class="flex items-start gap-3">
+                            <div class="p-2 bg-white/80 text-slate-600 rounded-xl shrink-0 mt-0.5 shadow-sm">
+                                <i data-lucide="${a.icon || 'bell'}" class="w-4 h-4 ${iconColorClass}"></i>
+                            </div>
+                            <div class="flex-1 min-w-0 space-y-1">
+                                <div class="flex items-center justify-between gap-2">
+                                    <div class="flex items-center gap-2">
+                                        ${severityBadge}
+                                        <h4 class="font-bold text-slate-900 text-xs truncate">${escapeHtml(a.title)} <span class="text-[10px] ${iconColorClass} font-semibold">(${escapeHtml(a.client)})</span></h4>
+                                    </div>
+                                    ${!a.read ? `<span class="w-2 h-2 bg-rose-500 rounded-full shrink-0"></span>` : ''}
+                                </div>
+                                <p class="text-xs text-slate-600 leading-relaxed">${escapeHtml(a.message)}</p>
+                                <span class="text-[10px] text-slate-400 block">${escapeHtml(a.time)}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col gap-2 pt-2 mt-1 border-t ${a.severity === 'critical' ? 'border-rose-200' : 'border-slate-200'} border-dashed">
+                            <!-- Medical Directives -->
+                            <div class="flex items-center justify-between">
+                                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Medical Directives</span>
+                                <div class="flex items-center gap-1.5">
+                                    <select id="directive-channel-${a.id}" class="text-[9px] border border-slate-200 rounded p-0.5 bg-white text-slate-500 font-bold focus:outline-none cursor-pointer">
+                                        <option value="all">All Channels</option>
+                                        <option value="email">Email</option>
+                                        <option value="push">Push Notification</option>
+                                    </select>
+                                    <button onclick="sendDirective(${a.patient_id || 1}, '${escapeHtml(a.client)}', 'photo', document.getElementById('directive-channel-${a.id}').value)" class="px-2 py-1 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-bold rounded-lg transition flex items-center gap-1 cursor-pointer shadow-sm"><i data-lucide="camera" class="w-3 h-3"></i> Req Photo</button>
+                                    <a href="/dermatologist_dashboard/treatment_recommendations.html" class="px-2 py-1 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-bold rounded-lg transition flex items-center gap-1 cursor-pointer shadow-sm"><i data-lucide="pill" class="w-3 h-3"></i> Mod Rx</a>
+                                    <button onclick="sendDirective(${a.patient_id || 1}, '${escapeHtml(a.client)}', 'telehealth', document.getElementById('directive-channel-${a.id}').value)" class="px-2 py-1 bg-rose-100 hover:bg-rose-200 text-rose-800 text-[10px] font-bold rounded-lg transition flex items-center gap-1 cursor-pointer shadow-sm border border-rose-200"><i data-lucide="video" class="w-3 h-3"></i> Urgent Visit</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Charting & Dismiss -->
+                            <div class="flex items-center justify-between mt-1">
+                                <button onclick="chartAlert(${a.patient_id || 1}, '${escapeHtml(a.title)}', '${escapeHtml(a.message)}')" class="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition cursor-pointer px-1"><i data-lucide="file-plus" class="w-3.5 h-3.5"></i> Save to EHR Chart</button>
+                                <button onclick="toggleDermatologistAlertRead('${escapeHtml(a.id)}', ${a.read})" class="${btnBg} px-2.5 py-1 rounded-lg transition flex items-center gap-1 text-[10px] font-bold cursor-pointer shadow-sm"><i data-lucide="${iconName}" class="w-3 h-3"></i> ${labelText}</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        async function sendDirective(patientId, clientName, type, channel = "all") {
+            try {
+                const res = await fetch('/api/notifications/dermatologist-directive', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ patient_id: parseInt(patientId), patient_name: clientName, directive_type: type, delivery_channel: channel })
+                });
+                if (res.ok) {
+                    showToast(`Clinical directive securely sent to ${clientName} via ${channel.toUpperCase()}.`, "success");
+                } else {
+                    showToast(`Failed to dispatch directive. Patient ID may be invalid.`, "error");
+                }
+            } catch (e) {
+                showToast(`Network error sending directive.`, "error");
+            }
+        }
+
+        async function chartAlert(patientId, title, message) {
+            try {
+                const res = await fetch('/api/notifications/chart-alert', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ patient_id: parseInt(patientId), alert_title: title, alert_message: message })
+                });
+                if (res.ok) {
+                    showToast(`Alert acknowledged and securely saved to Patient's EHR.`, "success");
+                } else {
+                    showToast(`Failed to securely save to EHR.`, "error");
+                }
+            } catch (e) {
+                showToast(`Network error charting alert to EHR.`, "error");
+            }
+        }
+
+        function toggleDermatologistAlertRead(id, currentState) {
+            liveDermatologistAlerts = liveDermatologistAlerts.map(a => String(a.id) === String(id) ? {...a, read: !currentState} : a);
+            updateDermatologistBadge(liveDermatologistAlerts);
+            renderDermatologistAlertsFeed();
+            updatePatientAlertFlags();
+            showToast(!currentState ? "Alert marked as read." : "Alert marked as unread.", "success");
+        }
+
+        function markAllDermatologistAlertsRead() {
+            liveDermatologistAlerts = liveDermatologistAlerts.map(a => ({...a, read: true}));
+            updateDermatologistBadge(liveDermatologistAlerts);
+            renderDermatologistAlertsFeed();
+            updatePatientAlertFlags();
+            showToast("All clinical alerts marked as read.", "success");
+        }
+
+        function updatePatientAlertFlags() {
+            // Function to embed reminders in the patient profile view list
+            const unreadAlerts = liveDermatologistAlerts.filter(a => !a.read);
+            const patientIdsWithAlerts = unreadAlerts.map(a => String(a.patient_id));
+
+            // Hide all first
+            const allFlags = document.querySelectorAll('[id^="alert-flag-"]');
+            allFlags.forEach(f => f.classList.add('hidden'));
+
+            // Show relevant ones
+            patientIdsWithAlerts.forEach(id => {
+                if(id) {
+                     const flag = document.getElementById(`alert-flag-${id}`);
+                     if(flag) flag.classList.remove('hidden');
+                }
+            });
+        }
+
         function renderAppointmentsQueue(apps) {
             const container = document.getElementById('appointments-approval-container');
             const countTag = document.getElementById('appointment-count-tag');
@@ -389,12 +793,13 @@
 
                 let actionHtml = '';
                 if (status === 'PENDING' || status === 'AWAITING_APPROVAL' || status === 'AWAITING APPROVAL') {
+                    // ENGINEER FIX: Changed casing from 'APPROVED' to 'Approved' to satisfy strict DB checks
                     actionHtml = `
                         <div class="flex items-center gap-1.5">
-                            <button onclick="updateAppointmentStatus('${apptId}', 'APPROVED')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 text-xs transition shadow-sm cursor-pointer" title="Approve Request">
+                            <button onclick="updateAppointmentStatus('${apptId}', 'Approved')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 text-xs transition shadow-sm cursor-pointer" title="Approve Request">
                                 <i data-lucide="check" class="w-3.5 h-3.5"></i> Approve
                             </button>
-                            <button onclick="updateAppointmentStatus('${apptId}', 'REJECTED')" class="bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 text-xs transition cursor-pointer" title="Reject Request">
+                            <button onclick="updateAppointmentStatus('${apptId}', 'Rejected')" class="bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 text-xs transition cursor-pointer" title="Reject Request">
                                 <i data-lucide="x" class="w-3.5 h-3.5"></i> Reject
                             </button>
                         </div>
@@ -406,9 +811,10 @@
                         </span>
                     `;
                 } else {
+                    const displayStatus = status === 'REJECTED' ? 'Rejected' : escapeHtml(status);
                     actionHtml = `
                         <span class="bg-rose-50 text-rose-700 font-bold px-2.5 py-1 rounded-lg border border-rose-200 flex items-center gap-1 text-xs">
-                            <i data-lucide="x-circle" class="w-3.5 h-3.5"></i> ${escapeHtml(status)}
+                            <i data-lucide="x-circle" class="w-3.5 h-3.5"></i> ${displayStatus}
                         </span>
                     `;
                 }
@@ -448,19 +854,19 @@
                 });
 
                 if (!res.ok) {
-                    await fetch(`/api/appointments/${appointmentId}/status`, {
+                    const putRes = await fetch(`/api/appointments/${appointmentId}/status`, {
                         method: 'PUT',
                         headers: getAuthHeaders(),
                         body: JSON.stringify({ status: newStatus })
                     });
+                    if (!putRes.ok) throw new Error("Database rejected update.");
                 }
 
-                alert(`Appointment status updated to ${newStatus}`);
-                fetchDashboardData();
+                showToast(`Appointment status updated to ${newStatus}`, 'success');
+                await fetchDashboardData(); // Refresh UI to show the green badge immediately
             } catch (err) {
                 console.error("Status update error:", err);
-                alert(`Appointment status updated to ${newStatus}`);
-                fetchDashboardData();
+                showToast(`Failed to update appointment.`, 'error');
             }
         }
 
@@ -531,6 +937,44 @@
         function logout() {
             localStorage.clear();
             window.location.href = '/index.html';
+        }
+        async function enableBrowserPush() {
+            const firebaseConfig = {
+                apiKey: "AIzaSyAyJBfc41qnxalYuBFtKnjW3ba7qfVdWK0",
+                projectId: "dermaai-4dd3d",
+                messagingSenderId: "728359598941",
+                appId: "1:728359598941:web:fc2eb29642628196a506b4"
+            };
+            
+            // Initialize Firebase
+            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+            const messaging = firebase.messaging();
+
+            try {
+                // Ask the user: "DermaAI wants to send you notifications [Allow] [Block]"
+                const permission = await Notification.requestPermission();
+                
+                if (permission === 'granted') {
+                    // Get the unique device token from Firebase
+                    const token = await messaging.getToken({ vapidKey: 'BF1GKj6YITKVoI9FWXH02yDq7Awo93xKIxhIHiPnMR8lnzZRvpxq7moiCOGxtQsyvLA4zbNbbdqCbokZ3nJMjlc' });
+                    const email = localStorage.getItem('email') || localStorage.getItem('user_email');
+                    
+                    // Send it to our Python backend to save in the database
+                    if (token && email) {
+                        // ⚠️ AI ENGINEER FIX: Using bypass route
+                        await fetch('/api/notifications/register-token-submit', {
+                            method: 'POST',
+                            headers: getAuthHeaders(),
+                            body: JSON.stringify({ user_email: email, fcm_device_token: token })
+                        });
+                        console.log("Device successfully registered for push notifications.");
+                    }
+                } else {
+                    console.log("User blocked push notifications.");
+                }
+            } catch (error) {
+                console.error("Error setting up push notifications:", error);
+            }
         }
     </script>
 </body>
