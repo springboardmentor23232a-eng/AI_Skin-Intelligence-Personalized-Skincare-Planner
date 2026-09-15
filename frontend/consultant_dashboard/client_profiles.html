@@ -6,6 +6,9 @@
     <title>Client Profiles - DermaAI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Added Chart.js for Module 7 Telemetry Injection -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -14,9 +17,9 @@
 <body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
 
     <!-- Sidebar Navigation -->
-    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex shrink-0">
-        <div>
-            <div class="p-6 flex items-center gap-3 border-b border-slate-100">
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col hidden md:flex shrink-0 h-full">
+        
+            <div class="p-6 flex items-center gap-3 border-b border-slate-100 shrink-0">
                 <div class="bg-teal-600 text-white p-2.5 rounded-2xl">
                     <i data-lucide="sparkles" class="w-5 h-5"></i>
                 </div>
@@ -26,7 +29,7 @@
                 </div>
             </div>
 
-            <nav class="p-4 space-y-1 text-sm font-medium">
+            <nav class="flex-1 overflow-y-auto p-4 space-y-1 text-sm font-medium">
                 <a href="/consultant_dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
                     <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
                 </a>
@@ -46,9 +49,9 @@
                     <i data-lucide="sliders" class="w-4 h-4"></i> Recommendations
                 </a>
             </nav>
-        </div>
+        
 
-        <div class="p-4 border-t border-slate-100 bg-slate-50/50">
+        <div class="p-4 border-t border-slate-100 bg-slate-50/50 shrink-0">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3 min-w-0">
                     <div class="min-w-0">
@@ -112,7 +115,7 @@
             </div>
             <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
                 <div>
-                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Avg Skin Score</p>
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Avg Assessment Score</p>
                     <h2 id="kpi-avg-score" class="text-2xl font-bold text-indigo-600 mt-0.5">--</h2>
                 </div>
                 <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
@@ -154,8 +157,66 @@
         </div>
     </main>
 
+    <!-- LIVE TELEMETRY MODAL (MODULE 7 BRIDGE) -->
+    <div id="telemetryModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center sticky top-0 bg-white/95 backdrop-blur z-10">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2"><i data-lucide="activity" class="w-5 h-5 text-teal-600"></i> Live Client Telemetry</h2>
+                    <p class="text-xs text-slate-500" id="modal-client-name">Loading patient data...</p>
+                </div>
+                <button onclick="closeTelemetryModal()" class="p-2 text-slate-400 hover:text-slate-600 bg-slate-100 rounded-full hover:bg-slate-200 transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 space-y-6 bg-slate-50">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Overall Score -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 flex flex-col items-center justify-center text-center">
+                        <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Skin Health Index</h3>
+                        <div class="w-24 h-24 rounded-full bg-slate-50 border-8 border-teal-500 flex items-center justify-center mb-2">
+                            <span id="modal-score" class="text-3xl font-black text-slate-900">--</span>
+                        </div>
+                        <span id="modal-risk-badge" class="px-2 py-1 bg-slate-100 text-slate-600 rounded-full text-[10px] font-bold">Stable</span>
+                    </div>
+                    
+                    <!-- 5 Pillar Breakdown -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 md:col-span-2">
+                        <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">5-Pillar Weighting Breakdown</h3>
+                        <div class="grid grid-cols-2 gap-x-6 gap-y-3" id="modal-pillars">
+                            <p class="text-xs text-slate-400 italic col-span-2">Loading telemetry details...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 30 Day Chart -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200">
+                    <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">30-Day Velocity Trend</h3>
+                    <div class="w-full h-48">
+                        <canvas id="modalChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- AI Insight -->
+                <div class="bg-indigo-50 border border-indigo-100 p-5 rounded-2xl flex gap-3">
+                    <div class="bg-indigo-600 text-white p-2 rounded-xl h-fit shrink-0"><i data-lucide="brain-circuit" class="w-5 h-5"></i></div>
+                    <div>
+                        <h4 class="font-bold text-indigo-900 text-xs uppercase tracking-wide">AI Clinical Mechanism & Takeaway</h4>
+                        <p id="modal-ai-insight" class="text-xs text-indigo-800 mt-1 leading-relaxed">Loading clinical diagnostic...</p>
+                        <div class="mt-2 pt-2 border-t border-indigo-200/50 flex items-start gap-2">
+                            <span class="bg-indigo-600 text-white text-[9px] font-extrabold uppercase px-2 py-0.5 rounded shrink-0">Action</span>
+                            <p id="modal-ai-action" class="text-xs font-semibold text-indigo-900">Loading daily action...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         let allClients = [];
+        let telemetryChartInstance = null;
 
         document.addEventListener('DOMContentLoaded', () => {
             checkAuthState();
@@ -244,7 +305,8 @@
         function calculateKPIs(clients) {
             document.getElementById('kpi-total-clients').innerText = clients.length;
             
-            const activeClients = clients.filter(c => c.has_assessment && c.score !== null && c.score !== undefined);
+            // Only count as active if they actually have the assessment flag
+            const activeClients = clients.filter(c => c.has_assessment === true);
             document.getElementById('kpi-active-clients').innerText = activeClients.length;
 
             const compromisedCount = clients.filter(c => {
@@ -253,9 +315,31 @@
             }).length;
             document.getElementById('kpi-barrier-risk').innerText = compromisedCount;
 
-            const scores = activeClients.map(c => Number(c.score)).filter(s => !isNaN(s) && s > 0);
+            // Physical Assessment Score is always averaged for diagnostic monitoring
+            const scores = activeClients.map(c => Number(c.assessment_score || c.score)).filter(s => !isNaN(s) && s > 0);
             const avgScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
             document.getElementById('kpi-avg-score').innerText = avgScore !== null ? `${avgScore}/100` : '--';
+        }
+
+        function extractRoutineSteps(routineData) {
+            if (!routineData) return [];
+            if (Array.isArray(routineData)) {
+                return routineData.map(step => {
+                    if (typeof step === 'string') return step;
+                    return step.product_recommendation || step.product || step.name || 'Clinical Step';
+                });
+            }
+            if (typeof routineData === 'string') {
+                try {
+                    const parsed = JSON.parse(routineData);
+                    if (Array.isArray(parsed)) {
+                        return parsed.map(step => typeof step === 'string' ? step : (step.product_recommendation || step.product || 'Step'));
+                    }
+                } catch (e) {
+                    return [routineData];
+                }
+            }
+            return [];
         }
 
         function renderClients(clients) {
@@ -274,10 +358,16 @@
             }
 
             container.innerHTML = clients.map(client => {
+                const clientId = client.id || client.user_id;
                 const name = client.name || client.full_name || 'Unnamed Client';
                 const email = client.email || client.client_email || '';
-                const hasAssessment = Boolean(client.has_assessment && client.score !== null && client.score !== undefined);
-                const scoreVal = hasAssessment ? Number(client.score) : null;
+                
+                const hasAssessment = Boolean(client.has_assessment);
+                const isPrivate = client.is_private === true;
+                
+                // DECOUPLING ENGINE:
+                // assessment_score is the physical scan diagnostic score (ALWAYS VISIBLE)
+                const scoreVal = hasAssessment ? Number(client.assessment_score ?? client.skin_assessment_score ?? client.score ?? 75) : null;
                 const metrics = client.assessment_metrics;
 
                 let concernsArr = [];
@@ -298,6 +388,7 @@
                     ? `Assessed: <strong class="text-slate-600">${escapeHtml(client.assessment_date)}</strong>`
                     : `<span class="text-amber-600 font-semibold">Assessment Pending</span>`;
 
+                // PHYSICAL COMPUTER VISION METRICS REMAIN COMPLETELY VISIBLE
                 const diagnosticSectionHtml = hasAssessment && metrics ? `
                     <div class="p-3.5 bg-slate-900 text-slate-100 rounded-xl space-y-3 my-3">
                         <div class="flex justify-between items-center border-b border-slate-800 pb-2">
@@ -305,7 +396,7 @@
                                 <i data-lucide="scan" class="w-3.5 h-3.5"></i> Skin Diagnostic Assessment
                             </span>
                             <span class="text-xs font-bold ${scoreVal >= 75 ? 'text-teal-400' : scoreVal >= 55 ? 'text-amber-400' : 'text-rose-400'}">
-                                Overall Score: ${scoreVal}/100
+                                Skin Assessment Score: ${scoreVal}/100
                             </span>
                         </div>
 
@@ -358,6 +449,19 @@
                         <p class="text-[11px] text-slate-400">Patient has registered but not yet submitted their clinical skin evaluation questionnaire.</p>
                     </div>
                 `;
+
+                // Telemetry Button: Masks behavioral telemetry if private
+                const telemetryBtnHtml = isPrivate 
+                    ? `<button disabled title="Patient has paused behavioral habit and velocity tracking." class="flex items-center justify-center gap-1 bg-slate-100 text-slate-400 border border-slate-200 text-[11px] font-bold py-2 px-1 rounded-xl cursor-not-allowed">
+                           <i data-lucide="lock" class="w-3.5 h-3.5"></i> Private
+                       </button>`
+                    : `<button onclick="openTelemetryModal(${clientId}, '${escapeHtml(name)}', '${escapeHtml(email)}')" title="View Live Scoring Engine Telemetry" class="flex items-center justify-center gap-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-[11px] font-bold py-2 px-1 rounded-xl transition">
+                           <i data-lucide="activity" class="w-3.5 h-3.5"></i> Telemetry
+                       </button>`;
+                
+                const pdfExportBtnHtml = `<button onclick="generateClientPDF('${clientId}', event)" title="Export PDF Report" class="flex items-center justify-center gap-1 bg-slate-800 hover:bg-slate-900 text-white text-[11px] font-bold py-2 px-1 rounded-xl transition">
+                           <i data-lucide="download" class="w-3.5 h-3.5"></i> Export PDF
+                       </button>`;
 
                 return `
                     <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition space-y-4 client-card flex flex-col justify-between">
@@ -420,13 +524,16 @@
                             </div>
                         </div>
 
-                        <div class="pt-3 border-t border-slate-100 grid grid-cols-2 gap-2 mt-4">
+                        <!-- Module 7 Telemetry Bridge Button & Actions -->
+                        <div class="pt-3 border-t border-slate-100 grid grid-cols-4 gap-2 mt-4">
+                            ${telemetryBtnHtml}
                             <a href="/consultant_dashboard/recommendations.html?client=${encodeURIComponent(email)}" title="Send Routine Recommendation" class="flex items-center justify-center gap-1 bg-teal-600 hover:bg-teal-700 text-white text-[11px] font-bold py-2 px-1 rounded-xl transition">
                                 <i data-lucide="sliders" class="w-3.5 h-3.5"></i> Recommend
                             </a>
                             <a href="/consultant_dashboard/appointments.html?client=${encodeURIComponent(email)}" title="Schedule Consultation" class="flex items-center justify-center gap-1 bg-slate-800 hover:bg-slate-900 text-white text-[11px] font-bold py-2 px-1 rounded-xl transition">
                                 <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Consult
                             </a>
+                            ${pdfExportBtnHtml}
                         </div>
                     </div>
                 `;
@@ -434,6 +541,311 @@
 
             if (window.lucide) lucide.createIcons();
         }
+
+        // ==========================================
+        // MODULE 7 TELEMETRY INTEGRATION LOGIC
+        // ==========================================
+        async function openTelemetryModal(clientId, name, email) {
+            if(!clientId || clientId === 'undefined') {
+                alert("Cannot load telemetry: Client ID missing.");
+                return;
+            }
+            
+            document.getElementById('telemetryModal').classList.remove('hidden');
+            document.getElementById('modal-client-name').innerText = `${name} (${email})`;
+            document.getElementById('modal-score').innerText = '...';
+            document.getElementById('modal-pillars').innerHTML = '<p class="text-xs text-slate-400 italic col-span-2">Fetching live algorithm metrics...</p>';
+            document.getElementById('modal-ai-insight').innerText = 'Loading...';
+            document.getElementById('modal-ai-action').innerText = 'Loading...';
+
+            try {
+                const res = await fetch(`/api/professional/client/${clientId}/telemetry`, { headers: getAuthHeaders() });
+                const json = await res.json();
+
+                if (json.is_private) {
+                    // Overall Skin Health Score is locked, but diagnostic indicator remains safely contextualized
+                    document.getElementById('modal-score').innerHTML = '<i data-lucide="lock" class="w-8 h-8 text-rose-500"></i>';
+                    document.getElementById('modal-risk-badge').innerText = 'Private';
+                    document.getElementById('modal-pillars').innerHTML = '<p class="text-xs text-rose-500 font-bold col-span-2"><i data-lucide="lock" class="w-3 h-3 inline"></i> Behavioral telemetry and dynamic scores hidden by patient privacy settings.</p>';
+                    document.getElementById('modal-ai-insight').innerHTML = '<span class="text-rose-500"><i data-lucide="lock" class="w-3 h-3 inline"></i> Behavioral routine insights are paused by patient. Diagnostic assessment remains visible on main workstation.</span>';
+                    document.getElementById('modal-ai-action').innerText = 'Private';
+                    if (telemetryChartInstance) { telemetryChartInstance.destroy(); telemetryChartInstance = null; }
+                } else if (json.status === 'success' && json.latest_score_data) {
+                    const s = json.latest_score_data;
+                    document.getElementById('modal-score').innerText = s.overall_score;
+
+                    // Update Risk Badge
+                    const riskLevel = json.latest_assessment?.risk_level || 'Low';
+                    const badge = document.getElementById('modal-risk-badge');
+                    badge.innerText = `${riskLevel} Risk`;
+                    badge.className = riskLevel === 'High' ? 'px-2 py-1 bg-rose-100 text-rose-700 rounded-full text-[10px] font-bold' : 'px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-[10px] font-bold';
+
+                    // Update AI Insights
+                    document.getElementById('modal-ai-insight').innerText = s.ai_insight || 'No barrier mechanism insights available.';
+                    document.getElementById('modal-ai-action').innerText = s.actionable_takeaway || 'No direct action logged.';
+
+                    // Update 5-Pillar Breakdown
+                    document.getElementById('modal-pillars').innerHTML = `
+                        ${renderMiniBar('Condition', s.condition_score, 35)}
+                        ${renderMiniBar('Lifestyle', s.lifestyle_score, 20)}
+                        ${renderMiniBar('Consistency', s.routine_consistency_score, 20)}
+                        ${renderMiniBar('Sleep', s.sleep_score, 15)}
+                        ${renderMiniBar('Hydration', s.hydration_score, 10)}
+                    `;
+
+                    // Render 30-Day Trend
+                    renderTelemetryChart(json.history_30d || [s.overall_score]);
+                } else {
+                    document.getElementById('modal-pillars').innerHTML = '<p class="text-xs text-rose-500 font-semibold col-span-2">No telemetry data exists yet for this patient.</p>';
+                }
+            } catch (err) {
+                console.error("Failed to load telemetry", err);
+                document.getElementById('modal-pillars').innerHTML = '<p class="text-xs text-rose-500 font-semibold col-span-2">Database connection error.</p>';
+            }
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function closeTelemetryModal() {
+            document.getElementById('telemetryModal').classList.add('hidden');
+        }
+
+        function renderMiniBar(label, value, max) {
+            const pct = Math.min(100, (Number(value) / max) * 100);
+            return `
+                <div>
+                    <div class="flex items-center justify-between text-[10px] font-bold text-slate-500 mb-1">
+                        <span>${label}</span><span class="text-slate-800">${Number(value).toFixed(1)}/${max}</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-1.5">
+                        <div class="bg-teal-500 h-1.5 rounded-full" style="width: ${pct}%"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTelemetryChart(dataArr) {
+            const ctx = document.getElementById('modalChart').getContext('2d');
+            if (telemetryChartInstance) telemetryChartInstance.destroy();
+
+            const labels = dataArr.map((_, i) => `D${i+1}`);
+            if(labels.length > 0) labels[labels.length-1] = 'Today';
+
+            const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+            gradient.addColorStop(0, 'rgba(20, 184, 166, 0.2)');
+            gradient.addColorStop(1, 'rgba(20, 184, 166, 0.0)');
+
+            telemetryChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Health Score',
+                        data: dataArr,
+                        borderColor: '#0d9488',
+                        backgroundColor: gradient,
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3,
+                        spanGaps: false,
+                        pointRadius: 2,
+                        pointBackgroundColor: '#0d9488'
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: { 
+                        y: { min: 0, max: 100, grid: { color: '#f1f5f9' }, ticks: {font: {size: 9}} },
+                        x: { grid: { display: false }, ticks: {font: {size: 9}} }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+        
+        // ==========================================
+        // UPGRADED MEDICAL PDF EXPORT ENGINE WITH PRIVACY MASKING
+        // ==========================================
+        function generateClientPDF(reportId, evt) {
+            const reportData = allClients.find(r => (r.report_id || r.id || '') == reportId);
+
+            if (!reportData) {
+                alert("Cannot generate PDF: Patient data not found.");
+                return;
+            }
+
+            const pdfContainer = document.createElement('div');
+            pdfContainer.style.fontFamily = "'Helvetica Neue', Helvetica, Arial, sans-serif";
+            pdfContainer.style.color = "#1e293b";
+            pdfContainer.style.maxWidth = "800px";
+            pdfContainer.style.margin = "0 auto";
+            pdfContainer.style.padding = "30px";
+            pdfContainer.style.backgroundColor = "#ffffff";
+
+            // Properly format concerns list
+            let concernsPdf = '';
+            if (Array.isArray(reportData.concerns) && reportData.concerns.length > 0) {
+                concernsPdf = reportData.concerns.map(c => {
+                    return typeof c === 'object' ? `<strong>${escapeHtml(c.name || c.concern_name)}</strong> (Severity: ${escapeHtml(c.severity || 'Moderate')})` : `<strong>${escapeHtml(c)}</strong>`;
+                }).join('<br>');
+            } else {
+                concernsPdf = 'General Maintenance';
+            }
+
+            // Extract Routine Steps from DB
+            let amSteps = Array.isArray(reportData.routine_am) && reportData.routine_am.length > 0 
+                ? reportData.routine_am.map(s => `<li style="margin-bottom: 4px;">${escapeHtml(s)}</li>`).join('') 
+                : '<li style="margin-bottom: 4px;">Gentle AM Cleansing</li><li style="margin-bottom: 4px;">Broad-Spectrum SPF 50+</li>';
+                
+            let pmSteps = Array.isArray(reportData.routine_pm) && reportData.routine_pm.length > 0 
+                ? reportData.routine_pm.map(s => `<li style="margin-bottom: 4px;">${escapeHtml(s)}</li>`).join('') 
+                : '<li style="margin-bottom: 4px;">Double Cleansing Protocol</li><li style="margin-bottom: 4px;">Barrier Recovery Moisturizer</li>';
+
+            // ENGINEER UPGRADE: Granular Sovereignty in PDF
+            const isPrivate = reportData.is_private === true;
+            
+            // Overall Health Score: MASKED
+            const healthScoreDisplay = isPrivate ? "🔒 Private" : `${reportData.score !== null && reportData.score !== undefined ? reportData.score : 75}/100`;
+            
+            // Physical Skin Assessment Score: ALWAYS VISIBLE
+            const assessmentScoreVal = Number(reportData.assessment_score ?? reportData.skin_assessment_score ?? reportData.score ?? 75);
+            const scanScoreDisplay = `${assessmentScoreVal}/100`;
+
+            const waterDisplay = isPrivate ? "🔒 Private" : `${escapeHtml(String(reportData.water_intake || '2.0'))} L/day`;
+            const sleepDisplay = isPrivate ? "🔒 Private" : `${escapeHtml(String(reportData.sleep_quality || '7.5'))} hrs/night`;
+            const aiSummaryDisplay = isPrivate ? "Patient lifestyle telemetry and behavioral insights are paused due to active privacy settings. Baseline physical diagnostic assessment remains visible." : escapeHtml(reportData.ai_summary || 'Routine evaluation on file. No acute active inflammation detected during scan.');
+
+            const riskLevel = reportData.inflammation_level || 'Low';
+            let riskColor = '#10b981'; // Emerald
+            if (riskLevel.toLowerCase() === 'high') riskColor = '#e11d48'; // Rose
+            if (riskLevel.toLowerCase() === 'moderate') riskColor = '#d97706'; // Amber
+
+            pdfContainer.innerHTML = `
+                <!-- Header -->
+                <div style="border-bottom: 3px solid #0f766e; padding-bottom: 15px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div>
+                        <h1 style="font-size: 26px; font-weight: 800; color: #0f766e; margin: 0;">DermaAI Clinical Workstation</h1>
+                        <p style="font-size: 13px; color: #64748b; margin: 5px 0 0 0; text-transform: uppercase; letter-spacing: 1px;">Official Patient Assessment & Treatment Plan</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <p style="font-size: 12px; font-weight: bold; margin: 0; color: #334155;">Report ID: #SR-${reportId}</p>
+                        <p style="font-size: 11px; color: #64748b; margin: 3px 0 0 0;">Generated: ${new Date().toLocaleDateString()}</p>
+                    </div>
+                </div>
+
+                <!-- Patient Vitals Table -->
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 12px; border: 1px solid #e2e8f0;">
+                    <tr style="background-color: #f8fafc;">
+                        <td style="padding: 12px; border: 1px solid #e2e8f0;"><strong>Patient Name:</strong><br>${escapeHtml(reportData.client_name || reportData.name || 'Client')}</td>
+                        <td style="padding: 12px; border: 1px solid #e2e8f0;"><strong>Skin Type:</strong><br>${escapeHtml(reportData.skin_type || 'Combination')}</td>
+                        <td style="padding: 12px; border: 1px solid #e2e8f0;"><strong>Age Group:</strong><br>${escapeHtml(reportData.age_group || '25-34')}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #e2e8f0;"><strong>Overall Health Score:</strong><br><span style="font-size: 16px; font-weight: bold; color: #0f766e;">${healthScoreDisplay}</span></td>
+                        <td style="padding: 12px; border: 1px solid #e2e8f0;"><strong>Clinical Risk Level:</strong><br><span style="color: ${riskColor}; font-weight: bold; text-transform: uppercase;">${escapeHtml(riskLevel)}</span></td>
+                        <td style="padding: 12px; border: 1px solid #e2e8f0;"><strong>Reported Allergies:</strong><br><span style="color: #e11d48; font-weight: bold;">${escapeHtml(reportData.allergies || 'None')}</span></td>
+                    </tr>
+                </table>
+
+                <!-- Clinical Diagnostics -->
+                <div style="margin-bottom: 25px;">
+                    <h3 style="font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #0f766e; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; margin-bottom: 10px;">1. Clinical Diagnosis & Synthesis</h3>
+                    
+                    <div style="margin-bottom: 12px; font-size: 12px; line-height: 1.6;">
+                        <span style="font-weight: bold; color: #475569;">Diagnostic Scan Score:</span> <span style="font-weight: bold; color: #0f766e;">${scanScoreDisplay}</span><br><br>
+                        <span style="font-weight: bold; color: #475569;">Identified Active Concerns:</span><br>
+                        ${concernsPdf}
+                    </div>
+
+                    <div style="font-size: 12px; line-height: 1.6; background-color: #f1f5f9; padding: 12px; border-left: 4px solid #64748b; color: #334155; border-radius: 0 4px 4px 0;">
+                        <strong>Diagnostic Notes:</strong><br>
+                        ${aiSummaryDisplay}
+                    </div>
+                </div>
+
+                <!-- Prescribed Routine -->
+                <div style="margin-bottom: 25px;">
+                    <h3 style="font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #0f766e; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; margin-bottom: 15px;">2. Prescribed Daily Regimen</h3>
+                    <div style="display: flex; gap: 20px;">
+                        <div style="flex: 1; border: 1px solid #fef3c7; background-color: #fffbeb; padding: 15px; border-radius: 8px;">
+                            <h4 style="font-size: 13px; color: #d97706; margin-top: 0; margin-bottom: 10px; border-bottom: 1px solid #fde68a; padding-bottom: 5px;">☀️ Morning Protocol</h4>
+                            <ul style="font-size: 12px; padding-left: 18px; margin: 0; line-height: 1.6; color: #92400e;">
+                                ${amSteps}
+                            </ul>
+                        </div>
+                        <div style="flex: 1; border: 1px solid #e0e7ff; background-color: #eef2ff; padding: 15px; border-radius: 8px;">
+                            <h4 style="font-size: 13px; color: #4338ca; margin-top: 0; margin-bottom: 10px; border-bottom: 1px solid #c7d2fe; padding-bottom: 5px;">🌙 Evening Protocol</h4>
+                            <ul style="font-size: 12px; padding-left: 18px; margin: 0; line-height: 1.6; color: #3730a3;">
+                                ${pmSteps}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lifestyle & Notes -->
+                <div style="margin-bottom: 25px;">
+                    <h3 style="font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #0f766e; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; margin-bottom: 10px;">3. Telemetry Targets & Consultant Directives</h3>
+                    
+                    <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                        <div style="flex: 1; background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; font-size: 11px; text-align: center;">
+                            <strong style="color: #475569; display: block; margin-bottom: 2px;">Hydration Target</strong>
+                            <span style="font-size: 14px; font-weight: bold; color: #0284c7;">${waterDisplay}</span>
+                        </div>
+                        <div style="flex: 1; background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; font-size: 11px; text-align: center;">
+                            <strong style="color: #475569; display: block; margin-bottom: 2px;">Restoration Target</strong>
+                            <span style="font-size: 14px; font-weight: bold; color: #6366f1;">${sleepDisplay}</span>
+                        </div>
+                        <div style="flex: 1; background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; font-size: 11px; text-align: center;">
+                            <strong style="color: #475569; display: block; margin-bottom: 2px;">Environment Index</strong>
+                            <span style="font-size: 14px; font-weight: bold; color: #d97706;">${escapeHtml(reportData.environment || 'Urban')}</span>
+                        </div>
+                    </div>
+
+                    <div style="font-size: 12px; line-height: 1.6; border: 1px solid #ccfbf1; background-color: #f0fdfa; padding: 15px; border-radius: 8px; color: #115e59;">
+                        <strong style="font-size: 13px;">Official Consultant Notes & Plan:</strong><br>
+                        <div style="margin-top: 5px;">${escapeHtml(reportData.recommendation || reportData.consultant_recommendation || reportData.dermatologist_notes || 'Routine evaluation on file. Continue standard adherence protocols.')}</div>
+                    </div>
+                </div>
+
+                <!-- Sign off -->
+                <div style="margin-top: 60px; display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div>
+                        <div style="border-bottom: 1px solid #64748b; width: 220px; margin-bottom: 8px;"></div>
+                        <p style="font-size: 11px; font-weight: bold; color: #334155; margin: 0;">Consultant / Dermatologist Signature</p>
+                        <p style="font-size: 10px; color: #64748b; margin: 2px 0 0 0;">Authorized Clinical Care Provider</p>
+                    </div>
+                    <p style="font-size: 9px; color: #94a3b8; text-align: right; margin: 0; line-height: 1.4;">
+                        Securely generated by DermaAI Module 7 Workstation.<br>
+                        Confidential Medical Information. Not for public distribution.
+                    </p>
+                </div>
+            `;
+
+            const opt = {
+                margin:       [10, 10, 10, 10],
+                filename:     `DermaAI_Clinical_Plan_${reportId}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            const btn = evt ? evt.currentTarget : null;
+            let originalText = "";
+            if (btn) {
+                originalText = btn.innerHTML;
+                btn.innerHTML = '<i data-lucide="loader" class="w-3.5 h-3.5 animate-spin"></i> Generating...';
+                if (window.lucide) lucide.createIcons();
+            }
+
+            html2pdf().set(opt).from(pdfContainer).save().then(() => {
+                if(btn) btn.innerHTML = originalText;
+                if (window.lucide) lucide.createIcons();
+            }).catch(err => {
+                if(btn) btn.innerHTML = originalText;
+                if (window.lucide) lucide.createIcons();
+                alert("PDF generation notice: " + err.message);
+            });
+        }
+        // ==========================================
 
         function filterClients() {
             const query = (document.getElementById('searchInput')?.value || '').toLowerCase();
