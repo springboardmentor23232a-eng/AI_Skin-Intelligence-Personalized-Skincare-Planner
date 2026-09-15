@@ -1,41 +1,93 @@
-## System Architecture & Repository Structure
+# System Architecture & Repository Structure
 
 ## Overview
-This repository contains the source code for an AI Skin Intelligence & Personalized Skincare Planner. The system leverages Machine Learning to provide personalized skin assessments, intelligent ingredient analysis, and dynamic skincare routines. It features a robust role-based access control (RBAC) architecture, catering to four distinct user types: Patients (Users), Consultants, Dermatologists, and Administrators.
+This repository contains the source code for the **DermaAI Platform** — an AI Skin Intelligence and Personalized Skincare Planner. The system combines deep-learning computer vision with LLM-driven formulation analysis to deliver clinical-grade skin assessments, ingredient interaction scanning, and dynamic routine recommendations. 
+
+The application implements strict Role-Based Access Control (RBAC) across four operational personas: **Patients (Users)**, **Skincare Consultants**, **Board-Certified Dermatologists**, and **System Administrators**.
 
 ---
 
 ## High-Level Architecture
 
-The platform follows a modular, monolithic architecture with clear separation of concerns between the presentation layer (Dashboards), API routing (Backend), and computational modules (AI Engines).
+The platform is designed as a modular monolithic service with clear separation between the presentation tier, API routing controllers, computational AI engines, and the relational persistence layer.
 
-### 1. Presentation Layer (Frontend)
-The frontend relies on role-specific HTML views. By compartmentalizing dashboards, the platform ensures secure and isolated user experiences.
+```text
+┌─────────────────────────────────────────────────────────────────────────┐
+│                       PRESENTATION LAYER (UI)                           │
+│   User Portal   │  Consultant Portal  │  Dermatologist  │  Admin Portal │
+└────────────────────────────────────┬────────────────────────────────────┘
+                                     │ HTTP / REST APIs
+┌────────────────────────────────────▼────────────────────────────────────┐
+│                    APPLICATION & ROUTING CONTROLLERS                    │
+│   FastAPI Core  │ Auth / RBAC (JWT)  │ Domain Routers (Appointments,    │
+│   (app.py)      │ Middleware (CORS)  │ Routines, Telemetry, Export)     │
+└──────────────────┬──────────────────────────────────┬───────────────────┘
+                   │                                  │
+┌──────────────────▼──────────────────┐ ┌─────────────▼───────────────────┐
+│     AI & COMPUTATION ENGINES        │ │         DATA LAYER              │
+│ • PyTorch Multi-Modal Vision Model  │ │ • PostgreSQL Relational DB      │
+│ • Gemini Skincare LLM Synthesis     │ │ • Connection Pool Engine        │
+│ • Ingredient Safety & Comedogenicity│ │ • Relational Schema (DB.sql)    │
+│ • Longitudinal Scoring & Trends     │ │ • Static Datasets (data/)       │
+└─────────────────────────────────────┘ └─────────────────────────────────┘
 
-*   **`user_dashboard/`**: The patient-facing interface. Includes tools for personal skin assessments, routine planning, ingredient risk analysis, and appointment scheduling.
-*   **`dermatologist_dashboard/`**: The clinical interface. Provides deep patient insights, progress tracking, and capabilities for generating formal treatment recommendations.
-*   **`consultant_dashboard/`**: The advisor interface. Allows skincare consultants to monitor client progress, manage appointments, and view basic skin reports.
-*   **`admin_dashboard/`**: The administrative interface. Handles system reports, account approvals, user management, and overall platform settings.
-*   **Root Entry Points**: Role-based landing pages (`index.html`, `admin.html`, `user_dashboard.html`, etc.) route users to their respective environments post-authentication.
+```
+
+---
+
+### 1. Presentation Layer (Frontend Dashboards)
+
+Frontend views are delivered via responsive, component-driven HTML5, Tailwind CSS, and vanilla JavaScript interfaces tailored to each role:
+
+* **`user_dashboard/`**: The patient interface. Provides interactive self-assessments, custom routine checklists, product recommendations, ingredient safety scanning, score tracking, and appointment scheduling.
+* **`dermatologist_dashboard/`**: The clinical medical interface. Delivers deep diagnostic telemetry, historical condition trend comparisons, electronic prescriptions, and formal PDF report generation.
+* **`consultant_dashboard/`**: The advisor interface. Enables skincare specialists to review assigned client profiles, manage consultation queues, view barrier intake reports, and push routine adjustments.
+* **`admin_dashboard/`**: The governance interface. Manages practitioner account approvals, audit logging, system health monitoring, and platform analytics.
+* **Root Entry Pages**: Dedicated entry points (`index.html`, `user_dashboard.html`, `consultant_dashboard.html`, `dermatologist_dashboard.html`, `admin.html`) direct authenticated users to their authorized workspace.
+
+---
 
 ### 2. Application Layer (Backend Routers)
-The backend routes manage API requests, database interactions, and state management.
 
-*   **`app.py` & `main.py`**: The primary entry points that bootstrap the application and register routing schemas.
-*   **`*_router.py`**: Domain-specific API controllers (e.g., `appointments_router.py`, `dermatologist_router.py`, `ingredient_router.py`). These abstract the HTTP request logic away from core application functionality.
+The backend is built with FastAPI to deliver high-throughput, asynchronous API operations:
 
-### 3. AI & Computation Engines (Machine Learning)
-The computational core translates user data (like images and ingredient lists) into actionable intelligence.
+* **`app.py` / `main.py**`: The central application factory that bootstraps FastAPI, initializes CORS middleware, mounts static files, and aggregates all domain routers.
+* **`*_router.py`**: Dedicated REST controllers encapsulating business logic:
+* `appointments_router.py`: Handles appointment lifecycle, booking, status transitions, and clinician briefs.
+* `dermatologist_router.py`: Manages prescriptions, medical overrides, and patient telemetry.
+* `ingredient_router.py`: Serves ingredient safety checks and INCI risk breakdowns.
+* `product_router.py`: Manages product catalogs, budget-filtered recommendations, and cosmetic dupes.
+* `progress_router.py`: Records daily AM/PM checklist logs, hydration, sleep, and photographic progress.
+* `routine_router.py`: Orchestrates multi-layer active routines (combining AI recommendations with doctor overrides).
+* `scoring_router.py`: Computes composite skin health scores across biometric pillars.
+* `notification_router.py`: Manages in-app alerts, clinician nudges, and reminder preferences.
+* `export_router.py`: Generates standardized PDF and CSV clinical dossiers and compliance reports.
 
-*   **`skin_assessment_engine.py`**: Processes uploaded images and survey data to evaluate skin conditions.
-*   **`ml_engine.py`**: Houses the primary inference logic and AI models for general predictions.
-*   **`ingredient_engine.py`**: Cross-references product compositions against safety databases to flag risks (e.g., allergens, comedogenic ratings).
-*   **`routine_engine.py`**: Dynamically generates tailored AM/PM skincare regimens based on the assessment outputs.
-*   **`train_model.py`**: An MLOps utility script used to ingest new dataset iterations and re-train the underlying neural networks.
 
-### 4. Data Layer
-*   **`DB.sql`**: The master relational database schema. Defines tables for users, appointments, tracking metrics, and ingredient mappings.
-*   **`data/`**: The local storage directory used for maintaining the active database (e.g., SQLite) as well as temporary/persistent file storage (such as image uploads).
+
+---
+
+### 3. AI & Computational Engines
+
+Computational modules isolate heavy analytical and machine learning workloads from the HTTP request cycle:
+
+* **`skin_assessment_engine.py`**: Core assessment engine. Ingests patient image inputs alongside lifestyle survey metrics to produce health scores, concern severities, and risk levels.
+* **`ml_engine.py`**: Houses the multi-modal neural network inference pipeline for efficient image feature extraction and tabular risk scoring.
+* **`ingredient_engine.py`**: Evaluates formulation safety by cross-referencing INCI cosmetic compounds against declared patient allergies, sensitizing triggers, and contraindications.
+* **`routine_engine.py`**: Dynamic regimen builder that translates assessment outputs into tailored AM/PM product steps and weekly treatments.
+* **`product_engine.py`**: Analyzes market products across price tiers, matching formulations against user skin types while flagging irritants.
+* **`scoring_engine.py`**: Mathematical scoring engine that evaluates rolling 30-day adherence, condition velocity, and predictive score forecasting.
+* **`notification_dispatcher.py`**: Background delivery worker routing clinical alerts across push notifications and email channels.
+* **`train_model.py`**: Offline model training pipeline used to train and export neural network weights.
+
+---
+
+### 4. Data Layer & Documentation
+
+* **PostgreSQL**: Primary relational database maintaining referential integrity across users, clinical records, routines, appointments, and telemetry logs.
+* **`DB.sql`**: Definitive relational schema defining tables, indexes, constraints, and user-role enumerations.
+* **`data/`**: Static repository directory storing curated domain datasets.
+* **Documentation**: Includes comprehensive setup and architectural guides (`Documentation.pdf`, `Documentation.docx`, `user guide.pdf`, `user guide.docx`).
 
 ---
 
@@ -78,14 +130,18 @@ The computational core translates user data (like images and ingredient lists) i
 ├── DB.sql                          # Primary database relational schema definitions
 ├── dermatologist_dashboard.html    # Root landing page for Dermatologists
 ├── dermatologist_router.py         # API endpoints for dermatologist logic
+├── encoders.pkl                    # Local ML label encoders (Ignored in Git)
 ├── export_router.py                # API endpoints to export pdf and csv files
+├── firebase-messaging-sw.js        # Service worker for push notifications
 ├── index.html                      # Core project welcome/login portal
 ├── ingredient_engine.py            # Computational engine for ingredient analysis
 ├── ingredient_router.py            # API endpoints for ingredient lookups
 ├── main.py                         # Secondary or alternative system entry point
 ├── ml_engine.py                    # Core Machine Learning prediction logic
+├── model.pth                       # Local PyTorch weights (Ignored in Git)
 ├── notification_router.py          # API endpoints for notifications
-├── notification_dispatcher.py      # Computational engine for notifications
+├── notification_dispatcher.py      # Background worker: Multi-channel messaging
+├── openapi.json                    # API contract specification
 ├── product_router.py               # API endpoints for product recommendation
 ├── product_engine.py               # Computational engine for product recommendations
 ├── progress_router.py              # API endpoints for user tracking data
@@ -97,5 +153,6 @@ The computational core translates user data (like images and ingredient lists) i
 ├── train_model.py                  # Script used to re-train the AI/ML weights
 └── user_dashboard.html             # Root landing page for Users
 ```
-architecture.md
-Displaying architecture.md.
+```
+
+```
