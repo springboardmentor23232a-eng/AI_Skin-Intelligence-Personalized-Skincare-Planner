@@ -64,7 +64,16 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('ai_skincare_session', JSON.stringify(sessionUser));
       return { success: true, role: sessionUser.role };
     } catch (err) {
-      const msg = err.response?.data?.message || 'Invalid email or password';
+      let msg = 'Invalid email or password';
+      if (err.response?.data?.message) {
+        msg = err.response.data.message;
+      } else if (err.response?.data?.detail) {
+        msg = typeof err.response.data.detail === 'string'
+          ? err.response.data.detail
+          : 'Invalid login request parameters';
+      } else if (err.message === 'Network Error' || !err.response) {
+        msg = 'Unable to connect to backend server. Please verify backend status and API URL.';
+      }
       return { success: false, message: msg };
     }
   };
@@ -93,7 +102,16 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('ai_skincare_session', JSON.stringify(sessionUser));
       return { success: true, role: sessionUser.role };
     } catch (err) {
-      const msg = err.response?.data?.message || 'Google Sign-In failed';
+      let msg = 'Google Sign-In failed';
+      if (err.response?.data?.message) {
+        msg = err.response.data.message;
+      } else if (err.response?.data?.detail) {
+        msg = typeof err.response.data.detail === 'string'
+          ? err.response.data.detail
+          : 'Google authentication failed';
+      } else if (err.message === 'Network Error' || !err.response) {
+        msg = 'Unable to connect to backend server. Please verify backend status and API URL.';
+      }
       return { success: false, message: msg };
     }
   };

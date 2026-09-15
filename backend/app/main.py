@@ -11,7 +11,7 @@ from app.services import notification_service
 from app.logging_config import logger
 from sqlalchemy import text
 from app.database import engine, Base, SessionLocal, get_db
-from app.models import Ingredient, Product
+from app.models import Ingredient, Product, User
 import app.models
 
 # Auto-create SQLAlchemy database tables on application start
@@ -547,6 +547,42 @@ def seed_products():
         db.rollback()
     finally:
         db.close()
+
+
+@app.on_event("startup")
+def seed_demo_users():
+    """Ensures standard demo user accounts exist for seamless evaluation and login."""
+    db = SessionLocal()
+    try:
+        from app.services.auth_service import hash_password
+        demo_users = [
+            {"email": "user@demo.com", "password": "user123", "name": "Sarah Connor", "role": "USER"},
+            {"email": "consultant@demo.com", "password": "consultant123", "name": "Elena Rostova", "role": "CONSULTANT"},
+            {"email": "dermatologist@demo.com", "password": "dermatologist123", "name": "Dr. Marcus Vance", "role": "DOCTOR"},
+            {"email": "admin@demo.com", "password": "admin123", "name": "System Administrator", "role": "ADMIN"}
+        ]
+        created_count = 0
+        for du in demo_users:
+            existing = db.query(User).filter(User.email == du["email"].lower()).first()
+            if not existing:
+                new_user = User(
+                    email=du["email"].lower(),
+                    name=du["name"],
+                    hashed_password=hash_password(du["password"]),
+                    role=du["role"],
+                    provider="LOCAL"
+                )
+                db.add(new_user)
+                created_count += 1
+        if created_count > 0:
+            db.commit()
+            logger.info(f"Successfully seeded {created_count} initial demo users into PostgreSQL database.")
+    except Exception as e:
+        logger.error(f"Failed to seed demo users: {e}")
+        db.rollback()
+    finally:
+        db.close()
+
 
 @app.get("/", tags=["Health Check"])
 async def health_check():
