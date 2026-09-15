@@ -1,0 +1,136 @@
+
+/* =====================================================
+   PRODUCT COMPARISON - DASHBOARD STYLE
+   ===================================================== */
+
+.comparison-modal {
+    position: relative !important;
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    margin: 40px 0 !important;
+}
+
+.comparison-overlay {
+    display: none !important;
+}
+
+.comparison-box {
+    width: 90% !important;
+    max-width: 1050px !important;
+    background: #ffffff !important;
+    border-radius: 18px !important;
+    padding: 30px !important;
+    margin: 0 auto !important;
+    box-shadow: 0 8px 30px rgba(47, 143, 131, 0.12) !important;
+    border: 1px solid #e3eeee !important;
+}
+
+.comparison-box h2 {
+    text-align: center !important;
+    color: #2f8f83 !important;
+    font-size: 26px !important;
+    margin-bottom: 8px !important;
+}
+
+.comparison-subtitle {
+    text-align: center !important;
+    color: #777 !important;
+    margin-bottom: 28px !important;
+}
+
+.comparison-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 22px !important;
+}
+
+.comparison-product {
+    background: #f8fbfa !important;
+    border: 1px solid #dcebea !important;
+    border-radius: 15px !important;
+    padding: 24px !important;
+}
+
+.comparison-product:hover {
+    box-shadow: 0 6px 20px rgba(47, 143, 131, 0.10) !important;
+}
+
+.comparison-category {
+    color: #2f8f83 !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+}
+
+.comparison-product h3 {
+    color: #263b39 !important;
+    font-size: 20px !important;
+    margin: 10px 0 !important;
+}
+
+.comparison-price {
+    color: #2f8f83 !important;
+    font-size: 22px !important;
+    font-weight: 700 !important;
+    margin-bottom: 18px !important;
+}
+
+.comparison-section {
+    border-top: 1px solid #e1eaea !important;
+    padding: 15px 0 !important;
+}
+
+.comparison-section strong {
+    color: #344b48 !important;
+}
+
+.comparison-section span {
+    color: #2f8f83 !important;
+    font-weight: 700 !important;
+}
+
+.comparison-section li {
+    color: #5d6d6a !important;
+    margin: 7px 0 !important;
+}
+
+.comparison-summary {
+    margin-top: 25px !important;
+    background: #eef8f6 !important;
+    border: 1px solid #d5ebe7 !important;
+    border-radius: 14px !important;
+    padding: 18px 20px !important;
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+}
+
+.comparison-summary > i {
+    color: #2f8f83 !important;
+    font-size: 22px !important;
+}
+
+.comparison-summary strong {
+    color: #2f8f83 !important;
+}
+
+.comparison-summary p {
+    color: #52615f !important;
+    margin: 5px 0 0 !important;
+}
+
+.comparison-close {
+    display: none !important;
+}
+
+@media (max-width: 700px) {
+    .comparison-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .comparison-box {
+        width: 94% !important;
+        padding: 20px !important;
+    }
+}

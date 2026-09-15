@@ -6,12 +6,511 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Admin Dashboard</title>
-
-<link rel="stylesheet" href="../css/dashboard.css">
+<title>Skin AI | Admin Dashboard</title>
 
 <link rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f3f8f5;
+    color: #173b25;
+}
+
+/* ================= SIDEBAR ================= */
+
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 275px;
+    height: 100vh;
+    background: linear-gradient(
+        180deg,
+        #104f22,
+        #1d7634,
+        #299343
+    );
+    color: white;
+    padding: 30px 20px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 10px;
+    margin-bottom: 40px;
+}
+
+.brand-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background: rgba(255,255,255,.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.brand h2 {
+    margin: 0;
+    font-size: 25px;
+}
+
+.brand small {
+    font-size: 10px;
+    opacity: .7;
+    letter-spacing: 1px;
+}
+
+.menu-title {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    opacity: .55;
+    padding: 0 14px;
+    margin-bottom: 10px;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar li {
+    margin-bottom: 7px;
+}
+
+.sidebar a {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 14px 15px;
+    border-radius: 13px;
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    transition: .25s;
+}
+
+.sidebar a:hover {
+    background: rgba(255,255,255,.12);
+    transform: translateX(3px);
+}
+
+.sidebar a.active {
+    background: white;
+    color: #1c7835;
+}
+
+.sidebar i {
+    width: 20px;
+    text-align: center;
+}
+
+/* ================= MAIN ================= */
+
+.main {
+    margin-left: 275px;
+    padding: 35px 42px 60px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 34px;
+}
+
+.header p {
+    margin: 7px 0 0;
+    color: #78857e;
+    font-size: 14px;
+}
+
+.admin-status {
+    background: white;
+    border: 1px solid #dce9df;
+    padding: 11px 16px;
+    border-radius: 25px;
+    color: #23803b;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+/* ================= HERO ================= */
+
+.hero {
+    background: linear-gradient(
+        135deg,
+        #17682d,
+        #319a4c
+    );
+    color: white;
+    border-radius: 25px;
+    padding: 30px 34px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    box-shadow: 0 15px 35px rgba(25,100,45,.15);
+}
+
+.hero h2 {
+    margin: 0 0 7px;
+    font-size: 27px;
+}
+
+.hero p {
+    margin: 5px 0;
+    opacity: .85;
+    font-size: 13px;
+}
+
+.hero-badge {
+    display: inline-block;
+    margin-top: 10px;
+    background: rgba(255,255,255,.16);
+    padding: 7px 13px;
+    border-radius: 20px;
+    font-size: 10px;
+}
+
+.hero-icon {
+    width: 95px;
+    height: 95px;
+    border-radius: 50%;
+    border: 7px solid rgba(255,255,255,.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 39px;
+}
+
+/* ================= STAT CARDS ================= */
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 18px;
+    margin-bottom: 25px;
+}
+
+.card {
+    background: white;
+    border-radius: 19px;
+    padding: 22px;
+    box-shadow: 0 7px 25px rgba(25,75,40,.06);
+    transition: .25s;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+}
+
+.card-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 13px;
+    background: #e7f6eb;
+    color: #23823c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+}
+
+.card h3 {
+    margin: 14px 0 5px;
+    font-size: 12px;
+    color: #78857e;
+}
+
+.card h2 {
+    margin: 0;
+    color: #207b39;
+    font-size: 28px;
+}
+
+.card p {
+    margin: 5px 0 0;
+    color: #8a958f;
+    font-size: 10px;
+}
+
+/* ================= TWO COLUMNS ================= */
+
+.two-column {
+    display: grid;
+    grid-template-columns: 1.25fr .75fr;
+    gap: 22px;
+    margin-bottom: 23px;
+}
+
+.panel {
+    background: white;
+    border-radius: 22px;
+    padding: 27px;
+    box-shadow: 0 7px 25px rgba(25,75,40,.06);
+}
+
+.panel-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+}
+
+.panel-title h2 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.panel-title span {
+    color: #89948e;
+    font-size: 10px;
+}
+
+/* ================= ANALYTICS ================= */
+
+.analytics-item {
+    margin-bottom: 21px;
+}
+
+.analytics-item:last-child {
+    margin-bottom: 0;
+}
+
+.analytics-top {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.analytics-top span:last-child {
+    color: #24813c;
+}
+
+.analytics-bar {
+    height: 10px;
+    background: #e5eee8;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.analytics-fill {
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        #23823c,
+        #5aba70
+    );
+    border-radius: 20px;
+}
+
+/* ================= SYSTEM ================= */
+
+.system-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 0;
+    border-bottom: 1px solid #edf1ee;
+}
+
+.system-item:last-child {
+    border-bottom: none;
+}
+
+.system-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.system-icon {
+    width: 39px;
+    height: 39px;
+    border-radius: 11px;
+    background: #e8f6eb;
+    color: #23823c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.system-left strong {
+    display: block;
+    font-size: 12px;
+}
+
+.system-left span {
+    display: block;
+    color: #8a958f;
+    font-size: 9px;
+    margin-top: 3px;
+}
+
+.online {
+    background: #e5f6e9;
+    color: #21803a;
+    padding: 6px 10px;
+    border-radius: 15px;
+    font-size: 9px;
+    font-weight: bold;
+}
+
+/* ================= USERS ================= */
+
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.user-table th {
+    text-align: left;
+    padding: 11px 8px;
+    color: #8a958f;
+    font-size: 10px;
+    border-bottom: 1px solid #e5ece7;
+}
+
+.user-table td {
+    padding: 13px 8px;
+    font-size: 11px;
+    border-bottom: 1px solid #edf1ee;
+}
+
+.user-name {
+    font-weight: bold;
+}
+
+.role {
+    color: #26803d;
+    font-weight: 600;
+}
+
+.active-status {
+    background: #e7f6ea;
+    color: #21803a;
+    padding: 5px 9px;
+    border-radius: 14px;
+    font-size: 8px;
+    font-weight: bold;
+}
+
+/* ================= QUICK ACTIONS ================= */
+
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.action {
+    background: white;
+    border: 1px solid #e0ebe3;
+    border-radius: 17px;
+    padding: 19px;
+    text-decoration: none;
+    color: #183c26;
+    transition: .25s;
+}
+
+.action:hover {
+    border-color: #5aae6b;
+    transform: translateY(-3px);
+}
+
+.action i {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: #e8f6eb;
+    color: #23813b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+}
+
+.action strong {
+    display: block;
+    font-size: 12px;
+}
+
+.action span {
+    display: block;
+    color: #89948e;
+    font-size: 9px;
+    margin-top: 4px;
+}
+
+/* ================= FOOTER ================= */
+
+.footer {
+    text-align: center;
+    color: #89958e;
+    font-size: 10px;
+    margin-top: 30px;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media(max-width:1150px) {
+
+    .cards {
+        grid-template-columns: repeat(2,1fr);
+    }
+
+    .two-column {
+        grid-template-columns: 1fr;
+    }
+
+    .quick-actions {
+        grid-template-columns: repeat(2,1fr);
+    }
+
+}
+
+@media(max-width:800px) {
+
+    .sidebar {
+        width: 220px;
+    }
+
+    .main {
+        margin-left: 220px;
+        padding: 25px;
+    }
+
+    .hero {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+}
+
+</style>
 
 </head>
 
@@ -19,156 +518,830 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
 <body>
 
 
+<!-- ================= SIDEBAR ================= -->
+
 <div class="sidebar">
 
-<h2>Skin AI</h2>
+    <div class="brand">
+
+        <div class="brand-icon">
+            <i class="fa-solid fa-leaf"></i>
+        </div>
+
+        <div>
+
+            <h2>Skin AI</h2>
+
+            <small>
+                ADMIN CONTROL CENTER
+            </small>
+
+        </div>
+
+    </div>
 
 
-<ul>
-
-<li>
-<a href="admin-dashboard.html">
-<i class="fa-solid fa-chart-line"></i>
-Dashboard
-</a>
-</li>
+    <div class="menu-title">
+        PLATFORM MANAGEMENT
+    </div>
 
 
-<li>
-<a href="reports.html">
-<i class="fa-solid fa-file"></i>
-Reports
-</a>
-</li>
+    <ul>
+
+        <li>
+            <a href="admin-dashboard.html"
+               class="active">
+
+                <i class="fa-solid fa-gauge-high"></i>
+
+                Dashboard
+
+            </a>
+        </li>
 
 
-<li>
-<a href="profile.html">
-<i class="fa-solid fa-user"></i>
-Profile
-</a>
-</li>
+        <li>
+            <a href="admin-users.html">
+
+                <i class="fa-solid fa-users"></i>
+
+                User Management
+
+            </a>
+        </li>
 
 
-<li>
-<a href="../index.html">
-<i class="fa-solid fa-right-from-bracket"></i>
-Logout
-</a>
-</li>
+        <li>
+            <a href="admin-analytics.html">
+
+                <i class="fa-solid fa-chart-column"></i>
+
+                Platform Analytics
+
+            </a>
+        </li>
 
 
-</ul>
+        <li>
+            <a href="admin-recommendations.html">
+
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+
+                Recommendation Monitoring
+
+            </a>
+        </li>
+
+
+        <li>
+            <a href="admin-reports.html">
+
+                <i class="fa-solid fa-file-lines"></i>
+
+                System Reports
+
+            </a>
+        </li>
+
+
+        <li>
+            <a href="profile.html">
+
+                <i class="fa-solid fa-user-shield"></i>
+
+                Profile
+
+            </a>
+        </li>
+
+
+        <li>
+            <a href="../index.html">
+
+                <i class="fa-solid fa-right-from-bracket"></i>
+
+                Logout
+
+            </a>
+        </li>
+
+    </ul>
 
 </div>
 
 
-
+<!-- ================= MAIN ================= -->
 
 <div class="main">
 
 
-<div class="profile-header">
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <div>
+
+            <h1>
+                Admin Dashboard
+            </h1>
+
+            <p>
+                Monitor and manage the Skin AI Intelligence Platform
+            </p>
+
+        </div>
 
 
+        <div class="admin-status">
 
-<div>
+            <i class="fa-solid fa-shield-halved"></i>
 
-<h1>Welcome Admin 👋</h1>
+            ADMIN SYSTEM ACTIVE
 
-<p>Manage AI Skin Intelligence Platform</p>
+        </div>
+
+    </div>
+
+
+    <!-- ================= HERO ================= -->
+
+    <div class="hero">
+
+        <div>
+
+            <h2>
+                Welcome, Admin 👋
+            </h2>
+
+            <p>
+                Central control center for users, AI recommendations,
+                analytics and system monitoring.
+            </p>
+
+            <span class="hero-badge">
+
+                <i class="fa-solid fa-lock"></i>
+
+                Secure Administrative Access
+
+            </span>
+
+        </div>
+
+
+        <div class="hero-icon">
+
+            <i class="fa-solid fa-user-shield"></i>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= STAT CARDS ================= -->
+
+    <div class="cards">
+
+
+        <div class="card">
+
+            <div class="card-icon">
+                <i class="fa-solid fa-users"></i>
+            </div>
+
+            <h3>
+                Total Users
+            </h3>
+
+            <h2>
+                7
+            </h2>
+
+            <p>
+                Registered platform users
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-icon">
+                <i class="fa-solid fa-user-doctor"></i>
+            </div>
+
+            <h3>
+                Dermatologists
+            </h3>
+
+            <h2>
+                1
+            </h2>
+
+            <p>
+                Active medical professionals
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-icon">
+                <i class="fa-solid fa-file-medical"></i>
+            </div>
+
+            <h3>
+                Skin Reports
+            </h3>
+
+            <h2>
+                500
+            </h2>
+
+            <p>
+                AI skin reports generated
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-icon">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </div>
+
+            <h3>
+                AI Recommendations
+            </h3>
+
+            <h2>
+                480
+            </h2>
+
+            <p>
+                Personalized recommendations
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= ANALYTICS + SYSTEM ================= -->
+
+    <div class="two-column">
+
+
+        <!-- PLATFORM ANALYTICS -->
+
+        <div class="panel">
+
+            <div class="panel-title">
+
+                <h2>
+                    Platform Analytics
+                </h2>
+
+                <span>
+                    Current overview
+                </span>
+
+            </div>
+
+
+            <div class="analytics-item">
+
+                <div class="analytics-top">
+
+                    <span>
+                        Active Users
+                    </span>
+
+                    <span>
+                        82%
+                    </span>
+
+                </div>
+
+                <div class="analytics-bar">
+
+                    <div class="analytics-fill"
+                         style="width:82%;">
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="analytics-item">
+
+                <div class="analytics-top">
+
+                    <span>
+                        Skin Assessments Completed
+                    </span>
+
+                    <span>
+                        76%
+                    </span>
+
+                </div>
+
+                <div class="analytics-bar">
+
+                    <div class="analytics-fill"
+                         style="width:76%;">
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="analytics-item">
+
+                <div class="analytics-top">
+
+                    <span>
+                        Recommendation Usage
+                    </span>
+
+                    <span>
+                        88%
+                    </span>
+
+                </div>
+
+                <div class="analytics-bar">
+
+                    <div class="analytics-fill"
+                         style="width:88%;">
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="analytics-item">
+
+                <div class="analytics-top">
+
+                    <span>
+                        Platform Engagement
+                    </span>
+
+                    <span>
+                        91%
+                    </span>
+
+                </div>
+
+                <div class="analytics-bar">
+
+                    <div class="analytics-fill"
+                         style="width:91%;">
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- SYSTEM STATUS -->
+
+        <div class="panel">
+
+            <div class="panel-title">
+
+                <h2>
+                    System Status
+                </h2>
+
+                <span>
+                    Live monitor
+                </span>
+
+            </div>
+
+
+            <div class="system-item">
+
+                <div class="system-left">
+
+                    <div class="system-icon">
+                        <i class="fa-solid fa-brain"></i>
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            AI Model
+                        </strong>
+
+                        <span>
+                            Recommendation engine
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <span class="online">
+                    ACTIVE
+                </span>
+
+            </div>
+
+
+            <div class="system-item">
+
+                <div class="system-left">
+
+                    <div class="system-icon">
+                        <i class="fa-solid fa-database"></i>
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Database
+                        </strong>
+
+                        <span>
+                            PostgreSQL service
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <span class="online">
+                    CONNECTED
+                </span>
+
+            </div>
+
+
+            <div class="system-item">
+
+                <div class="system-left">
+
+                    <div class="system-icon">
+                        <i class="fa-solid fa-server"></i>
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            API Server
+                        </strong>
+
+                        <span>
+                            FastAPI backend
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <span class="online">
+                    RUNNING
+                </span>
+
+            </div>
+
+
+            <div class="system-item">
+
+                <div class="system-left">
+
+                    <div class="system-icon">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Security
+                        </strong>
+
+                        <span>
+                            Platform protection
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <span class="online">
+                    SECURE
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= RECENT USERS ================= -->
+
+    <div class="panel"
+         style="margin-bottom:23px;">
+
+        <div class="panel-title">
+
+            <h2>
+                Recent Platform Users
+            </h2>
+
+            <span>
+                Latest registered accounts
+            </span>
+
+        </div>
+
+
+        <table class="user-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        USER
+                    </th>
+
+                    <th>
+                        ROLE
+                    </th>
+
+                    <th>
+                        STATUS
+                    </th>
+
+                    <th>
+                        ACTIVITY
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                <tr>
+
+                    <td class="user-name">
+                        Priya Sharma
+                    </td>
+
+                    <td class="role">
+                        User
+                    </td>
+
+                    <td>
+                        <span class="active-status">
+                            ACTIVE
+                        </span>
+                    </td>
+
+                    <td>
+                        Skin Assessment
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td class="user-name">
+                        Anjali Reddy
+                    </td>
+
+                    <td class="role">
+                        User
+                    </td>
+
+                    <td>
+                        <span class="active-status">
+                            ACTIVE
+                        </span>
+                    </td>
+
+                    <td>
+                        Product Recommendation
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td class="user-name">
+                        Rahul Kumar
+                    </td>
+
+                    <td class="role">
+                        Consultant
+                    </td>
+
+                    <td>
+                        <span class="active-status">
+                            ACTIVE
+                        </span>
+                    </td>
+
+                    <td>
+                        Client Monitoring
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td class="user-name">
+                        Dermatologist
+                    </td>
+
+                    <td class="role">
+                        Dermatologist
+                    </td>
+
+                    <td>
+                        <span class="active-status">
+                            ACTIVE
+                        </span>
+                    </td>
+
+                    <td>
+                        Patient Reports
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <!-- ================= QUICK ACTIONS ================= -->
+
+    <div class="panel-title">
+
+        <h2>
+            Administrative Actions
+        </h2>
+
+    </div>
+
+
+    <div class="quick-actions">
+
+
+        <a href="admin-users.html"
+           class="action">
+
+            <i class="fa-solid fa-users-gear"></i>
+
+            <strong>
+                Manage Users
+            </strong>
+
+            <span>
+                View and manage platform accounts
+            </span>
+
+        </a>
+
+
+        <a href="admin-analytics.html"
+           class="action">
+
+            <i class="fa-solid fa-chart-column"></i>
+
+            <strong>
+                Platform Analytics
+            </strong>
+
+            <span>
+                Monitor platform performance
+            </span>
+
+        </a>
+
+
+        <a href="admin-recommendations.html"
+           class="action">
+
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+
+            <strong>
+                Recommendation Monitoring
+            </strong>
+
+            <span>
+                Review AI recommendation activity
+            </span>
+
+        </a>
+
+
+        <a href="admin-reports.html"
+           class="action">
+
+            <i class="fa-solid fa-file-lines"></i>
+
+            <strong>
+                System Reports
+            </strong>
+
+            <span>
+                Generate administrative reports
+            </span>
+
+        </a>
+
+    </div>
+
+
+    <div class="footer">
+
+        Skin AI • Administrative Control Center
+
+    </div>
+
 
 </div>
 
-</div>
+<script>
+
+async function loadTotalUsers() {
+
+    const totalUsers =
+        document.getElementById("totalUsers");
+
+    const token =
+        localStorage.getItem("token") ||
+        localStorage.getItem("access_token") ||
+        localStorage.getItem("accessToken");
+
+    if (!token) {
+        totalUsers.textContent = "0";
+        return;
+    }
+
+    try {
+
+        const response = await fetch(
+            "http://127.0.0.1:8000/api/auth/admin/users",
+            {
+                method: "GET",
+
+                headers: {
+                    "Authorization": "Bearer " + token,
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Unable to load users");
+        }
+
+        const users = await response.json();
+
+        totalUsers.textContent = users.length;
+
+    }
+    catch (error) {
+
+        console.error(
+            "Error loading total users:",
+            error
+        );
+
+        totalUsers.textContent = "0";
+    }
+}
 
 
+document.addEventListener(
+    "DOMContentLoaded",
+    loadTotalUsers
+);
 
-
-
-<div class="cards">
-
-
-<div class="card">
-
-<i class="fa-solid fa-users"></i>
-
-<h3>Total Users</h3>
-
-<h2>250</h2>
-
-<p>Registered users</p>
-
-</div>
-
-
-
-<div class="card">
-
-<i class="fa-solid fa-user-doctor"></i>
-
-<h3>Dermatologists</h3>
-
-<h2>35</h2>
-
-<p>Active doctors</p>
-
-</div>
-
-
-
-<div class="card">
-
-<i class="fa-solid fa-file-medical"></i>
-
-<h3>Skin Reports</h3>
-
-<h2>500</h2>
-
-<p>Generated reports</p>
-
-</div>
-
-
-
-<div class="card">
-
-<i class="fa-solid fa-comments"></i>
-
-<h3>Consultations</h3>
-
-<h2>120</h2>
-
-<p>Completed sessions</p>
-
-</div>
-
-
-</div>
-
-
-
-
-
-<div class="analysis-box">
-
-
-<h2>System Overview</h2>
-
-<p>✔ AI Model Status: Active</p>
-
-<p>✔ Database Status: Connected</p>
-
-<p>✔ Server Status: Running</p>
-
-
-</div>
-
-
-</div>
-
-
-
+</script>
 </body>
 
 </html>

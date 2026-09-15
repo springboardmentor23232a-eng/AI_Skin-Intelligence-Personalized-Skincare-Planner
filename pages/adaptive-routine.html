@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Adaptive Skincare Routine | Skin AI</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <!-- Existing Google Font -->
+    <link rel="preconnect"
+        href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- PAGE CSS -->
+    <link rel="stylesheet"
+        href="../css/adaptive-routine.css">
+</head>
+
+
+<body>
+
+
+    <!-- ==========================================
+         SIDEBAR
+    =========================================== -->
+
+    <aside class="sidebar">
+
+        <div class="sidebar-logo">
+
+            <div class="logo-icon">
+                <i class="fa-solid fa-leaf"></i>
+            </div>
+
+            <div>
+                <h2>Skin AI</h2>
+                <span>Intelligence Platform</span>
+            </div>
+
+        </div>
+
+
+        <div class="sidebar-menu">
+
+            <p class="menu-heading">
+                MAIN MENU
+            </p>
+
+
+            <!-- DASHBOARD -->
+
+            <a href="user-dashboard.html"
+                class="menu-item">
+
+                <i class="fa-solid fa-house"></i>
+
+                <span>
+                    Dashboard
+                </span>
+
+            </a>
+
+
+            <!-- PROFILE -->
+
+            <a href="profile.html"
+                class="menu-item">
+
+                <i class="fa-solid fa-user"></i>
+
+                <span>
+                    Profile
+                </span>
+
+            </a>
+
+
+            <!-- SKIN ASSESSMENT -->
+
+            <a href="assessment.html"
+                class="menu-item">
+
+                <i class="fa-solid fa-camera"></i>
+
+                <span>
+                    Skin Assessment
+                </span>
+
+            </a>
+
+
+            <!-- ADAPTIVE ROUTINE -->
+
+            <a href="adaptive-routine.html"
+                class="menu-item active">
+
+                <i class="fa-solid fa-arrows-rotate"></i>
+
+                <span>
+                    Adaptive Routine
+                </span>
+
+            </a>
+
+
+            <!-- PRODUCTS -->
+
+            <a href="products.html"
+                class="menu-item">
+
+                <i class="fa-solid fa-bottle-droplet"></i>
+
+                <span>
+                    Products
+                </span>
+
+            </a>
+
+
+            <!-- INGREDIENT INTELLIGENCE -->
+
+            <a href="ingredient-intelligence.html"
+                class="menu-item">
+
+                <i class="fa-solid fa-flask"></i>
+
+                <span>
+                    Ingredient Intelligence
+                </span>
+
+            </a>
+
+<!-- PROGRESS -->
+
+<a href="progress.html"
+    class="menu-item">
+
+    <i class="fa-solid fa-chart-line"></i>
+
+    <span>
+        Progress
+    </span>
+
+</a>
+<!-- SKIN HEALTH SCORE -->
+
+<a href="skin-health-score.html"
+    class="menu-item">
+
+    <i class="fa-solid fa-heart-pulse"></i>
+
+    <span>
+        Skin Health Score
+    </span>
+
+</a>
+<!-- NOTIFICATIONS -->
+
+<a href="notifications.html"
+    class="menu-item">
+
+    <i class="fa-solid fa-bell"></i>
+
+    <span>
+        Notifications
+    </span>
+
+</a>
+
+
+
+        <!-- ACCOUNT -->
+
+        <div class="sidebar-bottom">
+
+            <p class="menu-heading">
+                ACCOUNT
+            </p>
+
+            <a href="#"
+                class="menu-item"
+                id="logoutBtn">
+
+                <i class="fa-solid fa-right-from-bracket"></i>
+
+                <span>
+                    Logout
+                </span>
+
+            </a>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- ==========================================
+         MAIN CONTENT
+    =========================================== -->
+
+    <main class="main-content">
+
+
+        <!-- HEADER -->
+
+        <header class="page-header">
+
+            <div>
+
+                <p class="breadcrumb">
+                    Home / Adaptive Routine
+                </p>
+
+                <h1>
+                    Adaptive Skincare Routine
+                </h1>
+
+                <p class="page-description">
+                    Your skincare routine adapts to your
+                    latest AI skin assessment and personal
+                    skin needs.
+                </p>
+
+            </div>
+
+
+            <div class="header-status">
+
+                <span class="status-dot"></span>
+
+                Routine Personalization Active
+
+            </div>
+
+        </header>
+
+
+
+        <!-- ==========================================
+             SKIN PROFILE SUMMARY
+        =========================================== -->
+
+        <section class="profile-summary">
+
+            <div class="summary-title">
+
+                <div class="summary-icon">
+                    <i class="fa-solid fa-sparkles"></i>
+                </div>
+
+                <div>
+
+                    <h2>
+                        Your Current Skin Profile
+                    </h2>
+
+                    <p>
+                        Based on your latest assessment
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="profile-cards">
+
+
+                <!-- SKIN TYPE -->
+
+                <div class="profile-card">
+
+                    <i class="fa-solid fa-droplet"></i>
+
+                    <span>
+                        Skin Type
+                    </span>
+
+                    <strong id="skinType">
+                        Loading...
+                    </strong>
+
+                </div>
+
+
+                <!-- SKIN HEALTH -->
+
+                <div class="profile-card">
+
+                    <i class="fa-solid fa-heart-pulse"></i>
+
+                    <span>
+                        Skin Health
+                    </span>
+
+                    <strong id="skinHealthScore">
+                        --
+                    </strong>
+
+                </div>
+
+
+                <!-- MAIN CONCERN -->
+
+                <div class="profile-card">
+
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+
+                    <span>
+                        Main Concern
+                    </span>
+
+                    <strong id="mainConcern">
+                        Loading...
+                    </strong>
+
+                </div>
+
+
+                <!-- SENSITIVITY -->
+
+                <div class="profile-card">
+
+                    <i class="fa-solid fa-shield-heart"></i>
+
+                    <span>
+                        Sensitivity
+                    </span>
+
+                    <strong id="sensitivity">
+                        Loading...
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ==========================================
+             MORNING ROUTINE
+        =========================================== -->
+
+        <section class="routine-card morning-card">
+
+            <div class="routine-card-header">
+
+                <div class="routine-heading">
+
+                    <div class="routine-icon morning-icon">
+                        🌅
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            Morning Routine
+                        </h2>
+
+                        <p>
+                            Start your day with personalized
+                            skin protection and care.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="routine-steps"
+                id="morningRoutine">
+
+                <div class="loading">
+                    Loading your morning routine...
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ==========================================
+             EVENING ROUTINE
+        =========================================== -->
+
+        <section class="routine-card evening-card">
+
+            <div class="routine-card-header">
+
+                <div class="routine-heading">
+
+                    <div class="routine-icon evening-icon">
+                        🌙
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            Evening Routine
+                        </h2>
+
+                        <p>
+                            Support overnight recovery
+                            with your personalized care plan.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="routine-steps"
+                id="eveningRoutine">
+
+                <div class="loading">
+                    Loading your evening routine...
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ==========================================
+             WEEKLY TREATMENT
+        =========================================== -->
+
+        <section class="weekly-section">
+
+            <div class="section-title">
+
+                <div class="section-title-icon">
+                    📅
+                </div>
+
+                <div>
+
+                    <h2>
+                        Weekly Treatment Plan
+                    </h2>
+
+                    <p>
+                        A balanced weekly plan based on
+                        your current skin needs.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="weekly-grid">
+
+
+                <!-- MONDAY -->
+
+                <div class="day-card">
+
+                    <span class="day-name">
+                        Monday
+                    </span>
+
+                    <div id="mondayPlan">
+                        Loading...
+                    </div>
+
+                </div>
+
+
+                <!-- WEDNESDAY -->
+
+                <div class="day-card">
+
+                    <span class="day-name">
+                        Wednesday
+                    </span>
+
+                    <div id="wednesdayPlan">
+                        Loading...
+                    </div>
+
+                </div>
+
+
+                <!-- FRIDAY -->
+
+                <div class="day-card">
+
+                    <span class="day-name">
+                        Friday
+                    </span>
+
+                    <div id="fridayPlan">
+                        Loading...
+                    </div>
+
+                </div>
+
+
+                <!-- SUNDAY -->
+
+                <div class="day-card">
+
+                    <span class="day-name">
+                        Sunday
+                    </span>
+
+                    <div id="sundayPlan">
+                        Loading...
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ==========================================
+             SEASONAL RECOMMENDATIONS
+        =========================================== -->
+
+        <section class="seasonal-card">
+
+            <div class="seasonal-header">
+
+                <div class="seasonal-icon">
+                    🌦️
+                </div>
+
+                <div>
+
+                    <h2>
+                        Seasonal Skincare Recommendations
+                    </h2>
+
+                    <p>
+                        Recommendations adapted to your
+                        current skin condition and season.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div id="seasonalRecommendation"
+                class="seasonal-content">
+
+                Loading seasonal recommendations...
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ==========================================
+             PERSONALIZATION
+        =========================================== -->
+
+        <section class="personalization-card">
+
+            <div class="section-title">
+
+                <div class="section-title-icon">
+                    🧠
+                </div>
+
+                <div>
+
+                    <h2>
+                        Why This Routine?
+                    </h2>
+
+                    <p>
+                        Your routine is personalized using
+                        your assessment information.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="personalization-grid">
+
+
+                <div>
+
+                    <span>
+                        Skin Type
+                    </span>
+
+                    <strong id="reasonSkinType">
+                        --
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Skin Concerns
+                    </span>
+
+                    <strong id="reasonConcern">
+                        --
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Health Score
+                    </span>
+
+                    <strong id="reasonScore">
+                        --
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Allergies / Sensitivities
+                    </span>
+
+                    <strong id="reasonSensitivity">
+                        --
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Lifestyle
+                    </span>
+
+                    <strong id="reasonLifestyle">
+                        --
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Previous Assessment
+                    </span>
+
+                    <strong id="reasonPrevious">
+                        --
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ==========================================
+             ADAPTIVE UPDATE
+        =========================================== -->
+
+        <section class="adaptive-card">
+
+            <div class="adaptive-header">
+
+                <div class="adaptive-icon">
+                    🔄
+                </div>
+
+                <div>
+
+                    <h2>
+                        Routine Adaptation
+                    </h2>
+
+                    <p>
+                        Your routine changes when your skin
+                        assessment changes.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="assessment-comparison">
+
+
+                <!-- PREVIOUS -->
+
+                <div class="assessment-box">
+
+                    <span>
+                        Previous Assessment
+                    </span>
+
+                    <strong id="previousScore">
+                        --
+                    </strong>
+
+                    <small>
+                        Skin Health Score
+                    </small>
+
+                </div>
+
+
+                <!-- ARROW -->
+
+                <div class="comparison-arrow">
+                    ↓
+                </div>
+
+
+                <!-- CURRENT -->
+
+                <div class="assessment-box current">
+
+                    <span>
+                        Current Assessment
+                    </span>
+
+                    <strong id="currentScore">
+                        --
+                    </strong>
+
+                    <small>
+                        Skin Health Score
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <p id="adaptiveMessage"
+                class="adaptive-message">
+
+                Your routine will adapt to changes
+                in your skin assessment.
+
+            </p>
+
+        </section>
+
+
+
+        <!-- ==========================================
+             ACTIONS
+        =========================================== -->
+
+        <section class="routine-actions">
+
+    <button
+        type="button"
+        id="editRoutineBtn"
+        class="action-btn edit-btn">
+
+        <i class="fa-solid fa-pen"></i>
+
+        Edit My Routine
+
+    </button>
+
+
+    <button
+        type="button"
+        id="regenerateRoutineBtn"
+        class="action-btn regenerate-btn">
+
+        <i class="fa-solid fa-rotate"></i>
+
+        Regenerate Routine
+
+    </button>
+
+
+    <button
+        type="button"
+        class="action-btn"
+        onclick="downloadRoutinePDF()">
+
+        <i class="fa-solid fa-file-pdf"></i>
+
+        Download PDF
+
+    </button>
+
+
+    <button
+        type="button"
+        class="action-btn"
+        onclick="downloadRoutineExcel()">
+
+        <i class="fa-solid fa-file-excel"></i>
+
+        Download Excel
+
+    </button>
+
+</section>
+
+
+        <!-- ==========================================
+             FOOTER
+        =========================================== -->
+
+        <footer class="dashboard-footer">
+
+            <p>
+
+                <i class="fa-solid fa-shield-heart"></i>
+
+                Skin AI • Personalized Skin Intelligence
+
+            </p>
+
+            <span>
+
+                AI-generated recommendations are for
+                informational purposes.
+
+            </span>
+
+        </footer>
+
+
+    </main>
+
+
+
+    <!-- ==========================================
+         JAVASCRIPT
+    =========================================== -->
+
+    <script src="../js/auth-check.js"></script>
+
+    <script src="../js/adaptive-routine.js"></script>
+
+
+</body>
+
+</html>

@@ -250,3 +250,28 @@ body{
 }
 
 }
+/* ================================
+   REGISTER ROLE DROPDOWN
+================================ */
+
+.input-box select {
+    width: 100%;
+    padding: 14px 16px;
+    border: none;
+    outline: none;
+    border-radius: 10px;
+    background: #f5f5f5;
+    color: #555;
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.input-box select:focus {
+    outline: 2px solid #4caf50;
+}
+
+.input-box select option {
+    background: white;
+    color: #333;
+}

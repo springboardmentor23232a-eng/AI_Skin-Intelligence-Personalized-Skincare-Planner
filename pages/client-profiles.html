@@ -1,0 +1,2171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Client Profiles | Consultant | Skin AI</title>
+
+    <link rel="stylesheet" href="../css/dashboard.css">
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: #f5f7f8;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+        }
+
+
+        /* ================= HEADER ================= */
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .page-header h1 {
+            margin: 0;
+            font-size: 28px;
+            color: #243b35;
+        }
+
+        .page-header p {
+            margin: 6px 0 0;
+            color: #777;
+            font-size: 14px;
+        }
+
+
+        /* ================= SUMMARY ================= */
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .summary-icon {
+            width: 50px;
+            height: 50px;
+
+            border-radius: 10px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: #e8f5f2;
+            color: #2f8f83;
+
+            font-size: 20px;
+        }
+
+        .summary-card h3 {
+            margin: 0;
+            font-size: 24px;
+            color: #243b35;
+        }
+
+        .summary-card span {
+            color: #777;
+            font-size: 13px;
+        }
+
+
+        /* ================= FILTER ================= */
+
+        .client-container {
+            background: white;
+            border-radius: 12px;
+
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+
+            padding: 25px;
+        }
+
+        .filter-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            gap: 15px;
+
+            margin-bottom: 25px;
+        }
+
+        .search-box {
+            position: relative;
+            width: 340px;
+        }
+
+        .search-box i {
+            position: absolute;
+
+            left: 14px;
+            top: 14px;
+
+            color: #999;
+        }
+
+        .search-box input {
+            width: 100%;
+
+            padding: 11px 15px 11px 40px;
+
+            border: 1px solid #ddd;
+
+            border-radius: 8px;
+
+            outline: none;
+
+            font-family: inherit;
+        }
+
+        .filter-select {
+            padding: 11px 15px;
+
+            border: 1px solid #ddd;
+
+            border-radius: 8px;
+
+            font-family: inherit;
+
+            outline: none;
+
+            background: white;
+        }
+
+
+        /* ================= CLIENT GRID ================= */
+
+        .client-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+
+            gap: 20px;
+        }
+
+
+        /* ================= CLIENT CARD ================= */
+
+        .client-card {
+            border: 1px solid #edf0ef;
+
+            border-radius: 12px;
+
+            padding: 22px;
+
+            background: white;
+
+            transition: 0.2s ease;
+        }
+
+        .client-card:hover {
+            transform: translateY(-3px);
+
+            box-shadow:
+                0 8px 25px rgba(0, 0, 0, 0.08);
+        }
+
+
+        /* CLIENT TOP */
+
+        .client-top {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: flex-start;
+
+            margin-bottom: 18px;
+        }
+
+        .client-info {
+            display: flex;
+
+            align-items: center;
+
+            gap: 13px;
+        }
+
+        .client-avatar {
+            width: 52px;
+            height: 52px;
+
+            border-radius: 50%;
+
+            background: #e3f3ef;
+
+            color: #2f8f83;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            font-weight: 600;
+
+            font-size: 16px;
+        }
+
+        .client-name {
+            margin: 0;
+
+            font-size: 16px;
+
+            font-weight: 600;
+
+            color: #263b35;
+        }
+
+        .client-email {
+            margin-top: 3px;
+
+            color: #999;
+
+            font-size: 11px;
+        }
+
+
+        /* ACTIVE STATUS */
+
+        .active-status {
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 5px;
+
+            padding: 5px 9px;
+
+            border-radius: 20px;
+
+            background: #e7f6ed;
+
+            color: #23864d;
+
+            font-size: 10px;
+
+            font-weight: 500;
+        }
+
+        .active-dot {
+            width: 6px;
+            height: 6px;
+
+            background: #23864d;
+
+            border-radius: 50%;
+        }
+
+
+        /* ================= CLIENT DETAILS ================= */
+
+        .client-details {
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 10px;
+
+            margin-bottom: 18px;
+        }
+
+        .detail-item {
+            background: #f8faf9;
+
+            border-radius: 8px;
+
+            padding: 11px;
+        }
+
+        .detail-label {
+            display: block;
+
+            color: #999;
+
+            font-size: 10px;
+
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            color: #263b35;
+
+            font-size: 12px;
+
+            font-weight: 600;
+        }
+
+
+        /* ================= CONCERN ================= */
+
+        .concern-section {
+            border-top: 1px solid #eee;
+
+            padding-top: 15px;
+
+            margin-bottom: 17px;
+        }
+
+        .concern-label {
+            color: #999;
+
+            font-size: 10px;
+
+            margin-bottom: 6px;
+        }
+
+        .concern {
+            display: inline-block;
+
+            padding: 5px 9px;
+
+            background: #fff4dd;
+
+            color: #a56b00;
+
+            border-radius: 6px;
+
+            font-size: 10px;
+
+            font-weight: 500;
+        }
+
+
+        /* ================= SCORE ================= */
+
+        .score-row {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-bottom: 7px;
+        }
+
+        .score-label {
+            font-size: 11px;
+
+            color: #777;
+        }
+
+        .score-value {
+            font-size: 13px;
+
+            font-weight: 600;
+
+            color: #2f8f83;
+        }
+
+        .score-bar {
+            width: 100%;
+
+            height: 6px;
+
+            background: #edf1ef;
+
+            border-radius: 10px;
+
+            overflow: hidden;
+        }
+
+        .score-progress {
+            height: 100%;
+
+            background: #2f8f83;
+
+            border-radius: 10px;
+        }
+
+
+        /* ================= CARD FOOTER ================= */
+
+        .card-footer {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-top: 18px;
+        }
+
+        .last-consultation {
+            color: #999;
+
+            font-size: 10px;
+        }
+
+        .view-profile-btn {
+            border: none;
+
+            background: #edf7f5;
+
+            color: #2f8f83;
+
+            padding: 8px 12px;
+
+            border-radius: 7px;
+
+            cursor: pointer;
+
+            font-family: inherit;
+
+            font-size: 11px;
+
+            font-weight: 500;
+        }
+
+        .view-profile-btn i {
+            margin-left: 5px;
+        }
+
+        .view-profile-btn:hover {
+            background: #dff0ec;
+        }
+
+
+        /* ================= EMPTY STATE ================= */
+
+        .empty-state {
+            display: none;
+
+            text-align: center;
+
+            padding: 50px 20px;
+
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 35px;
+
+            margin-bottom: 12px;
+
+            color: #cbd8d4;
+        }
+
+        .empty-state h3 {
+            margin: 0 0 5px;
+
+            color: #555;
+        }
+
+        .empty-state p {
+            margin: 0;
+
+            font-size: 13px;
+        }
+
+
+        /* ================= MODAL ================= */
+
+        .modal-overlay {
+            position: fixed;
+
+            inset: 0;
+
+            background: rgba(20, 35, 32, 0.55);
+
+            display: none;
+
+            align-items: center;
+
+            justify-content: center;
+
+            z-index: 9999;
+
+            padding: 20px;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .profile-modal {
+            width: 100%;
+
+            max-width: 600px;
+
+            max-height: 90vh;
+
+            overflow-y: auto;
+
+            background: white;
+
+            border-radius: 16px;
+
+            box-shadow:
+                0 15px 50px rgba(0, 0, 0, 0.2);
+        }
+
+
+        .modal-header {
+            padding: 22px 25px;
+
+            background: #f5faf8;
+
+            border-bottom: 1px solid #e6eeeb;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+
+            color: #243b35;
+
+            font-size: 20px;
+        }
+
+        .close-modal {
+            border: none;
+
+            background: transparent;
+
+            font-size: 22px;
+
+            color: #777;
+
+            cursor: pointer;
+        }
+
+
+        .profile-modal-body {
+            padding: 25px;
+        }
+
+        .modal-profile-top {
+            display: flex;
+
+            align-items: center;
+
+            gap: 15px;
+
+            margin-bottom: 25px;
+        }
+
+        .modal-avatar {
+            width: 65px;
+            height: 65px;
+
+            border-radius: 50%;
+
+            background: #e3f3ef;
+
+            color: #2f8f83;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 20px;
+
+            font-weight: 600;
+        }
+
+        .modal-profile-top h3 {
+            margin: 0;
+
+            color: #263b35;
+        }
+
+        .modal-profile-top p {
+            margin: 4px 0 0;
+
+            color: #999;
+
+            font-size: 12px;
+        }
+
+
+        .modal-info-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 12px;
+        }
+
+        .modal-info {
+            padding: 14px;
+
+            background: #f8faf9;
+
+            border-radius: 9px;
+        }
+
+        .modal-info span {
+            display: block;
+
+            color: #999;
+
+            font-size: 10px;
+
+            margin-bottom: 4px;
+        }
+
+        .modal-info strong {
+            color: #263b35;
+
+            font-size: 13px;
+        }
+
+        .modal-close-btn {
+            margin-top: 22px;
+
+            width: 100%;
+
+            padding: 11px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background: #2f8f83;
+
+            color: white;
+
+            font-family: inherit;
+
+            cursor: pointer;
+        }
+
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width: 1100px) {
+
+            .summary-grid {
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+            .client-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+
+        @media (max-width: 768px) {
+
+            .main-content {
+                margin-left: 0;
+
+                padding: 20px;
+            }
+
+            .page-header {
+                flex-direction: column;
+
+                align-items: flex-start;
+
+                gap: 10px;
+            }
+
+            .filter-row {
+                flex-direction: column;
+
+                align-items: stretch;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .client-details {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-info-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- =====================================================
+         SIDEBAR
+         ===================================================== -->
+
+    <div class="sidebar">
+
+        <h2>Skin AI</h2>
+
+        <ul>
+
+            <li class="menu-title">
+                MAIN MENU
+            </li>
+
+
+            <li>
+
+                <a href="consultant-dashboard.html">
+
+                    <i class="fa-solid fa-house"></i>
+
+                    <span>
+                        Dashboard
+                    </span>
+
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="client-profiles.html"
+                    class="active">
+
+                    <i class="fa-solid fa-users"></i>
+
+                    <span>
+                        Client Profiles
+                    </span>
+
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="appointments.html">
+
+                    <i class="fa-solid fa-calendar-check"></i>
+
+                    <span>
+                        Appointments
+                    </span>
+
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="skin-reports.html">
+
+                    <i class="fa-solid fa-file-medical"></i>
+
+                    <span>
+                        Skin Reports
+                    </span>
+
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="recommendations.html">
+
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+
+                    <span>
+                        Recommendations
+                    </span>
+
+                </a>
+
+            </li>
+
+
+            <li class="menu-title">
+                ACCOUNT
+            </li>
+
+
+            <li>
+
+                <a href="#"
+                    id="logoutBtn">
+
+                    <i class="fa-solid fa-right-from-bracket"></i>
+
+                    <span>
+                        Logout
+                    </span>
+
+                </a>
+
+            </li>
+
+        </ul>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         MAIN CONTENT
+         ===================================================== -->
+
+    <main class="main-content">
+
+
+        <!-- HEADER -->
+
+        <div class="page-header">
+
+            <div>
+
+                <h1>
+                    Client Profiles
+                </h1>
+
+                <p>
+                    View and manage your clients' skin profiles
+                </p>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =====================================================
+             SUMMARY CARDS
+             ===================================================== -->
+
+        <div class="summary-grid">
+
+
+            <div class="summary-card">
+
+                <div class="summary-icon">
+
+                    <i class="fa-solid fa-users"></i>
+
+                </div>
+
+                <div>
+
+                    <h3 id="totalClients">
+                        24
+                    </h3>
+
+                    <span>
+                        Total Clients
+                    </span>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="summary-card">
+
+                <div class="summary-icon">
+
+                    <i class="fa-solid fa-user-check"></i>
+
+                </div>
+
+                <div>
+
+                    <h3 id="activeClients">
+                        18
+                    </h3>
+
+                    <span>
+                        Active Clients
+                    </span>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="summary-card">
+
+                <div class="summary-icon">
+
+                    <i class="fa-solid fa-calendar-check"></i>
+
+                </div>
+
+                <div>
+
+                    <h3>
+                        7
+                    </h3>
+
+                    <span>
+                        Consultations This Week
+                    </span>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="summary-card">
+
+                <div class="summary-icon">
+
+                    <i class="fa-solid fa-star"></i>
+
+                </div>
+
+                <div>
+
+                    <h3>
+                        86%
+                    </h3>
+
+                    <span>
+                        Average Skin Score
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =====================================================
+             CLIENT CONTAINER
+             ===================================================== -->
+
+        <div class="client-container">
+
+
+            <!-- FILTER -->
+
+            <div class="filter-row">
+
+
+                <div class="search-box">
+
+                    <i class="fa-solid fa-magnifying-glass"></i>
+
+                    <input
+                        type="text"
+                        id="searchClient"
+                        placeholder="Search client name or email...">
+
+                </div>
+
+
+                <select
+                    class="filter-select"
+                    id="skinTypeFilter">
+
+                    <option value="all">
+                        All Skin Types
+                    </option>
+
+                    <option value="dry">
+                        Dry
+                    </option>
+
+                    <option value="oily">
+                        Oily
+                    </option>
+
+                    <option value="combination">
+                        Combination
+                    </option>
+
+                    <option value="normal">
+                        Normal
+                    </option>
+
+                    <option value="sensitive">
+                        Sensitive
+                    </option>
+
+                </select>
+
+            </div>
+
+
+
+            <!-- CLIENT GRID -->
+
+            <div
+                class="client-grid"
+                id="clientGrid">
+
+
+                <!-- CLIENT 1 -->
+
+                <div
+                    class="client-card"
+                    data-name="Ananya Sharma"
+                    data-email="ananya@example.com"
+                    data-skin-type="combination">
+
+                    <div class="client-top">
+
+                        <div class="client-info">
+
+                            <div class="client-avatar">
+                                AS
+                            </div>
+
+                            <div>
+
+                                <h3 class="client-name">
+                                    Ananya Sharma
+                                </h3>
+
+                                <div class="client-email">
+                                    ananya@example.com
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <span class="active-status">
+
+                            <span class="active-dot"></span>
+
+                            Active
+
+                        </span>
+
+                    </div>
+
+
+
+                    <div class="client-details">
+
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                Skin Type
+                            </span>
+
+                            <span class="detail-value">
+                                Combination
+                            </span>
+
+                        </div>
+
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                Skin Score
+                            </span>
+
+                            <span class="detail-value">
+                                88%
+                            </span>
+
+                        </div>
+
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                Sensitivity
+                            </span>
+
+                            <span class="detail-value">
+                                Moderate
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="concern-section">
+
+                        <div class="concern-label">
+                            PRIMARY CONCERN
+                        </div>
+
+                        <span class="concern">
+                            Acne & Dark Spots
+                        </span>
+
+                    </div>
+
+
+
+                    <div class="score-row">
+
+                        <span class="score-label">
+                            Skin Health
+                        </span>
+
+                        <span class="score-value">
+                            88%
+                        </span>
+
+                    </div>
+
+
+                    <div class="score-bar">
+
+                        <div
+                            class="score-progress"
+                            style="width:88%">
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="card-footer">
+
+                        <span class="last-consultation">
+                            Last consultation: 15 Aug 2026
+                        </span>
+
+                        <button
+                            class="view-profile-btn">
+
+                            View Profile
+
+                            <i class="fa-solid fa-arrow-right"></i>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- CLIENT 2 -->
+
+                <div
+                    class="client-card"
+                    data-name="Priya Reddy"
+                    data-email="priya@example.com"
+                    data-skin-type="oily">
+
+                    <div class="client-top">
+
+                        <div class="client-info">
+
+                            <div class="client-avatar">
+                                PR
+                            </div>
+
+                            <div>
+
+                                <h3 class="client-name">
+                                    Priya Reddy
+                                </h3>
+
+                                <div class="client-email">
+                                    priya@example.com
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <span class="active-status">
+
+                            <span class="active-dot"></span>
+
+                            Active
+
+                        </span>
+
+                    </div>
+
+
+
+                    <div class="client-details">
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                Skin Type
+                            </span>
+
+                            <span class="detail-value">
+                                Oily
+                            </span>
+
+                        </div>
+
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                Skin Score
+                            </span>
+
+                            <span class="detail-value">
+                                82%
+                            </span>
+
+                        </div>
+
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                Sensitivity
+                            </span>
+
+                            <span class="detail-value">
+                                Low
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="concern-section">
+
+                        <div class="concern-label">
+                            PRIMARY CONCERN
+                        </div>
+
+                        <span class="concern">
+                            Acne
+                        </span>
+
+                    </div>
+
+
+
+                    <div class="score-row">
+
+                        <span class="score-label">
+                            Skin Health
+                        </span>
+
+                        <span class="score-value">
+                            82%
+                        </span>
+
+                    </div>
+
+
+                    <div class="score-bar">
+
+                        <div
+                            class="score-progress"
+                            style="width:82%">
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="card-footer">
+
+                        <span class="last-consultation">
+                            Last consultation: 14 Aug 2026
+                        </span>
+
+                        <button class="view-profile-btn">
+
+                            View Profile
+
+                            <i class="fa-solid fa-arrow-right"></i>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- CLIENT 3 -->
+
+                <div
+                    class="client-card"
+                    data-name="Neha Kumar"
+                    data-email="neha@example.com"
+                    data-skin-type="dry">
+
+                    <div class="client-top">
+
+                        <div class="client-info">
+
+                            <div class="client-avatar">
+                                NK
+                            </div>
+
+                            <div>
+
+                                <h3 class="client-name">
+                                    Neha Kumar
+                                </h3>
+
+                                <div class="client-email">
+                                    neha@example.com
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <span class="active-status">
+
+                            <span class="active-dot"></span>
+
+                            Active
+
+                        </span>
+
+                    </div>
+
+
+
+                    <div class="client-details">
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                Skin Type
+                            </span>
+
+                            <span class="detail-value">
+                                Dry
+                            </span>
+
+                        </div>
+
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                Skin Score
+                            </span>
+
+                            <span class="detail-value">
+                                91%
+                            </span>
+
+                        </div>
+
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                Sensitivity
+                            </span>
+
+                            <span class="detail-value">
+                                Low
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="concern-section">
+
+                        <div class="concern-label">
+                            PRIMARY CONCERN
+                        </div>
+
+                        <span class="concern">
+                            Pigmentation
+                        </span>
+
+                    </div>
+
+
+
+                    <div class="score-row">
+
+                        <span class="score-label">
+                            Skin Health
+                        </span>
+
+                        <span class="score-value">
+                            91%
+                        </span>
+
+                    </div>
+
+
+                    <div class="score-bar">
+
+                        <div
+                            class="score-progress"
+                            style="width:91%">
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="card-footer">
+
+                        <span class="last-consultation">
+                            Last consultation: 12 Aug 2026
+                        </span>
+
+                        <button class="view-profile-btn">
+
+                            View Profile
+
+                            <i class="fa-solid fa-arrow-right"></i>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- CLIENT 4 -->
+
+                <div
+                    class="client-card"
+                    data-name="Rahul Mehta"
+                    data-email="rahul@example.com"
+                    data-skin-type="sensitive">
+
+                    <div class="client-top">
+
+                        <div class="client-info">
+
+                            <div class="client-avatar">
+                                RM
+                            </div>
+
+                            <div>
+
+                                <h3 class="client-name">
+                                    Rahul Mehta
+                                </h3>
+
+                                <div class="client-email">
+                                    rahul@example.com
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <span class="active-status">
+
+                            <span class="active-dot"></span>
+
+                            Active
+
+                        </span>
+
+                    </div>
+
+
+
+                    <div class="client-details">
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                Skin Type
+                            </span>
+
+                            <span class="detail-value">
+                                Sensitive
+                            </span>
+
+                        </div>
+
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                Skin Score
+                            </span>
+
+                            <span class="detail-value">
+                                76%
+                            </span>
+
+                        </div>
+
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                Sensitivity
+                            </span>
+
+                            <span class="detail-value">
+                                High
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="concern-section">
+
+                        <div class="concern-label">
+                            PRIMARY CONCERN
+                        </div>
+
+                        <span class="concern">
+                            Redness & Irritation
+                        </span>
+
+                    </div>
+
+
+
+                    <div class="score-row">
+
+                        <span class="score-label">
+                            Skin Health
+                        </span>
+
+                        <span class="score-value">
+                            76%
+                        </span>
+
+                    </div>
+
+
+                    <div class="score-bar">
+
+                        <div
+                            class="score-progress"
+                            style="width:76%">
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="card-footer">
+
+                        <span class="last-consultation">
+                            Last consultation: 10 Aug 2026
+                        </span>
+
+                        <button class="view-profile-btn">
+
+                            View Profile
+
+                            <i class="fa-solid fa-arrow-right"></i>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- EMPTY STATE -->
+
+            <div
+                class="empty-state"
+                id="emptyState">
+
+                <i class="fa-solid fa-user-slash"></i>
+
+                <h3>
+                    No clients found
+                </h3>
+
+                <p>
+                    Try changing your search or filter.
+                </p>
+
+            </div>
+
+
+        </div>
+
+    </main>
+
+
+
+    <!-- =====================================================
+         PROFILE MODAL
+         ===================================================== -->
+
+    <div
+        class="modal-overlay"
+        id="profileModal">
+
+
+        <div class="profile-modal">
+
+
+            <div class="modal-header">
+
+                <h2>
+                    Client Profile
+                </h2>
+
+                <button
+                    class="close-modal"
+                    id="closeModal">
+
+                    <i class="fa-solid fa-xmark"></i>
+
+                </button>
+
+            </div>
+
+
+
+            <div class="profile-modal-body">
+
+
+                <div class="modal-profile-top">
+
+                    <div
+                        class="modal-avatar"
+                        id="modalAvatar">
+
+                        AS
+
+                    </div>
+
+                    <div>
+
+                        <h3 id="modalName">
+                            Ananya Sharma
+                        </h3>
+
+                        <p id="modalEmail">
+                            ananya@example.com
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="modal-info-grid">
+
+
+                    <div class="modal-info">
+
+                        <span>
+                            Skin Type
+                        </span>
+
+                        <strong id="modalSkinType">
+                            Combination
+                        </strong>
+
+                    </div>
+
+
+                    <div class="modal-info">
+
+                        <span>
+                            Skin Health Score
+                        </span>
+
+                        <strong id="modalScore">
+                            88%
+                        </strong>
+
+                    </div>
+
+
+                    <div class="modal-info">
+
+                        <span>
+                            Sensitivity
+                        </span>
+
+                        <strong id="modalSensitivity">
+                            Moderate
+                        </strong>
+
+                    </div>
+
+
+                    <div class="modal-info">
+
+                        <span>
+                            Primary Concern
+                        </span>
+
+                        <strong id="modalConcern">
+                            Acne & Dark Spots
+                        </strong>
+
+                    </div>
+
+
+                    <div class="modal-info">
+
+                        <span>
+                            Last Consultation
+                        </span>
+
+                        <strong id="modalConsultation">
+                            15 Aug 2026
+                        </strong>
+
+                    </div>
+
+
+                    <div class="modal-info">
+
+                        <span>
+                            Client Status
+                        </span>
+
+                        <strong>
+                            Active
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <button
+                    class="modal-close-btn"
+                    id="modalCloseButton">
+
+                    Close Profile
+
+                </button>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+         ===================================================== -->
+
+    <script>
+
+        const searchClient =
+            document.getElementById("searchClient");
+
+        const skinTypeFilter =
+            document.getElementById("skinTypeFilter");
+
+        const clientGrid =
+            document.getElementById("clientGrid");
+
+        const emptyState =
+            document.getElementById("emptyState");
+
+        const profileModal =
+            document.getElementById("profileModal");
+
+        const closeModal =
+            document.getElementById("closeModal");
+
+        const modalCloseButton =
+            document.getElementById("modalCloseButton");
+
+
+        /* ================= FILTER CLIENTS ================= */
+
+        function filterClients() {
+
+            const searchValue =
+                searchClient.value
+                    .toLowerCase()
+                    .trim();
+
+            const selectedSkinType =
+                skinTypeFilter.value;
+
+            const cards =
+                clientGrid.querySelectorAll(".client-card");
+
+            let visibleCount = 0;
+
+
+            cards.forEach(card => {
+
+                const name =
+                    card.dataset.name
+                        .toLowerCase();
+
+                const email =
+                    card.dataset.email
+                        .toLowerCase();
+
+                const skinType =
+                    card.dataset.skinType;
+
+
+                const matchesSearch =
+                    name.includes(searchValue) ||
+                    email.includes(searchValue);
+
+
+                const matchesSkinType =
+                    selectedSkinType === "all" ||
+                    skinType === selectedSkinType;
+
+
+                if (
+                    matchesSearch &&
+                    matchesSkinType
+                ) {
+
+                    card.style.display = "";
+
+                    visibleCount++;
+
+                }
+
+                else {
+
+                    card.style.display = "none";
+
+                }
+
+            });
+
+
+            if (visibleCount === 0) {
+
+                emptyState.style.display = "block";
+
+            }
+
+            else {
+
+                emptyState.style.display = "none";
+
+            }
+
+        }
+
+
+        searchClient.addEventListener(
+            "input",
+            filterClients
+        );
+
+
+        skinTypeFilter.addEventListener(
+            "change",
+            filterClients
+        );
+
+
+
+        /* ================= OPEN PROFILE ================= */
+
+        function openProfile(card) {
+
+            const avatar =
+                card.querySelector(".client-avatar")
+                    .textContent
+                    .trim();
+
+            const name =
+                card.querySelector(".client-name")
+                    .textContent
+                    .trim();
+
+            const email =
+                card.querySelector(".client-email")
+                    .textContent
+                    .trim();
+
+            const details =
+                card.querySelectorAll(".detail-value");
+
+
+            const skinType =
+                details[0]
+                    ? details[0].textContent.trim()
+                    : "Not available";
+
+
+            const score =
+                details[1]
+                    ? details[1].textContent.trim()
+                    : "Not available";
+
+
+            const sensitivity =
+                details[2]
+                    ? details[2].textContent.trim()
+                    : "Not available";
+
+
+            const concern =
+                card.querySelector(".concern")
+                    ? card.querySelector(".concern")
+                        .textContent.trim()
+                    : "Not available";
+
+
+            const consultation =
+                card.querySelector(".last-consultation")
+                    ? card.querySelector(".last-consultation")
+                        .textContent
+                        .replace("Last consultation:", "")
+                        .trim()
+                    : "Not available";
+
+
+            document.getElementById(
+                "modalAvatar"
+            ).textContent = avatar;
+
+
+            document.getElementById(
+                "modalName"
+            ).textContent = name;
+
+
+            document.getElementById(
+                "modalEmail"
+            ).textContent = email;
+
+
+            document.getElementById(
+                "modalSkinType"
+            ).textContent = skinType;
+
+
+            document.getElementById(
+                "modalScore"
+            ).textContent = score;
+
+
+            document.getElementById(
+                "modalSensitivity"
+            ).textContent = sensitivity;
+
+
+            document.getElementById(
+                "modalConcern"
+            ).textContent = concern;
+
+
+            document.getElementById(
+                "modalConsultation"
+            ).textContent = consultation;
+
+
+            profileModal.classList.add("show");
+
+        }
+
+
+
+        /* ================= VIEW BUTTONS ================= */
+
+        document
+            .querySelectorAll(".view-profile-btn")
+            .forEach(button => {
+
+                button.addEventListener(
+                    "click",
+                    function () {
+
+                        const card =
+                            this.closest(".client-card");
+
+                        openProfile(card);
+
+                    }
+                );
+
+            });
+
+
+
+        /* ================= CLOSE MODAL ================= */
+
+        function closeProfileModal() {
+
+            profileModal.classList.remove("show");
+
+        }
+
+
+        closeModal.addEventListener(
+            "click",
+            closeProfileModal
+        );
+
+
+        modalCloseButton.addEventListener(
+            "click",
+            closeProfileModal
+        );
+
+
+        profileModal.addEventListener(
+            "click",
+            function (event) {
+
+                if (
+                    event.target === profileModal
+                ) {
+
+                    closeProfileModal();
+
+                }
+
+            }
+        );
+
+
+
+        /* ================= ESC KEY ================= */
+
+        document.addEventListener(
+            "keydown",
+            function (event) {
+
+                if (
+                    event.key === "Escape"
+                ) {
+
+                    closeProfileModal();
+
+                }
+
+            }
+        );
+
+
+
+        /* ================= LOGOUT ================= */
+
+        const logoutBtn =
+            document.getElementById("logoutBtn");
+
+
+        if (logoutBtn) {
+
+            logoutBtn.addEventListener(
+                "click",
+                function (event) {
+
+                    event.preventDefault();
+
+
+                    const confirmLogout =
+                        confirm(
+                            "Are you sure you want to logout?"
+                        );
+
+
+                    if (!confirmLogout) {
+                        return;
+                    }
+
+
+                    localStorage.removeItem("token");
+
+                    localStorage.removeItem("role");
+
+
+                    window.location.href =
+                        "login.html";
+
+                }
+            );
+
+        }
+
+    </script>
+
+</body>
+
+</html>

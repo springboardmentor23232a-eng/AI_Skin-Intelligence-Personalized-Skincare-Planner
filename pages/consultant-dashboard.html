@@ -3,183 +3,851 @@
 
 <head>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Consultant Dashboard</title>
+    <title>Consultant Dashboard | Skin AI</title>
 
-<link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
 
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
 
 </head>
 
-
 <body>
 
+<!-- =====================================================
+     SIDEBAR
+===================================================== -->
 
 <div class="sidebar">
 
-<h2>Skin AI</h2>
+    <div class="sidebar-logo">
 
+        <i class="fa-solid fa-leaf"></i>
 
-<ul>
+        <h2>Skin AI</h2>
 
-<li>
-<a href="consultant-dashboard.html">
-<i class="fa-solid fa-house"></i>
-Dashboard
-</a>
-</li>
+    </div>
 
+    <div class="menu-title">
+        MAIN MENU
+    </div>
 
-<li>
-<a href="products.html">
-<i class="fa-solid fa-pump-soap"></i>
-Products
-</a>
-</li>
+    <ul>
 
+        <li class="active">
 
-<li>
-<a href="progress.html">
-<i class="fa-solid fa-chart-line"></i>
-Progress
-</a>
-</li>
+            <a href="consultant-dashboard.html">
 
+                <i class="fa-solid fa-house"></i>
 
-<li>
-<a href="profile.html">
-<i class="fa-solid fa-user"></i>
-Profile
-</a>
-</li>
+                <span>Dashboard</span>
 
+            </a>
 
-<li>
-<a href="../index.html">
-<i class="fa-solid fa-right-from-bracket"></i>
-Logout
-</a>
-</li>
+        </li>
 
+        <li>
 
-</ul>
+            <a href="client-profiles.html">
 
-</div>
+                <i class="fa-solid fa-users"></i>
 
+                <span>Client Profiles</span>
 
+            </a>
 
+        </li>
 
-<div class="main">
+        <li>
 
+            <a href="appointments.html">
 
-<div class="profile-header">
+                <i class="fa-solid fa-calendar-check"></i>
 
+                <span>Appointments</span>
 
-<div>
+            </a>
 
-<h1>Welcome Consultant 👋</h1>
+        </li>
 
-<p>Create skincare plans and guide users</p>
+        <li>
 
-</div>
+            <a href="skin-reports.html">
 
+                <i class="fa-solid fa-file-medical"></i>
 
-</div>
+                <span>Skin Reports</span>
 
+            </a>
 
+        </li>
 
+        <li>
 
+            <a href="recommendations.html">
 
-<div class="cards">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
 
+                <span>Recommendations</span>
 
-<div class="card">
+            </a>
 
-<i class="fa-solid fa-users"></i>
+        </li>
 
-<h3>Total Clients</h3>
+        <li>
 
-<h2>80</h2>
+            <a href="daily-skincare.html">
 
-<p>Active clients</p>
+                <i class="fa-solid fa-list-check"></i>
 
-</div>
+                <span>Daily Skincare</span>
 
+            </a>
 
+        </li>
 
+    </ul>
 
-<div class="card">
+    <div class="menu-title account-title">
+        ACCOUNT
+    </div>
 
-<i class="fa-solid fa-list-check"></i>
+    <ul>
 
-<h3>Skin Plans Created</h3>
+        <li>
 
-<h2>75</h2>
+            <a href="../index.html">
 
-<p>Personalised routines</p>
+                <i class="fa-solid fa-right-from-bracket"></i>
 
-</div>
+                <span>Logout</span>
 
+            </a>
 
+        </li>
 
-
-<div class="card">
-
-<i class="fa-solid fa-star"></i>
-
-<h3>Customer Rating</h3>
-
-<h2>95%</h2>
-
-<p>Positive feedback</p>
+    </ul>
 
 </div>
 
+<!-- =====================================================
+     MAIN CONTENT
+===================================================== -->
 
+<div class="main consultant-main">
 
+    <!-- TOP HEADER -->
 
-<div class="card">
+    <div class="consultant-header">
 
-<i class="fa-solid fa-comments"></i>
+        <div>
 
-<h3>Consultations</h3>
+            <p class="dashboard-label">
+                CONSULTANT PORTAL
+            </p>
 
-<h2>150</h2>
+            <h1>
+                Good Morning, Consultant 👋
+            </h1>
 
-<p>Completed sessions</p>
+            <p class="header-description">
+                Here's your practice overview and client activity.
+            </p>
+
+        </div>
+
+        <div class="consultant-date">
+
+            <i class="fa-regular fa-calendar"></i>
+
+            <span id="currentDate"></span>
+
+        </div>
+
+    </div>
+
+    <!-- =================================================
+         STATISTICS
+    ================================================== -->
+
+    <div class="consultant-stats">
+
+        <div class="consultant-stat-card">
+
+            <div class="stat-icon">
+
+                <i class="fa-solid fa-users"></i>
+
+            </div>
+
+            <div>
+
+                <p>Total Clients</p>
+
+                <h2>80</h2>
+
+                <span class="stat-positive">
+                    <i class="fa-solid fa-arrow-up"></i>
+                    12% this month
+                </span>
+
+            </div>
+
+        </div>
+
+        <div class="consultant-stat-card">
+
+            <div class="stat-icon">
+
+                <i class="fa-solid fa-calendar-check"></i>
+
+            </div>
+
+            <div>
+
+                <p>Appointments</p>
+
+                <h2>12</h2>
+
+                <span>
+                    Today's schedule
+                </span>
+
+            </div>
+
+        </div>
+
+        <div class="consultant-stat-card">
+
+            <div class="stat-icon">
+
+                <i class="fa-solid fa-file-medical"></i>
+
+            </div>
+
+            <div>
+
+                <p>Skin Reports</p>
+
+                <h2>64</h2>
+
+                <span>
+                    Reports completed
+                </span>
+
+            </div>
+
+        </div>
+
+        <div class="consultant-stat-card">
+
+            <div class="stat-icon">
+
+                <i class="fa-solid fa-clock"></i>
+
+            </div>
+
+            <div>
+
+                <p>Pending Reviews</p>
+
+                <h2>08</h2>
+
+                <span>
+                    Need attention
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- =================================================
+         TWO COLUMN SECTION
+    ================================================== -->
+
+    <div class="consultant-grid">
+
+        <!-- TODAY'S APPOINTMENTS -->
+
+        <div class="consultant-panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>
+                        Today's Appointments
+                    </h2>
+
+                    <p>
+                        Your upcoming consultations
+                    </p>
+
+                </div>
+
+                <a href="appointments.html">
+                    View All
+                </a>
+
+            </div>
+
+            <div class="appointment-list">
+
+                <!-- Appointment 1 -->
+
+                <div class="appointment-item">
+
+                    <div class="appointment-time">
+
+                        <strong>10:00</strong>
+
+                        <span>AM</span>
+
+                    </div>
+
+                    <div class="appointment-avatar">
+                        PS
+                    </div>
+
+                    <div class="appointment-info">
+
+                        <h3>
+                            Priya Sharma
+                        </h3>
+
+                        <p>
+                            Acne & Dark Spots
+                        </p>
+
+                    </div>
+
+                    <span class="status confirmed">
+                        Confirmed
+                    </span>
+
+                </div>
+
+                <!-- Appointment 2 -->
+
+                <div class="appointment-item">
+
+                    <div class="appointment-time">
+
+                        <strong>11:30</strong>
+
+                        <span>AM</span>
+
+                    </div>
+
+                    <div class="appointment-avatar">
+                        AR
+                    </div>
+
+                    <div class="appointment-info">
+
+                        <h3>
+                            Anjali Reddy
+                        </h3>
+
+                        <p>
+                            Pigmentation
+                        </p>
+
+                    </div>
+
+                    <span class="status pending">
+                        Pending
+                    </span>
+
+                </div>
+
+                <!-- Appointment 3 -->
+
+                <div class="appointment-item">
+
+                    <div class="appointment-time">
+
+                        <strong>02:00</strong>
+
+                        <span>PM</span>
+
+                    </div>
+
+                    <div class="appointment-avatar">
+                        RK
+                    </div>
+
+                    <div class="appointment-info">
+
+                        <h3>
+                            Rahul Kumar
+                        </h3>
+
+                        <p>
+                            Dryness & Hydration
+                        </p>
+
+                    </div>
+
+                    <span class="status confirmed">
+                        Confirmed
+                    </span>
+
+                </div>
+
+                <!-- Appointment 4 -->
+
+                <div class="appointment-item">
+
+                    <div class="appointment-time">
+
+                        <strong>04:30</strong>
+
+                        <span>PM</span>
+
+                    </div>
+
+                    <div class="appointment-avatar">
+                        SP
+                    </div>
+
+                    <div class="appointment-info">
+
+                        <h3>
+                            Sneha Patel
+                        </h3>
+
+                        <p>
+                            Sensitive Skin
+                        </p>
+
+                    </div>
+
+                    <span class="status pending">
+                        Pending
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- RECENT CLIENTS -->
+
+        <div class="consultant-panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>
+                        Recent Clients
+                    </h2>
+
+                    <p>
+                        Recently assessed clients
+                    </p>
+
+                </div>
+
+                <a href="client-profiles.html">
+                    View All
+                </a>
+
+            </div>
+
+            <div class="client-list">
+
+                <!-- Client 1 -->
+
+                <div class="client-item">
+
+                    <div class="client-avatar">
+                        PS
+                    </div>
+
+                    <div class="client-info">
+
+                        <h3>
+                            Priya Sharma
+                        </h3>
+
+                        <p>
+                            Combination • Acne
+                        </p>
+
+                    </div>
+
+                    <div class="client-score">
+
+                        <strong>82</strong>
+
+                        <span>Score</span>
+
+                    </div>
+
+                </div>
+
+                <!-- Client 2 -->
+
+                <div class="client-item">
+
+                    <div class="client-avatar">
+                        AR
+                    </div>
+
+                    <div class="client-info">
+
+                        <h3>
+                            Anjali Reddy
+                        </h3>
+
+                        <p>
+                            Oily • Pigmentation
+                        </p>
+
+                    </div>
+
+                    <div class="client-score">
+
+                        <strong>76</strong>
+
+                        <span>Score</span>
+
+                    </div>
+
+                </div>
+
+                <!-- Client 3 -->
+
+                <div class="client-item">
+
+                    <div class="client-avatar">
+                        RK
+                    </div>
+
+                    <div class="client-info">
+
+                        <h3>
+                            Rahul Kumar
+                        </h3>
+
+                        <p>
+                            Dry • Dehydration
+                        </p>
+
+                    </div>
+
+                    <div class="client-score">
+
+                        <strong>88</strong>
+
+                        <span>Score</span>
+
+                    </div>
+
+                </div>
+
+                <!-- Client 4 -->
+
+                <div class="client-item">
+
+                    <div class="client-avatar">
+                        SP
+                    </div>
+
+                    <div class="client-info">
+
+                        <h3>
+                            Sneha Patel
+                        </h3>
+
+                        <p>
+                            Sensitive • Redness
+                        </p>
+
+                    </div>
+
+                    <div class="client-score">
+
+                        <strong>79</strong>
+
+                        <span>Score</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- =================================================
+         CLIENT HEALTH OVERVIEW
+    ================================================== -->
+
+    <div class="consultant-panel health-panel">
+
+        <div class="panel-header">
+
+            <div>
+
+                <h2>
+                    Client Health Overview
+                </h2>
+
+                <p>
+                    Latest skin health scores
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="health-table">
+
+            <div class="health-row health-heading">
+
+                <span>Client</span>
+
+                <span>Skin Type</span>
+
+                <span>Primary Concern</span>
+
+                <span>Health Score</span>
+
+                <span>Progress</span>
+
+            </div>
+
+            <div class="health-row">
+
+                <span class="table-client">
+
+                    <span class="mini-avatar">
+                        PS
+                    </span>
+
+                    Priya Sharma
+
+                </span>
+
+                <span>
+                    Combination
+                </span>
+
+                <span>
+                    Acne & Dark Spots
+                </span>
+
+                <strong class="score-good">
+                    82
+                </strong>
+
+                <span class="progress-up">
+                    ↑ +6
+                </span>
+
+            </div>
+
+            <div class="health-row">
+
+                <span class="table-client">
+
+                    <span class="mini-avatar">
+                        AR
+                    </span>
+
+                    Anjali Reddy
+
+                </span>
+
+                <span>
+                    Oily
+                </span>
+
+                <span>
+                    Pigmentation
+                </span>
+
+                <strong class="score-medium">
+                    76
+                </strong>
+
+                <span class="progress-up">
+                    ↑ +3
+                </span>
+
+            </div>
+
+            <div class="health-row">
+
+                <span class="table-client">
+
+                    <span class="mini-avatar">
+                        RK
+                    </span>
+
+                    Rahul Kumar
+
+                </span>
+
+                <span>
+                    Dry
+                </span>
+
+                <span>
+                    Dehydration
+                </span>
+
+                <strong class="score-good">
+                    88
+                </strong>
+
+                <span class="progress-up">
+                    ↑ +8
+                </span>
+
+            </div>
+
+            <div class="health-row">
+
+                <span class="table-client">
+
+                    <span class="mini-avatar">
+                        SP
+                    </span>
+
+                    Sneha Patel
+
+                </span>
+
+                <span>
+                    Sensitive
+                </span>
+
+                <span>
+                    Redness
+                </span>
+
+                <strong class="score-medium">
+                    79
+                </strong>
+
+                <span class="progress-up">
+                    ↑ +4
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- =================================================
+         QUICK ACTIONS
+    ================================================== -->
+
+    <div class="quick-actions">
+
+        <a href="client-profiles.html"
+           class="quick-action">
+
+            <i class="fa-solid fa-user-plus"></i>
+
+            <div>
+
+                <h3>
+                    Client Profiles
+                </h3>
+
+                <p>
+                    View and manage clients
+                </p>
+
+            </div>
+
+            <i class="fa-solid fa-arrow-right"></i>
+
+        </a>
+
+        <a href="skin-reports.html"
+           class="quick-action">
+
+            <i class="fa-solid fa-file-medical"></i>
+
+            <div>
+
+                <h3>
+                    Skin Reports
+                </h3>
+
+                <p>
+                    Review client assessments
+                </p>
+
+            </div>
+
+            <i class="fa-solid fa-arrow-right"></i>
+
+        </a>
+
+        <a href="recommendations.html"
+           class="quick-action">
+
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+
+            <div>
+
+                <h3>
+                    Recommendations
+                </h3>
+
+                <p>
+                    Create personalised routines
+                </p>
+
+            </div>
+
+            <i class="fa-solid fa-arrow-right"></i>
+
+        </a>
+
+    </div>
 
 </div>
 
+<script>
 
+    const dateElement =
+        document.getElementById("currentDate");
 
-</div>
+    const today = new Date();
 
+    dateElement.textContent =
+        today.toLocaleDateString(
+            "en-IN",
+            {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+                year: "numeric"
+            }
+        );
 
-
-
-
-<div class="analysis-box">
-
-
-<h2>Consultant Tasks</h2>
-
-<p>✔ Recommend skincare products</p>
-
-<p>✔ Create personalised routines</p>
-
-<p>✔ Track customer improvements</p>
-
-
-</div>
-
-
-</div>
-
-
+</script>
 
 </body>
 

@@ -1,0 +1,1563 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Skin AI | User Management</title>
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f8f5;
+            color: #183b25;
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 275px;
+            height: 100vh;
+
+            background: linear-gradient(
+                180deg,
+                #135d2b,
+                #1f7a2e,
+                #2d8f3c
+            );
+
+            padding: 28px 18px;
+            color: white;
+        }
+
+        .brand {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .brand h2 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .brand p {
+            font-size: 11px;
+            letter-spacing: 2px;
+            opacity: 0.8;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar li {
+            margin: 8px 0;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+
+            padding: 14px 16px;
+
+            text-decoration: none;
+            color: white;
+
+            border-radius: 12px;
+
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        .sidebar i {
+            width: 22px;
+        }
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        .main {
+            margin-left: 275px;
+            padding: 35px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            color: #164c27;
+        }
+
+        .header p {
+            margin-top: 7px;
+            color: #6c7f72;
+        }
+
+        .admin-badge {
+            background: #e2f3e6;
+            color: #1f7a2e;
+
+            padding: 10px 18px;
+            border-radius: 30px;
+
+            font-weight: bold;
+        }
+
+        /* =========================
+           STAT CARDS
+        ========================= */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 18px;
+            padding: 22px;
+
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
+
+            border-left: 5px solid #2d8f3c;
+        }
+
+        .stat-card i {
+            font-size: 25px;
+            color: #2d8f3c;
+            margin-bottom: 12px;
+        }
+
+        .stat-card h2 {
+            font-size: 27px;
+            color: #174d28;
+        }
+
+        .stat-card p {
+            color: #718077;
+            margin-top: 5px;
+        }
+
+        /* =========================
+           PANEL
+        ========================= */
+
+        .panel {
+            background: white;
+            border-radius: 20px;
+            padding: 28px;
+
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            margin-bottom: 25px;
+        }
+
+        .panel-header h2 {
+            color: #174d28;
+        }
+
+        /* =========================
+           SEARCH
+        ========================= */
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            background: #f1f6f2;
+            padding: 11px 15px;
+
+            border-radius: 10px;
+            width: 280px;
+        }
+
+        .search-box i {
+            color: #6b8272;
+        }
+
+        .search-box input {
+            border: none;
+            outline: none;
+            background: transparent;
+
+            width: 100%;
+            font-size: 14px;
+        }
+
+        /* =========================
+           FILTERS
+        ========================= */
+
+        .filters {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .filters select {
+            padding: 11px 15px;
+
+            border: 1px solid #d9e5dc;
+            border-radius: 10px;
+
+            background: white;
+            color: #365542;
+
+            outline: none;
+        }
+
+        /* =========================
+           TABLE
+        ========================= */
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 15px;
+
+            background: #f1f7f3;
+            color: #356044;
+
+            font-size: 14px;
+        }
+
+        td {
+            padding: 16px 15px;
+            border-bottom: 1px solid #edf1ee;
+
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background: #fafdfb;
+        }
+
+        .user-name {
+            font-weight: bold;
+            color: #174d28;
+        }
+
+        .user-email {
+            color: #75857b;
+            font-size: 12px;
+            margin-top: 3px;
+        }
+
+        /* =========================
+           ROLE BADGES
+        ========================= */
+
+        .role {
+            display: inline-block;
+
+            padding: 6px 11px;
+            border-radius: 20px;
+
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .role-user {
+            background: #e8f3ff;
+            color: #2468a6;
+        }
+
+        .role-consultant {
+            background: #fff1dc;
+            color: #a56819;
+        }
+
+        .role-dermatologist {
+            background: #eee8ff;
+            color: #6843a5;
+        }
+
+        .role-admin {
+            background: #e2f3e6;
+            color: #1f7a2e;
+        }
+
+        /* =========================
+           STATUS
+        ========================= */
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status.active {
+            color: #21833a;
+        }
+
+        .status.inactive {
+            color: #a35a5a;
+        }
+
+        .dot {
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        /* =========================
+           BUTTONS
+        ========================= */
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .view-btn,
+        .remove-btn {
+            border: none;
+
+            padding: 8px 13px;
+            border-radius: 8px;
+
+            cursor: pointer;
+            font-weight: bold;
+
+            transition: 0.2s;
+        }
+
+        .view-btn {
+            background: #e6f4e9;
+            color: #217536;
+        }
+
+        .view-btn:hover {
+            background: #d4ebd9;
+        }
+
+        .remove-btn {
+            background: #fdeaea;
+            color: #c0392b;
+        }
+
+        .remove-btn:hover {
+            background: #f8d4d1;
+        }
+
+        .remove-btn:disabled {
+            background: #eeeeee;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        /* =========================
+           LOADING
+        ========================= */
+
+        .loading {
+            text-align: center;
+            padding: 35px;
+
+            color: #6c7f72;
+        }
+
+        .loading i {
+            margin-right: 8px;
+        }
+
+        /* =========================
+           EMPTY
+        ========================= */
+
+        .empty {
+            text-align: center;
+            padding: 40px;
+
+            color: #75857b;
+        }
+
+        .empty i {
+            font-size: 35px;
+            margin-bottom: 12px;
+        }
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+
+            color: #829087;
+            font-size: 13px;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 1000px) {
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .sidebar {
+                width: 220px;
+            }
+
+            .main {
+                margin-left: 220px;
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .sidebar {
+                position: relative;
+
+                width: 100%;
+                height: auto;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .header,
+            .panel-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =========================
+     SIDEBAR
+========================= -->
+
+<div class="sidebar">
+
+    <div class="brand">
+
+        <h2>Skin AI</h2>
+
+        <p>ADMIN CONTROL CENTER</p>
+
+    </div>
+
+
+    <ul>
+
+        <li>
+
+            <a href="admin-dashboard.html">
+
+                <i class="fa-solid fa-chart-line"></i>
+
+                Dashboard
+
+            </a>
+
+        </li>
+
+
+        <li>
+
+            <a href="admin-users.html" class="active">
+
+                <i class="fa-solid fa-users"></i>
+
+                User Management
+
+            </a>
+
+        </li>
+
+
+        <li>
+
+            <a href="admin-analytics.html">
+
+                <i class="fa-solid fa-chart-pie"></i>
+
+                Platform Analytics
+
+            </a>
+
+        </li>
+
+
+        <li>
+
+            <a href="admin-recommendations.html">
+
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+
+                Recommendation Monitoring
+
+            </a>
+
+        </li>
+
+
+        <li>
+
+            <a href="admin-reports.html">
+
+                <i class="fa-solid fa-file-medical"></i>
+
+                System Reports
+
+            </a>
+
+        </li>
+
+
+        <li>
+
+            <a href="profile.html">
+
+                <i class="fa-solid fa-user"></i>
+
+                Profile
+
+            </a>
+
+        </li>
+
+
+        <li>
+
+            <a href="../index.html">
+
+                <i class="fa-solid fa-right-from-bracket"></i>
+
+                Logout
+
+            </a>
+
+        </li>
+
+    </ul>
+
+</div>
+
+
+
+<!-- =========================
+     MAIN
+========================= -->
+
+<div class="main">
+
+
+    <div class="header">
+
+        <div>
+
+            <h1>User Management</h1>
+
+            <p>
+                Manage registered users across the Skin AI platform.
+            </p>
+
+        </div>
+
+
+        <div class="admin-badge">
+
+            <i class="fa-solid fa-shield-halved"></i>
+
+            Admin Access
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =========================
+         STATISTICS
+    ========================= -->
+
+    <div class="stats">
+
+
+        <div class="stat-card">
+
+            <i class="fa-solid fa-users"></i>
+
+            <h2 id="totalUsers">0</h2>
+
+            <p>Total Users</p>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <i class="fa-solid fa-user-check"></i>
+
+            <h2 id="activeUsers">0</h2>
+
+            <p>Active Users</p>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <i class="fa-solid fa-user-doctor"></i>
+
+            <h2 id="dermatologists">0</h2>
+
+            <p>Dermatologists</p>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <i class="fa-solid fa-user-shield"></i>
+
+            <h2 id="admins">0</h2>
+
+            <p>Administrators</p>
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- =========================
+         USER PANEL
+    ========================= -->
+
+    <div class="panel">
+
+
+        <div class="panel-header">
+
+            <h2>
+
+                <i class="fa-solid fa-users"></i>
+
+                Registered Users
+
+            </h2>
+
+
+            <div class="search-box">
+
+                <i class="fa-solid fa-magnifying-glass"></i>
+
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search users..."
+                    onkeyup="applyFilters()"
+                >
+
+            </div>
+
+        </div>
+
+
+
+        <!-- FILTERS -->
+
+        <div class="filters">
+
+            <select
+                id="roleFilter"
+                onchange="applyFilters()"
+            >
+
+                <option value="all">
+                    All Roles
+                </option>
+
+                <option value="USER">
+                    User
+                </option>
+
+                <option value="CONSULTANT">
+                    Consultant
+                </option>
+
+                <option value="DERMATOLOGIST">
+                    Dermatologist
+                </option>
+
+                <option value="ADMIN">
+                    Admin
+                </option>
+
+            </select>
+
+
+        </div>
+
+
+
+        <!-- TABLE -->
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>User</th>
+
+                        <th>Role</th>
+
+                        <th>Provider</th>
+
+                        <th>Status</th>
+
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="userTable">
+
+                    <tr>
+
+                        <td
+                            colspan="5"
+                            class="loading"
+                        >
+
+                            <i class="fa-solid fa-spinner fa-spin"></i>
+
+                            Loading users...
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+    </div>
+
+
+
+    <footer>
+
+        Skin AI • Administrative User Management
+
+    </footer>
+
+
+</div>
+
+
+
+<script>
+
+
+/* =====================================================
+   GLOBAL USERS ARRAY
+===================================================== */
+
+let allUsers = [];
+
+
+
+/* =====================================================
+   GET JWT TOKEN
+===================================================== */
+
+function getToken() {
+
+    return (
+        localStorage.getItem("token") ||
+        localStorage.getItem("access_token") ||
+        localStorage.getItem("accessToken")
+    );
+
+}
+
+
+
+/* =====================================================
+   LOAD USERS FROM FASTAPI
+===================================================== */
+
+async function loadUsers() {
+
+    const token = getToken();
+
+    if (!token) {
+
+        alert("Admin login required.");
+
+        window.location.href = "../index.html";
+
+        return;
+
+    }
+
+
+    try {
+
+        const response = await fetch(
+            "http://127.0.0.1:8000/api/auth/admin/users",
+            {
+
+                method: "GET",
+
+                headers: {
+
+                    "Authorization":
+                        "Bearer " + token,
+
+                    "Content-Type":
+                        "application/json"
+
+                }
+
+            }
+        );
+
+
+        /* =========================
+           AUTH ERROR
+        ========================= */
+
+        if (response.status === 401) {
+
+            alert("Your login session has expired.");
+
+            window.location.href = "../index.html";
+
+            return;
+
+        }
+
+
+        /* =========================
+           ADMIN PERMISSION ERROR
+        ========================= */
+
+        if (response.status === 403) {
+
+            alert(
+                "Access denied. Only Admin can manage users."
+            );
+
+            return;
+
+        }
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Failed to load users"
+            );
+
+        }
+
+
+        allUsers = await response.json();
+
+
+        updateStatistics();
+
+        applyFilters();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "User loading error:",
+            error
+        );
+
+
+        document.getElementById(
+            "userTable"
+        ).innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="5"
+                    class="empty"
+                >
+
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+
+                    <br>
+
+                    Unable to load users.
+
+                    <br><br>
+
+                    Make sure FastAPI is running.
+
+                </td>
+
+            </tr>
+
+        `;
+
+    }
+
+}
+
+
+
+/* =====================================================
+   UPDATE STATISTICS
+===================================================== */
+
+function updateStatistics() {
+
+    const total =
+        allUsers.length;
+
+
+    const active =
+        allUsers.length;
+
+
+    const dermatologists =
+        allUsers.filter(
+            user =>
+                String(user.role).toUpperCase()
+                === "DERMATOLOGIST"
+        ).length;
+
+
+    const admins =
+        allUsers.filter(
+            user =>
+                String(user.role).toUpperCase()
+                === "ADMIN"
+        ).length;
+
+
+    document.getElementById(
+        "totalUsers"
+    ).textContent = total;
+
+
+    document.getElementById(
+        "activeUsers"
+    ).textContent = active;
+
+
+    document.getElementById(
+        "dermatologists"
+    ).textContent = dermatologists;
+
+
+    document.getElementById(
+        "admins"
+    ).textContent = admins;
+
+}
+
+
+
+/* =====================================================
+   APPLY SEARCH + ROLE FILTER
+===================================================== */
+
+function applyFilters() {
+
+    const search =
+        document.getElementById(
+            "searchInput"
+        ).value.toLowerCase();
+
+
+    const selectedRole =
+        document.getElementById(
+            "roleFilter"
+        ).value;
+
+
+    const filteredUsers =
+        allUsers.filter(user => {
+
+
+            const name =
+                String(
+                    user.name || ""
+                ).toLowerCase();
+
+
+            const email =
+                String(
+                    user.email || ""
+                ).toLowerCase();
+
+
+            const role =
+                String(
+                    user.role || ""
+                ).toUpperCase();
+
+
+            const matchesSearch =
+                name.includes(search) ||
+                email.includes(search);
+
+
+            const matchesRole =
+                selectedRole === "all" ||
+                role === selectedRole;
+
+
+            return (
+                matchesSearch &&
+                matchesRole
+            );
+
+        });
+
+
+    displayUsers(filteredUsers);
+
+}
+
+
+
+/* =====================================================
+   DISPLAY USERS
+===================================================== */
+
+function displayUsers(users) {
+
+    const table =
+        document.getElementById(
+            "userTable"
+        );
+
+
+    if (users.length === 0) {
+
+        table.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="5"
+                    class="empty"
+                >
+
+                    <i class="fa-solid fa-user-slash"></i>
+
+                    <br>
+
+                    No users found.
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    table.innerHTML = "";
+
+
+    users.forEach(user => {
+
+        const role =
+            String(
+                user.role || "USER"
+            ).toUpperCase();
+
+
+        let roleClass =
+            "role-user";
+
+
+        let roleName =
+            "User";
+
+
+        if (role === "CONSULTANT") {
+
+            roleClass =
+                "role-consultant";
+
+            roleName =
+                "Consultant";
+
+        }
+
+        else if (
+            role === "DERMATOLOGIST"
+        ) {
+
+            roleClass =
+                "role-dermatologist";
+
+            roleName =
+                "Dermatologist";
+
+        }
+
+        else if (role === "ADMIN") {
+
+            roleClass =
+                "role-admin";
+
+            roleName =
+                "Admin";
+
+        }
+
+
+        const provider =
+            user.provider || "LOCAL";
+
+
+        const row =
+            document.createElement(
+                "tr"
+            );
+
+
+        row.innerHTML = `
+
+            <td>
+
+                <div class="user-name">
+
+                    ${escapeHTML(
+                        user.name || "Unknown"
+                    )}
+
+                </div>
+
+                <div class="user-email">
+
+                    ${escapeHTML(
+                        user.email || ""
+                    )}
+
+                </div>
+
+            </td>
+
+
+            <td>
+
+                <span
+                    class="role ${roleClass}"
+                >
+
+                    ${roleName}
+
+                </span>
+
+            </td>
+
+
+            <td>
+
+                ${escapeHTML(provider)}
+
+            </td>
+
+
+            <td>
+
+                <span
+                    class="status active"
+                >
+
+                    <span class="dot"></span>
+
+                    Active
+
+                </span>
+
+            </td>
+
+
+            <td>
+
+                <div class="action-buttons">
+
+                    <button
+                        class="view-btn"
+                        onclick="viewUser(${user.id})"
+                    >
+
+                        <i class="fa-solid fa-eye"></i>
+
+                        View
+
+                    </button>
+
+
+                    <button
+                        class="remove-btn"
+                        onclick="removeUser(${user.id}, '${escapeJS(user.name || "User")}')"
+                        ${role === "ADMIN" ? "disabled" : ""}
+                    >
+
+                        <i class="fa-solid fa-trash"></i>
+
+                        Remove
+
+                    </button>
+
+                </div>
+
+            </td>
+
+        `;
+
+
+        table.appendChild(row);
+
+    });
+
+}
+
+
+
+/* =====================================================
+   VIEW USER
+===================================================== */
+
+function viewUser(userId) {
+
+    const user =
+        allUsers.find(
+            item =>
+                item.id === userId
+        );
+
+
+    if (!user) {
+
+        return;
+
+    }
+
+
+    alert(
+
+        "User Profile\n\n" +
+
+        "ID: " +
+        user.id +
+
+        "\nName: " +
+        user.name +
+
+        "\nEmail: " +
+        user.email +
+
+        "\nRole: " +
+        user.role +
+
+        "\nProvider: " +
+        user.provider
+
+    );
+
+}
+
+
+
+/* =====================================================
+   REMOVE USER
+===================================================== */
+
+async function removeUser(
+    userId,
+    userName
+) {
+
+
+    const confirmed =
+        confirm(
+
+            "Remove User?\n\n" +
+
+            "Are you sure you want to permanently remove:\n\n" +
+
+            userName +
+
+            "\n\nThis action cannot be undone."
+
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    const token =
+        getToken();
+
+
+    if (!token) {
+
+        alert(
+            "Admin login required."
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+
+        const response =
+            await fetch(
+
+                "http://127.0.0.1:8000/api/auth/admin/users/" +
+                userId,
+
+                {
+
+                    method: "DELETE",
+
+                    headers: {
+
+                        "Authorization":
+                            "Bearer " + token
+
+                    }
+
+                }
+
+            );
+
+
+        if (response.status === 401) {
+
+            alert(
+                "Your login session has expired."
+            );
+
+            window.location.href =
+                "../index.html";
+
+            return;
+
+        }
+
+
+        if (response.status === 403) {
+
+            alert(
+                "Access denied. Only Admin can remove users."
+            );
+
+            return;
+
+        }
+
+
+        if (response.status === 404) {
+
+            alert(
+                "User was not found."
+            );
+
+            await loadUsers();
+
+            return;
+
+        }
+
+
+        if (!response.ok) {
+
+            const errorData =
+                await response.json()
+                    .catch(() => ({}));
+
+
+            throw new Error(
+                errorData.detail ||
+                "Unable to remove user"
+            );
+
+        }
+
+
+        alert(
+            userName +
+            " has been removed successfully."
+        );
+
+
+        /* Reload PostgreSQL users */
+
+        await loadUsers();
+
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Delete user error:",
+            error
+        );
+
+
+        alert(
+            "Unable to remove user.\n\n" +
+            error.message
+        );
+
+    }
+
+}
+
+
+
+/* =====================================================
+   SECURITY HELPERS
+===================================================== */
+
+function escapeHTML(value) {
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+function escapeJS(value) {
+
+    return String(value)
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "\\'")
+        .replace(/"/g, '\\"')
+        .replace(/\n/g, "\\n")
+        .replace(/\r/g, "\\r");
+
+}
+
+
+
+/* =====================================================
+   START
+===================================================== */
+
+window.addEventListener(
+    "DOMContentLoaded",
+    loadUsers
+);
+
+
+</script>
+
+
+</body>
+
+</html>

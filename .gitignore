@@ -2,3 +2,5 @@ backend/node_modules/
 node_modules/
 .env
 backend/.env
+__pycache__/
+*.pyc

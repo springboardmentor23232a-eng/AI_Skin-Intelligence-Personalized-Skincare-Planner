@@ -3,12 +3,608 @@
 
 <head>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Skin Reports</title>
+    <title>Skin AI | Skin Condition Reports</title>
 
-<link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <!-- PDF LIBRARY -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- PDF TABLE LIBRARY -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+    <!-- EXCEL LIBRARY -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #f2f7f4;
+            color: #183a26;
+        }
+
+
+        /* ================= SIDEBAR ================= */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 283px;
+            height: 100vh;
+            background: linear-gradient(180deg, #104f24, #207b36, #2d9345);
+            color: white;
+            padding: 32px 22px;
+            z-index: 10;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 38px;
+            padding: 0 8px;
+        }
+
+        .brand-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 14px;
+            background: rgba(255,255,255,.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .brand h2 {
+            margin: 0;
+            font-size: 25px;
+        }
+
+        .brand small {
+            display: block;
+            margin-top: 3px;
+            opacity: .7;
+            font-size: 11px;
+        }
+
+        .menu-title {
+            font-size: 10px;
+            letter-spacing: 1.5px;
+            opacity: .55;
+            padding: 0 14px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar li {
+            margin-bottom: 7px;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 14px 15px;
+            border-radius: 13px;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: .25s;
+        }
+
+        .sidebar a:hover {
+            background: rgba(255,255,255,.12);
+            transform: translateX(3px);
+        }
+
+        .sidebar a.active {
+            background: white;
+            color: #187034;
+        }
+
+        .sidebar i {
+            width: 20px;
+            text-align: center;
+        }
+
+
+        /* ================= MAIN ================= */
+
+        .main {
+            margin-left: 283px;
+            padding: 35px 45px 60px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 34px;
+        }
+
+        .header p {
+            margin: 7px 0 0;
+            color: #75837b;
+            font-size: 14px;
+        }
+
+        .ai-badge {
+            background: white;
+            border: 1px solid #dce9df;
+            padding: 11px 16px;
+            border-radius: 25px;
+            color: #237b3b;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+
+        /* ================= PATIENT SELECTOR ================= */
+
+        .selector {
+            background: white;
+            border-radius: 20px;
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 24px;
+            box-shadow: 0 7px 25px rgba(25,75,40,.06);
+        }
+
+        .selector-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            background: #e6f6ea;
+            color: #21803a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .selector-text {
+            flex: 1;
+        }
+
+        .selector-text strong {
+            display: block;
+            font-size: 14px;
+        }
+
+        .selector-text span {
+            color: #849188;
+            font-size: 11px;
+        }
+
+        #patientSelect {
+            width: 340px;
+            padding: 14px 15px;
+            border: 2px solid #dce9df;
+            border-radius: 12px;
+            background: #fbfdfb;
+            color: #183a26;
+            font-size: 14px;
+            outline: none;
+        }
+
+        #patientSelect:focus {
+            border-color: #2c9345;
+        }
+
+
+        /* ================= PATIENT HERO ================= */
+
+        .patient-hero {
+            background: linear-gradient(135deg, #17672d, #31994b);
+            border-radius: 25px;
+            padding: 30px 34px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 23px;
+            box-shadow: 0 15px 35px rgba(25,100,45,.18);
+        }
+
+        .patient-info h2 {
+            margin: 0 0 7px;
+            font-size: 29px;
+        }
+
+        .patient-info p {
+            margin: 5px 0;
+            font-size: 14px;
+            opacity: .9;
+        }
+
+        .report-tag {
+            display: inline-block;
+            background: rgba(255,255,255,.15);
+            padding: 6px 11px;
+            border-radius: 20px;
+            font-size: 10px;
+            margin-bottom: 10px;
+            letter-spacing: .5px;
+        }
+
+        .risk-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            margin-top: 11px;
+            padding: 7px 13px;
+            background: white;
+            color: #21803a;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .score-area {
+            text-align: center;
+        }
+
+        .score-circle {
+            width: 115px;
+            height: 115px;
+            border-radius: 50%;
+            border: 8px solid rgba(255,255,255,.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 800;
+        }
+
+        .score-area small {
+            display: block;
+            margin-top: 8px;
+            font-size: 9px;
+            opacity: .75;
+            letter-spacing: 1px;
+        }
+
+
+        /* ================= OVERVIEW ================= */
+
+        .overview {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 17px;
+            margin-bottom: 23px;
+        }
+
+        .overview-card {
+            background: white;
+            border-radius: 19px;
+            padding: 22px;
+            box-shadow: 0 7px 25px rgba(25,75,40,.06);
+        }
+
+        .overview-icon {
+            width: 42px;
+            height: 42px;
+            background: #e9f7ed;
+            color: #25823d;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+        }
+
+        .overview-card h3 {
+            margin: 0 0 6px;
+            font-size: 12px;
+            color: #718078;
+        }
+
+        .overview-card strong {
+            font-size: 19px;
+            color: #1f7f39;
+        }
+
+
+        /* ================= TWO COLUMNS ================= */
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1.25fr .75fr;
+            gap: 22px;
+            margin-bottom: 23px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 22px;
+            padding: 27px;
+            box-shadow: 0 7px 25px rgba(25,75,40,.06);
+        }
+
+        .panel-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 21px;
+        }
+
+        .panel-title h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .panel-title span {
+            color: #8a968f;
+            font-size: 11px;
+        }
+
+
+        /* ================= CONDITION METRICS ================= */
+
+        .condition {
+            margin-bottom: 20px;
+        }
+
+        .condition:last-child {
+            margin-bottom: 0;
+        }
+
+        .condition-top {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .condition-top span:last-child {
+            color: #25813c;
+        }
+
+        .bar {
+            height: 10px;
+            background: #e7efe9;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg,#25833d,#58b96d);
+            border-radius: 20px;
+            transition: width .5s;
+        }
+
+
+        /* ================= FINDINGS ================= */
+
+        .finding {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 14px 0;
+            border-bottom: 1px solid #edf1ee;
+        }
+
+        .finding:last-child {
+            border-bottom: none;
+        }
+
+        .finding-icon {
+            width: 37px;
+            height: 37px;
+            border-radius: 11px;
+            background: #eef7f0;
+            color: #24813c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .finding strong {
+            display: block;
+            font-size: 12px;
+        }
+
+        .finding span {
+            display: block;
+            margin-top: 3px;
+            color: #849087;
+            font-size: 10px;
+        }
+
+
+        /* ================= CLINICAL SUMMARY ================= */
+
+        .clinical-grid {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 15px;
+        }
+
+        .clinical-box {
+            background: #f7faf8;
+            border: 1px solid #e1ece4;
+            border-radius: 16px;
+            padding: 19px;
+        }
+
+        .clinical-box i {
+            color: #25823c;
+            margin-right: 7px;
+        }
+
+        .clinical-box strong {
+            font-size: 12px;
+        }
+
+        .clinical-box p {
+            color: #718078;
+            font-size: 11px;
+            line-height: 1.6;
+            margin-bottom: 0;
+        }
+
+
+        /* ================= AI INSIGHT ================= */
+
+        .ai-panel {
+            background: linear-gradient(135deg,#edf8f0,#f9fcfa);
+            border: 1px solid #d4ead9;
+            border-radius: 22px;
+            padding: 25px;
+            margin-bottom: 23px;
+            display: flex;
+            gap: 17px;
+        }
+
+        .ai-icon {
+            width: 49px;
+            height: 49px;
+            border-radius: 15px;
+            background: #25843d;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .ai-panel h2 {
+            margin: 0 0 7px;
+            font-size: 18px;
+        }
+
+        .ai-panel p {
+            margin: 0;
+            color: #65736a;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+
+        /* ================= ACTIONS ================= */
+
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            border: none;
+            border-radius: 12px;
+            padding: 13px 20px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .progress-btn {
+            background: #e8f2ea;
+            color: #23783a;
+        }
+
+        .treatment-btn {
+            background: #23823b;
+            color: white;
+        }
+
+        /* PDF BUTTON */
+
+        .pdf-btn {
+            background: #e9dddd;
+            color: #9b2929;
+        }
+
+        /* EXCEL BUTTON */
+
+        .excel-btn {
+            background: #dcefe2;
+            color: #21763a;
+        }
+
+        button:hover {
+            opacity: .9;
+            transform: translateY(-1px);
+        }
+
+
+        /* ================= RESPONSIVE ================= */
+
+        @media(max-width:1150px) {
+
+            .overview {
+                grid-template-columns: repeat(2,1fr);
+            }
+
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+        @media(max-width:800px) {
+
+            .sidebar {
+                width: 220px;
+            }
+
+            .main {
+                margin-left: 220px;
+                padding: 25px;
+            }
+
+            .selector {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            #patientSelect {
+                width: 100%;
+            }
+
+            .clinical-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .patient-hero {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+
+        }
+
+    </style>
 
 </head>
 
@@ -16,154 +612,1860 @@
 <body>
 
 
+<!-- ================= SIDEBAR ================= -->
+
 <div class="sidebar">
 
-<h2>Skin AI</h2>
+    <div class="brand">
 
-<ul>
+        <div class="brand-icon">
+            <i class="fa-solid fa-leaf"></i>
+        </div>
 
-<li><a href="user-dashboard.html">Dashboard</a></li>
+        <div>
+            <h2>Skin AI</h2>
+            <small>Dermatologist Portal</small>
+        </div>
 
-<li><a href="assessment.html">Assessment</a></li>
+    </div>
 
-<li><a href="products.html">Products</a></li>
 
-<li><a href="progress.html">Progress</a></li>
+    <div class="menu-title">
+        CLINICAL WORKSPACE
+    </div>
 
-<li><a href="reports.html">Reports</a></li>
 
-<li><a href="../index.html">Logout</a></li>
+    <ul>
 
-</ul>
+        <li>
+            <a href="dermatologist-dashboard.html">
+                <i class="fa-solid fa-house"></i>
+                Dashboard
+            </a>
+        </li>
+
+        <li>
+            <a href="reports.html"
+               class="active">
+                <i class="fa-solid fa-file-medical"></i>
+                Skin Condition Reports
+            </a>
+        </li>
+
+        <li>
+            <a href="treatment-recommendations.html">
+                <i class="fa-solid fa-prescription-bottle-medical"></i>
+                Treatment Recommendations
+            </a>
+        </li>
+
+        <li>
+            <a href="dermatologist-progress.html">
+                <i class="fa-solid fa-chart-line"></i>
+                Progress Analytics
+            </a>
+        </li>
+
+        <li>
+            <a href="profile.html">
+                <i class="fa-solid fa-user-doctor"></i>
+                Profile
+            </a>
+        </li>
+
+        <li>
+            <a href="../index.html">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                Logout
+            </a>
+        </li>
+
+    </ul>
 
 </div>
 
 
-
+<!-- ================= MAIN ================= -->
 
 <div class="main">
 
 
-<h1>AI Skin Analysis Report 📄</h1>
+    <!-- HEADER -->
 
-<p>Your personalised skin health report</p>
+    <div class="header">
+
+        <div>
+
+            <h1>
+                Skin Condition Reports
+            </h1>
+
+            <p>
+                Clinical skin assessment and AI-assisted patient analysis
+            </p>
+
+        </div>
+
+        <div class="ai-badge">
+
+            <i class="fa-solid fa-brain"></i>
+            AI Clinical Analysis
+
+        </div>
+
+    </div>
 
 
+    <!-- ================= PATIENT SELECTOR ================= -->
+
+    <div class="selector">
+
+        <div class="selector-icon">
+
+            <i class="fa-solid fa-users"></i>
+
+        </div>
 
 
-<div class="analysis-box">
+        <div class="selector-text">
+
+            <strong>
+                Select Patient
+            </strong>
+
+            <span>
+                Choose a patient to view their complete skin condition report
+            </span>
+
+        </div>
 
 
-<h2>Overall Skin Score</h2>
+        <select id="patientSelect">
 
-<h1>92%</h1>
+            <option value="006">
+                Priya Sharma — Patient #006
+            </option>
+
+            <option value="007">
+                Anjali Reddy — Patient #007
+            </option>
+
+            <option value="008">
+                Rahul Kumar — Patient #008
+            </option>
+
+            <option value="009">
+                Sneha Patel — Patient #009
+            </option>
+
+            <option value="010">
+                Arjun Mehta — Patient #010
+            </option>
+
+        </select>
+
+    </div>
 
 
-<p>
-Excellent skin condition detected by AI analysis.
-</p>
+    <!-- ================= PATIENT HERO ================= -->
+
+    <div class="patient-hero">
+
+        <div class="patient-info">
+
+            <span class="report-tag">
+
+                <i class="fa-solid fa-file-waveform"></i>
+
+                CLINICAL SKIN REPORT
+
+            </span>
+
+
+            <h2 id="patientName">
+                Priya Sharma
+            </h2>
+
+
+            <p id="patientId">
+                Patient ID: #006
+            </p>
+
+
+            <p id="patientDetails">
+                Combination Skin • Acne & Dark Spots
+            </p>
+
+
+            <span class="risk-status"
+                  id="riskStatus">
+
+                <i class="fa-solid fa-circle"></i>
+
+                Moderate Risk
+
+            </span>
+
+        </div>
+
+
+        <div class="score-area">
+
+            <div class="score-circle"
+                 id="scoreCircle">
+
+                82
+
+            </div>
+
+
+            <small>
+                SKIN HEALTH SCORE
+            </small>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= OVERVIEW ================= -->
+
+    <div class="overview">
+
+
+        <div class="overview-card">
+
+            <div class="overview-icon">
+                <i class="fa-solid fa-face-frown"></i>
+            </div>
+
+            <h3>
+                Acne Level
+            </h3>
+
+            <strong id="acne">
+                Moderate
+            </strong>
+
+        </div>
+
+
+        <div class="overview-card">
+
+            <div class="overview-icon">
+                <i class="fa-solid fa-palette"></i>
+            </div>
+
+            <h3>
+                Pigmentation
+            </h3>
+
+            <strong id="pigmentation">
+                Mild
+            </strong>
+
+        </div>
+
+
+        <div class="overview-card">
+
+            <div class="overview-icon">
+                <i class="fa-solid fa-droplet"></i>
+            </div>
+
+            <h3>
+                Hydration
+            </h3>
+
+            <strong id="hydration">
+                Good
+            </strong>
+
+        </div>
+
+
+        <div class="overview-card">
+
+            <div class="overview-icon">
+                <i class="fa-solid fa-shield-heart"></i>
+            </div>
+
+            <h3>
+                Sensitivity
+            </h3>
+
+            <strong id="sensitivity">
+                Moderate
+            </strong>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= ANALYSIS ================= -->
+
+    <div class="two-column">
+
+
+        <!-- SKIN METRICS -->
+
+        <div class="panel">
+
+            <div class="panel-title">
+
+                <h2>
+                    Skin Condition Analysis
+                </h2>
+
+                <span>
+                    AI assessment
+                </span>
+
+            </div>
+
+
+            <div class="condition">
+
+                <div class="condition-top">
+
+                    <span>
+                        Overall Skin Health
+                    </span>
+
+                    <span id="healthValue">
+                        82%
+                    </span>
+
+                </div>
+
+                <div class="bar">
+
+                    <div class="bar-fill"
+                         id="healthBar"
+                         style="width:82%;">
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="condition">
+
+                <div class="condition-top">
+
+                    <span>
+                        Hydration
+                    </span>
+
+                    <span id="hydrationValue">
+                        78%
+                    </span>
+
+                </div>
+
+                <div class="bar">
+
+                    <div class="bar-fill"
+                         id="hydrationBar"
+                         style="width:78%;">
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="condition">
+
+                <div class="condition-top">
+
+                    <span>
+                        Skin Texture
+                    </span>
+
+                    <span id="textureValue">
+                        74%
+                    </span>
+
+                </div>
+
+                <div class="bar">
+
+                    <div class="bar-fill"
+                         id="textureBar"
+                         style="width:74%;">
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="condition">
+
+                <div class="condition-top">
+
+                    <span>
+                        Skin Clarity
+                    </span>
+
+                    <span id="clarityValue">
+                        76%
+                    </span>
+
+                </div>
+
+                <div class="bar">
+
+                    <div class="bar-fill"
+                         id="clarityBar"
+                         style="width:76%;">
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- CLINICAL FINDINGS -->
+
+        <div class="panel">
+
+            <div class="panel-title">
+
+                <h2>
+                    Key Findings
+                </h2>
+
+                <span>
+                    Current report
+                </span>
+
+            </div>
+
+
+            <div class="finding">
+
+                <div class="finding-icon">
+
+                    <i class="fa-solid fa-circle-exclamation"></i>
+
+                </div>
+
+                <div>
+
+                    <strong>
+                        Acne Activity
+                    </strong>
+
+                    <span id="finding1">
+                        Moderate acne observed
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="finding">
+
+                <div class="finding-icon">
+
+                    <i class="fa-solid fa-palette"></i>
+
+                </div>
+
+                <div>
+
+                    <strong>
+                        Pigmentation
+                    </strong>
+
+                    <span id="finding2">
+                        Mild pigmentation detected
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="finding">
+
+                <div class="finding-icon">
+
+                    <i class="fa-solid fa-text-height"></i>
+
+                </div>
+
+                <div>
+
+                    <strong>
+                        Texture
+                    </strong>
+
+                    <span id="finding3">
+                        Uneven texture
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="finding">
+
+                <div class="finding-icon">
+
+                    <i class="fa-solid fa-droplet"></i>
+
+                </div>
+
+                <div>
+
+                    <strong>
+                        Hydration
+                    </strong>
+
+                    <span id="finding4">
+                        Good hydration
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= CLINICAL SUMMARY ================= -->
+
+    <div class="panel"
+         style="margin-bottom:23px;">
+
+        <div class="panel-title">
+
+            <h2>
+                Clinical Summary
+            </h2>
+
+            <span>
+                Patient assessment overview
+            </span>
+
+        </div>
+
+
+        <div class="clinical-grid">
+
+
+            <div class="clinical-box">
+
+                <strong>
+
+                    <i class="fa-solid fa-sparkles"></i>
+
+                    Skin Type
+
+                </strong>
+
+                <p id="skinType">
+                    Combination
+                </p>
+
+            </div>
+
+
+            <div class="clinical-box">
+
+                <strong>
+
+                    <i class="fa-solid fa-bullseye"></i>
+
+                    Primary Concern
+
+                </strong>
+
+                <p id="mainConcern">
+                    Acne & Dark Spots
+                </p>
+
+            </div>
+
+
+            <div class="clinical-box">
+
+                <strong>
+
+                    <i class="fa-solid fa-shield-heart"></i>
+
+                    Clinical Risk
+
+                </strong>
+
+                <p id="clinicalRisk">
+                    Moderate risk requiring monitoring
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= AI INSIGHT ================= -->
+
+    <div class="ai-panel">
+
+        <div class="ai-icon">
+
+            <i class="fa-solid fa-brain"></i>
+
+        </div>
+
+
+        <div>
+
+            <h2>
+                AI Skin Report Insight
+            </h2>
+
+            <p id="aiInsight">
+
+                The patient shows moderate acne with mild pigmentation
+                and uneven texture. Hydration is good. Consistent
+                skincare and regular monitoring are recommended.
+
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= ACTIONS ================= -->
+
+    <div class="actions">
+
+
+        <button class="progress-btn"
+                onclick="openProgress()">
+
+            <i class="fa-solid fa-chart-line"></i>
+
+            View Progress Analytics
+
+        </button>
+
+
+        <button class="treatment-btn"
+                onclick="openTreatment()">
+
+            <i class="fa-solid fa-prescription-bottle-medical"></i>
+
+            Treatment Recommendations
+
+        </button>
+
+
+        <!-- PDF -->
+
+        <button class="pdf-btn"
+                onclick="exportPDF()">
+
+            <i class="fa-solid fa-file-pdf"></i>
+
+            Export PDF
+
+        </button>
+
+
+        <!-- EXCEL -->
+
+        <button class="excel-btn"
+                onclick="exportExcel()">
+
+            <i class="fa-solid fa-file-excel"></i>
+
+            Export Excel
+
+        </button>
+
+
+    </div>
 
 
 </div>
 
 
+<script>
 
 
-
-<div class="cards">
-
-
-<div class="card">
-
-<h3>Skin Type</h3>
-
-<h2>Combination</h2>
-
-<p>Balanced oil and moisture level</p>
-
-</div>
+/* =========================================================
+   PATIENT DATA
+========================================================= */
 
 
+const patients = {
 
 
-<div class="card">
+    "006": {
 
-<h3>Acne Level</h3>
+        name: "Priya Sharma",
 
-<h2>Low</h2>
+        details: "Combination Skin • Acne & Dark Spots",
 
-<p>Minor concerns detected</p>
+        score: 82,
 
-</div>
+        risk: "Moderate Risk",
 
+        acne: "Moderate",
 
+        pigmentation: "Mild",
 
+        hydration: "Good",
 
-<div class="card">
+        sensitivity: "Moderate",
 
-<h3>Hydration</h3>
+        health: 82,
 
-<h2>Good</h2>
+        hydrationScore: 78,
 
-<p>Healthy moisture level</p>
+        texture: 74,
 
-</div>
+        clarity: 76,
 
+        skinType: "Combination",
 
+        concern: "Acne & Dark Spots",
 
-<div class="card">
+        clinicalRisk: "Moderate risk requiring monitoring",
 
-<h3>Dark Spots</h3>
+        finding1: "Moderate acne observed",
 
-<h2>Moderate</h2>
+        finding2: "Mild pigmentation detected",
 
-<p>Need skincare routine</p>
+        finding3: "Uneven skin texture",
 
-</div>
+        finding4: "Good hydration level",
 
+        insight:
+            "The patient shows moderate acne with mild pigmentation and uneven texture. Hydration is good. Consistent skincare and regular monitoring are recommended."
 
-
-</div>
-
-
-
-
-
-<div class="analysis-box">
-
-
-<h2>Recommended Routine</h2>
+    },
 
 
-<p>🌞 Morning:</p>
+    "007": {
 
-<p>Cleanser → Moisturizer → Sunscreen</p>
+        name: "Anjali Reddy",
+
+        details: "Oily Skin • Acne",
+
+        score: 88,
+
+        risk: "Low Risk",
+
+        acne: "Low",
+
+        pigmentation: "Mild",
+
+        hydration: "Excellent",
+
+        sensitivity: "Low",
+
+        health: 88,
+
+        hydrationScore: 92,
+
+        texture: 90,
+
+        clarity: 88,
+
+        skinType: "Oily",
+
+        concern: "Acne",
+
+        clinicalRisk: "Low risk with positive improvement",
+
+        finding1: "Low acne activity",
+
+        finding2: "Mild pigmentation",
+
+        finding3: "Smooth skin texture",
+
+        finding4: "Excellent hydration",
+
+        insight:
+            "The patient is showing good skin condition with low acne activity. Hydration and texture are strong. Continue the current skincare routine and monitor acne."
+
+    },
 
 
-<br>
+    "008": {
+
+        name: "Rahul Kumar",
+
+        details: "Dry Skin • Dryness & Pigmentation",
+
+        score: 76,
+
+        risk: "Moderate Risk",
+
+        acne: "Low",
+
+        pigmentation: "Moderate",
+
+        hydration: "Poor",
+
+        sensitivity: "High",
+
+        health: 76,
+
+        hydrationScore: 62,
+
+        texture: 68,
+
+        clarity: 72,
+
+        skinType: "Dry",
+
+        concern: "Dryness & Pigmentation",
+
+        clinicalRisk: "Moderate risk requiring hydration support",
+
+        finding1: "Low acne activity",
+
+        finding2: "Moderate pigmentation",
+
+        finding3: "Rough skin texture",
+
+        finding4: "Poor hydration",
+
+        insight:
+            "The patient shows dryness, moderate pigmentation and rough texture. Hydration and skin-barrier support should be prioritized."
+
+    },
 
 
-<p>🌙 Night:</p>
+    "009": {
 
-<p>Cleanser → Serum → Moisturizer</p>
+        name: "Sneha Patel",
+
+        details: "Normal Skin • Preventive Skin Care",
+
+        score: 91,
+
+        risk: "Low Risk",
+
+        acne: "Low",
+
+        pigmentation: "Low",
+
+        hydration: "Excellent",
+
+        sensitivity: "Low",
+
+        health: 91,
+
+        hydrationScore: 95,
+
+        texture: 92,
+
+        clarity: 90,
+
+        skinType: "Normal",
+
+        concern: "Preventive Skin Care",
+
+        clinicalRisk: "Low risk with healthy skin condition",
+
+        finding1: "Low acne activity",
+
+        finding2: "Minimal pigmentation",
+
+        finding3: "Smooth skin texture",
+
+        finding4: "Excellent hydration",
+
+        insight:
+            "The patient has a healthy and stable skin condition. Preventive skincare, sunscreen protection and routine consistency are recommended."
+
+    },
 
 
+    "010": {
 
-<br>
+        name: "Arjun Mehta",
+
+        details: "Combination Skin • Severe Acne & Pigmentation",
+
+        score: 69,
+
+        risk: "High Risk",
+
+        acne: "Severe",
+
+        pigmentation: "Moderate",
+
+        hydration: "Moderate",
+
+        sensitivity: "Moderate",
+
+        health: 69,
+
+        hydrationScore: 70,
+
+        texture: 63,
+
+        clarity: 65,
+
+        skinType: "Combination",
+
+        concern: "Severe Acne & Pigmentation",
+
+        clinicalRisk: "High risk requiring closer monitoring",
+
+        finding1: "Severe acne activity",
+
+        finding2: "Moderate pigmentation",
+
+        finding3: "Uneven skin texture",
+
+        finding4: "Moderate hydration",
+
+        insight:
+            "The patient shows severe acne with moderate pigmentation and uneven texture. Closer clinical monitoring and a structured treatment plan are recommended."
+
+    }
+
+};
 
 
-<button class="login-btn">
-Download Report
-</button>
+/* =========================================================
+   PATIENT SELECT
+========================================================= */
 
 
-</div>
+const select =
+    document.getElementById("patientSelect");
 
 
+/* =========================================================
+   LOAD PATIENT
+========================================================= */
 
 
-</div>
+function loadPatient(id) {
 
+    const patient = patients[id];
+
+    if (!patient) return;
+
+
+    document.getElementById("patientName").textContent =
+        patient.name;
+
+
+    document.getElementById("patientId").textContent =
+        "Patient ID: #" + id;
+
+
+    document.getElementById("patientDetails").textContent =
+        patient.details;
+
+
+    document.getElementById("scoreCircle").textContent =
+        patient.score;
+
+
+    document.getElementById("riskStatus").innerHTML =
+        '<i class="fa-solid fa-circle"></i> ' +
+        patient.risk;
+
+
+    /* OVERVIEW */
+
+    document.getElementById("acne").textContent =
+        patient.acne;
+
+
+    document.getElementById("pigmentation").textContent =
+        patient.pigmentation;
+
+
+    document.getElementById("hydration").textContent =
+        patient.hydration;
+
+
+    document.getElementById("sensitivity").textContent =
+        patient.sensitivity;
+
+
+    /* METRICS */
+
+    document.getElementById("healthValue").textContent =
+        patient.health + "%";
+
+
+    document.getElementById("healthBar").style.width =
+        patient.health + "%";
+
+
+    document.getElementById("hydrationValue").textContent =
+        patient.hydrationScore + "%";
+
+
+    document.getElementById("hydrationBar").style.width =
+        patient.hydrationScore + "%";
+
+
+    document.getElementById("textureValue").textContent =
+        patient.texture + "%";
+
+
+    document.getElementById("textureBar").style.width =
+        patient.texture + "%";
+
+
+    document.getElementById("clarityValue").textContent =
+        patient.clarity + "%";
+
+
+    document.getElementById("clarityBar").style.width =
+        patient.clarity + "%";
+
+
+    /* FINDINGS */
+
+    document.getElementById("finding1").textContent =
+        patient.finding1;
+
+
+    document.getElementById("finding2").textContent =
+        patient.finding2;
+
+
+    document.getElementById("finding3").textContent =
+        patient.finding3;
+
+
+    document.getElementById("finding4").textContent =
+        patient.finding4;
+
+
+    /* CLINICAL */
+
+    document.getElementById("skinType").textContent =
+        patient.skinType;
+
+
+    document.getElementById("mainConcern").textContent =
+        patient.concern;
+
+
+    document.getElementById("clinicalRisk").textContent =
+        patient.clinicalRisk;
+
+
+    /* AI */
+
+    document.getElementById("aiInsight").textContent =
+        patient.insight;
+
+
+    /* SAVE SELECTED PATIENT */
+
+    localStorage.setItem(
+        "selectedDermatologistPatient",
+        id
+    );
+
+}
+
+
+/* =========================================================
+   PATIENT CHANGE
+========================================================= */
+
+
+select.addEventListener(
+    "change",
+    function() {
+
+        loadPatient(this.value);
+
+    }
+);
+
+
+/* =========================================================
+   LOAD SAVED PATIENT
+========================================================= */
+
+
+const savedPatient =
+    localStorage.getItem(
+        "selectedDermatologistPatient"
+    );
+
+
+const urlParams =
+    new URLSearchParams(
+        window.location.search
+    );
+
+
+const urlPatient =
+    urlParams.get("patient");
+
+
+if (
+    urlPatient &&
+    patients[urlPatient]
+) {
+
+    select.value = urlPatient;
+
+    loadPatient(urlPatient);
+
+}
+else if (
+    savedPatient &&
+    patients[savedPatient]
+) {
+
+    select.value = savedPatient;
+
+    loadPatient(savedPatient);
+
+}
+else {
+
+    loadPatient("006");
+
+}
+
+
+/* =========================================================
+   TREATMENT
+========================================================= */
+
+
+function openTreatment() {
+
+    const patient =
+        select.value;
+
+
+    localStorage.setItem(
+        "selectedDermatologistPatient",
+        patient
+    );
+
+
+    window.location.href =
+        "treatment-recommendations.html?patient=" +
+        patient;
+
+}
+
+
+/* =========================================================
+   PROGRESS
+========================================================= */
+
+
+function openProgress() {
+
+    const patient =
+        select.value;
+
+
+    localStorage.setItem(
+        "selectedDermatologistPatient",
+        patient
+    );
+
+
+    window.location.href =
+        "dermatologist-progress.html?patient=" +
+        patient;
+
+}
+
+
+/* =========================================================
+   GET CURRENT PATIENT
+========================================================= */
+
+
+function getCurrentPatient() {
+
+    const id =
+        select.value;
+
+    return patients[id];
+
+}
+
+
+/* =========================================================
+   EXPORT PDF
+========================================================= */
+
+
+function exportPDF() {
+
+    const patient =
+        getCurrentPatient();
+
+
+    if (!patient) {
+
+        alert("Please select a patient first.");
+
+        return;
+
+    }
+
+
+    if (
+        typeof window.jspdf === "undefined"
+    ) {
+
+        alert(
+            "PDF library could not be loaded. Please check your internet connection."
+        );
+
+        return;
+
+    }
+
+
+    const {
+        jsPDF
+    } = window.jspdf;
+
+
+    const doc =
+        new jsPDF();
+
+
+    const patientId =
+        select.value;
+
+
+    /* ================= TITLE ================= */
+
+    doc.setFontSize(20);
+
+    doc.setTextColor(24, 106, 45);
+
+    doc.text(
+        "Skin AI",
+        20,
+        20
+    );
+
+
+    doc.setFontSize(15);
+
+    doc.setTextColor(30, 50, 35);
+
+    doc.text(
+        "Skin Condition Report",
+        20,
+        31
+    );
+
+
+    doc.setFontSize(9);
+
+    doc.setTextColor(100, 110, 105);
+
+    doc.text(
+        "AI-assisted clinical skin assessment",
+        20,
+        38
+    );
+
+
+    /* ================= PATIENT INFORMATION ================= */
+
+    doc.setFontSize(12);
+
+    doc.setTextColor(30, 60, 40);
+
+    doc.text(
+        "Patient Information",
+        20,
+        52
+    );
+
+
+    doc.autoTable({
+
+        startY: 57,
+
+        theme: "grid",
+
+        head: [
+            [
+                "Field",
+                "Details"
+            ]
+        ],
+
+        body: [
+
+            [
+                "Patient Name",
+                patient.name
+            ],
+
+            [
+                "Patient ID",
+                "#" + patientId
+            ],
+
+            [
+                "Skin Type",
+                patient.skinType
+            ],
+
+            [
+                "Primary Concern",
+                patient.concern
+            ],
+
+            [
+                "Clinical Risk",
+                patient.clinicalRisk
+            ]
+
+        ],
+
+        styles: {
+
+            fontSize: 9
+
+        }
+
+    });
+
+
+    /* ================= SKIN HEALTH ================= */
+
+    let y =
+        doc.lastAutoTable.finalY + 12;
+
+
+    doc.setFontSize(12);
+
+    doc.setTextColor(30, 60, 40);
+
+    doc.text(
+        "Skin Health Assessment",
+        20,
+        y
+    );
+
+
+    doc.autoTable({
+
+        startY: y + 5,
+
+        theme: "grid",
+
+        head: [
+            [
+                "Metric",
+                "Score"
+            ]
+        ],
+
+        body: [
+
+            [
+                "Overall Skin Health",
+                patient.health + "%"
+            ],
+
+            [
+                "Hydration",
+                patient.hydrationScore + "%"
+            ],
+
+            [
+                "Skin Texture",
+                patient.texture + "%"
+            ],
+
+            [
+                "Skin Clarity",
+                patient.clarity + "%"
+            ],
+
+            [
+                "Skin Health Score",
+                patient.score
+            ]
+
+        ],
+
+        styles: {
+
+            fontSize: 9
+
+        }
+
+    });
+
+
+    /* ================= CONDITION ================= */
+
+    y =
+        doc.lastAutoTable.finalY + 12;
+
+
+    doc.setFontSize(12);
+
+    doc.text(
+        "Skin Condition",
+        20,
+        y
+    );
+
+
+    doc.autoTable({
+
+        startY: y + 5,
+
+        theme: "grid",
+
+        head: [
+            [
+                "Condition",
+                "Status"
+            ]
+        ],
+
+        body: [
+
+            [
+                "Acne",
+                patient.acne
+            ],
+
+            [
+                "Pigmentation",
+                patient.pigmentation
+            ],
+
+            [
+                "Hydration",
+                patient.hydration
+            ],
+
+            [
+                "Sensitivity",
+                patient.sensitivity
+            ]
+
+        ],
+
+        styles: {
+
+            fontSize: 9
+
+        }
+
+    });
+
+
+    /* ================= FINDINGS ================= */
+
+    y =
+        doc.lastAutoTable.finalY + 12;
+
+
+    doc.setFontSize(12);
+
+    doc.text(
+        "Key Findings",
+        20,
+        y
+    );
+
+
+    doc.autoTable({
+
+        startY: y + 5,
+
+        theme: "grid",
+
+        head: [
+            [
+                "Area",
+                "Finding"
+            ]
+        ],
+
+        body: [
+
+            [
+                "Acne Activity",
+                patient.finding1
+            ],
+
+            [
+                "Pigmentation",
+                patient.finding2
+            ],
+
+            [
+                "Texture",
+                patient.finding3
+            ],
+
+            [
+                "Hydration",
+                patient.finding4
+            ]
+
+        ],
+
+        styles: {
+
+            fontSize: 9
+
+        }
+
+    });
+
+
+    /* ================= AI INSIGHT ================= */
+
+    y =
+        doc.lastAutoTable.finalY + 12;
+
+
+    doc.setFontSize(12);
+
+    doc.text(
+        "AI Skin Report Insight",
+        20,
+        y
+    );
+
+
+    doc.setFontSize(9);
+
+    const insightLines =
+        doc.splitTextToSize(
+            patient.insight,
+            170
+        );
+
+
+    doc.text(
+        insightLines,
+        20,
+        y + 7
+    );
+
+
+    /* ================= FOOTER ================= */
+
+    doc.setFontSize(8);
+
+    doc.setTextColor(120, 120, 120);
+
+    doc.text(
+        "Generated by Skin AI",
+        20,
+        285
+    );
+
+
+    doc.text(
+        "Clinical report",
+        170,
+        285
+    );
+
+
+    /* ================= DOWNLOAD ================= */
+
+    const fileName =
+        patient.name
+            .replace(/\s+/g, "_")
+            .replace(/[^a-zA-Z0-9_]/g, "");
+
+
+    doc.save(
+        fileName +
+        "_Skin_Report.pdf"
+    );
+
+}
+
+
+/* =========================================================
+   EXPORT EXCEL
+========================================================= */
+
+
+function exportExcel() {
+
+    const patient =
+        getCurrentPatient();
+
+
+    if (!patient) {
+
+        alert("Please select a patient first.");
+
+        return;
+
+    }
+
+
+    if (
+        typeof XLSX === "undefined"
+    ) {
+
+        alert(
+            "Excel library could not be loaded. Please check your internet connection."
+        );
+
+        return;
+
+    }
+
+
+    const patientId =
+        select.value;
+
+
+    /* ================= REPORT DATA ================= */
+
+    const reportData = [
+
+        [
+            "SKIN AI - SKIN CONDITION REPORT"
+        ],
+
+        [],
+
+        [
+            "PATIENT INFORMATION"
+        ],
+
+        [
+            "Patient Name",
+            patient.name
+        ],
+
+        [
+            "Patient ID",
+            "#" + patientId
+        ],
+
+        [
+            "Skin Type",
+            patient.skinType
+        ],
+
+        [
+            "Primary Concern",
+            patient.concern
+        ],
+
+        [
+            "Clinical Risk",
+            patient.clinicalRisk
+        ],
+
+        [],
+
+        [
+            "SKIN HEALTH ASSESSMENT"
+        ],
+
+        [
+            "Metric",
+            "Score"
+        ],
+
+        [
+            "Overall Skin Health",
+            patient.health + "%"
+        ],
+
+        [
+            "Hydration",
+            patient.hydrationScore + "%"
+        ],
+
+        [
+            "Skin Texture",
+            patient.texture + "%"
+        ],
+
+        [
+            "Skin Clarity",
+            patient.clarity + "%"
+        ],
+
+        [
+            "Skin Health Score",
+            patient.score
+        ],
+
+        [],
+
+        [
+            "SKIN CONDITION"
+        ],
+
+        [
+            "Condition",
+            "Status"
+        ],
+
+        [
+            "Acne",
+            patient.acne
+        ],
+
+        [
+            "Pigmentation",
+            patient.pigmentation
+        ],
+
+        [
+            "Hydration",
+            patient.hydration
+        ],
+
+        [
+            "Sensitivity",
+            patient.sensitivity
+        ],
+
+        [],
+
+        [
+            "KEY FINDINGS"
+        ],
+
+        [
+            "Area",
+            "Finding"
+        ],
+
+        [
+            "Acne Activity",
+            patient.finding1
+        ],
+
+        [
+            "Pigmentation",
+            patient.finding2
+        ],
+
+        [
+            "Texture",
+            patient.finding3
+        ],
+
+        [
+            "Hydration",
+            patient.finding4
+        ],
+
+        [],
+
+        [
+            "AI SKIN REPORT INSIGHT"
+        ],
+
+        [
+            patient.insight
+        ]
+
+    ];
+
+
+    /* ================= CREATE WORKBOOK ================= */
+
+    const worksheet =
+        XLSX.utils.aoa_to_sheet(
+            reportData
+        );
+
+
+    /* ================= COLUMN WIDTHS ================= */
+
+    worksheet["!cols"] = [
+
+        {
+            wch: 28
+        },
+
+        {
+            wch: 65
+        }
+
+    ];
+
+
+    /* ================= CREATE WORKBOOK ================= */
+
+    const workbook =
+        XLSX.utils.book_new();
+
+
+    XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        "Skin Report"
+    );
+
+
+    /* ================= DOWNLOAD ================= */
+
+    const fileName =
+        patient.name
+            .replace(/\s+/g, "_")
+            .replace(/[^a-zA-Z0-9_]/g, "");
+
+
+    XLSX.writeFile(
+
+        workbook,
+
+        fileName +
+        "_Skin_Report.xlsx"
+
+    );
+
+}
+
+
+</script>
 
 
 </body>

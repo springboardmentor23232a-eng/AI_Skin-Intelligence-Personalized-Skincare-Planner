@@ -1,0 +1,1739 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Daily Skincare | Consultant | Skin AI</title>
+
+    <link rel="stylesheet" href="../css/dashboard.css">
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: #f5f7f8;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+        }
+
+        /* ================= HEADER ================= */
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .page-header h1 {
+            margin: 0;
+            font-size: 28px;
+            color: #243b35;
+        }
+
+        .page-header p {
+            margin: 6px 0 0;
+            color: #777;
+            font-size: 14px;
+        }
+
+        .date-box {
+            background: white;
+            padding: 12px 18px;
+            border-radius: 10px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+            color: #2f8f83;
+            font-size: 14px;
+        }
+
+        /* ================= CLIENT SELECTION ================= */
+
+        .client-selection-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+            margin-bottom: 25px;
+        }
+
+        .selection-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .selection-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            background: #e8f5f2;
+            color: #2f8f83;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+        }
+
+        .selection-header h2 {
+            margin: 0;
+            color: #243b35;
+            font-size: 19px;
+        }
+
+        .selection-header p {
+            margin: 3px 0 0;
+            color: #888;
+            font-size: 12px;
+        }
+
+        .client-selection-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .client-select-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .client-select-group label {
+            margin-bottom: 7px;
+            color: #444;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .client-select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+            background: white;
+            font-family: inherit;
+            font-size: 13px;
+            color: #444;
+            cursor: pointer;
+        }
+
+        .client-select:focus {
+            border-color: #2f8f83;
+        }
+
+        .client-info-btn {
+            border: none;
+            background: #2f8f83;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+            height: 44px;
+        }
+
+        .client-info-btn:hover {
+            background: #26796f;
+        }
+
+        /* SELECTED CLIENT INFO */
+
+        .selected-client {
+            display: none;
+            margin-top: 20px;
+            padding: 18px;
+            background: #f7fbfa;
+            border: 1px solid #e3efec;
+            border-radius: 10px;
+        }
+
+        .selected-client.active {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .selected-client-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .selected-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #dff1ed;
+            color: #2f8f83;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .selected-client-info h3 {
+            margin: 0;
+            font-size: 15px;
+            color: #243b35;
+        }
+
+        .selected-client-info p {
+            margin: 4px 0 0;
+            color: #777;
+            font-size: 12px;
+        }
+
+        .client-score {
+            text-align: right;
+        }
+
+        .client-score strong {
+            display: block;
+            font-size: 22px;
+            color: #2f8f83;
+        }
+
+        .client-score span {
+            color: #888;
+            font-size: 11px;
+        }
+
+        /* ================= PROGRESS ================= */
+
+        .progress-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+            margin-bottom: 25px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .progress-header h2 {
+            margin: 0;
+            font-size: 19px;
+            color: #243b35;
+        }
+
+        .progress-percent {
+            font-size: 22px;
+            font-weight: 600;
+            color: #2f8f83;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e9eeee;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: #2f8f83;
+            border-radius: 20px;
+            transition: 0.3s;
+        }
+
+        .progress-text {
+            margin-top: 10px;
+            color: #777;
+            font-size: 13px;
+        }
+
+        /* ================= ROUTINE GRID ================= */
+
+        .routine-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .routine-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+        }
+
+        .routine-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .routine-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            background: #e8f5f2;
+            color: #2f8f83;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+        }
+
+        .routine-title h2 {
+            margin: 0;
+            color: #243b35;
+            font-size: 19px;
+        }
+
+        .routine-title p {
+            margin: 3px 0 0;
+            color: #888;
+            font-size: 12px;
+        }
+
+        /* ================= CHECKLIST ================= */
+
+        .checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px;
+            border: 1px solid #edf0ef;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .check-item:hover {
+            background: #f8fbfa;
+        }
+
+        .check-item input {
+            width: 18px;
+            height: 18px;
+            accent-color: #2f8f83;
+            cursor: pointer;
+        }
+
+        .check-item label {
+            cursor: pointer;
+            color: #444;
+            font-size: 13px;
+            flex: 1;
+        }
+
+        .check-item.completed label {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        /* ================= FEEDBACK ================= */
+
+        .feedback-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+            margin-bottom: 25px;
+        }
+
+        .feedback-card h2 {
+            margin: 0;
+            color: #243b35;
+            font-size: 20px;
+        }
+
+        .feedback-card > p {
+            color: #777;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        .feedback-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 7px;
+            color: #444;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 11px 13px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+            font-family: inherit;
+            font-size: 13px;
+        }
+
+        .form-group textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .rating {
+            display: flex;
+            gap: 8px;
+        }
+
+        .rating button {
+            width: 38px;
+            height: 38px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #777;
+        }
+
+        .rating button.selected {
+            background: #2f8f83;
+            color: white;
+            border-color: #2f8f83;
+        }
+
+        .submit-btn {
+            margin-top: 20px;
+            border: none;
+            background: #2f8f83;
+            color: white;
+            padding: 12px 22px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+        }
+
+        .submit-btn:hover {
+            background: #26796f;
+        }
+
+        .success-message {
+            display: none;
+            margin-top: 15px;
+            padding: 12px 15px;
+            background: #e8f6ed;
+            color: #23864d;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width: 1000px) {
+
+            .routine-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .client-selection-row {
+                grid-template-columns: 1fr;
+            }
+
+            .client-info-btn {
+                width: 100%;
+            }
+
+        }
+
+        @media (max-width: 768px) {
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .feedback-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .full-width {
+                grid-column: auto;
+            }
+
+            .selected-client.active {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .client-score {
+                text-align: left;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     SIDEBAR
+===================================================== -->
+
+<div class="sidebar">
+
+    <div class="sidebar-logo">
+
+        <i class="fa-solid fa-leaf"></i>
+
+        <h2>Skin AI</h2>
+
+    </div>
+
+
+    <div class="menu-title">
+        MAIN MENU
+    </div>
+
+
+    <ul>
+
+        <li>
+            <a href="consultant-dashboard.html">
+                <i class="fa-solid fa-house"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+
+
+        <li>
+            <a href="client-profiles.html">
+                <i class="fa-solid fa-users"></i>
+                <span>Client Profiles</span>
+            </a>
+        </li>
+
+
+        <li>
+            <a href="appointments.html">
+                <i class="fa-solid fa-calendar-check"></i>
+                <span>Appointments</span>
+            </a>
+        </li>
+
+
+        <li>
+            <a href="skin-reports.html">
+                <i class="fa-solid fa-file-medical"></i>
+                <span>Skin Reports</span>
+            </a>
+        </li>
+
+
+        <li>
+            <a href="recommendations.html">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>Recommendations</span>
+            </a>
+        </li>
+
+
+        <li class="active">
+            <a href="daily-skincare.html">
+                <i class="fa-solid fa-list-check"></i>
+                <span>Daily Skincare</span>
+            </a>
+        </li>
+
+    </ul>
+
+
+    <div class="menu-title account-title">
+        ACCOUNT
+    </div>
+
+
+    <ul>
+
+        <li>
+
+            <a href="../index.html">
+
+                <i class="fa-solid fa-right-from-bracket"></i>
+
+                <span>Logout</span>
+
+            </a>
+
+        </li>
+
+    </ul>
+
+</div>
+
+
+
+<!-- =====================================================
+     MAIN CONTENT
+===================================================== -->
+
+<main class="main-content">
+
+
+    <!-- HEADER -->
+
+    <div class="page-header">
+
+        <div>
+
+            <h1>
+                Daily Skincare
+            </h1>
+
+            <p>
+                Track your client's daily skincare routine and feedback.
+            </p>
+
+        </div>
+
+
+        <div class="date-box">
+
+            <i class="fa-regular fa-calendar"></i>
+
+            <span id="currentDate"></span>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =================================================
+         CLIENT SELECTION
+    ================================================== -->
+
+    <div class="client-selection-card">
+
+        <div class="selection-header">
+
+            <div class="selection-icon">
+
+                <i class="fa-solid fa-user-check"></i>
+
+            </div>
+
+            <div>
+
+                <h2>
+                    Select Client
+                </h2>
+
+                <p>
+                    Choose a client to manage their daily skincare routine.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="client-selection-row">
+
+            <div class="client-select-group">
+
+                <label for="clientSelect">
+                    Client
+                </label>
+
+                <select
+                    id="clientSelect"
+                    class="client-select">
+
+                    <option value="">
+                        -- Select a Client --
+                    </option>
+
+                    <option
+                        value="priya"
+                        data-name="Priya Sharma"
+                        data-email="priya@example.com"
+                        data-skin="Combination"
+                        data-concern="Acne & Dark Spots"
+                        data-score="82">
+
+                        Priya Sharma — Combination Skin
+
+                    </option>
+
+                    <option
+                        value="anjali"
+                        data-name="Anjali Reddy"
+                        data-email="anjali@example.com"
+                        data-skin="Oily"
+                        data-concern="Pigmentation"
+                        data-score="76">
+
+                        Anjali Reddy — Oily Skin
+
+                    </option>
+
+                    <option
+                        value="rahul"
+                        data-name="Rahul Kumar"
+                        data-email="rahul@example.com"
+                        data-skin="Dry"
+                        data-concern="Dehydration"
+                        data-score="88">
+
+                        Rahul Kumar — Dry Skin
+
+                    </option>
+
+                    <option
+                        value="sneha"
+                        data-name="Sneha Patel"
+                        data-email="sneha@example.com"
+                        data-skin="Sensitive"
+                        data-concern="Redness"
+                        data-score="79">
+
+                        Sneha Patel — Sensitive Skin
+
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="client-info-btn"
+                id="selectClientBtn">
+
+                <i class="fa-solid fa-user-check"></i>
+
+                Select Client
+
+            </button>
+
+        </div>
+
+
+        <!-- SELECTED CLIENT -->
+
+        <div
+            class="selected-client"
+            id="selectedClient">
+
+            <div class="selected-client-left">
+
+                <div
+                    class="selected-avatar"
+                    id="selectedAvatar">
+
+                    --
+
+                </div>
+
+
+                <div class="selected-client-info">
+
+                    <h3 id="selectedClientName">
+                        No client selected
+                    </h3>
+
+                    <p id="selectedClientDetails">
+                        Select a client above
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="client-score">
+
+                <strong id="selectedClientScore">
+                    --
+                </strong>
+
+                <span>
+                    Skin Health Score
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =================================================
+         PROGRESS
+    ================================================== -->
+
+    <div class="progress-card">
+
+        <div class="progress-header">
+
+            <h2>
+                Today's Routine Progress
+            </h2>
+
+            <div
+                class="progress-percent"
+                id="progressPercent">
+
+                0%
+
+            </div>
+
+        </div>
+
+
+        <div class="progress-bar">
+
+            <div
+                class="progress-fill"
+                id="progressFill">
+            </div>
+
+        </div>
+
+
+        <div
+            class="progress-text"
+            id="progressText">
+
+            0 of 8 skincare tasks completed
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =================================================
+         MORNING + EVENING
+    ================================================== -->
+
+    <div class="routine-grid">
+
+
+        <!-- MORNING -->
+
+        <div class="routine-card">
+
+            <div class="routine-title">
+
+                <div class="routine-icon">
+
+                    <i class="fa-solid fa-sun"></i>
+
+                </div>
+
+                <div>
+
+                    <h2>
+                        Morning Routine
+                    </h2>
+
+                    <p>
+                        Start the day with healthy skin
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="checklist">
+
+
+                <div class="check-item">
+
+                    <input
+                        type="checkbox"
+                        class="routine-check"
+                        id="morning1">
+
+                    <label for="morning1">
+                        Gentle Cleanser
+                    </label>
+
+                </div>
+
+
+                <div class="check-item">
+
+                    <input
+                        type="checkbox"
+                        class="routine-check"
+                        id="morning2">
+
+                    <label for="morning2">
+                        Hydrating Serum
+                    </label>
+
+                </div>
+
+
+                <div class="check-item">
+
+                    <input
+                        type="checkbox"
+                        class="routine-check"
+                        id="morning3">
+
+                    <label for="morning3">
+                        Moisturizer
+                    </label>
+
+                </div>
+
+
+                <div class="check-item">
+
+                    <input
+                        type="checkbox"
+                        class="routine-check"
+                        id="morning4">
+
+                    <label for="morning4">
+                        Sunscreen SPF 50
+                    </label>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- EVENING -->
+
+        <div class="routine-card">
+
+            <div class="routine-title">
+
+                <div class="routine-icon">
+
+                    <i class="fa-solid fa-moon"></i>
+
+                </div>
+
+                <div>
+
+                    <h2>
+                        Evening Routine
+                    </h2>
+
+                    <p>
+                        Repair and nourish the skin
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="checklist">
+
+
+                <div class="check-item">
+
+                    <input
+                        type="checkbox"
+                        class="routine-check"
+                        id="evening1">
+
+                    <label for="evening1">
+                        Cleanser
+                    </label>
+
+                </div>
+
+
+                <div class="check-item">
+
+                    <input
+                        type="checkbox"
+                        class="routine-check"
+                        id="evening2">
+
+                    <label for="evening2">
+                        Treatment Serum
+                    </label>
+
+                </div>
+
+
+                <div class="check-item">
+
+                    <input
+                        type="checkbox"
+                        class="routine-check"
+                        id="evening3">
+
+                    <label for="evening3">
+                        Moisturizer
+                    </label>
+
+                </div>
+
+
+                <div class="check-item">
+
+                    <input
+                        type="checkbox"
+                        class="routine-check"
+                        id="evening4">
+
+                    <label for="evening4">
+                        Drink Enough Water
+                    </label>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =================================================
+         FEEDBACK FORM
+    ================================================== -->
+
+    <div class="feedback-card">
+
+        <h2>
+
+            <i class="fa-solid fa-comment-medical"></i>
+
+            Client Feedback
+
+        </h2>
+
+        <p>
+            Record the client's experience with today's skincare routine.
+        </p>
+
+
+        <form id="feedbackForm">
+
+
+            <div class="feedback-grid">
+
+
+                <div class="form-group">
+
+                    <label for="clientName">
+                        Client Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="clientName"
+                        placeholder="Select a client above"
+                        readonly
+                        required>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="skinFeeling">
+                        How does the skin feel today?
+                    </label>
+
+                    <select
+                        id="skinFeeling"
+                        required>
+
+                        <option value="">
+                            Select
+                        </option>
+
+                        <option>
+                            Very Good
+                        </option>
+
+                        <option>
+                            Good
+                        </option>
+
+                        <option>
+                            Normal
+                        </option>
+
+                        <option>
+                            Dry
+                        </option>
+
+                        <option>
+                            Irritated
+                        </option>
+
+                        <option>
+                            Sensitive
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Routine Satisfaction
+                    </label>
+
+                    <div class="rating">
+
+                        <button
+                            type="button"
+                            data-rating="1">
+                            1
+                        </button>
+
+                        <button
+                            type="button"
+                            data-rating="2">
+                            2
+                        </button>
+
+                        <button
+                            type="button"
+                            data-rating="3">
+                            3
+                        </button>
+
+                        <button
+                            type="button"
+                            data-rating="4">
+                            4
+                        </button>
+
+                        <button
+                            type="button"
+                            data-rating="5">
+                            5
+                        </button>
+
+                    </div>
+
+                    <input
+                        type="hidden"
+                        id="rating">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="concern">
+                        Current Concern
+                    </label>
+
+                    <input
+                        type="text"
+                        id="concern"
+                        placeholder="Example: Acne, dryness, redness">
+
+                </div>
+
+
+                <div class="form-group full-width">
+
+                    <label for="feedback">
+                        Consultant Notes / Feedback
+                    </label>
+
+                    <textarea
+                        id="feedback"
+                        placeholder="Enter feedback or observations..."></textarea>
+
+                </div>
+
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="submit-btn">
+
+                <i class="fa-solid fa-paper-plane"></i>
+
+                Save Feedback
+
+            </button>
+
+
+            <div
+                class="success-message"
+                id="successMessage">
+
+                <i class="fa-solid fa-circle-check"></i>
+
+                Feedback saved successfully.
+
+            </div>
+
+
+        </form>
+
+    </div>
+
+
+</main>
+
+
+
+<script>
+
+    /* ==========================================
+       CURRENT DATE
+    ========================================== */
+
+    const dateElement =
+        document.getElementById("currentDate");
+
+    const today = new Date();
+
+    dateElement.textContent =
+        today.toLocaleDateString(
+            "en-IN",
+            {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+                year: "numeric"
+            }
+        );
+
+
+    /* ==========================================
+       CLIENT SELECTION
+    ========================================== */
+
+    const clientSelect =
+        document.getElementById("clientSelect");
+
+    const selectClientBtn =
+        document.getElementById("selectClientBtn");
+
+    const selectedClient =
+        document.getElementById("selectedClient");
+
+    const selectedAvatar =
+        document.getElementById("selectedAvatar");
+
+    const selectedClientName =
+        document.getElementById("selectedClientName");
+
+    const selectedClientDetails =
+        document.getElementById("selectedClientDetails");
+
+    const selectedClientScore =
+        document.getElementById("selectedClientScore");
+
+    const clientNameInput =
+        document.getElementById("clientName");
+
+
+    function selectClient() {
+
+        const selectedOption =
+            clientSelect.options[
+                clientSelect.selectedIndex
+            ];
+
+
+        if (!clientSelect.value) {
+
+            alert("Please select a client first.");
+
+            selectedClient.classList.remove("active");
+
+            clientNameInput.value = "";
+
+            return;
+
+        }
+
+
+        const name =
+            selectedOption.dataset.name;
+
+        const email =
+            selectedOption.dataset.email;
+
+        const skin =
+            selectedOption.dataset.skin;
+
+        const concern =
+            selectedOption.dataset.concern;
+
+        const score =
+            selectedOption.dataset.score;
+
+
+        const nameParts =
+            name.split(" ");
+
+        let initials =
+            nameParts[0].charAt(0);
+
+        if (nameParts.length > 1) {
+
+            initials +=
+                nameParts[
+                    nameParts.length - 1
+                ].charAt(0);
+
+        }
+
+
+        selectedAvatar.textContent =
+            initials.toUpperCase();
+
+
+        selectedClientName.textContent =
+            name;
+
+
+        selectedClientDetails.textContent =
+            skin +
+            " Skin • " +
+            concern +
+            " • " +
+            email;
+
+
+        selectedClientScore.textContent =
+            score;
+
+
+        clientNameInput.value =
+            name;
+
+
+        selectedClient.classList.add(
+            "active"
+        );
+
+
+        /*
+            Save currently selected client
+            so it remains available during
+            this session.
+        */
+
+        localStorage.setItem(
+            "selectedConsultantClient",
+            JSON.stringify({
+                name: name,
+                email: email,
+                skinType: skin,
+                concern: concern,
+                score: score
+            })
+        );
+
+    }
+
+
+    selectClientBtn.addEventListener(
+        "click",
+        selectClient
+    );
+
+
+    clientSelect.addEventListener(
+        "change",
+        function () {
+
+            if (this.value) {
+                selectClient();
+            }
+
+        }
+    );
+
+
+    /* ==========================================
+       CHECKLIST PROGRESS
+    ========================================== */
+
+    const checkboxes =
+        document.querySelectorAll(
+            ".routine-check"
+        );
+
+    const progressPercent =
+        document.getElementById(
+            "progressPercent"
+        );
+
+    const progressFill =
+        document.getElementById(
+            "progressFill"
+        );
+
+    const progressText =
+        document.getElementById(
+            "progressText"
+        );
+
+
+    function updateProgress() {
+
+        const total =
+            checkboxes.length;
+
+        const completed =
+            document.querySelectorAll(
+                ".routine-check:checked"
+            ).length;
+
+
+        const percentage =
+            Math.round(
+                (completed / total) * 100
+            );
+
+
+        progressPercent.textContent =
+            percentage + "%";
+
+
+        progressFill.style.width =
+            percentage + "%";
+
+
+        progressText.textContent =
+            completed +
+            " of " +
+            total +
+            " skincare tasks completed";
+
+
+        checkboxes.forEach(
+            checkbox => {
+
+                const item =
+                    checkbox.closest(
+                        ".check-item"
+                    );
+
+
+                if (checkbox.checked) {
+
+                    item.classList.add(
+                        "completed"
+                    );
+
+                } else {
+
+                    item.classList.remove(
+                        "completed"
+                    );
+
+                }
+
+            }
+        );
+
+    }
+
+
+    checkboxes.forEach(
+        checkbox => {
+
+            checkbox.addEventListener(
+                "change",
+                updateProgress
+            );
+
+        }
+    );
+
+
+    updateProgress();
+
+
+    /* ==========================================
+       RATING
+    ========================================== */
+
+    const ratingButtons =
+        document.querySelectorAll(
+            ".rating button"
+        );
+
+    const ratingInput =
+        document.getElementById(
+            "rating"
+        );
+
+
+    ratingButtons.forEach(
+        button => {
+
+            button.addEventListener(
+                "click",
+                function () {
+
+                    const selectedRating =
+                        this.dataset.rating;
+
+
+                    ratingInput.value =
+                        selectedRating;
+
+
+                    ratingButtons.forEach(
+                        btn => {
+
+                            btn.classList.remove(
+                                "selected"
+                            );
+
+                        }
+                    );
+
+
+                    this.classList.add(
+                        "selected"
+                    );
+
+                }
+            );
+
+        }
+    );
+
+
+    /* ==========================================
+       FEEDBACK FORM
+    ========================================== */
+
+    const feedbackForm =
+        document.getElementById(
+            "feedbackForm"
+        );
+
+    const successMessage =
+        document.getElementById(
+            "successMessage"
+        );
+
+
+    feedbackForm.addEventListener(
+        "submit",
+        function (event) {
+
+            event.preventDefault();
+
+
+            if (!clientSelect.value) {
+
+                alert(
+                    "Please select a client first."
+                );
+
+                return;
+
+            }
+
+
+            if (!ratingInput.value) {
+
+                alert(
+                    "Please select a routine satisfaction rating."
+                );
+
+                return;
+
+            }
+
+
+            const feedbackData = {
+
+                clientName:
+                    clientNameInput.value,
+
+                skinFeeling:
+                    document.getElementById(
+                        "skinFeeling"
+                    ).value,
+
+                rating:
+                    ratingInput.value,
+
+                concern:
+                    document.getElementById(
+                        "concern"
+                    ).value,
+
+                feedback:
+                    document.getElementById(
+                        "feedback"
+                    ).value,
+
+                completedTasks:
+                    document.querySelectorAll(
+                        ".routine-check:checked"
+                    ).length,
+
+                totalTasks:
+                    checkboxes.length,
+
+                date:
+                    new Date().toISOString()
+
+            };
+
+
+            localStorage.setItem(
+                "dailySkincareFeedback",
+                JSON.stringify(
+                    feedbackData
+                )
+            );
+
+
+            successMessage.style.display =
+                "block";
+
+
+            setTimeout(
+                function () {
+
+                    successMessage.style.display =
+                        "none";
+
+                },
+                4000
+            );
+
+        }
+    );
+
+
+    /* ==========================================
+       RESTORE SELECTED CLIENT
+    ========================================== */
+
+    const savedClient =
+        localStorage.getItem(
+            "selectedConsultantClient"
+        );
+
+
+    if (savedClient) {
+
+        try {
+
+            const client =
+                JSON.parse(savedClient);
+
+
+            const options =
+                Array.from(
+                    clientSelect.options
+                );
+
+
+            const matchingOption =
+                options.find(
+                    option =>
+                        option.dataset.name ===
+                        client.name
+                );
+
+
+            if (matchingOption) {
+
+                clientSelect.value =
+                    matchingOption.value;
+
+                selectClient();
+
+            }
+
+        } catch (error) {
+
+            console.log(
+                "Could not restore selected client."
+            );
+
+        }
+
+    }
+
+</script>
+
+
+</body>
+
+</html>

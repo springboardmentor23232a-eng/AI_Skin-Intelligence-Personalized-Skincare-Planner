@@ -1,0 +1,2927 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Skin AI | Ingredient Intelligence</title>
+
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/ingredient-intelligence.css">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     SIDEBAR
+====================================================== -->
+
+<aside class="sidebar">
+
+    <div class="brand">
+
+        <div class="brand-icon">
+            <i class="fa-solid fa-leaf"></i>
+        </div>
+
+        <div>
+            <h2>Skin AI</h2>
+            <span>Intelligence Platform</span>
+        </div>
+
+    </div>
+
+
+    <nav>
+
+        <p class="nav-title">
+            MAIN MENU
+        </p>
+
+
+        <ul>
+
+            <li>
+                <a href="user-dashboard.html">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+
+
+            <li>
+                <a href="profile.html">
+                    <i class="fa-solid fa-user"></i>
+                    <span>Profile</span>
+                </a>
+            </li>
+
+
+            <li>
+                <a href="assessment.html">
+                    <i class="fa-solid fa-camera"></i>
+                    <span>Skin Assessment</span>
+                </a>
+            </li>
+
+
+            <li>
+                <a href="adaptive-routine.html">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                    <span>Adaptive Routine</span>
+                </a>
+            </li>
+
+
+            <li>
+                <a href="products.html">
+                    <i class="fa-solid fa-pump-soap"></i>
+                    <span>Products</span>
+                </a>
+            </li>
+             <li>
+                <a href="ingredient-intelligence.html" class="active">
+                    <i class="fa-solid fa-flask"></i>
+                    <span>Ingredient Intelligence</span>
+                </a>
+            </li>
+
+
+
+            <li>
+                <a href="progress.html">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Progress</span>
+                </a>
+
+<!-- SKIN HEALTH SCORE -->
+
+<li>
+    <a href="skin-health-score.html">
+
+        <i class="fa-solid fa-heart-pulse"></i>
+
+        <span>Skin Health Score</span>
+
+    </a>
+
+<!-- NOTIFICATIONS -->
+
+<li>
+    <a href="notifications.html">
+
+        <i class="fa-solid fa-bell"></i>
+
+        <span>Notifications</span>
+
+    </a>
+            </li>
+
+        </ul>
+
+
+        <p class="nav-title secondary-title">
+            ACCOUNT
+        </p>
+
+
+        <ul>
+
+            <li>
+                <a href="#" onclick="logout(); return false;">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span>
+                </a>
+            </li>
+
+        </ul>
+
+    </nav>
+
+</aside>
+
+
+
+<!-- =====================================================
+     MAIN
+====================================================== -->
+
+<main class="main">
+
+
+<!-- =====================================================
+     HEADER
+====================================================== -->
+
+<header class="dashboard-header">
+
+    <div>
+
+        <span class="welcome-label">
+            PERSONALIZED SKIN INTELLIGENCE
+        </span>
+
+        <h1>
+            Ingredient Intelligence
+        </h1>
+
+        <p>
+            Understand skincare ingredients and discover
+            how they may suit your skin.
+        </p>
+
+    </div>
+
+
+    <div class="header-status">
+
+        <span class="status-dot"></span>
+
+        <span>
+            AI Analysis Active
+        </span>
+
+    </div>
+
+</header>
+
+
+
+<!-- =====================================================
+     HERO
+====================================================== -->
+
+<section class="ingredient-hero">
+
+    <div class="ingredient-hero-icon">
+
+        <i class="fa-solid fa-flask"></i>
+
+    </div>
+
+
+    <div>
+
+        <span class="section-label">
+            SKIN INTELLIGENCE & PERSONALIZED SKINCARE
+        </span>
+
+        <h2>
+            Ingredient Intelligence Module
+        </h2>
+
+        <p>
+            Analyze skincare ingredients, check their
+            suitability for your skin, identify potential
+            interactions and sensitivities, and learn
+            how each ingredient works.
+        </p>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     INTELLIGENCE TOOLS
+====================================================== -->
+
+<section class="section">
+
+    <div class="section-heading">
+
+        <div>
+
+            <span class="section-label">
+                INTELLIGENCE TOOLS
+            </span>
+
+            <h2>
+                Ingredient Analysis
+            </h2>
+
+        </div>
+
+    </div>
+
+
+    <div class="ingredient-feature-grid">
+
+
+        <!-- INGREDIENT ANALYSIS -->
+
+        <div class="ingredient-feature-card">
+
+            <div class="feature-icon">
+                <i class="fa-solid fa-microscope"></i>
+            </div>
+
+            <h3>
+                Ingredient Analysis
+            </h3>
+
+            <p>
+                Learn about the function, benefits and
+                purpose of individual skincare ingredients.
+            </p>
+
+            <button onclick="showFeature('analysis')">
+
+                Explore Analysis
+
+                <i class="fa-solid fa-arrow-right"></i>
+
+            </button>
+
+        </div>
+
+
+
+        <!-- SUITABILITY -->
+
+        <div class="ingredient-feature-card">
+
+            <div class="feature-icon">
+                <i class="fa-solid fa-user-check"></i>
+            </div>
+
+            <h3>
+                Ingredient Suitability Assessment
+            </h3>
+
+            <p>
+                Check whether an ingredient is suitable
+                for your personal skin profile.
+            </p>
+
+            <button onclick="showFeature('suitability')">
+
+                Check Suitability
+
+                <i class="fa-solid fa-arrow-right"></i>
+
+            </button>
+
+        </div>
+
+
+
+        <!-- INTERACTION -->
+
+        <div class="ingredient-feature-card">
+
+            <div class="feature-icon">
+                <i class="fa-solid fa-code-compare"></i>
+            </div>
+
+            <h3>
+                Ingredient Interaction Analysis
+            </h3>
+
+            <p>
+                Understand combinations that may work
+                well together or require caution.
+            </p>
+
+            <button onclick="showFeature('interaction')">
+
+                Check Interactions
+
+                <i class="fa-solid fa-arrow-right"></i>
+
+            </button>
+
+        </div>
+
+
+
+        <!-- ALLERGY -->
+
+        <div class="ingredient-feature-card">
+
+            <div class="feature-icon">
+                <i class="fa-solid fa-shield-heart"></i>
+            </div>
+
+            <h3>
+                Allergy Detection
+            </h3>
+
+            <p>
+                Identify ingredients that may require
+                caution based on recorded sensitivities.
+            </p>
+
+            <button onclick="showFeature('allergy')">
+
+                Check Allergies
+
+                <i class="fa-solid fa-arrow-right"></i>
+
+            </button>
+
+        </div>
+
+
+
+        <!-- EDUCATION -->
+
+        <div class="ingredient-feature-card">
+
+            <div class="feature-icon">
+                <i class="fa-solid fa-book-open"></i>
+            </div>
+
+            <h3>
+                Ingredient Education
+            </h3>
+
+            <p>
+                Learn simple explanations about popular
+                skincare ingredients and their uses.
+            </p>
+
+            <button onclick="showFeature('education')">
+
+                Learn More
+
+                <i class="fa-solid fa-arrow-right"></i>
+
+            </button>
+
+        </div>
+
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     INGREDIENT LIBRARY
+====================================================== -->
+
+<section class="section" id="ingredientLibrary">
+
+    <div class="section-heading">
+
+        <div>
+
+            <span class="section-label">
+                INGREDIENT LIBRARY
+            </span>
+
+            <h2>
+                Ingredient Categories
+            </h2>
+
+        </div>
+
+    </div>
+
+
+    <div class="ingredient-category-grid">
+
+
+        <!-- RETINOIDS -->
+
+        <button
+            class="ingredient-category"
+            onclick="selectIngredient('Retinoids')">
+
+            <div class="category-icon">
+                <i class="fa-solid fa-sparkles"></i>
+            </div>
+
+            <div>
+
+                <h3>
+                    Retinoids
+                </h3>
+
+                <p>
+                    Anti-aging & acne support
+                </p>
+
+            </div>
+
+            <i class="fa-solid fa-chevron-right"></i>
+
+        </button>
+
+
+
+        <!-- NIACINAMIDE -->
+
+        <button
+            class="ingredient-category"
+            onclick="selectIngredient('Niacinamide')">
+
+            <div class="category-icon">
+                <i class="fa-solid fa-droplet"></i>
+            </div>
+
+            <div>
+
+                <h3>
+                    Niacinamide
+                </h3>
+
+                <p>
+                    Barrier & oil control
+                </p>
+
+            </div>
+
+            <i class="fa-solid fa-chevron-right"></i>
+
+        </button>
+
+
+
+        <!-- VITAMIN C -->
+
+        <button
+            class="ingredient-category"
+            onclick="selectIngredient('Vitamin C')">
+
+            <div class="category-icon">
+                <i class="fa-solid fa-sun"></i>
+            </div>
+
+            <div>
+
+                <h3>
+                    Vitamin C
+                </h3>
+
+                <p>
+                    Brightening & antioxidant
+                </p>
+
+            </div>
+
+            <i class="fa-solid fa-chevron-right"></i>
+
+        </button>
+
+
+
+        <!-- HYALURONIC ACID -->
+
+        <button
+            class="ingredient-category"
+            onclick="selectIngredient('Hyaluronic Acid')">
+
+            <div class="category-icon">
+                <i class="fa-solid fa-water"></i>
+            </div>
+
+            <div>
+
+                <h3>
+                    Hyaluronic Acid
+                </h3>
+
+                <p>
+                    Hydration & moisture retention
+                </p>
+
+            </div>
+
+            <i class="fa-solid fa-chevron-right"></i>
+
+        </button>
+
+
+
+        <!-- SALICYLIC ACID -->
+
+        <button
+            class="ingredient-category"
+            onclick="selectIngredient('Salicylic Acid')">
+
+            <div class="category-icon">
+                <i class="fa-solid fa-circle-dot"></i>
+            </div>
+
+            <div>
+
+                <h3>
+                    Salicylic Acid
+                </h3>
+
+                <p>
+                    Acne & pore care
+                </p>
+
+            </div>
+
+            <i class="fa-solid fa-chevron-right"></i>
+
+        </button>
+
+
+
+        <!-- CERAMIDES -->
+
+        <button
+            class="ingredient-category"
+            onclick="selectIngredient('Ceramides')">
+
+            <div class="category-icon">
+                <i class="fa-solid fa-shield"></i>
+            </div>
+
+            <div>
+
+                <h3>
+                    Ceramides
+                </h3>
+
+                <p>
+                    Skin barrier support
+                </p>
+
+            </div>
+
+            <i class="fa-solid fa-chevron-right"></i>
+
+        </button>
+
+
+
+        <!-- PEPTIDES -->
+
+        <button
+            class="ingredient-category"
+            onclick="selectIngredient('Peptides')">
+
+            <div class="category-icon">
+                <i class="fa-solid fa-link"></i>
+            </div>
+
+            <div>
+
+                <h3>
+                    Peptides
+                </h3>
+
+                <p>
+                    Skin support & anti-aging
+                </p>
+
+            </div>
+
+            <i class="fa-solid fa-chevron-right"></i>
+
+        </button>
+
+
+
+        <!-- AHA BHA -->
+
+        <button
+            class="ingredient-category"
+            onclick="selectIngredient('AHAs/BHAs')">
+
+            <div class="category-icon">
+                <i class="fa-solid fa-arrows-down-to-line"></i>
+            </div>
+
+            <div>
+
+                <h3>
+                    AHAs / BHAs
+                </h3>
+
+                <p>
+                    Exfoliation & skin texture
+                </p>
+
+            </div>
+
+            <i class="fa-solid fa-chevron-right"></i>
+
+        </button>
+
+
+    </div>
+
+
+    <!-- INGREDIENT ANALYSIS RESULT -->
+
+    <div
+        id="ingredientResult"
+        class="ingredient-result"
+        style="display:none; margin-top:25px;">
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     SUITABILITY ASSESSMENT
+====================================================== -->
+
+<section
+    class="ingredient-result"
+    id="suitabilitySection"
+    style="margin-top:25px;">
+
+
+    <div class="result-icon">
+
+        <i class="fa-solid fa-user-check"></i>
+
+    </div>
+
+
+    <div style="width:100%;">
+
+        <span class="section-label">
+            PERSONALIZED SUITABILITY
+        </span>
+
+        <h2>
+            Ingredient Suitability Assessment
+        </h2>
+
+        <p>
+            Check whether an ingredient matches your
+            skin type, concerns and sensitivity level.
+        </p>
+
+
+
+        <!-- INGREDIENT -->
+
+        <div style="margin-top:22px;">
+
+            <label for="suitabilityIngredient"
+                class="form-label">
+
+                Select Ingredient
+
+            </label>
+
+
+            <select
+                id="suitabilityIngredient"
+                class="ingredient-select">
+
+                <option value="">
+                    Choose an ingredient
+                </option>
+
+                <option value="Retinoids">
+                    Retinoids
+                </option>
+
+                <option value="Niacinamide">
+                    Niacinamide
+                </option>
+
+                <option value="Vitamin C">
+                    Vitamin C
+                </option>
+
+                <option value="Hyaluronic Acid">
+                    Hyaluronic Acid
+                </option>
+
+                <option value="Salicylic Acid">
+                    Salicylic Acid
+                </option>
+
+                <option value="Ceramides">
+                    Ceramides
+                </option>
+
+                <option value="Peptides">
+                    Peptides
+                </option>
+
+                <option value="AHAs/BHAs">
+                    AHAs / BHAs
+                </option>
+
+            </select>
+
+
+
+            <!-- SKIN TYPE -->
+
+            <label
+                for="suitabilitySkinType"
+                class="form-label form-label-gap">
+
+                Skin Type
+
+            </label>
+
+
+            <select
+                id="suitabilitySkinType"
+                class="ingredient-select">
+
+                <option value="">
+                    Choose skin type
+                </option>
+
+                <option value="dry">
+                    Dry
+                </option>
+
+                <option value="oily">
+                    Oily
+                </option>
+
+                <option value="combination">
+                    Combination
+                </option>
+
+                <option value="sensitive">
+                    Sensitive
+                </option>
+
+                <option value="normal">
+                    Normal
+                </option>
+
+            </select>
+
+
+
+            <!-- CONCERN -->
+
+            <label
+                for="suitabilityConcern"
+                class="form-label form-label-gap">
+
+                Main Skin Concern
+
+            </label>
+
+
+            <select
+                id="suitabilityConcern"
+                class="ingredient-select">
+
+                <option value="">
+                    Choose main concern
+                </option>
+
+                <option value="acne">
+                    Acne
+                </option>
+
+                <option value="hyperpigmentation">
+                    Hyperpigmentation
+                </option>
+
+                <option value="dark spots">
+                    Dark Spots
+                </option>
+
+                <option value="dryness">
+                    Dry Skin
+                </option>
+
+                <option value="oiliness">
+                    Oily Skin
+                </option>
+
+                <option value="redness">
+                    Redness
+                </option>
+
+                <option value="wrinkles">
+                    Wrinkles / Fine Lines
+                </option>
+
+                <option value="texture">
+                    Uneven Skin Texture
+                </option>
+
+            </select>
+
+
+
+            <!-- SENSITIVITY -->
+
+            <label
+                for="suitabilitySensitivity"
+                class="form-label form-label-gap">
+
+                Skin Sensitivity
+
+            </label>
+
+
+            <select
+                id="suitabilitySensitivity"
+                class="ingredient-select">
+
+                <option value="">
+                    Choose sensitivity
+                </option>
+
+                <option value="low">
+                    Low
+                </option>
+
+                <option value="moderate">
+                    Moderate
+                </option>
+
+                <option value="high">
+                    High
+                </option>
+
+            </select>
+
+
+
+            <button
+                class="green-action-button"
+                onclick="checkIngredientSuitability()">
+
+                Check Suitability
+
+                <i class="fa-solid fa-arrow-right"></i>
+
+            </button>
+
+        </div>
+
+
+
+        <!-- RESULT -->
+
+        <div
+            id="suitabilityResult"
+            class="analysis-result-box"
+            style="display:none;">
+
+
+            <span class="section-label">
+                SUITABILITY RESULT
+            </span>
+
+
+            <h2 id="suitabilityIngredientName">
+                --
+            </h2>
+
+
+            <div
+                id="suitabilityStatus"
+                class="result-status">
+
+                --
+
+            </div>
+
+
+            <p id="suitabilityMessage">
+                --
+            </p>
+
+
+            <p id="suitabilityRecommendation">
+                --
+            </p>
+
+
+            <!-- SCORE -->
+
+            <div class="score-container">
+
+                <div class="score-header">
+
+                    <span>
+                        Suitability Score
+                    </span>
+
+                    <strong id="suitabilityScore">
+                        0/100
+                    </strong>
+
+                </div>
+
+
+                <div class="score-bar">
+
+                    <div
+                        id="suitabilityScoreFill"
+                        class="score-fill"
+                        style="width:0%;">
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     INTERACTION ANALYSIS
+====================================================== -->
+
+<section
+    class="ingredient-result"
+    id="interactionSection"
+    style="margin-top:25px;">
+
+
+    <div class="result-icon">
+
+        <i class="fa-solid fa-code-compare"></i>
+
+    </div>
+
+
+    <div style="width:100%;">
+
+        <span class="section-label">
+            INGREDIENT INTERACTION ANALYSIS
+        </span>
+
+        <h2>
+            Check Ingredient Compatibility
+        </h2>
+
+        <p>
+            Select two skincare ingredients to understand
+            whether they can generally be used together
+            or may require caution.
+        </p>
+
+
+        <div style="margin-top:22px;">
+
+
+            <label
+                for="interactionIngredient1"
+                class="form-label">
+
+                Select Ingredient 1
+
+            </label>
+
+
+            <select
+                id="interactionIngredient1"
+                class="ingredient-select">
+
+                <option value="">
+                    Choose first ingredient
+                </option>
+
+                <option value="Retinoids">
+                    Retinoids
+                </option>
+
+                <option value="Niacinamide">
+                    Niacinamide
+                </option>
+
+                <option value="Vitamin C">
+                    Vitamin C
+                </option>
+
+                <option value="Hyaluronic Acid">
+                    Hyaluronic Acid
+                </option>
+
+                <option value="Salicylic Acid">
+                    Salicylic Acid
+                </option>
+
+                <option value="Ceramides">
+                    Ceramides
+                </option>
+
+                <option value="Peptides">
+                    Peptides
+                </option>
+
+                <option value="AHAs/BHAs">
+                    AHAs / BHAs
+                </option>
+
+            </select>
+
+
+
+            <label
+                for="interactionIngredient2"
+                class="form-label form-label-gap">
+
+                Select Ingredient 2
+
+            </label>
+
+
+            <select
+                id="interactionIngredient2"
+                class="ingredient-select">
+
+                <option value="">
+                    Choose second ingredient
+                </option>
+
+                <option value="Retinoids">
+                    Retinoids
+                </option>
+
+                <option value="Niacinamide">
+                    Niacinamide
+                </option>
+
+                <option value="Vitamin C">
+                    Vitamin C
+                </option>
+
+                <option value="Hyaluronic Acid">
+                    Hyaluronic Acid
+                </option>
+
+                <option value="Salicylic Acid">
+                    Salicylic Acid
+                </option>
+
+                <option value="Ceramides">
+                    Ceramides
+                </option>
+
+                <option value="Peptides">
+                    Peptides
+                </option>
+
+                <option value="AHAs/BHAs">
+                    AHAs / BHAs
+                </option>
+
+            </select>
+
+
+            <button
+                class="green-action-button"
+                onclick="checkIngredientInteraction()">
+
+                Check Interaction
+
+                <i class="fa-solid fa-arrow-right"></i>
+
+            </button>
+
+        </div>
+
+
+
+        <!-- INTERACTION RESULT -->
+
+        <div
+            id="interactionResult"
+            class="analysis-result-box"
+            style="display:none;">
+
+
+            <span class="section-label">
+                INTERACTION RESULT
+            </span>
+
+
+            <h2 id="interactionIngredientName">
+                --
+            </h2>
+
+
+            <div
+                id="interactionStatus"
+                class="result-status">
+
+                --
+
+            </div>
+
+
+            <p id="interactionMessage">
+                --
+            </p>
+
+
+            <p id="interactionRecommendation">
+                --
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     ALLERGY DETECTION
+====================================================== -->
+
+<section
+    class="ingredient-result"
+    id="allergyDetection"
+    style="margin-top:25px;">
+
+
+    <div class="result-icon">
+
+        <i class="fa-solid fa-shield-heart"></i>
+
+    </div>
+
+
+    <div style="width:100%;">
+
+        <span class="section-label">
+            ALLERGY DETECTION
+        </span>
+
+        <h2>
+            Check Ingredient Allergy Risk
+        </h2>
+
+        <p>
+            Select an ingredient to check whether it may
+            require caution based on recorded sensitivities.
+        </p>
+
+
+        <div style="margin-top:22px;">
+
+            <label
+                for="allergyIngredient"
+                class="form-label">
+
+                Select Ingredient
+
+            </label>
+
+
+            <select
+                id="allergyIngredient"
+                class="ingredient-select">
+
+                <option value="">
+                    Choose an ingredient
+                </option>
+
+                <option value="Retinoids">
+                    Retinoids
+                </option>
+
+                <option value="Niacinamide">
+                    Niacinamide
+                </option>
+
+                <option value="Vitamin C">
+                    Vitamin C
+                </option>
+
+                <option value="Hyaluronic Acid">
+                    Hyaluronic Acid
+                </option>
+
+                <option value="Salicylic Acid">
+                    Salicylic Acid
+                </option>
+
+                <option value="Ceramides">
+                    Ceramides
+                </option>
+
+                <option value="Peptides">
+                    Peptides
+                </option>
+
+                <option value="AHAs/BHAs">
+                    AHAs / BHAs
+                </option>
+
+            </select>
+
+
+            <button
+                class="green-action-button"
+                onclick="checkAllergyRisk()">
+
+                Check Allergy Risk
+
+                <i class="fa-solid fa-arrow-right"></i>
+
+            </button>
+
+        </div>
+
+
+
+        <!-- ALLERGY RESULT -->
+
+        <div
+            id="allergyResult"
+            class="analysis-result-box"
+            style="display:none;">
+
+
+            <span class="section-label">
+                ALLERGY RESULT
+            </span>
+
+
+            <h2 id="allergyIngredientName">
+                --
+            </h2>
+
+
+            <div
+                id="allergyStatus"
+                class="result-status">
+
+                --
+
+            </div>
+
+
+            <p id="allergyMessage">
+                --
+            </p>
+
+
+            <p id="allergyRecommendation">
+                --
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     INGREDIENT EDUCATION
+====================================================== -->
+
+<section
+    class="section"
+    id="educationSection"
+    style="margin-top:25px;">
+
+
+    <div class="section-heading">
+
+        <div>
+
+            <span class="section-label">
+                INGREDIENT EDUCATION
+            </span>
+
+            <h2>
+                Learn About Skincare Ingredients
+            </h2>
+
+        </div>
+
+    </div>
+
+
+    <div class="ingredient-education-grid">
+
+
+        <div class="education-card">
+
+            <i class="fa-solid fa-sparkles"></i>
+
+            <h3>
+                Retinoids
+            </h3>
+
+            <p>
+                Ingredients commonly used to support acne
+                care and improve the appearance of fine lines.
+            </p>
+
+        </div>
+
+
+        <div class="education-card">
+
+            <i class="fa-solid fa-droplet"></i>
+
+            <h3>
+                Niacinamide
+            </h3>
+
+            <p>
+                A versatile ingredient commonly used for
+                barrier support and oil-control routines.
+            </p>
+
+        </div>
+
+
+        <div class="education-card">
+
+            <i class="fa-solid fa-sun"></i>
+
+            <h3>
+                Vitamin C
+            </h3>
+
+            <p>
+                An antioxidant ingredient often used in
+                brightening and uneven-tone routines.
+            </p>
+
+        </div>
+
+
+        <div class="education-card">
+
+            <i class="fa-solid fa-water"></i>
+
+            <h3>
+                Hyaluronic Acid
+            </h3>
+
+            <p>
+                A hydrating ingredient that helps support
+                moisture retention.
+            </p>
+
+        </div>
+
+
+        <div class="education-card">
+
+            <i class="fa-solid fa-circle-dot"></i>
+
+            <h3>
+                Salicylic Acid
+            </h3>
+
+            <p>
+                An exfoliating ingredient commonly used
+                for acne and pore-care routines.
+            </p>
+
+        </div>
+
+
+        <div class="education-card">
+
+            <i class="fa-solid fa-shield"></i>
+
+            <h3>
+                Ceramides
+            </h3>
+
+            <p>
+                Lipids that help support the skin barrier
+                and moisture retention.
+            </p>
+
+        </div>
+
+
+        <div class="education-card">
+
+            <i class="fa-solid fa-link"></i>
+
+            <h3>
+                Peptides
+            </h3>
+
+            <p>
+                Ingredients commonly included in skin
+                conditioning and anti-aging routines.
+            </p>
+
+        </div>
+
+
+        <div class="education-card">
+
+            <i class="fa-solid fa-arrows-down-to-line"></i>
+
+            <h3>
+                AHAs / BHAs
+            </h3>
+
+            <p>
+                Exfoliating acids used to support skin
+                texture and congestion care.
+            </p>
+
+        </div>
+
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     FOOTER
+====================================================== -->
+
+<footer class="ingredient-footer">
+
+    <p>
+
+        <i class="fa-solid fa-shield-heart"></i>
+
+        Skin AI • Personalized Skin Intelligence
+
+    </p>
+
+    <span>
+
+        AI-generated information is for
+        informational purposes.
+
+    </span>
+
+</footer>
+
+
+</main>
+
+
+
+<!-- =====================================================
+     JAVASCRIPT FILES
+====================================================== -->
+
+<script src="../js/auth-check.js"></script>
+
+<script src="../js/ingredient-intelligence.js"></script>
+
+
+
+<script>
+
+/* =====================================================
+   FEATURE NAVIGATION
+===================================================== */
+
+function showFeature(feature) {
+
+    let section = null;
+
+
+    if (feature === "analysis") {
+
+        section =
+            document.getElementById("ingredientLibrary");
+
+    }
+
+
+    else if (feature === "suitability") {
+
+        section =
+            document.getElementById("suitabilitySection");
+
+    }
+
+
+    else if (feature === "interaction") {
+
+        section =
+            document.getElementById("interactionSection");
+
+    }
+
+
+    else if (feature === "allergy") {
+
+        section =
+            document.getElementById("allergyDetection");
+
+    }
+
+
+    else if (feature === "education") {
+
+        section =
+            document.getElementById("educationSection");
+
+    }
+
+
+    if (section) {
+
+        section.scrollIntoView({
+
+            behavior: "smooth",
+
+            block: "start"
+
+        });
+
+    }
+
+}
+
+
+
+/* =====================================================
+   INGREDIENT EDUCATION / ANALYSIS
+===================================================== */
+
+function selectIngredient(ingredient) {
+
+    const result =
+        document.getElementById("ingredientResult");
+
+
+    const data = {
+
+        "Retinoids": {
+
+            title: "Retinoids",
+
+            function:
+                "Retinoids are vitamin A derivatives commonly used in skincare routines.",
+
+            benefits:
+                "They may support acne care, skin renewal and the appearance of fine lines.",
+
+            caution:
+                "They can cause dryness, peeling or irritation, especially when introduced too quickly."
+
+        },
+
+
+        "Niacinamide": {
+
+            title: "Niacinamide",
+
+            function:
+                "Niacinamide is a form of vitamin B3 used in many skincare formulations.",
+
+            benefits:
+                "It may support the skin barrier, oil control and overall skin appearance.",
+
+            caution:
+                "Some sensitive users may experience mild irritation depending on the formulation or concentration."
+
+        },
+
+
+        "Vitamin C": {
+
+            title: "Vitamin C",
+
+            function:
+                "Vitamin C is an antioxidant commonly used in brightening skincare routines.",
+
+            benefits:
+                "It may support brighter-looking skin and help improve the appearance of uneven skin tone.",
+
+            caution:
+                "Some formulations can cause temporary stinging or irritation."
+
+        },
+
+
+        "Hyaluronic Acid": {
+
+            title: "Hyaluronic Acid",
+
+            function:
+                "Hyaluronic Acid is a hydrating ingredient that helps attract and retain moisture.",
+
+            benefits:
+                "It supports hydration and can help skin feel softer and more moisturized.",
+
+            caution:
+                "It is generally well tolerated, but individual products may contain other ingredients that cause irritation."
+
+        },
+
+
+        "Salicylic Acid": {
+
+            title: "Salicylic Acid",
+
+            function:
+                "Salicylic Acid is a beta hydroxy acid used for exfoliation.",
+
+            benefits:
+                "It is commonly used for acne, clogged pores and oily skin routines.",
+
+            caution:
+                "Overuse can contribute to dryness, peeling and irritation."
+
+        },
+
+
+        "Ceramides": {
+
+            title: "Ceramides",
+
+            function:
+                "Ceramides are lipids that are naturally found in the skin barrier.",
+
+            benefits:
+                "They help support the skin barrier and moisture retention.",
+
+            caution:
+                "They are generally well tolerated by many skin types."
+
+        },
+
+
+        "Peptides": {
+
+            title: "Peptides",
+
+            function:
+                "Peptides are chains of amino acids used in many skin-supporting formulations.",
+
+            benefits:
+                "They are commonly included in conditioning and anti-aging skincare routines.",
+
+            caution:
+                "Tolerance depends on the complete product formulation."
+
+        },
+
+
+        "AHAs/BHAs": {
+
+            title: "AHAs / BHAs",
+
+            function:
+                "AHAs and BHAs are exfoliating acids used to improve skin surface and pore care.",
+
+            benefits:
+                "They may support smoother-looking skin and improve the appearance of uneven texture.",
+
+            caution:
+                "Frequent use can increase dryness or irritation, especially for sensitive skin."
+
+        }
+
+    };
+
+
+    const ingredientData =
+        data[ingredient];
+
+
+    if (!ingredientData) {
+
+        return;
+
+    }
+
+
+    result.innerHTML = `
+
+        <span class="section-label">
+            INGREDIENT ANALYSIS
+        </span>
+
+        <h2 style="margin:8px 0;color:#294237;">
+            ${ingredientData.title}
+        </h2>
+
+        <p style="margin:10px 0;line-height:1.7;color:#69766f;">
+            <strong>Function:</strong>
+            ${ingredientData.function}
+        </p>
+
+        <p style="margin:10px 0;line-height:1.7;color:#69766f;">
+            <strong>Benefits:</strong>
+            ${ingredientData.benefits}
+        </p>
+
+        <p style="margin:10px 0;line-height:1.7;color:#69766f;">
+            <strong>Caution:</strong>
+            ${ingredientData.caution}
+        </p>
+
+    `;
+
+
+    result.style.display = "block";
+
+
+    result.scrollIntoView({
+
+        behavior: "smooth",
+
+        block: "center"
+
+    });
+
+}
+
+
+
+/* =====================================================
+   SUITABILITY ASSESSMENT
+===================================================== */
+
+function checkIngredientSuitability() {
+
+    const ingredient =
+        document.getElementById(
+            "suitabilityIngredient"
+        ).value;
+
+
+    const skinType =
+        document.getElementById(
+            "suitabilitySkinType"
+        ).value;
+
+
+    const concern =
+        document.getElementById(
+            "suitabilityConcern"
+        ).value;
+
+
+    const sensitivity =
+        document.getElementById(
+            "suitabilitySensitivity"
+        ).value;
+
+
+    const result =
+        document.getElementById(
+            "suitabilityResult"
+        );
+
+
+    const name =
+        document.getElementById(
+            "suitabilityIngredientName"
+        );
+
+
+    const status =
+        document.getElementById(
+            "suitabilityStatus"
+        );
+
+
+    const message =
+        document.getElementById(
+            "suitabilityMessage"
+        );
+
+
+    const recommendation =
+        document.getElementById(
+            "suitabilityRecommendation"
+        );
+
+
+    const scoreText =
+        document.getElementById(
+            "suitabilityScore"
+        );
+
+
+    const scoreFill =
+        document.getElementById(
+            "suitabilityScoreFill"
+        );
+
+
+
+    /* VALIDATION */
+
+    if (
+        !ingredient ||
+        !skinType ||
+        !concern ||
+        !sensitivity
+    ) {
+
+        alert(
+            "Please select ingredient, skin type, main concern and sensitivity."
+        );
+
+        return;
+
+    }
+
+
+
+    /* STARTING SCORE */
+
+    let score = 50;
+
+    let reasons = [];
+
+
+
+    /* =================================================
+       SKIN TYPE MATCHING
+    ================================================= */
+
+    if (ingredient === "Hyaluronic Acid") {
+
+        if (
+            skinType === "dry" ||
+            skinType === "sensitive"
+        ) {
+
+            score += 20;
+
+            reasons.push(
+                "supports hydration and moisture retention"
+            );
+
+        }
+
+    }
+
+
+    if (ingredient === "Niacinamide") {
+
+        if (
+            skinType === "oily" ||
+            skinType === "combination"
+        ) {
+
+            score += 20;
+
+            reasons.push(
+                "can support oil control and skin barrier function"
+            );
+
+        }
+
+    }
+
+
+    if (ingredient === "Salicylic Acid") {
+
+        if (
+            skinType === "oily" ||
+            skinType === "combination"
+        ) {
+
+            score += 20;
+
+            reasons.push(
+                "can support acne and pore care"
+            );
+
+        }
+
+    }
+
+
+    if (ingredient === "Ceramides") {
+
+        if (
+            skinType === "dry" ||
+            skinType === "sensitive"
+        ) {
+
+            score += 20;
+
+            reasons.push(
+                "supports the skin barrier"
+            );
+
+        }
+
+    }
+
+
+
+    /* =================================================
+       CONCERN MATCHING
+    ================================================= */
+
+    if (ingredient === "Vitamin C") {
+
+        if (
+            concern === "dark spots" ||
+            concern === "hyperpigmentation"
+        ) {
+
+            score += 25;
+
+            reasons.push(
+                "can support brightening and uneven skin tone"
+            );
+
+        }
+
+    }
+
+
+    if (ingredient === "Retinoids") {
+
+        if (
+            concern === "acne" ||
+            concern === "wrinkles"
+        ) {
+
+            score += 25;
+
+            reasons.push(
+                "can support acne care and signs of skin aging"
+            );
+
+        }
+
+    }
+
+
+    if (ingredient === "Peptides") {
+
+        if (concern === "wrinkles") {
+
+            score += 20;
+
+            reasons.push(
+                "supports skin conditioning and anti-aging routines"
+            );
+
+        }
+
+    }
+
+
+    if (ingredient === "AHAs/BHAs") {
+
+        if (
+            concern === "texture" ||
+            concern === "acne"
+        ) {
+
+            score += 20;
+
+            reasons.push(
+                "supports exfoliation and skin texture care"
+            );
+
+        }
+
+    }
+
+
+
+    /* =================================================
+       SENSITIVITY
+    ================================================= */
+
+    const irritationIngredients = [
+
+        "Retinoids",
+        "Salicylic Acid",
+        "AHAs/BHAs"
+
+    ];
+
+
+    if (
+        sensitivity === "high" &&
+        irritationIngredients.includes(ingredient)
+    ) {
+
+        score -= 30;
+
+        reasons.push(
+            "high sensitivity may increase the chance of irritation"
+        );
+
+    }
+
+
+    else if (
+        sensitivity === "moderate" &&
+        irritationIngredients.includes(ingredient)
+    ) {
+
+        score -= 10;
+
+        reasons.push(
+            "moderate sensitivity means gradual introduction is recommended"
+        );
+
+    }
+
+
+
+    /* =================================================
+       SCORE LIMIT
+    ================================================= */
+
+    score =
+        Math.max(
+            0,
+            Math.min(
+                100,
+                score
+            )
+        );
+
+
+
+    /* =================================================
+       RESULT
+    ================================================= */
+
+    let resultStatus;
+    let resultMessage;
+    let resultRecommendation;
+
+
+    if (score >= 75) {
+
+        resultStatus =
+            "GOOD MATCH";
+
+        resultMessage =
+            `${ingredient} appears suitable for your selected skin profile. ${reasons.join(", ")}.`;
+
+        resultRecommendation =
+            "You can consider introducing this ingredient gradually while monitoring your skin response.";
+
+        status.style.background =
+            "#e8f6ed";
+
+        status.style.color =
+            "#31864a";
+
+    }
+
+
+    else if (score >= 50) {
+
+        resultStatus =
+            "MODERATE MATCH";
+
+        resultMessage =
+            `${ingredient} may be suitable, but some factors require attention. ${reasons.join(", ")}.`;
+
+        resultRecommendation =
+            "Introduce the ingredient gradually and monitor your skin for dryness, redness or irritation.";
+
+        status.style.background =
+            "#fff4d6";
+
+        status.style.color =
+            "#8a6914";
+
+    }
+
+
+    else {
+
+        resultStatus =
+            "USE WITH CAUTION";
+
+        resultMessage =
+            `${ingredient} may not be the best match for the selected skin profile because some factors may increase irritation risk.`;
+
+        resultRecommendation =
+            "Consider reducing frequency and discussing the ingredient with a skincare professional if irritation occurs.";
+
+        status.style.background =
+            "#ffe7e7";
+
+        status.style.color =
+            "#a33a3a";
+
+    }
+
+
+
+    /* =================================================
+       DISPLAY
+    ================================================= */
+
+    name.textContent =
+        ingredient;
+
+
+    status.textContent =
+        resultStatus;
+
+
+    message.textContent =
+        resultMessage;
+
+
+    recommendation.innerHTML =
+        "<strong>Recommendation:</strong> " +
+        resultRecommendation;
+
+
+    scoreText.textContent =
+        score + "/100";
+
+
+    scoreFill.style.width =
+        score + "%";
+
+
+    result.style.display =
+        "block";
+
+
+    result.scrollIntoView({
+
+        behavior: "smooth",
+
+        block: "center"
+
+    });
+
+}
+
+
+
+/* =====================================================
+   INTERACTION ANALYSIS
+===================================================== */
+
+function checkIngredientInteraction() {
+
+    const ingredient1 =
+        document.getElementById(
+            "interactionIngredient1"
+        ).value;
+
+
+    const ingredient2 =
+        document.getElementById(
+            "interactionIngredient2"
+        ).value;
+
+
+    const result =
+        document.getElementById(
+            "interactionResult"
+        );
+
+
+    const name =
+        document.getElementById(
+            "interactionIngredientName"
+        );
+
+
+    const status =
+        document.getElementById(
+            "interactionStatus"
+        );
+
+
+    const message =
+        document.getElementById(
+            "interactionMessage"
+        );
+
+
+    const recommendation =
+        document.getElementById(
+            "interactionRecommendation"
+        );
+
+
+
+    if (!ingredient1 || !ingredient2) {
+
+        alert(
+            "Please select both ingredients before checking their interaction."
+        );
+
+        return;
+
+    }
+
+
+    if (ingredient1 === ingredient2) {
+
+        alert(
+            "Please select two different ingredients."
+        );
+
+        return;
+
+    }
+
+
+
+    const pair =
+        [
+            ingredient1,
+            ingredient2
+        ]
+        .sort()
+        .join("|");
+
+
+
+    let interactionStatus =
+        "COMPATIBLE";
+
+
+    let interactionMessage =
+        "These ingredients can generally be used together in a skincare routine.";
+
+
+    let interactionRecommendation =
+        "Use according to product instructions and monitor your skin for unexpected irritation.";
+
+
+    let statusBackground =
+        "#e8f6ed";
+
+
+    let statusColor =
+        "#31864a";
+
+
+
+    /* RETINOIDS + AHA/BHA */
+
+    if (
+        pair ===
+        ["AHAs/BHAs", "Retinoids"]
+            .sort()
+            .join("|")
+    ) {
+
+        interactionStatus =
+            "USE WITH CAUTION";
+
+        interactionMessage =
+            "Retinoids and AHAs/BHAs are both active ingredients. Using them together may increase dryness, irritation or sensitivity.";
+
+        interactionRecommendation =
+            "Consider using them on different days or at different times, especially if your skin is sensitive.";
+
+        statusBackground =
+            "#fff4d6";
+
+        statusColor =
+            "#8a6914";
+
+    }
+
+
+
+    /* RETINOIDS + SALICYLIC ACID */
+
+    else if (
+        pair ===
+        ["Retinoids", "Salicylic Acid"]
+            .sort()
+            .join("|")
+    ) {
+
+        interactionStatus =
+            "USE WITH CAUTION";
+
+        interactionMessage =
+            "Retinoids and Salicylic Acid can both be irritating when introduced together.";
+
+        interactionRecommendation =
+            "Introduce gradually and consider using them at separate times or on alternate days.";
+
+        statusBackground =
+            "#fff4d6";
+
+        statusColor =
+            "#8a6914";
+
+    }
+
+
+
+    /* VITAMIN C + AHA/BHA */
+
+    else if (
+        pair ===
+        ["AHAs/BHAs", "Vitamin C"]
+            .sort()
+            .join("|")
+    ) {
+
+        interactionStatus =
+            "USE WITH CAUTION";
+
+        interactionMessage =
+            "Vitamin C and exfoliating acids may increase irritation when several active ingredients are used together.";
+
+        interactionRecommendation =
+            "If your skin is sensitive, consider separating these ingredients between different routines or days.";
+
+        statusBackground =
+            "#fff4d6";
+
+        statusColor =
+            "#8a6914";
+
+    }
+
+
+
+    /* VITAMIN C + RETINOIDS */
+
+    else if (
+        pair ===
+        ["Retinoids", "Vitamin C"]
+            .sort()
+            .join("|")
+    ) {
+
+        interactionStatus =
+            "USE WITH CAUTION";
+
+        interactionMessage =
+            "Vitamin C and retinoids can both be active ingredients and may increase irritation for some users when combined in the same routine.";
+
+        interactionRecommendation =
+            "A simple approach is Vitamin C in the morning and a retinoid at night, with sunscreen during the day.";
+
+        statusBackground =
+            "#fff4d6";
+
+        statusColor =
+            "#8a6914";
+
+    }
+
+
+
+    /* NIACINAMIDE + VITAMIN C */
+
+    else if (
+        pair ===
+        ["Niacinamide", "Vitamin C"]
+            .sort()
+            .join("|")
+    ) {
+
+        interactionStatus =
+            "COMPATIBLE";
+
+        interactionMessage =
+            "Niacinamide and Vitamin C can generally be used together.";
+
+        interactionRecommendation =
+            "They can generally be layered if your skin tolerates both products.";
+
+    }
+
+
+
+    /* NIACINAMIDE + HYALURONIC ACID */
+
+    else if (
+        pair ===
+        ["Hyaluronic Acid", "Niacinamide"]
+            .sort()
+            .join("|")
+    ) {
+
+        interactionStatus =
+            "COMPATIBLE";
+
+        interactionMessage =
+            "Niacinamide and Hyaluronic Acid are generally compatible and can support hydration and barrier care.";
+
+        interactionRecommendation =
+            "They can generally be used together in the same routine.";
+
+    }
+
+
+
+    /* HYALURONIC ACID + RETINOIDS */
+
+    else if (
+        pair ===
+        ["Hyaluronic Acid", "Retinoids"]
+            .sort()
+            .join("|")
+    ) {
+
+        interactionStatus =
+            "COMPATIBLE";
+
+        interactionMessage =
+            "Hyaluronic Acid can complement a retinoid routine by supporting hydration.";
+
+        interactionRecommendation =
+            "Use a hydrating product alongside your retinoid and moisturize regularly.";
+
+    }
+
+
+
+    /* HYALURONIC ACID + SALICYLIC ACID */
+
+    else if (
+        pair ===
+        ["Hyaluronic Acid", "Salicylic Acid"]
+            .sort()
+            .join("|")
+    ) {
+
+        interactionStatus =
+            "COMPATIBLE";
+
+        interactionMessage =
+            "Hyaluronic Acid and Salicylic Acid can generally be used together.";
+
+        interactionRecommendation =
+            "Use hydration alongside exfoliation and monitor your skin for dryness.";
+
+    }
+
+
+
+    /* CERAMIDES + RETINOIDS */
+
+    else if (
+        pair ===
+        ["Ceramides", "Retinoids"]
+            .sort()
+            .join("|")
+    ) {
+
+        interactionStatus =
+            "COMPATIBLE";
+
+        interactionMessage =
+            "Ceramides can complement retinoid routines by supporting the skin barrier.";
+
+        interactionRecommendation =
+            "Use a ceramide-containing moisturizer to support your skin barrier.";
+
+    }
+
+
+
+    /* CERAMIDES + AHA/BHA */
+
+    else if (
+        pair ===
+        ["AHAs/BHAs", "Ceramides"]
+            .sort()
+            .join("|")
+    ) {
+
+        interactionStatus =
+            "COMPATIBLE";
+
+        interactionMessage =
+            "Ceramides can generally be used alongside exfoliating acids.";
+
+        interactionRecommendation =
+            "Follow exfoliation with appropriate moisturization.";
+
+    }
+
+
+
+    /* PEPTIDES + RETINOIDS */
+
+    else if (
+        pair ===
+        ["Peptides", "Retinoids"]
+            .sort()
+            .join("|")
+    ) {
+
+        interactionStatus =
+            "COMPATIBLE";
+
+        interactionMessage =
+            "Peptides and retinoids can generally be incorporated into the same overall routine.";
+
+        interactionRecommendation =
+            "Introduce active ingredients gradually and use moisturizer and sunscreen.";
+
+    }
+
+
+
+    /* PEPTIDES + VITAMIN C */
+
+    else if (
+        pair ===
+        ["Peptides", "Vitamin C"]
+            .sort()
+            .join("|")
+    ) {
+
+        interactionStatus =
+            "COMPATIBLE";
+
+        interactionMessage =
+            "Peptides and Vitamin C can generally be used as part of the same skincare routine.";
+
+        interactionRecommendation =
+            "Follow product instructions and monitor your skin when introducing new products.";
+
+    }
+
+
+
+    /* NIACINAMIDE + SALICYLIC ACID */
+
+    else if (
+        pair ===
+        ["Niacinamide", "Salicylic Acid"]
+            .sort()
+            .join("|")
+    ) {
+
+        interactionStatus =
+            "COMPATIBLE";
+
+        interactionMessage =
+            "Niacinamide and Salicylic Acid can generally be used together.";
+
+        interactionRecommendation =
+            "Introduce the combination gradually and monitor your skin for dryness or irritation.";
+
+    }
+
+
+
+    /* DISPLAY */
+
+    name.textContent =
+        ingredient1 + " + " + ingredient2;
+
+
+    status.textContent =
+        interactionStatus;
+
+
+    status.style.background =
+        statusBackground;
+
+
+    status.style.color =
+        statusColor;
+
+
+    message.textContent =
+        interactionMessage;
+
+
+    recommendation.innerHTML =
+        "<strong>Recommendation:</strong> " +
+        interactionRecommendation;
+
+
+    result.style.display =
+        "block";
+
+
+    result.scrollIntoView({
+
+        behavior: "smooth",
+
+        block: "center"
+
+    });
+
+}
+
+
+
+/* =====================================================
+   ALLERGY DETECTION
+===================================================== */
+
+function checkAllergyRisk() {
+
+    const ingredient =
+        document.getElementById(
+            "allergyIngredient"
+        ).value;
+
+
+    const result =
+        document.getElementById(
+            "allergyResult"
+        );
+
+
+    const name =
+        document.getElementById(
+            "allergyIngredientName"
+        );
+
+
+    const status =
+        document.getElementById(
+            "allergyStatus"
+        );
+
+
+    const message =
+        document.getElementById(
+            "allergyMessage"
+        );
+
+
+    const recommendation =
+        document.getElementById(
+            "allergyRecommendation"
+        );
+
+
+
+    if (!ingredient) {
+
+        alert(
+            "Please select an ingredient first."
+        );
+
+        return;
+
+    }
+
+
+
+    const allergyData = {
+
+
+        "Retinoids": {
+
+            status: "Caution",
+
+            message:
+                "No specific allergy is recorded. Retinoids may cause dryness, irritation or increased sensitivity.",
+
+            recommendation:
+                "Introduce gradually and monitor your skin for irritation."
+
+        },
+
+
+        "Niacinamide": {
+
+            status: "Low Risk",
+
+            message:
+                "Niacinamide is generally well tolerated by many skin types.",
+
+            recommendation:
+                "Start with a suitable concentration and discontinue if irritation occurs."
+
+        },
+
+
+        "Vitamin C": {
+
+            status: "Caution",
+
+            message:
+                "Some Vitamin C formulations may cause stinging or irritation.",
+
+            recommendation:
+                "Patch test first and introduce gradually."
+
+        },
+
+
+        "Hyaluronic Acid": {
+
+            status: "Low Risk",
+
+            message:
+                "Hyaluronic Acid is generally considered a hydrating ingredient and is commonly used across different skin types.",
+
+            recommendation:
+                "Apply as directed and follow with moisturizer."
+
+        },
+
+
+        "Salicylic Acid": {
+
+            status: "Caution",
+
+            message:
+                "Salicylic Acid may cause dryness, irritation or sensitivity, particularly when overused.",
+
+            recommendation:
+                "Use gradually and avoid combining too many exfoliating products."
+
+        },
+
+
+        "Ceramides": {
+
+            status: "Low Risk",
+
+            message:
+                "Ceramides support the skin barrier and are generally suitable for many skin types.",
+
+            recommendation:
+                "Can generally be used regularly as part of a barrier-supporting routine."
+
+        },
+
+
+        "Peptides": {
+
+            status: "Low Risk",
+
+            message:
+                "Peptides are generally well tolerated and commonly used in skin-supporting routines.",
+
+            recommendation:
+                "Follow product instructions and monitor your skin."
+
+        },
+
+
+        "AHAs/BHAs": {
+
+            status: "Caution",
+
+            message:
+                "AHAs and BHAs are exfoliating ingredients and may cause irritation, dryness or increased sensitivity when overused.",
+
+            recommendation:
+                "Introduce gradually and use sunscreen during the day."
+
+        }
+
+    };
+
+
+
+    const data =
+        allergyData[ingredient];
+
+
+    name.textContent =
+        ingredient;
+
+
+    status.textContent =
+        data.status;
+
+
+
+    if (data.status === "Low Risk") {
+
+        status.style.background =
+            "#e8f6ed";
+
+        status.style.color =
+            "#31864a";
+
+    }
+
+    else {
+
+        status.style.background =
+            "#fff4d6";
+
+        status.style.color =
+            "#8a6914";
+
+    }
+
+
+
+    message.textContent =
+        data.message;
+
+
+    recommendation.innerHTML =
+        "<strong>Recommendation:</strong> " +
+        data.recommendation;
+
+
+    result.style.display =
+        "block";
+
+
+    result.scrollIntoView({
+
+        behavior: "smooth",
+
+        block: "center"
+
+    });
+
+}
+
+
+
+/* =====================================================
+   LOGOUT
+===================================================== */
+
+function logout() {
+
+    localStorage.removeItem("token");
+
+    localStorage.removeItem("role");
+
+    window.location.href =
+        "login.html";
+
+}
+
+</script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,2026 @@
+from fastapi import APIRouter, Depends
+from fastapi.responses import StreamingResponse
+from sqlalchemy.orm import Session
+
+from .database import get_db
+from . import models
+from .auth import get_current_user
+
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+
+from io import BytesIO
+
+
+router = APIRouter(
+    prefix="/reports",
+    tags=["Reports"]
+)
+
+
+# =========================================================
+# SKIN ASSESSMENT REPORT DATA
+# =========================================================
+
+@router.get("/assessment")
+def get_assessment_report(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+
+    user_id = current_user["id"]
+
+    assessments = db.query(
+        models.SkinAssessment
+    ).filter(
+        models.SkinAssessment.user_id == user_id
+    ).order_by(
+        models.SkinAssessment.id.desc()
+    ).all()
+
+    return {
+        "report_type": "Skin Assessment Report",
+        "user_id": user_id,
+        "total_assessments": len(assessments),
+        "assessments": assessments
+    }
+
+
+# =========================================================
+# DOWNLOAD SKIN ASSESSMENT REPORT AS PDF
+# =========================================================
+
+@router.get("/assessment/pdf")
+def download_assessment_pdf(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+
+    user_id = current_user["id"]
+
+    assessments = db.query(
+        models.SkinAssessment
+    ).filter(
+        models.SkinAssessment.user_id == user_id
+    ).order_by(
+        models.SkinAssessment.id.desc()
+    ).all()
+
+    # -----------------------------------------------------
+    # CREATE PDF IN MEMORY
+    # -----------------------------------------------------
+
+    buffer = BytesIO()
+
+    pdf = canvas.Canvas(
+        buffer,
+        pagesize=A4
+    )
+
+    width, height = A4
+
+    # -----------------------------------------------------
+    # TITLE
+    # -----------------------------------------------------
+
+    pdf.setFont(
+        "Helvetica-Bold",
+        20
+    )
+
+    pdf.drawString(
+        50,
+        height - 50,
+        "Skin AI - Skin Assessment Report"
+    )
+
+    # -----------------------------------------------------
+    # USER INFORMATION
+    # -----------------------------------------------------
+
+    pdf.setFont(
+        "Helvetica",
+        11
+    )
+
+    pdf.drawString(
+        50,
+        height - 80,
+        f"User ID: {user_id}"
+    )
+
+    pdf.drawString(
+        50,
+        height - 100,
+        f"Total Assessments: {len(assessments)}"
+    )
+
+    y = height - 140
+
+    # -----------------------------------------------------
+    # NO ASSESSMENT
+    # -----------------------------------------------------
+
+    if not assessments:
+
+        pdf.drawString(
+            50,
+            y,
+            "No skin assessments found."
+        )
+
+    # -----------------------------------------------------
+    # ASSESSMENT DETAILS
+    # -----------------------------------------------------
+
+    for index, assessment in enumerate(assessments):
+
+        # New page if required
+
+        if y < 150:
+
+            pdf.showPage()
+
+            pdf.setFont(
+                "Helvetica",
+                11
+            )
+
+            y = height - 50
+
+        pdf.setFont(
+            "Helvetica-Bold",
+            13
+        )
+
+        pdf.drawString(
+            50,
+            y,
+            f"Assessment #{index + 1}"
+        )
+
+        y -= 25
+
+        pdf.setFont(
+            "Helvetica",
+            10
+        )
+
+        details = [
+
+            f"Assessment ID: {assessment.id}",
+
+            f"Skin Health Score: {assessment.skin_health_score}",
+
+            f"Overall Condition: {assessment.overall_condition}",
+
+            f"Skin Type: {assessment.skin_type}",
+
+            f"Main Concern: {assessment.main_concern}",
+
+            f"Hydration: {assessment.hydration}",
+
+            f"Acne Level: {assessment.acne_level}",
+
+            f"Pigmentation: {assessment.pigmentation}",
+
+            f"Risk Level: {assessment.risk_level}",
+
+            f"Redness: {assessment.redness}",
+
+            f"Texture: {assessment.texture}",
+
+            f"Sensitivity: {assessment.sensitivity}",
+
+            f"Recommendation: {assessment.notes}"
+
+        ]
+
+        for detail in details:
+
+            # Convert possible None values
+
+            detail = str(detail)
+
+            pdf.drawString(
+                60,
+                y,
+                detail[:110]
+            )
+
+            y -= 18
+
+        y -= 20
+
+    # -----------------------------------------------------
+    # FOOTER
+    # -----------------------------------------------------
+
+    pdf.setFont(
+        "Helvetica-Oblique",
+        8
+    )
+
+    pdf.drawString(
+        50,
+        30,
+        "Generated by Skin AI"
+    )
+
+    # -----------------------------------------------------
+    # FINISH PDF
+    # -----------------------------------------------------
+
+    pdf.save()
+
+    buffer.seek(0)
+
+    return StreamingResponse(
+
+        buffer,
+
+        media_type="application/pdf",
+
+        headers={
+            "Content-Disposition":
+            "attachment; filename=skin_assessment_report.pdf"
+        }
+
+    )
+# =========================================================
+# DOWNLOAD ASSESSMENT EXCEL
+# =========================================================
+
+from io import BytesIO
+from openpyxl import Workbook
+from fastapi.responses import StreamingResponse
+
+
+@router.get("/assessment/excel")
+def download_assessment_excel(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+
+    user_id = current_user["id"]
+
+    assessments = db.query(
+        models.SkinAssessment
+    ).filter(
+        models.SkinAssessment.user_id == user_id
+    ).order_by(
+        models.SkinAssessment.id.desc()
+    ).all()
+
+    # -----------------------------------------------------
+    # CREATE EXCEL WORKBOOK
+    # -----------------------------------------------------
+
+    workbook = Workbook()
+
+    worksheet = workbook.active
+
+    worksheet.title = "Skin Assessment Report"
+
+    # -----------------------------------------------------
+    # HEADERS
+    # -----------------------------------------------------
+
+    headers = [
+
+        "Assessment ID",
+        "User ID",
+        "Skin Health Score",
+        "Overall Condition",
+        "Skin Type",
+        "Main Concern",
+        "Hydration",
+        "Acne Level",
+        "Pigmentation",
+        "Risk Level",
+        "Redness",
+        "Texture",
+        "Sensitivity",
+        "Notes"
+
+    ]
+
+    worksheet.append(headers)
+
+    # -----------------------------------------------------
+    # ADD ASSESSMENT DATA
+    # -----------------------------------------------------
+
+    for assessment in assessments:
+
+        worksheet.append([
+
+            assessment.id,
+
+            assessment.user_id,
+
+            assessment.skin_health_score,
+
+            assessment.overall_condition,
+
+            assessment.skin_type,
+
+            assessment.main_concern,
+
+            assessment.hydration,
+
+            assessment.acne_level,
+
+            assessment.pigmentation,
+
+            assessment.risk_level,
+
+            assessment.redness,
+
+            assessment.texture,
+
+            assessment.sensitivity,
+
+            assessment.notes
+
+        ])
+
+    # -----------------------------------------------------
+    # AUTO WIDTH
+    # -----------------------------------------------------
+
+    for column in worksheet.columns:
+
+        max_length = 0
+
+        column_letter = column[0].column_letter
+
+        for cell in column:
+
+            if cell.value is not None:
+
+                max_length = max(
+                    max_length,
+                    len(str(cell.value))
+                )
+
+        worksheet.column_dimensions[
+            column_letter
+        ].width = min(
+            max_length + 2,
+            40
+        )
+
+    # -----------------------------------------------------
+    # SAVE TO MEMORY
+    # -----------------------------------------------------
+
+    output = BytesIO()
+
+    workbook.save(output)
+
+    output.seek(0)
+
+    # -----------------------------------------------------
+    # DOWNLOAD FILE
+    # -----------------------------------------------------
+
+    return StreamingResponse(
+
+        output,
+
+        media_type=(
+            "application/vnd.openxmlformats-officedocument."
+            "spreadsheetml.sheet"
+        ),
+
+        headers={
+
+            "Content-Disposition":
+                "attachment; "
+                "filename=skin_assessment_report.xlsx"
+
+        }
+
+    )
+# =========================================================
+# ROUTINE REPORT
+# =========================================================
+
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.utils import get_column_letter
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import (
+    SimpleDocTemplate,
+    Paragraph,
+    Spacer,
+    Table,
+    TableStyle,
+    PageBreak
+)
+from reportlab.lib.enums import TA_CENTER
+from io import BytesIO
+
+
+# =========================================================
+# GENERATE PERSONALIZED ROUTINE
+# =========================================================
+
+def generate_routine_report(assessment):
+
+    skin_type = str(
+        assessment.skin_type or ""
+    ).lower()
+
+    main_concern = str(
+        assessment.main_concern or ""
+    ).lower()
+
+    hydration = str(
+        assessment.hydration or ""
+    ).lower()
+
+    acne_level = str(
+        assessment.acne_level or ""
+    ).lower()
+
+    pigmentation = str(
+        assessment.pigmentation or ""
+    ).lower()
+
+    sensitivity = str(
+        assessment.sensitivity or ""
+    ).lower()
+
+    score = int(
+        assessment.skin_health_score or 0
+    )
+
+
+    # =====================================================
+    # DEFAULT ROUTINE
+    # =====================================================
+
+    morning_routine = (
+        "Gentle Cleanser → Treatment → "
+        "Moisturizer → Sunscreen"
+    )
+
+    evening_routine = (
+        "Gentle Cleanser → Treatment → "
+        "Moisturizer → Night Care"
+    )
+
+
+    # =====================================================
+    # WEEKLY PLAN
+    # =====================================================
+
+    monday = "Hydration Care"
+
+    wednesday = "Skin Recovery"
+
+    friday = "Gentle Treatment"
+
+    sunday = "Skin Recovery"
+
+
+    # =====================================================
+    # SEASONAL
+    # =====================================================
+
+    seasonal_recommendation = (
+        "Stay hydrated and apply "
+        "broad-spectrum sunscreen regularly."
+    )
+
+
+    # =====================================================
+    # ROUTINE CATEGORIES
+    # =====================================================
+
+    cleansing = (
+        "Use a gentle cleanser to remove "
+        "dirt and excess oil."
+    )
+
+    exfoliation = (
+        "Use gentle exfoliation to remove "
+        "dead skin cells."
+    )
+
+    treatment = (
+        "Use targeted treatment based on "
+        "your skin concerns."
+    )
+
+    moisturizing = (
+        "Use a moisturizer to maintain "
+        "healthy skin hydration."
+    )
+
+    sun_protection = (
+        "Use broad-spectrum sunscreen daily."
+    )
+
+    night_care = (
+        "Support overnight skin recovery "
+        "with gentle skincare."
+    )
+
+
+    # =====================================================
+    # SKIN TYPE
+    # =====================================================
+
+    if "combination" in skin_type:
+
+        cleansing = (
+            "Use a gentle cleanser that removes "
+            "excess oil without drying the skin."
+        )
+
+        moisturizing = (
+            "Use a lightweight, non-comedogenic "
+            "moisturizer."
+        )
+
+        morning_routine = (
+            "Gentle Cleanser → Treatment → "
+            "Lightweight Moisturizer → Sunscreen"
+        )
+
+        evening_routine = (
+            "Gentle Cleanser → Treatment → "
+            "Lightweight Moisturizer → Night Care"
+        )
+
+
+    if "oily" in skin_type:
+
+        cleansing = (
+            "Use a gentle cleanser to control "
+            "excess oil without over-drying."
+        )
+
+        moisturizing = (
+            "Use a lightweight, oil-free, "
+            "non-comedogenic moisturizer."
+        )
+
+        morning_routine = (
+            "Gentle Cleanser → Treatment → "
+            "Oil-Free Moisturizer → Sunscreen"
+        )
+
+        evening_routine = (
+            "Gentle Cleanser → Treatment → "
+            "Lightweight Moisturizer → Night Care"
+        )
+
+
+    if "dry" in skin_type:
+
+        cleansing = (
+            "Use a gentle hydrating cleanser "
+            "to avoid stripping skin moisture."
+        )
+
+        moisturizing = (
+            "Use a richer moisturizer to support "
+            "the skin barrier."
+        )
+
+        morning_routine = (
+            "Gentle Cleanser → Hydrating Treatment → "
+            "Moisturizer → Sunscreen"
+        )
+
+        evening_routine = (
+            "Gentle Cleanser → Hydrating Serum → "
+            "Rich Moisturizer → Night Care"
+        )
+
+
+    # =====================================================
+    # ACNE
+    # =====================================================
+
+    has_acne = (
+        "acne" in main_concern
+        or "moderate" in acne_level
+        or "severe" in acne_level
+    )
+
+
+    if has_acne:
+
+        treatment = (
+            "Use a gentle acne-focused treatment "
+            "suitable for your skin."
+        )
+
+        monday = "Acne Care"
+
+        wednesday = "Hydration"
+
+        friday = "Acne Care"
+
+        sunday = "Skin Recovery"
+
+
+    # =====================================================
+    # PIGMENTATION
+    # =====================================================
+
+    has_pigmentation = (
+        "dark spot" in main_concern
+        or "pigmentation" in main_concern
+        or "mild" in pigmentation
+        or "moderate" in pigmentation
+    )
+
+
+    if has_pigmentation:
+
+        if has_acne:
+
+            treatment = (
+                "Use a gentle treatment targeting "
+                "acne and dark spots."
+            )
+
+            morning_routine = (
+                "Gentle Cleanser → Acne/Brightening "
+                "Treatment → Lightweight Moisturizer → "
+                "Sunscreen"
+            )
+
+            evening_routine = (
+                "Gentle Cleanser → Targeted Treatment → "
+                "Moisturizer → Night Care"
+            )
+
+        else:
+
+            treatment = (
+                "Use a gentle brightening treatment "
+                "for dark-spot care."
+            )
+
+            morning_routine = (
+                "Gentle Cleanser → Brightening Treatment → "
+                "Moisturizer → Sunscreen"
+            )
+
+            evening_routine = (
+                "Gentle Cleanser → Dark-Spot Treatment → "
+                "Moisturizer → Night Care"
+            )
+
+
+        monday = "Dark-Spot Care"
+
+        wednesday = "Hydration"
+
+        friday = "Gentle Treatment"
+
+        sunday = "Skin Recovery"
+
+
+    # =====================================================
+    # SENSITIVITY
+    # =====================================================
+
+    has_sensitivity = (
+        "moderate" in sensitivity
+        or "high" in sensitivity
+        or "severe" in sensitivity
+    )
+
+
+    if has_sensitivity:
+
+        cleansing = (
+            "Use a gentle, fragrance-free cleanser "
+            "suitable for sensitive skin."
+        )
+
+        exfoliation = (
+            "Avoid harsh scrubs and keep exfoliation "
+            "very gentle."
+        )
+
+        moisturizing = (
+            "Use a fragrance-free moisturizer to "
+            "support the skin barrier."
+        )
+
+        sun_protection = (
+            "Use gentle broad-spectrum sunscreen "
+            "every day."
+        )
+
+        night_care = (
+            "Use soothing, fragrance-free skincare "
+            "at night."
+        )
+
+        seasonal_recommendation = (
+            "Use gentle, fragrance-free skincare, "
+            "avoid harsh exfoliation, and use "
+            "sunscreen daily."
+        )
+
+
+        if has_acne and has_pigmentation:
+
+            morning_routine = (
+                "Gentle Cleanser → Gentle "
+                "Acne/Brightening Treatment → "
+                "Fragrance-Free Moisturizer → Sunscreen"
+            )
+
+            evening_routine = (
+                "Gentle Cleanser → Gentle Targeted "
+                "Treatment → Fragrance-Free "
+                "Moisturizer → Night Care"
+            )
+
+        elif has_acne:
+
+            morning_routine = (
+                "Gentle Cleanser → Gentle Acne "
+                "Treatment → Fragrance-Free "
+                "Moisturizer → Sunscreen"
+            )
+
+            evening_routine = (
+                "Gentle Cleanser → Gentle Acne "
+                "Treatment → Fragrance-Free "
+                "Moisturizer → Night Care"
+            )
+
+        elif has_pigmentation:
+
+            morning_routine = (
+                "Gentle Cleanser → Gentle Brightening "
+                "Treatment → Fragrance-Free "
+                "Moisturizer → Sunscreen"
+            )
+
+            evening_routine = (
+                "Gentle Cleanser → Gentle Dark-Spot "
+                "Treatment → Fragrance-Free "
+                "Moisturizer → Night Care"
+            )
+
+        else:
+
+            morning_routine = (
+                "Gentle Cleanser → Soothing Treatment → "
+                "Fragrance-Free Moisturizer → Sunscreen"
+            )
+
+            evening_routine = (
+                "Gentle Cleanser → Soothing Serum → "
+                "Fragrance-Free Moisturizer → Night Care"
+            )
+
+
+    # =====================================================
+    # LOW HYDRATION
+    # =====================================================
+
+    low_hydration = (
+        "low" in hydration
+        or "poor" in hydration
+        or "dehydrated" in hydration
+    )
+
+
+    if low_hydration:
+
+        moisturizing = (
+            "Use a hydrating moisturizer to support "
+            "moisture retention."
+        )
+
+        evening_routine = (
+            "Gentle Cleanser → Hydrating Serum → "
+            "Moisturizer → Night Care"
+        )
+
+        monday = "Deep Hydration"
+
+        wednesday = "Hydration Care"
+
+        friday = "Moisture Recovery"
+
+        sunday = "Skin Recovery"
+
+
+    # =====================================================
+    # LOW HEALTH SCORE
+    # =====================================================
+
+    if score < 60:
+
+        monday = "Skin Recovery"
+
+        wednesday = "Deep Hydration"
+
+        friday = "Gentle Treatment"
+
+        sunday = "Recovery"
+
+
+    # =====================================================
+    # RETURN COMPLETE ROUTINE
+    # =====================================================
+
+    return {
+
+        "morning_routine": morning_routine,
+
+        "evening_routine": evening_routine,
+
+        "monday": monday,
+
+        "wednesday": wednesday,
+
+        "friday": friday,
+
+        "sunday": sunday,
+
+        "seasonal_recommendation":
+            seasonal_recommendation,
+
+        "cleansing": cleansing,
+
+        "exfoliation": exfoliation,
+
+        "treatment": treatment,
+
+        "moisturizing": moisturizing,
+
+        "sun_protection": sun_protection,
+
+        "night_care": night_care
+
+    }
+
+
+# =========================================================
+# GET ROUTINE REPORT DATA
+# =========================================================
+
+@router.get("/routine")
+def get_routine_report(
+
+    db: Session = Depends(get_db),
+
+    current_user=Depends(get_current_user)
+
+):
+
+    user_id = current_user["id"]
+
+
+    assessment = db.query(
+        models.SkinAssessment
+    ).filter(
+        models.SkinAssessment.user_id == user_id
+    ).order_by(
+        models.SkinAssessment.id.desc()
+    ).first()
+
+
+    if not assessment:
+
+        return {
+
+            "report_type":
+                "Personalized Routine Report",
+
+            "user_id":
+                user_id,
+
+            "message":
+                "No skin assessment found."
+
+        }
+
+
+    routine = generate_routine_report(
+        assessment
+    )
+
+
+    return {
+
+        "report_type":
+            "Personalized Routine Report",
+
+        "user_id":
+            user_id,
+
+        "assessment_id":
+            assessment.id,
+
+        "skin_type":
+            assessment.skin_type,
+
+        "main_concern":
+            assessment.main_concern,
+
+        "routine":
+            routine
+
+    }
+
+
+# =========================================================
+# DOWNLOAD ROUTINE REPORT AS PDF
+# =========================================================
+
+@router.get("/routine/pdf")
+def download_routine_pdf(
+
+    db: Session = Depends(get_db),
+
+    current_user=Depends(get_current_user)
+
+):
+
+    user_id = current_user["id"]
+
+
+    assessment = db.query(
+        models.SkinAssessment
+    ).filter(
+        models.SkinAssessment.user_id == user_id
+    ).order_by(
+        models.SkinAssessment.id.desc()
+    ).first()
+
+
+    if not assessment:
+
+        return StreamingResponse(
+
+            BytesIO(
+                b"No skin assessment found."
+            ),
+
+            media_type="text/plain"
+
+        )
+
+
+    routine = generate_routine_report(
+        assessment
+    )
+
+
+    # =====================================================
+    # PDF BUFFER
+    # =====================================================
+
+    buffer = BytesIO()
+
+
+    document = SimpleDocTemplate(
+
+        buffer,
+
+        pagesize=A4,
+
+        rightMargin=40,
+
+        leftMargin=40,
+
+        topMargin=40,
+
+        bottomMargin=40
+
+    )
+
+
+    styles = getSampleStyleSheet()
+
+
+    title_style = ParagraphStyle(
+
+        "ReportTitle",
+
+        parent=styles["Title"],
+
+        fontSize=22,
+
+        leading=28,
+
+        alignment=TA_CENTER,
+
+        textColor=colors.HexColor("#19372a"),
+
+        spaceAfter=15
+
+    )
+
+
+    heading_style = ParagraphStyle(
+
+        "Heading",
+
+        parent=styles["Heading2"],
+
+        fontSize=14,
+
+        leading=18,
+
+        textColor=colors.HexColor("#31864a"),
+
+        spaceBefore=12,
+
+        spaceAfter=8
+
+    )
+
+
+    body_style = ParagraphStyle(
+
+        "Body",
+
+        parent=styles["BodyText"],
+
+        fontSize=10,
+
+        leading=16,
+
+        textColor=colors.HexColor("#4d5d54")
+
+    )
+
+
+    story = []
+
+
+    # =====================================================
+    # TITLE
+    # =====================================================
+
+    story.append(
+        Paragraph(
+            "SKIN AI",
+            title_style
+        )
+    )
+
+
+    story.append(
+        Paragraph(
+            "Personalized Skincare Routine Report",
+            heading_style
+        )
+    )
+
+
+    story.append(
+        Paragraph(
+            f"User ID: {user_id}",
+            body_style
+        )
+    )
+
+
+    story.append(
+        Paragraph(
+            f"Assessment ID: {assessment.id}",
+            body_style
+        )
+    )
+
+
+    story.append(
+        Paragraph(
+            f"Skin Type: "
+            f"{assessment.skin_type or 'Not available'}",
+            body_style
+        )
+    )
+
+
+    story.append(
+        Paragraph(
+            f"Primary Concern: "
+            f"{assessment.main_concern or 'Not available'}",
+            body_style
+        )
+    )
+
+
+    story.append(Spacer(1, 18))
+
+
+    # =====================================================
+    # MORNING ROUTINE
+    # =====================================================
+
+    story.append(
+        Paragraph(
+            "Morning Routine",
+            heading_style
+        )
+    )
+
+
+    story.append(
+        Paragraph(
+            routine["morning_routine"],
+            body_style
+        )
+    )
+
+
+    # =====================================================
+    # EVENING ROUTINE
+    # =====================================================
+
+    story.append(
+        Paragraph(
+            "Evening Routine",
+            heading_style
+        )
+    )
+
+
+    story.append(
+        Paragraph(
+            routine["evening_routine"],
+            body_style
+        )
+    )
+
+
+    # =====================================================
+    # WEEKLY PLAN
+    # =====================================================
+
+    story.append(
+        Paragraph(
+            "Weekly Skincare Plan",
+            heading_style
+        )
+    )
+
+
+    weekly_data = [
+
+        ["Day", "Recommended Care"],
+
+        ["Monday", routine["monday"]],
+
+        ["Wednesday", routine["wednesday"]],
+
+        ["Friday", routine["friday"]],
+
+        ["Sunday", routine["sunday"]]
+
+    ]
+
+
+    weekly_table = Table(
+
+        weekly_data,
+
+        colWidths=[100, 360]
+
+    )
+
+
+    weekly_table.setStyle(
+
+        TableStyle([
+
+            (
+                "BACKGROUND",
+                (0, 0),
+                (-1, 0),
+                colors.HexColor("#31864a")
+            ),
+
+            (
+                "TEXTCOLOR",
+                (0, 0),
+                (-1, 0),
+                colors.white
+            ),
+
+            (
+                "FONTNAME",
+                (0, 0),
+                (-1, 0),
+                "Helvetica-Bold"
+            ),
+
+            (
+                "GRID",
+                (0, 0),
+                (-1, -1),
+                0.5,
+                colors.HexColor("#dce9df")
+            ),
+
+            (
+                "VALIGN",
+                (0, 0),
+                (-1, -1),
+                "MIDDLE"
+            ),
+
+            (
+                "FONTNAME",
+                (0, 1),
+                (-1, -1),
+                "Helvetica"
+            ),
+
+            (
+                "FONTSIZE",
+                (0, 0),
+                (-1, -1),
+                9
+            ),
+
+            (
+                "ROWBACKGROUNDS",
+                (0, 1),
+                (-1, -1),
+                [
+                    colors.white,
+                    colors.HexColor("#f5faf7")
+                ]
+            )
+
+        ])
+
+    )
+
+
+    story.append(
+        weekly_table
+    )
+
+
+    story.append(Spacer(1, 18))
+
+
+    # =====================================================
+    # ROUTINE CATEGORIES
+    # =====================================================
+
+    story.append(
+        Paragraph(
+            "Routine Recommendations",
+            heading_style
+        )
+    )
+
+
+    category_data = [
+
+        ["Category", "Recommendation"],
+
+        [
+            "Cleansing",
+            routine["cleansing"]
+        ],
+
+        [
+            "Exfoliation",
+            routine["exfoliation"]
+        ],
+
+        [
+            "Treatment",
+            routine["treatment"]
+        ],
+
+        [
+            "Moisturizing",
+            routine["moisturizing"]
+        ],
+
+        [
+            "Sun Protection",
+            routine["sun_protection"]
+        ],
+
+        [
+            "Night Care",
+            routine["night_care"]
+        ]
+
+    ]
+
+
+    category_table = Table(
+
+        category_data,
+
+        colWidths=[110, 350]
+
+    )
+
+
+    category_table.setStyle(
+
+        TableStyle([
+
+            (
+                "BACKGROUND",
+                (0, 0),
+                (-1, 0),
+                colors.HexColor("#31864a")
+            ),
+
+            (
+                "TEXTCOLOR",
+                (0, 0),
+                (-1, 0),
+                colors.white
+            ),
+
+            (
+                "FONTNAME",
+                (0, 0),
+                (-1, 0),
+                "Helvetica-Bold"
+            ),
+
+            (
+                "GRID",
+                (0, 0),
+                (-1, -1),
+                0.5,
+                colors.HexColor("#dce9df")
+            ),
+
+            (
+                "VALIGN",
+                (0, 0),
+                (-1, -1),
+                "TOP"
+            ),
+
+            (
+                "FONTSIZE",
+                (0, 0),
+                (-1, -1),
+                8.5
+            ),
+
+            (
+                "ROWBACKGROUNDS",
+                (0, 1),
+                (-1, -1),
+                [
+                    colors.white,
+                    colors.HexColor("#f5faf7")
+                ]
+            )
+
+        ])
+
+    )
+
+
+    story.append(
+        category_table
+    )
+
+
+    story.append(Spacer(1, 18))
+
+
+    # =====================================================
+    # SEASONAL RECOMMENDATION
+    # =====================================================
+
+    story.append(
+        Paragraph(
+            "Seasonal Recommendation",
+            heading_style
+        )
+    )
+
+
+    story.append(
+        Paragraph(
+            routine["seasonal_recommendation"],
+            body_style
+        )
+    )
+
+
+    story.append(Spacer(1, 25))
+
+
+    story.append(
+        Paragraph(
+            "Generated by Skin AI • Personalized Skin Intelligence",
+            body_style
+        )
+    )
+
+
+    document.build(story)
+
+
+    buffer.seek(0)
+
+
+    return StreamingResponse(
+
+        buffer,
+
+        media_type="application/pdf",
+
+        headers={
+
+            "Content-Disposition":
+                "attachment; "
+                "filename=skin_routine_report.pdf"
+
+        }
+
+    )
+
+
+# =========================================================
+# DOWNLOAD ROUTINE REPORT AS EXCEL
+# =========================================================
+
+@router.get("/routine/excel")
+def download_routine_excel(
+
+    db: Session = Depends(get_db),
+
+    current_user=Depends(get_current_user)
+
+):
+
+    user_id = current_user["id"]
+
+
+    assessment = db.query(
+        models.SkinAssessment
+    ).filter(
+        models.SkinAssessment.user_id == user_id
+    ).order_by(
+        models.SkinAssessment.id.desc()
+    ).first()
+
+
+    if not assessment:
+
+        workbook = Workbook()
+
+        worksheet = workbook.active
+
+        worksheet.title = "Routine Report"
+
+        worksheet["A1"] = (
+            "No skin assessment found."
+        )
+
+        output = BytesIO()
+
+        workbook.save(output)
+
+        output.seek(0)
+
+        return StreamingResponse(
+
+            output,
+
+            media_type=(
+                "application/vnd.openxmlformats-officedocument."
+                "spreadsheetml.sheet"
+            ),
+
+            headers={
+
+                "Content-Disposition":
+                    "attachment; "
+                    "filename=skin_routine_report.xlsx"
+
+            }
+
+        )
+
+
+    routine = generate_routine_report(
+        assessment
+    )
+
+
+    # =====================================================
+    # WORKBOOK
+    # =====================================================
+
+    workbook = Workbook()
+
+
+    worksheet = workbook.active
+
+    worksheet.title = "Routine Report"
+
+
+    # =====================================================
+    # COLORS
+    # =====================================================
+
+    green_fill = PatternFill(
+        "solid",
+        fgColor="31864A"
+    )
+
+    light_green_fill = PatternFill(
+        "solid",
+        fgColor="F1F8F3"
+    )
+
+
+    white_font = Font(
+        color="FFFFFF",
+        bold=True
+    )
+
+
+    title_font = Font(
+        size=18,
+        bold=True,
+        color="19372A"
+    )
+
+
+    heading_font = Font(
+        size=12,
+        bold=True,
+        color="31864A"
+    )
+
+
+    normal_font = Font(
+        size=10,
+        color="40554A"
+    )
+
+
+    thin_border = Border(
+
+        left=Side(
+            style="thin",
+            color="DCE9DF"
+        ),
+
+        right=Side(
+            style="thin",
+            color="DCE9DF"
+        ),
+
+        top=Side(
+            style="thin",
+            color="DCE9DF"
+        ),
+
+        bottom=Side(
+            style="thin",
+            color="DCE9DF"
+        )
+
+    )
+
+
+    # =====================================================
+    # TITLE
+    # =====================================================
+
+    worksheet.merge_cells(
+        "A1:B1"
+    )
+
+    worksheet["A1"] = (
+        "SKIN AI - PERSONALIZED "
+        "SKINCARE ROUTINE REPORT"
+    )
+
+    worksheet["A1"].font = title_font
+
+    worksheet["A1"].alignment = Alignment(
+        horizontal="center"
+    )
+
+
+    # =====================================================
+    # USER INFORMATION
+    # =====================================================
+
+    worksheet["A3"] = "User ID"
+
+    worksheet["B3"] = user_id
+
+
+    worksheet["A4"] = "Assessment ID"
+
+    worksheet["B4"] = assessment.id
+
+
+    worksheet["A5"] = "Skin Type"
+
+    worksheet["B5"] = (
+        assessment.skin_type
+        or "Not available"
+    )
+
+
+    worksheet["A6"] = "Primary Concern"
+
+    worksheet["B6"] = (
+        assessment.main_concern
+        or "Not available"
+    )
+
+
+    for row in range(3, 7):
+
+        worksheet[f"A{row}"].font = heading_font
+
+        worksheet[f"B{row}"].font = normal_font
+
+
+    # =====================================================
+    # MORNING / EVENING
+    # =====================================================
+
+    worksheet["A8"] = "Morning Routine"
+
+    worksheet["A8"].font = heading_font
+
+    worksheet.merge_cells(
+        "A9:B9"
+    )
+
+    worksheet["A9"] = routine[
+        "morning_routine"
+    ]
+
+    worksheet["A9"].font = normal_font
+
+    worksheet["A9"].alignment = Alignment(
+        wrap_text=True
+    )
+
+
+    worksheet["A11"] = "Evening Routine"
+
+    worksheet["A11"].font = heading_font
+
+    worksheet.merge_cells(
+        "A12:B12"
+    )
+
+    worksheet["A12"] = routine[
+        "evening_routine"
+    ]
+
+    worksheet["A12"].font = normal_font
+
+    worksheet["A12"].alignment = Alignment(
+        wrap_text=True
+    )
+
+
+    # =====================================================
+    # WEEKLY PLAN
+    # =====================================================
+
+    worksheet["A14"] = "Weekly Skincare Plan"
+
+    worksheet["A14"].font = heading_font
+
+
+    weekly_start = 15
+
+
+    weekly_headers = [
+        "Day",
+        "Recommended Care"
+    ]
+
+
+    for col, value in enumerate(
+        weekly_headers,
+        start=1
+    ):
+
+        cell = worksheet.cell(
+            row=weekly_start,
+            column=col
+        )
+
+        cell.value = value
+
+        cell.fill = green_fill
+
+        cell.font = white_font
+
+        cell.alignment = Alignment(
+            horizontal="center"
+        )
+
+        cell.border = thin_border
+
+
+    weekly_rows = [
+
+        ["Monday", routine["monday"]],
+
+        ["Wednesday", routine["wednesday"]],
+
+        ["Friday", routine["friday"]],
+
+        ["Sunday", routine["sunday"]]
+
+    ]
+
+
+    for row_index, row_data in enumerate(
+
+        weekly_rows,
+
+        start=weekly_start + 1
+
+    ):
+
+        for col_index, value in enumerate(
+            row_data,
+            start=1
+        ):
+
+            cell = worksheet.cell(
+                row=row_index,
+                column=col_index
+            )
+
+            cell.value = value
+
+            cell.font = normal_font
+
+            cell.border = thin_border
+
+            cell.alignment = Alignment(
+                vertical="top",
+                wrap_text=True
+            )
+
+            if row_index % 2 == 0:
+
+                cell.fill = light_green_fill
+
+
+    # =====================================================
+    # ROUTINE CATEGORIES
+    # =====================================================
+
+    category_heading_row = (
+        weekly_start +
+        len(weekly_rows) +
+        3
+    )
+
+
+    worksheet.cell(
+        row=category_heading_row,
+        column=1
+    ).value = "Routine Recommendations"
+
+
+    worksheet.cell(
+        row=category_heading_row,
+        column=1
+    ).font = heading_font
+
+
+    category_start = (
+        category_heading_row + 1
+    )
+
+
+    category_headers = [
+        "Category",
+        "Recommendation"
+    ]
+
+
+    for col, value in enumerate(
+        category_headers,
+        start=1
+    ):
+
+        cell = worksheet.cell(
+            row=category_start,
+            column=col
+        )
+
+        cell.value = value
+
+        cell.fill = green_fill
+
+        cell.font = white_font
+
+        cell.alignment = Alignment(
+            horizontal="center"
+        )
+
+        cell.border = thin_border
+
+
+    categories = [
+
+        [
+            "Cleansing",
+            routine["cleansing"]
+        ],
+
+        [
+            "Exfoliation",
+            routine["exfoliation"]
+        ],
+
+        [
+            "Treatment",
+            routine["treatment"]
+        ],
+
+        [
+            "Moisturizing",
+            routine["moisturizing"]
+        ],
+
+        [
+            "Sun Protection",
+            routine["sun_protection"]
+        ],
+
+        [
+            "Night Care",
+            routine["night_care"]
+        ]
+
+    ]
+
+
+    for row_index, row_data in enumerate(
+
+        categories,
+
+        start=category_start + 1
+
+    ):
+
+        for col_index, value in enumerate(
+            row_data,
+            start=1
+        ):
+
+            cell = worksheet.cell(
+                row=row_index,
+                column=col_index
+            )
+
+            cell.value = value
+
+            cell.font = normal_font
+
+            cell.border = thin_border
+
+            cell.alignment = Alignment(
+                vertical="top",
+                wrap_text=True
+            )
+
+            if row_index % 2 == 0:
+
+                cell.fill = light_green_fill
+
+
+    # =====================================================
+    # SEASONAL
+    # =====================================================
+
+    seasonal_row = (
+        category_start +
+        len(categories) +
+        3
+    )
+
+
+    worksheet.cell(
+        row=seasonal_row,
+        column=1
+    ).value = "Seasonal Recommendation"
+
+
+    worksheet.cell(
+        row=seasonal_row,
+        column=1
+    ).font = heading_font
+
+
+    worksheet.merge_cells(
+
+        start_row=seasonal_row + 1,
+
+        start_column=1,
+
+        end_row=seasonal_row + 2,
+
+        end_column=2
+
+    )
+
+
+    worksheet.cell(
+        row=seasonal_row + 1,
+        column=1
+    ).value = routine[
+        "seasonal_recommendation"
+    ]
+
+
+    worksheet.cell(
+        row=seasonal_row + 1,
+        column=1
+    ).font = normal_font
+
+
+    worksheet.cell(
+        row=seasonal_row + 1,
+        column=1
+    ).alignment = Alignment(
+        wrap_text=True,
+        vertical="top"
+    )
+
+
+    # =====================================================
+    # COLUMN WIDTH
+    # =====================================================
+
+    worksheet.column_dimensions["A"].width = 24
+
+    worksheet.column_dimensions["B"].width = 75
+
+
+    # =====================================================
+    # FREEZE PANES
+    # =====================================================
+
+    worksheet.freeze_panes = "A15"
+
+
+    # =====================================================
+    # SAVE
+    # =====================================================
+
+    output = BytesIO()
+
+    workbook.save(output)
+
+    output.seek(0)
+
+
+    return StreamingResponse(
+
+        output,
+
+        media_type=(
+            "application/vnd.openxmlformats-officedocument."
+            "spreadsheetml.sheet"
+        ),
+
+        headers={
+
+            "Content-Disposition":
+                "attachment; "
+                "filename=skin_routine_report.xlsx"
+
+        }
+
+    )

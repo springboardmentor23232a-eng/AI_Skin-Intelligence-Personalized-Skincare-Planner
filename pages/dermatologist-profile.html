@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Skin AI | Dermatologist Overview</title>
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #f2f7f4;
+            color: #173b25;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 295px;
+            height: 100vh;
+            background: linear-gradient(
+                180deg,
+                #105323,
+                #1c7835,
+                #299343
+            );
+            color: white;
+            padding: 32px 22px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 10px;
+            margin-bottom: 38px;
+        }
+
+        .brand-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 14px;
+            background: rgba(255,255,255,.14);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .brand h2 {
+            margin: 0;
+            font-size: 26px;
+        }
+
+        .brand small {
+            font-size: 10px;
+            letter-spacing: 1px;
+            opacity: .75;
+        }
+
+        .menu-title {
+            font-size: 10px;
+            letter-spacing: 1.5px;
+            opacity: .55;
+            padding: 0 14px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar li {
+            margin-bottom: 7px;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 14px 15px;
+            border-radius: 13px;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: .25s;
+        }
+
+        .sidebar a:hover {
+            background: rgba(255,255,255,.12);
+            transform: translateX(3px);
+        }
+
+        .sidebar a.active {
+            background: rgba(255,255,255,.20);
+            box-shadow: inset 3px 0 0 white;
+        }
+
+        .sidebar i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* MAIN */
+
+        .main {
+            margin-left: 295px;
+            padding: 35px 45px 60px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 34px;
+        }
+
+        .header p {
+            margin: 7px 0 0;
+            color: #77857d;
+            font-size: 14px;
+        }
+
+        .date-badge {
+            background: white;
+            border: 1px solid #dce9df;
+            padding: 12px 17px;
+            border-radius: 14px;
+            color: #217738;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* DOCTOR */
+
+        .doctor-card {
+            background: linear-gradient(
+                135deg,
+                #17682e,
+                #319a4c
+            );
+            color: white;
+            border-radius: 25px;
+            padding: 28px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            box-shadow: 0 15px 35px rgba(25,100,45,.16);
+        }
+
+        .doctor-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .doctor-avatar {
+            width: 78px;
+            height: 78px;
+            border-radius: 22px;
+            background: rgba(255,255,255,.18);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 36px;
+        }
+
+        .doctor-card h2 {
+            margin: 0 0 5px;
+            font-size: 25px;
+        }
+
+        .doctor-card p {
+            margin: 4px 0;
+            opacity: .88;
+            font-size: 13px;
+        }
+
+        .status {
+            display: inline-block;
+            margin-top: 8px;
+            background: white;
+            color: #22803b;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .doctor-id {
+            text-align: right;
+        }
+
+        .doctor-id strong {
+            display: block;
+            font-size: 25px;
+        }
+
+        .doctor-id span {
+            font-size: 10px;
+            opacity: .75;
+        }
+
+        /* STATS */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 19px;
+            padding: 22px;
+            box-shadow: 0 7px 25px rgba(25,75,40,.06);
+            transition: .25s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .stat-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 13px;
+            background: #e7f6eb;
+            color: #23823c;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 19px;
+        }
+
+        .stat-card h3 {
+            margin: 14px 0 5px;
+            color: #728078;
+            font-size: 12px;
+        }
+
+        .stat-card strong {
+            font-size: 28px;
+            color: #1e7c38;
+        }
+
+        .stat-card p {
+            margin: 5px 0 0;
+            font-size: 10px;
+            color: #8a958f;
+        }
+
+        /* TWO COLUMN */
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1.35fr .65fr;
+            gap: 22px;
+            margin-bottom: 24px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 22px;
+            padding: 27px;
+            box-shadow: 0 7px 25px rgba(25,75,40,.06);
+        }
+
+        .panel-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .panel-title h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .panel-title span {
+            color: #87928b;
+            font-size: 10px;
+        }
+
+        /* APPOINTMENTS */
+
+        .appointment {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid #edf1ee;
+        }
+
+        .appointment:last-child {
+            border-bottom: none;
+        }
+
+        .time {
+            width: 70px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #23803b;
+        }
+
+        .patient-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: #e8f6eb;
+            color: #24813c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .appointment-info {
+            flex: 1;
+        }
+
+        .appointment-info strong {
+            display: block;
+            font-size: 13px;
+        }
+
+        .appointment-info span {
+            display: block;
+            color: #87928b;
+            font-size: 10px;
+            margin-top: 4px;
+        }
+
+        .appointment-status {
+            padding: 6px 9px;
+            border-radius: 15px;
+            font-size: 9px;
+            font-weight: bold;
+        }
+
+        .completed {
+            background: #e4f5e8;
+            color: #23803b;
+        }
+
+        .waiting {
+            background: #fff5df;
+            color: #a66a00;
+        }
+
+        .upcoming {
+            background: #e9f1fb;
+            color: #386b9f;
+        }
+
+        /* PATIENT OVERVIEW */
+
+        .patient-row {
+            margin-bottom: 19px;
+        }
+
+        .patient-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .patient-top {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 7px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .patient-top span:last-child {
+            color: #25813c;
+        }
+
+        .progress-bar {
+            height: 9px;
+            background: #e6eee8;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                #25833d,
+                #5abb70
+            );
+            border-radius: 20px;
+        }
+
+        /* BOTTOM CARDS */
+
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 20px;
+            padding: 23px;
+            box-shadow: 0 7px 25px rgba(25,75,40,.06);
+        }
+
+        .info-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 13px;
+            background: #e7f6eb;
+            color: #23813b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+        }
+
+        .info-card h3 {
+            margin: 0 0 6px;
+            font-size: 14px;
+        }
+
+        .info-card strong {
+            display: block;
+            font-size: 25px;
+            color: #21803a;
+        }
+
+        .info-card p {
+            margin: 6px 0 0;
+            color: #7d8982;
+            font-size: 10px;
+            line-height: 1.5;
+        }
+
+        /* FOOTER */
+
+        .footer {
+            text-align: center;
+            color: #89958e;
+            font-size: 10px;
+            margin-top: 30px;
+        }
+
+        @media(max-width:1150px) {
+
+            .stats {
+                grid-template-columns: repeat(2,1fr);
+            }
+
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+
+            .bottom-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+        @media(max-width:800px) {
+
+            .sidebar {
+                width: 220px;
+            }
+
+            .main {
+                margin-left: 220px;
+                padding: 25px;
+            }
+
+            .doctor-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+
+            .doctor-id {
+                text-align: left;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- SIDEBAR -->
+
+<div class="sidebar">
+
+    <div class="brand">
+
+        <div class="brand-icon">
+            <i class="fa-solid fa-leaf"></i>
+        </div>
+
+        <div>
+
+            <h2>Skin AI</h2>
+
+            <small>
+                DERMATOLOGIST PORTAL
+            </small>
+
+        </div>
+
+    </div>
+
+
+    <div class="menu-title">
+        CLINICAL WORKSPACE
+    </div>
+
+
+    <ul>
+
+        <li>
+            <a href="dermatologist-dashboard.html">
+                <i class="fa-solid fa-house"></i>
+                Dashboard
+            </a>
+        </li>
+
+        <li>
+            <a href="reports.html">
+                <i class="fa-solid fa-file-medical"></i>
+                Patient Reports
+            </a>
+        </li>
+
+        <li>
+            <a href="treatment-recommendations.html">
+                <i class="fa-solid fa-prescription-bottle-medical"></i>
+                Treatment Recommendations
+            </a>
+        </li>
+
+        <li>
+            <a href="dermatologist-progress.html">
+                <i class="fa-solid fa-chart-line"></i>
+                Progress Analytics
+            </a>
+        </li>
+
+        <li>
+            <a href="dermatologist-profile.html"
+               class="active">
+                <i class="fa-solid fa-user-doctor"></i>
+                Profile
+            </a>
+        </li>
+
+        <li>
+            <a href="../index.html">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                Logout
+            </a>
+        </li>
+
+    </ul>
+
+</div>
+
+
+<!-- MAIN -->
+
+<div class="main">
+
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <div>
+
+            <h1>
+                Dermatologist Overview
+            </h1>
+
+            <p>
+                Clinical workload, patient monitoring and today's appointments
+            </p>
+
+        </div>
+
+
+        <div class="date-badge">
+
+            <i class="fa-solid fa-calendar-day"></i>
+
+            Today • Clinical Overview
+
+        </div>
+
+    </div>
+
+
+    <!-- DOCTOR CARD -->
+
+    <div class="doctor-card">
+
+        <div class="doctor-left">
+
+            <div class="doctor-avatar">
+
+                <i class="fa-solid fa-user-doctor"></i>
+
+            </div>
+
+
+            <div>
+
+                <h2>
+                    Dermatologist
+                </h2>
+
+                <p>
+                    dermatologist@gmail.com
+                </p>
+
+                <p>
+                    Dermatology • Skin AI Clinical Portal
+                </p>
+
+                <span class="status">
+
+                    <i class="fa-solid fa-circle-check"></i>
+
+                    ACCOUNT ACTIVE
+
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="doctor-id">
+
+            <strong>
+                120
+            </strong>
+
+            <span>
+                PATIENTS MONITORED
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- STAT CARDS -->
+
+    <div class="stats">
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                <i class="fa-solid fa-users"></i>
+            </div>
+
+            <h3>
+                Total Patients
+            </h3>
+
+            <strong>
+                120
+            </strong>
+
+            <p>
+                Patients currently monitored
+            </p>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                <i class="fa-solid fa-calendar-check"></i>
+            </div>
+
+            <h3>
+                Today's Appointments
+            </h3>
+
+            <strong>
+                8
+            </strong>
+
+            <p>
+                Scheduled for today
+            </p>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+
+            <h3>
+                Completed
+            </h3>
+
+            <strong>
+                3
+            </strong>
+
+            <p>
+                Appointments completed today
+            </p>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                <i class="fa-solid fa-clock"></i>
+            </div>
+
+            <h3>
+                Remaining
+            </h3>
+
+            <strong>
+                5
+            </strong>
+
+            <p>
+                Appointments remaining today
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- APPOINTMENTS + PATIENT OVERVIEW -->
+
+    <div class="two-column">
+
+
+        <!-- APPOINTMENTS -->
+
+        <div class="panel">
+
+            <div class="panel-title">
+
+                <h2>
+                    Today's Appointments
+                </h2>
+
+                <span>
+                    8 total appointments
+                </span>
+
+            </div>
+
+
+            <div class="appointment">
+
+                <div class="time">
+                    09:00 AM
+                </div>
+
+                <div class="patient-avatar">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+
+                <div class="appointment-info">
+
+                    <strong>
+                        Priya Sharma
+                    </strong>
+
+                    <span>
+                        Acne & Dark Spots • #006
+                    </span>
+
+                </div>
+
+                <span class="appointment-status completed">
+                    COMPLETED
+                </span>
+
+            </div>
+
+
+            <div class="appointment">
+
+                <div class="time">
+                    10:00 AM
+                </div>
+
+                <div class="patient-avatar">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+
+                <div class="appointment-info">
+
+                    <strong>
+                        Anjali Reddy
+                    </strong>
+
+                    <span>
+                        Acne Management • #007
+                    </span>
+
+                </div>
+
+                <span class="appointment-status completed">
+                    COMPLETED
+                </span>
+
+            </div>
+
+
+            <div class="appointment">
+
+                <div class="time">
+                    11:30 AM
+                </div>
+
+                <div class="patient-avatar">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+
+                <div class="appointment-info">
+
+                    <strong>
+                        Rahul Kumar
+                    </strong>
+
+                    <span>
+                        Dryness & Pigmentation • #008
+                    </span>
+
+                </div>
+
+                <span class="appointment-status completed">
+                    COMPLETED
+                </span>
+
+            </div>
+
+
+            <div class="appointment">
+
+                <div class="time">
+                    01:00 PM
+                </div>
+
+                <div class="patient-avatar">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+
+                <div class="appointment-info">
+
+                    <strong>
+                        Sneha Patel
+                    </strong>
+
+                    <span>
+                        Preventive Skin Care • #009
+                    </span>
+
+                </div>
+
+                <span class="appointment-status waiting">
+                    WAITING
+                </span>
+
+            </div>
+
+
+            <div class="appointment">
+
+                <div class="time">
+                    02:30 PM
+                </div>
+
+                <div class="patient-avatar">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+
+                <div class="appointment-info">
+
+                    <strong>
+                        Arjun Mehta
+                    </strong>
+
+                    <span>
+                        Severe Acne • #010
+                    </span>
+
+                </div>
+
+                <span class="appointment-status upcoming">
+                    UPCOMING
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- PATIENT CONDITION -->
+
+        <div class="panel">
+
+            <div class="panel-title">
+
+                <h2>
+                    Patient Overview
+                </h2>
+
+                <span>
+                    Current cases
+                </span>
+
+            </div>
+
+
+            <div class="patient-row">
+
+                <div class="patient-top">
+
+                    <span>
+                        Patients Improving
+                    </span>
+
+                    <span>
+                        82%
+                    </span>
+
+                </div>
+
+                <div class="progress-bar">
+
+                    <div class="progress-fill"
+                         style="width:82%;">
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="patient-row">
+
+                <div class="patient-top">
+
+                    <span>
+                        Acne Cases
+                    </span>
+
+                    <span>
+                        72%
+                    </span>
+
+                </div>
+
+                <div class="progress-bar">
+
+                    <div class="progress-fill"
+                         style="width:72%;">
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="patient-row">
+
+                <div class="patient-top">
+
+                    <span>
+                        Pigmentation
+                    </span>
+
+                    <span>
+                        58%
+                    </span>
+
+                </div>
+
+                <div class="progress-bar">
+
+                    <div class="progress-fill"
+                         style="width:58%;">
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="patient-row">
+
+                <div class="patient-top">
+
+                    <span>
+                        Patients Needing Attention
+                    </span>
+
+                    <span>
+                        15
+                    </span>
+
+                </div>
+
+                <div class="progress-bar">
+
+                    <div class="progress-fill"
+                         style="width:35%;">
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- INFORMATION CARDS -->
+
+    <div class="bottom-grid">
+
+
+        <div class="info-card">
+
+            <div class="info-icon">
+
+                <i class="fa-solid fa-triangle-exclamation"></i>
+
+            </div>
+
+            <h3>
+                Patients Requiring Attention
+            </h3>
+
+            <strong>
+                15
+            </strong>
+
+            <p>
+                Patients requiring closer monitoring or follow-up.
+            </p>
+
+        </div>
+
+
+        <div class="info-card">
+
+            <div class="info-icon">
+
+                <i class="fa-solid fa-arrow-trend-up"></i>
+
+            </div>
+
+            <h3>
+                Patients Showing Improvement
+            </h3>
+
+            <strong>
+                82
+            </strong>
+
+            <p>
+                Patients currently showing positive skin progress.
+            </p>
+
+        </div>
+
+
+        <div class="info-card">
+
+            <div class="info-icon">
+
+                <i class="fa-solid fa-file-medical"></i>
+
+            </div>
+
+            <h3>
+                Reports Available
+            </h3>
+
+            <strong>
+                105
+            </strong>
+
+            <p>
+                Skin condition reports available for clinical review.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="footer">
+
+        Skin AI • Dermatologist Clinical Management Portal
+
+    </div>
+
+
+</div>
+
+
+</body>
+
+</html>

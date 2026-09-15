@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Skin AI | Progress Analytics</title>
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #f1f7f3;
+            color: #183a26;
+        }
+
+        /* ================= SIDEBAR ================= */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 283px;
+            height: 100vh;
+            background: linear-gradient(180deg, #104f24, #207b36, #2d9345);
+            color: white;
+            padding: 32px 22px;
+            z-index: 10;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 8px;
+            margin-bottom: 38px;
+        }
+
+        .brand-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 21px;
+        }
+
+        .brand h2 {
+            margin: 0;
+            font-size: 25px;
+        }
+
+        .brand small {
+            display: block;
+            opacity: .7;
+            margin-top: 3px;
+            font-size: 11px;
+        }
+
+        .menu-title {
+            font-size: 10px;
+            letter-spacing: 1.5px;
+            opacity: .55;
+            padding: 0 14px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar li {
+            margin-bottom: 7px;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 14px 15px;
+            border-radius: 13px;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: .25s;
+        }
+
+        .sidebar a:hover {
+            background: rgba(255,255,255,.12);
+            transform: translateX(3px);
+        }
+
+        .sidebar a.active {
+            background: white;
+            color: #187034;
+            box-shadow: 0 8px 20px rgba(0,0,0,.12);
+        }
+
+        .sidebar i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* ================= MAIN ================= */
+
+        .main {
+            margin-left: 283px;
+            padding: 35px 45px 60px;
+        }
+
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .heading h1 {
+            margin: 0;
+            font-size: 34px;
+            letter-spacing: -.5px;
+        }
+
+        .heading p {
+            margin: 7px 0 0;
+            color: #738279;
+            font-size: 14px;
+        }
+
+        .ai-badge {
+            background: white;
+            border: 1px solid #dbe9df;
+            padding: 11px 17px;
+            border-radius: 30px;
+            color: #23783a;
+            font-size: 13px;
+            font-weight: 700;
+            box-shadow: 0 5px 18px rgba(30,80,45,.06);
+        }
+
+        /* ================= PATIENT SELECTOR ================= */
+
+        .selector {
+            background: white;
+            border-radius: 20px;
+            padding: 19px 22px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 7px 25px rgba(25,75,40,.06);
+        }
+
+        .selector-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: #e5f5e9;
+            color: #23813b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .selector-text {
+            flex: 1;
+        }
+
+        .selector-text strong {
+            display: block;
+            font-size: 14px;
+        }
+
+        .selector-text span {
+            color: #849188;
+            font-size: 12px;
+        }
+
+        #patientSelect {
+            width: 330px;
+            padding: 13px 15px;
+            border: 2px solid #dce9df;
+            border-radius: 12px;
+            background: #fbfdfb;
+            color: #183a26;
+            font-size: 14px;
+            outline: none;
+        }
+
+        #patientSelect:focus {
+            border-color: #35a451;
+        }
+
+        /* ================= PATIENT HERO ================= */
+
+        .patient-hero {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #17672d, #31994b);
+            border-radius: 25px;
+            padding: 30px 34px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            box-shadow: 0 15px 35px rgba(25,100,45,.20);
+        }
+
+        .patient-hero::after {
+            content: "";
+            position: absolute;
+            width: 260px;
+            height: 260px;
+            border: 35px solid rgba(255,255,255,.06);
+            border-radius: 50%;
+            right: 120px;
+            top: -150px;
+        }
+
+        .patient-left {
+            position: relative;
+            z-index: 2;
+        }
+
+        .patient-tag {
+            display: inline-block;
+            background: rgba(255,255,255,.14);
+            padding: 6px 11px;
+            border-radius: 20px;
+            font-size: 11px;
+            margin-bottom: 10px;
+        }
+
+        .patient-left h2 {
+            margin: 0 0 7px;
+            font-size: 29px;
+        }
+
+        .patient-left p {
+            margin: 5px 0;
+            font-size: 14px;
+            opacity: .9;
+        }
+
+        .patient-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            margin-top: 12px;
+            background: white;
+            color: #21813a;
+            padding: 7px 13px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .patient-status i {
+            font-size: 7px;
+        }
+
+        .score-area {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .score-ring {
+            width: 115px;
+            height: 115px;
+            border-radius: 50%;
+            border: 8px solid rgba(255,255,255,.35);
+            outline: 2px solid rgba(255,255,255,.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 800;
+        }
+
+        .score-label {
+            margin-top: 8px;
+            font-size: 10px;
+            opacity: .75;
+            letter-spacing: 1px;
+        }
+
+        /* ================= SUMMARY ================= */
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 17px;
+            margin-bottom: 25px;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 19px;
+            padding: 22px;
+            box-shadow: 0 7px 25px rgba(25,75,40,.06);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-card::after {
+            content: "";
+            position: absolute;
+            right: -25px;
+            bottom: -30px;
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: #eef8f1;
+        }
+
+        .card-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            background: #eaf7ed;
+            color: #24823d;
+        }
+
+        .summary-card h3 {
+            margin: 0;
+            font-size: 13px;
+            color: #68776e;
+        }
+
+        .summary-value {
+            font-size: 27px;
+            font-weight: 800;
+            color: #1d8138;
+            margin-top: 7px;
+        }
+
+        .summary-card p {
+            margin: 5px 0 0;
+            color: #8a968f;
+            font-size: 11px;
+        }
+
+        /* ================= TWO COLUMN ================= */
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 22px;
+            margin-bottom: 22px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 22px;
+            padding: 26px;
+            box-shadow: 0 7px 25px rgba(25,75,40,.06);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+        }
+
+        .panel-header h2 {
+            margin: 0;
+            font-size: 19px;
+        }
+
+        .panel-header span {
+            font-size: 11px;
+            color: #8a968f;
+        }
+
+        /* METRICS */
+
+        .metric {
+            margin-bottom: 21px;
+        }
+
+        .metric:last-child {
+            margin-bottom: 0;
+        }
+
+        .metric-title {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .metric-title span:last-child {
+            color: #23823c;
+        }
+
+        .progress-bg {
+            height: 10px;
+            background: #e8f0ea;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #23823b, #55b66b);
+            border-radius: 20px;
+            transition: width .5s ease;
+        }
+
+        /* ================= ROUTINE ================= */
+
+        .routine-circle-area {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .routine-circle {
+            width: 125px;
+            height: 125px;
+            border-radius: 50%;
+            background: conic-gradient(#278b40 0deg, #278b40 180deg, #e7efe9 180deg, #e7efe9 360deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .routine-inner {
+            width: 94px;
+            height: 94px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .routine-inner strong {
+            font-size: 24px;
+            color: #21823a;
+        }
+
+        .routine-inner span {
+            font-size: 9px;
+            color: #8a968f;
+        }
+
+        .routine-info p {
+            margin: 8px 0;
+            font-size: 12px;
+            color: #65736b;
+        }
+
+        .routine-info i {
+            color: #2a9143;
+            margin-right: 7px;
+        }
+
+        /* ================= BEFORE AFTER ================= */
+
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .compare-box {
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            background: #f6faf7;
+            border: 1px solid #e1ece4;
+        }
+
+        .compare-box.current {
+            background: #eaf7ed;
+            border-color: #cde6d3;
+        }
+
+        .compare-box small {
+            color: #7c8981;
+            font-size: 11px;
+        }
+
+        .compare-score {
+            font-size: 31px;
+            font-weight: 800;
+            margin: 7px 0;
+            color: #587063;
+        }
+
+        .current .compare-score {
+            color: #21813a;
+        }
+
+        .compare-box span {
+            font-size: 11px;
+            color: #7d8b83;
+        }
+
+        .improvement-pill {
+            margin-top: 15px;
+            display: inline-block;
+            padding: 6px 11px;
+            background: #dff2e3;
+            color: #237c39;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        /* ================= AI INSIGHT ================= */
+
+        .ai-panel {
+            background: linear-gradient(135deg, #edf8f0, #f9fcfa);
+            border: 1px solid #d5eadb;
+            border-radius: 22px;
+            padding: 26px;
+            margin-bottom: 22px;
+            display: flex;
+            gap: 18px;
+            align-items: flex-start;
+        }
+
+        .ai-icon {
+            width: 48px;
+            height: 48px;
+            background: #25863d;
+            color: white;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .ai-panel h2 {
+            margin: 0 0 7px;
+            font-size: 18px;
+        }
+
+        .ai-panel p {
+            margin: 0;
+            line-height: 1.7;
+            color: #64736a;
+            font-size: 13px;
+        }
+
+        /* ================= TIMELINE ================= */
+
+        .timeline {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .timeline-item {
+            position: relative;
+            background: #f7faf8;
+            border: 1px solid #e2ece5;
+            border-radius: 15px;
+            padding: 17px;
+        }
+
+        .timeline-dot {
+            width: 12px;
+            height: 12px;
+            background: #278a40;
+            border-radius: 50%;
+            margin-bottom: 12px;
+            box-shadow: 0 0 0 5px #e4f3e8;
+        }
+
+        .timeline-item strong {
+            display: block;
+            font-size: 12px;
+        }
+
+        .timeline-item span {
+            display: block;
+            margin-top: 5px;
+            color: #87938c;
+            font-size: 10px;
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media(max-width:1200px) {
+
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+        }
+
+        @media(max-width:850px) {
+
+            .sidebar {
+                width: 220px;
+            }
+
+            .main {
+                margin-left: 220px;
+                padding: 25px;
+            }
+
+            .selector {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            #patientSelect {
+                width: 100%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- ================= SIDEBAR ================= -->
+
+<div class="sidebar">
+
+    <div class="brand">
+
+        <div class="brand-icon">
+            <i class="fa-solid fa-leaf"></i>
+        </div>
+
+        <div>
+            <h2>Skin AI</h2>
+            <small>Dermatologist Portal</small>
+        </div>
+
+    </div>
+
+
+    <div class="menu-title">
+        CLINICAL WORKSPACE
+    </div>
+
+
+    <ul>
+
+        <li>
+            <a href="dermatologist-dashboard.html">
+                <i class="fa-solid fa-house"></i>
+                Dashboard
+            </a>
+        </li>
+
+        <li>
+            <a href="reports.html">
+                <i class="fa-solid fa-file-medical"></i>
+                Skin Condition Reports
+            </a>
+        </li>
+
+        <li>
+            <a href="treatment-recommendations.html">
+                <i class="fa-solid fa-prescription-bottle-medical"></i>
+                Treatment Recommendations
+            </a>
+        </li>
+
+        <li>
+            <a href="dermatologist-progress.html"
+               class="active">
+                <i class="fa-solid fa-chart-line"></i>
+                Progress Analytics
+            </a>
+        </li>
+
+        <li>
+            <a href="profile.html">
+                <i class="fa-solid fa-user-doctor"></i>
+                Profile
+            </a>
+        </li>
+
+        <li>
+            <a href="../index.html">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                Logout
+            </a>
+        </li>
+
+    </ul>
+
+</div>
+
+
+<!-- ================= MAIN ================= -->
+
+<div class="main">
+
+
+    <!-- HEADER -->
+
+    <div class="top-header">
+
+        <div class="heading">
+
+            <h1>
+                Progress Analytics
+            </h1>
+
+            <p>
+                AI-powered patient improvement and treatment monitoring
+            </p>
+
+        </div>
+
+        <div class="ai-badge">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            AI Clinical Insights
+        </div>
+
+    </div>
+
+
+    <!-- ================= PATIENT SELECTOR ================= -->
+
+    <div class="selector">
+
+        <div class="selector-icon">
+            <i class="fa-solid fa-user-group"></i>
+        </div>
+
+        <div class="selector-text">
+
+            <strong>Select Patient</strong>
+
+            <span>
+                View individual skin progress and treatment analytics
+            </span>
+
+        </div>
+
+
+        <select id="patientSelect">
+
+            <option value="priya">
+                Priya Sharma — #006
+            </option>
+
+            <option value="anjali">
+                Anjali Reddy — #007
+            </option>
+
+            <option value="rahul">
+                Rahul Kumar — #008
+            </option>
+
+            <option value="sneha">
+                Sneha Patel — #009
+            </option>
+
+            <option value="arjun">
+                Arjun Verma — #010
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <!-- ================= PATIENT HERO ================= -->
+
+    <div class="patient-hero">
+
+        <div class="patient-left">
+
+            <span class="patient-tag">
+                <i class="fa-solid fa-user-doctor"></i>
+                PATIENT ANALYTICS
+            </span>
+
+            <h2 id="patientName">
+                Priya Sharma
+            </h2>
+
+            <p id="patientId">
+                Patient ID: #006
+            </p>
+
+            <p id="patientDetails">
+                Combination Skin • Acne & Dark Spots
+            </p>
+
+            <span class="patient-status"
+                  id="patientStatus">
+
+                <i class="fa-solid fa-circle"></i>
+                Improving
+
+            </span>
+
+        </div>
+
+
+        <div class="score-area">
+
+            <div class="score-ring"
+                 id="scoreCircle">
+
+                94
+
+            </div>
+
+            <div class="score-label">
+                CURRENT SKIN SCORE
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= SUMMARY ================= -->
+
+    <div class="summary-grid">
+
+
+        <div class="summary-card">
+
+            <div class="card-icon">
+                <i class="fa-solid fa-heart-pulse"></i>
+            </div>
+
+            <h3>
+                Current Skin Score
+            </h3>
+
+            <div class="summary-value"
+                 id="currentScore">
+                94%
+            </div>
+
+            <p id="scoreDescription">
+                Excellent current condition
+            </p>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="card-icon">
+                <i class="fa-solid fa-arrow-trend-up"></i>
+            </div>
+
+            <h3>
+                Improvement
+            </h3>
+
+            <div class="summary-value"
+                 id="improvement">
+                +8.05%
+            </div>
+
+            <p>
+                Since previous assessment
+            </p>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="card-icon">
+                <i class="fa-solid fa-calendar-check"></i>
+            </div>
+
+            <h3>
+                Routine Adherence
+            </h3>
+
+            <div class="summary-value"
+                 id="routine">
+                50%
+            </div>
+
+            <p id="routineDescription">
+                3 of 6 steps completed
+            </p>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="card-icon">
+                <i class="fa-solid fa-droplet"></i>
+            </div>
+
+            <h3>
+                Hydration
+            </h3>
+
+            <div class="summary-value"
+                 id="hydrationCard">
+                90%
+            </div>
+
+            <p>
+                Current hydration level
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= ANALYTICS + ROUTINE ================= -->
+
+    <div class="two-column">
+
+
+        <!-- SKIN METRICS -->
+
+        <div class="panel">
+
+            <div class="panel-header">
+
+                <h2>
+                    Skin Improvement Analysis
+                </h2>
+
+                <span>
+                    Current assessment
+                </span>
+
+            </div>
+
+
+            <div class="metric">
+
+                <div class="metric-title">
+                    <span>Skin Health</span>
+                    <span id="healthValue">94%</span>
+                </div>
+
+                <div class="progress-bg">
+
+                    <div class="progress-fill"
+                         id="healthBar"
+                         style="width:94%;">
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="metric">
+
+                <div class="metric-title">
+                    <span>Hydration</span>
+                    <span id="hydrationValue">90%</span>
+                </div>
+
+                <div class="progress-bg">
+
+                    <div class="progress-fill"
+                         id="hydrationBar"
+                         style="width:90%;">
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="metric">
+
+                <div class="metric-title">
+                    <span>Skin Texture</span>
+                    <span id="textureValue">90%</span>
+                </div>
+
+                <div class="progress-bg">
+
+                    <div class="progress-fill"
+                         id="textureBar"
+                         style="width:90%;">
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="metric">
+
+                <div class="metric-title">
+                    <span>Skin Clarity</span>
+                    <span id="clarityValue">85%</span>
+                </div>
+
+                <div class="progress-bg">
+
+                    <div class="progress-fill"
+                         id="clarityBar"
+                         style="width:85%;">
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ROUTINE -->
+
+        <div class="panel">
+
+            <div class="panel-header">
+
+                <h2>
+                    Routine Adherence
+                </h2>
+
+                <span>
+                    Treatment consistency
+                </span>
+
+            </div>
+
+
+            <div class="routine-circle-area">
+
+                <div class="routine-circle"
+                     id="routineCircle">
+
+                    <div class="routine-inner">
+
+                        <strong id="routineCircleValue">
+                            50%
+                        </strong>
+
+                        <span>
+                            COMPLETED
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="routine-info">
+
+                    <p>
+                        <i class="fa-solid fa-check"></i>
+                        Morning routine
+                    </p>
+
+                    <p>
+                        <i class="fa-solid fa-check"></i>
+                        Evening routine
+                    </p>
+
+                    <p>
+                        <i class="fa-solid fa-check"></i>
+                        Sunscreen usage
+                    </p>
+
+                    <p>
+                        <i class="fa-solid fa-clock"></i>
+                        Consistency can improve
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= BEFORE / CURRENT ================= -->
+
+    <div class="panel"
+         style="margin-bottom:22px;">
+
+        <div class="panel-header">
+
+            <h2>
+                Before vs Current
+            </h2>
+
+            <span>
+                Skin improvement comparison
+            </span>
+
+        </div>
+
+
+        <div class="comparison">
+
+            <div class="compare-box">
+
+                <small>
+                    PREVIOUS ASSESSMENT
+                </small>
+
+                <div class="compare-score"
+                     id="previousScore">
+                    87%
+                </div>
+
+                <span>
+                    Previous skin condition
+                </span>
+
+            </div>
+
+
+            <div class="compare-box current">
+
+                <small>
+                    CURRENT ASSESSMENT
+                </small>
+
+                <div class="compare-score"
+                     id="comparisonCurrent">
+                    94%
+                </div>
+
+                <span>
+                    Current skin condition
+                </span>
+
+                <div class="improvement-pill"
+                     id="comparisonImprovement">
+
+                    +8.05% improvement
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= AI INSIGHT ================= -->
+
+    <div class="ai-panel">
+
+        <div class="ai-icon">
+            <i class="fa-solid fa-brain"></i>
+        </div>
+
+        <div>
+
+            <h2>
+                AI Progress Insight
+            </h2>
+
+            <p id="insightText">
+
+                Priya Sharma is showing positive skin improvement.
+                Continue the current skincare routine and maintain
+                consistent sunscreen and hydration.
+
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= TIMELINE ================= -->
+
+    <div class="panel">
+
+        <div class="panel-header">
+
+            <h2>
+                Treatment Progress Timeline
+            </h2>
+
+            <span>
+                Patient journey
+            </span>
+
+        </div>
+
+
+        <div class="timeline">
+
+
+            <div class="timeline-item">
+
+                <div class="timeline-dot"></div>
+
+                <strong>
+                    Initial Assessment
+                </strong>
+
+                <span>
+                    Baseline skin analysis
+                </span>
+
+            </div>
+
+
+            <div class="timeline-item">
+
+                <div class="timeline-dot"></div>
+
+                <strong>
+                    Routine Started
+                </strong>
+
+                <span>
+                    Personalized treatment plan
+                </span>
+
+            </div>
+
+
+            <div class="timeline-item">
+
+                <div class="timeline-dot"></div>
+
+                <strong>
+                    Progress Review
+                </strong>
+
+                <span>
+                    Skin improvement evaluated
+                </span>
+
+            </div>
+
+
+            <div class="timeline-item">
+
+                <div class="timeline-dot"></div>
+
+                <strong>
+                    Current Status
+                </strong>
+
+                <span id="timelineStatus">
+                    Positive improvement
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+<!-- ================= JAVASCRIPT ================= -->
+
+<script>
+
+
+const patients = {
+
+
+    priya: {
+
+        name: "Priya Sharma",
+
+        id: "#006",
+
+        details: "Combination Skin • Acne & Dark Spots",
+
+        status: "Improving",
+
+        score: 94,
+
+        previous: 87,
+
+        improvement: "+8.05%",
+
+        routine: 50,
+
+        routineText: "3 of 6 steps completed",
+
+        hydration: 90,
+
+        texture: 90,
+
+        clarity: 85,
+
+        description: "Excellent current condition",
+
+        insight:
+            "Priya Sharma is showing positive skin improvement. Continue the current skincare routine and maintain consistent sunscreen and hydration."
+
+    },
+
+
+    anjali: {
+
+        name: "Anjali Reddy",
+
+        id: "#007",
+
+        details: "Oily Skin • Acne",
+
+        status: "Improving",
+
+        score: 88,
+
+        previous: 81,
+
+        improvement: "+8.64%",
+
+        routine: 83,
+
+        routineText: "5 of 6 steps completed",
+
+        hydration: 92,
+
+        texture: 90,
+
+        clarity: 88,
+
+        description: "Healthy improvement observed",
+
+        insight:
+            "Anjali Reddy is showing good improvement in overall skin health. Acne activity is reducing and routine adherence is strong. Continue the current treatment plan."
+
+    },
+
+
+    rahul: {
+
+        name: "Rahul Kumar",
+
+        id: "#008",
+
+        details: "Dry Skin • Dehydration",
+
+        status: "Improving",
+
+        score: 76,
+
+        previous: 69,
+
+        improvement: "+10.14%",
+
+        routine: 67,
+
+        routineText: "4 of 6 steps completed",
+
+        hydration: 72,
+
+        texture: 75,
+
+        clarity: 78,
+
+        description: "Moderate improvement observed",
+
+        insight:
+            "Rahul Kumar is showing gradual improvement. Hydration remains the main focus. Consistent moisturizer use and adequate water intake are recommended."
+
+    },
+
+
+    sneha: {
+
+        name: "Sneha Patel",
+
+        id: "#009",
+
+        details: "Combination Skin • Pigmentation",
+
+        status: "Stable",
+
+        score: 84,
+
+        previous: 83,
+
+        improvement: "+1.20%",
+
+        routine: 67,
+
+        routineText: "4 of 6 steps completed",
+
+        hydration: 88,
+
+        texture: 84,
+
+        clarity: 80,
+
+        description: "Stable skin condition",
+
+        insight:
+            "Sneha Patel's skin condition is stable with mild improvement. Continue sunscreen protection and maintain the recommended skincare routine."
+
+    },
+
+
+    arjun: {
+
+        name: "Arjun Verma",
+
+        id: "#010",
+
+        details: "Normal Skin • Mild Redness",
+
+        status: "Improving",
+
+        score: 91,
+
+        previous: 85,
+
+        improvement: "+7.06%",
+
+        routine: 100,
+
+        routineText: "6 of 6 steps completed",
+
+        hydration: 94,
+
+        texture: 91,
+
+        clarity: 90,
+
+        description: "Excellent improvement observed",
+
+        insight:
+            "Arjun Verma is showing excellent progress. Strong routine adherence is supporting improvements in hydration, texture and overall skin health."
+
+    }
+
+};
+
+
+const select =
+    document.getElementById("patientSelect");
+
+
+function loadPatient(key) {
+
+    const patient = patients[key];
+
+    if (!patient) return;
+
+
+    /* PATIENT */
+
+    document.getElementById("patientName").textContent =
+        patient.name;
+
+    document.getElementById("patientId").textContent =
+        "Patient ID: " + patient.id;
+
+    document.getElementById("patientDetails").textContent =
+        patient.details;
+
+    document.getElementById("patientStatus").innerHTML =
+        '<i class="fa-solid fa-circle"></i> ' +
+        patient.status;
+
+
+    /* SCORE */
+
+    document.getElementById("scoreCircle").textContent =
+        patient.score;
+
+    document.getElementById("currentScore").textContent =
+        patient.score + "%";
+
+    document.getElementById("previousScore").textContent =
+        patient.previous + "%";
+
+    document.getElementById("comparisonCurrent").textContent =
+        patient.score + "%";
+
+
+    /* IMPROVEMENT */
+
+    document.getElementById("improvement").textContent =
+        patient.improvement;
+
+    document.getElementById("comparisonImprovement").textContent =
+        patient.improvement + " improvement";
+
+
+    /* ROUTINE */
+
+    document.getElementById("routine").textContent =
+        patient.routine + "%";
+
+    document.getElementById("routineCircleValue").textContent =
+        patient.routine + "%";
+
+    document.getElementById("routineDescription").textContent =
+        patient.routineText;
+
+
+    /* ROUTINE CIRCLE */
+
+    document.getElementById("routineCircle").style.background =
+        `conic-gradient(
+            #278b40 0deg,
+            #278b40 ${patient.routine * 3.6}deg,
+            #e7efe9 ${patient.routine * 3.6}deg,
+            #e7efe9 360deg
+        )`;
+
+
+    /* HYDRATION */
+
+    document.getElementById("hydrationCard").textContent =
+        patient.hydration + "%";
+
+
+    /* DESCRIPTION */
+
+    document.getElementById("scoreDescription").textContent =
+        patient.description;
+
+
+    /* METRICS */
+
+    document.getElementById("healthValue").textContent =
+        patient.score + "%";
+
+    document.getElementById("healthBar").style.width =
+        patient.score + "%";
+
+
+    document.getElementById("hydrationValue").textContent =
+        patient.hydration + "%";
+
+    document.getElementById("hydrationBar").style.width =
+        patient.hydration + "%";
+
+
+    document.getElementById("textureValue").textContent =
+        patient.texture + "%";
+
+    document.getElementById("textureBar").style.width =
+        patient.texture + "%";
+
+
+    document.getElementById("clarityValue").textContent =
+        patient.clarity + "%";
+
+    document.getElementById("clarityBar").style.width =
+        patient.clarity + "%";
+
+
+    /* AI */
+
+    document.getElementById("insightText").textContent =
+        patient.insight;
+
+
+    /* TIMELINE */
+
+    document.getElementById("timelineStatus").textContent =
+        patient.status + " — Continue monitoring";
+
+
+    /* SAVE PATIENT */
+
+    localStorage.setItem(
+        "selectedDermatologistPatient",
+        key
+    );
+
+}
+
+
+/* CHANGE PATIENT */
+
+select.addEventListener(
+    "change",
+    function () {
+
+        loadPatient(this.value);
+
+    }
+);
+
+
+/* LOAD SAVED PATIENT */
+
+const savedPatient =
+    localStorage.getItem(
+        "selectedDermatologistPatient"
+    );
+
+
+if (
+    savedPatient &&
+    patients[savedPatient]
+) {
+
+    select.value = savedPatient;
+
+    loadPatient(savedPatient);
+
+} else {
+
+    loadPatient("priya");
+
+}
+
+
+</script>
+
+
+</body>
+
+</html>

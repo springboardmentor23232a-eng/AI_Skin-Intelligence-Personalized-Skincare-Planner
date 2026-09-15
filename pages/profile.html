@@ -1,619 +1,999 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-```
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skin AI | My Profile</title>
 
-<title>Skin AI | My Profile</title>
+    <link rel="stylesheet" href="../css/dashboard.css">
 
-<link rel="stylesheet" href="../css/dashboard.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet">
-
-<link rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-```
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
 </head>
 
 <body>
 
-```
-<!-- ==========================================
-     SIDEBAR
-=========================================== -->
+    <!-- ==========================================
+         SIDEBAR
+    =========================================== -->
 
-<aside class="sidebar">
+    <aside class="sidebar">
 
-    <div class="brand">
+        <div class="brand">
 
-        <div class="brand-icon">
-            <i class="fa-solid fa-leaf"></i>
+            <div class="brand-icon">
+                <i class="fa-solid fa-leaf"></i>
+            </div>
+
+            <div>
+                <h2>Skin AI</h2>
+                <span>Intelligence Platform</span>
+            </div>
+
         </div>
 
-        <div>
-            <h2>Skin AI</h2>
-            <span>Intelligence Platform</span>
-        </div>
 
-    </div>
+        <nav>
+
+            <p class="nav-title">
+                MAIN MENU
+            </p>
 
 
-    <nav>
+            <ul>
 
-        <p class="nav-title">MAIN MENU</p>
+                <!-- DASHBOARD -->
 
-        <ul>
+                <li>
+                    <a href="user-dashboard.html">
 
-            <li>
-                <a href="user-dashboard.html">
-                    <i class="fa-solid fa-house"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
+                        <i class="fa-solid fa-house"></i>
 
-            <li>
-                <a href="profile.html" class="active">
+                        <span>
+                            Dashboard
+                        </span>
+
+                    </a>
+                </li>
+
+
+                <!-- PROFILE -->
+
+                <li>
+                    <a href="profile.html" class="active">
+
+                        <i class="fa-solid fa-user"></i>
+
+                        <span>
+                            Profile
+                        </span>
+
+                    </a>
+                </li>
+
+
+                <!-- SKIN ASSESSMENT -->
+
+                <li>
+                    <a href="assessment.html">
+
+                        <i class="fa-solid fa-camera"></i>
+
+                        <span>
+                            Skin Assessment
+                        </span>
+
+                    </a>
+                </li>
+
+
+                <!-- ADAPTIVE ROUTINE -->
+
+                <li>
+                    <a href="adaptive-routine.html">
+
+                        <i class="fa-solid fa-arrows-rotate"></i>
+
+                        <span>
+                            Adaptive Routine
+                        </span>
+
+                    </a>
+                </li>
+
+
+                <!-- PRODUCTS -->
+
+                <li>
+                    <a href="products.html">
+
+                        <i class="fa-solid fa-pump-soap"></i>
+
+                        <span>
+                            Products
+                        </span>
+
+                    </a>
+                </li>
+
+
+                <!-- ==========================================
+                     INGREDIENT INTELLIGENCE
+                =========================================== -->
+
+                <li>
+                    <a href="ingredient-intelligence.html">
+
+                        <i class="fa-solid fa-flask"></i>
+
+                        <span>
+                            Ingredient Intelligence
+                        </span>
+
+                    </a>
+                </li>
+
+
+                <!-- PROGRESS -->
+
+                <li>
+                    <a href="progress.html">
+
+                        <i class="fa-solid fa-chart-line"></i>
+
+                        <span>
+                            Progress
+                        </span>
+
+                    </a>
+                    <a href="skin-health-score.html">
+    <i class="fa-solid fa-heart-pulse"></i>
+    <span>Skin Health Score</span>
+</a>
+                    <a href="notifications.html">
+    <i class="fa-solid fa-bell"></i>
+    <span>Notifications</span>
+</a>
+                </li>
+
+            </ul>
+
+
+            <!-- ACCOUNT -->
+
+            <p class="nav-title secondary-title">
+                ACCOUNT
+            </p>
+
+
+            <ul>
+
+                <li>
+
+                    <a
+                        href="#"
+                        onclick="logout(); return false;"
+                    >
+
+                        <i class="fa-solid fa-right-from-bracket"></i>
+
+                        <span>
+                            Logout
+                        </span>
+
+                    </a>
+
+                </li>
+
+            </ul>
+
+        </nav>
+
+    </aside>
+
+
+
+    <!-- ==========================================
+         MAIN CONTENT
+    =========================================== -->
+
+    <main class="main">
+
+
+        <!-- ======================================
+             PAGE HEADER
+        ======================================= -->
+
+        <header class="dashboard-header">
+
+            <div>
+
+                <span class="welcome-label">
+                    ACCOUNT SETTINGS
+                </span>
+
+                <h1>
+                    My Profile
+                </h1>
+
+                <p>
+                    Manage your personal information and skin wellness preferences.
+                </p>
+
+            </div>
+
+
+            <div class="header-status">
+
+                <span class="status-dot"></span>
+
+                <span>
+                    Profile Active
+                </span>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- ==========================================
+             PROFILE OVERVIEW
+        =========================================== -->
+
+        <section class="profile-overview">
+
+            <div class="profile-avatar">
+
+                <div class="avatar-circle">
+
                     <i class="fa-solid fa-user"></i>
-                    <span>Profile</span>
-                </a>
-            </li>
 
-            <li>
-                <a href="assessment.html">
-                    <i class="fa-solid fa-camera"></i>
-                    <span>Skin Assessment</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="products.html">
-                    <i class="fa-solid fa-pump-soap"></i>
-                    <span>Products</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="progress.html">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <span>Progress</span>
-                </a>
-            </li>
-
-        </ul>
-
-
-        <p class="nav-title secondary-title">ACCOUNT</p>
-
-        <ul>
-
-            <li>
-                <a href="#" onclick="logout()">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                    <span>Logout</span>
-                </a>
-            </li>
-
-        </ul>
-
-    </nav>
-
-</aside>
-
-
-<!-- ==========================================
-     MAIN CONTENT
-=========================================== -->
-
-<main class="main">
-
-
-    <!-- ======================================
-         PAGE HEADER
-    ======================================= -->
-
-    <header class="dashboard-header">
-
-        <div>
-
-            <span class="welcome-label">
-                ACCOUNT SETTINGS
-            </span>
-
-            <h1>My Profile</h1>
-
-            <p>
-                Manage your personal information and skin wellness preferences.
-            </p>
-
-        </div>
-
-
-        <div class="header-status">
-
-            <span class="status-dot"></span>
-
-            <span>Profile Active</span>
-
-        </div>
-
-    </header>
-
-
-
-    <!-- ==========================================
-         PROFILE OVERVIEW
-    =========================================== -->
-
-    <section class="profile-overview">
-
-        <div class="profile-avatar">
-
-            <div class="avatar-circle">
-                <i class="fa-solid fa-user"></i>
-            </div>
-
-        </div>
-
-
-        <div class="profile-summary">
-
-            <span class="section-label">
-                USER ACCOUNT
-            </span>
-
-            <h2 id="profileName">
-                Loading...
-            </h2>
-
-            <p id="profileEmail">
-                Loading email...
-            </p>
-
-            <div class="profile-meta">
-
-                <span>
-                    <i class="fa-solid fa-shield-halved"></i>
-                    <span id="profileRole">User</span>
-                </span>
-
-                <span>
-                    <i class="fa-solid fa-circle-check"></i>
-                    Account Active
-                </span>
+                </div>
 
             </div>
 
-        </div>
 
-    </section>
+            <div class="profile-summary">
+
+                <span class="section-label">
+                    USER ACCOUNT
+                </span>
+
+                <h2 id="profileName">
+                    Loading...
+                </h2>
+
+                <p id="profileEmail">
+                    Loading email...
+                </p>
+
+
+                <div class="profile-meta">
+
+                    <span>
+
+                        <i class="fa-solid fa-shield-halved"></i>
+
+                        <span id="profileRole">
+                            User
+                        </span>
+
+                    </span>
+
+
+                    <span>
+
+                        <i class="fa-solid fa-circle-check"></i>
+
+                        Account Active
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
 
 
 
-    <!-- ==========================================
-         PERSONAL INFORMATION
-    =========================================== -->
+        <!-- ==========================================
+             PERSONAL INFORMATION
+        =========================================== -->
 
-    <section class="profile-card">
+        <section class="profile-card">
 
-        <div class="profile-card-header">
+
+            <div class="profile-card-header">
+
+                <div>
+
+                    <span class="section-label">
+                        PERSONAL INFORMATION
+                    </span>
+
+                    <h2>
+                        Basic Details
+                    </h2>
+
+                    <p>
+                        Keep your personal information up to date for a
+                        more personalized skincare experience.
+                    </p>
+
+                </div>
+
+
+                <div class="profile-section-icon">
+
+                    <i class="fa-solid fa-user-pen"></i>
+
+                </div>
+
+            </div>
+
+
+
+            <form id="profileForm">
+
+
+                <!-- AGE -->
+
+                <div class="form-group">
+
+                    <label for="age">
+
+                        <i class="fa-solid fa-cake-candles"></i>
+
+                        Age
+
+                    </label>
+
+
+                    <input
+                        type="number"
+                        id="age"
+                        name="age"
+                        min="1"
+                        max="120"
+                        placeholder="Enter your age"
+                    >
+
+
+                    <small>
+                        Used to personalize your skincare recommendations.
+                    </small>
+
+                </div>
+
+
+
+                <!-- GENDER -->
+
+                <div class="form-group">
+
+                    <label for="gender">
+
+                        <i class="fa-solid fa-venus-mars"></i>
+
+                        Gender
+
+                    </label>
+
+
+                    <select
+                        id="gender"
+                        name="gender"
+                    >
+
+                        <option value="">
+                            Select gender
+                        </option>
+
+                        <option value="Male">
+                            Male
+                        </option>
+
+                        <option value="Female">
+                            Female
+                        </option>
+
+                        <option value="Other">
+                            Other
+                        </option>
+
+                        <option value="Prefer not to say">
+                            Prefer not to say
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+
+                <!-- SKIN TYPE -->
+
+                <div class="form-group">
+
+                    <label for="skinType">
+
+                        <i class="fa-solid fa-droplet"></i>
+
+                        Skin Type
+
+                    </label>
+
+
+                    <select
+                        id="skinType"
+                        name="skin_type"
+                    >
+
+                        <option value="">
+                            Select skin type
+                        </option>
+
+                        <option value="Normal">
+                            Normal
+                        </option>
+
+                        <option value="Dry">
+                            Dry
+                        </option>
+
+                        <option value="Oily">
+                            Oily
+                        </option>
+
+                        <option value="Combination">
+                            Combination
+                        </option>
+
+                        <option value="Sensitive">
+                            Sensitive
+                        </option>
+
+                    </select>
+
+
+                    <small>
+                        This information helps the AI personalize your skincare plan.
+                    </small>
+
+                </div>
+
+
+
+                <!-- ALLERGIES -->
+
+                <div class="form-group">
+
+                    <label for="allergies">
+
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+
+                        Allergies
+
+                    </label>
+
+
+                    <input
+                        type="text"
+                        id="allergies"
+                        name="allergies"
+                        placeholder="Example: Fragrance, Aloe Vera, None"
+                    >
+
+
+                    <small>
+                        Enter known skincare or ingredient allergies.
+                        Enter "None" if you have no known allergies.
+                    </small>
+
+                </div>
+
+
+
+                <!-- LIFESTYLE -->
+
+                <div class="form-group">
+
+                    <label for="lifestyle">
+
+                        <i class="fa-solid fa-person-running"></i>
+
+                        Lifestyle Habits
+
+                    </label>
+
+
+                    <select
+                        id="lifestyle"
+                        name="lifestyle"
+                    >
+
+                        <option value="">
+                            Select lifestyle
+                        </option>
+
+                        <option value="Mostly indoors">
+                            Mostly Indoors
+                        </option>
+
+                        <option value="Outdoor">
+                            Frequent Outdoor Activity
+                        </option>
+
+                        <option value="Exercise">
+                            Regular Exercise / Workout
+                        </option>
+
+                        <option value="Outdoor and Exercise">
+                            Outdoor + Regular Exercise
+                        </option>
+
+                        <option value="Travel">
+                            Frequent Travel
+                        </option>
+
+                    </select>
+
+
+                    <small>
+                        Lifestyle information helps adapt your skincare routine.
+                    </small>
+
+                </div>
+
+
+
+                <!-- WATER INTAKE -->
+
+                <div class="form-group">
+
+                    <label for="waterIntake">
+
+                        <i class="fa-solid fa-glass-water"></i>
+
+                        Daily Water Intake
+
+                    </label>
+
+
+                    <div class="input-with-unit">
+
+                        <input
+                            type="number"
+                            id="waterIntake"
+                            name="water_intake"
+                            min="0"
+                            max="20"
+                            step="0.1"
+                            placeholder="Enter water intake"
+                        >
+
+                        <span>
+                            Litres / day
+                        </span>
+
+                    </div>
+
+
+                    <small>
+                        Helps the system understand your hydration habits.
+                    </small>
+
+                </div>
+
+
+
+                <!-- SLEEP HOURS -->
+
+                <div class="form-group">
+
+                    <label for="sleepHours">
+
+                        <i class="fa-solid fa-bed"></i>
+
+                        Average Sleep
+
+                    </label>
+
+
+                    <div class="input-with-unit">
+
+                        <input
+                            type="number"
+                            id="sleepHours"
+                            name="sleep_hours"
+                            min="0"
+                            max="24"
+                            step="0.5"
+                            placeholder="Enter sleep hours"
+                        >
+
+                        <span>
+                            Hours / night
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- SLEEP QUALITY -->
+
+                <div class="form-group">
+
+                    <label for="sleepQuality">
+
+                        <i class="fa-solid fa-moon"></i>
+
+                        Sleep Quality
+
+                    </label>
+
+
+                    <select
+                        id="sleepQuality"
+                        name="sleep_quality"
+                    >
+
+                        <option value="">
+                            Select sleep quality
+                        </option>
+
+                        <option value="Good">
+                            Good
+                        </option>
+
+                        <option value="Average">
+                            Average
+                        </option>
+
+                        <option value="Poor">
+                            Poor
+                        </option>
+
+                    </select>
+
+
+                    <small>
+                        Sleep quality can be considered when generating wellness recommendations.
+                    </small>
+
+                </div>
+
+
+
+                <!-- ENVIRONMENTAL EXPOSURE -->
+
+                <div class="form-group">
+
+                    <label for="environmentalExposure">
+
+                        <i class="fa-solid fa-smog"></i>
+
+                        Environmental Exposure
+
+                    </label>
+
+
+                    <select
+                        id="environmentalExposure"
+                        name="environmental_exposure"
+                    >
+
+                        <option value="">
+                            Select exposure
+                        </option>
+
+                        <option value="Low">
+                            Low
+                        </option>
+
+                        <option value="Moderate Pollution">
+                            Moderate Pollution
+                        </option>
+
+                        <option value="High Pollution">
+                            High Pollution
+                        </option>
+
+                        <option value="Dust">
+                            Frequent Dust Exposure
+                        </option>
+
+                        <option value="Pollution and Dust">
+                            Pollution + Dust
+                        </option>
+
+                    </select>
+
+
+                    <small>
+                        Helps adapt cleansing and environmental skincare recommendations.
+                    </small>
+
+                </div>
+
+
+
+                <!-- SAVE BUTTONS -->
+
+                <div class="form-actions">
+
+                    <button
+                        type="button"
+                        class="secondary-btn"
+                        onclick="window.location.reload()"
+                    >
+
+                        <i class="fa-solid fa-rotate-left"></i>
+
+                        Reset
+
+                    </button>
+
+
+                    <button
+                        type="submit"
+                        class="primary-btn"
+                    >
+
+                        <i class="fa-solid fa-floppy-disk"></i>
+
+                        Save Profile
+
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="profileMessage"
+                    class="profile-message"
+                ></div>
+
+
+            </form>
+
+        </section>
+
+
+
+        <!-- ==========================================
+             SKIN PROFILE INFORMATION
+        =========================================== -->
+
+        <section class="profile-card">
+
+
+            <div class="profile-card-header">
+
+                <div>
+
+                    <span class="section-label">
+                        SKIN INTELLIGENCE
+                    </span>
+
+                    <h2>
+                        Personalization Preferences
+                    </h2>
+
+                    <p>
+                        Your profile information is used by Skin AI to
+                        generate more relevant skincare recommendations.
+                    </p>
+
+                </div>
+
+
+                <div class="profile-section-icon">
+
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="personalization-grid">
+
+
+                <!-- AI SKIN ANALYSIS -->
+
+                <div class="personalization-item">
+
+                    <div class="personalization-icon">
+
+                        <i class="fa-solid fa-brain"></i>
+
+                    </div>
+
+
+                    <div>
+
+                        <h3>
+                            AI Skin Analysis
+                        </h3>
+
+                        <p>
+                            Your skin profile can be used to personalize
+                            AI-powered assessment insights.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- PERSONALIZED ROUTINE -->
+
+                <div class="personalization-item">
+
+                    <div class="personalization-icon">
+
+                        <i class="fa-solid fa-list-check"></i>
+
+                    </div>
+
+
+                    <div>
+
+                        <h3>
+                            Personalized Routine
+                        </h3>
+
+                        <p>
+                            Your information helps generate customized
+                            morning, evening and weekly skincare routines.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- PRODUCT RECOMMENDATIONS -->
+
+                <div class="personalization-item">
+
+                    <div class="personalization-icon">
+
+                        <i class="fa-solid fa-pump-soap"></i>
+
+                    </div>
+
+
+                    <div>
+
+                        <h3>
+                            Product Recommendations
+                        </h3>
+
+                        <p>
+                            Skin AI can match suitable products according
+                            to your skin profile and assessment results.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- PROGRESS TRACKING -->
+
+                <div class="personalization-item">
+
+                    <div class="personalization-icon">
+
+                        <i class="fa-solid fa-chart-line"></i>
+
+                    </div>
+
+
+                    <div>
+
+                        <h3>
+                            Progress Tracking
+                        </h3>
+
+                        <p>
+                            Your profile supports long-term monitoring of
+                            your skin health and wellness progress.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ==========================================
+             PRIVACY NOTICE
+        =========================================== -->
+
+        <section class="privacy-notice">
+
+            <div class="privacy-icon">
+
+                <i class="fa-solid fa-shield-heart"></i>
+
+            </div>
+
 
             <div>
 
-                <span class="section-label">
-                    PERSONAL INFORMATION
-                </span>
-
-                <h2>Basic Details</h2>
+                <h3>
+                    Your Information & Privacy
+                </h3>
 
                 <p>
-                    Keep your personal information up to date for a
-                    more personalized skincare experience.
+                    Your profile information is used to provide personalized
+                    skincare insights and recommendations within the Skin AI platform.
                 </p>
 
             </div>
 
-            <div class="profile-section-icon">
-                <i class="fa-solid fa-user-pen"></i>
-            </div>
+        </section>
 
-        </div>
 
 
-        <form id="profileForm">
+        <!-- ==========================================
+             FOOTER
+        =========================================== -->
 
-
-            <!-- Age -->
-
-            <div class="form-group">
-
-                <label for="age">
-                    <i class="fa-solid fa-cake-candles"></i>
-                    Age
-                </label>
-
-                <input
-                    type="number"
-                    id="age"
-                    name="age"
-                    min="1"
-                    max="120"
-                    placeholder="Enter your age"
-                >
-
-                <small>
-                    Used to personalize your skincare recommendations.
-                </small>
-
-            </div>
-
-
-
-            <!-- Gender -->
-
-            <div class="form-group">
-
-                <label for="gender">
-                    <i class="fa-solid fa-venus-mars"></i>
-                    Gender
-                </label>
-
-                <select id="gender" name="gender">
-
-                    <option value="">
-                        Select gender
-                    </option>
-
-                    <option value="Male">
-                        Male
-                    </option>
-
-                    <option value="Female">
-                        Female
-                    </option>
-
-                    <option value="Other">
-                        Other
-                    </option>
-
-                    <option value="Prefer not to say">
-                        Prefer not to say
-                    </option>
-
-                </select>
-
-            </div>
-
-
-
-            <!-- Skin Type -->
-
-            <div class="form-group">
-
-                <label for="skinType">
-                    <i class="fa-solid fa-droplet"></i>
-                    Skin Type
-                </label>
-
-                <select id="skinType" name="skin_type">
-
-                    <option value="">
-                        Select skin type
-                    </option>
-
-                    <option value="Normal">
-                        Normal
-                    </option>
-
-                    <option value="Dry">
-                        Dry
-                    </option>
-
-                    <option value="Oily">
-                        Oily
-                    </option>
-
-                    <option value="Combination">
-                        Combination
-                    </option>
-
-                    <option value="Sensitive">
-                        Sensitive
-                    </option>
-
-                </select>
-
-                <small>
-                    This information helps the AI personalize your skincare plan.
-                </small>
-
-            </div>
-
-
-
-            <!-- Water Intake -->
-
-            <div class="form-group">
-
-                <label for="waterIntake">
-                    <i class="fa-solid fa-glass-water"></i>
-                    Daily Water Intake
-                </label>
-
-                <div class="input-with-unit">
-
-                    <input
-                        type="number"
-                        id="waterIntake"
-                        name="water_intake"
-                        min="0"
-                        max="20"
-                        step="0.1"
-                        placeholder="Enter water intake"
-                    >
-
-                    <span>Litres / day</span>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- Sleep -->
-
-            <div class="form-group">
-
-                <label for="sleepHours">
-                    <i class="fa-solid fa-bed"></i>
-                    Average Sleep
-                </label>
-
-                <div class="input-with-unit">
-
-                    <input
-                        type="number"
-                        id="sleepHours"
-                        name="sleep_hours"
-                        min="0"
-                        max="24"
-                        step="0.5"
-                        placeholder="Enter sleep hours"
-                    >
-
-                    <span>Hours / night</span>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- Save -->
-
-            <div class="form-actions">
-
-                <button
-                    type="button"
-                    class="secondary-btn"
-                    onclick="window.location.reload()"
-                >
-                    <i class="fa-solid fa-rotate-left"></i>
-                    Reset
-                </button>
-
-
-                <button
-                    type="submit"
-                    class="primary-btn"
-                >
-                    <i class="fa-solid fa-floppy-disk"></i>
-                    Save Profile
-                </button>
-
-            </div>
-
-
-            <div
-                id="profileMessage"
-                class="profile-message"
-            ></div>
-
-
-        </form>
-
-    </section>
-
-
-
-    <!-- ==========================================
-         SKIN PROFILE INFORMATION
-    =========================================== -->
-
-    <section class="profile-card">
-
-        <div class="profile-card-header">
-
-            <div>
-
-                <span class="section-label">
-                    SKIN INTELLIGENCE
-                </span>
-
-                <h2>Personalization Preferences</h2>
-
-                <p>
-                    Your profile information is used by Skin AI to
-                    generate more relevant skincare recommendations.
-                </p>
-
-            </div>
-
-            <div class="profile-section-icon">
-
-                <i class="fa-solid fa-wand-magic-sparkles"></i>
-
-            </div>
-
-        </div>
-
-
-        <div class="personalization-grid">
-
-
-            <div class="personalization-item">
-
-                <div class="personalization-icon">
-                    <i class="fa-solid fa-brain"></i>
-                </div>
-
-                <div>
-
-                    <h3>AI Skin Analysis</h3>
-
-                    <p>
-                        Your skin profile can be used to personalize
-                        AI-powered assessment insights.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-
-            <div class="personalization-item">
-
-                <div class="personalization-icon">
-                    <i class="fa-solid fa-list-check"></i>
-                </div>
-
-                <div>
-
-                    <h3>Personalized Routine</h3>
-
-                    <p>
-                        Your information helps generate customized
-                        morning, evening and weekly skincare routines.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-
-            <div class="personalization-item">
-
-                <div class="personalization-icon">
-                    <i class="fa-solid fa-pump-soap"></i>
-                </div>
-
-                <div>
-
-                    <h3>Product Recommendations</h3>
-
-                    <p>
-                        Skin AI can match suitable products according
-                        to your skin profile and assessment results.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-
-            <div class="personalization-item">
-
-                <div class="personalization-icon">
-                    <i class="fa-solid fa-chart-line"></i>
-                </div>
-
-                <div>
-
-                    <h3>Progress Tracking</h3>
-
-                    <p>
-                        Your profile supports long-term monitoring of
-                        your skin health and wellness progress.
-                    </p>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- ==========================================
-         PRIVACY NOTICE
-    =========================================== -->
-
-    <section class="privacy-notice">
-
-        <div class="privacy-icon">
-
-            <i class="fa-solid fa-shield-heart"></i>
-
-        </div>
-
-        <div>
-
-            <h3>Your Information & Privacy</h3>
+        <footer class="dashboard-footer">
 
             <p>
-                Your profile information is used to provide personalized
-                skincare insights and recommendations within the Skin AI platform.
+
+                <i class="fa-solid fa-shield-heart"></i>
+
+                Skin AI • Personalized Skin Intelligence
+
             </p>
 
-        </div>
 
-    </section>
+            <span>
+                AI-generated recommendations are for informational purposes.
+            </span>
+
+        </footer>
+
+
+    </main>
 
 
 
     <!-- ==========================================
-         FOOTER
+         JAVASCRIPT
     =========================================== -->
 
-    <footer class="dashboard-footer">
+    <script src="../js/auth-check.js"></script>
 
-        <p>
+    <script src="../js/profile.js"></script>
 
-            <i class="fa-solid fa-shield-heart"></i>
-
-            Skin AI • Personalized Skin Intelligence
-
-        </p>
-
-        <span>
-            AI-generated recommendations are for informational purposes.
-        </span>
-
-    </footer>
-
-
-</main>
-
-
-
-<!-- ==========================================
-     JAVASCRIPT
-=========================================== -->
-
-<script src="../js/auth-check.js"></script>
-
-<script src="../js/profile.js"></script>
-```
 
 </body>
 

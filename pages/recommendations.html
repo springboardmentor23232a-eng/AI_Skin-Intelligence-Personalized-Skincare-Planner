@@ -1,0 +1,2321 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Recommendations | Consultant | Skin AI</title>
+
+    <link rel="stylesheet" href="../css/dashboard.css">
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- PDF Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- Excel Library -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: #f5f7f8;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+        }
+
+        /* ================= HEADER ================= */
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .page-header h1 {
+            margin: 0;
+            font-size: 28px;
+            color: #243b35;
+        }
+
+        .page-header p {
+            margin: 6px 0 0;
+            color: #777;
+            font-size: 14px;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .new-btn {
+            border: none;
+            background: #2f8f83;
+            color: white;
+            padding: 12px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .new-btn i {
+            margin-right: 7px;
+        }
+
+        .new-btn:hover {
+            opacity: 0.9;
+        }
+
+        .pdf-btn {
+            background: #d9534f;
+        }
+
+        .excel-btn {
+            background: #2f8f83;
+        }
+
+        /* ================= SUMMARY ================= */
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .summary-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: #e8f5f2;
+            color: #2f8f83;
+            font-size: 20px;
+        }
+
+        .summary-card h3 {
+            margin: 0;
+            font-size: 24px;
+            color: #243b35;
+        }
+
+        .summary-card span {
+            color: #777;
+            font-size: 13px;
+        }
+
+        /* ================= MAIN CONTAINER ================= */
+
+        .recommendation-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+            padding: 25px;
+        }
+
+        /* ================= FILTER ================= */
+
+        .filter-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .search-box {
+            position: relative;
+            width: 340px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 14px;
+            top: 14px;
+            color: #999;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 11px 15px 11px 40px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .filter-select {
+            padding: 11px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            font-family: inherit;
+            outline: none;
+        }
+
+        /* ================= CLIENT GRID ================= */
+
+        .client-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .client-card {
+            border: 1px solid #e9eeee;
+            border-radius: 12px;
+            padding: 20px;
+            background: #fff;
+            transition: 0.2s;
+        }
+
+        .client-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.07);
+        }
+
+        .client-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 18px;
+        }
+
+        .client-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .client-avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+
+            background: #e3f3ef;
+            color: #2f8f83;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-weight: 600;
+        }
+
+        .client-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #263b35;
+        }
+
+        .client-email {
+            font-size: 10px;
+            color: #999;
+            margin-top: 3px;
+        }
+
+        .concern-tag {
+            padding: 5px 9px;
+            border-radius: 6px;
+            background: #fff4dd;
+            color: #a56b00;
+            font-size: 10px;
+        }
+
+        /* ================= SCORE ================= */
+
+        .score-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .score-label {
+            color: #888;
+            font-size: 11px;
+        }
+
+        .score {
+            color: #2f8f83;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        /* ================= ROUTINE ================= */
+
+        .routine-section {
+            margin-top: 15px;
+        }
+
+        .routine-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #263b35;
+            margin-bottom: 8px;
+        }
+
+        .routine-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .routine-item {
+            padding: 6px 9px;
+            background: #f5f8f7;
+            color: #64716d;
+            border-radius: 6px;
+            font-size: 10px;
+        }
+
+        .routine-item i {
+            color: #2f8f83;
+            margin-right: 4px;
+        }
+
+        /* ================= CARD FOOTER ================= */
+
+        .card-footer {
+            border-top: 1px solid #eee;
+            margin-top: 18px;
+            padding-top: 15px;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .updated {
+            color: #999;
+            font-size: 10px;
+        }
+
+        .view-btn {
+            border: none;
+            background: #edf7f5;
+            color: #2f8f83;
+            padding: 8px 12px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        .view-btn i {
+            margin-left: 5px;
+        }
+
+        .view-btn:hover {
+            background: #dff0ec;
+        }
+
+        /* ================= PRODUCT RECOMMENDATIONS ================= */
+
+        .product-recommendation-section {
+            margin-top: 30px;
+            padding: 25px;
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e9eeee;
+        }
+
+        .product-recommendation-section h2 {
+            margin: 0;
+            color: #243b35;
+            font-size: 20px;
+        }
+
+        .product-recommendation-section p {
+            margin: 6px 0 20px;
+            color: #777;
+            font-size: 13px;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        /* ================= EMPTY ================= */
+
+        .empty-state {
+            display: none;
+            text-align: center;
+            padding: 50px 20px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 35px;
+            color: #cbd8d4;
+            margin-bottom: 12px;
+        }
+
+        .empty-state h3 {
+            margin: 0 0 5px;
+            color: #555;
+        }
+
+        .empty-state p {
+            margin: 0;
+            font-size: 13px;
+        }
+
+        /* ================= MODAL ================= */
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(20, 35, 32, 0.55);
+
+            display: none;
+            align-items: center;
+            justify-content: center;
+
+            z-index: 9999;
+            padding: 20px;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .recommendation-modal {
+            width: 100%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+
+            background: white;
+            border-radius: 16px;
+
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            padding: 20px 25px;
+            background: #f5faf8;
+            border-bottom: 1px solid #e6eeeb;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 20px;
+            color: #243b35;
+        }
+
+        .close-modal {
+            border: none;
+            background: transparent;
+            color: #777;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .modal-client {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .modal-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+
+            background: #e3f3ef;
+            color: #2f8f83;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .modal-client h3 {
+            margin: 0;
+            color: #263b35;
+        }
+
+        .modal-client p {
+            margin: 4px 0 0;
+            color: #999;
+            font-size: 11px;
+        }
+
+        .recommendation-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .recommendation-box {
+            background: #f8faf9;
+            padding: 16px;
+            border-radius: 10px;
+        }
+
+        .recommendation-box h4 {
+            margin: 0 0 8px;
+            color: #263b35;
+            font-size: 12px;
+        }
+
+        .recommendation-box h4 i {
+            color: #2f8f83;
+            margin-right: 6px;
+        }
+
+        .recommendation-box p {
+            margin: 0;
+            color: #777;
+            font-size: 11px;
+            line-height: 1.7;
+        }
+
+        .consultant-note {
+            margin-top: 18px;
+            padding: 16px;
+
+            background: #f5faf8;
+            border-radius: 10px;
+        }
+
+        .consultant-note h4 {
+            margin: 0 0 8px;
+            color: #263b35;
+            font-size: 12px;
+        }
+
+        .consultant-note p {
+            margin: 0;
+            color: #777;
+            font-size: 11px;
+            line-height: 1.7;
+        }
+
+        .modal-close-btn {
+            width: 100%;
+            border: none;
+            padding: 11px;
+            margin-top: 20px;
+            border-radius: 8px;
+
+            background: #2f8f83;
+            color: white;
+
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width: 1100px) {
+
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .client-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .product-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .header-buttons {
+                width: 100%;
+            }
+
+            .header-buttons button {
+                flex: 1;
+            }
+
+            .filter-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .recommendation-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <div class="sidebar">
+
+        <h2>Skin AI</h2>
+
+        <ul>
+
+            <li class="menu-title">
+                MAIN MENU
+            </li>
+
+            <li>
+                <a href="consultant-dashboard.html">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="client-profiles.html">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Client Profiles</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="appointments.html">
+                    <i class="fa-solid fa-calendar-check"></i>
+                    <span>Appointments</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="skin-reports.html">
+                    <i class="fa-solid fa-file-medical"></i>
+                    <span>Skin Reports</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="recommendations.html" class="active">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>Recommendations</span>
+                </a>
+            </li>
+
+            <li class="menu-title">
+                ACCOUNT
+            </li>
+
+            <li>
+                <a href="#" id="logoutBtn">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span>
+                </a>
+            </li>
+
+        </ul>
+
+    </div>
+
+
+    <!-- ================= MAIN CONTENT ================= -->
+
+    <main class="main-content">
+
+
+        <!-- HEADER -->
+
+        <div class="page-header">
+
+            <div>
+
+                <h1>
+                    Recommendations
+                </h1>
+
+                <p>
+                    Create and manage personalized skincare recommendations
+                </p>
+
+            </div>
+
+
+            <div class="header-buttons">
+
+                <button
+                    class="new-btn pdf-btn"
+                    id="exportPdfBtn">
+
+                    <i class="fa-solid fa-file-pdf"></i>
+
+                    Export PDF
+
+                </button>
+
+
+                <button
+                    class="new-btn excel-btn"
+                    id="exportExcelBtn">
+
+                    <i class="fa-solid fa-file-excel"></i>
+
+                    Export Excel
+
+                </button>
+
+
+                <button
+                    class="new-btn"
+                    id="newRecommendationBtn">
+
+                    <i class="fa-solid fa-plus"></i>
+
+                    New Recommendation
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= SUMMARY ================= -->
+
+        <div class="summary-grid">
+
+
+            <div class="summary-card">
+
+                <div class="summary-icon">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </div>
+
+                <div>
+                    <h3>24</h3>
+                    <span>Active Plans</span>
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <div class="summary-icon">
+                    <i class="fa-solid fa-sun"></i>
+                </div>
+
+                <div>
+                    <h3>18</h3>
+                    <span>Morning Routines</span>
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <div class="summary-icon">
+                    <i class="fa-solid fa-moon"></i>
+                </div>
+
+                <div>
+                    <h3>21</h3>
+                    <span>Evening Routines</span>
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <div class="summary-icon">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+
+                <div>
+                    <h3>89%</h3>
+                    <span>Plan Adherence</span>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= RECOMMENDATIONS ================= -->
+
+        <div class="recommendation-container">
+
+
+            <!-- FILTER -->
+
+            <div class="filter-row">
+
+                <div class="search-box">
+
+                    <i class="fa-solid fa-magnifying-glass"></i>
+
+                    <input
+                        type="text"
+                        id="searchClient"
+                        placeholder="Search client name or email...">
+
+                </div>
+
+
+                <select
+                    class="filter-select"
+                    id="concernFilter">
+
+                    <option value="all">
+                        All Concerns
+                    </option>
+
+                    <option value="acne">
+                        Acne
+                    </option>
+
+                    <option value="pigmentation">
+                        Pigmentation
+                    </option>
+
+                    <option value="dryness">
+                        Dryness
+                    </option>
+
+                    <option value="sensitivity">
+                        Sensitivity
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- ================= CLIENT GRID ================= -->
+
+            <div
+                class="client-grid"
+                id="clientGrid">
+
+
+                <!-- CLIENT 1 -->
+
+                <div
+                    class="client-card"
+                    data-name="Ananya Sharma"
+                    data-email="ananya@example.com"
+                    data-concern="acne">
+
+                    <div class="client-top">
+
+                        <div class="client-info">
+
+                            <div class="client-avatar">
+                                AS
+                            </div>
+
+                            <div>
+
+                                <div class="client-name">
+                                    Ananya Sharma
+                                </div>
+
+                                <div class="client-email">
+                                    ananya@example.com
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <span class="concern-tag">
+                            Acne
+                        </span>
+
+                    </div>
+
+
+                    <div class="score-row">
+
+                        <span class="score-label">
+                            Skin Health Score
+                        </span>
+
+                        <span class="score">
+                            88%
+                        </span>
+
+                    </div>
+
+
+                    <div class="routine-section">
+
+                        <div class="routine-title">
+                            Morning Routine
+                        </div>
+
+                        <div class="routine-list">
+
+                            <span class="routine-item">
+                                <i class="fa-solid fa-check"></i>
+                                Gentle Cleanser
+                            </span>
+
+                            <span class="routine-item">
+                                <i class="fa-solid fa-check"></i>
+                                Vitamin C Serum
+                            </span>
+
+                            <span class="routine-item">
+                                <i class="fa-solid fa-check"></i>
+                                SPF 50
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="routine-section">
+
+                        <div class="routine-title">
+                            Evening Routine
+                        </div>
+
+                        <div class="routine-list">
+
+                            <span class="routine-item">
+                                <i class="fa-solid fa-check"></i>
+                                Cleanser
+                            </span>
+
+                            <span class="routine-item">
+                                <i class="fa-solid fa-check"></i>
+                                Acne Treatment
+                            </span>
+
+                            <span class="routine-item">
+                                <i class="fa-solid fa-check"></i>
+                                Moisturizer
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="card-footer">
+
+                        <span class="updated">
+                            Updated 15 Aug 2026
+                        </span>
+
+                        <button class="view-btn">
+
+                            View Details
+
+                            <i class="fa-solid fa-arrow-right"></i>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- CLIENT 2 -->
+
+                <div
+                    class="client-card"
+                    data-name="Priya Reddy"
+                    data-email="priya@example.com"
+                    data-concern="pigmentation">
+
+                    <div class="client-top">
+
+                        <div class="client-info">
+
+                            <div class="client-avatar">
+                                PR
+                            </div>
+
+                            <div>
+
+                                <div class="client-name">
+                                    Priya Reddy
+                                </div>
+
+                                <div class="client-email">
+                                    priya@example.com
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <span class="concern-tag">
+                            Pigmentation
+                        </span>
+
+                    </div>
+
+
+                    <div class="score-row">
+
+                        <span class="score-label">
+                            Skin Health Score
+                        </span>
+
+                        <span class="score">
+                            82%
+                        </span>
+
+                    </div>
+
+
+                    <div class="routine-section">
+
+                        <div class="routine-title">
+                            Morning Routine
+                        </div>
+
+                        <div class="routine-list">
+
+                            <span class="routine-item">
+                                <i class="fa-solid fa-check"></i>
+                                Gentle Cleanser
+                            </span>
+
+                            <span class="routine-item">
+                                <i class="fa-solid fa-check"></i>
+                                Brightening Serum
+                            </span>
+
+                            <span class="routine-item">
+                                <i class="fa-solid fa-check"></i>
+                                SPF 50
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="routine-section">
+
+                        <div class="routine-title">
+                            Evening Routine
+                        </div>
+
+                        <div class="routine-list">
+
+                            <span class="routine-item">
+                                <i class="fa-solid fa-check"></i>
+                                Cleanser
+                            </span>
+
+                            <span class="routine-item">
+                                <i class="fa-solid fa-check"></i>
+                                Niacinamide
+                            </span>
+
+                            <span class="routine-item">
+                                <i class="fa-solid fa-check"></i>
+                                Moisturizer
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="card-footer">
+
+                        <span class="updated">
+                            Updated 14 Aug 2026
+                        </span>
+
+                        <button class="view-btn">
+
+                            View Details
+
+                            <i class="fa-solid fa-arrow-right"></i>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- CLIENT 3 -->
+
+                <div
+                    class="client-card"
+                    data-name="Neha Kumar"
+                    data-email="neha@example.com"
+                    data-concern="dryness">
+
+                    <div class="client-top">
+
+                        <div class="client-info">
+
+                            <div class="client-avatar">
+                                NK
+                            </div>
+
+                            <div>
+
+                                <div class="client-name">
+                                    Neha Kumar
+                                </div>
+
+                                <div class="client-email">
+                                    neha@example.com
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <span class="concern-tag">
+                            Dryness
+                        </span>
+
+                    </div>
+
+
+                    <div class="score-row">
+
+                        <span class="score-label">
+                            Skin Health Score
+                        </span>
+
+                        <span class="score">
+                            91%
+                        </span>
+
+                    </div>
+
+
+                    <div class="routine-section">
+
+                        <div class="routine-title">
+                            Morning Routine
+                        </div>
+
+                        <div class="routine-list">
+
+                            <span class="routine-item">
+                                <i class="fa-solid fa-check"></i>
+                                Hydrating Cleanser
+                            </span>
+
+                            <span class="routine-item">
+                                <i class="fa-solid fa-check"></i>
+                                Hyaluronic Serum
+                            </span>
+
+                            <span class="routine-item">
+                                <i class="fa-solid fa-check"></i>
+                                SPF 50
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="routine-section">
+
+                        <div class="routine-title">
+                            Evening Routine
+                        </div>
+
+                        <div class="routine-list">
+
+                            <span class="routine-item">
+                                <i class="fa-solid fa-check"></i>
+                                Hydrating Cleanser
+                            </span>
+
+                            <span class="routine-item">
+                                <i class="fa-solid fa-check"></i>
+                                Barrier Serum
+                            </span>
+
+                            <span class="routine-item">
+                                <i class="fa-solid fa-check"></i>
+                                Rich Moisturizer
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="card-footer">
+
+                        <span class="updated">
+                            Updated 12 Aug 2026
+                        </span>
+
+                        <button class="view-btn">
+
+                            View Details
+
+                            <i class="fa-solid fa-arrow-right"></i>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- CLIENT 4 -->
+
+                <div
+                    class="client-card"
+                    data-name="Rahul Mehta"
+                    data-email="rahul@example.com"
+                    data-concern="sensitivity">
+
+                    <div class="client-top">
+
+                        <div class="client-info">
+
+                            <div class="client-avatar">
+                                RM
+                            </div>
+
+                            <div>
+
+                                <div class="client-name">
+                                    Rahul Mehta
+                                </div>
+
+                                <div class="client-email">
+                                    rahul@example.com
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <span class="concern-tag">
+                            Sensitivity
+                        </span>
+
+                    </div>
+
+
+                    <div class="score-row">
+
+                        <span class="score-label">
+                            Skin Health Score
+                        </span>
+
+                        <span class="score">
+                            76%
+                        </span>
+
+                    </div>
+
+
+                    <div class="routine-section">
+
+                        <div class="routine-title">
+                            Morning Routine
+                        </div>
+
+                        <div class="routine-list">
+
+                            <span class="routine-item">
+                                <i class="fa-solid fa-check"></i>
+                                Gentle Cleanser
+                            </span>
+
+                            <span class="routine-item">
+                                <i class="fa-solid fa-check"></i>
+                                Barrier Serum
+                            </span>
+
+                            <span class="routine-item">
+                                <i class="fa-solid fa-check"></i>
+                                Mineral SPF
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="routine-section">
+
+                        <div class="routine-title">
+                            Evening Routine
+                        </div>
+
+                        <div class="routine-list">
+
+                            <span class="routine-item">
+                                <i class="fa-solid fa-check"></i>
+                                Gentle Cleanser
+                            </span>
+
+                            <span class="routine-item">
+                                <i class="fa-solid fa-check"></i>
+                                Soothing Serum
+                            </span>
+
+                            <span class="routine-item">
+                                <i class="fa-solid fa-check"></i>
+                                Barrier Moisturizer
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="card-footer">
+
+                        <span class="updated">
+                            Updated 10 Aug 2026
+                        </span>
+
+                        <button class="view-btn">
+
+                            View Details
+
+                            <i class="fa-solid fa-arrow-right"></i>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================= PRODUCT RECOMMENDATIONS ================= -->
+
+            <div class="product-recommendation-section">
+
+                <h2>
+                    AI Product Recommendations
+                </h2>
+
+                <p>
+                    Products recommended based on the latest skin assessment
+                </p>
+
+                <div
+                    class="product-grid"
+                    id="productRecommendationGrid">
+                </div>
+
+            </div>
+
+
+            <!-- ================= EMPTY ================= -->
+
+            <div
+                class="empty-state"
+                id="emptyState">
+
+                <i class="fa-solid fa-user-slash"></i>
+
+                <h3>
+                    No clients found
+                </h3>
+
+                <p>
+                    Try changing your search or concern filter.
+                </p>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- ================= MODAL ================= -->
+
+    <div
+        class="modal-overlay"
+        id="recommendationModal">
+
+        <div class="recommendation-modal">
+
+            <div class="modal-header">
+
+                <h2>
+                    Personalized Recommendation
+                </h2>
+
+                <button
+                    class="close-modal"
+                    id="closeModal">
+
+                    <i class="fa-solid fa-xmark"></i>
+
+                </button>
+
+            </div>
+
+
+            <div class="modal-body">
+
+
+                <div class="modal-client">
+
+                    <div
+                        class="modal-avatar"
+                        id="modalAvatar">
+
+                        AS
+
+                    </div>
+
+                    <div>
+
+                        <h3 id="modalName">
+                            Ananya Sharma
+                        </h3>
+
+                        <p id="modalEmail">
+                            ananya@example.com
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="recommendation-grid">
+
+
+                    <div class="recommendation-box">
+
+                        <h4>
+
+                            <i class="fa-solid fa-sun"></i>
+
+                            Morning Routine
+
+                        </h4>
+
+                        <p id="modalMorning">
+
+                            Gentle cleanser → Vitamin C
+                            serum → SPF 50 sunscreen.
+
+                        </p>
+
+                    </div>
+
+
+                    <div class="recommendation-box">
+
+                        <h4>
+
+                            <i class="fa-solid fa-moon"></i>
+
+                            Evening Routine
+
+                        </h4>
+
+                        <p id="modalEvening">
+
+                            Cleanser → Acne treatment →
+                            Moisturizer.
+
+                        </p>
+
+                    </div>
+
+
+                    <div class="recommendation-box">
+
+                        <h4>
+
+                            <i class="fa-solid fa-calendar-week"></i>
+
+                            Weekly Treatment
+
+                        </h4>
+
+                        <p>
+
+                            Use a gentle exfoliating treatment
+                            once per week and monitor skin response.
+
+                        </p>
+
+                    </div>
+
+
+                    <div class="recommendation-box">
+
+                        <h4>
+
+                            <i class="fa-solid fa-leaf"></i>
+
+                            Lifestyle
+
+                        </h4>
+
+                        <p>
+
+                            Maintain hydration, adequate sleep
+                            and a balanced diet.
+
+                        </p>
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="consultant-note">
+
+                    <h4>
+                        Consultant Notes
+                    </h4>
+
+                    <p>
+
+                        Follow the recommended routine consistently
+                        and review the client's progress during
+                        the next consultation.
+
+                    </p>
+
+                </div>
+
+
+                <button
+                    class="modal-close-btn"
+                    id="modalCloseButton">
+
+                    Close Recommendation
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= JAVASCRIPT ================= -->
+
+    <script>
+
+        /* =====================================================
+           SEARCH AND FILTER
+        ===================================================== */
+
+        const searchClient =
+            document.getElementById("searchClient");
+
+        const concernFilter =
+            document.getElementById("concernFilter");
+
+        const clientGrid =
+            document.getElementById("clientGrid");
+
+        const emptyState =
+            document.getElementById("emptyState");
+
+
+        function filterClients() {
+
+            const searchValue =
+                searchClient.value
+                    .toLowerCase()
+                    .trim();
+
+            const selectedConcern =
+                concernFilter.value;
+
+            const cards =
+                clientGrid.querySelectorAll(".client-card");
+
+            let visibleCount = 0;
+
+
+            cards.forEach(card => {
+
+                const name =
+                    card.dataset.name.toLowerCase();
+
+                const email =
+                    card.dataset.email.toLowerCase();
+
+                const concern =
+                    card.dataset.concern;
+
+
+                const matchesSearch =
+                    name.includes(searchValue) ||
+                    email.includes(searchValue);
+
+
+                const matchesConcern =
+                    selectedConcern === "all" ||
+                    concern === selectedConcern;
+
+
+                if (
+                    matchesSearch &&
+                    matchesConcern
+                ) {
+
+                    card.style.display = "";
+
+                    visibleCount++;
+
+                } else {
+
+                    card.style.display = "none";
+
+                }
+
+            });
+
+
+            emptyState.style.display =
+                visibleCount === 0
+                    ? "block"
+                    : "none";
+
+        }
+
+
+        searchClient.addEventListener(
+            "input",
+            filterClients
+        );
+
+
+        concernFilter.addEventListener(
+            "change",
+            filterClients
+        );
+
+
+        /* =====================================================
+           RECOMMENDATION MODAL
+        ===================================================== */
+
+        const modal =
+            document.getElementById(
+                "recommendationModal"
+            );
+
+
+        const closeModal =
+            document.getElementById(
+                "closeModal"
+            );
+
+
+        const modalCloseButton =
+            document.getElementById(
+                "modalCloseButton"
+            );
+
+
+        function closeRecommendation() {
+
+            modal.classList.remove("show");
+
+        }
+
+
+        function openRecommendation(card) {
+
+            const avatar =
+                card.querySelector(".client-avatar")
+                    .textContent
+                    .trim();
+
+            const name =
+                card.querySelector(".client-name")
+                    .textContent
+                    .trim();
+
+            const email =
+                card.querySelector(".client-email")
+                    .textContent
+                    .trim();
+
+
+            document.getElementById(
+                "modalAvatar"
+            ).textContent = avatar;
+
+
+            document.getElementById(
+                "modalName"
+            ).textContent = name;
+
+
+            document.getElementById(
+                "modalEmail"
+            ).textContent = email;
+
+
+            modal.classList.add("show");
+
+        }
+
+
+        document
+            .querySelectorAll(".view-btn")
+            .forEach(button => {
+
+                button.addEventListener(
+                    "click",
+                    function () {
+
+                        const card =
+                            this.closest(".client-card");
+
+                        openRecommendation(card);
+
+                    }
+                );
+
+            });
+
+
+        closeModal.addEventListener(
+            "click",
+            closeRecommendation
+        );
+
+
+        modalCloseButton.addEventListener(
+            "click",
+            closeRecommendation
+        );
+
+
+        modal.addEventListener(
+            "click",
+            function (event) {
+
+                if (event.target === modal) {
+
+                    closeRecommendation();
+
+                }
+
+            }
+        );
+
+
+        document.addEventListener(
+            "keydown",
+            function (event) {
+
+                if (event.key === "Escape") {
+
+                    closeRecommendation();
+
+                }
+
+            }
+        );
+
+
+        /* =====================================================
+           PDF EXPORT
+        ===================================================== */
+
+        const exportPdfBtn =
+            document.getElementById(
+                "exportPdfBtn"
+            );
+
+
+        exportPdfBtn.addEventListener(
+            "click",
+            function () {
+
+                const {
+                    jsPDF
+                } = window.jspdf;
+
+
+                const pdf =
+                    new jsPDF();
+
+
+                let y = 20;
+
+
+                /* TITLE */
+
+                pdf.setFontSize(20);
+
+                pdf.text(
+                    "Skin AI",
+                    20,
+                    y
+                );
+
+
+                y += 10;
+
+
+                pdf.setFontSize(16);
+
+                pdf.text(
+                    "Product Recommendation Report",
+                    20,
+                    y
+                );
+
+
+                y += 10;
+
+
+                pdf.setFontSize(10);
+
+                pdf.text(
+                    "Personalized skincare recommendations",
+                    20,
+                    y
+                );
+
+
+                y += 15;
+
+
+                /* DATE */
+
+                const today =
+                    new Date()
+                        .toLocaleDateString();
+
+
+                pdf.text(
+                    "Report Date: " + today,
+                    20,
+                    y
+                );
+
+
+                y += 12;
+
+
+                const cards =
+                    document.querySelectorAll(
+                        ".client-card"
+                    );
+
+
+                cards.forEach(
+                    (card, index) => {
+
+                        const name =
+                            card.querySelector(
+                                ".client-name"
+                            ).textContent.trim();
+
+
+                        const email =
+                            card.querySelector(
+                                ".client-email"
+                            ).textContent.trim();
+
+
+                        const concern =
+                            card.querySelector(
+                                ".concern-tag"
+                            ).textContent.trim();
+
+
+                        const score =
+                            card.querySelector(
+                                ".score"
+                            ).textContent.trim();
+
+
+                        const updated =
+                            card.querySelector(
+                                ".updated"
+                            ).textContent.trim();
+
+
+                        const routines =
+                            card.querySelectorAll(
+                                ".routine-section"
+                            );
+
+
+                        let morning = "";
+
+                        let evening = "";
+
+
+                        if (routines[0]) {
+
+                            morning =
+                                Array.from(
+                                    routines[0]
+                                        .querySelectorAll(
+                                            ".routine-item"
+                                        )
+                                )
+                                .map(item =>
+                                    item.textContent
+                                        .trim()
+                                )
+                                .join(", ");
+
+                        }
+
+
+                        if (routines[1]) {
+
+                            evening =
+                                Array.from(
+                                    routines[1]
+                                        .querySelectorAll(
+                                            ".routine-item"
+                                        )
+                                )
+                                .map(item =>
+                                    item.textContent
+                                        .trim()
+                                )
+                                .join(", ");
+
+                        }
+
+
+                        if (y > 250) {
+
+                            pdf.addPage();
+
+                            y = 20;
+
+                        }
+
+
+                        pdf.setFontSize(13);
+
+                        pdf.text(
+                            `${index + 1}. ${name}`,
+                            20,
+                            y
+                        );
+
+
+                        y += 7;
+
+
+                        pdf.setFontSize(9);
+
+                        pdf.text(
+                            "Email: " + email,
+                            25,
+                            y
+                        );
+
+                        y += 6;
+
+
+                        pdf.text(
+                            "Concern: " + concern,
+                            25,
+                            y
+                        );
+
+                        y += 6;
+
+
+                        pdf.text(
+                            "Skin Health Score: " + score,
+                            25,
+                            y
+                        );
+
+                        y += 6;
+
+
+                        pdf.text(
+                            "Morning: " + morning,
+                            25,
+                            y,
+                            {
+                                maxWidth: 165
+                            }
+                        );
+
+                        y += 10;
+
+
+                        pdf.text(
+                            "Evening: " + evening,
+                            25,
+                            y,
+                            {
+                                maxWidth: 165
+                            }
+                        );
+
+                        y += 10;
+
+
+                        pdf.text(
+                            updated,
+                            25,
+                            y
+                        );
+
+                        y += 12;
+
+
+                        pdf.line(
+                            20,
+                            y,
+                            190,
+                            y
+                        );
+
+                        y += 8;
+
+                    }
+                );
+
+
+                pdf.save(
+                    "Skin_AI_Product_Recommendation_Report.pdf"
+                );
+
+            }
+        );
+
+
+        /* =====================================================
+           EXCEL EXPORT
+        ===================================================== */
+
+        const exportExcelBtn =
+            document.getElementById(
+                "exportExcelBtn"
+            );
+
+
+        exportExcelBtn.addEventListener(
+            "click",
+            function () {
+
+                const cards =
+                    document.querySelectorAll(
+                        ".client-card"
+                    );
+
+
+                const reportData = [];
+
+
+                cards.forEach(card => {
+
+                    const name =
+                        card.querySelector(
+                            ".client-name"
+                        ).textContent.trim();
+
+
+                    const email =
+                        card.querySelector(
+                            ".client-email"
+                        ).textContent.trim();
+
+
+                    const concern =
+                        card.querySelector(
+                            ".concern-tag"
+                        ).textContent.trim();
+
+
+                    const score =
+                        card.querySelector(
+                            ".score"
+                        ).textContent.trim();
+
+
+                    const updated =
+                        card.querySelector(
+                            ".updated"
+                        ).textContent.trim();
+
+
+                    const routines =
+                        card.querySelectorAll(
+                            ".routine-section"
+                        );
+
+
+                    let morning = "";
+
+                    let evening = "";
+
+
+                    if (routines[0]) {
+
+                        morning =
+                            Array.from(
+                                routines[0]
+                                    .querySelectorAll(
+                                        ".routine-item"
+                                    )
+                            )
+                            .map(item =>
+                                item.textContent
+                                    .trim()
+                            )
+                            .join(", ");
+
+                    }
+
+
+                    if (routines[1]) {
+
+                        evening =
+                            Array.from(
+                                routines[1]
+                                    .querySelectorAll(
+                                        ".routine-item"
+                                    )
+                            )
+                            .map(item =>
+                                item.textContent
+                                    .trim()
+                            )
+                            .join(", ");
+
+                    }
+
+
+                    reportData.push({
+
+                        "Client Name":
+                            name,
+
+                        "Email":
+                            email,
+
+                        "Concern":
+                            concern,
+
+                        "Skin Health Score":
+                            score,
+
+                        "Morning Routine":
+                            morning,
+
+                        "Evening Routine":
+                            evening,
+
+                        "Updated":
+                            updated
+
+                    });
+
+                });
+
+
+                const worksheet =
+                    XLSX.utils.json_to_sheet(
+                        reportData
+                    );
+
+
+                const workbook =
+                    XLSX.utils.book_new();
+
+
+                XLSX.utils.book_append_sheet(
+                    workbook,
+                    worksheet,
+                    "Recommendations"
+                );
+
+
+                XLSX.writeFile(
+                    workbook,
+                    "Skin_AI_Product_Recommendation_Report.xlsx"
+                );
+
+            }
+        );
+
+
+        /* =====================================================
+           NEW RECOMMENDATION BUTTON
+        ===================================================== */
+
+        const newRecommendationBtn =
+            document.getElementById(
+                "newRecommendationBtn"
+            );
+
+
+        if (newRecommendationBtn) {
+
+            newRecommendationBtn.addEventListener(
+                "click",
+                function () {
+
+                    alert(
+                        "New Recommendation feature is ready for integration."
+                    );
+
+                }
+            );
+
+        }
+
+
+        /* =====================================================
+           LOGOUT
+        ===================================================== */
+
+        const logoutBtn =
+            document.getElementById(
+                "logoutBtn"
+            );
+
+
+        if (logoutBtn) {
+
+            logoutBtn.addEventListener(
+                "click",
+                function (event) {
+
+                    event.preventDefault();
+
+
+                    const confirmLogout =
+                        confirm(
+                            "Are you sure you want to logout?"
+                        );
+
+
+                    if (!confirmLogout) {
+                        return;
+                    }
+
+
+                    localStorage.removeItem(
+                        "token"
+                    );
+
+                    localStorage.removeItem(
+                        "role"
+                    );
+
+
+                    window.location.href =
+                        "login.html";
+
+                }
+            );
+
+        }
+
+    </script>
+
+
+    <!-- Existing recommendations JavaScript -->
+
+    <script src="../js/recommendations.js"></script>
+
+
+</body>
+
+</html>

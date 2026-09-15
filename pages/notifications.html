@@ -1,0 +1,2465 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Skin AI | Smart Reminder Center
+    </title>
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <link rel="preconnect"
+        href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+
+
+        body {
+            background: #f5f8f6;
+            color: #173b25;
+        }
+
+
+        /* ================= SIDEBAR ================= */
+
+        .sidebar {
+
+            position: fixed;
+
+            left: 0;
+            top: 0;
+
+            width: 245px;
+
+            height: 100vh;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    #0f642b,
+                    #1d7d32,
+                    #2b963f
+                );
+
+            padding: 28px 16px;
+
+            color: white;
+
+            box-shadow:
+                4px 0 18px
+                rgba(0,0,0,0.12);
+
+            z-index: 1000;
+
+        }
+
+
+        .brand {
+
+            text-align: center;
+
+            margin-bottom: 35px;
+
+        }
+
+
+        .brand h2 {
+
+            font-size: 26px;
+
+            letter-spacing: 1px;
+
+        }
+
+
+        .brand p {
+
+            font-size: 9px;
+
+            opacity: 0.8;
+
+            margin-top: 4px;
+
+            letter-spacing: 1px;
+
+        }
+
+
+        .sidebar ul {
+
+            list-style: none;
+
+        }
+
+
+        .sidebar li {
+
+            margin: 8px 0;
+
+        }
+
+
+        .sidebar a {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 13px;
+
+            text-decoration: none;
+
+            color: white;
+
+            padding: 13px 15px;
+
+            border-radius: 11px;
+
+            font-size: 13px;
+
+            transition: 0.3s;
+
+        }
+
+
+        .sidebar a:hover {
+
+            background:
+                rgba(255,255,255,0.14);
+
+            transform:
+                translateX(4px);
+
+        }
+
+
+        .sidebar a.active {
+
+            background: white;
+
+            color: #17672d;
+
+            box-shadow:
+                0 5px 15px
+                rgba(0,0,0,0.12);
+
+        }
+
+
+        .sidebar i {
+
+            width: 20px;
+
+            text-align: center;
+
+        }
+
+
+        /* ================= MAIN ================= */
+
+        .main {
+
+            margin-left: 245px;
+
+            padding: 30px 35px;
+
+        }
+
+
+        /* ================= HEADER ================= */
+
+        .header {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-bottom: 25px;
+
+        }
+
+
+        .header h1 {
+
+            font-size: 29px;
+
+            color: #123f2a;
+
+        }
+
+
+        .header p {
+
+            font-size: 13px;
+
+            color: #708177;
+
+            margin-top: 5px;
+
+        }
+
+
+        .notification-status {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            background: #e5f4e8;
+
+            color: #1d7133;
+
+            padding: 10px 15px;
+
+            border-radius: 22px;
+
+            font-size: 11px;
+
+            font-weight: 600;
+
+        }
+
+
+        .status-dot {
+
+            width: 8px;
+
+            height: 8px;
+
+            background: #2b963f;
+
+            border-radius: 50%;
+
+        }
+
+
+        /* ================= HERO ================= */
+
+        .hero {
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #12652c,
+                    #2b963f
+                );
+
+            color: white;
+
+            padding: 28px 30px;
+
+            border-radius: 18px;
+
+            margin-bottom: 25px;
+
+            box-shadow:
+                0 10px 25px
+                rgba(23,103,45,0.18);
+
+        }
+
+
+        .hero h2 {
+
+            font-size: 21px;
+
+            margin-bottom: 7px;
+
+        }
+
+
+        .hero p {
+
+            font-size: 12px;
+
+            opacity: 0.9;
+
+            max-width: 700px;
+
+            line-height: 1.7;
+
+        }
+
+
+        /* ================= QUICK STATS ================= */
+
+        .quick-stats {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(4,1fr);
+
+            gap: 17px;
+
+            margin-bottom: 25px;
+
+        }
+
+
+        .quick-card {
+
+            background: white;
+
+            border-radius: 15px;
+
+            padding: 18px;
+
+            box-shadow:
+                0 5px 18px
+                rgba(0,0,0,0.06);
+
+            border-left:
+                4px solid #2b963f;
+
+        }
+
+
+        .quick-icon {
+
+            width: 39px;
+
+            height: 39px;
+
+            border-radius: 10px;
+
+            background: #e5f4e8;
+
+            color: #23833b;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            margin-bottom: 11px;
+
+        }
+
+
+        .quick-card span {
+
+            font-size: 10px;
+
+            color: #7b897f;
+
+        }
+
+
+        .quick-card h3 {
+
+            font-size: 21px;
+
+            color: #174d2b;
+
+            margin-top: 2px;
+
+        }
+
+
+        /* ================= PANEL ================= */
+
+        .panel {
+
+            background: white;
+
+            border-radius: 17px;
+
+            padding: 24px;
+
+            box-shadow:
+                0 5px 18px
+                rgba(0,0,0,0.06);
+
+            margin-bottom: 25px;
+
+        }
+
+
+        .panel-header {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-bottom: 20px;
+
+        }
+
+
+        .panel-header h2 {
+
+            font-size: 17px;
+
+            color: #174d2b;
+
+        }
+
+
+        .panel-header p {
+
+            font-size: 10px;
+
+            color: #849188;
+
+            margin-top: 3px;
+
+        }
+
+
+        /* ================= REMINDER GRID ================= */
+
+        .reminder-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(3,1fr);
+
+            gap: 17px;
+
+        }
+
+
+        .reminder-card {
+
+            background: #f7faf8;
+
+            border:
+                1px solid #dfece2;
+
+            border-radius: 14px;
+
+            padding: 18px;
+
+            transition: 0.3s;
+
+        }
+
+
+        .reminder-card:hover {
+
+            transform:
+                translateY(-4px);
+
+            box-shadow:
+                0 8px 20px
+                rgba(0,0,0,0.06);
+
+        }
+
+
+        .reminder-top {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-bottom: 14px;
+
+        }
+
+
+        .reminder-icon {
+
+            width: 42px;
+
+            height: 42px;
+
+            border-radius: 11px;
+
+            background: #e5f4e8;
+
+            color: #24823a;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 17px;
+
+        }
+
+
+        .reminder-time {
+
+            font-size: 10px;
+
+            font-weight: 600;
+
+            color: #27803a;
+
+            background: #edf8ef;
+
+            padding: 5px 8px;
+
+            border-radius: 8px;
+
+        }
+
+
+        .reminder-card h3 {
+
+            font-size: 13px;
+
+            color: #285235;
+
+            margin-bottom: 5px;
+
+        }
+
+
+        .reminder-card p {
+
+            font-size: 10px;
+
+            color: #7a887f;
+
+            line-height: 1.6;
+
+            margin-bottom: 14px;
+
+        }
+
+
+        .reminder-action {
+
+            width: 100%;
+
+            border: none;
+
+            background: #e5f4e8;
+
+            color: #176b30;
+
+            padding: 8px;
+
+            border-radius: 8px;
+
+            font-size: 10px;
+
+            font-weight: 600;
+
+            cursor: pointer;
+
+        }
+
+
+        .reminder-action:hover {
+
+            background: #d5eedb;
+
+        }
+
+
+        /* ================= EMAIL REMINDER ================= */
+
+        .email-reminder {
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #f3faf4,
+                    #e8f5eb
+                );
+
+            border:
+                1px solid #d6e9da;
+
+            border-radius: 15px;
+
+            padding: 22px;
+
+        }
+
+
+        .email-title {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+            margin-bottom: 8px;
+
+        }
+
+
+        .email-title-icon {
+
+            width: 42px;
+
+            height: 42px;
+
+            border-radius: 11px;
+
+            background: #2b963f;
+
+            color: white;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 17px;
+
+        }
+
+
+        .email-title h3 {
+
+            font-size: 15px;
+
+            color: #174d2b;
+
+        }
+
+
+        .email-title p {
+
+            font-size: 10px;
+
+            color: #7a887f;
+
+            margin-top: 2px;
+
+        }
+
+
+        .email-form {
+
+            display: flex;
+
+            gap: 12px;
+
+            margin-top: 18px;
+
+        }
+
+
+        .email-form input {
+
+            flex: 1;
+
+            border:
+                1px solid #cfe0d3;
+
+            border-radius: 9px;
+
+            padding: 11px 13px;
+
+            outline: none;
+
+            font-size: 11px;
+
+            color: #285235;
+
+            background: white;
+
+        }
+
+
+        .email-form input:focus {
+
+            border-color: #2b963f;
+
+            box-shadow:
+                0 0 0 3px
+                rgba(43,150,63,0.10);
+
+        }
+
+
+        .send-email-btn {
+
+            border: none;
+
+            background: #21813a;
+
+            color: white;
+
+            padding: 11px 20px;
+
+            border-radius: 9px;
+
+            font-size: 11px;
+
+            font-weight: 600;
+
+            cursor: pointer;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 7px;
+
+            min-width: 170px;
+
+        }
+
+
+        .send-email-btn:hover {
+
+            background: #176b30;
+
+        }
+
+
+        .send-email-btn:disabled {
+
+            opacity: 0.6;
+
+            cursor: not-allowed;
+
+        }
+
+
+        .email-status {
+
+            margin-top: 13px;
+
+            padding: 10px 12px;
+
+            border-radius: 8px;
+
+            font-size: 10px;
+
+            display: none;
+
+        }
+
+
+        .email-status.success {
+
+            display: block;
+
+            background: #e5f4e8;
+
+            color: #176b30;
+
+            border:
+                1px solid #c7e5cd;
+
+        }
+
+
+        .email-status.error {
+
+            display: block;
+
+            background: #fdeaea;
+
+            color: #a52a2a;
+
+            border:
+                1px solid #f0caca;
+
+        }
+
+
+        /* ================= TIMELINE ================= */
+
+        .timeline {
+
+            position: relative;
+
+            padding-left: 28px;
+
+        }
+
+
+        .timeline::before {
+
+            content: "";
+
+            position: absolute;
+
+            left: 8px;
+
+            top: 5px;
+
+            bottom: 5px;
+
+            width: 2px;
+
+            background: #dcebe0;
+
+        }
+
+
+        .timeline-item {
+
+            position: relative;
+
+            padding-bottom: 22px;
+
+        }
+
+
+        .timeline-item:last-child {
+
+            padding-bottom: 0;
+
+        }
+
+
+        .timeline-dot {
+
+            position: absolute;
+
+            left: -25px;
+
+            top: 2px;
+
+            width: 16px;
+
+            height: 16px;
+
+            border-radius: 50%;
+
+            background: #2b963f;
+
+            border: 4px solid #e5f4e8;
+
+        }
+
+
+        .timeline-content {
+
+            background: #f7faf8;
+
+            border:
+                1px solid #dfece2;
+
+            border-radius: 11px;
+
+            padding: 13px 15px;
+
+        }
+
+
+        .timeline-content strong {
+
+            font-size: 11px;
+
+            color: #285235;
+
+        }
+
+
+        .timeline-content span {
+
+            float: right;
+
+            font-size: 9px;
+
+            color: #819087;
+
+        }
+
+
+        .timeline-content p {
+
+            font-size: 9px;
+
+            color: #7b897f;
+
+            margin-top: 4px;
+
+        }
+
+
+        /* ================= NOTIFICATION LIST ================= */
+
+        .notification-list {
+
+            display: flex;
+
+            flex-direction: column;
+
+        }
+
+
+        .notification-item {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 13px;
+
+            padding: 14px 0;
+
+            border-bottom:
+                1px solid #edf1ed;
+
+        }
+
+
+        .notification-item:last-child {
+
+            border-bottom: none;
+
+        }
+
+
+        .notification-icon {
+
+            width: 39px;
+
+            height: 39px;
+
+            border-radius: 50%;
+
+            background: #e5f4e8;
+
+            color: #21813a;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+        }
+
+
+        .notification-text {
+
+            flex: 1;
+
+        }
+
+
+        .notification-text strong {
+
+            display: block;
+
+            font-size: 11px;
+
+            color: #294e34;
+
+        }
+
+
+        .notification-text span {
+
+            font-size: 9px;
+
+            color: #839087;
+
+        }
+
+
+        .notification-badge {
+
+            font-size: 9px;
+
+            color: #21813a;
+
+            background: #eaf6ed;
+
+            padding: 5px 8px;
+
+            border-radius: 7px;
+
+            font-weight: 600;
+
+        }
+
+
+        /* ================= FOOTER ================= */
+
+        footer {
+
+            text-align: center;
+
+            padding: 18px;
+
+            color: #819087;
+
+            font-size: 10px;
+
+        }
+
+
+        /* ================= RESPONSIVE ================= */
+
+        @media(max-width:1050px) {
+
+            .quick-stats {
+
+                grid-template-columns:
+                    repeat(2,1fr);
+
+            }
+
+            .reminder-grid {
+
+                grid-template-columns:
+                    repeat(2,1fr);
+
+            }
+
+        }
+
+
+        @media(max-width:750px) {
+
+            .sidebar {
+
+                width: 210px;
+
+            }
+
+            .main {
+
+                margin-left: 210px;
+
+                padding: 20px;
+
+            }
+
+            .quick-stats {
+
+                grid-template-columns: 1fr;
+
+            }
+
+            .reminder-grid {
+
+                grid-template-columns: 1fr;
+
+            }
+
+            .header {
+
+                flex-direction: column;
+
+                align-items: flex-start;
+
+                gap: 12px;
+
+            }
+
+            .email-form {
+
+                flex-direction: column;
+
+            }
+
+            .send-email-btn {
+
+                width: 100%;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <div class="sidebar">
+
+        <div class="brand">
+
+            <h2>Skin AI</h2>
+
+            <p>SMART SKINCARE CENTER</p>
+
+        </div>
+
+
+        <ul>
+
+            <li>
+
+                <a href="user-dashboard.html">
+
+                    <i class="fa-solid fa-house"></i>
+
+                    Dashboard
+
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="profile.html">
+
+                    <i class="fa-solid fa-user"></i>
+
+                    Skin Profile
+
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="assessment.html">
+
+                    <i class="fa-solid fa-clipboard-check"></i>
+
+                    Skin Assessment
+
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="adaptive-routine.html">
+
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+
+                    Adaptive Routine
+
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="products.html">
+
+                    <i class="fa-solid fa-bottle-droplet"></i>
+
+                    Products
+
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="ingredient-intelligence.html">
+
+                    <i class="fa-solid fa-flask"></i>
+
+                    Ingredient Intelligence
+
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="progress.html">
+
+                    <i class="fa-solid fa-chart-line"></i>
+
+                    Progress
+
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="skin-health-score.html">
+
+                    <i class="fa-solid fa-heart-pulse"></i>
+
+                    Skin Health Score
+
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="notifications.html"
+                    class="active">
+
+                    <i class="fa-solid fa-bell"></i>
+
+                    Notifications
+
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="../index.html">
+
+                    <i class="fa-solid fa-right-from-bracket"></i>
+
+                    Logout
+
+                </a>
+
+            </li>
+
+        </ul>
+
+    </div>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <div class="main">
+
+
+        <!-- HEADER -->
+
+        <div class="header">
+
+            <div>
+
+                <h1>
+                    Smart Reminder Center
+                </h1>
+
+                <p>
+                    Personalized skincare reminders powered by Skin AI
+                </p>
+
+            </div>
+
+
+            <div class="notification-status">
+
+                <span class="status-dot"></span>
+
+                Notification System Active
+
+            </div>
+
+        </div>
+
+
+        <!-- HERO -->
+
+        <div class="hero">
+
+            <h2>
+                Your Skin Care, Right on Time ✨
+            </h2>
+
+            <p>
+                Skin AI keeps track of your daily skincare habits,
+                hydration, sleep schedule and product usage so you
+                never miss an important skincare activity.
+            </p>
+
+        </div>
+
+
+        <!-- QUICK STATS -->
+
+        <div class="quick-stats">
+
+
+            <div class="quick-card">
+
+                <div class="quick-icon">
+
+                    <i class="fa-solid fa-bell"></i>
+
+                </div>
+
+                <span>
+                    Today's Reminders
+                </span>
+
+                <h3>
+                    6
+                </h3>
+
+            </div>
+
+
+            <div class="quick-card">
+
+                <div class="quick-icon">
+
+                    <i class="fa-solid fa-check"></i>
+
+                </div>
+
+                <span>
+                    Completed
+                </span>
+
+                <h3 id="completedCount">
+                    2
+                </h3>
+
+            </div>
+
+
+            <div class="quick-card">
+
+                <div class="quick-icon">
+
+                    <i class="fa-solid fa-clock"></i>
+
+                </div>
+
+                <span>
+                    Upcoming
+                </span>
+
+                <h3>
+                    4
+                </h3>
+
+            </div>
+
+
+            <div class="quick-card">
+
+                <div class="quick-icon">
+
+                    <i class="fa-solid fa-fire"></i>
+
+                </div>
+
+                <span>
+                    Current Streak
+                </span>
+
+                <h3>
+                    7 Days
+                </h3>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= SEND EMAIL REMINDER ================= -->
+
+        <div class="panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>
+                        Email Reminder
+                    </h2>
+
+                    <p>
+                        Send a skincare routine reminder directly to an email address
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="email-reminder">
+
+                <div class="email-title">
+
+                    <div class="email-title-icon">
+
+                        <i class="fa-solid fa-envelope"></i>
+
+                    </div>
+
+                    <div>
+
+                        <h3>
+                            Send Routine Reminder
+                        </h3>
+
+                        <p>
+                            The recipient will receive the Skin AI morning routine reminder.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="email-form">
+
+                    <input
+                        type="email"
+                        id="recipientEmail"
+                        placeholder="Enter recipient email address"
+                        autocomplete="email">
+
+
+                    <button
+                        class="send-email-btn"
+                        id="sendEmailButton"
+                        onclick="sendRoutineReminder()">
+
+                        <i class="fa-solid fa-paper-plane"></i>
+
+                        Send Email Reminder
+
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="emailStatus"
+                    class="email-status">
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= REMINDER TYPES ================= -->
+
+        <div class="panel">
+
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>
+                        Smart Reminder Categories
+                    </h2>
+
+                    <p>
+                        Stay consistent with your personalized skincare habits
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="reminder-grid">
+
+
+                <!-- ROUTINE -->
+
+                <div class="reminder-card">
+
+                    <div class="reminder-top">
+
+                        <div class="reminder-icon">
+
+                            <i class="fa-solid fa-sun"></i>
+
+                        </div>
+
+                        <div class="reminder-time">
+                            08:00 AM
+                        </div>
+
+                    </div>
+
+                    <h3>
+                        Routine Reminder
+                    </h3>
+
+                    <p>
+                        Complete your morning skincare routine
+                        and apply your recommended products.
+                    </p>
+
+                    <button
+                        class="reminder-action"
+                        onclick="completeReminder(this)">
+
+                        Mark as Done
+
+                    </button>
+
+                </div>
+
+
+                <!-- REPLENISHMENT -->
+
+                <div class="reminder-card">
+
+                    <div class="reminder-top">
+
+                        <div class="reminder-icon">
+
+                            <i class="fa-solid fa-bottle-droplet"></i>
+
+                        </div>
+
+                        <div class="reminder-time">
+                            Product Alert
+                        </div>
+
+                    </div>
+
+                    <h3>
+                        Product Replenishment
+                    </h3>
+
+                    <p>
+                        Your cleanser may be running low.
+                        Consider checking your remaining quantity.
+                    </p>
+
+                    <button
+                        class="reminder-action"
+                        onclick="showNotification('Product replenishment reminder checked.')">
+
+                        Check Product
+
+                    </button>
+
+                </div>
+
+
+                <!-- HYDRATION -->
+
+                <div class="reminder-card">
+
+                    <div class="reminder-top">
+
+                        <div class="reminder-icon">
+
+                            <i class="fa-solid fa-droplet"></i>
+
+                        </div>
+
+                        <div class="reminder-time">
+                            Every 2 Hours
+                        </div>
+
+                    </div>
+
+                    <h3>
+                        Hydration Reminder
+                    </h3>
+
+                    <p>
+                        Stay hydrated throughout the day
+                        to support healthy skin.
+                    </p>
+
+                    <button
+                        class="reminder-action"
+                        onclick="completeReminder(this)">
+
+                        I Drank Water
+
+                    </button>
+
+                </div>
+
+
+                <!-- SLEEP -->
+
+                <div class="reminder-card">
+
+                    <div class="reminder-top">
+
+                        <div class="reminder-icon">
+
+                            <i class="fa-solid fa-moon"></i>
+
+                        </div>
+
+                        <div class="reminder-time">
+                            10:30 PM
+                        </div>
+
+                    </div>
+
+                    <h3>
+                        Sleep Reminder
+                    </h3>
+
+                    <p>
+                        Prepare for your recommended sleep schedule
+                        and give your skin time to recover.
+                    </p>
+
+                    <button
+                        class="reminder-action"
+                        onclick="showNotification('Sleep reminder acknowledged.')">
+
+                        Acknowledge
+
+                    </button>
+
+                </div>
+
+
+                <!-- PROGRESS -->
+
+                <div class="reminder-card">
+
+                    <div class="reminder-top">
+
+                        <div class="reminder-icon">
+
+                            <i class="fa-solid fa-chart-line"></i>
+
+                        </div>
+
+                        <div class="reminder-time">
+                            Weekly
+                        </div>
+
+                    </div>
+
+                    <h3>
+                        Progress Alert
+                    </h3>
+
+                    <p>
+                        Your skincare progress has been updated.
+                        Review your latest skin improvement trends.
+                    </p>
+
+                    <button
+                        class="reminder-action"
+                        onclick="showNotification('Progress report opened.')">
+
+                        View Progress
+
+                    </button>
+
+                </div>
+
+
+                <!-- PLATFORM -->
+
+                <div class="reminder-card">
+
+                    <div class="reminder-top">
+
+                        <div class="reminder-icon">
+
+                            <i class="fa-solid fa-bullhorn"></i>
+
+                        </div>
+
+                        <div class="reminder-time">
+                            Platform
+                        </div>
+
+                    </div>
+
+                    <h3>
+                        Platform Notification
+                    </h3>
+
+                    <p>
+                        Important Skin AI updates, system messages
+                        and personalized skincare information.
+                    </p>
+
+                    <button
+                        class="reminder-action"
+                        onclick="showNotification('You have no new platform alerts.')">
+
+                        Check Notifications
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= TODAY TIMELINE ================= -->
+
+        <div class="panel">
+
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>
+                        Today's Reminder Timeline
+                    </h2>
+
+                    <p>
+                        Your personalized skincare activity schedule
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="timeline">
+
+
+                <div class="timeline-item">
+
+                    <div class="timeline-dot"></div>
+
+                    <div class="timeline-content">
+
+                        <strong>
+                            Morning skincare routine
+                        </strong>
+
+                        <span>
+                            08:00 AM
+                        </span>
+
+                        <p>
+                            Cleanse → Treat → Moisturize → Sunscreen
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="timeline-item">
+
+                    <div class="timeline-dot"></div>
+
+                    <div class="timeline-content">
+
+                        <strong>
+                            Hydration check
+                        </strong>
+
+                        <span>
+                            12:00 PM
+                        </span>
+
+                        <p>
+                            Time for your next hydration reminder.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="timeline-item">
+
+                    <div class="timeline-dot"></div>
+
+                    <div class="timeline-content">
+
+                        <strong>
+                            Product usage check
+                        </strong>
+
+                        <span>
+                            06:00 PM
+                        </span>
+
+                        <p>
+                            Review product usage and replenishment status.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="timeline-item">
+
+                    <div class="timeline-dot"></div>
+
+                    <div class="timeline-content">
+
+                        <strong>
+                            Night skincare routine
+                        </strong>
+
+                        <span>
+                            09:00 PM
+                        </span>
+
+                        <p>
+                            Complete your personalized evening routine.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="timeline-item">
+
+                    <div class="timeline-dot"></div>
+
+                    <div class="timeline-content">
+
+                        <strong>
+                            Sleep preparation
+                        </strong>
+
+                        <span>
+                            10:30 PM
+                        </span>
+
+                        <p>
+                            Start preparing for your recommended sleep schedule.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= PLATFORM NOTIFICATIONS ================= -->
+
+        <div class="panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>
+                        Recent Notifications
+                    </h2>
+
+                    <p>
+                        Latest Skin AI system messages
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="notification-list"
+                id="notificationList">
+
+                <div class="notification-item">
+
+                    <div class="notification-icon">
+
+                        <i class="fa-solid fa-spinner fa-spin"></i>
+
+                    </div>
+
+                    <div class="notification-text">
+
+                        <strong>
+                            Loading notifications...
+                        </strong>
+
+                        <span>
+                            Skin AI is checking for new notifications.
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- FOOTER -->
+
+        <footer>
+
+            Skin AI | Smart Skincare Notification System
+
+        </footer>
+
+
+    </div>
+
+
+    <!-- ================= JAVASCRIPT ================= -->
+
+    <script>
+
+
+        /* =========================================================
+           COMPLETE REMINDER
+        ========================================================= */
+
+        function completeReminder(button) {
+
+            button.textContent = "✓ Completed";
+
+            button.style.background = "#d9f0dd";
+
+            button.style.color = "#17672d";
+
+            button.disabled = true;
+
+
+            const counter =
+                document.getElementById("completedCount");
+
+
+            if (counter) {
+
+                let count =
+                    parseInt(counter.textContent) || 0;
+
+                counter.textContent =
+                    count + 1;
+
+            }
+
+        }
+
+
+        /* =========================================================
+           NOTIFICATION MESSAGE
+        ========================================================= */
+
+        function showNotification(message) {
+
+            alert(message);
+
+        }
+
+
+        /* =========================================================
+           SEND ROUTINE EMAIL
+        ========================================================= */
+
+        async function sendRoutineReminder() {
+
+            const emailInput =
+                document.getElementById(
+                    "recipientEmail"
+                );
+
+
+            const sendButton =
+                document.getElementById(
+                    "sendEmailButton"
+                );
+
+
+            const statusBox =
+                document.getElementById(
+                    "emailStatus"
+                );
+
+
+            const recipientEmail =
+                emailInput.value.trim();
+
+
+            /* ---------- CHECK EMAIL ---------- */
+
+            if (!recipientEmail) {
+
+                statusBox.className =
+                    "email-status error";
+
+                statusBox.textContent =
+                    "Please enter an email address.";
+
+                return;
+
+            }
+
+
+            /* ---------- SIMPLE EMAIL VALIDATION ---------- */
+
+            const emailPattern =
+                /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+
+            if (!emailPattern.test(recipientEmail)) {
+
+                statusBox.className =
+                    "email-status error";
+
+                statusBox.textContent =
+                    "Please enter a valid email address.";
+
+                return;
+
+            }
+
+
+            /* ---------- LOADING ---------- */
+
+            sendButton.disabled = true;
+
+            sendButton.innerHTML = `
+                <i class="fa-solid fa-spinner fa-spin"></i>
+                Sending...
+            `;
+
+
+            statusBox.className =
+                "email-status";
+
+
+            statusBox.textContent = "";
+
+
+            try {
+
+                /* =================================================
+                   CALL FASTAPI
+                ================================================= */
+
+                const response =
+                    await fetch(
+                        "http://127.0.0.1:8000/notifications/send-routine-reminder",
+                        {
+
+                            method: "POST",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json",
+
+                                "Accept":
+                                    "application/json"
+
+                            },
+
+                            body: JSON.stringify({
+
+                                user_id: 1,
+
+                                recipient_email:
+                                    recipientEmail
+
+                            })
+
+                        }
+                    );
+
+
+                /* ---------- READ RESPONSE ---------- */
+
+                const data =
+                    await response.json();
+
+
+                /* ---------- API ERROR ---------- */
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.detail ||
+                        "Unable to send reminder email."
+                    );
+
+                }
+
+
+                /* ---------- SUCCESS ---------- */
+
+                statusBox.className =
+                    "email-status success";
+
+
+                statusBox.innerHTML = `
+                    <i class="fa-solid fa-circle-check"></i>
+                    ${data.message || "Routine reminder email sent successfully."}
+                `;
+
+
+                /* ---------- CLEAR EMAIL ---------- */
+
+                emailInput.value = "";
+
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Routine email error:",
+                    error
+                );
+
+
+                statusBox.className =
+                    "email-status error";
+
+
+                statusBox.innerHTML = `
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    ${error.message || "Unable to send email reminder."}
+                `;
+
+            }
+
+
+            /* ---------- RESTORE BUTTON ---------- */
+
+            sendButton.disabled = false;
+
+
+            sendButton.innerHTML = `
+                <i class="fa-solid fa-paper-plane"></i>
+                Send Email Reminder
+            `;
+
+        }
+
+
+        /* =========================================================
+           LOAD NOTIFICATIONS FROM FASTAPI
+        ========================================================= */
+
+        async function loadNotifications() {
+
+            const notificationList =
+                document.getElementById(
+                    "notificationList"
+                );
+
+
+            if (!notificationList) {
+
+                return;
+
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "http://127.0.0.1:8000/notifications/"
+                    );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "Notification API returned an error"
+                    );
+
+                }
+
+
+                const notifications =
+                    await response.json();
+
+
+                notificationList.innerHTML =
+                    "";
+
+
+                if (
+                    !notifications ||
+                    notifications.length === 0
+                ) {
+
+                    notificationList.innerHTML = `
+
+                        <div class="notification-item">
+
+                            <div class="notification-icon">
+
+                                <i class="fa-solid fa-bell-slash"></i>
+
+                            </div>
+
+                            <div class="notification-text">
+
+                                <strong>
+                                    No new notifications
+                                </strong>
+
+                                <span>
+                                    You are all caught up.
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    `;
+
+                    return;
+
+                }
+
+
+                notifications.forEach(
+                    function(notification) {
+
+                        const item =
+                            document.createElement(
+                                "div"
+                            );
+
+                        item.className =
+                            "notification-item";
+
+
+                        /* ---------- ICON ---------- */
+
+                        const icon =
+                            document.createElement(
+                                "div"
+                            );
+
+                        icon.className =
+                            "notification-icon";
+
+                        icon.innerHTML =
+                            getNotificationIcon(
+                                notification.type
+                            );
+
+
+                        /* ---------- TEXT ---------- */
+
+                        const text =
+                            document.createElement(
+                                "div"
+                            );
+
+                        text.className =
+                            "notification-text";
+
+
+                        const title =
+                            document.createElement(
+                                "strong"
+                            );
+
+                        title.textContent =
+                            notification.title;
+
+
+                        const message =
+                            document.createElement(
+                                "span"
+                            );
+
+                        message.textContent =
+                            notification.message;
+
+
+                        text.appendChild(title);
+
+                        text.appendChild(message);
+
+
+                        /* ---------- BADGE ---------- */
+
+                        const badge =
+                            document.createElement(
+                                "div"
+                            );
+
+                        badge.className =
+                            "notification-badge";
+
+                        badge.textContent =
+                            "NEW";
+
+
+                        /* ---------- ADD ---------- */
+
+                        item.appendChild(icon);
+
+                        item.appendChild(text);
+
+                        item.appendChild(badge);
+
+
+                        notificationList.appendChild(
+                            item
+                        );
+
+                    }
+                );
+
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Notification loading error:",
+                    error
+                );
+
+
+                notificationList.innerHTML = `
+
+                    <div class="notification-item">
+
+                        <div class="notification-icon">
+
+                            <i class="fa-solid fa-circle-exclamation"></i>
+
+                        </div>
+
+                        <div class="notification-text">
+
+                            <strong>
+                                Notification service unavailable
+                            </strong>
+
+                            <span>
+                                Please make sure the Skin AI backend is running.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            }
+
+        }
+
+
+        /* =========================================================
+           NOTIFICATION ICONS
+        ========================================================= */
+
+        function getNotificationIcon(type) {
+
+            if (!type) {
+
+                return `
+                    <i class="fa-solid fa-bell"></i>
+                `;
+
+            }
+
+
+            switch (
+                type.toLowerCase()
+            ) {
+
+                case "routine":
+
+                    return `
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    `;
+
+
+                case "hydration":
+
+                    return `
+                        <i class="fa-solid fa-droplet"></i>
+                    `;
+
+
+                case "sleep":
+
+                    return `
+                        <i class="fa-solid fa-moon"></i>
+                    `;
+
+
+                case "replenishment":
+
+                    return `
+                        <i class="fa-solid fa-bottle-droplet"></i>
+                    `;
+
+
+                case "progress":
+
+                    return `
+                        <i class="fa-solid fa-chart-line"></i>
+                    `;
+
+
+                default:
+
+                    return `
+                        <i class="fa-solid fa-bell"></i>
+                    `;
+
+            }
+
+        }
+
+
+        /* =========================================================
+           START NOTIFICATION SYSTEM
+        ========================================================= */
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function() {
+
+                loadNotifications();
+
+            }
+        );
+
+
+    </script>
+
+
+</body>
+
+</html>

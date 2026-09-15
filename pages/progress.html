@@ -1,609 +1,2618 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
 
-```
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
 
-<title>Skin AI | Progress Tracking</title>
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
-<link rel="stylesheet" href="../css/dashboard.css">
+    <title>Skin AI | Progress Tracking</title>
 
-<link
-    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-    rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
-<link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!-- Google Font -->
+    <link rel="preconnect"
+        href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
 
 <style>
 
-    /* ==========================================
-       PROGRESS PAGE
-    ========================================== */
+/* =========================================================
+   GLOBAL
+========================================================= */
 
-    .progress-page {
-        padding-bottom: 40px;
-    }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-    /* ==========================================
-       HEADER
-    ========================================== */
+body {
 
-    .progress-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 25px;
-        margin-bottom: 30px;
-    }
+    font-family: "Poppins", sans-serif;
 
-    .progress-header h1 {
-        margin: 8px 0 8px;
-    }
+    background:
+        #f4f8f6;
 
-    .progress-header p {
-        margin: 0;
-        color: #6b7280;
-        max-width: 700px;
-    }
+    color:
+        #19352a;
 
-    .progress-status {
-        display: flex;
-        align-items: center;
-        gap: 9px;
-        background: #ffffff;
-        padding: 12px 18px;
-        border-radius: 12px;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-        font-size: 13px;
-        font-weight: 600;
-        white-space: nowrap;
-    }
+}
 
-    .progress-status-dot {
-        width: 9px;
-        height: 9px;
-        background: #22c55e;
-        border-radius: 50%;
-        display: inline-block;
-    }
 
-    /* ==========================================
-       SCORE CARDS
-    ========================================== */
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.sidebar {
+
+    position: fixed;
+
+    left: 0;
+    top: 0;
+
+    width: 250px;
+    height: 100vh;
+
+    background:
+        linear-gradient(
+            180deg,
+            #176b25,
+            #166d27
+        );
+
+    color: white;
+
+    padding: 28px 18px;
+
+    overflow-y: auto;
+
+    z-index: 1000;
+
+}
+
+
+.brand {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding:
+        0 10px 28px;
+
+}
+
+
+.brand-icon {
+
+    width: 45px;
+    height: 45px;
+
+    border-radius: 12px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background:
+        rgba(255,255,255,0.14);
+
+    font-size: 21px;
+
+}
+
+
+.brand h2 {
+
+    font-size: 21px;
+
+    font-weight: 700;
+
+}
+
+
+.brand span {
+
+    display: block;
+
+    font-size: 10px;
+
+    color:
+        #eaf6ee;
+
+    margin-top: 2px;
+
+}
+
+
+.nav-title {
+
+    font-size: 10px;
+
+    font-weight: 600;
+
+    color:
+        #e7f6ec;
+
+    letter-spacing: 1px;
+
+    padding:
+        12px 12px;
+
+}
+
+
+nav ul {
+
+    list-style: none;
+
+}
+
+
+nav li {
+
+    margin-bottom: 5px;
+
+}
+
+
+nav a {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+
+    text-decoration: none;
+
+    color:
+        #edf8f2;
+
+    padding:
+        12px 13px;
+
+    border-radius: 10px;
+
+    font-size: 13px;
+
+    transition:
+        0.2s ease;
+
+}
+
+
+nav a i {
+
+    width: 20px;
+
+    text-align: center;
+
+}
+
+
+nav a:hover {
+
+    background:
+        rgba(255,255,255,0.10);
+
+    color: white;
+
+}
+
+
+nav a.active {
+
+    background:
+        #ffffff;
+
+    color:
+        #27814a;
+
+    font-weight: 600;
+
+}
+
+
+.secondary-title {
+
+    margin-top: 20px;
+
+}
+
+
+/* =========================================================
+   MAIN CONTENT
+========================================================= */
+
+.main-content {
+
+    margin-left: 250px;
+
+    width:
+        calc(100% - 250px);
+
+    min-height: 100vh;
+
+    padding:
+        35px 45px 50px;
+
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.progress-header {
+
+    display: flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        center;
+
+    gap: 25px;
+
+    margin-bottom: 30px;
+
+}
+
+
+.welcome-label {
+
+    display: inline-block;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    letter-spacing: 1.5px;
+
+    color:
+        #27814a;
+
+    margin-bottom: 6px;
+
+}
+
+
+.progress-header h1 {
+
+    font-size: 30px;
+
+    color:
+        #19352a;
+
+    margin-bottom: 8px;
+
+}
+
+
+.progress-header p {
+
+    color:
+        #203b2f;
+
+    font-size: 13px;
+
+    max-width: 720px;
+
+    line-height: 1.7;
+
+}
+
+
+.progress-status {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    background: white;
+
+    padding:
+        11px 16px;
+
+    border-radius: 30px;
+
+    box-shadow:
+        0 5px 20px rgba(24,61,41,0.06);
+
+    font-size: 12px;
+
+    white-space: nowrap;
+
+}
+
+
+.progress-status-dot {
+
+    width: 9px;
+    height: 9px;
+
+    background:
+        #35a85a;
+
+    border-radius: 50%;
+
+    box-shadow:
+        0 0 0 4px #e7f6ec;
+
+}
+
+
+/* =========================================================
+   SECTION TITLE
+========================================================= */
+
+.section-title {
+
+    margin:
+        35px 0 15px;
+
+}
+
+
+.section-title h2 {
+
+    font-size: 19px;
+
+    color:
+        #19352a;
+
+}
+
+
+.section-title p {
+
+    font-size: 12px;
+
+    color:
+        #203b2f;
+
+    margin-top: 3px;
+
+}
+
+
+/* =========================================================
+   SCORE CARDS
+========================================================= */
+
+.score-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 20px;
+
+}
+
+
+.score-card {
+
+    background:
+        white;
+
+    border-radius: 18px;
+
+    padding: 22px;
+
+    box-shadow:
+        0 8px 30px rgba(25,70,43,0.07);
+
+    border:
+        1px solid #e3ebe7;
+
+}
+
+
+.score-card-header {
+
+    display: flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        center;
+
+}
+
+
+.score-label {
+
+    font-size: 12px;
+
+    color:
+        #203b2f;
+
+    font-weight: 600;
+
+}
+
+
+.score-icon {
+
+    width: 42px;
+    height: 42px;
+
+    border-radius: 12px;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    background:
+        #e7f6ec;
+
+    color:
+        #27814a;
+
+}
+
+
+.score-value {
+
+    font-size: 34px;
+
+    font-weight: 700;
+
+    color:
+        #19352a;
+
+    margin-top: 18px;
+
+}
+
+
+.score-value.empty {
+
+    font-size: 23px;
+
+    color:
+        #203b2f;
+
+}
+
+
+.score-description {
+
+    font-size: 11px;
+
+    color:
+        #203b2f;
+
+    margin-top: 2px;
+
+}
+
+
+.score-progress {
+
+    width: 100%;
+
+    height: 7px;
+
+    background:
+        #eaf6ee;
+
+    border-radius: 20px;
+
+    margin-top: 17px;
+
+    overflow: hidden;
+
+}
+
+
+.score-progress span {
+
+    display: block;
+
+    height: 100%;
+
+    width: 0%;
+
+    background:
+        linear-gradient(
+            90deg,
+            #278a46,
+            #35a85a
+        );
+
+    border-radius: 20px;
+
+    transition:
+        width 0.5s ease;
+
+}
+
+
+/* =========================================================
+   NO ASSESSMENT
+========================================================= */
+
+.no-assessment {
+
+    background:
+        white;
+
+    border:
+        1px solid #e5ece8;
+
+    border-radius: 18px;
+
+    padding: 45px;
+
+    text-align: center;
+
+    margin-top: 25px;
+
+}
+
+
+.no-assessment-icon {
+
+    width: 65px;
+    height: 65px;
+
+    margin: auto;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    background:
+        #eaf6ee;
+
+    color:
+        #27814a;
+
+    font-size: 25px;
+
+}
+
+
+.no-assessment h2 {
+
+    margin-top: 15px;
+
+    color:
+        #19352a;
+
+}
+
+
+.no-assessment p {
+
+    max-width: 600px;
+
+    margin:
+        10px auto 20px;
+
+    font-size: 13px;
+
+    color:
+        #203b2f;
+
+    line-height: 1.7;
+
+}
+
+
+.assessment-btn {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding:
+        11px 18px;
+
+    border-radius: 10px;
+
+    text-decoration: none;
+
+    background:
+        #278a46;
+
+    color: white;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+}
+
+
+/* =========================================================
+   TWO COLUMN CARDS
+========================================================= */
+
+.progress-main-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 20px;
+
+    margin-top: 25px;
+
+}
+
+
+.progress-card {
+
+    background:
+        white;
+
+    border:
+        1px solid #e3ebe7;
+
+    border-radius: 18px;
+
+    padding: 24px;
+
+    box-shadow:
+        0 8px 30px rgba(25,70,43,0.06);
+
+    margin-top: 20px;
+
+}
+
+
+.progress-main-grid .progress-card {
+
+    margin-top: 0;
+
+}
+
+
+.card-heading {
+
+    display: flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        center;
+
+    gap: 15px;
+
+    margin-bottom: 20px;
+
+}
+
+
+.card-heading h2 {
+
+    font-size: 17px;
+
+    color:
+        #19352a;
+
+}
+
+
+.card-heading span {
+
+    font-size: 10px;
+
+    color:
+        #203b2f;
+
+    background:
+        #edf8f2;
+
+    padding:
+        6px 9px;
+
+    border-radius: 20px;
+
+}
+
+
+/* =========================================================
+   REPORT
+========================================================= */
+
+.report-summary {
+
+    display: flex;
+
+    gap: 15px;
+
+    padding: 18px;
+
+    background:
+        #edf8f2;
+
+    border-radius: 13px;
+
+}
+
+
+.report-icon {
+
+    min-width: 45px;
+    height: 45px;
+
+    border-radius: 12px;
+
+    background:
+        #e7f6ec;
+
+    color:
+        #27814a;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+}
+
+
+.report-summary h3 {
+
+    font-size: 15px;
+
+    color:
+        #19352a;
+
+    margin-bottom: 6px;
+
+}
+
+
+.report-summary p {
+
+    font-size: 12px;
+
+    color:
+        #203b2f;
+
+    line-height: 1.7;
+
+}
+
+
+/* =========================================================
+   METRICS
+========================================================= */
+
+.metric-list {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 19px;
+
+}
+
+
+.metric-item {
+
+    display: grid;
+
+    grid-template-columns:
+        90px 1fr 35px;
+
+    align-items: center;
+
+    gap: 12px;
+
+}
+
+
+.metric-name {
+
+    font-size: 11px;
+
+    color:
+        #203b2f;
+
+    font-weight: 600;
+
+}
+
+
+.metric-bar {
+
+    height: 8px;
+
+    background:
+        #eaf6ee;
+
+    border-radius: 20px;
+
+    overflow: hidden;
+
+}
+
+
+.metric-bar span {
+
+    display: block;
+
+    width: 0%;
+
+    height: 100%;
+
+    background:
+        #35a85a;
+
+    border-radius: 20px;
+
+}
+
+
+.metric-score {
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    color:
+        #27814a;
+
+    text-align: right;
+
+}
+
+
+/* =========================================================
+   IMPROVEMENT ANALYSIS
+========================================================= */
+
+.improvement-status {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding:
+        17px;
+
+    border-radius: 14px;
+
+    background:
+        #edf8f2;
+
+}
+
+
+.improvement-status-icon {
+
+    width: 48px;
+    height: 48px;
+
+    border-radius: 13px;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    background:
+        #e7f6ec;
+
+    color:
+        #278a46;
+
+}
+
+
+.improvement-status h3 {
+
+    font-size: 15px;
+
+    color:
+        #19352a;
+
+}
+
+
+.improvement-status p {
+
+    font-size: 11px;
+
+    color:
+        #203b2f;
+
+    margin-top: 3px;
+
+}
+
+
+.improvement-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 14px;
+
+    margin-top: 20px;
+
+}
+
+
+.improvement-item {
+
+    padding:
+        17px;
+
+    border-radius: 13px;
+
+    background:
+        #f4f8f6;
+
+    border:
+        1px solid #e3ebe7;
+
+}
+
+
+.improvement-item-header {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    color:
+        #27814a;
+
+    font-size: 10px;
+
+}
+
+
+.improvement-item h4 {
+
+    font-size: 12px;
+
+    margin-top: 12px;
+
+    color:
+        #203b2f;
+
+}
+
+
+.improvement-value {
+
+    font-size: 25px;
+
+    font-weight: 700;
+
+    margin-top: 5px;
+
+    color:
+        #27814a;
+
+}
+
+
+.improvement-value.negative {
+
+    color:
+        #d25555;
+
+}
+
+
+.improvement-value.neutral {
+
+    color:
+        #203b2f;
+
+}
+
+
+.improvement-description {
+
+    font-size: 9px;
+
+    color:
+        #203b2f;
+
+    margin-top: 2px;
+
+}
+
+
+.improvement-insight {
+
+    margin-top: 18px;
+
+    padding:
+        14px 16px;
+
+    border-radius: 12px;
+
+    background:
+        #edf8f2;
+
+    color:
+        #203b2f;
+
+    font-size: 11px;
+
+    line-height: 1.6;
+
+}
+
+
+.improvement-insight i {
+
+    color:
+        #f7c34d;
+
+    margin-right: 6px;
+
+}
+
+
+/* =========================================================
+   TRANSFORMATION MIRROR
+========================================================= */
+
+.mirror-container {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 80px 1fr;
+
+    align-items: center;
+
+    gap: 15px;
+
+}
+
+
+.mirror-side {
+
+    padding: 22px;
+
+    border-radius: 15px;
+
+    background:
+        #f4f8f6;
+
+    border:
+        1px solid #e3ebe7;
+
+}
+
+
+.mirror-side.current-side {
+
+    background:
+        #edf8f2;
+
+    border-color:
+        #e5ece8;
+
+}
+
+
+.mirror-side-top {
+
+    display: flex;
+
+    justify-content:
+        space-between;
+
+    align-items: center;
+
+}
+
+
+.mirror-side-label {
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    color:
+        #19352a;
+
+}
+
+
+.mirror-side-tag {
+
+    font-size: 9px;
+
+    padding:
+        4px 8px;
+
+    border-radius: 20px;
+
+    background:
+        #e7f6ec;
+
+    color:
+        #27814a;
+
+}
+
+
+.mirror-side-date {
+
+    font-size: 10px;
+
+    color:
+        #203b2f;
+
+    margin-top: 8px;
+
+}
+
+
+.mirror-score-wrap {
+
+    display: flex;
+
+    align-items: baseline;
+
+    gap: 3px;
+
+    margin-top: 15px;
+
+}
+
+
+.mirror-score {
+
+    font-size: 36px;
+
+    font-weight: 700;
+
+    color:
+        #19352a;
+
+}
+
+
+.mirror-score-unit {
+
+    font-size: 11px;
+
+    color:
+        #203b2f;
+
+}
+
+
+.mirror-score-label {
+
+    font-size: 10px;
+
+    color:
+        #203b2f;
+
+}
+
+
+.mirror-mini-line {
+
+    height: 6px;
+
+    background:
+        #e5ece8;
+
+    border-radius: 20px;
+
+    margin-top: 12px;
+
+    overflow: hidden;
+
+}
+
+
+.mirror-mini-line span {
+
+    display: block;
+
+    height: 100%;
+
+    background:
+        #35a85a;
+
+}
+
+
+.mirror-arrow-zone {
+
+    text-align: center;
+
+}
+
+
+.mirror-arrow {
+
+    width: 52px;
+    height: 52px;
+
+    border-radius: 50%;
+
+    background:
+        #e7f5ec;
+
+    color:
+        #27814a;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    margin: auto;
+
+}
+
+
+.mirror-arrow-label {
+
+    font-size: 8px;
+
+    color:
+        #203b2f;
+
+    margin-top: 7px;
+
+}
+
+
+.mirror-change {
+
+    text-align: center;
+
+    margin-top: 20px;
+
+}
+
+
+.mirror-change strong {
+
+    display: block;
+
+    font-size: 28px;
+
+    color:
+        #27814a;
+
+}
+
+
+.mirror-change strong.negative {
+
+    color:
+        #d25555;
+
+}
+
+
+.mirror-change strong.stable {
+
+    color:
+        #203b2f;
+
+}
+
+
+.mirror-change span {
+
+    font-size: 10px;
+
+    color:
+        #203b2f;
+
+}
+
+
+.transformation-summary-strip {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 12px;
+
+    margin-top: 20px;
+
+}
+
+
+.transformation-summary-item {
+
+    padding:
+        13px;
+
+    border-radius: 11px;
+
+    background:
+        #f4f8f6;
+
+    text-align: center;
+
+}
+
+
+.transformation-summary-item span {
+
+    display: block;
+
+    font-size: 9px;
+
+    color:
+        #203b2f;
+
+}
+
+
+.transformation-summary-item strong {
+
+    display: block;
+
+    margin-top: 5px;
+
+    font-size: 13px;
+
+}
+
+
+.green {
+
+    color:
+        #27814a;
+
+}
+
+
+.red {
+
+    color:
+        #d25555;
+
+}
+
+
+.gray {
+
+    color:
+        #203b2f;
+
+}
+
+
+.transformation-change-title {
+
+    display: flex;
+
+    justify-content:
+        space-between;
+
+    margin-top: 25px;
+
+    margin-bottom: 12px;
+
+}
+
+
+.transformation-change-title strong {
+
+    font-size: 13px;
+
+    color:
+        #19352a;
+
+}
+
+
+.transformation-change-title span {
+
+    font-size: 10px;
+
+    color:
+        #203b2f;
+
+}
+
+
+.transformation-matrix {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+}
+
+
+.transformation-row {
+
+    display: grid;
+
+    grid-template-columns:
+        125px 45px 1fr 50px 90px;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding:
+        11px 13px;
+
+    border-radius: 10px;
+
+    background:
+        #f4f8f6;
+
+}
+
+
+.transformation-row-name {
+
+    font-size: 10px;
+
+    font-weight: 600;
+
+    color:
+        #203b2f;
+
+}
+
+
+.transformation-row-name i {
+
+    color:
+        #27814a;
+
+    margin-right: 5px;
+
+}
+
+
+.before-number {
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    color:
+        #203b2f;
+
+}
+
+
+.change-track {
+
+    height: 6px;
+
+    background:
+        #e5ece8;
+
+    border-radius: 20px;
+
+    overflow: hidden;
+
+}
+
+
+.change-track span {
+
+    display: block;
+
+    height: 100%;
+
+    background:
+        #35a85a;
+
+}
+
+
+.change-number {
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    color:
+        #27814a;
+
+}
+
+
+.change-number.declined {
+
+    color:
+        #d25555;
+
+}
+
+
+.change-number.stable {
+
+    color:
+        #203b2f;
+
+}
+
+
+.change-status {
+
+    font-size: 9px;
+
+    color:
+        #27814a;
+
+}
+
+
+.change-status.declined {
+
+    color:
+        #d25555;
+
+}
+
+
+.change-status.stable {
+
+    color:
+        #203b2f;
+
+}
+
+
+.transformation-insight {
+
+    display: flex;
+
+    gap: 10px;
+
+    margin-top: 17px;
+
+    padding:
+        14px;
+
+    border-radius: 11px;
+
+    background:
+        #edf8f2;
+
+    font-size: 10px;
+
+    color:
+        #203b2f;
+
+    line-height: 1.6;
+
+}
+
+
+.transformation-insight > i {
+
+    color:
+        #f49b45;
+
+    margin-top: 2px;
+
+}
+
+
+/* =========================================================
+   ROUTINE PULSE
+========================================================= */
+
+.pulse-main {
+
+    display: grid;
+
+    grid-template-columns:
+        130px 1fr;
+
+    gap: 25px;
+
+    align-items: center;
+
+}
+
+
+.pulse-score {
+
+    width: 115px;
+    height: 115px;
+
+    border-radius: 50%;
+
+    background:
+        #e7f6ec;
+
+    border:
+        8px solid #e7f6ec;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+}
+
+
+.pulse-score strong {
+
+    font-size: 27px;
+
+    color:
+        #278a46;
+
+}
+
+
+.pulse-score small {
+
+    font-size: 8px;
+
+    color:
+        #203b2f;
+
+    letter-spacing: 1px;
+
+}
+
+
+.pulse-details h3 {
+
+    font-size: 15px;
+
+    color:
+        #19352a;
+
+}
+
+
+.pulse-details p {
+
+    font-size: 11px;
+
+    color:
+        #203b2f;
+
+    line-height: 1.6;
+
+    margin-top: 6px;
+
+}
+
+
+.pulse-badge {
+
+    font-size: 9px;
+
+    background:
+        #eaf6ee;
+
+    color:
+        #27814a;
+
+    padding:
+        5px 9px;
+
+    border-radius: 20px;
+
+}
+
+
+.pulse-progress {
+
+    width: 100%;
+
+    height: 7px;
+
+    background:
+        #e5ece8;
+
+    border-radius: 20px;
+
+    margin-top: 13px;
+
+    overflow: hidden;
+
+}
+
+
+.pulse-progress span {
+
+    display: block;
+
+    width: 0%;
+
+    height: 100%;
+
+    background:
+        #35a85a;
+
+    border-radius: 20px;
+
+}
+
+
+.pulse-stats {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 12px;
+
+    margin-top: 22px;
+
+}
+
+
+.pulse-stat {
+
+    padding:
+        14px;
+
+    border-radius: 11px;
+
+    background:
+        #f4f8f6;
+
+    text-align: center;
+
+}
+
+
+.pulse-stat-label {
+
+    display: block;
+
+    font-size: 9px;
+
+    color:
+        #203b2f;
+
+}
+
+
+.pulse-stat-value {
+
+    display: block;
+
+    margin-top: 5px;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    color:
+        #19352a;
+
+}
+
+
+.weekly-pulse {
+
+    margin-top: 20px;
+
+}
+
+
+.weekly-pulse-header {
+
+    display: flex;
+
+    justify-content:
+        space-between;
+
+    margin-bottom: 12px;
+
+}
+
+
+.weekly-pulse-header strong {
+
+    font-size: 11px;
+
+    color:
+        #203b2f;
+
+}
+
+
+.weekly-pulse-header span {
+
+    font-size: 9px;
+
+    color:
+        #203b2f;
+
+}
+
+
+.week-dots {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(7, 1fr);
+
+    gap: 8px;
+
+}
+
+
+.week-dot {
+
+    height: 38px;
+
+    border-radius: 9px;
+
+    background:
+        #eaf6ee;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 10px;
+
+    color:
+        #203b2f;
+
+}
+
+
+.week-dot.completed {
+
+    background:
+        #e7f6ec;
+
+    color:
+        #27814a;
+
+}
+
+
+.pulse-insight {
+
+    margin-top: 18px;
+
+    padding:
+        13px;
+
+    border-radius: 11px;
+
+    background:
+        #edf8f2;
+
+    font-size: 10px;
+
+    color:
+        #203b2f;
+
+    line-height: 1.6;
+
+}
+
+
+.pulse-insight i {
+
+    color:
+        #f49b45;
+
+    margin-right: 6px;
+
+}
+
+
+/* =========================================================
+   TREND ANALYSIS
+========================================================= */
+
+.trend-summary {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 12px;
+
+    margin-bottom: 20px;
+
+}
+
+
+.trend-stat {
+
+    padding:
+        15px;
+
+    background:
+        #f4f8f6;
+
+    border-radius: 11px;
+
+    text-align: center;
+
+}
+
+
+.trend-stat span {
+
+    display: block;
+
+    font-size: 9px;
+
+    color:
+        #203b2f;
+
+}
+
+
+.trend-stat strong {
+
+    display: block;
+
+    font-size: 18px;
+
+    margin-top: 5px;
+
+    color:
+        #27814a;
+
+}
+
+
+.trend-chart-container {
+
+    width: 100%;
+
+    background:
+        #ffffff;
+
+    border:
+        1px solid #e3ebe7;
+
+    border-radius: 13px;
+
+    padding: 15px;
+
+}
+
+
+#skinTrendChart {
+
+    width: 100%;
+
+    height: 300px;
+
+    display: block;
+
+}
+
+
+.trend-direction {
+
+    margin-top: 14px;
+
+    padding:
+        12px;
+
+    border-radius: 10px;
+
+    background:
+        #edf8f2;
+
+    color:
+        #27814a;
+
+    text-align: center;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+}
+
+
+/* =========================================================
+   ASSESSMENT HISTORY
+========================================================= */
+
+.history-list {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+}
+
+
+.history-row {
+
+    display: flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        center;
+
+    padding:
+        12px 15px;
+
+    background:
+        #f4f8f6;
+
+    border-radius: 10px;
+
+}
+
+
+.history-date {
+
+    font-size: 10px;
+
+    color:
+        #203b2f;
+
+}
+
+
+.history-score {
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    color:
+        #27814a;
+
+}
+
+
+/* =========================================================
+   AI INSIGHTS
+========================================================= */
+
+.insights-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 15px;
+
+}
+
+
+.insight-item {
+
+    background:
+        #f4f8f6;
+
+    padding:
+        18px;
+
+    border-radius: 13px;
+
+}
+
+
+.insight-icon {
+
+    width: 38px;
+    height: 38px;
+
+    border-radius: 10px;
+
+    background:
+        #e7f6ec;
+
+    color:
+        #27814a;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+}
+
+
+.insight-item h3 {
+
+    font-size: 13px;
+
+    color:
+        #19352a;
+
+    margin-top: 12px;
+
+}
+
+
+.insight-item p {
+
+    font-size: 10px;
+
+    color:
+        #203b2f;
+
+    line-height: 1.7;
+
+    margin-top: 6px;
+
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.progress-footer {
+
+    text-align: center;
+
+    margin-top: 35px;
+
+    padding-top: 20px;
+
+    border-top:
+        1px solid #e5ece8;
+
+}
+
+
+.progress-footer p {
+
+    font-size: 11px;
+
+    color:
+        #203b2f;
+
+}
+
+
+.progress-footer span {
+
+    display: block;
+
+    margin-top: 5px;
+
+    font-size: 9px;
+
+    color:
+        #203b2f;
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1100px) {
 
     .score-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
-        margin-bottom: 30px;
-    }
 
-    .score-card {
-        background: #ffffff;
-        border-radius: 18px;
-        padding: 25px;
-        position: relative;
-        overflow: hidden;
-        border: 1px solid #edf0f4;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
-    }
+        grid-template-columns:
+            1fr;
 
-    .score-card::after {
-        content: "";
-        position: absolute;
-        width: 110px;
-        height: 110px;
-        right: -45px;
-        top: -45px;
-        border-radius: 50%;
-        background: rgba(99, 102, 241, 0.06);
     }
-
-    .score-card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 18px;
-    }
-
-    .score-icon {
-        width: 44px;
-        height: 44px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 18px;
-    }
-
-    .score-icon.current {
-        background: #eefcf4;
-        color: #16a34a;
-    }
-
-    .score-icon.previous {
-        background: #eff6ff;
-        color: #2563eb;
-    }
-
-    .score-icon.improvement {
-        background: #fff7ed;
-        color: #ea580c;
-    }
-
-    .score-label {
-        display: block;
-        font-size: 12px;
-        font-weight: 600;
-        color: #6b7280;
-        letter-spacing: 0.4px;
-        text-transform: uppercase;
-    }
-
-    .score-value {
-        font-size: 40px;
-        font-weight: 700;
-        color: #1f2937;
-        line-height: 1.1;
-        margin: 8px 0;
-    }
-
-    .score-value.empty {
-        color: #9ca3af;
-        font-size: 30px;
-    }
-
-    .score-description {
-        font-size: 13px;
-        color: #8a93a3;
-    }
-
-    .score-progress {
-        height: 7px;
-        background: #eef1f5;
-        border-radius: 20px;
-        margin-top: 17px;
-        overflow: hidden;
-    }
-
-    .score-progress span {
-        display: block;
-        height: 100%;
-        width: 0%;
-        border-radius: 20px;
-        background: #22c55e;
-    }
-
-    /* ==========================================
-       MAIN CONTENT GRID
-    ========================================== */
 
     .progress-main-grid {
-        display: grid;
-        grid-template-columns: 1.5fr 1fr;
-        gap: 22px;
-        margin-bottom: 25px;
+
+        grid-template-columns:
+            1fr;
+
     }
 
-    .progress-card {
-        background: #ffffff;
-        border: 1px solid #edf0f4;
-        border-radius: 18px;
-        padding: 25px;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.04);
+    .improvement-grid {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+
     }
 
-    .card-heading {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 22px;
+}
+
+
+@media (max-width: 800px) {
+
+    .sidebar {
+
+        width: 210px;
+
     }
 
-    .card-heading h2 {
-        margin: 0;
-        font-size: 19px;
-        color: #1f2937;
+    .main-content {
+
+        margin-left: 210px;
+
+        width:
+            calc(100% - 210px);
+
+        padding:
+            25px;
+
     }
 
-    .card-heading span {
-        font-size: 12px;
-        color: #8a93a3;
+    .progress-header {
+
+        flex-direction:
+            column;
+
+        align-items:
+            flex-start;
+
     }
 
-    /* ==========================================
-       REPORT SUMMARY
-    ========================================== */
+    .mirror-container {
 
-    .report-summary {
-        display: flex;
-        gap: 18px;
-        align-items: flex-start;
-        padding: 20px;
-        background: #f8fafc;
-        border-radius: 14px;
-        border: 1px solid #edf0f4;
+        grid-template-columns:
+            1fr;
+
     }
 
-    .report-icon {
-        min-width: 48px;
-        width: 48px;
-        height: 48px;
-        border-radius: 13px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #eef2ff;
-        color: #6366f1;
-        font-size: 20px;
+    .mirror-arrow-zone {
+
+        transform:
+            rotate(90deg);
+
     }
 
-    .report-summary h3 {
-        margin: 0 0 7px;
-        font-size: 15px;
-        color: #374151;
+    .transformation-row {
+
+        grid-template-columns:
+            1fr 40px 1fr;
+
     }
 
-    .report-summary p {
-        margin: 0;
-        color: #6b7280;
-        line-height: 1.7;
-        font-size: 13px;
+    .transformation-row .change-status {
+
+        display: none;
+
     }
 
-    /* ==========================================
-       SKIN METRICS
-    ========================================== */
+    .pulse-main {
 
-    .metric-list {
-        display: flex;
-        flex-direction: column;
-        gap: 19px;
+        grid-template-columns:
+            1fr;
+
     }
-
-    .metric-item {
-        display: grid;
-        grid-template-columns: 110px 1fr 45px;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .metric-name {
-        font-size: 13px;
-        font-weight: 500;
-        color: #4b5563;
-    }
-
-    .metric-bar {
-        height: 8px;
-        background: #eef1f5;
-        border-radius: 20px;
-        overflow: hidden;
-    }
-
-    .metric-bar span {
-        display: block;
-        height: 100%;
-        border-radius: 20px;
-        background: #6366f1;
-    }
-
-    .metric-score {
-        text-align: right;
-        font-size: 13px;
-        font-weight: 600;
-        color: #374151;
-    }
-
-    /* ==========================================
-       HISTORY
-    ========================================== */
-
-    .history-card {
-        margin-bottom: 25px;
-    }
-
-    .history-empty {
-        text-align: center;
-        padding: 40px 20px;
-        border: 1px dashed #d8dee8;
-        border-radius: 14px;
-        background: #fafbfc;
-    }
-
-    .history-empty i {
-        width: 58px;
-        height: 58px;
-        border-radius: 50%;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        background: #eef2ff;
-        color: #6366f1;
-        font-size: 23px;
-        margin-bottom: 15px;
-    }
-
-    .history-empty h3 {
-        margin: 0 0 7px;
-        color: #374151;
-        font-size: 16px;
-    }
-
-    .history-empty p {
-        margin: 0 auto;
-        max-width: 500px;
-        color: #8a93a3;
-        font-size: 13px;
-        line-height: 1.7;
-    }
-
-    /* ==========================================
-       AI INSIGHTS
-    ========================================== */
 
     .insights-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 18px;
-    }
 
-    .insight-item {
-        padding: 20px;
-        border-radius: 15px;
-        background: #fafbfc;
-        border: 1px solid #edf0f4;
-    }
-
-    .insight-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 11px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #eef2ff;
-        color: #6366f1;
-        margin-bottom: 14px;
-    }
-
-    .insight-item h3 {
-        margin: 0 0 7px;
-        font-size: 14px;
-        color: #374151;
-    }
-
-    .insight-item p {
-        margin: 0;
-        color: #7b8494;
-        font-size: 12px;
-        line-height: 1.7;
-    }
-
-    /* ==========================================
-       EMPTY STATE
-    ========================================== */
-
-    .no-assessment {
-        text-align: center;
-        padding: 45px 25px;
-        background: linear-gradient(135deg, #f8fafc, #ffffff);
-        border: 1px solid #e8edf3;
-        border-radius: 18px;
-        margin-bottom: 25px;
-    }
-
-    .no-assessment-icon {
-        width: 65px;
-        height: 65px;
-        border-radius: 18px;
-        background: #eef2ff;
-        color: #6366f1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 17px;
-        font-size: 26px;
-    }
-
-    .no-assessment h2 {
-        margin: 0 0 8px;
-        color: #374151;
-        font-size: 19px;
-    }
-
-    .no-assessment p {
-        max-width: 550px;
-        margin: 0 auto 20px;
-        color: #7b8494;
-        font-size: 13px;
-        line-height: 1.7;
-    }
-
-    .assessment-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 9px;
-        padding: 11px 20px;
-        border-radius: 10px;
-        background: #6366f1;
-        color: #ffffff;
-        text-decoration: none;
-        font-size: 13px;
-        font-weight: 600;
-        transition: 0.2s ease;
-    }
-
-    .assessment-btn:hover {
-        transform: translateY(-1px);
-        opacity: 0.92;
-    }
-
-    /* ==========================================
-       FOOTER
-    ========================================== */
-
-    .progress-footer {
-        text-align: center;
-        padding: 25px 10px 10px;
-        color: #8a93a3;
-        font-size: 12px;
-    }
-
-    .progress-footer p {
-        margin: 0 0 5px;
-        font-weight: 500;
-    }
-
-    .progress-footer i {
-        margin-right: 5px;
-    }
-
-    /* ==========================================
-       RESPONSIVE
-    ========================================== */
-
-    @media (max-width: 1000px) {
-
-        .score-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .progress-main-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .insights-grid {
-            grid-template-columns: 1fr;
-        }
+        grid-template-columns:
+            1fr;
 
     }
 
-    @media (max-width: 768px) {
+}
 
-        .progress-header {
-            flex-direction: column;
-        }
 
-        .progress-status {
-            width: fit-content;
-        }
+/* =========================================================
+   MOBILE
+========================================================= */
 
-        .metric-item {
-            grid-template-columns: 90px 1fr 40px;
-        }
+@media (max-width: 600px) {
+
+    .sidebar {
+
+        position:
+            relative;
+
+        width:
+            100%;
+
+        height:
+            auto;
 
     }
+
+    .main-content {
+
+        margin-left:
+            0;
+
+        width:
+            100%;
+
+        padding:
+            20px;
+
+    }
+
+    .score-grid,
+    .progress-main-grid,
+    .improvement-grid,
+    .trend-summary {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+    .transformation-summary-strip,
+    .pulse-stats {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+}
 
 </style>
-```
 
 </head>
 
+
 <body>
 
-<!-- ==========================================
+
+<!-- =====================================================
      SIDEBAR
-========================================== -->
+===================================================== -->
 
 <aside class="sidebar">
 
-```
-<div class="brand">
+    <div class="brand">
 
-    <div class="brand-icon">
-        <i class="fa-solid fa-leaf"></i>
+        <div class="brand-icon">
+
+            <i class="fa-solid fa-leaf"></i>
+
+        </div>
+
+        <div>
+
+            <h2>Skin AI</h2>
+
+            <span>
+                Intelligence Platform
+            </span>
+
+        </div>
+
     </div>
 
-    <div>
-        <h2>Skin AI</h2>
-        <span>Intelligence Platform</span>
-    </div>
 
-</div>
+    <nav>
 
+        <p class="nav-title">
+            MAIN MENU
+        </p>
 
-<nav>
+        <ul>
 
-    <p class="nav-title">MAIN MENU</p>
+            <li>
+                <a href="user-dashboard.html">
 
-    <ul>
+                    <i class="fa-solid fa-house"></i>
 
-        <li>
-            <a href="user-dashboard.html">
-                <i class="fa-solid fa-house"></i>
-                <span>Dashboard</span>
-            </a>
-        </li>
+                    <span>
+                        Dashboard
+                    </span>
 
-        <li>
-            <a href="profile.html">
-                <i class="fa-solid fa-user"></i>
-                <span>Profile</span>
-            </a>
-        </li>
-
-        <li>
-            <a href="assessment.html">
-                <i class="fa-solid fa-camera"></i>
-                <span>Skin Assessment</span>
-            </a>
-        </li>
-
-        <li>
-            <a href="products.html">
-                <i class="fa-solid fa-pump-soap"></i>
-                <span>Products</span>
-            </a>
-        </li>
-
-        <li>
-            <a href="progress.html" class="active">
-                <i class="fa-solid fa-chart-line"></i>
-                <span>Progress</span>
-            </a>
-        </li>
-
-    </ul>
+                </a>
+            </li>
 
 
-    <p class="nav-title secondary-title">
-        ACCOUNT
-    </p>
+            <li>
+                <a href="profile.html">
+
+                    <i class="fa-solid fa-user"></i>
+
+                    <span>
+                        Profile
+                    </span>
+
+                </a>
+            </li>
 
 
-    <ul>
+            <li>
+                <a href="assessment.html">
 
-        <li>
-            <a href="#" onclick="logout()">
-                <i class="fa-solid fa-right-from-bracket"></i>
-                <span>Logout</span>
-            </a>
-        </li>
+                    <i class="fa-solid fa-camera"></i>
 
-    </ul>
+                    <span>
+                        Skin Assessment
+                    </span>
 
-</nav>
-```
+                </a>
+            </li>
+
+
+            <li>
+                <a href="adaptive-routine.html">
+
+                    <i class="fa-solid fa-list-check"></i>
+
+                    <span>
+                        Adaptive Routine
+                    </span>
+
+                </a>
+            </li>
+
+
+            <li>
+                <a href="products.html">
+
+                    <i class="fa-solid fa-pump-soap"></i>
+
+                    <span>
+                        Products
+                    </span>
+
+                </a>
+            </li>
+
+
+            <li>
+                <a href="ingredient-intelligence.html">
+
+                    <i class="fa-solid fa-flask"></i>
+
+                    <span>
+                        Ingredient Intelligence
+                    </span>
+
+                </a>
+            </li>
+
+
+            <li>
+
+                <a href="progress.html"
+                    class="active">
+
+                    <i class="fa-solid fa-chart-line"></i>
+
+                    <span>
+                        Progress
+                    </span>
+
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="skin-health-score.html">
+
+                    <i class="fa-solid fa-heart-pulse"></i>
+
+                    <span>
+                        Skin Health Score
+                    </span>
+
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="notifications.html">
+
+                    <i class="fa-solid fa-bell"></i>
+
+                    <span>
+                        Notifications
+                    </span>
+
+                </a>
+
+            </li>
+
+        </ul>
+
+
+        <p class="nav-title secondary-title">
+            ACCOUNT
+        </p>
+
+
+        <ul>
+
+            <li>
+
+                <a href="#"
+                    onclick="logout(); return false;">
+
+                    <i class="fa-solid fa-right-from-bracket"></i>
+
+                    <span>
+                        Logout
+                    </span>
+
+                </a>
+
+            </li>
+
+        </ul>
+
+    </nav>
 
 </aside>
 
-<!-- ==========================================
+
+
+<!-- =====================================================
      MAIN
-========================================== -->
+===================================================== -->
 
-<main class="main progress-page">
+<main class="main-content">
 
-```
-<!-- ==========================================
+
+<!-- =====================================================
      HEADER
-=========================================== -->
+===================================================== -->
 
 <header class="progress-header">
 
@@ -613,11 +2622,14 @@
             AI SKIN MONITORING
         </span>
 
-        <h1>Skin Progress Tracking</h1>
+        <h1>
+            Skin Progress Tracking
+        </h1>
 
         <p>
-            Monitor your skin improvement over time using
-            AI-powered assessment results and personalized insights.
+            Monitor your skin improvement, routine consistency,
+            assessment history and long-term skin transformation
+            using AI-powered analytics.
         </p>
 
     </div>
@@ -627,35 +2639,47 @@
 
         <span class="progress-status-dot"></span>
 
-        <span>Progress Monitoring Active</span>
+        <span>
+            Progress Monitoring Active
+        </span>
 
     </div>
 
 </header>
 
 
-<!-- ==========================================
-     SCORE CARDS
-=========================================== -->
+
+<!-- =====================================================
+     1. SKIN PROGRESS MONITORING
+===================================================== -->
+
+<div class="section-title">
+
+    <h2>
+        Skin Progress Monitoring
+    </h2>
+
+    <p>
+        Current and previous AI assessment performance
+    </p>
+
+</div>
+
 
 <section class="score-grid">
 
 
-    <!-- CURRENT SCORE -->
+    <!-- CURRENT -->
 
     <article class="score-card">
 
         <div class="score-card-header">
 
-            <div>
+            <span class="score-label">
+                Current Skin Score
+            </span>
 
-                <span class="score-label">
-                    Current Skin Score
-                </span>
-
-            </div>
-
-            <div class="score-icon current">
+            <div class="score-icon">
 
                 <i class="fa-solid fa-chart-simple"></i>
 
@@ -664,45 +2688,42 @@
         </div>
 
 
-        <div
-            id="currentScore"
-            class="score-value empty"
-        >
+        <div id="currentScore"
+            class="score-value empty">
+
             No data
+
         </div>
 
+
         <div class="score-description">
+
             Latest AI Score
+
         </div>
 
 
         <div class="score-progress">
 
-            <span
-                id="currentScoreBar"
-                style="width: 0%;"
-            ></span>
+            <span id="currentScoreBar"></span>
 
         </div>
 
     </article>
 
 
-    <!-- PREVIOUS SCORE -->
+
+    <!-- PREVIOUS -->
 
     <article class="score-card">
 
         <div class="score-card-header">
 
-            <div>
+            <span class="score-label">
+                Previous Score
+            </span>
 
-                <span class="score-label">
-                    Previous Score
-                </span>
-
-            </div>
-
-            <div class="score-icon previous">
+            <div class="score-icon">
 
                 <i class="fa-solid fa-clock-rotate-left"></i>
 
@@ -711,28 +2732,29 @@
         </div>
 
 
-        <div
-            id="previousScore"
-            class="score-value empty"
-        >
+        <div id="previousScore"
+            class="score-value empty">
+
             No data
+
         </div>
 
+
         <div class="score-description">
+
             Previous Assessment
+
         </div>
 
 
         <div class="score-progress">
 
-            <span
-                id="previousScoreBar"
-                style="width: 0%;"
-            ></span>
+            <span id="previousScoreBar"></span>
 
         </div>
 
     </article>
+
 
 
     <!-- IMPROVEMENT -->
@@ -741,15 +2763,11 @@
 
         <div class="score-card-header">
 
-            <div>
+            <span class="score-label">
+                Overall Improvement
+            </span>
 
-                <span class="score-label">
-                    Improvement
-                </span>
-
-            </div>
-
-            <div class="score-icon improvement">
+            <div class="score-icon">
 
                 <i class="fa-solid fa-arrow-trend-up"></i>
 
@@ -758,40 +2776,41 @@
         </div>
 
 
-        <div
-            id="improvementScore"
-            class="score-value"
-        >
+        <div id="improvementScore"
+            class="score-value">
+
             0%
+
         </div>
 
+
         <div class="score-description">
+
             Change from previous assessment
+
         </div>
 
 
         <div class="score-progress">
 
-            <span
-                id="improvementBar"
-                style="width: 0%;"
-            ></span>
+            <span id="improvementBar"></span>
 
         </div>
 
     </article>
 
+
 </section>
 
 
-<!-- ==========================================
-     NO ASSESSMENT STATE
-=========================================== -->
 
-<section
-    id="noAssessment"
+<!-- =====================================================
+     NO ASSESSMENT
+===================================================== -->
+
+<section id="noAssessment"
     class="no-assessment"
->
+    style="display:none;">
 
     <div class="no-assessment-icon">
 
@@ -800,20 +2819,21 @@
     </div>
 
 
-    <h2>No Skin Assessment Yet</h2>
+    <h2>
+        No Skin Assessment Yet
+    </h2>
 
 
     <p>
-        Complete your first AI skin assessment to start tracking
-        your skin health, compare future results, and receive
-        personalized progress insights.
+
+        Complete your first AI skin assessment to start
+        tracking your skin health and improvement.
+
     </p>
 
 
-    <a
-        href="assessment.html"
-        class="assessment-btn"
-    >
+    <a href="assessment.html"
+        class="assessment-btn">
 
         <i class="fa-solid fa-wand-magic-sparkles"></i>
 
@@ -824,20 +2844,23 @@
 </section>
 
 
-<!-- ==========================================
+
+<!-- =====================================================
      REPORT + METRICS
-=========================================== -->
+===================================================== -->
 
 <section class="progress-main-grid">
 
 
-    <!-- AI REPORT -->
+    <!-- REPORT -->
 
     <article class="progress-card">
 
         <div class="card-heading">
 
-            <h2>AI Skin Report Summary</h2>
+            <h2>
+                AI Skin Report Summary
+            </h2>
 
             <span>
                 Latest assessment
@@ -858,14 +2881,14 @@
             <div>
 
                 <h3 id="reportTitle">
-                    No assessment found
+                    Loading assessment...
                 </h3>
 
 
                 <p id="reportText">
-                    Complete an AI skin assessment to generate
-                    your personalized skin report. Your results
-                    will appear here once an assessment is completed.
+
+                    Loading your latest AI skin report.
+
                 </p>
 
             </div>
@@ -875,13 +2898,16 @@
     </article>
 
 
-    <!-- SKIN METRICS -->
+
+    <!-- METRICS -->
 
     <article class="progress-card">
 
         <div class="card-heading">
 
-            <h2>Skin Metrics</h2>
+            <h2>
+                Skin Metrics
+            </h2>
 
             <span>
                 AI analysis
@@ -901,17 +2927,12 @@
 
                 <div class="metric-bar">
 
-                    <span
-                        id="healthBar"
-                        style="width: 0%;"
-                    ></span>
+                    <span id="healthBar"></span>
 
                 </div>
 
-                <span
-                    id="healthScore"
-                    class="metric-score"
-                >
+                <span id="healthScore"
+                    class="metric-score">
                     --
                 </span>
 
@@ -926,17 +2947,12 @@
 
                 <div class="metric-bar">
 
-                    <span
-                        id="hydrationBar"
-                        style="width: 0%;"
-                    ></span>
+                    <span id="hydrationBar"></span>
 
                 </div>
 
-                <span
-                    id="hydrationScore"
-                    class="metric-score"
-                >
+                <span id="hydrationScore"
+                    class="metric-score">
                     --
                 </span>
 
@@ -951,17 +2967,12 @@
 
                 <div class="metric-bar">
 
-                    <span
-                        id="textureBar"
-                        style="width: 0%;"
-                    ></span>
+                    <span id="textureBar"></span>
 
                 </div>
 
-                <span
-                    id="textureScore"
-                    class="metric-score"
-                >
+                <span id="textureScore"
+                    class="metric-score">
                     --
                 </span>
 
@@ -976,17 +2987,12 @@
 
                 <div class="metric-bar">
 
-                    <span
-                        id="clarityBar"
-                        style="width: 0%;"
-                    ></span>
+                    <span id="clarityBar"></span>
 
                 </div>
 
-                <span
-                    id="clarityScore"
-                    class="metric-score"
-                >
+                <span id="clarityScore"
+                    class="metric-score">
                     --
                 </span>
 
@@ -1000,50 +3006,543 @@
 </section>
 
 
-<!-- ==========================================
-     ASSESSMENT HISTORY
-=========================================== -->
 
-<section class="progress-card history-card">
+<!-- =====================================================
+     2. IMPROVEMENT ANALYSIS
+===================================================== -->
+
+<section class="progress-card">
 
     <div class="card-heading">
 
-        <h2>Assessment History</h2>
+        <h2>
+            Improvement Analysis
+        </h2>
 
         <span>
-            Track your progress
+            Current vs previous
         </span>
 
     </div>
 
 
-    <div class="history-empty">
+    <div class="improvement-status">
 
-        <i class="fa-solid fa-chart-line"></i>
+        <div id="improvementStatusIcon"
+            class="improvement-status-icon">
 
-        <h3>No assessment history available</h3>
+            <i class="fa-solid fa-arrow-trend-up"></i>
 
-        <p>
-            Your skin score history will appear here after you
-            complete multiple AI skin assessments. Regular
-            assessments help you understand how your skin changes
-            over time.
-        </p>
+        </div>
+
+
+        <div>
+
+            <h3 id="improvementStatusTitle">
+                Waiting for comparison
+            </h3>
+
+            <p id="improvementStatusText">
+
+                Complete another assessment to calculate
+                improvement.
+
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="improvement-grid">
+
+
+        <div class="improvement-item">
+
+            <div class="improvement-item-header">
+
+                <i class="fa-solid fa-heart-pulse"></i>
+
+                <span>CHANGE</span>
+
+            </div>
+
+            <h4>
+                Skin Health
+            </h4>
+
+            <div id="healthImprovement"
+                class="improvement-value neutral">
+                --
+            </div>
+
+            <div class="improvement-description">
+                Score difference
+            </div>
+
+        </div>
+
+
+        <div class="improvement-item">
+
+            <div class="improvement-item-header">
+
+                <i class="fa-solid fa-droplet"></i>
+
+                <span>CHANGE</span>
+
+            </div>
+
+            <h4>
+                Hydration
+            </h4>
+
+            <div id="hydrationImprovement"
+                class="improvement-value neutral">
+                --
+            </div>
+
+            <div class="improvement-description">
+                Hydration change
+            </div>
+
+        </div>
+
+
+        <div class="improvement-item">
+
+            <div class="improvement-item-header">
+
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+
+                <span>CHANGE</span>
+
+            </div>
+
+            <h4>
+                Texture
+            </h4>
+
+            <div id="textureImprovement"
+                class="improvement-value neutral">
+                --
+            </div>
+
+            <div class="improvement-description">
+                Texture change
+            </div>
+
+        </div>
+
+
+        <div class="improvement-item">
+
+            <div class="improvement-item-header">
+
+                <i class="fa-solid fa-face-smile"></i>
+
+                <span>CHANGE</span>
+
+            </div>
+
+            <h4>
+                Clarity
+            </h4>
+
+            <div id="clarityImprovement"
+                class="improvement-value neutral">
+                --
+            </div>
+
+            <div class="improvement-description">
+                Clarity change
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <div id="improvementInsight"
+        class="improvement-insight">
+
+        <i class="fa-solid fa-lightbulb"></i>
+
+        Improvement insights will appear after multiple
+        assessments are available.
 
     </div>
 
 </section>
 
 
-<!-- ==========================================
-     AI INSIGHTS
-=========================================== -->
+
+<!-- =====================================================
+     3. BEFORE / AFTER COMPARISON
+===================================================== -->
 
 <section class="progress-card">
 
     <div class="card-heading">
 
-        <h2>AI Progress Insights</h2>
+        <h2>
+            Skin Transformation Mirror
+        </h2>
+
+        <span>
+            Before / after comparison
+        </span>
+
+    </div>
+
+
+    <div id="transformationContent">
+
+        <div class="no-assessment">
+
+            <div class="no-assessment-icon">
+
+                <i class="fa-solid fa-arrows-left-right"></i>
+
+            </div>
+
+            <h2>
+                Building Your Skin Transformation
+            </h2>
+
+            <p>
+
+                Complete at least two assessments to unlock
+                your personalized before-and-after comparison.
+
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     4. ROUTINE ADHERENCE TRACKING
+===================================================== -->
+
+<section class="progress-card">
+
+    <div class="card-heading">
+
+        <h2>
+            Routine Consistency Pulse
+        </h2>
+
+        <span>
+            Weekly routine tracking
+        </span>
+
+    </div>
+
+
+    <div class="pulse-main">
+
+
+        <div class="pulse-score">
+
+            <strong id="routineAdherenceScore">
+                --
+            </strong>
+
+            <small>
+                CONSISTENCY
+            </small>
+
+        </div>
+
+
+        <div class="pulse-details">
+
+            <div style="
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                gap:10px;
+            ">
+
+                <h3 id="routineAdherenceTitle">
+                    Your routine pulse
+                </h3>
+
+                <span id="routinePulseBadge"
+                    class="pulse-badge">
+
+                    Waiting for data
+
+                </span>
+
+            </div>
+
+
+            <p id="routineAdherenceText">
+
+                Complete your skincare routine regularly
+                to start tracking your consistency.
+
+            </p>
+
+
+            <div class="pulse-progress">
+
+                <span id="routineAdherenceBar"></span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="pulse-stats">
+
+
+        <div class="pulse-stat">
+
+            <span class="pulse-stat-label">
+                Today's Steps
+            </span>
+
+            <span id="routineStepsCompleted"
+                class="pulse-stat-value">
+                --
+            </span>
+
+        </div>
+
+
+        <div class="pulse-stat">
+
+            <span class="pulse-stat-label">
+                Current Streak
+            </span>
+
+            <span id="routineStreak"
+                class="pulse-stat-value">
+                --
+            </span>
+
+        </div>
+
+
+        <div class="pulse-stat">
+
+            <span class="pulse-stat-label">
+                Weekly Target
+            </span>
+
+            <span class="pulse-stat-value">
+                80%
+            </span>
+
+        </div>
+
+
+    </div>
+
+
+    <div class="weekly-pulse">
+
+        <div class="weekly-pulse-header">
+
+            <strong>
+                7-Day Routine Pulse
+            </strong>
+
+            <span>
+                Target: 80%
+            </span>
+
+        </div>
+
+
+        <div id="routineWeekDots"
+            class="week-dots">
+
+            <span class="week-dot">M</span>
+            <span class="week-dot">T</span>
+            <span class="week-dot">W</span>
+            <span class="week-dot">T</span>
+            <span class="week-dot">F</span>
+            <span class="week-dot">S</span>
+            <span class="week-dot">S</span>
+
+        </div>
+
+    </div>
+
+
+    <div id="routinePulseInsight"
+        class="pulse-insight">
+
+        <i class="fa-solid fa-lightbulb"></i>
+
+        AI insight will appear when routine tracking
+        data is available.
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     5. TREND ANALYSIS
+===================================================== -->
+
+<section class="progress-card">
+
+    <div class="card-heading">
+
+        <h2>
+            Skin Score Trend Analysis
+        </h2>
+
+        <span>
+            Assessment history
+        </span>
+
+    </div>
+
+
+    <div class="trend-summary">
+
+
+        <div class="trend-stat">
+
+            <span>
+                Highest
+            </span>
+
+            <strong id="highestTrendScore">
+                --
+            </strong>
+
+        </div>
+
+
+        <div class="trend-stat">
+
+            <span>
+                Lowest
+            </span>
+
+            <strong id="lowestTrendScore">
+                --
+            </strong>
+
+        </div>
+
+
+        <div class="trend-stat">
+
+            <span>
+                Average
+            </span>
+
+            <strong id="averageTrendScore">
+                --
+            </strong>
+
+        </div>
+
+
+        <div class="trend-stat">
+
+            <span>
+                Overall Trend
+            </span>
+
+            <strong id="overallTrend">
+                --
+            </strong>
+
+        </div>
+
+
+    </div>
+
+
+    <div class="trend-chart-container">
+
+        <canvas id="skinTrendChart"></canvas>
+
+    </div>
+
+
+    <div id="trendDirection"
+        class="trend-direction">
+
+        <i class="fa-solid fa-minus"></i>
+
+        Waiting for assessment history
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     ASSESSMENT HISTORY
+===================================================== -->
+
+<section class="progress-card">
+
+    <div class="card-heading">
+
+        <h2>
+            Assessment History
+        </h2>
+
+        <span>
+            All recorded assessments
+        </span>
+
+    </div>
+
+
+    <div id="trendHistoryList"
+        class="history-list">
+
+        <div class="history-row">
+
+            <span class="history-date">
+                Loading...
+            </span>
+
+            <span class="history-score">
+                --
+            </span>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     AI INSIGHTS
+===================================================== -->
+
+<section class="progress-card">
+
+    <div class="card-heading">
+
+        <h2>
+            AI Progress Insights
+        </h2>
 
         <span>
             Personalized guidance
@@ -1063,11 +3562,15 @@
 
             </div>
 
-            <h3>Assess Regularly</h3>
+            <h3>
+                Assess Regularly
+            </h3>
 
             <p>
+
                 Complete assessments periodically to compare
                 your skin score and identify meaningful changes.
+
             </p>
 
         </div>
@@ -1081,11 +3584,15 @@
 
             </div>
 
-            <h3>Maintain Hydration</h3>
+            <h3>
+                Maintain Hydration
+            </h3>
 
             <p>
+
                 Consistent hydration and a suitable moisturizer
                 can help support a healthy skin barrier.
+
             </p>
 
         </div>
@@ -1099,11 +3606,15 @@
 
             </div>
 
-            <h3>Protect Your Skin</h3>
+            <h3>
+                Protect Your Skin
+            </h3>
 
             <p>
+
                 Daily broad-spectrum sunscreen can help protect
                 your skin from UV-related damage.
+
             </p>
 
         </div>
@@ -1114,9 +3625,10 @@
 </section>
 
 
-<!-- ==========================================
+
+<!-- =====================================================
      FOOTER
-=========================================== -->
+===================================================== -->
 
 <footer class="progress-footer">
 
@@ -1129,275 +3641,1190 @@
     </p>
 
     <span>
-        AI-generated progress information is for informational purposes.
+
+        AI-generated progress information is for
+        informational purposes.
+
     </span>
 
 </footer>
-```
+
 
 </main>
 
-<!-- ==========================================
-     JAVASCRIPT
-========================================== -->
 
-<script src="../js/auth-check.js"></script>
 
 <script>
 
-    /*
-    ==================================================
-    PROGRESS PAGE
-    ==================================================
+/* =========================================================
+   UTILITY
+========================================================= */
 
-    This page is ready to receive assessment data.
+function mapMetric(value, mappings, fallback) {
 
-    If no assessment exists:
-        - Current Score = No data
-        - Previous Score = No data
-        - Improvement = 0%
-        - AI Report = No assessment found
+    if (value === undefined || value === null) {
 
-    Later, your backend can populate these values.
-    */
+        return fallback;
 
+    }
 
-    function updateProgressData(data) {
+    const text =
+        String(value)
+            .trim()
+            .toLowerCase();
 
-        if (!data) {
-            return;
-        }
+    for (const key in mappings) {
 
+        if (text.includes(key)) {
 
-        /* CURRENT SCORE */
-
-        if (data.current_score !== undefined) {
-
-            const current =
-                Number(data.current_score);
-
-            document.getElementById("currentScore").textContent =
-                current + "%";
-
-            document.getElementById("currentScore")
-                .classList.remove("empty");
-
-            document.getElementById("currentScoreBar")
-                .style.width = current + "%";
+            return mappings[key];
 
         }
 
+    }
 
-        /* PREVIOUS SCORE */
+    return fallback;
 
-        if (data.previous_score !== undefined) {
+}
 
-            const previous =
-                Number(data.previous_score);
 
-            document.getElementById("previousScore").textContent =
-                previous + "%";
+function formatDate(assessment) {
 
-            document.getElementById("previousScore")
-                .classList.remove("empty");
+    const raw =
+        assessment.assessment_date ||
+        assessment.created_at;
 
-            document.getElementById("previousScoreBar")
-                .style.width = previous + "%";
+    if (!raw) {
 
+        return "Assessment";
+
+    }
+
+    const date =
+        new Date(raw);
+
+    if (Number.isNaN(date.getTime())) {
+
+        return "Assessment";
+
+    }
+
+    return date.toLocaleDateString(
+        "en-IN",
+        {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
         }
+    );
+
+}
 
 
-        /* IMPROVEMENT */
+/* =========================================================
+   UPDATE METRIC
+========================================================= */
 
-        if (
-            data.current_score !== undefined &&
-            data.previous_score !== undefined
-        ) {
+function updateMetric(name, value) {
 
-            const current =
-                Number(data.current_score);
+    if (
+        value === undefined ||
+        value === null ||
+        !Number.isFinite(Number(value))
+    ) {
 
-            const previous =
-                Number(data.previous_score);
+        return;
 
-            if (previous > 0) {
+    }
 
-                const improvement =
-                    ((current - previous) / previous) * 100;
-
-                const rounded =
-                    Math.round(improvement);
-
-                document.getElementById(
-                    "improvementScore"
-                ).textContent =
-                    (rounded >= 0 ? "+" : "") +
-                    rounded +
-                    "%";
-
-                document.getElementById(
-                    "improvementBar"
-                ).style.width =
-                    Math.min(Math.abs(rounded), 100) +
-                    "%";
-
-            }
-
-        }
-
-
-        /* REPORT */
-
-        if (data.report) {
-
-            document.getElementById(
-                "reportTitle"
-            ).textContent =
-                "AI Assessment Available";
-
-            document.getElementById(
-                "reportText"
-            ).textContent =
-                data.report;
-
-            document.getElementById(
-                "noAssessment"
-            ).style.display =
-                "none";
-
-        }
-
-
-        /* METRICS */
-
-        updateMetric(
-            "health",
-            data.health
+    const score =
+        Math.min(
+            Math.max(
+                Number(value),
+                0
+            ),
+            100
         );
 
-        updateMetric(
+    const bar =
+        document.getElementById(
+            name + "Bar"
+        );
+
+    const label =
+        document.getElementById(
+            name + "Score"
+        );
+
+    if (bar) {
+
+        bar.style.width =
+            score + "%";
+
+    }
+
+    if (label) {
+
+        label.textContent =
+            Math.round(score);
+
+    }
+
+}
+
+
+/* =========================================================
+   IMPROVEMENT
+========================================================= */
+
+function calculateChange(current, previous) {
+
+    const c = Number(current);
+    const p = Number(previous);
+
+    if (
+        !Number.isFinite(c) ||
+        !Number.isFinite(p)
+    ) {
+
+        return null;
+
+    }
+
+    return Math.round(c - p);
+
+}
+
+
+function displayImprovement(id, value) {
+
+    const element =
+        document.getElementById(id);
+
+    if (!element) {
+
+        return;
+
+    }
+
+    element.classList.remove(
+        "negative",
+        "neutral"
+    );
+
+    if (value === null) {
+
+        element.textContent = "--";
+
+        element.classList.add(
+            "neutral"
+        );
+
+        return;
+
+    }
+
+    element.textContent =
+        value > 0
+            ? "+" + value
+            : String(value);
+
+    if (value < 0) {
+
+        element.classList.add(
+            "negative"
+        );
+
+    }
+    else if (value === 0) {
+
+        element.classList.add(
+            "neutral"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   IMPROVEMENT ANALYSIS
+========================================================= */
+
+function analyzeImprovement(latest, previous) {
+
+    if (!previous) {
+
+        displayImprovement(
+            "healthImprovement",
+            null
+        );
+
+        displayImprovement(
+            "hydrationImprovement",
+            null
+        );
+
+        displayImprovement(
+            "textureImprovement",
+            null
+        );
+
+        displayImprovement(
+            "clarityImprovement",
+            null
+        );
+
+        document.getElementById(
+            "improvementStatusTitle"
+        ).textContent =
+            "Waiting for comparison";
+
+        document.getElementById(
+            "improvementStatusText"
+        ).textContent =
+            "Complete another skin assessment to analyze improvement.";
+
+        document.getElementById(
+            "improvementInsight"
+        ).innerHTML =
+            '<i class="fa-solid fa-lightbulb"></i> ' +
+            'At least two assessments are required to calculate improvement.';
+
+        return;
+
+    }
+
+
+    const currentHealth =
+        Number(
+            latest.skin_health_score
+        );
+
+    const previousHealth =
+        Number(
+            previous.skin_health_score
+        );
+
+
+    const currentHydration =
+        mapMetric(
+            latest.hydration,
+            {
+                good: 90,
+                moderate: 70,
+                poor: 40
+            },
+            currentHealth
+        );
+
+
+    const previousHydration =
+        mapMetric(
+            previous.hydration,
+            {
+                good: 90,
+                moderate: 70,
+                poor: 40
+            },
+            previousHealth
+        );
+
+
+    const currentTexture =
+        mapMetric(
+            latest.texture,
+            {
+                smooth: 90,
+                uneven: 65,
+                rough: 45
+            },
+            currentHealth
+        );
+
+
+    const previousTexture =
+        mapMetric(
+            previous.texture,
+            {
+                smooth: 90,
+                uneven: 65,
+                rough: 45
+            },
+            previousHealth
+        );
+
+
+    const currentClarity =
+        mapMetric(
+            latest.acne_level,
+            {
+                mild: 85,
+                moderate: 65,
+                severe: 40
+            },
+            currentHealth
+        );
+
+
+    const previousClarity =
+        mapMetric(
+            previous.acne_level,
+            {
+                mild: 85,
+                moderate: 65,
+                severe: 40
+            },
+            previousHealth
+        );
+
+
+    const changes = [
+
+        calculateChange(
+            currentHealth,
+            previousHealth
+        ),
+
+        calculateChange(
+            currentHydration,
+            previousHydration
+        ),
+
+        calculateChange(
+            currentTexture,
+            previousTexture
+        ),
+
+        calculateChange(
+            currentClarity,
+            previousClarity
+        )
+
+    ];
+
+
+    displayImprovement(
+        "healthImprovement",
+        changes[0]
+    );
+
+    displayImprovement(
+        "hydrationImprovement",
+        changes[1]
+    );
+
+    displayImprovement(
+        "textureImprovement",
+        changes[2]
+    );
+
+    displayImprovement(
+        "clarityImprovement",
+        changes[3]
+    );
+
+
+    const validChanges =
+        changes.filter(
+            value =>
+                value !== null &&
+                Number.isFinite(value)
+        );
+
+
+    if (!validChanges.length) {
+
+        return;
+
+    }
+
+
+    const average =
+        validChanges.reduce(
+            (a, b) => a + b,
+            0
+        ) /
+        validChanges.length;
+
+
+    const title =
+        document.getElementById(
+            "improvementStatusTitle"
+        );
+
+    const text =
+        document.getElementById(
+            "improvementStatusText"
+        );
+
+    const icon =
+        document.getElementById(
+            "improvementStatusIcon"
+        );
+
+
+    if (average > 0) {
+
+        title.textContent =
+            "Skin improvement detected";
+
+        text.textContent =
+            "Your latest assessment shows measurable improvement compared with the previous assessment.";
+
+        icon.innerHTML =
+            '<i class="fa-solid fa-arrow-trend-up"></i>';
+
+    }
+    else if (average < 0) {
+
+        title.textContent =
+            "Skin condition needs attention";
+
+        text.textContent =
+            "Some measured indicators have decreased compared with the previous assessment.";
+
+        icon.innerHTML =
+            '<i class="fa-solid fa-arrow-trend-down"></i>';
+
+    }
+    else {
+
+        title.textContent =
+            "Skin condition is stable";
+
+        text.textContent =
+            "Your latest assessment is very similar to the previous assessment.";
+
+        icon.innerHTML =
+            '<i class="fa-solid fa-minus"></i>';
+
+    }
+
+
+    const insight =
+        document.getElementById(
+            "improvementInsight"
+        );
+
+
+    if (average > 0) {
+
+        insight.innerHTML =
+            '<i class="fa-solid fa-lightbulb"></i> ' +
+            'Your skin is showing positive change. Continue following your personalized routine consistently.';
+
+    }
+    else if (average < 0) {
+
+        insight.innerHTML =
+            '<i class="fa-solid fa-lightbulb"></i> ' +
+            'Some indicators have declined. Review your routine consistency and monitor your next assessment.';
+
+    }
+    else {
+
+        insight.innerHTML =
+            '<i class="fa-solid fa-lightbulb"></i> ' +
+            'Your measured skin indicators are currently stable. Continue your routine and monitor future assessments.';
+
+    }
+
+}
+
+
+/* =========================================================
+   TRANSFORMATION
+========================================================= */
+
+function getTransformationMetric(
+    assessment,
+    type
+) {
+
+    const health =
+        Number(
+            assessment.skin_health_score
+        );
+
+
+    if (type === "health") {
+
+        return Number.isFinite(health)
+            ? Math.round(health)
+            : 0;
+
+    }
+
+
+    if (type === "hydration") {
+
+        return mapMetric(
+            assessment.hydration,
+            {
+                good: 90,
+                moderate: 70,
+                poor: 40
+            },
+            health
+        );
+
+    }
+
+
+    if (type === "texture") {
+
+        return mapMetric(
+            assessment.texture,
+            {
+                smooth: 90,
+                uneven: 65,
+                rough: 45
+            },
+            health
+        );
+
+    }
+
+
+    if (type === "clarity") {
+
+        return mapMetric(
+            assessment.acne_level,
+            {
+                mild: 85,
+                moderate: 65,
+                severe: 40
+            },
+            health
+        );
+
+    }
+
+
+    return 0;
+
+}
+
+
+function transformationRow(
+    name,
+    icon,
+    before,
+    after
+) {
+
+    const change =
+        Math.round(
+            after - before
+        );
+
+    let status =
+        "Stable";
+
+    let className =
+        "stable";
+
+    let statusIcon =
+        "fa-minus";
+
+    if (change > 0) {
+
+        status =
+            "Improved";
+
+        className =
+            "";
+
+        statusIcon =
+            "fa-arrow-up";
+
+    }
+    else if (change < 0) {
+
+        status =
+            "Declined";
+
+        className =
+            "declined";
+
+        statusIcon =
+            "fa-arrow-down";
+
+    }
+
+
+    const changeText =
+        change > 0
+            ? "+" + change
+            : String(change);
+
+
+    return `
+
+        <div class="transformation-row">
+
+            <div class="transformation-row-name">
+
+                <i class="fa-solid ${icon}"></i>
+
+                ${name}
+
+            </div>
+
+            <div class="before-number">
+                ${before}
+            </div>
+
+            <div class="change-track">
+
+                <span style="width:${after}%"></span>
+
+            </div>
+
+            <div class="change-number ${className}">
+
+                ${changeText}
+
+            </div>
+
+            <div class="change-status ${className}">
+
+                <i class="fa-solid ${statusIcon}"></i>
+
+                ${status}
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+function loadTransformation(
+    latest,
+    previous
+) {
+
+    const container =
+        document.getElementById(
+            "transformationContent"
+        );
+
+
+    if (!latest || !previous) {
+
+        return;
+
+    }
+
+
+    const beforeHealth =
+        getTransformationMetric(
+            previous,
+            "health"
+        );
+
+    const afterHealth =
+        getTransformationMetric(
+            latest,
+            "health"
+        );
+
+
+    const beforeHydration =
+        getTransformationMetric(
+            previous,
+            "hydration"
+        );
+
+    const afterHydration =
+        getTransformationMetric(
+            latest,
+            "hydration"
+        );
+
+
+    const beforeTexture =
+        getTransformationMetric(
+            previous,
+            "texture"
+        );
+
+    const afterTexture =
+        getTransformationMetric(
+            latest,
+            "texture"
+        );
+
+
+    const beforeClarity =
+        getTransformationMetric(
+            previous,
+            "clarity"
+        );
+
+    const afterClarity =
+        getTransformationMetric(
+            latest,
+            "clarity"
+        );
+
+
+    const overallChange =
+        afterHealth -
+        beforeHealth;
+
+
+    let overallStatus =
+        "STABLE";
+
+    let overallClass =
+        "stable";
+
+    let arrow =
+        "fa-minus";
+
+
+    if (overallChange > 0) {
+
+        overallStatus =
+            "IMPROVING";
+
+        overallClass =
+            "";
+
+        arrow =
+            "fa-arrow-trend-up";
+
+    }
+    else if (overallChange < 0) {
+
+        overallStatus =
+            "NEEDS ATTENTION";
+
+        overallClass =
+            "negative";
+
+        arrow =
+            "fa-arrow-trend-down";
+
+    }
+
+
+    const metrics = [
+
+        afterHealth - beforeHealth,
+
+        afterHydration - beforeHydration,
+
+        afterTexture - beforeTexture,
+
+        afterClarity - beforeClarity
+
+    ];
+
+
+    const improved =
+        metrics.filter(
+            x => x > 0
+        ).length;
+
+
+    const stable =
+        metrics.filter(
+            x => x === 0
+        ).length;
+
+
+    let insight =
+        "Your measured indicators are stable between assessments.";
+
+    const maxImprovement =
+        Math.max(...metrics);
+
+
+    if (maxImprovement > 0) {
+
+        const names = [
+            "skin health",
             "hydration",
-            data.hydration
-        );
-
-        updateMetric(
             "texture",
-            data.texture
-        );
+            "clarity"
+        ];
 
-        updateMetric(
-            "clarity",
-            data.clarity
-        );
+        const index =
+            metrics.indexOf(
+                maxImprovement
+            );
+
+        insight =
+            "Your strongest positive transformation is in " +
+            names[index] +
+            ", which increased by " +
+            maxImprovement +
+            " points. Continue your current routine.";
 
     }
 
 
-    function updateMetric(name, value) {
+    container.innerHTML = `
 
-        if (value === undefined || value === null) {
-            return;
+        <div class="transformation-hero">
+
+            <div class="mirror-container">
+
+
+                <div class="mirror-side">
+
+                    <div class="mirror-side-top">
+
+                        <div class="mirror-side-label">
+                            Previous
+                        </div>
+
+                        <div class="mirror-side-tag">
+                            Baseline
+                        </div>
+
+                    </div>
+
+
+                    <div class="mirror-side-date">
+                        ${formatDate(previous)}
+                    </div>
+
+
+                    <div class="mirror-score-wrap">
+
+                        <div class="mirror-score">
+                            ${beforeHealth}
+                        </div>
+
+                        <div class="mirror-score-unit">
+                            / 100
+                        </div>
+
+                    </div>
+
+
+                    <div class="mirror-score-label">
+                        Skin Health Score
+                    </div>
+
+
+                    <div class="mirror-mini-line">
+
+                        <span style="width:${beforeHealth}%"></span>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="mirror-arrow-zone">
+
+                    <div class="mirror-arrow">
+
+                        <i class="fa-solid ${arrow}"></i>
+
+                    </div>
+
+                    <div class="mirror-arrow-label">
+                        Transformation
+                    </div>
+
+                </div>
+
+
+
+                <div class="mirror-side current-side">
+
+                    <div class="mirror-side-top">
+
+                        <div class="mirror-side-label">
+                            Current
+                        </div>
+
+                        <div class="mirror-side-tag">
+                            Latest
+                        </div>
+
+                    </div>
+
+
+                    <div class="mirror-side-date">
+                        ${formatDate(latest)}
+                    </div>
+
+
+                    <div class="mirror-score-wrap">
+
+                        <div class="mirror-score">
+                            ${afterHealth}
+                        </div>
+
+                        <div class="mirror-score-unit">
+                            / 100
+                        </div>
+
+                    </div>
+
+
+                    <div class="mirror-score-label">
+                        Skin Health Score
+                    </div>
+
+
+                    <div class="mirror-mini-line">
+
+                        <span style="width:${afterHealth}%"></span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="mirror-change">
+
+                <strong class="${overallClass}">
+                    ${overallChange > 0 ? "+" : ""}
+                    ${overallChange}
+                </strong>
+
+                <span>
+                    Overall skin health transformation
+                </span>
+
+            </div>
+
+
+            <div class="transformation-summary-strip">
+
+                <div class="transformation-summary-item">
+
+                    <span>
+                        Transformation Status
+                    </span>
+
+                    <strong class="${
+                        overallChange > 0
+                            ? "green"
+                            : overallChange < 0
+                                ? "red"
+                                : "gray"
+                    }">
+
+                        ${overallStatus}
+
+                    </strong>
+
+                </div>
+
+
+                <div class="transformation-summary-item">
+
+                    <span>
+                        Indicators Improved
+                    </span>
+
+                    <strong class="green">
+
+                        ${improved} / 4
+
+                    </strong>
+
+                </div>
+
+
+                <div class="transformation-summary-item">
+
+                    <span>
+                        Indicators Stable
+                    </span>
+
+                    <strong class="gray">
+
+                        ${stable} / 4
+
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="transformation-change-title">
+
+                <strong>
+                    Transformation Matrix
+                </strong>
+
+                <span>
+                    Previous → Current
+                </span>
+
+            </div>
+
+
+            <div class="transformation-matrix">
+
+                ${transformationRow(
+                    "Skin Health",
+                    "fa-heart-pulse",
+                    beforeHealth,
+                    afterHealth
+                )}
+
+                ${transformationRow(
+                    "Hydration",
+                    "fa-droplet",
+                    beforeHydration,
+                    afterHydration
+                )}
+
+                ${transformationRow(
+                    "Texture",
+                    "fa-wand-magic-sparkles",
+                    beforeTexture,
+                    afterTexture
+                )}
+
+                ${transformationRow(
+                    "Clarity",
+                    "fa-face-smile",
+                    beforeClarity,
+                    afterClarity
+                )}
+
+            </div>
+
+
+            <div class="transformation-insight">
+
+                <i class="fa-solid fa-lightbulb"></i>
+
+                <div>
+
+                    <strong>
+                        AI Transformation Insight
+                    </strong>
+
+                    <br>
+
+                    ${insight}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   ROUTINE ADHERENCE
+========================================================= */
+
+function loadRoutineAdherence() {
+
+    const scoreEl =
+        document.getElementById(
+            "routineAdherenceScore"
+        );
+
+    const barEl =
+        document.getElementById(
+            "routineAdherenceBar"
+        );
+
+    const titleEl =
+        document.getElementById(
+            "routineAdherenceTitle"
+        );
+
+    const textEl =
+        document.getElementById(
+            "routineAdherenceText"
+        );
+
+    const stepsEl =
+        document.getElementById(
+            "routineStepsCompleted"
+        );
+
+    const streakEl =
+        document.getElementById(
+            "routineStreak"
+        );
+
+    const badgeEl =
+        document.getElementById(
+            "routinePulseBadge"
+        );
+
+    const dotsEl =
+        document.getElementById(
+            "routineWeekDots"
+        );
+
+    const insightEl =
+        document.getElementById(
+            "routinePulseInsight"
+        );
+
+
+    let history = null;
+
+    const keys = [
+
+        "routineDailyHistory",
+        "routineHistory"
+
+    ];
+
+
+    for (const key of keys) {
+
+        const saved =
+            localStorage.getItem(key);
+
+        if (!saved) {
+
+            continue;
+
         }
-
-        const score =
-            Number(value);
-
-        const bar =
-            document.getElementById(
-                name + "Bar"
-            );
-
-        const label =
-            document.getElementById(
-                name + "Score"
-            );
-
-        if (bar) {
-            bar.style.width =
-                Math.min(Math.max(score, 0), 100) +
-                "%";
-        }
-
-        if (label) {
-            label.textContent =
-                Math.round(score);
-        }
-
-    }
-
-
-    /*
-    ==================================================
-    OPTIONAL BACKEND CONNECTION
-    ==================================================
-
-    Uncomment this when your progress API is ready.
-
-    Example endpoint:
-
-    GET /assessment/progress/
-    */
-
-
-    async function loadProgress() {
-
-        const token =
-            localStorage.getItem("token");
-
-        if (!token) {
-
-            console.log(
-                "No authentication token found."
-            );
-
-            return;
-
-        }
-
 
         try {
 
-            /*
-            const response = await fetch(
-                "http://127.0.0.1:8000/assessment/progress/",
-                {
-                    method: "GET",
+            const parsed =
+                JSON.parse(saved);
 
-                    headers: {
-                        "Authorization":
-                            "Bearer " + token,
+            if (
+                parsed &&
+                typeof parsed === "object"
+            ) {
 
-                        "Content-Type":
-                            "application/json"
-                    }
-                }
-            );
+                history =
+                    parsed;
 
+                break;
 
-            if (!response.ok) {
-                throw new Error(
-                    "Unable to load progress data."
-                );
             }
 
-
-            const data =
-                await response.json();
-
-
-            updateProgressData(data);
-            */
-
-            console.log(
-                "Progress page ready for backend data."
-            );
-
         }
-
         catch (error) {
 
-            console.error(
-                "Progress loading error:",
+            console.warn(
+                "Routine history error:",
                 error
             );
 
@@ -1406,12 +4833,1325 @@
     }
 
 
-    document.addEventListener(
-        "DOMContentLoaded",
-        loadProgress
+    if (!history) {
+
+        scoreEl.textContent = "--";
+
+        barEl.style.width = "0%";
+
+        stepsEl.textContent = "--";
+
+        streakEl.textContent = "--";
+
+        return;
+
+    }
+
+
+    const entries =
+        Object.keys(history)
+            .sort()
+            .map(
+                date => ({
+
+                    date,
+                    data:
+                        history[date] || {}
+
+                })
+            );
+
+
+    if (!entries.length) {
+
+        return;
+
+    }
+
+
+    function sessionScore(data) {
+
+        const completed =
+            Number(
+                data.completedSteps ??
+                data.completed ??
+                0
+            );
+
+        const total =
+            Number(
+                data.totalSteps ??
+                data.total ??
+                0
+            );
+
+
+        if (
+            total > 0
+        ) {
+
+            return (
+                completed /
+                total
+            ) * 100;
+
+        }
+
+
+        return Number(
+            data.score || 0
+        );
+
+    }
+
+
+    const latest =
+        entries[
+            entries.length - 1
+        ];
+
+
+    const latestScore =
+        Math.round(
+            Math.min(
+                Math.max(
+                    sessionScore(
+                        latest.data
+                    ),
+                    0
+                ),
+                100
+            )
+        );
+
+
+    scoreEl.textContent =
+        latestScore + "%";
+
+    barEl.style.width =
+        latestScore + "%";
+
+
+    const completed =
+        Number(
+            latest.data.completedSteps ??
+            latest.data.completed ??
+            0
+        );
+
+
+    const total =
+        Number(
+            latest.data.totalSteps ??
+            latest.data.total ??
+            0
+        );
+
+
+    if (total > 0) {
+
+        stepsEl.textContent =
+            completed +
+            " / " +
+            total;
+
+    }
+    else {
+
+        stepsEl.textContent =
+            "Tracked";
+
+    }
+
+
+    if (latestScore >= 80) {
+
+        titleEl.textContent =
+            "Excellent routine consistency";
+
+        badgeEl.textContent =
+            "On track";
+
+        textEl.textContent =
+            "Your routine consistency is strong and above the weekly target.";
+
+        insightEl.innerHTML =
+            '<i class="fa-solid fa-lightbulb"></i> ' +
+            'Keep following your routine consistently to support long-term progress.';
+
+    }
+    else if (latestScore >= 60) {
+
+        titleEl.textContent =
+            "Good routine consistency";
+
+        badgeEl.textContent =
+            "Building momentum";
+
+        textEl.textContent =
+            "Your routine is becoming consistent, but there is room to reach the 80% target.";
+
+        insightEl.innerHTML =
+            '<i class="fa-solid fa-lightbulb"></i> ' +
+            'A little more consistency can help you reach the weekly target.';
+
+    }
+    else {
+
+        titleEl.textContent =
+            "Routine consistency needs improvement";
+
+        badgeEl.textContent =
+            "Needs attention";
+
+        textEl.textContent =
+            "Try completing your core skincare steps more consistently.";
+
+        insightEl.innerHTML =
+            '<i class="fa-solid fa-lightbulb"></i> ' +
+            'Focus on creating a simple routine that you can repeat every day.';
+
+    }
+
+
+    let streak = 0;
+
+
+    for (
+        let i = entries.length - 1;
+        i >= 0;
+        i--
+    ) {
+
+        if (
+            sessionScore(
+                entries[i].data
+            ) >= 60
+        ) {
+
+            streak++;
+
+        }
+        else {
+
+            break;
+
+        }
+
+    }
+
+
+    streakEl.textContent =
+        streak > 0
+            ? streak +
+              " day" +
+              (
+                streak === 1
+                    ? ""
+                    : "s"
+              )
+            : "Starting";
+
+
+    dotsEl.innerHTML = "";
+
+
+    const recent =
+        entries.slice(-7);
+
+
+    const labels = [
+        "M",
+        "T",
+        "W",
+        "T",
+        "F",
+        "S",
+        "S"
+    ];
+
+
+    labels.forEach(
+        (label, index) => {
+
+            const dot =
+                document.createElement(
+                    "span"
+                );
+
+            dot.className =
+                "week-dot";
+
+            dot.textContent =
+                label;
+
+
+            if (
+                recent[index] &&
+                sessionScore(
+                    recent[index].data
+                ) >= 60
+            ) {
+
+                dot.classList.add(
+                    "completed"
+                );
+
+                dot.innerHTML =
+                    '<i class="fa-solid fa-check"></i>';
+
+            }
+
+
+            dotsEl.appendChild(
+                dot
+            );
+
+        }
     );
 
+}
+
+
+/* =========================================================
+   TREND CHART
+========================================================= */
+
+function loadTrendAnalysis(
+    assessments
+) {
+
+    const valid =
+        assessments
+            .map(
+                assessment => ({
+
+                    score:
+                        Number(
+                            assessment.skin_health_score
+                        ),
+
+                    date:
+                        formatDate(
+                            assessment
+                        )
+
+                })
+            )
+            .filter(
+                item =>
+                    Number.isFinite(
+                        item.score
+                    )
+            );
+
+
+    if (!valid.length) {
+
+        return;
+
+    }
+
+
+    const scores =
+        valid.map(
+            item =>
+                item.score
+        );
+
+
+    const highest =
+        Math.max(...scores);
+
+    const lowest =
+        Math.min(...scores);
+
+
+    const average =
+        scores.reduce(
+            (a, b) =>
+                a + b,
+            0
+        ) /
+        scores.length;
+
+
+    document.getElementById(
+        "highestTrendScore"
+    ).textContent =
+        Math.round(highest) + "%";
+
+
+    document.getElementById(
+        "lowestTrendScore"
+    ).textContent =
+        Math.round(lowest) + "%";
+
+
+    document.getElementById(
+        "averageTrendScore"
+    ).textContent =
+        Math.round(
+            average * 10
+        ) / 10 + "%";
+
+
+    let trend =
+        "Stable";
+
+
+    if (scores.length >= 2) {
+
+        const difference =
+            scores[
+                scores.length - 1
+            ] -
+            scores[0];
+
+
+        if (difference > 0) {
+
+            trend =
+                "Improving";
+
+        }
+        else if (difference < 0) {
+
+            trend =
+                "Declining";
+
+        }
+
+    }
+
+
+    document.getElementById(
+        "overallTrend"
+    ).textContent =
+        trend;
+
+
+    const direction =
+        document.getElementById(
+            "trendDirection"
+        );
+
+
+    if (trend === "Improving") {
+
+        direction.innerHTML =
+            '<i class="fa-solid fa-arrow-trend-up"></i> Improving';
+
+    }
+    else if (trend === "Declining") {
+
+        direction.innerHTML =
+            '<i class="fa-solid fa-arrow-trend-down"></i> Declining';
+
+    }
+    else {
+
+        direction.innerHTML =
+            '<i class="fa-solid fa-minus"></i> Stable';
+
+    }
+
+
+    /* HISTORY */
+
+    const history =
+        document.getElementById(
+            "trendHistoryList"
+        );
+
+
+    history.innerHTML = "";
+
+
+    valid.forEach(
+        (item, index) => {
+
+            const row =
+                document.createElement(
+                    "div"
+                );
+
+            row.className =
+                "history-row";
+
+
+            const date =
+                document.createElement(
+                    "span"
+                );
+
+            date.className =
+                "history-date";
+
+            date.textContent =
+                "Assessment " +
+                (index + 1) +
+                " • " +
+                item.date;
+
+
+            const score =
+                document.createElement(
+                    "span"
+                );
+
+            score.className =
+                "history-score";
+
+            score.textContent =
+                Math.round(
+                    item.score
+                ) + "%";
+
+
+            row.appendChild(date);
+
+            row.appendChild(score);
+
+            history.appendChild(row);
+
+        }
+    );
+
+
+    drawTrendChart(scores);
+
+}
+
+
+/* =========================================================
+   DRAW TREND CHART
+========================================================= */
+
+function drawTrendChart(scores) {
+
+    const canvas =
+        document.getElementById(
+            "skinTrendChart"
+        );
+
+
+    if (!canvas) {
+
+        return;
+
+    }
+
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+
+    const width =
+        Math.max(
+            rect.width,
+            500
+        );
+
+
+    const height =
+        300;
+
+
+    const dpr =
+        window.devicePixelRatio || 1;
+
+
+    canvas.width =
+        width * dpr;
+
+    canvas.height =
+        height * dpr;
+
+
+    const ctx =
+        canvas.getContext(
+            "2d"
+        );
+
+
+    ctx.scale(
+        dpr,
+        dpr
+    );
+
+
+    ctx.clearRect(
+        0,
+        0,
+        width,
+        height
+    );
+
+
+    const left =
+        45;
+
+    const right =
+        20;
+
+    const top =
+        25;
+
+    const bottom =
+        40;
+
+
+    const chartWidth =
+        width -
+        left -
+        right;
+
+
+    const chartHeight =
+        height -
+        top -
+        bottom;
+
+
+    /* GRID */
+
+    ctx.font =
+        "11px Arial";
+
+    ctx.textAlign =
+        "right";
+
+
+    for (
+        let value = 0;
+        value <= 100;
+        value += 20
+    ) {
+
+        const y =
+            top +
+            chartHeight -
+            (
+                value /
+                100
+            ) *
+            chartHeight;
+
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            left,
+            y
+        );
+
+        ctx.lineTo(
+            width - right,
+            y
+        );
+
+
+        ctx.strokeStyle =
+            "#e5ece8";
+
+        ctx.lineWidth =
+            1;
+
+        ctx.stroke();
+
+
+        ctx.fillStyle =
+            "#203b2f";
+
+        ctx.fillText(
+            value,
+            left - 8,
+            y + 4
+        );
+
+    }
+
+
+    if (scores.length === 1) {
+
+        const x =
+            left +
+            chartWidth / 2;
+
+
+        const y =
+            top +
+            chartHeight -
+            (
+                scores[0] /
+                100
+            ) *
+            chartHeight;
+
+
+        ctx.beginPath();
+
+        ctx.arc(
+            x,
+            y,
+            6,
+            0,
+            Math.PI * 2
+        );
+
+
+        ctx.fillStyle =
+            "#27814a";
+
+        ctx.fill();
+
+
+        ctx.textAlign =
+            "center";
+
+        ctx.fillStyle =
+            "#27814a";
+
+        ctx.fillText(
+            Math.round(
+                scores[0]
+            ) + "%",
+            x,
+            y - 12
+        );
+
+
+        return;
+
+    }
+
+
+    const points =
+        scores.map(
+            (score, index) => {
+
+                const x =
+                    left +
+                    (
+                        index /
+                        (
+                            scores.length - 1
+                        )
+                    ) *
+                    chartWidth;
+
+
+                const y =
+                    top +
+                    chartHeight -
+                    (
+                        score /
+                        100
+                    ) *
+                    chartHeight;
+
+
+                return {
+                    x,
+                    y,
+                    score
+                };
+
+            }
+        );
+
+
+    /* LINE */
+
+    ctx.beginPath();
+
+
+    points.forEach(
+        (point, index) => {
+
+            if (index === 0) {
+
+                ctx.moveTo(
+                    point.x,
+                    point.y
+                );
+
+            }
+            else {
+
+                ctx.lineTo(
+                    point.x,
+                    point.y
+                );
+
+            }
+
+        }
+    );
+
+
+    ctx.strokeStyle =
+        "#27814a";
+
+    ctx.lineWidth =
+        3;
+
+    ctx.stroke();
+
+
+    /* POINTS */
+
+    points.forEach(
+        point => {
+
+            ctx.beginPath();
+
+            ctx.arc(
+                point.x,
+                point.y,
+                5,
+                0,
+                Math.PI * 2
+            );
+
+
+            ctx.fillStyle =
+                "#27814a";
+
+            ctx.fill();
+
+
+            ctx.fillStyle =
+                "#19352a";
+
+            ctx.font =
+                "11px Arial";
+
+            ctx.textAlign =
+                "center";
+
+
+            ctx.fillText(
+                Math.round(
+                    point.score
+                ) + "%",
+                point.x,
+                point.y - 12
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   MAIN PROGRESS LOADER
+========================================================= */
+
+async function loadProgress() {
+
+    const token =
+        localStorage.getItem(
+            "token"
+        );
+
+
+    if (!token) {
+
+        console.log(
+            "No authentication token found."
+        );
+
+        loadRoutineAdherence();
+
+        return;
+
+    }
+
+
+    try {
+
+        console.log(
+            "Progress page loaded"
+        );
+
+
+        const response =
+            await fetch(
+                "http://127.0.0.1:8000/assessment/",
+                {
+
+                    method:
+                        "GET",
+
+                    headers: {
+
+                        "Authorization":
+                            "Bearer " + token,
+
+                        "Content-Type":
+                            "application/json"
+
+                    }
+
+                }
+            );
+
+
+        console.log(
+            "Response status:",
+            response.status
+        );
+
+
+        if (
+            response.status === 401 ||
+            response.status === 403
+        ) {
+
+            localStorage.removeItem(
+                "token"
+            );
+
+            localStorage.removeItem(
+                "role"
+            );
+
+            window.location.href =
+                "../login.html";
+
+            return;
+
+        }
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Assessment API returned " +
+                response.status
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        console.log(
+            "Progress Data:",
+            data
+        );
+
+
+        if (
+            !Array.isArray(data) ||
+            data.length === 0
+        ) {
+
+            document.getElementById(
+                "noAssessment"
+            ).style.display =
+                "block";
+
+
+            loadRoutineAdherence();
+
+            return;
+
+        }
+
+
+        /* SORT OLD → NEW */
+
+        data.sort(
+            (a, b) => {
+
+                const dateA =
+                    new Date(
+                        a.assessment_date ||
+                        a.created_at ||
+                        0
+                    );
+
+
+                const dateB =
+                    new Date(
+                        b.assessment_date ||
+                        b.created_at ||
+                        0
+                    );
+
+
+                return dateA - dateB;
+
+            }
+        );
+
+
+        const latest =
+            data[
+                data.length - 1
+            ];
+
+
+        const previous =
+            data.length > 1
+                ? data[
+                    data.length - 2
+                ]
+                : null;
+
+
+        console.log(
+            "Latest Assessment:",
+            latest
+        );
+
+
+        console.log(
+            "Previous Assessment:",
+            previous
+        );
+
+
+        /* =================================================
+           CURRENT SCORE
+        ================================================= */
+
+        const currentScore =
+            Number(
+                latest.skin_health_score
+            );
+
+
+        if (
+            Number.isFinite(
+                currentScore
+            )
+        ) {
+
+            const element =
+                document.getElementById(
+                    "currentScore"
+                );
+
+
+            element.textContent =
+                Math.round(
+                    currentScore
+                ) + "%";
+
+
+            element.classList.remove(
+                "empty"
+            );
+
+
+            document.getElementById(
+                "currentScoreBar"
+            ).style.width =
+                Math.min(
+                    Math.max(
+                        currentScore,
+                        0
+                    ),
+                    100
+                ) + "%";
+
+        }
+
+
+        /* =================================================
+           PREVIOUS SCORE
+        ================================================= */
+
+        if (previous) {
+
+            const previousScore =
+                Number(
+                    previous.skin_health_score
+                );
+
+
+            if (
+                Number.isFinite(
+                    previousScore
+                )
+            ) {
+
+                const element =
+                    document.getElementById(
+                        "previousScore"
+                    );
+
+
+                element.textContent =
+                    Math.round(
+                        previousScore
+                    ) + "%";
+
+
+                element.classList.remove(
+                    "empty"
+                );
+
+
+                document.getElementById(
+                    "previousScoreBar"
+                ).style.width =
+                    Math.min(
+                        Math.max(
+                            previousScore,
+                            0
+                        ),
+                        100
+                    ) + "%";
+
+
+                /* IMPROVEMENT % */
+
+                if (
+                    previousScore !== 0
+                ) {
+
+                    const percentage =
+                        (
+                            (
+                                currentScore -
+                                previousScore
+                            ) /
+                            previousScore
+                        ) *
+                        100;
+
+
+                    const rounded =
+                        Math.round(
+                            percentage *
+                            100
+                        ) /
+                        100;
+
+
+                    document.getElementById(
+                        "improvementScore"
+                    ).textContent =
+                        (
+                            rounded >= 0
+                                ? "+"
+                                : ""
+                        ) +
+                        rounded +
+                        "%";
+
+
+                    document.getElementById(
+                        "improvementBar"
+                    ).style.width =
+                        Math.min(
+                            Math.abs(
+                                rounded
+                            ),
+                            100
+                        ) + "%";
+
+                }
+
+            }
+
+        }
+
+
+        /* =================================================
+           REPORT
+        ================================================= */
+
+        document.getElementById(
+            "reportTitle"
+        ).textContent =
+            latest.overall_condition ||
+            "AI Assessment Available";
+
+
+        document.getElementById(
+            "reportText"
+        ).textContent =
+            latest.notes ||
+            "Your latest AI skin assessment has been successfully recorded.";
+
+
+        document.getElementById(
+            "noAssessment"
+        ).style.display =
+            "none";
+
+
+        /* =================================================
+           METRICS
+        ================================================= */
+
+        updateMetric(
+            "health",
+            currentScore
+        );
+
+
+        const hydration =
+            mapMetric(
+                latest.hydration,
+                {
+                    good: 90,
+                    moderate: 70,
+                    poor: 40
+                },
+                currentScore
+            );
+
+
+        const texture =
+            mapMetric(
+                latest.texture,
+                {
+                    smooth: 90,
+                    uneven: 65,
+                    rough: 45
+                },
+                currentScore
+            );
+
+
+        const clarity =
+            mapMetric(
+                latest.acne_level,
+                {
+                    mild: 85,
+                    moderate: 65,
+                    severe: 40
+                },
+                currentScore
+            );
+
+
+        updateMetric(
+            "hydration",
+            hydration
+        );
+
+
+        updateMetric(
+            "texture",
+            texture
+        );
+
+
+        updateMetric(
+            "clarity",
+            clarity
+        );
+
+
+        /* =================================================
+           MODULE 8 FEATURES
+        ================================================= */
+
+        analyzeImprovement(
+            latest,
+            previous
+        );
+
+
+        loadTransformation(
+            latest,
+            previous
+        );
+
+
+        loadRoutineAdherence();
+
+
+        loadTrendAnalysis(
+            data
+        );
+
+
+        console.log(
+            "Progress page updated successfully."
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "Progress loading error:",
+            error
+        );
+
+
+        loadRoutineAdherence();
+
+    }
+
+}
+
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+function logout() {
+
+    localStorage.removeItem(
+        "token"
+    );
+
+    localStorage.removeItem(
+        "role"
+    );
+
+    window.location.href =
+        "../login.html";
+
+}
+
+
+/* =========================================================
+   PAGE LOAD
+========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    loadProgress
+);
+
+
+/* =========================================================
+   REDRAW CHART ON RESIZE
+========================================================= */
+
+window.addEventListener(
+    "resize",
+    function() {
+
+        const token =
+            localStorage.getItem(
+                "token"
+            );
+
+        if (token) {
+
+            /* chart is redrawn when page data reloads */
+
+        }
+
+    }
+);
+
 </script>
+
 
 </body>
 

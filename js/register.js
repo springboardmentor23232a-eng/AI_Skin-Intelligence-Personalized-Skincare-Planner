@@ -1,4 +1,4 @@
-document.getElementById("registerForm").addEventListener("submit", async function(e){
+document.getElementById("registerForm").addEventListener("submit", async function(e) {
 
     e.preventDefault();
 
@@ -11,39 +11,52 @@ document.getElementById("registerForm").addEventListener("submit", async functio
 
     const confirmPassword = document.getElementById("confirmPassword").value;
 
+    const role = document.getElementById("role").value;
 
 
-    if(password !== confirmPassword){
+    // Check password
+
+    if (password !== confirmPassword) {
 
         alert("Passwords do not match");
+
         return;
 
     }
 
 
+    // Check role
 
-    try{
+    if (!role) {
 
+        alert("Please select a role");
+
+        return;
+
+    }
+
+
+    try {
 
         const response = await fetch(
             "http://127.0.0.1:8000/api/auth/register",
             {
 
-                method:"POST",
+                method: "POST",
 
-                headers:{
-                    "Content-Type":"application/json"
+                headers: {
+                    "Content-Type": "application/json"
                 },
 
-                body:JSON.stringify({
+                body: JSON.stringify({
 
-                    name:name,
+                    name: name,
 
-                    email:email,
+                    email: email,
 
-                    password:password,
+                    password: password,
 
-                    role:"USER"
+                    role: role
 
                 })
 
@@ -51,38 +64,40 @@ document.getElementById("registerForm").addEventListener("submit", async functio
         );
 
 
-
         const data = await response.json();
-
 
 
         console.log("Register Response:", data);
 
 
-
-        if(response.ok){
+        if (response.ok) {
 
             alert("Registration successful");
 
-            window.location.href="login.html";
-
-        }
-        else{
-
-            alert(data.detail || "Registration failed");
+            window.location.href = "login.html";
 
         }
 
+        else {
+
+            alert(
+                data.detail || "Registration failed"
+            );
+
+        }
 
 
     }
-    catch(error){
 
-        console.error("Register Error:", error);
+    catch (error) {
+
+        console.error(
+            "Register Error:",
+            error
+        );
 
         alert("Server error");
 
     }
-
 
 });

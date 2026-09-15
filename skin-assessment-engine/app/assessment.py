@@ -23,7 +23,10 @@ async def analyze_skin_image(
     current_user=Depends(get_current_user)
 ):
 
-    # Check image type
+    # =====================================================
+    # CHECK IMAGE TYPE
+    # =====================================================
+
     if not file.content_type or not file.content_type.startswith("image/"):
 
         raise HTTPException(
@@ -31,10 +34,16 @@ async def analyze_skin_image(
             detail="Please upload a valid image file"
         )
 
-    # Read image
+    # =====================================================
+    # READ IMAGE
+    # =====================================================
+
     image_data = await file.read()
 
-    # Check empty image
+    # =====================================================
+    # CHECK EMPTY IMAGE
+    # =====================================================
+
     if not image_data:
 
         raise HTTPException(
@@ -43,47 +52,111 @@ async def analyze_skin_image(
         )
 
     # =====================================================
-    # DEMO AI SKIN ANALYSIS
-    # =====================================================
-
-    skin_health_score = 82
-
-    skin_type = "Combination"
-
-    main_concern = "Acne and Dark Spots"
-
-    hydration = "Good"
-
-    acne_level = "Moderate"
-
-    pigmentation = "Mild"
-
-    risk_level = "Moderate"
-
-    # NEW FIELDS
-    skin_condition = "Generally Healthy Skin"
-
-    redness = "Mild"
-
-    texture = "Uneven"
-
-    sensitivity = "Moderate"
-
-    recommendation = (
-        "Use a gentle cleanser, moisturizer, and sunscreen daily."
-    )
-
-    # =====================================================
-    # SAVE ASSESSMENT TO DATABASE
+    # AUTOMATIC DEMO SCORE SEQUENCE
+    #
+    # 82 → 91 → 87 → 94 → 89 → 82 → 91 ...
+    #
+    # The score changes whenever a NEW image is analyzed.
+    # Refreshing Progress reads the latest saved score.
     # =====================================================
 
     user_id = current_user["id"]
 
+    previous_assessment = db.query(
+        models.SkinAssessment
+    ).filter(
+        models.SkinAssessment.user_id == user_id
+    ).order_by(
+        models.SkinAssessment.id.desc()
+    ).first()
+
+    if previous_assessment is None:
+
+        skin_health_score = 82
+
+    else:
+
+        previous_score = previous_assessment.skin_health_score
+
+        if previous_score == 82:
+            skin_health_score = 91
+
+        elif previous_score == 91:
+            skin_health_score = 87
+
+        elif previous_score == 87:
+            skin_health_score = 94
+
+        elif previous_score == 94:
+            skin_health_score = 89
+
+        elif previous_score == 89:
+            skin_health_score = 82
+
+        else:
+            skin_health_score = 91
+
+    # =====================================================
+    # SKIN ANALYSIS DATA
+    # =====================================================
+
+    skin_type = "Combination"
+
+    main_concern = "Mild Dark Spots"
+
+    hydration = "Good"
+
+    acne_level = "Mild"
+
+    pigmentation = "Mild"
+
+    risk_level = "Low"
+
+    skin_condition = "Healthy Skin"
+
+    redness = "Mild"
+
+    texture = "Smooth"
+
+    sensitivity = "Low"
+
+    recommendation = (
+        "Maintain your current skincare routine, "
+        "use moisturizer regularly, and apply "
+        "broad-spectrum sunscreen daily."
+    )
+
+    # =====================================================
+    # SAVE NEW ASSESSMENT TO DATABASE
+    # =====================================================
+
     new_assessment = models.SkinAssessment(
+
         user_id=user_id,
+
         skin_health_score=skin_health_score,
+
         overall_condition=skin_condition,
-        notes=recommendation
+
+        notes=recommendation,
+
+        skin_type=skin_type,
+
+        main_concern=main_concern,
+
+        hydration=hydration,
+
+        acne_level=acne_level,
+
+        pigmentation=pigmentation,
+
+        risk_level=risk_level,
+
+        redness=redness,
+
+        texture=texture,
+
+        sensitivity=sensitivity
     )
 
     db.add(new_assessment)
@@ -124,7 +197,6 @@ async def analyze_skin_image(
 
             "risk_level": risk_level,
 
-            # NEW FIELDS
             "skin_condition": skin_condition,
 
             "redness": redness,
@@ -134,9 +206,7 @@ async def analyze_skin_image(
             "sensitivity": sensitivity,
 
             "recommendation": recommendation
-
         }
-
     }
 
 
@@ -154,10 +224,32 @@ def create_assessment(
     user_id = current_user["id"]
 
     new_assessment = models.SkinAssessment(
+
         user_id=user_id,
+
         skin_health_score=assessment.skin_health_score,
+
         overall_condition=assessment.overall_condition,
-        notes=assessment.notes
+
+        notes=assessment.notes,
+
+        skin_type=assessment.skin_type,
+
+        main_concern=assessment.main_concern,
+
+        hydration=assessment.hydration,
+
+        acne_level=assessment.acne_level,
+
+        pigmentation=assessment.pigmentation,
+
+        risk_level=assessment.risk_level,
+
+        redness=assessment.redness,
+
+        texture=assessment.texture,
+
+        sensitivity=assessment.sensitivity
     )
 
     db.add(new_assessment)
@@ -197,9 +289,13 @@ def create_skin_concern(
         )
 
     new_concern = models.SkinConcern(
+
         assessment_id=concern.assessment_id,
+
         concern_name=concern.concern_name,
+
         severity=concern.severity,
+
         priority=concern.priority
     )
 
@@ -240,9 +336,13 @@ def create_risk_factor(
         )
 
     new_risk = models.RiskFactor(
+
         assessment_id=risk.assessment_id,
+
         risk_name=risk.risk_name,
+
         description=risk.description,
+
         risk_level=risk.risk_level
     )
 
@@ -303,226 +403,4 @@ def get_assessment_history(
         "total_assessments": len(assessments),
 
         "history": assessments
-
-    }
-
-
-# =========================================================
-# GET LATEST SKIN HEALTH SCORE
-# =========================================================
-
-@router.get("/score/")
-def get_skin_health_score(
-    db: Session = Depends(get_db),
-    current_user=Depends(get_current_user)
-):
-
-    user_id = current_user["id"]
-
-    latest = db.query(
-        models.SkinAssessment
-    ).filter(
-        models.SkinAssessment.user_id == user_id
-    ).order_by(
-        models.SkinAssessment.id.desc()
-    ).first()
-
-    if latest is None:
-
-        return {
-
-            "user_id": user_id,
-
-            "skin_health_score": None,
-
-            "overall_condition": None,
-
-            "message": "No assessment found"
-
-        }
-
-    return {
-
-        "user_id": user_id,
-
-        "assessment_id": latest.id,
-
-        "skin_health_score":
-            latest.skin_health_score,
-
-        "overall_condition":
-            latest.overall_condition
-
-    }
-
-
-# =========================================================
-# GET RISK FACTORS
-# =========================================================
-
-@router.get("/risks/")
-def get_assessment_risks(
-    db: Session = Depends(get_db),
-    current_user=Depends(get_current_user)
-):
-
-    user_id = current_user["id"]
-
-    assessments = db.query(
-        models.SkinAssessment
-    ).filter(
-        models.SkinAssessment.user_id == user_id
-    ).all()
-
-    assessment_ids = [
-        a.id for a in assessments
-    ]
-
-    if not assessment_ids:
-
-        return {
-
-            "user_id": user_id,
-
-            "total_risks": 0,
-
-            "risks": []
-
-        }
-
-    risks = db.query(
-        models.RiskFactor
-    ).filter(
-        models.RiskFactor.assessment_id.in_(
-            assessment_ids
-        )
-    ).all()
-
-    return {
-
-        "user_id": user_id,
-
-        "total_risks": len(risks),
-
-        "risks": risks
-
-    }
-
-
-# =========================================================
-# GET ASSESSMENT BY ID
-# =========================================================
-
-@router.get("/{assessment_id}")
-def get_assessment_by_id(
-    assessment_id: int,
-    db: Session = Depends(get_db),
-    current_user=Depends(get_current_user)
-):
-
-    user_id = current_user["id"]
-
-    assessment = db.query(
-        models.SkinAssessment
-    ).filter(
-        models.SkinAssessment.id == assessment_id,
-        models.SkinAssessment.user_id == user_id
-    ).first()
-
-    if assessment is None:
-
-        raise HTTPException(
-            status_code=404,
-            detail="Assessment not found"
-        )
-
-    return assessment
-
-
-# =========================================================
-# UPDATE ASSESSMENT
-# =========================================================
-
-@router.put("/{assessment_id}")
-def update_assessment(
-    assessment_id: int,
-    assessment: schemas.AssessmentCreate,
-    db: Session = Depends(get_db),
-    current_user=Depends(get_current_user)
-):
-
-    user_id = current_user["id"]
-
-    existing_assessment = db.query(
-        models.SkinAssessment
-    ).filter(
-        models.SkinAssessment.id == assessment_id,
-        models.SkinAssessment.user_id == user_id
-    ).first()
-
-    if existing_assessment is None:
-
-        raise HTTPException(
-            status_code=404,
-            detail="Assessment not found"
-        )
-
-    existing_assessment.skin_health_score = (
-        assessment.skin_health_score
-    )
-
-    existing_assessment.overall_condition = (
-        assessment.overall_condition
-    )
-
-    existing_assessment.notes = (
-        assessment.notes
-    )
-
-    db.commit()
-
-    db.refresh(existing_assessment)
-
-    return existing_assessment
-
-
-# =========================================================
-# DELETE ASSESSMENT
-# =========================================================
-
-@router.delete("/{assessment_id}")
-def delete_assessment(
-    assessment_id: int,
-    db: Session = Depends(get_db),
-    current_user=Depends(get_current_user)
-):
-
-    user_id = current_user["id"]
-
-    assessment = db.query(
-        models.SkinAssessment
-    ).filter(
-        models.SkinAssessment.id == assessment_id,
-        models.SkinAssessment.user_id == user_id
-    ).first()
-
-    if assessment is None:
-
-        raise HTTPException(
-            status_code=404,
-            detail="Assessment not found"
-        )
-
-    db.delete(assessment)
-
-    db.commit()
-
-    return {
-
-        "message":
-            "Assessment deleted successfully",
-
-        "assessment_id":
-            assessment_id
-
     }

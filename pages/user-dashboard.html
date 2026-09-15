@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -21,807 +20,967 @@
 
 </head>
 
-
 <body>
 
-    <!-- ==========================================
-         SIDEBAR
-    =========================================== -->
+<!-- =====================================================
+     SIDEBAR
+====================================================== -->
 
-    <aside class="sidebar">
+<aside class="sidebar">
 
-        <div class="brand">
+    <div class="brand">
 
-            <div class="brand-icon">
-                <i class="fa-solid fa-leaf"></i>
-            </div>
+        <div class="brand-icon">
+            <i class="fa-solid fa-leaf"></i>
+        </div>
+
+        <div>
+            <h2>Skin AI</h2>
+            <span>Intelligence Platform</span>
+        </div>
+
+    </div>
+
+    <nav>
+
+        <p class="nav-title">MAIN MENU</p>
+
+        <ul>
+
+            <li>
+                <a href="user-dashboard.html" class="active">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="profile.html">
+                    <i class="fa-solid fa-user"></i>
+                    <span>Profile</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="assessment.html">
+                    <i class="fa-solid fa-camera"></i>
+                    <span>Skin Assessment</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="adaptive-routine.html">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                    <span>Adaptive Routine</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="products.html">
+                    <i class="fa-solid fa-pump-soap"></i>
+                    <span>Products</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="ingredient-intelligence.html">
+                    <i class="fa-solid fa-flask"></i>
+                    <span>Ingredient Intelligence</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="progress.html">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Progress</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="notifications.html">
+                    <i class="fa-solid fa-bell"></i>
+                    <span>Notifications</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="skin-health-score.html">
+                    <i class="fa-solid fa-heart-pulse"></i>
+                    <span>Skin Health Score</span>
+                </a>
+            </li>
+
+        </ul>
+
+        <p class="nav-title secondary-title">
+            ACCOUNT
+        </p>
+
+        <ul>
+
+            <li>
+                <a href="#" onclick="logout(); return false;">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span>
+                </a>
+            </li>
+
+        </ul>
+
+    </nav>
+
+</aside>
+
+
+<!-- =====================================================
+     MAIN CONTENT
+====================================================== -->
+
+<main class="main">
+
+
+    <!-- =================================================
+         HEADER
+    ================================================== -->
+
+    <header class="dashboard-header">
+
+        <div>
+
+            <span class="welcome-label">
+                PERSONALIZED SKIN INTELLIGENCE
+            </span>
+
+            <h1 id="userName">
+                Welcome 👋
+            </h1>
+
+            <p>
+                Monitor your skin health and follow your
+                personalized skincare plan.
+            </p>
+
+        </div>
+
+        <div class="header-status">
+
+            <span class="status-dot"></span>
+
+            <span>
+                AI Analysis Active
+            </span>
+
+        </div>
+
+    </header>
+
+
+    <!-- =================================================
+         OVERVIEW
+    ================================================== -->
+
+    <section class="section">
+
+        <div class="section-heading">
 
             <div>
-                <h2>Skin AI</h2>
-                <span>Intelligence Platform</span>
+
+                <span class="section-label">
+                    OVERVIEW
+                </span>
+
+                <h2>
+                    Skin Health Overview
+                </h2>
+
             </div>
+
+            <span class="updated-text">
+
+                <i class="fa-regular fa-clock"></i>
+
+                Latest assessment
+
+            </span>
 
         </div>
 
 
-        <nav>
-
-            <p class="nav-title">MAIN MENU</p>
-
-            <ul>
-
-                <li>
-                    <a href="user-dashboard.html" class="active">
-                        <i class="fa-solid fa-house"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a href="profile.html">
-                        <i class="fa-solid fa-user"></i>
-                        <span>Profile</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a href="assessment.html">
-                        <i class="fa-solid fa-camera"></i>
-                        <span>Skin Assessment</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a href="products.html">
-                        <i class="fa-solid fa-pump-soap"></i>
-                        <span>Products</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a href="progress.html">
-                        <i class="fa-solid fa-chart-line"></i>
-                        <span>Progress</span>
-                    </a>
-                </li>
-
-            </ul>
+        <div class="cards">
 
 
-            <p class="nav-title secondary-title">ACCOUNT</p>
+            <!-- SKIN HEALTH SCORE -->
 
-            <ul>
+            <div class="card health-card">
 
-                <li>
-                    <a href="#" onclick="logout(); return false;">
-                        <i class="fa-solid fa-right-from-bracket"></i>
-                        <span>Logout</span>
-                    </a>
-                </li>
+                <div class="card-top">
 
-            </ul>
+                    <div class="card-icon health-icon">
 
-        </nav>
+                        <i class="fa-solid fa-heart-pulse"></i>
 
-    </aside>
+                    </div>
 
+                    <span class="card-status">
+                        AI Score
+                    </span>
 
+                </div>
 
-    <!-- ==========================================
-         MAIN CONTENT
-    =========================================== -->
+                <h3>
+                    Skin Health Score
+                </h3>
 
-    <main class="main">
+                <h2 id="skinScore">
+                    --
+                </h2>
 
-
-        <!-- ======================================
-             HEADER
-        ======================================= -->
-
-        <header class="dashboard-header">
-
-            <div>
-
-                <span class="welcome-label">
-                    PERSONALIZED SKIN INTELLIGENCE
-                </span>
-
-                <h1 id="userName">
-                    Welcome 👋
-                </h1>
-
-                <p>
-                    Monitor your skin health and follow your
-                    personalized skincare plan.
+                <p id="skinCondition">
+                    Loading...
                 </p>
 
-            </div>
-
-
-            <div class="header-status">
-
-                <span class="status-dot"></span>
-
-                <span>AI Analysis Active</span>
-
-            </div>
-
-        </header>
-
-
-
-        <!-- ==========================================
-             OVERVIEW
-        =========================================== -->
-
-        <section class="section">
-
-            <div class="section-heading">
-
-                <div>
-
-                    <span class="section-label">
-                        OVERVIEW
-                    </span>
-
-                    <h2>Skin Health Overview</h2>
-
-                </div>
-
-                <span class="updated-text">
-
-                    <i class="fa-regular fa-clock"></i>
-
-                    Latest assessment
-
-                </span>
-
-            </div>
-
-
-            <div class="cards">
-
-
-                <!-- Skin Health Score -->
-
-                <div class="card health-card">
-
-                    <div class="card-top">
-
-                        <div class="card-icon health-icon">
-                            <i class="fa-solid fa-heart-pulse"></i>
-                        </div>
-
-                        <span class="card-status">
-                            AI Score
-                        </span>
-
-                    </div>
-
-                    <h3>Skin Health Score</h3>
-
-                    <h2 id="skinScore">
-                        --
-                    </h2>
-
-                    <p id="skinCondition">
-                        Loading...
-                    </p>
-
-                    <div class="score-line">
-                        <span></span>
-                    </div>
-
-                </div>
-
-
-
-                <!-- Skin Type -->
-
-                <div class="card">
-
-                    <div class="card-top">
-
-                        <div class="card-icon">
-                            <i class="fa-solid fa-droplet"></i>
-                        </div>
-
-                        <span class="card-status">
-                            Profile
-                        </span>
-
-                    </div>
-
-                    <h3>Skin Type</h3>
-
-                    <h2>
-                        Combination
-                    </h2>
-
-                    <p>
-                        Balanced Skin
-                    </p>
-
-                </div>
-
-
-
-                <!-- AI Analysis -->
-
-                <div class="card">
-
-                    <div class="card-top">
-
-                        <div class="card-icon">
-                            <i class="fa-solid fa-brain"></i>
-                        </div>
-
-                        <span class="completed-badge">
-
-                            <i class="fa-solid fa-check"></i>
-
-                            Completed
-
-                        </span>
-
-                    </div>
-
-                    <h3>AI Analysis</h3>
-
-                    <h2>
-                        Completed
-                    </h2>
-
-                    <p>
-                        Latest assessment available
-                    </p>
-
-                </div>
-
-
-
-                <!-- Recommended Products -->
-
-                <div class="card">
-
-                    <div class="card-top">
-
-                        <div class="card-icon">
-                            <i class="fa-solid fa-pump-soap"></i>
-                        </div>
-
-                        <span class="card-status">
-                            AI Matched
-                        </span>
-
-                    </div>
-
-                    <h3>Recommended Products</h3>
-
-                    <h2>
-                        12
-                    </h2>
-
-                    <p>
-                        Personalized products
-                    </p>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- ==========================================
-             LATEST AI ANALYSIS
-        =========================================== -->
-
-        <section class="analysis-box professional-analysis">
-
-            <div class="box-header">
-
-                <div>
-
-                    <span class="section-label">
-                        AI INSIGHTS
-                    </span>
-
-                    <h2>
-                        Latest Skin Analysis
-                    </h2>
-
-                    <p>
-                        Key observations from your most recent
-                        AI-powered skin assessment.
-                    </p>
-
-                </div>
-
-                <div class="ai-badge">
-
-                    <i class="fa-solid fa-sparkles"></i>
-
-                    AI Powered
-
+                <div class="score-line">
+                    <span></span>
                 </div>
 
             </div>
 
 
-            <div class="analysis-grid">
+            <!-- SKIN TYPE -->
 
+            <div class="card">
 
-                <!-- Acne -->
+                <div class="card-top">
 
-                <div class="analysis-item">
-
-                    <div class="analysis-icon acne-icon">
-
-                        <i class="fa-solid fa-face-smile"></i>
-
-                    </div>
-
-                    <div>
-
-                        <span>
-                            ACNE DETECTION
-                        </span>
-
-                        <p id="acne">
-                            Acne Detection: Loading...
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-
-                <!-- Hydration -->
-
-                <div class="analysis-item">
-
-                    <div class="analysis-icon hydration-icon">
+                    <div class="card-icon">
 
                         <i class="fa-solid fa-droplet"></i>
 
                     </div>
 
-                    <div>
-
-                        <span>
-                            HYDRATION
-                        </span>
-
-                        <p id="hydration">
-                            Hydration Level: Loading...
-                        </p>
-
-                    </div>
+                    <span class="card-status">
+                        Profile
+                    </span>
 
                 </div>
 
+                <h3>
+                    Skin Type
+                </h3>
+
+                <h2 id="dashboardSkinType">
+                    Loading...
+                </h2>
+
+                <p>
+                    Personalized Profile
+                </p>
+
+            </div>
 
 
-                <!-- Health Score -->
+            <!-- AI ANALYSIS -->
 
-                <div class="analysis-item">
+            <div class="card">
 
-                    <div class="analysis-icon score-icon">
+                <div class="card-top">
 
-                        <i class="fa-solid fa-chart-line"></i>
+                    <div class="card-icon">
+
+                        <i class="fa-solid fa-brain"></i>
 
                     </div>
 
-                    <div>
+                    <span class="completed-badge">
 
-                        <span>
-                            HEALTH SCORE
-                        </span>
+                        <i class="fa-solid fa-check"></i>
 
-                        <p id="spots">
-                            Skin Health Score: Loading...
-                        </p>
+                        Completed
+
+                    </span>
+
+                </div>
+
+                <h3>
+                    AI Analysis
+                </h3>
+
+                <h2>
+                    Completed
+                </h2>
+
+                <p>
+                    Latest assessment available
+                </p>
+
+            </div>
+
+
+            <!-- PRODUCTS -->
+
+            <div class="card">
+
+                <div class="card-top">
+
+                    <div class="card-icon">
+
+                        <i class="fa-solid fa-pump-soap"></i>
 
                     </div>
+
+                    <span class="card-status">
+                        AI Matched
+                    </span>
+
+                </div>
+
+                <h3>
+                    Recommended Products
+                </h3>
+
+                <h2 id="recommendedProductsCount">
+                    12
+                </h2>
+
+                <p>
+                    Personalized products
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =================================================
+         LATEST AI ANALYSIS
+    ================================================== -->
+
+    <section class="analysis-box professional-analysis">
+
+        <div class="box-header">
+
+            <div>
+
+                <span class="section-label">
+                    AI INSIGHTS
+                </span>
+
+                <h2>
+                    Latest Skin Analysis
+                </h2>
+
+                <p>
+                    Key observations from your most recent
+                    AI-powered skin assessment.
+                </p>
+
+            </div>
+
+            <div class="ai-badge">
+
+                <i class="fa-solid fa-sparkles"></i>
+
+                AI Powered
+
+            </div>
+
+        </div>
+
+
+        <div class="analysis-grid">
+
+
+            <!-- ACNE -->
+
+            <div class="analysis-item">
+
+                <div class="analysis-icon acne-icon">
+                    <i class="fa-solid fa-face-smile"></i>
+                </div>
+
+                <div>
+
+                    <span>
+                        ACNE DETECTION
+                    </span>
+
+                    <p id="acne">
+                        Acne Detection: Loading...
+                    </p>
 
                 </div>
 
             </div>
 
-        </section>
 
+            <!-- HYDRATION -->
 
+            <div class="analysis-item">
 
-        <!-- ==========================================
-             AI RECOMMENDATION
-        =========================================== -->
+                <div class="analysis-icon hydration-icon">
 
-        <section class="analysis-box recommendation-box">
+                    <i class="fa-solid fa-droplet"></i>
 
-            <div class="box-header">
+                </div>
 
                 <div>
 
-                    <span class="section-label">
-                        AI RECOMMENDATION
+                    <span>
+                        HYDRATION
                     </span>
 
-                    <h2>
-                        AI Skincare Recommendation
-                    </h2>
-
-                    <p>
-                        A simple daily routine based on your
-                        current skin profile.
+                    <p id="hydration">
+                        Hydration Level: Loading...
                     </p>
 
                 </div>
 
-                <div class="recommendation-icon">
+            </div>
+
+
+            <!-- HEALTH SCORE -->
+
+            <div class="analysis-item">
+
+                <div class="analysis-icon score-icon">
+
+                    <i class="fa-solid fa-chart-line"></i>
+
+                </div>
+
+                <div>
+
+                    <span>
+                        HEALTH SCORE
+                    </span>
+
+                    <p id="spots">
+                        Skin Health Score: Loading...
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- PIGMENTATION -->
+
+            <div class="analysis-item">
+
+                <div class="analysis-icon">
+
+                    <i class="fa-solid fa-circle-half-stroke"></i>
+
+                </div>
+
+                <div>
+
+                    <span>
+                        PIGMENTATION
+                    </span>
+
+                    <p id="pigmentation">
+                        Pigmentation: Loading...
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- REDNESS -->
+
+            <div class="analysis-item">
+
+                <div class="analysis-icon">
+
+                    <i class="fa-solid fa-temperature-half"></i>
+
+                </div>
+
+                <div>
+
+                    <span>
+                        REDNESS
+                    </span>
+
+                    <p id="redness">
+                        Redness: Loading...
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- SENSITIVITY -->
+
+            <div class="analysis-item">
+
+                <div class="analysis-icon">
+
+                    <i class="fa-solid fa-shield-heart"></i>
+
+                </div>
+
+                <div>
+
+                    <span>
+                        SENSITIVITY
+                    </span>
+
+                    <p id="sensitivity">
+                        Sensitivity: Loading...
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =================================================
+         ADAPTIVE ROUTINE
+    ================================================== -->
+
+    <section class="adaptive-routine-card">
+
+        <div class="adaptive-routine-content">
+
+            <div class="adaptive-routine-info">
+
+                <div class="adaptive-routine-icon">
 
                     <i class="fa-solid fa-wand-magic-sparkles"></i>
 
                 </div>
 
-            </div>
-
-
-            <div class="recommendation-grid">
-
-
-                <!-- Morning -->
-
-                <div class="recommendation-item">
-
-                    <div class="recommendation-number">
-                        AM
-                    </div>
-
-                    <div>
-
-                        <h3>Morning Routine</h3>
-
-                        <p id="aiMorningRoutine">
-                            Cleanser
-                            <span>→</span>
-                            Moisturizer
-                            <span>→</span>
-                            Sunscreen
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-
-                <!-- Evening -->
-
-                <div class="recommendation-item">
-
-                    <div class="recommendation-number">
-                        PM
-                    </div>
-
-                    <div>
-
-                        <h3>Evening Routine</h3>
-
-                        <p id="aiEveningRoutine">
-                            Cleanser
-                            <span>→</span>
-                            Serum
-                            <span>→</span>
-                            Moisturizer
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- ==========================================
-             PERSONALIZED SKINCARE ROUTINE
-        =========================================== -->
-
-        <section class="analysis-box routine-box">
-
-
-            <!-- Routine Header -->
-
-            <div class="box-header routine-header">
-
                 <div>
 
-                    <span class="section-label">
+                    <span class="adaptive-label">
                         PERSONALIZED PLAN
                     </span>
 
                     <h2>
-
-                        <i class="fa-solid fa-leaf"></i>
-
-                        Personalized Skincare Routine
-
+                        Your Adaptive Skincare Routine
                     </h2>
 
                     <p>
-                        Your AI-generated skincare plan based on
-                        your latest skin assessment.
+                        Your skincare routine is personalized
+                        using your latest AI skin assessment.
+                        View your morning, evening, weekly and
+                        seasonal recommendations in one place.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <a
+                href="adaptive-routine.html"
+                class="adaptive-routine-button"
+            >
+
+                View Adaptive Routine
+
+                <i class="fa-solid fa-arrow-right"></i>
+
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- =================================================
+         QUICK ACTIONS
+    ================================================== -->
+
+    <section class="quick-actions">
+
+
+        <a href="assessment.html" class="quick-action-card">
+
+            <div class="quick-action-icon">
+
+                <i class="fa-solid fa-camera"></i>
+
+            </div>
+
+            <div>
+
+                <h3>
+                    New Assessment
+                </h3>
+
+                <p>
+                    Analyze your skin again
+                </p>
+
+            </div>
+
+        </a>
+
+
+        <a href="adaptive-routine.html" class="quick-action-card">
+
+            <div class="quick-action-icon">
+
+                <i class="fa-solid fa-arrows-rotate"></i>
+
+            </div>
+
+            <div>
+
+                <h3>
+                    Adaptive Routine
+                </h3>
+
+                <p>
+                    View your personalized plan
+                </p>
+
+            </div>
+
+        </a>
+
+
+        <a href="progress.html" class="quick-action-card">
+
+            <div class="quick-action-icon">
+
+                <i class="fa-solid fa-chart-line"></i>
+
+            </div>
+
+            <div>
+
+                <h3>
+                    Track Progress
+                </h3>
+
+                <p>
+                    Monitor your skin improvement
+                </p>
+
+            </div>
+
+        </a>
+
+    </section>
+
+
+    <!-- =================================================
+         LATEST ASSESSMENT
+    ================================================== -->
+
+    <section class="analysis-box latest-assessment-section">
+
+        <div class="box-header">
+
+            <div>
+
+                <span class="section-label">
+                    LATEST ASSESSMENT
+                </span>
+
+                <h2>
+                    Your Recent Skin Assessment
+                </h2>
+
+                <p>
+                    View the key results from your latest
+                    AI-powered skin analysis.
+                </p>
+
+            </div>
+
+            <a
+                href="assessment.html"
+                class="view-assessment-link"
+            >
+
+                View Assessment
+
+                <i class="fa-solid fa-arrow-right"></i>
+
+            </a>
+
+        </div>
+
+
+        <div class="latest-assessment-grid">
+
+
+            <div class="latest-assessment-item">
+
+                <span>
+                    Skin Health Score
+                </span>
+
+                <strong id="latestScore">
+                    --
+                </strong>
+
+            </div>
+
+
+            <div class="latest-assessment-item">
+
+                <span>
+                    Primary Concern
+                </span>
+
+                <strong id="latestConcern">
+                    --
+                </strong>
+
+            </div>
+
+
+            <div class="latest-assessment-item">
+
+                <span>
+                    Skin Condition
+                </span>
+
+                <strong id="latestCondition">
+                    --
+                </strong>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =================================================
+         REPORTS & EXPORT
+         IMPORTANT: THIS IS INSIDE MAIN
+    ================================================== -->
+
+    <section class="reports-section">
+
+        <div class="reports-header">
+
+            <div class="reports-title">
+
+                <span class="section-label">
+                    REPORTS & EXPORT
+                </span>
+
+                <h2>
+                    Your Skin Assessment Reports
+                </h2>
+
+                <p>
+                    Download your latest AI-powered skin assessment
+                    in PDF or Excel format.
+                </p>
+
+            </div>
+
+
+            <div class="reports-status">
+
+                <i class="fa-solid fa-file-shield"></i>
+
+                Reports Available
+
+            </div>
+
+        </div>
+
+
+        <div class="reports-grid">
+
+
+            <!-- =================================================
+                 PDF
+            ================================================== -->
+
+            <div class="report-card">
+
+                <div class="report-card-top">
+
+                    <div class="report-icon pdf-icon">
+
+                        <i class="fa-solid fa-file-pdf"></i>
+
+                    </div>
+
+                    <span class="report-format">
+                        PDF
+                    </span>
+
+                </div>
+
+
+                <div class="report-content">
+
+                    <h3>
+                        Skin Assessment Report
+                    </h3>
+
+                    <p>
+                        Download a professionally formatted PDF
+                        containing your latest skin assessment
+                        results, skin health score and AI analysis.
                     </p>
 
                 </div>
 
 
-                <div class="personalized-badge">
+                <div class="report-details">
 
-                    <i class="fa-solid fa-user-check"></i>
-
-                    Personalized
-
-                </div>
-
-            </div>
-
-
-
-            <!-- ======================================
-                 MORNING ROUTINE
-            ======================================= -->
-
-            <div class="routine-section">
-
-                <div class="routine-title">
-
-                    <div class="routine-icon morning-icon">
-
-                        <i class="fa-solid fa-sun"></i>
-
+                    <div>
+                        <i class="fa-solid fa-check"></i>
+                        Latest assessment
                     </div>
 
                     <div>
-
-                        <span>
-                            DAILY ROUTINE
-                        </span>
-
-                        <h3>
-                            Morning Routine
-                        </h3>
-
-                    </div>
-
-                </div>
-
-
-                <p id="morningRoutine">
-                    Cleanser →
-                    Treatment →
-                    Moisturizer →
-                    Sunscreen
-                </p>
-
-            </div>
-
-
-
-            <!-- ======================================
-                 EVENING ROUTINE
-            ======================================= -->
-
-            <div class="routine-section">
-
-                <div class="routine-title">
-
-                    <div class="routine-icon evening-icon">
-
-                        <i class="fa-solid fa-moon"></i>
-
+                        <i class="fa-solid fa-chart-line"></i>
+                        AI analysis
                     </div>
 
                     <div>
-
-                        <span>
-                            DAILY ROUTINE
-                        </span>
-
-                        <h3>
-                            Evening Routine
-                        </h3>
-
+                        <i class="fa-solid fa-download"></i>
+                        Downloadable
                     </div>
 
                 </div>
 
 
-                <p id="eveningRoutine">
-                    Cleanser →
-                    Treatment →
-                    Moisturizer →
-                    Night Care
-                </p>
+                <button
+                    type="button"
+                    class="report-download-btn"
+                    onclick="downloadAssessmentPDF()"
+                >
+
+                    <i class="fa-solid fa-file-pdf"></i>
+
+                    Download PDF
+
+                </button>
 
             </div>
 
 
+            <!-- =================================================
+                 EXCEL
+            ================================================== -->
 
-            <!-- ======================================
-                 WEEKLY TREATMENT PLAN
-            ======================================= -->
+            <div class="report-card">
 
-            <div class="routine-section">
+                <div class="report-card-top">
 
-                <div class="routine-title">
+                    <div class="report-icon excel-icon">
 
-                    <div class="routine-icon weekly-icon">
+                        <i class="fa-solid fa-file-excel"></i>
 
-                        <i class="fa-solid fa-calendar-days"></i>
+                    </div>
 
+                    <span class="report-format">
+                        EXCEL
+                    </span>
+
+                </div>
+
+
+                <div class="report-content">
+
+                    <h3>
+                        Skin Assessment Report
+                    </h3>
+
+                    <p>
+                        Download your assessment data in Excel
+                        format for easy viewing, analysis and
+                        record keeping.
+                    </p>
+
+                </div>
+
+
+                <div class="report-details">
+
+                    <div>
+                        <i class="fa-solid fa-check"></i>
+                        Latest assessment
                     </div>
 
                     <div>
-
-                        <span>
-                            WEEKLY PLAN
-                        </span>
-
-                        <h3>
-                            Weekly Treatment Plan
-                        </h3>
-
-                    </div>
-
-                </div>
-
-
-                <div class="weekly-plan">
-
-
-                    <div class="weekly-day">
-
-                        <strong>
-                            Monday
-                        </strong>
-
-                        <span id="mondayPlan">
-                            Acne Care
-                        </span>
-
-                    </div>
-
-
-                    <div class="weekly-day">
-
-                        <strong>
-                            Wednesday
-                        </strong>
-
-                        <span id="wednesdayPlan">
-                            Hydration
-                        </span>
-
-                    </div>
-
-
-                    <div class="weekly-day">
-
-                        <strong>
-                            Friday
-                        </strong>
-
-                        <span id="fridayPlan">
-                            Dark-Spot Care
-                        </span>
-
-                    </div>
-
-
-                    <div class="weekly-day">
-
-                        <strong>
-                            Sunday
-                        </strong>
-
-                        <span id="sundayPlan">
-                            Skin Recovery
-                        </span>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- ======================================
-                 SEASONAL RECOMMENDATIONS
-            ======================================= -->
-
-            <div class="routine-section seasonal-section">
-
-                <div class="routine-title">
-
-                    <div class="routine-icon seasonal-icon">
-
-                        <i class="fa-solid fa-cloud-sun"></i>
-
+                        <i class="fa-solid fa-table"></i>
+                        Structured data
                     </div>
 
                     <div>
-
-                        <span>
-                            SEASONAL CARE
-                        </span>
-
-                        <h3>
-                            Seasonal Recommendations
-                        </h3>
-
+                        <i class="fa-solid fa-download"></i>
+                        Downloadable
                     </div>
 
                 </div>
 
 
-                <p id="seasonalRecommendation">
+                <button
+                    type="button"
+                    class="report-download-btn"
+                    onclick="downloadAssessmentExcel()"
+                >
 
-                    Use lightweight, non-comedogenic products
-                    and apply sunscreen regularly during hot
-                    weather.
+                    <i class="fa-solid fa-file-excel"></i>
 
-                </p>
+                    Download Excel
+
+                </button>
 
             </div>
 
+        </div>
 
-        </section>
-
-
-
-        <!-- ==========================================
-             FOOTER
-        =========================================== -->
-
-        <footer class="dashboard-footer">
-
-            <p>
-
-                <i class="fa-solid fa-shield-heart"></i>
-
-                Skin AI • Personalized Skin Intelligence
-
-            </p>
-
-            <span>
-
-                AI-generated recommendations are for
-                informational purposes.
-
-            </span>
-
-        </footer>
+    </section>
 
 
-    </main>
+    <!-- =================================================
+         FOOTER
+    ================================================== -->
+
+    <footer class="dashboard-footer">
+
+        <p>
+
+            <i class="fa-solid fa-shield-heart"></i>
+
+            Skin AI • Personalized Skin Intelligence
+
+        </p>
+
+        <span>
+
+            AI-generated recommendations are for
+            informational purposes.
+
+        </span>
+
+    </footer>
+
+
+</main>
 
 
 
-    <!-- ==========================================
-         JAVASCRIPT
-    =========================================== -->
+<!-- =====================================================
+     JAVASCRIPT
+====================================================== -->
 
-    <script src="../js/auth-check.js"></script>
-
-    <script src="../js/user-dashboard.js"></script>
-
+<script src="../js/user-dashboard.js"></script>
 
 </body>
 

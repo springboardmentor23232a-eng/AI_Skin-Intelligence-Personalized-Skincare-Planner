@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Skin AI | Treatment Recommendations</title>
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #f2f7f4;
+            color: #183b26;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 283px;
+            height: 100vh;
+            background: linear-gradient(180deg,#104f24,#207b36,#2d9345);
+            color: white;
+            padding: 32px 22px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 38px;
+            padding: 0 8px;
+        }
+
+        .brand-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 14px;
+            background: rgba(255,255,255,.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .brand h2 {
+            margin: 0;
+            font-size: 25px;
+        }
+
+        .brand small {
+            opacity: .7;
+            font-size: 11px;
+        }
+
+        .menu-title {
+            font-size: 10px;
+            letter-spacing: 1.5px;
+            opacity: .55;
+            padding: 0 14px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar li {
+            margin-bottom: 7px;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 14px 15px;
+            border-radius: 13px;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: .25s;
+        }
+
+        .sidebar a:hover {
+            background: rgba(255,255,255,.12);
+            transform: translateX(3px);
+        }
+
+        .sidebar a.active {
+            background: white;
+            color: #187034;
+        }
+
+        .sidebar i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* MAIN */
+
+        .main {
+            margin-left: 283px;
+            padding: 35px 45px 60px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 34px;
+        }
+
+        .header p {
+            margin: 7px 0 0;
+            color: #748279;
+            font-size: 14px;
+        }
+
+        .ai-badge {
+            background: white;
+            border: 1px solid #dce9df;
+            padding: 11px 16px;
+            border-radius: 25px;
+            color: #237b3b;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* PATIENT SELECTOR */
+
+        .selector {
+            background: white;
+            border-radius: 20px;
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 24px;
+            box-shadow: 0 7px 25px rgba(25,75,40,.06);
+        }
+
+        .selector-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: #e5f6e9;
+            color: #22803a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .selector-text {
+            flex: 1;
+        }
+
+        .selector-text strong {
+            display: block;
+            font-size: 14px;
+        }
+
+        .selector-text span {
+            color: #86928b;
+            font-size: 11px;
+        }
+
+        #patientSelect {
+            width: 330px;
+            padding: 13px;
+            border: 2px solid #dce9df;
+            border-radius: 12px;
+            background: #fbfdfb;
+            color: #183b26;
+            outline: none;
+        }
+
+        /* PATIENT CARD */
+
+        .patient-card {
+            background: linear-gradient(135deg,#17672d,#31994b);
+            border-radius: 24px;
+            padding: 28px 32px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            box-shadow: 0 15px 35px rgba(25,100,45,.18);
+        }
+
+        .patient-card h2 {
+            margin: 0 0 7px;
+            font-size: 27px;
+        }
+
+        .patient-card p {
+            margin: 5px 0;
+            font-size: 14px;
+            opacity: .9;
+        }
+
+        .patient-status {
+            display: inline-block;
+            margin-top: 10px;
+            background: white;
+            color: #23803b;
+            padding: 7px 13px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .score {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 7px solid rgba(255,255,255,.35);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 29px;
+            font-weight: 800;
+        }
+
+        /* SUMMARY */
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 18px;
+            padding: 21px;
+            box-shadow: 0 7px 25px rgba(25,75,40,.06);
+        }
+
+        .summary-card i {
+            color: #23823c;
+            font-size: 21px;
+        }
+
+        .summary-card h3 {
+            margin: 12px 0 5px;
+            font-size: 13px;
+            color: #68766e;
+        }
+
+        .summary-card strong {
+            font-size: 24px;
+            color: #20803a;
+        }
+
+        /* TREATMENT GRID */
+
+        .section {
+            background: white;
+            border-radius: 22px;
+            padding: 28px;
+            margin-bottom: 23px;
+            box-shadow: 0 7px 25px rgba(25,75,40,.06);
+        }
+
+        .section-header {
+            margin-bottom: 22px;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            font-size: 21px;
+        }
+
+        .section-header p {
+            margin: 6px 0 0;
+            color: #7c8981;
+            font-size: 12px;
+        }
+
+        .treatment-grid {
+            display: grid;
+            grid-template-columns: repeat(2,1fr);
+            gap: 18px;
+        }
+
+        .treatment {
+            border: 1px solid #dfeae2;
+            border-radius: 18px;
+            padding: 21px;
+            position: relative;
+            overflow: hidden;
+            transition: .25s;
+        }
+
+        .treatment:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 25px rgba(30,90,45,.10);
+        }
+
+        .treatment-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 13px;
+            background: #e8f6eb;
+            color: #24813b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+            margin-bottom: 14px;
+        }
+
+        .treatment h3 {
+            margin: 0 0 7px;
+            font-size: 16px;
+        }
+
+        .treatment p {
+            color: #6f7e75;
+            font-size: 12px;
+            line-height: 1.6;
+            margin: 0 0 13px;
+        }
+
+        .priority {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 15px;
+            background: #e6f5e9;
+            color: #23803a;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        /* CARE PLAN */
+
+        .care-plan {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 15px;
+        }
+
+        .care {
+            background: #f7faf8;
+            border: 1px solid #e2ece5;
+            border-radius: 15px;
+            padding: 18px;
+        }
+
+        .care i {
+            color: #24833d;
+            margin-right: 7px;
+        }
+
+        .care strong {
+            font-size: 12px;
+        }
+
+        .care p {
+            color: #748178;
+            font-size: 11px;
+            line-height: 1.6;
+            margin-bottom: 0;
+        }
+
+        /* AI BOX */
+
+        .ai-box {
+            background: linear-gradient(135deg,#edf8f0,#f9fcfa);
+            border: 1px solid #d4ead9;
+            border-radius: 21px;
+            padding: 25px;
+            display: flex;
+            gap: 17px;
+            margin-bottom: 23px;
+        }
+
+        .ai-icon {
+            width: 48px;
+            height: 48px;
+            background: #24833c;
+            color: white;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .ai-box h2 {
+            margin: 0 0 7px;
+            font-size: 18px;
+        }
+
+        .ai-box p {
+            margin: 0;
+            color: #65736a;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        /* BUTTONS */
+
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        button {
+            border: none;
+            padding: 13px 20px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .save {
+            background: #23823b;
+            color: white;
+        }
+
+        .change {
+            background: #e8f1ea;
+            color: #24783a;
+        }
+
+        button:hover {
+            opacity: .9;
+        }
+
+        @media(max-width:1100px) {
+
+            .summary {
+                grid-template-columns: 1fr;
+            }
+
+            .care-plan {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+        @media(max-width:800px) {
+
+            .sidebar {
+                width: 220px;
+            }
+
+            .main {
+                margin-left: 220px;
+                padding: 25px;
+            }
+
+            .treatment-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .selector {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            #patientSelect {
+                width: 100%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- SIDEBAR -->
+
+<div class="sidebar">
+
+    <div class="brand">
+
+        <div class="brand-icon">
+            <i class="fa-solid fa-leaf"></i>
+        </div>
+
+        <div>
+            <h2>Skin AI</h2>
+            <small>Dermatologist Portal</small>
+        </div>
+
+    </div>
+
+    <div class="menu-title">
+        CLINICAL WORKSPACE
+    </div>
+
+    <ul>
+
+        <li>
+            <a href="dermatologist-dashboard.html">
+                <i class="fa-solid fa-house"></i>
+                Dashboard
+            </a>
+        </li>
+
+        <li>
+            <a href="reports.html">
+                <i class="fa-solid fa-file-medical"></i>
+                Skin Condition Reports
+            </a>
+        </li>
+
+        <li>
+            <a href="treatment-recommendations.html"
+               class="active">
+                <i class="fa-solid fa-prescription-bottle-medical"></i>
+                Treatment Recommendations
+            </a>
+        </li>
+
+        <li>
+            <a href="dermatologist-progress.html">
+                <i class="fa-solid fa-chart-line"></i>
+                Progress Analytics
+            </a>
+        </li>
+
+        <li>
+            <a href="profile.html">
+                <i class="fa-solid fa-user-doctor"></i>
+                Profile
+            </a>
+        </li>
+
+        <li>
+            <a href="../index.html">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                Logout
+            </a>
+        </li>
+
+    </ul>
+
+</div>
+
+
+<!-- MAIN -->
+
+<div class="main">
+
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <div>
+
+            <h1>
+                Treatment Recommendations
+            </h1>
+
+            <p>
+                Personalized clinical care recommendations powered by Skin AI
+            </p>
+
+        </div>
+
+        <div class="ai-badge">
+            <i class="fa-solid fa-brain"></i>
+            AI Assisted Care
+        </div>
+
+    </div>
+
+
+    <!-- PATIENT SELECTOR -->
+
+    <div class="selector">
+
+        <div class="selector-icon">
+            <i class="fa-solid fa-user-doctor"></i>
+        </div>
+
+        <div class="selector-text">
+
+            <strong>Select Patient</strong>
+
+            <span>
+                Review and manage the patient's personalized treatment plan
+            </span>
+
+        </div>
+
+        <select id="patientSelect">
+
+            <option value="priya">
+                Priya Sharma — #006
+            </option>
+
+            <option value="anjali">
+                Anjali Reddy — #007
+            </option>
+
+            <option value="rahul">
+                Rahul Kumar — #008
+            </option>
+
+            <option value="sneha">
+                Sneha Patel — #009
+            </option>
+
+            <option value="arjun">
+                Arjun Verma — #010
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <!-- PATIENT -->
+
+    <div class="patient-card">
+
+        <div>
+
+            <h2 id="patientName">
+                Priya Sharma
+            </h2>
+
+            <p id="patientId">
+                Patient ID: #006
+            </p>
+
+            <p id="patientDetails">
+                Combination Skin • Acne & Dark Spots
+            </p>
+
+            <span class="patient-status"
+                  id="patientStatus">
+                Treatment Active
+            </span>
+
+        </div>
+
+        <div class="score"
+             id="patientScore">
+            82
+        </div>
+
+    </div>
+
+
+    <!-- SUMMARY -->
+
+    <div class="summary">
+
+        <div class="summary-card">
+
+            <i class="fa-solid fa-bullseye"></i>
+
+            <h3>
+                Primary Concern
+            </h3>
+
+            <strong id="concern">
+                Acne
+            </strong>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <i class="fa-solid fa-shield-heart"></i>
+
+            <h3>
+                Risk Level
+            </h3>
+
+            <strong id="risk">
+                Moderate
+            </strong>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <i class="fa-solid fa-droplet"></i>
+
+            <h3>
+                Hydration
+            </h3>
+
+            <strong id="hydration">
+                Good
+            </strong>
+
+        </div>
+
+    </div>
+
+
+    <!-- TREATMENTS -->
+
+    <div class="section">
+
+        <div class="section-header">
+
+            <h2>
+                Personalized Treatment Plan
+            </h2>
+
+            <p>
+                Recommended care based on the patient's current skin condition
+            </p>
+
+        </div>
+
+
+        <div class="treatment-grid">
+
+
+            <div class="treatment">
+
+                <div class="treatment-icon">
+                    <i class="fa-solid fa-face-smile"></i>
+                </div>
+
+                <h3>
+                    Acne Management
+                </h3>
+
+                <p id="acneTreatment">
+                    Use a gentle cleanser and suitable acne-care ingredients.
+                    Avoid harsh scrubbing and maintain consistent skincare.
+                </p>
+
+                <span class="priority">
+                    HIGH PRIORITY
+                </span>
+
+            </div>
+
+
+            <div class="treatment">
+
+                <div class="treatment-icon">
+                    <i class="fa-solid fa-sun"></i>
+                </div>
+
+                <h3>
+                    Pigmentation Protection
+                </h3>
+
+                <p id="pigmentationTreatment">
+                    Maintain daily broad-spectrum sunscreen use and minimize
+                    unnecessary sun exposure.
+                </p>
+
+                <span class="priority">
+                    IMPORTANT
+                </span>
+
+            </div>
+
+
+            <div class="treatment">
+
+                <div class="treatment-icon">
+                    <i class="fa-solid fa-droplet"></i>
+                </div>
+
+                <h3>
+                    Hydration & Barrier
+                </h3>
+
+                <p id="hydrationTreatment">
+                    Maintain regular moisturizer use to support the skin
+                    barrier and hydration.
+                </p>
+
+                <span class="priority">
+                    SUPPORTIVE
+                </span>
+
+            </div>
+
+
+            <div class="treatment">
+
+                <div class="treatment-icon">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </div>
+
+                <h3>
+                    Texture Improvement
+                </h3>
+
+                <p id="textureTreatment">
+                    Follow a consistent routine and gradually introduce
+                    appropriate active ingredients.
+                </p>
+
+                <span class="priority">
+                    LONG TERM
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- CARE PLAN -->
+
+    <div class="section">
+
+        <div class="section-header">
+
+            <h2>
+                Daily Care Plan
+            </h2>
+
+            <p>
+                Recommended routine structure for patient management
+            </p>
+
+        </div>
+
+
+        <div class="care-plan">
+
+
+            <div class="care">
+
+                <strong>
+                    <i class="fa-solid fa-sun"></i>
+                    Morning
+                </strong>
+
+                <p>
+                    Cleanser → Moisturizer → Sunscreen
+                </p>
+
+            </div>
+
+
+            <div class="care">
+
+                <strong>
+                    <i class="fa-solid fa-moon"></i>
+                    Evening
+                </strong>
+
+                <p>
+                    Cleanser → Treatment → Moisturizer
+                </p>
+
+            </div>
+
+
+            <div class="care">
+
+                <strong>
+                    <i class="fa-solid fa-calendar-check"></i>
+                    Monitoring
+                </strong>
+
+                <p>
+                    Review skin condition and treatment response regularly.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- AI INSIGHT -->
+
+    <div class="ai-box">
+
+        <div class="ai-icon">
+
+            <i class="fa-solid fa-brain"></i>
+
+        </div>
+
+        <div>
+
+            <h2>
+                AI Treatment Insight
+            </h2>
+
+            <p id="aiInsight">
+
+                The patient should maintain a consistent routine focused
+                on acne management, pigmentation protection and hydration.
+                Progress should be monitored during follow-up assessments.
+
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- ACTIONS -->
+
+    <div class="actions">
+
+        <button class="change"
+                onclick="goToReports()">
+
+            <i class="fa-solid fa-users"></i>
+            Change Patient
+
+        </button>
+
+
+        <button class="save"
+                onclick="savePlan()">
+
+            <i class="fa-solid fa-floppy-disk"></i>
+            Save Treatment Plan
+
+        </button>
+
+    </div>
+
+
+</div>
+
+
+<script>
+
+
+const patients = {
+
+
+    priya: {
+
+        name: "Priya Sharma",
+
+        id: "#006",
+
+        details: "Combination Skin • Acne & Dark Spots",
+
+        status: "Treatment Active",
+
+        score: 82,
+
+        concern: "Acne",
+
+        risk: "Moderate",
+
+        hydration: "Good",
+
+        acne:
+            "Use a gentle cleanser and suitable acne-care ingredients. Avoid harsh scrubbing and maintain consistent skincare.",
+
+        pigmentation:
+            "Maintain daily broad-spectrum sunscreen use and minimize unnecessary sun exposure.",
+
+        hydrationCare:
+            "Maintain regular moisturizer use to support the skin barrier and hydration.",
+
+        texture:
+            "Follow a consistent routine and gradually introduce appropriate active ingredients.",
+
+        insight:
+            "Priya should maintain a consistent routine focused on acne management, pigmentation protection and hydration. Progress should be monitored during follow-up assessments."
+
+    },
+
+
+    anjali: {
+
+        name: "Anjali Reddy",
+
+        id: "#007",
+
+        details: "Oily Skin • Acne",
+
+        status: "Improving",
+
+        score: 88,
+
+        concern: "Acne Control",
+
+        risk: "Low",
+
+        hydration: "Excellent",
+
+        acne:
+            "Continue gentle cleansing and acne-focused skincare. Avoid excessive cleansing because it may increase irritation.",
+
+        pigmentation:
+            "Continue daily sunscreen to prevent post-acne pigmentation and maintain even skin tone.",
+
+        hydrationCare:
+            "Use a lightweight, non-comedogenic moisturizer to maintain hydration without increasing oiliness.",
+
+        texture:
+            "Continue the current routine consistently and monitor acne-related texture changes.",
+
+        insight:
+            "Anjali is responding well to the current care plan. Strong routine adherence and appropriate acne management should be continued."
+
+    },
+
+
+    rahul: {
+
+        name: "Rahul Kumar",
+
+        id: "#008",
+
+        details: "Dry Skin • Dehydration",
+
+        status: "Needs Attention",
+
+        score: 76,
+
+        concern: "Dehydration",
+
+        risk: "High",
+
+        hydration: "Poor",
+
+        acne:
+            "Avoid aggressive acne products unless clinically required. Prioritize gentle cleansing to reduce dryness.",
+
+        pigmentation:
+            "Use daily sunscreen and avoid prolonged direct sun exposure.",
+
+        hydrationCare:
+            "Prioritize barrier-supportive moisturizer and consistent hydration. Avoid excessive cleansing.",
+
+        texture:
+            "Improve hydration first before introducing stronger active ingredients for texture.",
+
+        insight:
+            "Rahul's main treatment priority is improving hydration and strengthening the skin barrier. Treatment should progress gradually."
+
+    },
+
+
+    sneha: {
+
+        name: "Sneha Patel",
+
+        id: "#009",
+
+        details: "Combination Skin • Pigmentation",
+
+        status: "Stable",
+
+        score: 91,
+
+        concern: "Pigmentation",
+
+        risk: "Low",
+
+        hydration: "Excellent",
+
+        acne:
+            "Maintain a gentle cleansing routine and monitor for occasional breakouts.",
+
+        pigmentation:
+            "Consistent sunscreen protection should remain the primary focus for pigmentation management.",
+
+        hydrationCare:
+            "Continue the current moisturizer routine to maintain excellent hydration.",
+
+        texture:
+            "Maintain the current routine and monitor gradual improvements in skin tone and texture.",
+
+        insight:
+            "Sneha's skin condition is stable with good hydration. Consistent sun protection remains the main recommendation."
+
+    },
+
+
+    arjun: {
+
+        name: "Arjun Verma",
+
+        id: "#010",
+
+        details: "Normal Skin • Mild Redness",
+
+        status: "Improving",
+
+        score: 91,
+
+        concern: "Redness",
+
+        risk: "Moderate",
+
+        hydration: "Excellent",
+
+        acne:
+            "Use a gentle cleanser and avoid unnecessary harsh active ingredients that may increase redness.",
+
+        pigmentation:
+            "Continue daily sunscreen and monitor any changes in pigmentation.",
+
+        hydrationCare:
+            "Continue moisturizer use to maintain the healthy skin barrier.",
+
+        texture:
+            "Maintain the current routine and introduce changes gradually if required.",
+
+        insight:
+            "Arjun is showing excellent progress. The current routine should be maintained while monitoring redness and skin sensitivity."
+
+    }
+
+};
+
+
+const select =
+    document.getElementById("patientSelect");
+
+
+function loadPatient(key) {
+
+    const patient = patients[key];
+
+    if (!patient) return;
+
+
+    document.getElementById("patientName").textContent =
+        patient.name;
+
+    document.getElementById("patientId").textContent =
+        "Patient ID: " + patient.id;
+
+    document.getElementById("patientDetails").textContent =
+        patient.details;
+
+    document.getElementById("patientStatus").textContent =
+        patient.status;
+
+    document.getElementById("patientScore").textContent =
+        patient.score;
+
+
+    document.getElementById("concern").textContent =
+        patient.concern;
+
+    document.getElementById("risk").textContent =
+        patient.risk;
+
+    document.getElementById("hydration").textContent =
+        patient.hydration;
+
+
+    document.getElementById("acneTreatment").textContent =
+        patient.acne;
+
+    document.getElementById("pigmentationTreatment").textContent =
+        patient.pigmentation;
+
+    document.getElementById("hydrationTreatment").textContent =
+        patient.hydrationCare;
+
+    document.getElementById("textureTreatment").textContent =
+        patient.texture;
+
+    document.getElementById("aiInsight").textContent =
+        patient.insight;
+
+
+    localStorage.setItem(
+        "selectedDermatologistPatient",
+        key
+    );
+
+}
+
+
+/* PATIENT CHANGE */
+
+select.addEventListener(
+    "change",
+    function() {
+
+        loadPatient(this.value);
+
+    }
+);
+
+
+/* LOAD SAVED PATIENT */
+
+const saved =
+    localStorage.getItem(
+        "selectedDermatologistPatient"
+    );
+
+
+const urlParams =
+    new URLSearchParams(
+        window.location.search
+    );
+
+const urlPatient =
+    urlParams.get("patient");
+
+
+if (
+    urlPatient &&
+    patients[urlPatient]
+) {
+
+    select.value = urlPatient;
+
+    loadPatient(urlPatient);
+
+}
+else if (
+    saved &&
+    patients[saved]
+) {
+
+    select.value = saved;
+
+    loadPatient(saved);
+
+}
+else {
+
+    loadPatient("priya");
+
+}
+
+
+/* GO TO REPORTS */
+
+function goToReports() {
+
+    window.location.href =
+        "reports.html";
+
+}
+
+
+/* SAVE */
+
+function savePlan() {
+
+    alert(
+        "Treatment plan saved successfully for " +
+        patients[select.value].name
+    );
+
+}
+
+
+</script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,2652 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Skin AI | Recommendation Monitoring</title>
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+
+        body {
+            background: #f4f8f5;
+            color: #173b25;
+        }
+
+
+        /* SIDEBAR */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+
+            width: 275px;
+            height: 100vh;
+
+            background: linear-gradient(
+                180deg,
+                #135d2b,
+                #1f7a2e,
+                #2d8f3c
+            );
+
+            padding: 28px 18px;
+
+            color: white;
+
+            box-shadow: 4px 0 18px rgba(0,0,0,0.12);
+
+            z-index: 1000;
+        }
+
+
+        .brand {
+            text-align: center;
+
+            margin-bottom: 35px;
+        }
+
+
+        .brand h2 {
+            font-size: 27px;
+
+            letter-spacing: 1px;
+        }
+
+
+        .brand p {
+            font-size: 11px;
+
+            opacity: 0.8;
+
+            margin-top: 4px;
+
+            letter-spacing: 1px;
+        }
+
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+
+        .sidebar li {
+            margin: 9px 0;
+        }
+
+
+        .sidebar a {
+            display: flex;
+
+            align-items: center;
+
+            gap: 14px;
+
+            text-decoration: none;
+
+            color: white;
+
+            padding: 14px 16px;
+
+            border-radius: 12px;
+
+            font-size: 14px;
+
+            transition: 0.3s;
+        }
+
+
+        .sidebar a:hover {
+            background: rgba(255,255,255,0.15);
+
+            transform: translateX(4px);
+        }
+
+
+        .sidebar a.active {
+            background: white;
+
+            color: #17672d;
+
+            box-shadow:
+                0 5px 15px rgba(0,0,0,0.12);
+        }
+
+
+        .sidebar i {
+            width: 20px;
+
+            text-align: center;
+        }
+
+
+
+        /* MAIN */
+
+        .main {
+            margin-left: 275px;
+
+            padding: 30px 35px;
+        }
+
+
+
+        /* HEADER */
+
+        .header {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-bottom: 28px;
+        }
+
+
+        .header h1 {
+            font-size: 30px;
+
+            color: #123d22;
+        }
+
+
+        .header p {
+            color: #6c8172;
+
+            margin-top: 5px;
+
+            font-size: 14px;
+        }
+
+
+        .admin-status {
+            background: #e2f5e7;
+
+            color: #187234;
+
+            padding: 10px 16px;
+
+            border-radius: 25px;
+
+            font-size: 13px;
+
+            font-weight: 600;
+        }
+
+
+        .admin-status i {
+            margin-right: 7px;
+        }
+
+
+
+        /* HERO */
+
+        .hero {
+            background: linear-gradient(
+                135deg,
+                #145d2b,
+                #2e913e
+            );
+
+            color: white;
+
+            padding: 28px 30px;
+
+            border-radius: 18px;
+
+            margin-bottom: 25px;
+
+            box-shadow:
+                0 10px 25px rgba(23,103,45,0.18);
+        }
+
+
+        .hero h2 {
+            font-size: 23px;
+
+            margin-bottom: 7px;
+        }
+
+
+        .hero p {
+            font-size: 14px;
+
+            opacity: 0.9;
+        }
+
+
+
+        /* STAT CARDS */
+
+        .stats {
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap: 20px;
+
+            margin-bottom: 25px;
+        }
+
+
+        .stat-card {
+            background: white;
+
+            padding: 23px;
+
+            border-radius: 16px;
+
+            box-shadow:
+                0 5px 18px rgba(0,0,0,0.07);
+
+            border-left:
+                5px solid #26913d;
+        }
+
+
+        .stat-icon {
+            width: 45px;
+            height: 45px;
+
+            border-radius: 12px;
+
+            background: #e5f5e8;
+
+            color: #21803a;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 19px;
+        }
+
+
+        .stat-card h3 {
+            margin-top: 17px;
+
+            font-size: 14px;
+
+            color: #68796e;
+        }
+
+
+        .stat-card h2 {
+            font-size: 27px;
+
+            margin-top: 4px;
+
+            color: #174d28;
+        }
+
+
+        .stat-card span {
+            font-size: 11px;
+
+            color: #4b9a5d;
+        }
+
+
+
+        /* MAIN GRID */
+
+        .content-grid {
+            display: grid;
+
+            grid-template-columns:
+                1.35fr 1fr;
+
+            gap: 23px;
+
+            margin-bottom: 25px;
+        }
+
+
+        .panel {
+            background: white;
+
+            border-radius: 17px;
+
+            padding: 25px;
+
+            box-shadow:
+                0 5px 18px rgba(0,0,0,0.06);
+        }
+
+
+        .panel-title {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-bottom: 23px;
+        }
+
+
+        .panel-title h2 {
+            font-size: 18px;
+
+            color: #174d28;
+        }
+
+
+        .panel-title span {
+            font-size: 12px;
+
+            color: #799080;
+        }
+
+
+
+        /* PRODUCT ROW */
+
+        .product-row {
+            display: flex;
+
+            align-items: center;
+
+            gap: 15px;
+
+            padding: 14px 0;
+
+            border-bottom:
+                1px solid #edf1ed;
+        }
+
+
+        .product-row:last-child {
+            border-bottom: none;
+        }
+
+
+        .product-icon {
+            width: 44px;
+            height: 44px;
+
+            border-radius: 12px;
+
+            background: #e8f6eb;
+
+            color: #25833b;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 18px;
+        }
+
+
+        .product-info {
+            flex: 1;
+        }
+
+
+        .product-info strong {
+            display: block;
+
+            font-size: 13px;
+
+            color: #234c2d;
+        }
+
+
+        .product-info span {
+            font-size: 11px;
+
+            color: #839087;
+        }
+
+
+        .recommend-count {
+            background: #edf8ef;
+
+            color: #25833b;
+
+            padding: 6px 10px;
+
+            border-radius: 20px;
+
+            font-size: 11px;
+
+            font-weight: 600;
+        }
+
+
+
+        /* PERFORMANCE */
+
+        .metric {
+            margin-bottom: 21px;
+        }
+
+
+        .metric:last-child {
+            margin-bottom: 0;
+        }
+
+
+        .metric-head {
+            display: flex;
+
+            justify-content: space-between;
+
+            font-size: 13px;
+
+            margin-bottom: 8px;
+        }
+
+
+        .metric-head strong {
+            color: #28783b;
+        }
+
+
+        .progress {
+            width: 100%;
+
+            height: 10px;
+
+            background: #edf2ee;
+
+            border-radius: 20px;
+
+            overflow: hidden;
+        }
+
+
+        .progress-bar {
+            height: 100%;
+
+            background: linear-gradient(
+                90deg,
+                #23813a,
+                #53b665
+            );
+
+            border-radius: 20px;
+        }
+
+
+
+        /* CATEGORY CARDS */
+
+        .category-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(5, 1fr);
+
+            gap: 15px;
+        }
+
+
+        .category {
+            text-align: center;
+
+            padding: 20px 10px;
+
+            border:
+                1px solid #e1ece3;
+
+            border-radius: 14px;
+
+            background: #f9fcfa;
+        }
+
+
+        .category i {
+            font-size: 23px;
+
+            color: #25833b;
+
+            margin-bottom: 10px;
+        }
+
+
+        .category h3 {
+            font-size: 12px;
+
+            color: #385742;
+
+            margin-bottom: 5px;
+        }
+
+
+        .category strong {
+            font-size: 16px;
+
+            color: #1d7133;
+        }
+
+
+
+        /* RECENT ACTIVITY */
+
+        .activity {
+            display: flex;
+
+            align-items: center;
+
+            gap: 14px;
+
+            padding: 14px 0;
+
+            border-bottom:
+                1px solid #edf1ed;
+        }
+
+
+        .activity:last-child {
+            border-bottom: none;
+        }
+
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+
+            border-radius: 50%;
+
+            background: #e8f6eb;
+
+            color: #25833b;
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+        }
+
+
+        .activity-text {
+            flex: 1;
+        }
+
+
+        .activity-text strong {
+            display: block;
+
+            font-size: 13px;
+
+            color: #234c2d;
+        }
+
+
+        .activity-text span {
+            font-size: 11px;
+
+            color: #839087;
+        }
+
+
+
+        /* MONITORING TABLE */
+
+        .table-panel {
+            margin-bottom: 25px;
+
+            overflow-x: auto;
+        }
+
+
+        table {
+            width: 100%;
+
+            border-collapse: collapse;
+        }
+
+
+        th {
+            text-align: left;
+
+            font-size: 12px;
+
+            color: #6e8074;
+
+            padding: 13px;
+
+            background: #f6faf7;
+        }
+
+
+        td {
+            padding: 14px 13px;
+
+            font-size: 12px;
+
+            color: #405a47;
+
+            border-bottom:
+                1px solid #edf1ed;
+        }
+
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+
+        .status {
+            display: inline-block;
+
+            padding: 5px 10px;
+
+            border-radius: 20px;
+
+            font-size: 10px;
+
+            font-weight: 600;
+        }
+
+
+        .status.good {
+            background: #e5f6e9;
+
+            color: #217735;
+        }
+
+
+        .status.medium {
+            background: #fff5dc;
+
+            color: #9a6a00;
+        }
+
+
+
+        /* INSIGHTS */
+
+        .insight-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 17px;
+        }
+
+
+        .insight {
+            background: #f7fbf8;
+
+            border:
+                1px solid #e1eee4;
+
+            border-radius: 14px;
+
+            padding: 19px;
+        }
+
+
+        .insight i {
+            color: #24823a;
+
+            font-size: 20px;
+
+            margin-bottom: 10px;
+        }
+
+
+        .insight h3 {
+            font-size: 14px;
+
+            color: #244f30;
+
+            margin-bottom: 6px;
+        }
+
+
+        .insight p {
+            font-size: 12px;
+
+            color: #718076;
+
+            line-height: 1.6;
+        }
+
+
+
+        /* FOOTER */
+
+        footer {
+            text-align: center;
+
+            margin-top: 30px;
+
+            padding: 18px;
+
+            color: #819087;
+
+            font-size: 12px;
+        }
+
+
+
+        /* RESPONSIVE */
+
+        @media(max-width:1100px) {
+
+            .stats {
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+
+            .category-grid {
+                grid-template-columns:
+                    repeat(3, 1fr);
+            }
+
+
+            .insight-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+
+        @media(max-width:750px) {
+
+            .sidebar {
+                width: 220px;
+            }
+
+
+            .main {
+                margin-left: 220px;
+
+                padding: 20px;
+            }
+
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+
+            .category-grid {
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- SIDEBAR -->
+
+    <div class="sidebar">
+
+
+        <div class="brand">
+
+            <h2>Skin AI</h2>
+
+            <p>ADMIN CONTROL CENTER</p>
+
+        </div>
+
+
+        <ul>
+
+
+            <li>
+
+                <a href="admin-dashboard.html">
+
+                    <i class="fa-solid fa-chart-line"></i>
+
+                    Dashboard
+
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="admin-users.html">
+
+                    <i class="fa-solid fa-users"></i>
+
+                    User Management
+
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="admin-analytics.html">
+
+                    <i class="fa-solid fa-chart-pie"></i>
+
+                    Platform Analytics
+
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="admin-recommendations.html"
+                    class="active">
+
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+
+                    Recommendation Monitoring
+
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="admin-reports.html">
+
+                    <i class="fa-solid fa-file-medical"></i>
+
+                    System Reports
+
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="profile.html">
+
+                    <i class="fa-solid fa-user"></i>
+
+                    Profile
+
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="../index.html">
+
+                    <i class="fa-solid fa-right-from-bracket"></i>
+
+                    Logout
+
+                </a>
+
+            </li>
+
+
+        </ul>
+
+    </div>
+
+
+
+    <!-- MAIN -->
+
+    <div class="main">
+
+
+        <!-- HEADER -->
+
+        <div class="header">
+
+
+            <div>
+
+                <h1>
+                    Recommendation Monitoring
+                </h1>
+
+                <p>
+                    Monitor AI-powered skincare recommendation activity
+                </p>
+
+            </div>
+
+
+            <div class="admin-status">
+
+                <i class="fa-solid fa-circle-check"></i>
+
+                Monitoring Active
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- HERO -->
+
+        <div class="hero">
+
+            <h2>
+                AI Recommendation Intelligence 🤖
+            </h2>
+
+            <p>
+                Monitor personalized product recommendations,
+                suitability scoring, alternatives and budget-based suggestions.
+            </p>
+
+        </div>
+
+
+
+        <!-- STATISTICS -->
+
+        <div class="stats">
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+
+                </div>
+
+                <h3>
+                    Total Recommendations
+                </h3>
+
+                <h2>
+                    480
+                </h2>
+
+                <span>
+                    AI generated recommendations
+                </span>
+
+            </div>
+
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+
+                    <i class="fa-solid fa-bullseye"></i>
+
+                </div>
+
+                <h3>
+                    Average AI Match
+                </h3>
+
+                <h2>
+                    92%
+                </h2>
+
+                <span>
+                    Recommendation suitability
+                </span>
+
+            </div>
+
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+
+                    <i class="fa-solid fa-repeat"></i>
+
+                </div>
+
+                <h3>
+                    Alternative Suggestions
+                </h3>
+
+                <h2>
+                    156
+                </h2>
+
+                <span>
+                    Alternative products
+                </span>
+
+            </div>
+
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+
+                    <i class="fa-solid fa-indian-rupee-sign"></i>
+
+                </div>
+
+                <h3>
+                    Budget Recommendations
+                </h3>
+
+                <h2>
+                    124
+                </h2>
+
+                <span>
+                    Budget-based suggestions
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- CONTENT GRID -->
+
+        <div class="content-grid">
+
+
+            <!-- MOST RECOMMENDED PRODUCTS -->
+
+            <div class="panel">
+
+
+                <div class="panel-title">
+
+                    <h2>
+                        Most Recommended Products
+                    </h2>
+
+                    <span>
+                        Recommendation frequency
+                    </span>
+
+                </div>
+
+
+
+                <div class="product-row">
+
+
+                    <div class="product-icon">
+
+                        <i class="fa-solid fa-sun"></i>
+
+                    </div>
+
+
+                    <div class="product-info">
+
+                        <strong>
+                            Daily Sunscreen SPF 50
+                        </strong>
+
+                        <span>
+                            Sunscreen
+                        </span>
+
+                    </div>
+
+
+                    <div class="recommend-count">
+                        128
+                    </div>
+
+                </div>
+
+
+
+                <div class="product-row">
+
+
+                    <div class="product-icon">
+
+                        <i class="fa-solid fa-droplet"></i>
+
+                    </div>
+
+
+                    <div class="product-info">
+
+                        <strong>
+                            Hydrating Moisturizer
+                        </strong>
+
+                        <span>
+                            Moisturizer
+                        </span>
+
+                    </div>
+
+
+                    <div class="recommend-count">
+                        112
+                    </div>
+
+                </div>
+
+
+
+                <div class="product-row">
+
+
+                    <div class="product-icon">
+
+                        <i class="fa-solid fa-flask"></i>
+
+                    </div>
+
+
+                    <div class="product-info">
+
+                        <strong>
+                            Niacinamide Serum
+                        </strong>
+
+                        <span>
+                            Serum
+                        </span>
+
+                    </div>
+
+
+                    <div class="recommend-count">
+                        96
+                    </div>
+
+                </div>
+
+
+
+                <div class="product-row">
+
+
+                    <div class="product-icon">
+
+                        <i class="fa-solid fa-pump-soap"></i>
+
+                    </div>
+
+
+                    <div class="product-info">
+
+                        <strong>
+                            Gentle Face Cleanser
+                        </strong>
+
+                        <span>
+                            Face Wash
+                        </span>
+
+                    </div>
+
+
+                    <div class="recommend-count">
+                        84
+                    </div>
+
+                </div>
+
+
+
+                <div class="product-row">
+
+
+                    <div class="product-icon">
+
+                        <i class="fa-solid fa-sparkles"></i>
+
+                    </div>
+
+
+                    <div class="product-info">
+
+                        <strong>
+                            Skin Balancing Toner
+                        </strong>
+
+                        <span>
+                            Toner
+                        </span>
+
+                    </div>
+
+
+                    <div class="recommend-count">
+                        60
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- RECOMMENDATION PERFORMANCE -->
+
+            <div class="panel">
+
+
+                <div class="panel-title">
+
+                    <h2>
+                        Recommendation Performance
+                    </h2>
+
+                    <span>
+                        AI analysis
+                    </span>
+
+                </div>
+
+
+
+                <div class="metric">
+
+                    <div class="metric-head">
+
+                        <span>
+                            Product Suitability
+                        </span>
+
+                        <strong>
+                            92%
+                        </strong>
+
+                    </div>
+
+
+                    <div class="progress">
+
+                        <div
+                            class="progress-bar"
+                            style="width:92%">
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="metric">
+
+                    <div class="metric-head">
+
+                        <span>
+                            Skin Concern Matching
+                        </span>
+
+                        <strong>
+                            89%
+                        </strong>
+
+                    </div>
+
+
+                    <div class="progress">
+
+                        <div
+                            class="progress-bar"
+                            style="width:89%">
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="metric">
+
+                    <div class="metric-head">
+
+                        <span>
+                            Alternative Matching
+                        </span>
+
+                        <strong>
+                            86%
+                        </strong>
+
+                    </div>
+
+
+                    <div class="progress">
+
+                        <div
+                            class="progress-bar"
+                            style="width:86%">
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="metric">
+
+                    <div class="metric-head">
+
+                        <span>
+                            Budget Matching
+                        </span>
+
+                        <strong>
+                            84%
+                        </strong>
+
+                    </div>
+
+
+                    <div class="progress">
+
+                        <div
+                            class="progress-bar"
+                            style="width:84%">
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+        <!-- RECOMMENDATION TREND ANALYTICS -->
+
+<div class="panel" style="margin-bottom:25px;">
+
+    <div class="panel-title">
+
+        <h2>
+            <i class="fa-solid fa-chart-line"
+               style="color:#25833b; margin-right:8px;"></i>
+
+            Recommendation Trend Analytics
+        </h2>
+
+        <span>
+            AI recommendation activity
+        </span>
+
+    </div>
+
+
+    <div style="
+        display:grid;
+        grid-template-columns:repeat(4,1fr);
+        gap:15px;
+        margin-bottom:25px;
+    ">
+
+
+        <div style="
+            background:#f7fbf8;
+            border:1px solid #e1eee4;
+            border-radius:14px;
+            padding:18px;
+        ">
+
+            <small style="color:#7b8b81;">
+                Today
+            </small>
+
+            <h2 style="
+                margin-top:6px;
+                color:#1d7133;
+            ">
+                28
+            </h2>
+
+            <span style="
+                font-size:11px;
+                color:#4c9a5d;
+            ">
+                +12% from yesterday
+            </span>
+
+        </div>
+
+
+
+        <div style="
+            background:#f7fbf8;
+            border:1px solid #e1eee4;
+            border-radius:14px;
+            padding:18px;
+        ">
+
+            <small style="color:#7b8b81;">
+                This Week
+            </small>
+
+            <h2 style="
+                margin-top:6px;
+                color:#1d7133;
+            ">
+                164
+            </h2>
+
+            <span style="
+                font-size:11px;
+                color:#4c9a5d;
+            ">
+                +18% growth
+            </span>
+
+        </div>
+
+
+
+        <div style="
+            background:#f7fbf8;
+            border:1px solid #e1eee4;
+            border-radius:14px;
+            padding:18px;
+        ">
+
+            <small style="color:#7b8b81;">
+                This Month
+            </small>
+
+            <h2 style="
+                margin-top:6px;
+                color:#1d7133;
+            ">
+                480
+            </h2>
+
+            <span style="
+                font-size:11px;
+                color:#4c9a5d;
+            ">
+                Recommendation activity
+            </span>
+
+        </div>
+
+
+
+        <div style="
+            background:#f7fbf8;
+            border:1px solid #e1eee4;
+            border-radius:14px;
+            padding:18px;
+        ">
+
+            <small style="color:#7b8b81;">
+                Success Rate
+            </small>
+
+            <h2 style="
+                margin-top:6px;
+                color:#1d7133;
+            ">
+                92%
+            </h2>
+
+            <span style="
+                font-size:11px;
+                color:#4c9a5d;
+            ">
+                High suitability
+            </span>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- CHART -->
+
+    <div style="
+        position:relative;
+        height:230px;
+        padding:20px 10px 10px 10px;
+        border-radius:14px;
+        background:#fbfdfb;
+        border:1px solid #edf2ee;
+    ">
+
+
+        <!-- GRID LINES -->
+
+        <div style="
+            position:absolute;
+            left:50px;
+            right:20px;
+            top:30px;
+            height:1px;
+            background:#e5ece7;
+        "></div>
+
+
+        <div style="
+            position:absolute;
+            left:50px;
+            right:20px;
+            top:80px;
+            height:1px;
+            background:#e5ece7;
+        "></div>
+
+
+        <div style="
+            position:absolute;
+            left:50px;
+            right:20px;
+            top:130px;
+            height:1px;
+            background:#e5ece7;
+        "></div>
+
+
+        <div style="
+            position:absolute;
+            left:50px;
+            right:20px;
+            top:180px;
+            height:1px;
+            background:#e5ece7;
+        "></div>
+
+
+
+        <!-- Y AXIS -->
+
+        <div style="
+            position:absolute;
+            left:10px;
+            top:20px;
+            font-size:10px;
+            color:#87948c;
+        ">
+            200
+        </div>
+
+
+        <div style="
+            position:absolute;
+            left:10px;
+            top:70px;
+            font-size:10px;
+            color:#87948c;
+        ">
+            150
+        </div>
+
+
+        <div style="
+            position:absolute;
+            left:10px;
+            top:120px;
+            font-size:10px;
+            color:#87948c;
+        ">
+            100
+        </div>
+
+
+        <div style="
+            position:absolute;
+            left:10px;
+            top:170px;
+            font-size:10px;
+            color:#87948c;
+        ">
+            50
+        </div>
+
+
+
+        <!-- TREND LINE -->
+
+        <svg
+            viewBox="0 0 700 190"
+            preserveAspectRatio="none"
+            style="
+                position:absolute;
+                left:50px;
+                right:20px;
+                top:20px;
+                width:calc(100% - 70px);
+                height:190px;
+                overflow:visible;
+            ">
+
+
+            <polyline
+                points="
+                0,150
+                100,135
+                200,120
+                300,100
+                400,78
+                500,55
+                600,35
+                700,20
+                "
+                fill="none"
+                stroke="#2d8f3c"
+                stroke-width="4"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+            />
+
+
+            <!-- AREA -->
+
+            <polygon
+                points="
+                0,150
+                100,135
+                200,120
+                300,100
+                400,78
+                500,55
+                600,35
+                700,20
+                700,190
+                0,190
+                "
+                fill="#e5f5e8"
+                opacity="0.7"
+            />
+
+
+            <!-- POINTS -->
+
+            <circle
+                cx="0"
+                cy="150"
+                r="5"
+                fill="#25833b"
+            />
+
+            <circle
+                cx="100"
+                cy="135"
+                r="5"
+                fill="#25833b"
+            />
+
+            <circle
+                cx="200"
+                cy="120"
+                r="5"
+                fill="#25833b"
+            />
+
+            <circle
+                cx="300"
+                cy="100"
+                r="5"
+                fill="#25833b"
+            />
+
+            <circle
+                cx="400"
+                cy="78"
+                r="5"
+                fill="#25833b"
+            />
+
+            <circle
+                cx="500"
+                cy="55"
+                r="5"
+                fill="#25833b"
+            />
+
+            <circle
+                cx="600"
+                cy="35"
+                r="5"
+                fill="#25833b"
+            />
+
+            <circle
+                cx="700"
+                cy="20"
+                r="5"
+                fill="#25833b"
+            />
+
+        </svg>
+
+
+
+        <!-- X AXIS -->
+
+        <div style="
+            position:absolute;
+            left:7%;
+            bottom:5px;
+            font-size:10px;
+            color:#87948c;
+        ">
+            Mon
+        </div>
+
+
+        <div style="
+            position:absolute;
+            left:20%;
+            bottom:5px;
+            font-size:10px;
+            color:#87948c;
+        ">
+            Tue
+        </div>
+
+
+        <div style="
+            position:absolute;
+            left:34%;
+            bottom:5px;
+            font-size:10px;
+            color:#87948c;
+        ">
+            Wed
+        </div>
+
+
+        <div style="
+            position:absolute;
+            left:48%;
+            bottom:5px;
+            font-size:10px;
+            color:#87948c;
+        ">
+            Thu
+        </div>
+
+
+        <div style="
+            position:absolute;
+            left:62%;
+            bottom:5px;
+            font-size:10px;
+            color:#87948c;
+        ">
+            Fri
+        </div>
+
+
+        <div style="
+            position:absolute;
+            left:76%;
+            bottom:5px;
+            font-size:10px;
+            color:#87948c;
+        ">
+            Sat
+        </div>
+
+
+        <div style="
+            position:absolute;
+            right:3%;
+            bottom:5px;
+            font-size:10px;
+            color:#87948c;
+        ">
+            Sun
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+        <!-- PRODUCT CATEGORIES -->
+
+        <div class="panel"
+            style="margin-bottom:25px;">
+
+
+            <div class="panel-title">
+
+                <h2>
+                    Recommendation Categories
+                </h2>
+
+                <span>
+                    Category usage
+                </span>
+
+            </div>
+
+
+            <div class="category-grid">
+
+
+                <div class="category">
+
+                    <i class="fa-solid fa-pump-soap"></i>
+
+                    <h3>
+                        Face Wash
+                    </h3>
+
+                    <strong>
+                        84
+                    </strong>
+
+                </div>
+
+
+
+                <div class="category">
+
+                    <i class="fa-solid fa-droplet"></i>
+
+                    <h3>
+                        Moisturizer
+                    </h3>
+
+                    <strong>
+                        112
+                    </strong>
+
+                </div>
+
+
+
+                <div class="category">
+
+                    <i class="fa-solid fa-sun"></i>
+
+                    <h3>
+                        Sunscreen
+                    </h3>
+
+                    <strong>
+                        128
+                    </strong>
+
+                </div>
+
+
+
+                <div class="category">
+
+                    <i class="fa-solid fa-flask"></i>
+
+                    <h3>
+                        Serum
+                    </h3>
+
+                    <strong>
+                        96
+                    </strong>
+
+                </div>
+
+
+
+                <div class="category">
+
+                    <i class="fa-solid fa-sparkles"></i>
+
+                    <h3>
+                        Toner
+                    </h3>
+
+                    <strong>
+                        60
+                    </strong>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+
+        <!-- MONITORING TABLE -->
+
+        <div class="panel table-panel">
+
+
+            <div class="panel-title">
+
+                <h2>
+                    Recommendation Monitoring
+                </h2>
+
+                <span>
+                    Recent AI activity
+                </span>
+
+            </div>
+
+
+            <table>
+
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            User
+                        </th>
+
+                        <th>
+                            Skin Concern
+                        </th>
+
+                        <th>
+                            Recommendation
+                        </th>
+
+                        <th>
+                            AI Match
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+
+                    <tr>
+
+                        <td>
+                            Priya Sharma
+                        </td>
+
+                        <td>
+                            Acne
+                        </td>
+
+                        <td>
+                            Niacinamide Serum
+                        </td>
+
+                        <td>
+                            92%
+                        </td>
+
+                        <td>
+
+                            <span class="status good">
+                                Suitable
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+
+
+                    <tr>
+
+                        <td>
+                            Anjali Reddy
+                        </td>
+
+                        <td>
+                            Preventive Care
+                        </td>
+
+                        <td>
+                            Daily Sunscreen SPF 50
+                        </td>
+
+                        <td>
+                            95%
+                        </td>
+
+                        <td>
+
+                            <span class="status good">
+                                Suitable
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+
+
+                    <tr>
+
+                        <td>
+                            Rahul Kumar
+                        </td>
+
+                        <td>
+                            Dryness
+                        </td>
+
+                        <td>
+                            Hydrating Moisturizer
+                        </td>
+
+                        <td>
+                            89%
+                        </td>
+
+                        <td>
+
+                            <span class="status good">
+                                Suitable
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+
+
+                    <tr>
+
+                        <td>
+                            Sneha Patel
+                        </td>
+
+                        <td>
+                            Skin Maintenance
+                        </td>
+
+                        <td>
+                            Gentle Face Cleanser
+                        </td>
+
+                        <td>
+                            87%
+                        </td>
+
+                        <td>
+
+                            <span class="status good">
+                                Suitable
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+
+
+                    <tr>
+
+                        <td>
+                            Arjun Mehta
+                        </td>
+
+                        <td>
+                            Severe Acne
+                        </td>
+
+                        <td>
+                            Alternative Product
+                        </td>
+
+                        <td>
+                            71%
+                        </td>
+
+                        <td>
+
+                            <span class="status medium">
+                                Review
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+
+                </tbody>
+
+            </table>
+
+        </div>
+        <!-- LOW MATCH RECOMMENDATION ALERTS -->
+
+<div class="panel" style="margin-bottom:25px;">
+
+    <div class="panel-title">
+
+        <h2>
+            <i class="fa-solid fa-triangle-exclamation"
+               style="color:#c88a16; margin-right:8px;"></i>
+
+            Low-Match Recommendation Alerts
+        </h2>
+
+        <span>
+            Recommendations requiring review
+        </span>
+
+    </div>
+
+
+    <!-- ALERT SUMMARY -->
+
+    <div style="
+        display:flex;
+        align-items:center;
+        gap:18px;
+        padding:18px;
+        margin-bottom:20px;
+        background:#fff9e8;
+        border:1px solid #f2dfaa;
+        border-radius:14px;
+    ">
+
+        <div style="
+            width:48px;
+            height:48px;
+            border-radius:50%;
+            background:#fff0c7;
+            color:#c88a16;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:20px;
+        ">
+
+            <i class="fa-solid fa-exclamation"></i>
+
+        </div>
+
+
+        <div>
+
+            <strong style="
+                display:block;
+                color:#735414;
+                font-size:14px;
+                margin-bottom:4px;
+            ">
+
+                1 recommendation requires attention
+
+            </strong>
+
+
+            <span style="
+                font-size:12px;
+                color:#8b7750;
+            ">
+
+                Recommendations with lower AI suitability scores
+                should be reviewed before further use.
+
+            </span>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ALERT ITEM -->
+
+    <div style="
+        display:flex;
+        align-items:center;
+        gap:16px;
+        padding:17px;
+        border:1px solid #edf0ed;
+        border-radius:14px;
+        margin-bottom:12px;
+        background:#ffffff;
+    ">
+
+
+        <div style="
+            width:45px;
+            height:45px;
+            border-radius:12px;
+            background:#fff3d6;
+            color:#c88a16;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:18px;
+        ">
+
+            <i class="fa-solid fa-user"></i>
+
+        </div>
+
+
+        <div style="flex:1;">
+
+            <strong style="
+                display:block;
+                color:#294d32;
+                font-size:13px;
+            ">
+
+                Arjun Mehta
+
+            </strong>
+
+
+            <span style="
+                font-size:11px;
+                color:#7b897f;
+            ">
+
+                Severe Acne • Alternative Product
+
+            </span>
+
+        </div>
+
+
+        <div style="
+            text-align:center;
+            margin-right:20px;
+        ">
+
+            <strong style="
+                display:block;
+                color:#b87900;
+                font-size:18px;
+            ">
+
+                71%
+
+            </strong>
+
+
+            <span style="
+                font-size:10px;
+                color:#8b7750;
+            ">
+
+                AI Match
+
+            </span>
+
+        </div>
+
+
+        <span style="
+            background:#fff3d6;
+            color:#a86f00;
+            padding:6px 12px;
+            border-radius:20px;
+            font-size:10px;
+            font-weight:600;
+        ">
+
+            REVIEW
+
+        </span>
+
+    </div>
+
+
+
+    <!-- ALERT ITEM -->
+
+    <div style="
+        display:flex;
+        align-items:center;
+        gap:16px;
+        padding:17px;
+        border:1px solid #edf0ed;
+        border-radius:14px;
+        background:#ffffff;
+    ">
+
+
+        <div style="
+            width:45px;
+            height:45px;
+            border-radius:12px;
+            background:#edf7ef;
+            color:#25833b;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:18px;
+        ">
+
+            <i class="fa-solid fa-circle-check"></i>
+
+        </div>
+
+
+        <div style="flex:1;">
+
+            <strong style="
+                display:block;
+                color:#294d32;
+                font-size:13px;
+            ">
+
+                Recommendation Quality Check
+
+            </strong>
+
+
+            <span style="
+                font-size:11px;
+                color:#7b897f;
+            ">
+
+                Other recent recommendations are within
+                the acceptable suitability range.
+
+            </span>
+
+        </div>
+
+
+        <span style="
+            background:#e6f6e9;
+            color:#27813b;
+            padding:6px 12px;
+            border-radius:20px;
+            font-size:10px;
+            font-weight:600;
+        ">
+
+            HEALTHY
+
+        </span>
+
+    </div>
+
+
+</div>
+
+
+
+        <!-- RECENT ACTIVITY -->
+
+        <div class="panel"
+            style="margin-bottom:25px;">
+
+
+            <div class="panel-title">
+
+                <h2>
+                    Recent Recommendation Activity
+                </h2>
+
+                <span>
+                    Latest platform actions
+                </span>
+
+            </div>
+
+
+
+            <div class="activity">
+
+
+                <div class="activity-icon">
+
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+
+                </div>
+
+
+                <div class="activity-text">
+
+                    <strong>
+                        Personalized recommendation generated
+                    </strong>
+
+                    <span>
+                        AI product recommendation engine
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+
+            <div class="activity">
+
+
+                <div class="activity-icon">
+
+                    <i class="fa-solid fa-bullseye"></i>
+
+                </div>
+
+
+                <div class="activity-text">
+
+                    <strong>
+                        Product suitability score calculated
+                    </strong>
+
+                    <span>
+                        Skin type and concern matching
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+
+            <div class="activity">
+
+
+                <div class="activity-icon">
+
+                    <i class="fa-solid fa-repeat"></i>
+
+                </div>
+
+
+                <div class="activity-text">
+
+                    <strong>
+                        Alternative product suggested
+                    </strong>
+
+                    <span>
+                        Alternative recommendation engine
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+
+            <div class="activity">
+
+
+                <div class="activity-icon">
+
+                    <i class="fa-solid fa-indian-rupee-sign"></i>
+
+                </div>
+
+
+                <div class="activity-text">
+
+                    <strong>
+                        Budget-based recommendation generated
+                    </strong>
+
+                    <span>
+                        Price-aware product matching
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- ADMIN INSIGHTS -->
+
+        <div class="panel">
+
+
+            <div class="panel-title">
+
+                <h2>
+                    Recommendation Insights
+                </h2>
+
+                <span>
+                    Administrative overview
+                </span>
+
+            </div>
+
+
+            <div class="insight-grid">
+
+
+                <div class="insight">
+
+                    <i class="fa-solid fa-chart-line"></i>
+
+                    <h3>
+                        High Recommendation Usage
+                    </h3>
+
+                    <p>
+                        Personalized recommendations are
+                        one of the major features used by
+                        the Skin AI platform.
+                    </p>
+
+                </div>
+
+
+
+                <div class="insight">
+
+                    <i class="fa-solid fa-bullseye"></i>
+
+                    <h3>
+                        Strong Suitability Matching
+                    </h3>
+
+                    <p>
+                        The recommendation engine evaluates
+                        skin type, skin concerns and product
+                        suitability before suggesting products.
+                    </p>
+
+                </div>
+
+
+
+                <div class="insight">
+
+                    <i class="fa-solid fa-shield-heart"></i>
+
+                    <h3>
+                        Recommendation Review
+                    </h3>
+
+                    <p>
+                        Recommendations with lower suitability
+                        scores can be identified for additional
+                        administrative or professional review.
+                    </p>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+
+        <footer>
+
+            Skin AI • Recommendation Monitoring • Administrative Control Center
+
+        </footer>
+
+
+    </div>
+
+
+</body>
+
+</html>
