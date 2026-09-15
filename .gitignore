@@ -1,0 +1,17 @@
+# Private Credentials & Secrets
+keys.env
+.env
+*.env
+firebase-adminsdk.json
+
+# Large ML Weights & Binary Files
+*.pth
+*.pkl
+model.pth
+encoders.pkl
+
+# IDE, System & Temporary Files
+.vscode/
+__pycache__/
+*.py[cod]
+uploads/
