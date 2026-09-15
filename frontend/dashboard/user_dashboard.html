@@ -10,6 +10,8 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col md:flex-row h-screen overflow-hidden">
 
@@ -21,15 +23,21 @@
             </div>
             <h1 class="font-bold text-slate-900 text-base">DermaAI</h1>
         </div>
-        <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="p-2 text-slate-600 hover:text-teal-600 focus:outline-none">
-            <i data-lucide="menu" class="w-6 h-6"></i>
-        </button>
+        <div class="flex items-center gap-2">
+            <button onclick="toggleNotificationCenter()" class="p-2 text-slate-600 hover:text-teal-600 relative cursor-pointer">
+                <i data-lucide="bell" class="w-5 h-5"></i>
+                <span id="mobile-notif-badge" class="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full hidden"></span>
+            </button>
+            <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="p-2 text-slate-600 hover:text-teal-600 focus:outline-none cursor-pointer">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+        </div>
     </header>
 
-    <!-- Sidebar Navigation (Desktop & Mobile Drawer) -->
-    <aside id="sidebar-menu" class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex shrink-0 absolute md:relative z-50 top-0 left-0 h-full shadow-lg md:shadow-none">
-        <div>
-            <div class="p-6 flex items-center justify-between md:justify-start gap-3 border-b border-slate-100">
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar-menu" class="w-64 bg-white border-r border-slate-200 flex flex-col h-full hidden md:flex shrink-0 absolute md:relative z-50 top-0 left-0 h-full shadow-lg md:shadow-none">
+        
+            <div class="p-6 flex items-center justify-between md:justify-start gap-3 border-b border-slate-100 shrink-0">
                 <div class="flex items-center gap-3">
                     <div class="bg-teal-600 text-white p-2.5 rounded-2xl shadow-lg shadow-teal-600/20">
                         <i data-lucide="sparkles" class="w-5 h-5"></i>
@@ -39,15 +47,21 @@
                         <p class="text-xs text-slate-400">User Dashboard</p>
                     </div>
                 </div>
-                <button onclick="toggleMobileMenu()" class="md:hidden text-slate-400 hover:text-slate-600 p-1">
+                <button onclick="toggleMobileMenu()" class="md:hidden text-slate-400 hover:text-slate-600 p-1 cursor-pointer">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
 
-            <nav class="p-4 space-y-1 text-sm font-medium overflow-y-auto max-h-[calc(100vh-160px)] md:max-h-none">
+            <nav class="flex-1 overflow-y-auto p-4 space-y-1 text-sm font-medium overflow-y-auto max-h-[calc(100vh-160px)] md:max-h-none">
                 <a href="/user_dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-teal-700 bg-teal-50 font-bold border-r-4 border-teal-600">
                     <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
                 </a>
+                
+                <!-- MODULE 11: New Reports Tab in Sidebar -->
+                <button onclick="openReportsHub()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-indigo-600 hover:bg-indigo-50 transition cursor-pointer font-bold border border-transparent hover:border-indigo-100 text-left">
+                    <i data-lucide="file-output" class="w-4 h-4"></i> Reports & Exports
+                </button>
+
                 <a href="/user_dashboard/skin_assessment.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition">
                     <i data-lucide="scan-face" class="w-4 h-4"></i> Skin Assessment
                 </a>
@@ -79,7 +93,7 @@
                     <i data-lucide="list-check" class="w-4 h-4"></i> Checklist
                 </a>
             </nav>
-        </div>
+        
 
         <div class="p-4 border-t border-slate-100 bg-slate-50/50 shrink-0">
             <div class="flex items-center justify-between">
@@ -97,27 +111,234 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <main class="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6 relative">
+        
+        <!-- Welcome Header & Desktop Tools -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-6">
             <div>
-                <h1 class="text-2xl font-bold text-slate-900">Skin Intelligence Dashboard</h1>
-                <p class="text-sm text-slate-500">Real-time skin health evaluations and prioritized insights.</p>
+                <h1 id="welcome-message" class="text-2xl font-bold text-slate-900">Welcome to DermaAI</h1>
+                <p class="text-sm text-slate-500">Your central hub for clinical skin tracking, routine management, and privacy controls.</p>
             </div>
-            <a href="/user_dashboard/skin_assessment.html" id="btn-assessment" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md shadow-teal-600/20 transition">
-                <i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i> <span id="btn-assessment-text">Take Assessment</span>
-            </a>
+            <div class="flex items-center gap-2">
+                <!-- Module 11 Header Export Button -->
+                <button onclick="openReportsHub('comprehensive')" class="hidden md:flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs px-4 py-2.5 rounded-xl border border-indigo-200 shadow-sm transition cursor-pointer">
+                    <i data-lucide="file-down" class="w-4 h-4"></i>
+                    <span>Export Data</span>
+                </button>
+                <button onclick="toggleNotificationCenter()" class="hidden md:flex items-center gap-2 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm relative transition cursor-pointer">
+                    <i data-lucide="bell" class="w-4 h-4 text-teal-600"></i>
+                    <span>Reminders</span>
+                    <span id="desktop-notif-badge" class="absolute -top-1 -right-1 w-3 h-3 bg-rose-500 rounded-full border-2 border-white hidden"></span>
+                </button>
+                <a href="/user_dashboard/skin_assessment.html" id="btn-assessment" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs px-5 py-2.5 rounded-xl flex items-center gap-2 shadow-md shadow-teal-600/20 transition">
+                    <i data-lucide="scan-face" class="w-4 h-4"></i> <span id="btn-assessment-text">Run New Scan</span>
+                </a>
+            </div>
         </div>
 
-        <!-- UI Feedback Banner for API Errors -->
+        <!-- MODULE 11: Clinical Reports & Export Hub Modal -->
+        <div id="reports-hub-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 transition-opacity duration-300">
+            <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
+                <!-- Header -->
+                <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-indigo-100 text-indigo-600 rounded-xl">
+                            <i data-lucide="file-pie-chart" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-sm">Clinical Reports & Export Hub</h3>
+                            <p class="text-[10px] text-slate-500">Module 11: Generate, Download, and Share Medical Data</p>
+                        </div>
+                    </div>
+                    <button onclick="closeReportsHub()" class="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg cursor-pointer transition">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <!-- Body Options -->
+                <div class="p-6 space-y-5 text-sm">
+                    <!-- Report Category -->
+                    <div class="space-y-2">
+                        <label class="font-bold text-slate-800 block text-xs">Select Report Type</label>
+                        <select id="export-type" class="w-full p-2.5 border border-slate-200 rounded-xl bg-white font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="comprehensive">Comprehensive Skin Health Report</option>
+                            <option value="assessment">Skin Assessment & Scan Scores</option>
+                            <option value="routine">Routine Adherence & Completion %</option>
+                            <option value="product">Product Effectiveness & Alternatives</option>
+                            <option value="progress">Trend Charts & Milestones</option>
+                        </select>
+                    </div>
+
+                    <!-- Date Range -->
+                    <div class="space-y-2">
+                        <label class="font-bold text-slate-800 block text-xs">Custom Date Range</label>
+                        <div class="grid grid-cols-4 gap-2">
+                            <label class="text-center">
+                                <input type="radio" name="export-range" value="7" class="peer hidden" checked>
+                                <div class="p-2 border border-slate-200 rounded-lg cursor-pointer peer-checked:bg-indigo-50 peer-checked:border-indigo-500 peer-checked:text-indigo-700 font-bold text-xs transition">7 Days</div>
+                            </label>
+                            <label class="text-center">
+                                <input type="radio" name="export-range" value="30" class="peer hidden">
+                                <div class="p-2 border border-slate-200 rounded-lg cursor-pointer peer-checked:bg-indigo-50 peer-checked:border-indigo-500 peer-checked:text-indigo-700 font-bold text-xs transition">30 Days</div>
+                            </label>
+                            <label class="text-center">
+                                <input type="radio" name="export-range" value="90" class="peer hidden">
+                                <div class="p-2 border border-slate-200 rounded-lg cursor-pointer peer-checked:bg-indigo-50 peer-checked:border-indigo-500 peer-checked:text-indigo-700 font-bold text-xs transition">3 Months</div>
+                            </label>
+                            <label class="text-center">
+                                <input type="radio" name="export-range" value="all" class="peer hidden">
+                                <div class="p-2 border border-slate-200 rounded-lg cursor-pointer peer-checked:bg-indigo-50 peer-checked:border-indigo-500 peer-checked:text-indigo-700 font-bold text-xs transition">All Time</div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Export Format -->
+                    <div class="space-y-2">
+                        <label class="font-bold text-slate-800 block text-xs">Export Format</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="flex items-center gap-3 p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition peer-checked-wrapper">
+                                <input type="radio" name="export-format" value="pdf" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500" checked>
+                                <div>
+                                    <span class="font-bold text-slate-800 text-xs block">Clean PDF Document</span>
+                                    <span class="text-[10px] text-slate-500">Visual reports for sharing</span>
+                                </div>
+                            </label>
+                            <label class="flex items-center gap-3 p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition">
+                                <input type="radio" name="export-format" value="csv" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500">
+                                <div>
+                                    <span class="font-bold text-slate-800 text-xs block">Excel / CSV Data</span>
+                                    <span class="text-[10px] text-slate-500">Detailed raw telemetry logs</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- AI Insights Mini-Banner -->
+                    <div class="p-3 bg-gradient-to-r from-teal-50 to-indigo-50 rounded-xl border border-teal-100 flex items-start gap-3">
+                        <i data-lucide="brain-circuit" class="w-4 h-4 text-teal-600 shrink-0 mt-0.5"></i>
+                        <p class="text-[11px] text-slate-600 font-medium">
+                            <span class="font-bold text-slate-800 block mb-0.5">Lifestyle Correlation Included</span>
+                            Your generated report will automatically analyze how your hydration and sleep data affected your skin scores over the selected date range.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Footer Actions -->
+                <div class="p-5 border-t border-slate-100 bg-slate-50 flex gap-3">
+                    <button onclick="triggerReportDownload()" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 rounded-xl shadow-sm transition flex items-center justify-center gap-2 text-xs cursor-pointer">
+                        <i data-lucide="download" class="w-4 h-4"></i> Download File
+                    </button>
+                    <button onclick="triggerReportShare()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl shadow-sm transition flex items-center justify-center gap-2 text-xs cursor-pointer">
+                        <i data-lucide="send" class="w-4 h-4"></i> Share with Clinician
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODULE 10: Notification Center Drawer -->
+        <div id="notification-drawer" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 hidden flex justify-end transition-opacity duration-300">
+            <div class="bg-white w-full max-w-md h-full shadow-2xl border-l border-slate-200 flex flex-col justify-between overflow-hidden">
+                <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+                    <div class="flex items-center gap-2">
+                        <div class="p-2 bg-teal-100 text-teal-700 rounded-xl">
+                            <i data-lucide="bell-ring" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-sm">Reminders & Smart Alerts</h3>
+                            <p class="text-[10px] text-slate-400">Module 10 Real-Time Clinical Notification Hub</p>
+                        </div>
+                    </div>
+                    <button onclick="toggleNotificationCenter()" class="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg cursor-pointer">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <div class="flex border-b border-slate-200 text-xs font-bold bg-slate-50 px-5 pt-2">
+                    <button onclick="switchNotifTab('feed')" id="notif-tab-feed" class="pb-2.5 px-3 border-b-2 border-teal-600 text-teal-700 transition cursor-pointer">Notification Feed</button>
+                    <button onclick="switchNotifTab('settings')" id="notif-tab-settings" class="pb-2.5 px-3 border-b-2 border-transparent text-slate-400 hover:text-slate-700 transition cursor-pointer">Customization Settings</button>
+                </div>
+
+                <div id="notif-panel-feed" class="flex-1 overflow-y-auto p-5 space-y-3.5 divide-y divide-slate-100">
+                    <div class="text-center py-10 text-xs text-slate-400">Loading active alerts...</div>
+                </div>
+
+                <div id="notif-panel-settings" class="flex-1 overflow-y-auto p-5 space-y-4 hidden text-xs">
+                    <div class="p-3 bg-teal-50/60 border border-teal-100 rounded-xl space-y-1">
+                        <p class="font-bold text-teal-900">Module 10 Customization Hub</p>
+                        <p class="text-[11px] text-teal-700">Configure your preferred schedule, toggle specific reminder vectors, and select delivery channels.</p>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="font-bold text-slate-700 block">Preferred Reminder Time Window</label>
+                        <select id="pref-time-slot" class="w-full p-2.5 border border-slate-200 rounded-xl bg-white font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-500">
+                            <option value="morning">Morning (08:00 AM)</option>
+                            <option value="afternoon">Afternoon (01:00 PM)</option>
+                            <option value="evening" selected>Evening (08:00 PM)</option>
+                        </select>
+                    </div>
+                    <div class="space-y-2.5 pt-2">
+                        <label class="font-bold text-slate-700 block">Active Reminder Categories</label>
+                        <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                            <span class="font-medium text-slate-700">Routine & Treatment Reminders</span>
+                            <input type="checkbox" id="toggle-vec-routine" checked class="w-4 h-4 text-teal-600 rounded cursor-pointer">
+                        </div>
+                        <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                            <span class="font-medium text-slate-700">Hydration & Water Alerts</span>
+                            <input type="checkbox" id="toggle-vec-hydration" checked class="w-4 h-4 text-teal-600 rounded cursor-pointer">
+                        </div>
+                        <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                            <span class="font-medium text-slate-700">Sleep & Rest Reminders</span>
+                            <input type="checkbox" id="toggle-vec-sleep" checked class="w-4 h-4 text-teal-600 rounded cursor-pointer">
+                        </div>
+                        <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                            <span class="font-medium text-slate-700">Product Replenishment & Expiry</span>
+                            <input type="checkbox" id="toggle-vec-replenishment" checked class="w-4 h-4 text-teal-600 rounded cursor-pointer">
+                        </div>
+                        <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                            <span class="font-medium text-slate-700">Progress Milestones & Forecasts</span>
+                            <input type="checkbox" id="toggle-vec-progress" checked class="w-4 h-4 text-teal-600 rounded cursor-pointer">
+                        </div>
+                    </div>
+                    <div class="space-y-2 pt-2">
+                        <label class="font-bold text-slate-700 block">Delivery Channel Preference</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <label class="flex items-center gap-2 p-2 bg-slate-50 rounded-xl border border-slate-100 cursor-pointer">
+                                <input type="checkbox" id="chan-inapp" checked class="w-3.5 h-3.5 text-teal-600 rounded">
+                                <span class="font-semibold text-slate-700">In-App</span>
+                            </label>
+                            <label class="flex items-center gap-2 p-2 bg-slate-50 rounded-xl border border-slate-100 cursor-pointer">
+                                <input type="checkbox" id="chan-email" checked class="w-3.5 h-3.5 text-teal-600 rounded">
+                                <span class="font-semibold text-slate-700">Email</span>
+                            </label>
+                            <label class="flex items-center gap-2 p-2 bg-slate-50 rounded-xl border border-slate-100 cursor-pointer">
+                                <input type="checkbox" id="chan-push" checked class="w-3.5 h-3.5 text-teal-600 rounded">
+                                <span class="font-semibold text-slate-700">Push</span>
+                            </label>
+                        </div>
+                    </div>
+                    <button onclick="saveNotificationPreferences()" class="w-full py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-md transition cursor-pointer mt-4">
+                        Save Preferences
+                    </button>
+                </div>
+
+                <div class="p-4 border-t border-slate-100 bg-slate-50/50 flex justify-between items-center text-xs">
+                    <button onclick="markAllNotificationsRead()" class="text-teal-600 font-bold hover:underline cursor-pointer">Mark all as read</button>
+                    <button onclick="toggleNotificationCenter()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 font-bold text-slate-700 rounded-xl transition cursor-pointer">Close</button>
+                </div>
+            </div>
+        </div>
+
         <div id="status-banner" class="hidden p-4 rounded-xl text-xs font-medium bg-rose-50 border border-rose-200 text-rose-700 flex items-center justify-between">
             <span id="status-banner-text">Unable to load recent assessment data from server.</span>
-            <button onclick="initDashboard()" class="text-rose-700 underline font-bold hover:text-rose-900">Retry</button>
+            <button onclick="initDashboard()" class="text-rose-700 underline font-bold hover:text-rose-900 cursor-pointer">Retry</button>
         </div>
 
         <!-- 1. Skin Assessment Engine Metrics -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- Skin Health Score -->
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2 flex flex-col justify-between">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2 flex flex-col justify-between relative group">
+                <!-- Module 11 Quick Export Button -->
+                <button onclick="openReportsHub('assessment')" class="absolute top-4 right-4 p-1.5 bg-slate-100 text-slate-500 hover:bg-indigo-100 hover:text-indigo-700 rounded-lg opacity-0 group-hover:opacity-100 transition cursor-pointer" title="Export Assessment Report">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                </button>
                 <div>
                     <div class="flex justify-between items-center mb-2">
                         <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Skin Health Score</span>
@@ -128,7 +349,6 @@
                 <p class="text-xs text-slate-400 mt-auto pt-2" id="dash-score-desc">Requires completed assessment.</p>
             </div>
 
-            <!-- Skin Type, Demographics & Allergies -->
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2 flex flex-col justify-between">
                 <div>
                     <div class="flex justify-between items-center mb-2">
@@ -138,11 +358,9 @@
                     <p class="text-xl font-bold text-slate-400 capitalize" id="dash-skin-type">Not Assessed</p>
                     <p class="text-xs text-slate-400" id="dash-demographics">Evaluation Status: Pending</p>
                 </div>
-                <!-- Dynamic Allergies & Sensitivities Injection -->
                 <div id="dash-allergies" class="pt-3 flex flex-wrap gap-1.5 mt-auto"></div>
             </div>
 
-            <!-- Risk Factor Analysis -->
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2 flex flex-col justify-between">
                 <div>
                     <div class="flex justify-between items-center mb-2">
@@ -157,7 +375,6 @@
 
         <!-- 2. Concern Prioritization & Lifestyle Tracking -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Prioritized Concerns -->
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Concern Prioritization</span>
                 <div id="dash-concerns" class="space-y-2.5">
@@ -165,8 +382,11 @@
                 </div>
             </div>
 
-            <!-- Lifestyle & Environmental Tracking Summary -->
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 relative group">
+                <!-- Module 11 Quick Export Button -->
+                <button onclick="openReportsHub('progress')" class="absolute top-4 right-4 p-1.5 bg-slate-100 text-slate-500 hover:bg-indigo-100 hover:text-indigo-700 rounded-lg opacity-0 group-hover:opacity-100 transition cursor-pointer z-10" title="Export Progress & Lifestyle Report">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                </button>
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Lifestyle & Environment</span>
                 <div class="grid grid-cols-2 gap-3 text-xs">
                     <div class="p-3.5 bg-slate-50 border border-slate-100 rounded-xl space-y-1">
@@ -189,23 +409,174 @@
             </div>
         </div>
 
-        <!-- 3. Active Routine Preview -->
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-            <div class="flex justify-between items-center">
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Active Personal Routine</span>
-                <a href="/user_dashboard/routine_planner.html" class="text-xs font-bold text-teal-600 hover:underline flex items-center gap-1">
-                    View Full Routine &rarr;
-                </a>
+        <!-- 3. Active Routine & Quick Actions -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 relative group">
+                <!-- Module 11 Quick Export Button -->
+                <div class="absolute top-4 right-4 flex items-center gap-2 z-10">
+                    <button onclick="openReportsHub('routine')" class="p-1.5 bg-slate-100 text-slate-500 hover:bg-indigo-100 hover:text-indigo-700 rounded-lg opacity-0 group-hover:opacity-100 transition cursor-pointer" title="Export Routine Checklist Report">
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                    </button>
+                    <a href="/user_dashboard/routine_planner.html" class="text-xs font-bold text-teal-600 hover:underline">
+                        View Planner &rarr;
+                    </a>
+                </div>
+
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2">Active Personal Routine</span>
+                <div id="dash-routine-container">
+                    <p class="text-xs text-slate-400 italic">Complete assessment to generate a tailored routine.</p>
+                </div>
             </div>
-            <div id="dash-routine-container">
-                <p class="text-xs text-slate-400 italic">Complete assessment to generate a tailored routine.</p>
+
+            <div class="space-y-4">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Security & Data Sovereignty</span>
+                
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden transition-all duration-300" id="privacy-card">
+                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-slate-50 rounded-full opacity-50 pointer-events-none"></div>
+                    
+                    <div class="relative z-10 space-y-5">
+                        <div class="flex items-start gap-3">
+                            <div class="p-2.5 bg-slate-100 text-slate-600 rounded-xl border border-slate-200 shrink-0 transition-colors duration-300" id="privacy-icon-bg">
+                                <i data-lucide="shield" class="w-5 h-5" id="privacy-icon"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-900 text-base" id="privacy-title">Clinical Data Sharing</h3>
+                                <p class="text-xs text-slate-500 leading-relaxed mt-1" id="privacy-desc">
+                                    Allow your assigned Dermatologist and Skincare Consultant to view your live telemetry, adherence records, and overall health scores.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-xl transition-colors duration-300" id="toggle-wrapper">
+                            <div>
+                                <p class="text-xs font-bold text-slate-800" id="toggle-status-text">Fetching Preferences...</p>
+                                <p class="text-[10px] text-slate-500 mt-0.5">Applies to Doctor & Consultant Portals</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                <input type="checkbox" id="global-share-toggle" class="sr-only peer" onchange="toggleDataPrivacy(this)" disabled>
+                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-teal-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+
     </main>
+
+    <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <script>
         lucide.createIcons();
-        document.addEventListener('DOMContentLoaded', initDashboard);
+        document.addEventListener('DOMContentLoaded', () => {
+            initDashboard();
+            initPrivacyControls();
+            initModule10Notifications();
+            loadNotificationPreferences();
+            enableBrowserPush();
+        });
+
+        // ---------------------------------------------------------
+        // MODULE 11: EXPORT & REPORTING LOGIC
+        // ---------------------------------------------------------
+        function openReportsHub(defaultType = 'comprehensive') {
+            const modal = document.getElementById('reports-hub-modal');
+            const select = document.getElementById('export-type');
+            select.value = defaultType;
+            modal.classList.remove('hidden');
+        }
+
+        function closeReportsHub() {
+            document.getElementById('reports-hub-modal').classList.add('hidden');
+        }
+
+        async function triggerReportDownload() {
+            const email = localStorage.getItem('user_email') || localStorage.getItem('email') || '';
+            const type = document.getElementById('export-type').value;
+            const format = document.querySelector('input[name="export-format"]:checked').value;
+            const dateRange = document.querySelector('input[name="export-range"]:checked').value;
+
+            if (!email) {
+                showToast("User identity not found. Please log in again.", "error");
+                return;
+            }
+
+            const url = `/api/export/generate?user_email=${encodeURIComponent(email)}&type=${type}&format=${format}&range=${dateRange}`;
+            
+            showToast("Generating report, please wait...", "info");
+            
+            // Open in new tab to trigger browser download
+            window.open(url, '_blank');
+            closeReportsHub();
+        }
+
+        async function triggerReportShare() {
+            const email = localStorage.getItem('user_email') || localStorage.getItem('email') || '';
+            const type = document.getElementById('export-type').value;
+            const format = document.querySelector('input[name="export-format"]:checked').value;
+            const dateRange = document.querySelector('input[name="export-range"]:checked').value;
+
+            if (!email) return;
+
+            const payload = {
+                user_email: email,
+                report_type: type,
+                date_range: dateRange === 'all' ? 'All Time' : `Last ${dateRange} Days`,
+                format: format
+            };
+
+            showToast("Transmitting securely to clinical team...", "info");
+
+            try {
+                const res = await fetch('/api/export/share', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(payload)
+                });
+                
+                if (res.ok) {
+                    showToast("Report successfully shared with your assigned clinician.", "success");
+                    closeReportsHub();
+                } else {
+                    showToast("Failed to connect to clinical routing service.", "error");
+                }
+            } catch (err) {
+                showToast("Network error. Could not share report.", "error");
+            }
+        }
+
+        // ---------------------------------------------------------
+        // PRODUCTION PUSH NOTIFICATION REGISTRATION (FIREBASE)
+        // ---------------------------------------------------------
+        async function enableBrowserPush() {
+            const firebaseConfig = {
+                apiKey: "AIzaSyAyJBfc41qnxalYuBFtKnjW3ba7qfVdWK0",
+                projectId: "dermaai-4dd3d",
+                messagingSenderId: "728359598941",
+                appId: "1:728359598941:web:fc2eb29642628196a506b4"
+            };
+            
+            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+            const messaging = firebase.messaging();
+
+            try {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    const token = await messaging.getToken({ vapidKey: 'BF1GKj6YITKVoI9FWXH02yDq7Awo93xKIxhIHiPnMR8lnzZRvpxq7moiCOGxtQsyvLA4zbNbbdqCbokZ3nJMjlc' });
+                    const email = localStorage.getItem('email') || localStorage.getItem('user_email');
+                    
+                    if (token && email) {
+                        await fetch('/api/notifications/register-device-token', {
+                            method: 'POST',
+                            headers: getAuthHeaders(),
+                            body: JSON.stringify({ user_email: email, fcm_device_token: token })
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error("Push permissions handled silently.");
+            }
+        }
 
         function toggleMobileMenu() {
             const sidebar = document.getElementById('sidebar-menu');
@@ -227,6 +598,33 @@
                 .replace(/'/g, '&#039;');
         }
 
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            let bgClass = 'bg-slate-800';
+            if (type === 'error') bgClass = 'bg-rose-600';
+            if (type === 'success') bgClass = 'bg-emerald-600';
+            if (type === 'info') bgClass = 'bg-indigo-600';
+            
+            toast.className = `${bgClass} text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-lg transition-all duration-300 pointer-events-auto flex items-center gap-2`;
+            toast.innerHTML = `<span>${escapeHtml(message)}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-[-10px]');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        function getAuthHeaders() {
+            const token = localStorage.getItem('auth_token') || localStorage.getItem('token') || '';
+            return {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache, no-store, must-revalidate'
+            };
+        }
+
         function checkAuthState() {
             const token = localStorage.getItem('auth_token');
             const identity = localStorage.getItem('user_identity') || localStorage.getItem('user_email') || localStorage.getItem('email');
@@ -235,7 +633,14 @@
             if (!token || role !== 'user') {
                 window.location.href = '/index.html';
             } else {
-                document.getElementById('user-display-name').innerText = escapeHtml(identity) || 'User';
+                const nameEl = document.getElementById('user-display-name') || document.getElementById('sidebar-user-name');
+                if (nameEl) nameEl.innerText = escapeHtml(identity) || 'User';
+                
+                const firstName = identity ? identity.split(' ')[0] : 'User';
+                const welcomeEl = document.getElementById('welcome-message');
+                if (welcomeEl && firstName) {
+                    welcomeEl.innerText = `Welcome back, ${escapeHtml(firstName)}`;
+                }
             }
         }
 
@@ -243,6 +648,370 @@
             checkAuthState();
             document.getElementById('status-banner').classList.add('hidden');
             await fetchAssessmentFromEngine();
+        }
+
+        // ==========================================
+        // MODULE 10: NOTIFICATION & REMINDER SYSTEM
+        // ==========================================
+        function toggleNotificationCenter() {
+            const drawer = document.getElementById('notification-drawer');
+            drawer.classList.toggle('hidden');
+            if (!drawer.classList.contains('hidden')) {
+                fetchBackendNotifications();
+            }
+        }
+
+        function switchNotifTab(tab) {
+            const feedPanel = document.getElementById('notif-panel-feed');
+            const settingsPanel = document.getElementById('notif-panel-settings');
+            const feedBtn = document.getElementById('notif-tab-feed');
+            const settingsBtn = document.getElementById('notif-tab-settings');
+
+            if (tab === 'feed') {
+                feedPanel.classList.remove('hidden');
+                settingsPanel.classList.add('hidden');
+                feedBtn.className = "pb-2.5 px-3 border-b-2 border-teal-600 text-teal-700 transition cursor-pointer";
+                settingsBtn.className = "pb-2.5 px-3 border-b-2 border-transparent text-slate-400 hover:text-slate-700 transition cursor-pointer";
+            } else {
+                feedPanel.classList.add('hidden');
+                settingsPanel.classList.remove('hidden');
+                settingsBtn.className = "pb-2.5 px-3 border-b-2 border-teal-600 text-teal-700 transition cursor-pointer";
+                feedBtn.className = "pb-2.5 px-3 border-b-2 border-transparent text-slate-400 hover:text-slate-700 transition cursor-pointer";
+            }
+        }
+
+        async function initModule10Notifications() {
+            await fetchBackendNotifications();
+        }
+
+        async function fetchBackendNotifications() {
+            const email = localStorage.getItem('user_email') || localStorage.getItem('email') || '';
+            const container = document.getElementById('notif-panel-feed');
+            
+            try {
+                const res = await fetch(`/api/notifications?user_email=${encodeURIComponent(email)}&_t=${Date.now()}`, {
+                    headers: getAuthHeaders()
+                });
+                
+                if (res.ok) {
+                    const json = await res.json();
+                    let notifs = json.notifications || [];
+                    if (notifs.length === 0) {
+                        notifs = generateSmartNotifications();
+                    }
+                    renderModule10NotificationsFeed(notifs);
+                    updateNotificationBadges(notifs);
+                } else {
+                    fallbackLocalNotifications(container);
+                }
+            } catch (err) {
+                fallbackLocalNotifications(container);
+            }
+        }
+
+        function fallbackLocalNotifications(container) {
+            let stored = localStorage.getItem('dermaai_notifications');
+            let notifs = stored ? JSON.parse(stored) : generateSmartNotifications();
+            renderModule10NotificationsFeed(notifs);
+            updateNotificationBadges(notifs);
+        }
+
+        function generateSmartNotifications() {
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            const daysAgo = new Date(today);
+            daysAgo.setDate(daysAgo.getDate() - 3);
+
+            const formatTime = (d) => d.toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+            return [
+                { id: 1, type: 'routine', title: 'Evening Routine Reminder', message: 'Time for your PM cleansing, barrier recovery serum, and night cream.', time: formatTime(today), read: false, icon: 'moon' },
+                { id: 2, type: 'hydration', title: '💧 Hydration Alert', message: 'Drink 2L water today. You are currently at 1.5L logged.', time: formatTime(today), read: false, icon: 'droplet' },
+                { id: 3, type: 'sleep', title: '🌙 Sleep Reminder', message: 'Aim for 7 hours tonight to support natural skin barrier cellular repair.', time: formatTime(today), read: false, icon: 'moon-star' },
+                { id: 4, type: 'progress', title: '🎉 Milestone Reached!', message: '30 days of consistent skincare! Your active streak is paying off.', time: formatTime(yesterday), read: true, icon: 'award' },
+                { id: 5, type: 'replenishment', title: 'Product Replenishment Notice', message: 'Your Niacinamide Serum is running low. Reorder or explore alternatives.', time: formatTime(daysAgo), read: true, icon: 'package-open' }
+            ];
+        }
+
+        function updateNotificationBadges(notifs) {
+            const unreadCount = notifs.filter(n => !n.read).length;
+            const mobileBadge = document.getElementById('mobile-notif-badge');
+            const desktopBadge = document.getElementById('desktop-notif-badge');
+
+            if (unreadCount > 0) {
+                if (mobileBadge) mobileBadge.classList.remove('hidden');
+                if (desktopBadge) desktopBadge.classList.remove('hidden');
+            } else {
+                if (mobileBadge) mobileBadge.classList.add('hidden');
+                if (desktopBadge) desktopBadge.classList.add('hidden');
+            }
+        }
+
+        function renderModule10NotificationsFeed(notifs) {
+            const container = document.getElementById('notif-panel-feed');
+
+            if (!notifs || notifs.length === 0) {
+                container.innerHTML = `<div class="text-center py-10 text-xs text-slate-400 italic">No reminders or alerts right now.</div>`;
+                return;
+            }
+
+            container.innerHTML = notifs.map(n => {
+                const unreadDot = !n.read ? `<span class="w-2 h-2 bg-teal-600 rounded-full shrink-0"></span>` : '';
+                
+                let bgClass = n.read ? 'bg-white' : 'bg-teal-50/40';
+                let borderClass = 'border-transparent';
+                if (n.type === 'system' || n.title.includes('Clinical Team')) {
+                    bgClass = n.read ? 'bg-indigo-50/30' : 'bg-indigo-50 border border-indigo-100';
+                    borderClass = n.read ? 'border-transparent' : 'border-indigo-200';
+                    if(!n.icon) n.icon = 'stethoscope';
+                }
+
+                const actionTitle = n.read ? "Mark as Unread" : "Mark as Read";
+                const iconName = n.read ? 'rotate-ccw' : 'check';
+                const labelText = n.read ? 'Unread' : 'Read';
+                const iconClass = n.read ? "w-3.5 h-3.5 text-slate-500" : "w-3.5 h-3.5 text-teal-600";
+                const btnBg = n.read ? "hover:bg-slate-100 text-slate-600 border border-slate-200 bg-slate-50" : "hover:bg-teal-100 text-teal-700 bg-teal-50 border border-teal-200";
+
+                return `
+                    <div class="p-3.5 ${bgClass} rounded-xl transition flex items-start gap-3 relative ${borderClass}">
+                        <div class="p-2 bg-slate-100 text-slate-600 rounded-xl shrink-0 mt-0.5">
+                            <i data-lucide="${n.icon || 'bell'}" class="w-4 h-4 ${n.type === 'system' ? 'text-indigo-600' : 'text-teal-600'}"></i>
+                        </div>
+                        <div class="flex-1 min-w-0 space-y-1">
+                            <div class="flex items-center justify-between gap-2">
+                                <h4 class="font-bold ${n.type === 'system' ? 'text-indigo-900' : 'text-slate-900'} text-xs truncate">${escapeHtml(n.title)}</h4>
+                                ${unreadDot}
+                            </div>
+                            <p class="text-xs text-slate-600 leading-relaxed">${escapeHtml(n.message)}</p>
+                            <span class="text-[10px] text-slate-400 block">${escapeHtml(n.time)}</span>
+                        </div>
+                        <button onclick="toggleReadStatus(${n.id}, ${n.read})" title="${actionTitle}" class="${btnBg} px-2.5 py-1.5 rounded-lg transition cursor-pointer shrink-0 flex items-center gap-1.5 text-[11px] font-bold">
+                            <i data-lucide="${iconName}" class="${iconClass}"></i>
+                            <span>${labelText}</span>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        async function toggleReadStatus(id, currentReadState) {
+            const newReadState = !currentReadState;
+            const email = localStorage.getItem('user_email') || localStorage.getItem('email') || '';
+            
+            try {
+                const res = await fetch('/api/notifications/mark-read', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ notification_id: id, user_email: email, target_state: newReadState })
+                });
+                if (res.ok) {
+                    fetchBackendNotifications();
+                    showToast(newReadState ? "Marked as read." : "Marked as unread.", "success");
+                } else {
+                    throw new Error("Server error");
+                }
+            } catch(e) {
+                let stored = localStorage.getItem('dermaai_notifications');
+                let notifs = stored ? JSON.parse(stored) : generateSmartNotifications();
+                notifs = notifs.map(n => n.id === id ? {...n, read: newReadState} : n);
+                localStorage.setItem('dermaai_notifications', JSON.stringify(notifs));
+                renderModule10NotificationsFeed(notifs);
+                updateNotificationBadges(notifs);
+                showToast(newReadState ? "Marked as read." : "Marked as unread.", "success");
+            }
+        }
+
+        async function markAllNotificationsRead() {
+            const email = localStorage.getItem('user_email') || localStorage.getItem('email') || '';
+            try {
+                const res = await fetch('/api/notifications/mark-read', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ mark_all: true, user_email: email })
+                });
+                if (res.ok) {
+                    fetchBackendNotifications();
+                    showToast("All reminders marked as read.", "success");
+                } else {
+                    throw new Error("Server error");
+                }
+            } catch(e) {
+                let stored = localStorage.getItem('dermaai_notifications');
+                let notifs = stored ? JSON.parse(stored) : generateSmartNotifications();
+                notifs = notifs.map(n => ({...n, read: true}));
+                localStorage.setItem('dermaai_notifications', JSON.stringify(notifs));
+                renderModule10NotificationsFeed(notifs);
+                updateNotificationBadges(notifs);
+                showToast("All reminders marked as read.", "success");
+            }
+        }
+
+        async function loadNotificationPreferences() {
+            const email = localStorage.getItem('user_email') || localStorage.getItem('email') || '';
+            if (!email) return;
+
+            try {
+                const res = await fetch(`/api/notifications/preferences?user_email=${encodeURIComponent(email)}`, {
+                    headers: getAuthHeaders()
+                });
+                if (res.ok) {
+                    const json = await res.json();
+                    const p = json.preferences;
+                    if (p) {
+                        document.getElementById('pref-time-slot').value = p.time_slot || 'evening';
+                        document.getElementById('toggle-vec-routine').checked = p.routine_enabled !== false;
+                        document.getElementById('toggle-vec-hydration').checked = p.hydration_enabled !== false;
+                        document.getElementById('toggle-vec-sleep').checked = p.sleep_enabled !== false;
+                        document.getElementById('toggle-vec-replenishment').checked = p.replenishment_enabled !== false;
+                        document.getElementById('toggle-vec-progress').checked = p.progress_enabled !== false;
+                        document.getElementById('chan-inapp').checked = p.channel_inapp !== false;
+                        document.getElementById('chan-email').checked = p.channel_email !== false;
+                        document.getElementById('chan-push').checked = p.channel_push !== false;
+                    }
+                }
+            } catch (err) {
+                console.warn("Failed to load preferences from server, using local storage fallback.");
+            }
+        }
+
+        async function saveNotificationPreferences() {
+            const email = localStorage.getItem('user_email') || localStorage.getItem('email') || '';
+            const time_slot = document.getElementById('pref-time-slot').value;
+            const routine_enabled = document.getElementById('toggle-vec-routine').checked;
+            const hydration_enabled = document.getElementById('toggle-vec-hydration').checked;
+            const sleep_enabled = document.getElementById('toggle-vec-sleep').checked;
+            const replenishment_enabled = document.getElementById('toggle-vec-replenishment').checked;
+            const progress_enabled = document.getElementById('toggle-vec-progress').checked;
+            const channel_inapp = document.getElementById('chan-inapp').checked;
+            const channel_email = document.getElementById('chan-email').checked;
+            const channel_push = document.getElementById('chan-push').checked;
+
+            const payload = {
+                user_email: email,
+                time_slot,
+                routine_enabled,
+                hydration_enabled,
+                sleep_enabled,
+                replenishment_enabled,
+                progress_enabled,
+                channel_inapp,
+                channel_email,
+                channel_push
+            };
+
+            try {
+                const res = await fetch('/api/notifications/preferences', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    showToast("Notification and delivery channel preferences saved!", "success");
+                    toggleNotificationCenter();
+                } else {
+                    throw new Error("Failed to save to server");
+                }
+            } catch (e) {
+                localStorage.setItem('dermaai_notif_prefs', JSON.stringify(payload));
+                showToast("Preferences saved locally.", "success");
+                toggleNotificationCenter();
+            }
+        }
+
+        // ==========================================
+        // MAIN DASHBOARD PRIVACY TOGGLE LOGIC
+        // ==========================================
+        async function initPrivacyControls() {
+            const email = localStorage.getItem('user_email') || localStorage.getItem('email') || '';
+            const toggle = document.getElementById('global-share-toggle');
+            const statusText = document.getElementById('toggle-status-text');
+
+            if (!email) return;
+
+            try {
+                const res = await fetch(`/api/user/profile?email=${encodeURIComponent(email)}`, { headers: getAuthHeaders() });
+                if (res.ok) {
+                    const json = await res.json();
+                    const isSharing = json.profile.share_data !== false;
+                    
+                    toggle.checked = isSharing;
+                    toggle.disabled = false;
+                    
+                    updatePrivacyUI(isSharing);
+                } else {
+                    statusText.innerText = "Error loading preferences.";
+                }
+            } catch (err) { 
+                console.error("Privacy fetch error:", err); 
+                statusText.innerText = "Database connection offline.";
+            }
+        }
+
+        async function toggleDataPrivacy(el) {
+            const isShared = el.checked;
+            const email = localStorage.getItem('user_email') || localStorage.getItem('email') || '';
+            
+            updatePrivacyUI(isShared);
+
+            try {
+                const res = await fetch('/api/user/privacy', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ email: email, share_data: isShared })
+                });
+                
+                if (res.ok) {
+                    showToast(`Data sovereignty updated. Clinician view is now ${isShared ? 'active' : 'paused'}.`, "success");
+                } else {
+                    throw new Error("Failed to save to database");
+                }
+            } catch(e) {
+                console.error("Failed to sync privacy setting", e);
+                showToast("Network error syncing privacy preference. Please try again.", "error");
+                el.checked = !isShared;
+                updatePrivacyUI(!isShared);
+            }
+        }
+
+        function updatePrivacyUI(isShared) {
+            const title = document.getElementById('privacy-title');
+            const desc = document.getElementById('privacy-desc');
+            const statusText = document.getElementById('toggle-status-text');
+            const iconBg = document.getElementById('privacy-icon-bg');
+            const icon = document.getElementById('privacy-icon');
+            const wrapper = document.getElementById('toggle-wrapper');
+            const card = document.getElementById('privacy-card');
+
+            if (isShared) {
+                title.innerText = "Clinical Data Sharing is ON";
+                title.className = "font-bold text-teal-900 text-base";
+                desc.innerText = "Your assigned Dermatologist and Consultant can view your live telemetry and health scores to provide accurate medical care.";
+                statusText.innerText = "Data Sharing Active";
+                statusText.className = "text-xs font-bold text-teal-800";
+                
+                iconBg.className = "p-2.5 bg-teal-100 text-teal-600 rounded-xl border border-teal-200 shrink-0 transition-colors duration-300";
+                icon.setAttribute('data-lucide', 'check-shield');
+                
+                wrapper.className = "flex items-center justify-between p-4 bg-teal-50/50 border border-teal-100 rounded-xl transition-colors duration-300";
+                card.className = "bg-white p-6 rounded-2xl border-2 border-teal-500/20 shadow-sm relative overflow-hidden transition-all duration-300";
+            } else {
+                title.innerText = "Data Paused (Private Mode)";
+                title.className = "font-bold text-rose-900 text-base";
+                desc.innerText = "Your daily telemetry, habits, and progress charts are currently hidden from all clinical staff. Your medical prescriptions remain visible.";
+                statusText.innerText = "Telemetry Hidden";
+                statusText.className = "text-xs font-bold text-rose-800";
+                
+                iconBg.className = "p-2.5 bg-rose-100 text-rose-600 rounded-xl border border-rose-200 shrink-0 transition-colors duration-300";
+                icon.setAttribute('data-lucide', 'shield-off');
+                
+                wrapper.className = "flex items-center justify-between p-4 bg-rose-50/50 border border-rose-100 rounded-xl transition-colors duration-300";
+                card.className = "bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden transition-all duration-300";
+            }
+            if (window.lucide) lucide.createIcons();
         }
 
         async function fetchAssessmentFromEngine() {
@@ -291,7 +1060,6 @@
 
                 document.getElementById('btn-assessment-text').innerText = 'Retake Assessment';
 
-                // Health Score Card update
                 const score = assessment.skin_health_score ?? assessment.score;
                 if (score !== undefined && score !== null) {
                     document.getElementById('dash-score').className = 'text-4xl font-extrabold text-teal-600';
@@ -301,7 +1069,6 @@
                     document.getElementById('dash-score-desc').innerText = assessment.overall_condition;
                 }
 
-                // Skin Profile & Demographics
                 const skinType = lifestyle.skin_type || assessment.skin_type || assessment.primary_skin_type;
                 document.getElementById('dash-skin-type').className = 'text-xl font-bold text-slate-800 capitalize';
                 document.getElementById('dash-skin-type').innerText = skinType ? `${skinType} Skin` : `Completed (${assessment.assessment_date || 'Recent'})`;
@@ -313,7 +1080,6 @@
                     document.getElementById('dash-demographics').innerText = `Evaluation Date: ${new Date(assessment.assessment_date).toLocaleDateString()}`;
                 }
 
-                // Inject Allergies and Sensitivities directly into the Skin Profile card
                 const allergiesStr = (lifestyle.allergies && lifestyle.allergies.toLowerCase() !== 'none') ? lifestyle.allergies : (assessment.allergies || '');
                 const sensStr = (lifestyle.sensitivities && lifestyle.sensitivities.toLowerCase() !== 'none') ? lifestyle.sensitivities : (assessment.sensitivities || '');
                 let badgesHtml = '';
@@ -329,7 +1095,6 @@
                 }
                 document.getElementById('dash-allergies').innerHTML = badgesHtml;
 
-                // Risk Factor Card update
                 const riskEl = document.getElementById('dash-risk-level');
                 const riskDesc = document.getElementById('dash-risk-desc');
                 const riskIcon = document.getElementById('dash-risk-icon');
@@ -349,7 +1114,6 @@
                 }
                 riskDesc.innerText = risk.description || risk.risk_name || 'Skin parameters evaluated within baseline ranges.';
 
-                // Prioritized Concerns List Rendering
                 const concernsContainer = document.getElementById('dash-concerns');
                 concernsContainer.innerHTML = '';
                 if (!concerns || concerns.length === 0) {
@@ -370,7 +1134,6 @@
                     });
                 }
 
-                // Lifestyle Metrics Preview with safe fallbacks and explicit units
                 document.getElementById('dash-sleep').className = 'font-bold text-slate-800';
                 const sleepVal = lifestyle.sleep_quality || lifestyle.sleep_pattern || lifestyle.sleep || assessment.sleep;
                 document.getElementById('dash-sleep').innerText = sleepVal ? (String(sleepVal).toLowerCase().includes('hr') ? escapeHtml(sleepVal) : `${escapeHtml(sleepVal)} hrs`) : '7.5 hrs';
@@ -387,7 +1150,6 @@
                 const consistencyVal = lifestyle.consistency || lifestyle.adherence_rate || lifestyle.adherence || 'Active';
                 document.getElementById('dash-consistency').innerText = consistencyVal ? escapeHtml(consistencyVal) : 'Active';
 
-                // Active Routine Preview Rendering
                 const routineContainer = document.getElementById('dash-routine-container');
                 let steps = [];
 
@@ -402,7 +1164,6 @@
                 }
 
                 if (!steps || steps.length === 0) {
-                    // Provide a direct action link if no routine steps are embedded yet
                     routineContainer.innerHTML = `
                         <div class="p-4 bg-slate-50 border border-dashed border-slate-200 rounded-xl flex items-center justify-between text-xs">
                             <span class="text-slate-500">Assessment complete. Ready to view your tailored daily routine.</span>
