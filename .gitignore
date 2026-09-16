@@ -19,3 +19,5 @@ backend/datasets/
 .vite/
 
 backend/uploads/
+.vercel
+.env*

@@ -1,0 +1,26 @@
+# Exclude backend from Vercel frontend deployment
+backend/
+*.pyc
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python virtual environments
+venv/
+env/
+ENV/
+
+# Test and artifact files
+test_*.py
+*_test.py
+*_results.json
+*.md
+!README.md
+
+# Git
+.git/
+.gitignore
+
+# Development
+.vscode/
+.DS_Store

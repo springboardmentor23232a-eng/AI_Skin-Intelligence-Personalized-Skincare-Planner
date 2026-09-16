@@ -8,9 +8,12 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def register_user(user: schemas.UserCreate, db: Session):
 
+    # Normalize email to lowercase for consistent storage and lookup
+    normalized_email = user.email.strip().lower()
+
     # Check if email already exists
     existing_user = db.query(models.User).filter(
-        models.User.email == user.email
+        models.User.email == normalized_email
     ).first()
 
     if existing_user:
@@ -19,7 +22,7 @@ def register_user(user: schemas.UserCreate, db: Session):
     # Hash the password using BCrypt
     hashed_password = pwd_context.hash(user.password)
 
-    display_name = user.full_name or user.name or user.email.split('@')[0]
+    display_name = user.full_name or user.name or normalized_email.split('@')[0]
     
     # Store standard user role as "USER" (not "CONSUMER")
     requested_role = (user.role or "USER").upper()
@@ -33,7 +36,7 @@ def register_user(user: schemas.UserCreate, db: Session):
     # Create new user in PostgreSQL with provider = "LOCAL" and role = "USER"
     new_user = models.User(
         full_name=display_name,
-        email=user.email,
+        email=normalized_email,
         password=hashed_password,
         role=user_role,
         provider="LOCAL",
@@ -47,8 +50,11 @@ def register_user(user: schemas.UserCreate, db: Session):
 
 def login_user(user: schemas.UserLogin, db: Session):
 
+    # Normalize email to lowercase for consistent lookup
+    normalized_email = user.email.strip().lower()
+
     existing_user = db.query(models.User).filter(
-        models.User.email == user.email
+        models.User.email == normalized_email
     ).first()
 
     if existing_user is None:
