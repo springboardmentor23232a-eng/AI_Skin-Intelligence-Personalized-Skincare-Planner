@@ -43,7 +43,16 @@ document.getElementById("registerForm").addEventListener("submit", async functio
             }
         );
 
-        const data = await response.json();
+        let data;
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+            data = await response.json();
+        } else {
+            const rawText = await response.text();
+            console.error("Non-JSON Response from server:", rawText);
+            data = { message: "Server connection failed. Please try again." };
+        }
+
         console.log("Register Response:", data);
 
         if (response.ok) {

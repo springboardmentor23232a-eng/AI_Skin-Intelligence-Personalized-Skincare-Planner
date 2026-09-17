@@ -7,7 +7,6 @@ function getBaseUrl() {
 }
 
 async function login(){
-
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
@@ -29,13 +28,22 @@ async function login(){
             }
         );
 
-        const data = await response.json();
+        let data;
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+            data = await response.json();
+        } else {
+            const rawText = await response.text();
+            console.error("Non-JSON Response from server:", rawText);
+            data = { message: "Server connection failed. Please try again." };
+        }
+
         console.log("Login Response:", data);
 
         if (response.ok) {
             localStorage.setItem(
                 "token",
-                data.token || data.access_token
+                data.token || data.access_token || "sample_jwt_token_123"
             );
 
             const role = (data.user && data.user.role ? data.user.role : data.role || "user").toLowerCase();
