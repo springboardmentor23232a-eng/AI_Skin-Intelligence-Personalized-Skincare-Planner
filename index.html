@@ -9,13 +9,15 @@
   <link rel="shortcut icon" href="assets/logo.png" type="image/png">
   <link rel="stylesheet" href="css/style.css">
   <!-- Google Identity Services SDK for OAuth 2.0 -->
-  <script src="https://accounts.google.com/gsi/client" async defer onload="window.app && window.app.renderGoogleButton && window.app.renderGoogleButton()"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer
+    onload="window.app && window.app.renderGoogleButton && window.app.renderGoogleButton()"></script>
 </head>
 
 <body>
   <!-- Navigation Header -->
   <header class="navbar">
-    <div class="brand" id="brand-home" onclick="window.app.navigateToView('landing')" style="cursor: pointer;" title="Panacea AI - Home / Landing Page">
+    <div class="brand" id="brand-home" onclick="window.app.navigateToView('landing')" style="cursor: pointer;"
+      title="Panacea AI - Home / Landing Page">
       <img src="assets/logo.png" alt="PanaceaAI Logo" class="brand-logo-img">
       <span>Panacea AI</span>
     </div>
@@ -23,19 +25,38 @@
     <!-- Center Luxury Clinic Navigation Capsule (Active only upon authenticated login) -->
     <nav class="center-nav-capsule hidden" id="center-nav-capsule">
       <button class="nav-capsule-item" id="nav-item-products" onclick="window.app.navigateToView('products')">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <path d="M16 10a4 4 0 0 1-8 0"></path>
+        </svg>
         <span>Products</span>
       </button>
       <button class="nav-capsule-item" id="nav-item-appointments" onclick="window.app.navigateToView('consultations')">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
         <span>Appointments</span>
       </button>
       <button class="nav-capsule-item" id="nav-item-progress" onclick="window.app.navigateToView('progress')">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"></path><path d="M12 20V4"></path><path d="M6 20v-6"></path></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 20V10"></path>
+          <path d="M12 20V4"></path>
+          <path d="M6 20v-6"></path>
+        </svg>
         <span>Progress Tracking</span>
       </button>
       <button class="nav-capsule-item" id="nav-item-chat" onclick="window.app.navigateToView('chat')">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
         <span>Clinic Chat</span>
       </button>
     </nav>
@@ -45,22 +66,28 @@
       <!-- Search Input Pill -->
       <div class="nav-search-pill">
         <span>🔍</span>
-        <input type="text" placeholder="Search..." onkeydown="if(event.key==='Enter'){window.app.navigateToView('products'); window.app.handleProductSearchInput(this.value);}">
+        <input type="text" placeholder="Search..."
+          onkeydown="if(event.key==='Enter'){window.app.navigateToView('products'); window.app.handleProductSearchInput(this.value);}">
       </div>
 
       <!-- Notifications Icon & Trigger (Visible only upon authenticated login) -->
-      <button id="nav-notifications-btn" class="nav-icon-circle-btn hidden" onclick="window.app.toggleNotificationDrawer()" title="Notifications & Reminders" style="display: none;">
+      <button id="nav-notifications-btn" class="nav-icon-circle-btn hidden"
+        onclick="window.app.toggleNotificationDrawer()" title="Notifications & Reminders" style="display: none;">
         <span>🔔</span>
         <span id="nav-notification-badge" class="nav-icon-badge-num">0</span>
       </button>
 
       <!-- Profile Avatar & Dropdown -->
       <div id="nav-user-menu-wrapper" class="nav-user-menu-wrapper hidden">
-        <button id="nav-user-dp-btn" class="nav-user-dp-btn" onclick="window.app.toggleUserDropdown(event)" title="Account Settings & Profile" aria-label="User profile and settings">
+        <button id="nav-user-dp-btn" class="nav-user-dp-btn" onclick="window.app.toggleUserDropdown(event)"
+          title="Account Settings & Profile" aria-label="User profile and settings">
           <div id="nav-role-badge" class="role-badge-active">
             <!-- Injected dynamically by app.js -->
           </div>
-          <svg class="dropdown-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          <svg class="dropdown-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
         </button>
 
         <div id="user-profile-dropdown" class="user-profile-dropdown hidden">
@@ -75,36 +102,71 @@
           <div class="dropdown-divider"></div>
           <div class="dropdown-menu-list">
             <button class="dropdown-item" onclick="window.app.navigateToView('dashboard')">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
               <span>Client Dashboard</span>
             </button>
             <button class="dropdown-item" onclick="window.app.navigateToView('chat')">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
               <span>Clinic Chat & Lumina AI</span>
             </button>
             <button class="dropdown-item" id="dropdown-item-progress" onclick="window.app.navigateToView('progress')">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"></path><path d="M12 20V4"></path><path d="M6 20v-6"></path></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 20V10"></path>
+                <path d="M12 20V4"></path>
+                <path d="M6 20v-6"></path>
+              </svg>
               <span>Progress & Analytics Lab</span>
             </button>
             <button class="dropdown-item" onclick="window.app.navigateToView('products')">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <path d="M16 10a4 4 0 0 1-8 0"></path>
+              </svg>
               <span>Explore Products</span>
             </button>
             <button class="dropdown-item" onclick="window.app.navigateToView('consultations')">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
               <span>Consultations & Privacy</span>
             </button>
             <button class="dropdown-item" onclick="window.app.openUserSettingsModal(event)">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path
+                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                </path>
+              </svg>
               <span>User Settings & Profile</span>
             </button>
             <button class="dropdown-item" onclick="window.app.navigateToUserSettings(event)">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
               <span>Full Settings Page</span>
             </button>
             <div class="dropdown-divider"></div>
             <button class="dropdown-item dropdown-item-danger" onclick="window.app.handleUserLogout()">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+              </svg>
               <span>Log Out</span>
             </button>
           </div>
@@ -135,7 +197,8 @@
         <button class="close-btn" onclick="window.app.closeLoginModal()">×</button>
       </div>
 
-      <form id="modal-login-form" onsubmit="window.app.handleModalLoginSubmit(event)" autocomplete="off" novalidate style="margin-bottom: 1rem;">
+      <form id="modal-login-form" onsubmit="window.app.handleModalLoginSubmit(event)" autocomplete="off" novalidate
+        style="margin-bottom: 1rem;">
         <div class="form-group">
           <label for="modal-login-role">Select Login Role</label>
           <select id="modal-login-role" class="form-control" style="font-weight: 600; color: var(--gold-primary);">
@@ -150,9 +213,14 @@
           <label for="modal-login-username">Username or Email</label>
           <div class="input-with-icon">
             <span class="input-icon">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
             </span>
-            <input type="text" id="modal-login-username" class="form-control" placeholder="Enter username or email" autocomplete="off">
+            <input type="text" id="modal-login-username" class="form-control" placeholder="Enter username or email"
+              autocomplete="off">
           </div>
         </div>
 
@@ -160,11 +228,21 @@
           <label for="modal-login-password">Password</label>
           <div class="input-with-icon">
             <span class="input-icon">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
             </span>
-            <input type="password" id="modal-login-password" class="form-control" placeholder="Enter your password" autocomplete="new-password">
-            <button type="button" class="password-toggle-btn" title="Toggle Password Visibility" onclick="window.app.togglePasswordVisibility('modal-login-password', this)">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            <input type="password" id="modal-login-password" class="form-control" placeholder="Enter your password"
+              autocomplete="new-password">
+            <button type="button" class="password-toggle-btn" title="Toggle Password Visibility"
+              onclick="window.app.togglePasswordVisibility('modal-login-password', this)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
             </button>
           </div>
         </div>
@@ -172,26 +250,33 @@
         <div id="modal-login-alert" class="login-alert-box hidden" style="margin-bottom: 1rem;"></div>
 
         <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
-          <input type="checkbox" id="modal-login-remember" style="accent-color: var(--gold-primary); width: 16px; height: 16px;">
-          <label for="modal-login-remember" style="font-size: 0.82rem; color: #94a3b8; cursor: pointer; margin: 0;">Remember me on this device</label>
+          <input type="checkbox" id="modal-login-remember"
+            style="accent-color: var(--gold-primary); width: 16px; height: 16px;">
+          <label for="modal-login-remember"
+            style="font-size: 0.82rem; color: #94a3b8; cursor: pointer; margin: 0;">Remember me on this device</label>
         </div>
 
-        <button type="submit" id="modal-login-submit-btn" class="btn btn-primary" style="width: 100%; padding: 0.75rem;">Log In to Portal</button>
+        <button type="submit" id="modal-login-submit-btn" class="btn btn-primary"
+          style="width: 100%; padding: 0.75rem;">Log In to Portal</button>
       </form>
 
       <!-- Register Mode Section -->
-      <form id="modal-register-form" onsubmit="window.app.handleModalRegisterSubmit(event)" autocomplete="off" novalidate class="hidden" style="margin-bottom: 1rem;">
+      <form id="modal-register-form" onsubmit="window.app.handleModalRegisterSubmit(event)" autocomplete="off"
+        novalidate class="hidden" style="margin-bottom: 1rem;">
         <div class="form-group">
           <label for="modal-reg-username">Choose Username</label>
-          <input type="text" id="modal-reg-username" class="form-control" placeholder="Choose a username" autocomplete="off" required>
+          <input type="text" id="modal-reg-username" class="form-control" placeholder="Choose a username"
+            autocomplete="off" required>
         </div>
         <div class="form-group">
           <label for="modal-reg-email">Email Address</label>
-          <input type="email" id="modal-reg-email" class="form-control" placeholder="Enter email address" autocomplete="off" required>
+          <input type="email" id="modal-reg-email" class="form-control" placeholder="Enter email address"
+            autocomplete="off" required>
         </div>
         <div class="form-group">
           <label for="modal-reg-password">Password</label>
-          <input type="password" id="modal-reg-password" class="form-control" placeholder="Create password" autocomplete="new-password" required>
+          <input type="password" id="modal-reg-password" class="form-control" placeholder="Create password"
+            autocomplete="new-password" required>
         </div>
         <div class="form-group">
           <label for="modal-reg-role">Account Role (Admin registration prohibited)</label>
@@ -202,29 +287,45 @@
           </select>
         </div>
         <div id="modal-reg-alert" class="login-alert-box hidden" style="margin-bottom: 1rem;"></div>
-        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem;">Submit for Admin Verification</button>
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem;">Submit for Admin
+          Verification</button>
       </form>
 
       <!-- Toggle between Login & Register -->
       <div style="text-align: center; margin-bottom: 1rem;">
-        <a href="#" id="modal-toggle-auth-link" onclick="window.app.toggleModalAuthMode(event)" style="font-size: 0.85rem; color: var(--gold-primary); text-decoration: underline;">
+        <a href="#" id="modal-toggle-auth-link" onclick="window.app.toggleModalAuthMode(event)"
+          style="font-size: 0.85rem; color: var(--gold-primary); text-decoration: underline;">
           Need a new account? Register here
         </a>
       </div>
 
       <!-- Google OAuth 2.0 Sign In Section -->
-      <div style="border-top: 1px solid var(--border-light); padding-top: 1rem; margin-top: 0.75rem; text-align: center;">
+      <div
+        style="border-top: 1px solid var(--border-light); padding-top: 1rem; margin-top: 0.75rem; text-align: center;">
         <div class="form-group" style="margin-bottom: 0.75rem; text-align: left;">
-          <label for="modal-oauth-role" style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Account Role for Google Sign In:</label>
+          <label for="modal-oauth-role" style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Account
+            Role for Google Sign In:</label>
           <select id="modal-oauth-role" class="form-control" style="font-size: 0.85rem;">
             <option value="user">User / Patient</option>
             <option value="consultant">Skincare Consultant</option>
             <option value="dermatologist">Dermatologist Doctor</option>
           </select>
         </div>
-        <div id="google-gsi-button-container" style="display: flex; justify-content: center; margin-bottom: 0.5rem; width: 100%;"></div>
-        <button type="button" id="google-oauth-btn" class="btn btn-outline" onclick="window.app.handleGoogleOAuthLogin()" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; padding: 0.7rem; border-radius: var(--radius-sm); border: 1px solid var(--border-light); background: #FFFFFF; color: var(--text-primary); transition: var(--transition);">
-          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+        <div id="google-gsi-button-container"
+          style="display: flex; justify-content: center; margin-bottom: 0.5rem; width: 100%;"></div>
+        <button type="button" id="google-oauth-btn" class="btn btn-outline"
+          onclick="window.app.handleGoogleOAuthLogin()"
+          style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; padding: 0.7rem; border-radius: var(--radius-sm); border: 1px solid var(--border-light); background: #FFFFFF; color: var(--text-primary); transition: var(--transition);">
+          <svg width="18" height="18" viewBox="0 0 24 24">
+            <path fill="#4285F4"
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+            <path fill="#34A853"
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+            <path fill="#FBBC05"
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+            <path fill="#EA4335"
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+          </svg>
           <span id="google-btn-text">Continue with Google</span>
         </button>
       </div>
@@ -233,43 +334,70 @@
 
   <!-- OAuth First-Time Password Setup Modal -->
   <div id="oauth-password-modal" class="modal-backdrop hidden" style="z-index: 10500;">
-    <div class="modal-card" style="max-width: 460px; padding: 2rem; border-radius: var(--radius-md); box-shadow: var(--shadow-xl); background: #FFFFFF;">
+    <div class="modal-card"
+      style="max-width: 460px; padding: 2rem; border-radius: var(--radius-md); box-shadow: var(--shadow-xl); background: #FFFFFF;">
       <div class="modal-header" style="margin-bottom: 1.25rem;">
         <div>
           <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
-            <span style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: rgba(197, 160, 89, 0.15); border-radius: 50%; color: var(--gold-primary);">
-              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            <span
+              style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: rgba(197, 160, 89, 0.15); border-radius: 50%; color: var(--gold-primary);">
+              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
             </span>
-            <h3 style="font-family: var(--font-serif); font-size: 1.35rem; color: var(--navy-primary); margin: 0;">Security: Create Password</h3>
+            <h3 style="font-family: var(--font-serif); font-size: 1.35rem; color: var(--navy-primary); margin: 0;">
+              Security: Create Password</h3>
           </div>
-          <p style="font-size: 0.84rem; color: var(--text-muted); margin: 0; line-height: 1.45;">Welcome! Since you registered with Google OAuth, please create a secure master password to enable credential access for future logins.</p>
+          <p style="font-size: 0.84rem; color: var(--text-muted); margin: 0; line-height: 1.45;">Welcome! Since you
+            registered with Google OAuth, please create a secure master password to enable credential access for future
+            logins.</p>
         </div>
       </div>
 
-      <form id="oauth-password-form" onsubmit="window.app.handleOAuthPasswordSubmit(event)" autocomplete="off" novalidate>
+      <form id="oauth-password-form" onsubmit="window.app.handleOAuthPasswordSubmit(event)" autocomplete="off"
+        novalidate>
         <div class="form-group" style="margin-bottom: 1rem;">
-          <label for="oauth-new-password" style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.35rem; display: block;">Create Password (min 6 characters)</label>
+          <label for="oauth-new-password"
+            style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.35rem; display: block;">Create
+            Password (min 6 characters)</label>
           <div style="position: relative;">
-            <input type="password" id="oauth-new-password" class="form-control" placeholder="Enter new password" autocomplete="new-password" required minlength="6" style="padding-right: 42px;">
-            <button type="button" class="password-toggle-btn" title="Toggle Password Visibility" onclick="window.app.togglePasswordVisibility('oauth-new-password', this)">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            <input type="password" id="oauth-new-password" class="form-control" placeholder="Enter new password"
+              autocomplete="new-password" required minlength="6" style="padding-right: 42px;">
+            <button type="button" class="password-toggle-btn" title="Toggle Password Visibility"
+              onclick="window.app.togglePasswordVisibility('oauth-new-password', this)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
             </button>
           </div>
         </div>
 
         <div class="form-group" style="margin-bottom: 1.25rem;">
-          <label for="oauth-confirm-password" style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.35rem; display: block;">Confirm Password</label>
+          <label for="oauth-confirm-password"
+            style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.35rem; display: block;">Confirm
+            Password</label>
           <div style="position: relative;">
-            <input type="password" id="oauth-confirm-password" class="form-control" placeholder="Re-enter password" autocomplete="new-password" required minlength="6" style="padding-right: 42px;">
-            <button type="button" class="password-toggle-btn" title="Toggle Password Visibility" onclick="window.app.togglePasswordVisibility('oauth-confirm-password', this)">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            <input type="password" id="oauth-confirm-password" class="form-control" placeholder="Re-enter password"
+              autocomplete="new-password" required minlength="6" style="padding-right: 42px;">
+            <button type="button" class="password-toggle-btn" title="Toggle Password Visibility"
+              onclick="window.app.togglePasswordVisibility('oauth-confirm-password', this)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
             </button>
           </div>
         </div>
 
         <div id="oauth-password-alert" class="login-alert-box hidden" style="margin-bottom: 1rem;"></div>
 
-        <button type="submit" id="oauth-password-submit-btn" class="btn btn-primary" style="width: 100%; padding: 0.8rem; font-weight: 600; font-size: 0.95rem; border-radius: var(--radius-sm);">Save Password & Proceed to Portal</button>
+        <button type="submit" id="oauth-password-submit-btn" class="btn btn-primary"
+          style="width: 100%; padding: 0.8rem; font-weight: 600; font-size: 0.95rem; border-radius: var(--radius-sm);">Save
+          Password & Proceed to Portal</button>
       </form>
     </div>
   </div>
@@ -285,7 +413,8 @@
         <button class="close-btn" onclick="window.app.closeModal('assessment-modal')">×</button>
       </div>
 
-      <form id="survey-form" onsubmit="window.app.handleSurveySubmit(event)" style="display: flex; flex-direction: column; gap: 0.85rem; max-height: 70vh; overflow-y: auto; padding-right: 0.5rem;">
+      <form id="survey-form" onsubmit="window.app.handleSurveySubmit(event)"
+        style="display: flex; flex-direction: column; gap: 0.85rem; max-height: 70vh; overflow-y: auto; padding-right: 0.5rem;">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
           <div class="form-group">
             <label>Skin Type Profile</label>
@@ -396,7 +525,8 @@
           <small>Selected: <strong id="stress-val" style="color: var(--gold-primary);">4</strong>/10</small>
         </div>
 
-        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">Calculate Clinical Skin Score & Routine</button>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">Calculate Clinical Skin
+          Score & Routine</button>
       </form>
     </div>
   </div>
@@ -447,20 +577,24 @@
       <div class="modal-header">
         <div>
           <h3>Account & Profile Settings</h3>
-          <p class="text-muted" style="font-size: 0.85rem;">Edit your personal profile details, avatar, and skincare preferences</p>
+          <p class="text-muted" style="font-size: 0.85rem;">Edit your personal profile details, avatar, and skincare
+            preferences</p>
         </div>
         <button class="close-btn" onclick="window.app.closeModal('user-settings-modal')">×</button>
       </div>
 
-      <div class="settings-profile-preview" style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; background: rgba(197,155,39,0.06); border-radius: var(--radius-sm); margin-bottom: 1.25rem; border: 1px solid var(--border-gold);">
+      <div class="settings-profile-preview"
+        style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; background: rgba(197,155,39,0.06); border-radius: var(--radius-sm); margin-bottom: 1.25rem; border: 1px solid var(--border-gold);">
         <div style="display: flex; align-items: center; gap: 1rem;">
-          <img id="settings-avatar-img" src="" alt="User Avatar" style="width: 56px; height: 56px; border-radius: 50%; border: 2px solid var(--gold-primary); background: #fff;">
+          <img id="settings-avatar-img" src="" alt="User Avatar"
+            style="width: 56px; height: 56px; border-radius: 50%; border: 2px solid var(--gold-primary); background: #fff;">
           <div>
             <h4 id="settings-user-name" style="margin: 0; font-size: 1.1rem; color: var(--text-primary);">User</h4>
             <span id="settings-user-role" class="badge" style="font-size: 0.75rem;">Role</span>
           </div>
         </div>
-        <button type="button" class="btn btn-outline btn-sm" onclick="window.app.randomizeAvatar()" style="font-size: 0.78rem; padding: 0.4rem 0.8rem;">Change Avatar</button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="window.app.randomizeAvatar()"
+          style="font-size: 0.78rem; padding: 0.4rem 0.8rem;">Change Avatar</button>
       </div>
 
       <form id="settings-profile-form" onsubmit="window.app.saveUserSettings(event)">
@@ -471,7 +605,8 @@
           </div>
           <div class="form-group">
             <label for="settings-user-email">Email Address</label>
-            <input type="text" id="settings-user-email" class="form-control" readonly style="background: rgba(0,0,0,0.03); opacity: 0.8;">
+            <input type="text" id="settings-user-email" class="form-control" readonly
+              style="background: rgba(0,0,0,0.03); opacity: 0.8;">
           </div>
         </div>
 
@@ -500,165 +635,229 @@
 
         <div class="form-group">
           <label for="settings-primary-goal">Primary Skincare Focus</label>
-          <input type="text" id="settings-primary-goal" class="form-control" placeholder="e.g. Barrier Repair, Acne & Breakout Prevention">
+          <input type="text" id="settings-primary-goal" class="form-control"
+            placeholder="e.g. Barrier Repair, Acne & Breakout Prevention">
         </div>
 
         <div class="form-group">
           <label for="settings-allergies">Known Allergies & Sensitivity Triggers</label>
-          <input type="text" id="settings-allergies" class="form-control" placeholder="e.g. Fragrance (Parfum), Essential Oils, Alcohol Denat">
+          <input type="text" id="settings-allergies" class="form-control"
+            placeholder="e.g. Fragrance (Parfum), Essential Oils, Alcohol Denat">
         </div>
 
         <div class="form-group">
           <label>Notification & Telemetry Preferences</label>
           <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.25rem;">
             <label style="font-size: 0.85rem; color: var(--text-muted); font-weight: normal; cursor: pointer;">
-              <input type="checkbox" id="settings-pref-reminders" checked style="accent-color: var(--gold-primary); margin-right: 0.4rem;"> Daily AM/PM Skincare Routine Reminders
+              <input type="checkbox" id="settings-pref-reminders" checked
+                style="accent-color: var(--gold-primary); margin-right: 0.4rem;"> Daily AM/PM Skincare Routine Reminders
             </label>
             <label style="font-size: 0.85rem; color: var(--text-muted); font-weight: normal; cursor: pointer;">
-              <input type="checkbox" id="settings-pref-reports" checked style="accent-color: var(--gold-primary); margin-right: 0.4rem;"> Weekly Diagnostic Telemetry Reports
+              <input type="checkbox" id="settings-pref-reports" checked
+                style="accent-color: var(--gold-primary); margin-right: 0.4rem;"> Weekly Diagnostic Telemetry Reports
             </label>
           </div>
         </div>
 
         <div id="settings-alert-box" class="login-alert-box hidden" style="margin-bottom: 0.75rem;"></div>
 
-        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem;">Save Profile & Preferences</button>
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem;">Save Profile &
+          Preferences</button>
       </form>
     </div>
   </div>
 
   <!-- ML PHOTO UPLOAD & LIVE WEBCAM SCAN MODAL WITH ANIMATED PROGRESS BAR & RESULTS -->
   <div id="photo-scan-modal" class="modal-overlay hidden">
-    <div class="modal-card" style="max-width: 660px; max-height: 92vh; overflow-y: auto; background: #FFFFFF; padding: 1.5rem; border-radius: var(--radius-md);">
-      <div class="modal-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 0.75rem; margin-bottom: 1rem;">
+    <div class="modal-card"
+      style="max-width: 660px; max-height: 92vh; overflow-y: auto; background: #FFFFFF; padding: 1.5rem; border-radius: var(--radius-md);">
+      <div class="modal-header"
+        style="border-bottom: 1px solid var(--border-light); padding-bottom: 0.75rem; margin-bottom: 1rem;">
         <div>
-          <span class="section-tag-pill" style="font-size: 0.7rem; padding: 0.15rem 0.6rem; background: rgba(197, 155, 39, 0.12); color: var(--gold-primary);">OPTICAL BIOMARKER & LESION CLASSIFIER</span>
-          <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-top: 0.2rem;">ML Skin Analyzer & Diagnostic Engine</h3>
-          <p class="text-muted" style="font-size: 0.8rem; margin: 0;">Upload photo or capture live webcam feed for optical biomarker analysis</p>
+          <span class="section-tag-pill"
+            style="font-size: 0.7rem; padding: 0.15rem 0.6rem; background: rgba(197, 155, 39, 0.12); color: var(--gold-primary);">OPTICAL
+            BIOMARKER & LESION CLASSIFIER</span>
+          <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-top: 0.2rem;">ML Skin Analyzer &
+            Diagnostic Engine</h3>
+          <p class="text-muted" style="font-size: 0.8rem; margin: 0;">Upload photo or capture live webcam feed for
+            optical biomarker analysis</p>
         </div>
         <button class="modal-close" onclick="window.app.closeModal('photo-scan-modal')">&times;</button>
       </div>
 
       <!-- Mode Switcher Tabs -->
-      <div id="scan-mode-tabs" style="display: flex; gap: 0.5rem; background: #FAF9F6; padding: 0.3rem; border-radius: 20px; border: 1px solid var(--border-light); margin-bottom: 1.25rem;">
-        <button id="scan-tab-webcam" class="tab-btn active" style="flex: 1; text-align: center; font-size: 0.82rem; padding: 0.4rem;" onclick="window.app.switchScanTab('webcam')">📷 Live Webcam Capture</button>
-        <button id="scan-tab-file" class="tab-btn" style="flex: 1; text-align: center; font-size: 0.82rem; padding: 0.4rem;" onclick="window.app.switchScanTab('file')">📁 Photo File Upload</button>
+      <div id="scan-mode-tabs"
+        style="display: flex; gap: 0.5rem; background: #FAF9F6; padding: 0.3rem; border-radius: 20px; border: 1px solid var(--border-light); margin-bottom: 1.25rem;">
+        <button id="scan-tab-webcam" class="tab-btn active"
+          style="flex: 1; text-align: center; font-size: 0.82rem; padding: 0.4rem;"
+          onclick="window.app.switchScanTab('webcam')">📷 Live Webcam Capture</button>
+        <button id="scan-tab-file" class="tab-btn"
+          style="flex: 1; text-align: center; font-size: 0.82rem; padding: 0.4rem;"
+          onclick="window.app.switchScanTab('file')">📁 Photo File Upload</button>
       </div>
 
       <!-- Live Webcam Mode View -->
       <div id="scan-view-webcam">
-        <div style="position: relative; background: #111; border-radius: var(--radius-sm); overflow: hidden; text-align: center; margin-bottom: 0.85rem; border: 1px solid var(--border-light);">
-          <video id="webcam-video" autoplay playsinline style="width: 100%; height: 240px; object-fit: cover; background: #000;"></video>
+        <div
+          style="position: relative; background: #111; border-radius: var(--radius-sm); overflow: hidden; text-align: center; margin-bottom: 0.85rem; border: 1px solid var(--border-light);">
+          <video id="webcam-video" autoplay playsinline
+            style="width: 100%; height: 240px; object-fit: cover; background: #000;"></video>
           <canvas id="webcam-canvas" style="display: none;"></canvas>
           <img id="webcam-preview-img" style="display: none; width: 100%; height: 240px; object-fit: cover;" />
-          <div id="webcam-status-overlay" style="position: absolute; bottom: 8px; left: 8px; right: 8px; background: rgba(0,0,0,0.65); color: #fff; padding: 0.35rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; text-align: center;">
+          <div id="webcam-status-overlay"
+            style="position: absolute; bottom: 8px; left: 8px; right: 8px; background: rgba(0,0,0,0.65); color: #fff; padding: 0.35rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; text-align: center;">
             Click "Start Camera" to align your face in frame
           </div>
         </div>
 
         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
-          <button id="btn-start-cam" class="btn btn-sm btn-outline" style="flex: 1; font-size: 0.8rem;" onclick="window.app.startWebcamStream()">📷 Start Camera</button>
-          <button id="btn-capture-cam" class="btn btn-sm btn-primary" style="flex: 1; font-size: 0.8rem;" onclick="window.app.captureWebcamSnapshot()" disabled>📸 Capture Snapshot</button>
-          <button id="btn-stop-cam" class="btn btn-sm btn-outline" style="font-size: 0.8rem;" onclick="window.app.stopWebcamStream()">🛑 Stop Camera</button>
+          <button id="btn-start-cam" class="btn btn-sm btn-outline" style="flex: 1; font-size: 0.8rem;"
+            onclick="window.app.startWebcamStream()">📷 Start Camera</button>
+          <button id="btn-capture-cam" class="btn btn-sm btn-primary" style="flex: 1; font-size: 0.8rem;"
+            onclick="window.app.captureWebcamSnapshot()" disabled>📸 Capture Snapshot</button>
+          <button id="btn-stop-cam" class="btn btn-sm btn-outline" style="font-size: 0.8rem;"
+            onclick="window.app.stopWebcamStream()">🛑 Stop Camera</button>
         </div>
 
-        <button id="btn-analyze-webcam" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-weight: 700;" onclick="window.app.submitWebcamForMLAnalysis()" disabled>
+        <button id="btn-analyze-webcam" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-weight: 700;"
+          onclick="window.app.submitWebcamForMLAnalysis()" disabled>
           ✨ Run ML Diagnostic Classifier Scan
         </button>
       </div>
 
       <!-- Photo File Mode View -->
       <div id="scan-view-file" class="hidden">
-        <div id="file-drop-zone" onclick="document.getElementById('photo-file-input').click()" style="border: 2px dashed var(--gold-primary); border-radius: var(--radius-sm); padding: 1.8rem; text-align: center; background: #FAF9F6; cursor: pointer; margin-bottom: 1rem; transition: var(--transition);">
+        <div id="file-drop-zone" onclick="document.getElementById('photo-file-input').click()"
+          style="border: 2px dashed var(--gold-primary); border-radius: var(--radius-sm); padding: 1.8rem; text-align: center; background: #FAF9F6; cursor: pointer; margin-bottom: 1rem; transition: var(--transition);">
           <div style="font-size: 2.2rem; margin-bottom: 0.4rem;">📸</div>
-          <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.2rem;">Click to Select & Upload Skin Photo</h4>
-          <p class="text-muted" style="font-size: 0.8rem; margin: 0;">Supports JPG, PNG, WEBP (Clear facial lighting recommended)</p>
-          <input type="file" id="photo-file-input" accept="image/*" style="display: none;" onchange="window.app.handleFileSelect(event)">
+          <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.2rem;">Click to Select & Upload Skin Photo
+          </h4>
+          <p class="text-muted" style="font-size: 0.8rem; margin: 0;">Supports JPG, PNG, WEBP (Clear facial lighting
+            recommended)</p>
+          <input type="file" id="photo-file-input" accept="image/*" style="display: none;"
+            onchange="window.app.handleFileSelect(event)">
         </div>
 
         <div id="file-preview-container" class="hidden" style="margin-bottom: 1rem; text-align: center;">
-          <img id="file-preview-img" style="max-width: 100%; max-height: 220px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); object-fit: contain;" />
+          <img id="file-preview-img"
+            style="max-width: 100%; max-height: 220px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); object-fit: contain;" />
         </div>
 
-        <button id="btn-analyze-file" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-weight: 700;" onclick="window.app.submitFileForMLAnalysis()" disabled>
+        <button id="btn-analyze-file" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-weight: 700;"
+          onclick="window.app.submitFileForMLAnalysis()" disabled>
           ✨ Run ML Diagnostic Classifier Scan
         </button>
       </div>
 
       <!-- ANIMATED SCAN ANALYSIS PROGRESS BAR CONTAINER -->
-      <div id="scan-progress-container" class="hidden" style="margin-top: 1.25rem; padding: 1.2rem; background: #FAF9F6; border: 1px solid var(--border-gold); border-radius: var(--radius-sm);">
+      <div id="scan-progress-container" class="hidden"
+        style="margin-top: 1.25rem; padding: 1.2rem; background: #FAF9F6; border: 1px solid var(--border-gold); border-radius: var(--radius-sm);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-          <span id="scan-progress-status" style="font-size: 0.82rem; font-weight: 700; color: var(--gold-primary);">⚡ Initializing ML Neural Scanner...</span>
-          <span id="scan-progress-percent" style="font-size: 0.88rem; font-weight: 800; color: var(--text-primary);">0%</span>
+          <span id="scan-progress-status" style="font-size: 0.82rem; font-weight: 700; color: var(--gold-primary);">⚡
+            Initializing ML Neural Scanner...</span>
+          <span id="scan-progress-percent"
+            style="font-size: 0.88rem; font-weight: 800; color: var(--text-primary);">0%</span>
         </div>
-        <div style="height: 10px; background: rgba(0,0,0,0.08); border-radius: 6px; overflow: hidden; margin-bottom: 0.5rem;">
-          <div id="scan-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--gold-primary), var(--accent-emerald)); border-radius: 6px; transition: width 0.2s ease;"></div>
+        <div
+          style="height: 10px; background: rgba(0,0,0,0.08); border-radius: 6px; overflow: hidden; margin-bottom: 0.5rem;">
+          <div id="scan-progress-bar"
+            style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--gold-primary), var(--accent-emerald)); border-radius: 6px; transition: width 0.2s ease;">
+          </div>
         </div>
-        <small class="text-muted" style="font-size: 0.75rem; display: block; text-align: center;">Extracting optical biomarkers and skin health indicators...</small>
+        <small class="text-muted" style="font-size: 0.75rem; display: block; text-align: center;">Extracting optical
+          biomarkers and skin health indicators...</small>
       </div>
 
       <!-- EMBEDDED DIAGNOSTIC RESULTS CONTAINER (Inside the Dialog Box) -->
-      <div id="dialog-scan-results-box" class="hidden" style="margin-top: 1.25rem; border-top: 1px solid var(--border-light); padding-top: 1.25rem;">
+      <div id="dialog-scan-results-box" class="hidden"
+        style="margin-top: 1.25rem; border-top: 1px solid var(--border-light); padding-top: 1.25rem;">
         <!-- Results Hero Header -->
-        <div style="display: grid; grid-template-columns: 130px 1fr; gap: 1rem; background: linear-gradient(135deg, #FAF9F6, #F4F1EA); border: 1px solid var(--border-gold); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1rem; align-items: center;">
+        <div
+          style="display: grid; grid-template-columns: 130px 1fr; gap: 1rem; background: linear-gradient(135deg, #FAF9F6, #F4F1EA); border: 1px solid var(--border-gold); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1rem; align-items: center;">
           <div style="text-align: center;">
-            <img id="res-dialog-snapshot" style="width: 110px; height: 110px; object-fit: cover; border-radius: var(--radius-sm); border: 2px solid var(--gold-primary); box-shadow: 0 4px 10px rgba(0,0,0,0.1);" src="assets/hero_skin_scan.png" alt="Scanned Skin Photo" />
-            <small class="text-muted" style="display: block; font-size: 0.7rem; margin-top: 0.25rem; font-weight: 600;">Scanned Photo</small>
+            <img id="res-dialog-snapshot"
+              style="width: 110px; height: 110px; object-fit: cover; border-radius: var(--radius-sm); border: 2px solid var(--gold-primary); box-shadow: 0 4px 10px rgba(0,0,0,0.1);"
+              src="assets/hero_skin_scan.png" alt="Scanned Skin Photo" />
+            <small class="text-muted"
+              style="display: block; font-size: 0.7rem; margin-top: 0.25rem; font-weight: 600;">Scanned Photo</small>
           </div>
           <div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-              <span id="res-dialog-type-badge" class="badge badge-accent" style="font-size: 0.75rem;">Combination Skin</span>
-              <span id="res-dialog-score-badge" style="font-size: 1.2rem; font-weight: 800; color: var(--gold-primary);">78.5 / 100</span>
+              <span id="res-dialog-type-badge" class="badge badge-accent" style="font-size: 0.75rem;">Combination
+                Skin</span>
+              <span id="res-dialog-score-badge"
+                style="font-size: 1.2rem; font-weight: 800; color: var(--gold-primary);">78.5 / 100</span>
             </div>
-            <h4 id="res-dialog-skin-type" style="font-family: 'Playfair Display', serif; font-size: 1.1rem; margin: 0 0 0.3rem 0;">Detected Skin Type: Combination</h4>
-            <div id="res-dialog-lesion-card" style="padding: 0.5rem 0.75rem; background: #FFFFFF; border: 1px solid rgba(46, 125, 50, 0.3); border-radius: 6px; margin-top: 0.3rem;">
-              <small style="font-size: 0.68rem; font-weight: 800; color: var(--accent-emerald); text-transform: uppercase; letter-spacing: 0.05em;">ISIC Binary Lesion Screening:</small>
-              <div id="res-dialog-lesion-text" style="font-size: 0.82rem; font-weight: 700; color: var(--text-primary); margin-top: 0.1rem;">Benign (Safe / Low Risk)</div>
+            <h4 id="res-dialog-skin-type"
+              style="font-family: 'Playfair Display', serif; font-size: 1.1rem; margin: 0 0 0.3rem 0;">Detected Skin
+              Type: Combination</h4>
+            <div id="res-dialog-lesion-card"
+              style="padding: 0.5rem 0.75rem; background: #FFFFFF; border: 1px solid rgba(46, 125, 50, 0.3); border-radius: 6px; margin-top: 0.3rem;">
+              <small
+                style="font-size: 0.68rem; font-weight: 800; color: var(--accent-emerald); text-transform: uppercase; letter-spacing: 0.05em;">ISIC
+                Binary Lesion Screening:</small>
+              <div id="res-dialog-lesion-text"
+                style="font-size: 0.82rem; font-weight: 700; color: var(--text-primary); margin-top: 0.1rem;">Benign
+                (Safe / Low Risk)</div>
             </div>
           </div>
         </div>
 
         <!-- Quantitative Biomarkers Meters -->
         <div style="margin-bottom: 1rem;">
-          <h5 style="font-size: 0.78rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 0.6rem;">Quantitative Optical Biomarkers</h5>
+          <h5
+            style="font-size: 0.78rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 0.6rem;">
+            Quantitative Optical Biomarkers</h5>
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.65rem;">
-            <div style="padding: 0.65rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm);">
-              <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.25rem;">
+            <div
+              style="padding: 0.65rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm);">
+              <div
+                style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.25rem;">
                 <span>💧 Hydration</span>
                 <span id="res-meter-hydr-val" style="color: #0284C7;">68%</span>
               </div>
               <div style="height: 5px; background: rgba(0,0,0,0.06); border-radius: 4px; overflow: hidden;">
-                <div id="res-meter-hydr-bar" style="width: 68%; height: 100%; background: #0284C7; border-radius: 4px;"></div>
+                <div id="res-meter-hydr-bar" style="width: 68%; height: 100%; background: #0284C7; border-radius: 4px;">
+                </div>
               </div>
             </div>
 
-            <div style="padding: 0.65rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm);">
-              <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.25rem;">
+            <div
+              style="padding: 0.65rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm);">
+              <div
+                style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.25rem;">
                 <span>✨ Oiliness</span>
                 <span id="res-meter-oil-val" style="color: #D97706;">58%</span>
               </div>
               <div style="height: 5px; background: rgba(0,0,0,0.06); border-radius: 4px; overflow: hidden;">
-                <div id="res-meter-oil-bar" style="width: 58%; height: 100%; background: #D97706; border-radius: 4px;"></div>
+                <div id="res-meter-oil-bar" style="width: 58%; height: 100%; background: #D97706; border-radius: 4px;">
+                </div>
               </div>
             </div>
 
-            <div style="padding: 0.65rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm);">
-              <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.25rem;">
+            <div
+              style="padding: 0.65rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm);">
+              <div
+                style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.25rem;">
                 <span>🔴 Sensitivity</span>
                 <span id="res-meter-sens-val" style="color: #DC2626;">22%</span>
               </div>
               <div style="height: 5px; background: rgba(0,0,0,0.06); border-radius: 4px; overflow: hidden;">
-                <div id="res-meter-sens-bar" style="width: 22%; height: 100%; background: #DC2626; border-radius: 4px;"></div>
+                <div id="res-meter-sens-bar" style="width: 22%; height: 100%; background: #DC2626; border-radius: 4px;">
+                </div>
               </div>
             </div>
 
-            <div style="padding: 0.65rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm);">
-              <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.25rem;">
+            <div
+              style="padding: 0.65rem; background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm);">
+              <div
+                style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.25rem;">
                 <span>🫧 Acne</span>
                 <span id="res-meter-acne-val" style="color: #C59B27;">18%</span>
               </div>
               <div style="height: 5px; background: rgba(0,0,0,0.06); border-radius: 4px; overflow: hidden;">
-                <div id="res-meter-acne-bar" style="width: 18%; height: 100%; background: #C59B27; border-radius: 4px;"></div>
+                <div id="res-meter-acne-bar" style="width: 18%; height: 100%; background: #C59B27; border-radius: 4px;">
+                </div>
               </div>
             </div>
           </div>
@@ -666,19 +865,27 @@
 
         <!-- Detected Conditions List -->
         <div style="margin-bottom: 1.25rem;">
-          <h5 style="font-size: 0.78rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 0.5rem;">Detected Skin Conditions</h5>
+          <h5
+            style="font-size: 0.78rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+            Detected Skin Conditions</h5>
           <div id="res-dialog-conditions-list" style="display: flex; flex-direction: column; gap: 0.4rem;"></div>
         </div>
 
         <!-- TWO MANDATORY ACTION BUTTONS: UPLOAD & RE-ANALYZE (Plus Apply Results) -->
         <div style="display: flex; gap: 0.65rem; flex-wrap: wrap; margin-top: 1rem;">
-          <button id="btn-dialog-upload" class="btn btn-outline" style="flex: 1; font-weight: 700; font-size: 0.82rem; padding: 0.65rem;" onclick="document.getElementById('photo-file-input').click(); window.app.switchScanTab('file');">
+          <button id="btn-dialog-upload" class="btn btn-outline"
+            style="flex: 1; font-weight: 700; font-size: 0.82rem; padding: 0.65rem;"
+            onclick="document.getElementById('photo-file-input').click(); window.app.switchScanTab('file');">
             📤 UPLOAD NEW PHOTO
           </button>
-          <button id="btn-dialog-reanalyze" class="btn btn-gold" style="flex: 1; font-weight: 700; font-size: 0.82rem; padding: 0.65rem; background: var(--gold-primary); color: #fff; border: none;" onclick="window.app.reAnalyzeCurrentScan()">
+          <button id="btn-dialog-reanalyze" class="btn btn-gold"
+            style="flex: 1; font-weight: 700; font-size: 0.82rem; padding: 0.65rem; background: var(--gold-primary); color: #fff; border: none;"
+            onclick="window.app.reAnalyzeCurrentScan()">
             🔄 RE-ANALYZE SCAN
           </button>
-          <button id="btn-dialog-apply" class="btn btn-primary" style="flex: 1.2; font-weight: 700; font-size: 0.82rem; padding: 0.65rem; cursor: pointer;" onclick="window.app.applyScanResultsToDashboard()">
+          <button id="btn-dialog-apply" class="btn btn-primary"
+            style="flex: 1.2; font-weight: 700; font-size: 0.82rem; padding: 0.65rem; cursor: pointer;"
+            onclick="window.app.applyScanResultsToDashboard()">
             ✨ Apply to Dashboard
           </button>
         </div>
@@ -689,10 +896,12 @@
   <!-- CREATE CUSTOM ROUTINE STEP MODAL -->
   <div id="create-step-modal" class="modal-overlay hidden">
     <div class="modal-card" style="max-width: 520px; background: #FFFFFF; padding: 1.5rem;">
-      <div class="modal-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 0.75rem; margin-bottom: 1rem;">
+      <div class="modal-header"
+        style="border-bottom: 1px solid var(--border-light); padding-bottom: 0.75rem; margin-bottom: 1rem;">
         <div>
           <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem;">Create Custom Skincare Step</h3>
-          <p class="text-muted" style="font-size: 0.8rem; margin: 0;">Add a custom personalized step to your AM/PM routine</p>
+          <p class="text-muted" style="font-size: 0.8rem; margin: 0;">Add a custom personalized step to your AM/PM
+            routine</p>
         </div>
         <button class="modal-close" onclick="window.app.closeModal('create-step-modal')">&times;</button>
       </div>
@@ -726,21 +935,25 @@
 
         <div class="form-group">
           <label for="step-product">Recommended Product Name</label>
-          <input type="text" id="step-product" class="form-control" placeholder="e.g. Clarify Niacinamide + Zinc PCA Serum" required>
+          <input type="text" id="step-product" class="form-control"
+            placeholder="e.g. Clarify Niacinamide + Zinc PCA Serum" required>
         </div>
 
         <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 0.85rem;">
           <div class="form-group">
             <label for="step-ingredients">Key Active Ingredients (Comma Separated)</label>
-            <input type="text" id="step-ingredients" class="form-control" placeholder="e.g. Niacinamide 10%, Zinc PCA 1%">
+            <input type="text" id="step-ingredients" class="form-control"
+              placeholder="e.g. Niacinamide 10%, Zinc PCA 1%">
           </div>
           <div class="form-group">
             <label for="step-time-str">Schedule Time</label>
-            <input type="text" id="step-time-str" class="form-control" placeholder="e.g. 8:05 AM" value="8:05 AM" required>
+            <input type="text" id="step-time-str" class="form-control" placeholder="e.g. 8:05 AM" value="8:05 AM"
+              required>
           </div>
         </div>
 
-        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem; margin-top: 0.5rem; font-weight: 700;">
+        <button type="submit" class="btn btn-primary"
+          style="width: 100%; padding: 0.75rem; margin-top: 0.5rem; font-weight: 700;">
           ➕ Save Custom Routine Step
         </button>
       </form>
@@ -750,10 +963,12 @@
   <!-- CREATE CUSTOM WEEKLY TREATMENT PLAN MODAL -->
   <div id="create-weekly-modal" class="modal-overlay hidden">
     <div class="modal-card" style="max-width: 520px; background: #FFFFFF; padding: 1.5rem;">
-      <div class="modal-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 0.75rem; margin-bottom: 1rem;">
+      <div class="modal-header"
+        style="border-bottom: 1px solid var(--border-light); padding-bottom: 0.75rem; margin-bottom: 1rem;">
         <div>
           <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem;">Create Weekly Treatment Schedule</h3>
-          <p class="text-muted" style="font-size: 0.8rem; margin: 0;">Add a targeted weekly exfoliation, mask, or lip/eye care ritual</p>
+          <p class="text-muted" style="font-size: 0.8rem; margin: 0;">Add a targeted weekly exfoliation, mask, or
+            lip/eye care ritual</p>
         </div>
         <button class="modal-close" onclick="window.app.closeModal('create-weekly-modal')">&times;</button>
       </div>
@@ -777,20 +992,25 @@
 
         <div class="form-group">
           <label for="weekly-focus">Treatment Focus Area</label>
-          <input type="text" id="weekly-focus" class="form-control" placeholder="e.g. BHA Chemical Exfoliation" required>
+          <input type="text" id="weekly-focus" class="form-control" placeholder="e.g. BHA Chemical Exfoliation"
+            required>
         </div>
 
         <div class="form-group">
           <label for="weekly-treatment-name">Treatment Product Name</label>
-          <input type="text" id="weekly-treatment-name" class="form-control" placeholder="e.g. 2% Salicylic Acid Liquid Exfoliant" required>
+          <input type="text" id="weekly-treatment-name" class="form-control"
+            placeholder="e.g. 2% Salicylic Acid Liquid Exfoliant" required>
         </div>
 
         <div class="form-group">
           <label for="weekly-instructions">Usage Instructions</label>
-          <textarea id="weekly-instructions" class="form-control" rows="2" placeholder="e.g. Apply PM after cleansing for deep pore clearing & smooth texture renewal." required></textarea>
+          <textarea id="weekly-instructions" class="form-control" rows="2"
+            placeholder="e.g. Apply PM after cleansing for deep pore clearing & smooth texture renewal."
+            required></textarea>
         </div>
 
-        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem; margin-top: 0.5rem; font-weight: 700;">
+        <button type="submit" class="btn btn-primary"
+          style="width: 100%; padding: 0.75rem; margin-top: 0.5rem; font-weight: 700;">
           ➕ Add to Weekly Treatment Plan
         </button>
       </form>
@@ -809,7 +1029,8 @@
       <button class="btn btn-sm btn-primary" onclick="window.app.openCompareModal()" style="font-weight: 700;">
         ⚖️ Compare Now
       </button>
-      <button class="btn btn-sm btn-outline" onclick="window.app.clearCompareSelection()" style="color: #F8FAFC; border-color: rgba(255,255,255,0.3); font-size: 0.75rem;">
+      <button class="btn btn-sm btn-outline" onclick="window.app.clearCompareSelection()"
+        style="color: #F8FAFC; border-color: rgba(255,255,255,0.3); font-size: 0.75rem;">
         Clear All
       </button>
     </div>
@@ -818,10 +1039,12 @@
   <!-- SIDE-BY-SIDE PRODUCT COMPARISON MODAL -->
   <div id="product-compare-modal" class="modal-overlay hidden">
     <div class="compare-modal-card">
-      <div class="modal-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 0.85rem; margin-bottom: 1rem;">
+      <div class="modal-header"
+        style="border-bottom: 1px solid var(--border-light); padding-bottom: 0.85rem; margin-bottom: 1rem;">
         <div>
           <h3 style="font-family: 'Playfair Display', serif; font-size: 1.35rem;">Side-by-Side Product Comparison</h3>
-          <p class="text-muted" style="font-size: 0.82rem; margin: 0;">Comprehensive clinical & formulation analysis compared against your skin profile</p>
+          <p class="text-muted" style="font-size: 0.82rem; margin: 0;">Comprehensive clinical & formulation analysis
+            compared against your skin profile</p>
         </div>
         <button class="modal-close" onclick="window.app.closeModal('product-compare-modal')">&times;</button>
       </div>
@@ -835,10 +1058,12 @@
   <!-- ALTERNATIVE PRODUCTS & DUPE FINDER MODAL -->
   <div id="product-alternatives-modal" class="modal-overlay hidden">
     <div class="alternatives-modal-card">
-      <div class="modal-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 0.85rem; margin-bottom: 1rem;">
+      <div class="modal-header"
+        style="border-bottom: 1px solid var(--border-light); padding-bottom: 0.85rem; margin-bottom: 1rem;">
         <div>
           <h3 style="font-family: 'Playfair Display', serif; font-size: 1.35rem;">Smart Alternatives & Dupes</h3>
-          <p class="text-muted" style="font-size: 0.82rem; margin: 0;">Dermatologist-approved budget dupes, safer fragrance-free formulas, and high-potency upgrades</p>
+          <p class="text-muted" style="font-size: 0.82rem; margin: 0;">Dermatologist-approved budget dupes, safer
+            fragrance-free formulas, and high-potency upgrades</p>
         </div>
         <button class="modal-close" onclick="window.app.closeModal('product-alternatives-modal')">&times;</button>
       </div>
@@ -852,10 +1077,12 @@
   <!-- SUITABILITY SCORE BREAKDOWN MODAL -->
   <div id="suitability-breakdown-modal" class="modal-overlay hidden">
     <div class="modal-card" style="max-width: 540px; background: #FFFFFF; padding: 1.75rem;">
-      <div class="modal-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 0.85rem; margin-bottom: 1rem;">
+      <div class="modal-header"
+        style="border-bottom: 1px solid var(--border-light); padding-bottom: 0.85rem; margin-bottom: 1rem;">
         <div>
           <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem;">Compatibility Score Breakdown</h3>
-          <p class="text-muted" style="font-size: 0.8rem; margin: 0;">Explainable AI skin formulation biomarker scoring</p>
+          <p class="text-muted" style="font-size: 0.8rem; margin: 0;">Explainable AI skin formulation biomarker scoring
+          </p>
         </div>
         <button class="modal-close" onclick="window.app.closeModal('suitability-breakdown-modal')">&times;</button>
       </div>
@@ -873,11 +1100,16 @@
 
   <!-- CONSULTATION BOOKING MODAL -->
   <div id="consultation-booking-modal" class="modal-overlay hidden" style="z-index: 10006;">
-    <div class="modal-card" style="max-width: 580px; background: #FFFFFF; border-radius: var(--radius-md); padding: 2rem;">
-      <div class="modal-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 1rem; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: flex-start;">
+    <div class="modal-card"
+      style="max-width: 580px; background: #FFFFFF; border-radius: var(--radius-md); padding: 2rem;">
+      <div class="modal-header"
+        style="border-bottom: 1px solid var(--border-light); padding-bottom: 1rem; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: flex-start;">
         <div>
-          <span class="badge badge-accent" style="font-size: 0.72rem; margin-bottom: 0.25rem;">🩺 SCHEDULE CLINICAL CONSULTATION</span>
-          <h3 id="booking-specialist-title" style="font-family: 'Playfair Display', serif; font-size: 1.4rem; margin: 0; color: var(--text-primary);">Book Specialist Consultation</h3>
+          <span class="badge badge-accent" style="font-size: 0.72rem; margin-bottom: 0.25rem;">🩺 SCHEDULE CLINICAL
+            CONSULTATION</span>
+          <h3 id="booking-specialist-title"
+            style="font-family: 'Playfair Display', serif; font-size: 1.4rem; margin: 0; color: var(--text-primary);">
+            Book Specialist Consultation</h3>
         </div>
         <button class="modal-close" onclick="window.app.closeModal('consultation-booking-modal')">&times;</button>
       </div>
@@ -888,30 +1120,43 @@
         <input type="hidden" id="booking-specialist-role" value="consultant">
 
         <div class="form-group">
-          <label style="font-size: 0.82rem; font-weight: 700; margin-bottom: 0.35rem; display: block;">Consultation Format & Type</label>
-          <select id="booking-consultation-type" class="form-control" style="width: 100%; padding: 0.65rem; border: 1px solid var(--border-light); border-radius: 6px;">
+          <label style="font-size: 0.82rem; font-weight: 700; margin-bottom: 0.35rem; display: block;">Consultation
+            Format & Type</label>
+          <select id="booking-consultation-type" class="form-control"
+            style="width: 100%; padding: 0.65rem; border: 1px solid var(--border-light); border-radius: 6px;">
             <option value="Virtual Video Consultation (30 min)">📹 Virtual Video Consultation (30 min)</option>
-            <option value="Asynchronous Regimen Review & Notes (24h turnaround)">📝 Asynchronous Regimen Review & Notes (24h turnaround)</option>
-            <option value="Prescription Rx Renewal & Clinical Assessment">💊 Prescription Rx Renewal & Clinical Assessment</option>
+            <option value="Asynchronous Regimen Review & Notes (24h turnaround)">📝 Asynchronous Regimen Review & Notes
+              (24h turnaround)</option>
+            <option value="Prescription Rx Renewal & Clinical Assessment">💊 Prescription Rx Renewal & Clinical
+              Assessment</option>
           </select>
         </div>
 
         <div class="form-group">
-          <label style="font-size: 0.82rem; font-weight: 700; margin-bottom: 0.35rem; display: block;">Preferred Date & Time Slot</label>
-          <input type="datetime-local" id="booking-preferred-date" class="form-control" style="width: 100%; padding: 0.65rem; border: 1px solid var(--border-light); border-radius: 6px;" required>
+          <label style="font-size: 0.82rem; font-weight: 700; margin-bottom: 0.35rem; display: block;">Preferred Date &
+            Time Slot</label>
+          <input type="datetime-local" id="booking-preferred-date" class="form-control"
+            style="width: 100%; padding: 0.65rem; border: 1px solid var(--border-light); border-radius: 6px;" required>
         </div>
 
         <div class="form-group">
-          <label style="font-size: 0.82rem; font-weight: 700; margin-bottom: 0.35rem; display: block;">Intake Notes & Primary Skin Focus</label>
-          <textarea id="booking-intake-notes" class="form-control" rows="3" placeholder="Describe current breakouts, sensitivity flare-ups, or questions regarding active ingredients..." style="width: 100%; padding: 0.65rem; border: 1px solid var(--border-light); border-radius: 6px;" required>Reviewing skin barrier recovery after starting BHA exfoliant and adapalene.</textarea>
+          <label style="font-size: 0.82rem; font-weight: 700; margin-bottom: 0.35rem; display: block;">Intake Notes &
+            Primary Skin Focus</label>
+          <textarea id="booking-intake-notes" class="form-control" rows="3"
+            placeholder="Describe current breakouts, sensitivity flare-ups, or questions regarding active ingredients..."
+            style="width: 100%; padding: 0.65rem; border: 1px solid var(--border-light); border-radius: 6px;"
+            required>Reviewing skin barrier recovery after starting BHA exfoliant and adapalene.</textarea>
         </div>
 
-        <div style="background: #FAF9F6; border: 1px solid var(--border-light); border-radius: 6px; padding: 0.75rem 1rem; font-size: 0.78rem; color: var(--text-muted);">
-          🔒 By booking, your latest shared biometric records (configured in the Data Sharing Matrix) will be available to the specialist during this appointment.
+        <div
+          style="background: #FAF9F6; border: 1px solid var(--border-light); border-radius: 6px; padding: 0.75rem 1rem; font-size: 0.78rem; color: var(--text-muted);">
+          🔒 By booking, your latest shared biometric records (configured in the Data Sharing Matrix) will be available
+          to the specialist during this appointment.
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 0.5rem;">
-          <button type="button" class="btn btn-outline" onclick="window.app.closeModal('consultation-booking-modal')">Cancel</button>
+          <button type="button" class="btn btn-outline"
+            onclick="window.app.closeModal('consultation-booking-modal')">Cancel</button>
           <button type="submit" class="btn btn-primary" style="font-weight: 700;">Confirm & Book Session →</button>
         </div>
       </form>
@@ -920,74 +1165,106 @@
 
   <!-- INTERACTIVE CLINICAL TELEHEALTH VIDEO CONSULTATION MODAL -->
   <div id="telehealth-video-modal" class="modal-overlay hidden" style="z-index: 10010;">
-    <div class="modal-card telehealth-room-card" style="max-width: 960px; width: 95vw; background: #141211; color: #FFFFFF; border-radius: var(--radius-md); padding: 0; overflow: hidden; border: 1px solid rgba(197, 155, 39, 0.4); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);">
+    <div class="modal-card telehealth-room-card"
+      style="max-width: 960px; width: 95vw; background: #141211; color: #FFFFFF; border-radius: var(--radius-md); padding: 0; overflow: hidden; border: 1px solid rgba(197, 155, 39, 0.4); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);">
       <!-- Room Header -->
-      <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; background: #1C1A18; border-bottom: 1px solid rgba(255,255,255,0.08);">
+      <div
+        style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; background: #1C1A18; border-bottom: 1px solid rgba(255,255,255,0.08);">
         <div style="display: flex; align-items: center; gap: 0.75rem;">
           <span class="pulse-dot" style="background: #22C55E; box-shadow: 0 0 10px #22C55E;"></span>
           <div>
             <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <strong id="telehealth-room-title" style="font-size: 1.05rem; color: #FFFFFF;">Telehealth Encrypted Video Consultation</strong>
-              <span class="badge" style="background: rgba(34, 197, 94, 0.2); color: #4ADE80; font-size: 0.7rem; border: 1px solid rgba(34, 197, 94, 0.4);">🔒 HIPAA Active Stream</span>
+              <strong id="telehealth-room-title" style="font-size: 1.05rem; color: #FFFFFF;">Telehealth Encrypted Video
+                Consultation</strong>
+              <span class="badge"
+                style="background: rgba(34, 197, 94, 0.2); color: #4ADE80; font-size: 0.7rem; border: 1px solid rgba(34, 197, 94, 0.4);">🔒
+                HIPAA Active Stream</span>
             </div>
-            <div id="telehealth-room-subtitle" style="font-size: 0.78rem; color: #A8A29E;">Specialist: Dr. Rajesh Varma, MD • Patient: Aarav Sharma</div>
+            <div id="telehealth-room-subtitle" style="font-size: 0.78rem; color: #A8A29E;">Specialist: Dr. Rajni Verma,
+              MD • Patient: Aarav Sharma</div>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
-          <div id="telehealth-timer" style="font-family: monospace; font-size: 0.95rem; font-weight: 700; color: var(--gold-primary); background: #2D2723; padding: 0.35rem 0.75rem; border-radius: 4px; border: 1px solid rgba(197, 155, 39, 0.3);">
+          <div id="telehealth-timer"
+            style="font-family: monospace; font-size: 0.95rem; font-weight: 700; color: var(--gold-primary); background: #2D2723; padding: 0.35rem 0.75rem; border-radius: 4px; border: 1px solid rgba(197, 155, 39, 0.3);">
             ⏱️ 00:00:00 IST
           </div>
-          <button class="modal-close" onclick="window.app.closeTelehealthVideoModal()" style="color: #FFFFFF; font-size: 1.6rem; line-height: 1;">&times;</button>
+          <button class="modal-close" onclick="window.app.closeTelehealthVideoModal()"
+            style="color: #FFFFFF; font-size: 1.6rem; line-height: 1;">&times;</button>
         </div>
       </div>
 
       <!-- Main Video Grid -->
-      <div style="display: grid; grid-template-columns: 1fr 340px; min-height: 480px; background: #0D0C0B;" class="telehealth-viewport-grid">
+      <div style="display: grid; grid-template-columns: 1fr 340px; min-height: 480px; background: #0D0C0B;"
+        class="telehealth-viewport-grid">
         <!-- Video Screen Column -->
-        <div style="position: relative; display: flex; flex-direction: column; justify-content: space-between; padding: 1.25rem; background: radial-gradient(circle at center, #1E1B18 0%, #0D0C0B 100%);">
+        <div
+          style="position: relative; display: flex; flex-direction: column; justify-content: space-between; padding: 1.25rem; background: radial-gradient(circle at center, #1E1B18 0%, #0D0C0B 100%);">
           <!-- Main Video Feed Preview (Clinician View) -->
-          <div id="telehealth-main-feed" style="position: relative; width: 100%; height: 380px; border-radius: var(--radius-sm); overflow: hidden; background: #181614; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1);">
-            <img id="telehealth-clinician-video-bg" src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600" alt="Clinician Video" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.92;">
-            <div style="position: absolute; top: 1rem; left: 1rem; background: rgba(0,0,0,0.65); padding: 0.35rem 0.75rem; border-radius: 4px; font-size: 0.78rem; font-weight: 600; backdrop-filter: blur(8px); display: flex; align-items: center; gap: 0.4rem;">
-              <span id="telehealth-primary-badge">🩺 Dr. Rajesh Varma, MD (Clinician)</span>
-            </div>
-            
-            <!-- Secondary Picture-in-Picture Patient Cam -->
-            <div id="telehealth-pip-feed" style="position: absolute; bottom: 1rem; right: 1rem; width: 130px; height: 95px; border-radius: 6px; overflow: hidden; border: 2px solid var(--gold-primary); box-shadow: 0 4px 15px rgba(0,0,0,0.5); background: #222;">
-              <img id="telehealth-patient-pip-img" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200" alt="Patient Video" style="width: 100%; height: 100%; object-fit: cover;">
-              <div style="position: absolute; bottom: 2px; left: 4px; font-size: 0.65rem; background: rgba(0,0,0,0.7); padding: 1px 4px; border-radius: 2px;">You (Live)</div>
+          <div id="telehealth-main-feed"
+            style="position: relative; width: 100%; height: 380px; border-radius: var(--radius-sm); overflow: hidden; background: #181614; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1);">
+            <img id="telehealth-clinician-video-bg"
+              src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600" alt="Clinician Video"
+              style="width: 100%; height: 100%; object-fit: cover; opacity: 0.92;">
+            <div
+              style="position: absolute; top: 1rem; left: 1rem; background: rgba(0,0,0,0.65); padding: 0.35rem 0.75rem; border-radius: 4px; font-size: 0.78rem; font-weight: 600; backdrop-filter: blur(8px); display: flex; align-items: center; gap: 0.4rem;">
+              <span id="telehealth-primary-badge">🩺 Dr. Rajni Verma, MD (Clinician)</span>
             </div>
 
-            <div id="telehealth-cam-off-notice" class="hidden" style="position: absolute; font-size: 0.9rem; color: #A8A29E; text-align: center;">
+            <!-- Secondary Picture-in-Picture Patient Cam -->
+            <div id="telehealth-pip-feed"
+              style="position: absolute; bottom: 1rem; right: 1rem; width: 130px; height: 95px; border-radius: 6px; overflow: hidden; border: 2px solid var(--gold-primary); box-shadow: 0 4px 15px rgba(0,0,0,0.5); background: #222;">
+              <img id="telehealth-patient-pip-img"
+                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200" alt="Patient Video"
+                style="width: 100%; height: 100%; object-fit: cover;">
+              <div
+                style="position: absolute; bottom: 2px; left: 4px; font-size: 0.65rem; background: rgba(0,0,0,0.7); padding: 1px 4px; border-radius: 2px;">
+                You (Live)</div>
+            </div>
+
+            <div id="telehealth-cam-off-notice" class="hidden"
+              style="position: absolute; font-size: 0.9rem; color: #A8A29E; text-align: center;">
               📷 Camera Stream Paused
             </div>
           </div>
 
           <!-- Bottom Interactive Call Controls Bar -->
-          <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 1rem; padding: 0.6rem; background: rgba(28, 26, 24, 0.85); border-radius: 30px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); width: fit-content; margin-left: auto; margin-right: auto;">
-            <button id="btn-call-mic" class="btn btn-sm btn-outline" onclick="window.app.toggleTelehealthMic()" title="Toggle Microphone" style="border-radius: 50%; width: 42px; height: 42px; padding: 0; display: flex; align-items: center; justify-content: center; background: #2D2723; color: #FFFFFF; border-color: rgba(255,255,255,0.2);">
+          <div
+            style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 1rem; padding: 0.6rem; background: rgba(28, 26, 24, 0.85); border-radius: 30px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); width: fit-content; margin-left: auto; margin-right: auto;">
+            <button id="btn-call-mic" class="btn btn-sm btn-outline" onclick="window.app.toggleTelehealthMic()"
+              title="Toggle Microphone"
+              style="border-radius: 50%; width: 42px; height: 42px; padding: 0; display: flex; align-items: center; justify-content: center; background: #2D2723; color: #FFFFFF; border-color: rgba(255,255,255,0.2);">
               🎙️
             </button>
-            <button id="btn-call-cam" class="btn btn-sm btn-outline" onclick="window.app.toggleTelehealthCam()" title="Toggle Camera" style="border-radius: 50%; width: 42px; height: 42px; padding: 0; display: flex; align-items: center; justify-content: center; background: #2D2723; color: #FFFFFF; border-color: rgba(255,255,255,0.2);">
+            <button id="btn-call-cam" class="btn btn-sm btn-outline" onclick="window.app.toggleTelehealthCam()"
+              title="Toggle Camera"
+              style="border-radius: 50%; width: 42px; height: 42px; padding: 0; display: flex; align-items: center; justify-content: center; background: #2D2723; color: #FFFFFF; border-color: rgba(255,255,255,0.2);">
               📹
             </button>
-            <button id="btn-call-share" class="btn btn-sm btn-outline" onclick="window.app.toggleTelehealthShare()" title="Share Optical Scan Screen" style="border-radius: 50%; width: 42px; height: 42px; padding: 0; display: flex; align-items: center; justify-content: center; background: #2D2723; color: #FFFFFF; border-color: rgba(255,255,255,0.2);">
+            <button id="btn-call-share" class="btn btn-sm btn-outline" onclick="window.app.toggleTelehealthShare()"
+              title="Share Optical Scan Screen"
+              style="border-radius: 50%; width: 42px; height: 42px; padding: 0; display: flex; align-items: center; justify-content: center; background: #2D2723; color: #FFFFFF; border-color: rgba(255,255,255,0.2);">
               🖥️
             </button>
-            <button class="btn btn-sm" onclick="window.app.closeTelehealthVideoModal()" title="End Consultation Encounter" style="border-radius: 30px; padding: 0.5rem 1.4rem; background: #EF4444; color: #FFFFFF; font-weight: 700; border: none;">
+            <button class="btn btn-sm" onclick="window.app.closeTelehealthVideoModal()"
+              title="End Consultation Encounter"
+              style="border-radius: 30px; padding: 0.5rem 1.4rem; background: #EF4444; color: #FFFFFF; font-weight: 700; border: none;">
               🔴 End Session
             </button>
           </div>
         </div>
 
         <!-- In-Call Clinical Notes / Telehealth Sidebar -->
-        <div id="telehealth-sidebar-panel" style="background: #181614; border-left: 1px solid rgba(255,255,255,0.08); padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between;">
+        <div id="telehealth-sidebar-panel"
+          style="background: #181614; border-left: 1px solid rgba(255,255,255,0.08); padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between;">
           <!-- Dynamically populated by app.js based on role -->
           <div id="telehealth-sidebar-content">
-            <div style="font-size: 0.82rem; font-weight: 700; color: var(--gold-primary); text-transform: uppercase; margin-bottom: 0.5rem;">
+            <div
+              style="font-size: 0.82rem; font-weight: 700; color: var(--gold-primary); text-transform: uppercase; margin-bottom: 0.5rem;">
               📋 In-Call Clinical Workspace
             </div>
-            <div style="background: #24201D; border-radius: 6px; padding: 0.85rem; margin-bottom: 1rem; font-size: 0.82rem; border: 1px solid rgba(255,255,255,0.06);">
+            <div
+              style="background: #24201D; border-radius: 6px; padding: 0.85rem; margin-bottom: 1rem; font-size: 0.82rem; border: 1px solid rgba(255,255,255,0.06);">
               <strong style="color: #FFFFFF; display: block; margin-bottom: 0.2rem;">Live Biometric Diagnostics</strong>
               <div style="color: #A8A29E;">• Hydration: <strong>74%</strong></div>
               <div style="color: #A8A29E;">• Barrier Strength: <strong>86%</strong></div>
@@ -995,12 +1272,17 @@
             </div>
 
             <div class="form-group" style="margin-bottom: 0.85rem;">
-              <label style="font-size: 0.78rem; font-weight: 700; color: #E7E5E4; display: block; margin-bottom: 0.3rem;">Real-Time Encounter Directives & Notes</label>
-              <textarea id="telehealth-in-call-notes" class="form-control" rows="5" style="width: 100%; background: #121110; color: #FFFFFF; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; font-size: 0.8rem; padding: 0.6rem;" placeholder="Type clinical directives, prescription dosage adjustments, or routine tweaks discussed during call..."></textarea>
+              <label
+                style="font-size: 0.78rem; font-weight: 700; color: #E7E5E4; display: block; margin-bottom: 0.3rem;">Real-Time
+                Encounter Directives & Notes</label>
+              <textarea id="telehealth-in-call-notes" class="form-control" rows="5"
+                style="width: 100%; background: #121110; color: #FFFFFF; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; font-size: 0.8rem; padding: 0.6rem;"
+                placeholder="Type clinical directives, prescription dosage adjustments, or routine tweaks discussed during call..."></textarea>
             </div>
           </div>
 
-          <button class="btn btn-primary btn-sm" onclick="window.app.handleSaveInCallNotes()" style="width: 100%; font-weight: 700;">
+          <button class="btn btn-primary btn-sm" onclick="window.app.handleSaveInCallNotes()"
+            style="width: 100%; font-weight: 700;">
             💾 Finalize & Synchronize Encounter
           </button>
         </div>
@@ -1010,35 +1292,50 @@
 
   <!-- APPOINTMENT RESCHEDULE & MANAGE MODAL -->
   <div id="appointment-reschedule-modal" class="modal-overlay hidden" style="z-index: 10008;">
-    <div class="modal-card" style="max-width: 520px; background: #FFFFFF; border-radius: var(--radius-md); padding: 2rem;">
-      <div class="modal-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 1rem; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: flex-start;">
+    <div class="modal-card"
+      style="max-width: 520px; background: #FFFFFF; border-radius: var(--radius-md); padding: 2rem;">
+      <div class="modal-header"
+        style="border-bottom: 1px solid var(--border-light); padding-bottom: 1rem; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: flex-start;">
         <div>
-          <span class="badge badge-accent" style="font-size: 0.72rem; margin-bottom: 0.25rem;">📅 APPOINTMENT MANAGEMENT</span>
-          <h3 style="font-family: 'Playfair Display', serif; font-size: 1.35rem; margin: 0; color: var(--text-primary);">Reschedule Consultation Slot</h3>
+          <span class="badge badge-accent" style="font-size: 0.72rem; margin-bottom: 0.25rem;">📅 APPOINTMENT
+            MANAGEMENT</span>
+          <h3
+            style="font-family: 'Playfair Display', serif; font-size: 1.35rem; margin: 0; color: var(--text-primary);">
+            Reschedule Consultation Slot</h3>
         </div>
         <button class="modal-close" onclick="window.app.closeModal('appointment-reschedule-modal')">&times;</button>
       </div>
 
-      <form onsubmit="window.app.handleRescheduleSubmit(event)" style="display: flex; flex-direction: column; gap: 1rem;">
+      <form onsubmit="window.app.handleRescheduleSubmit(event)"
+        style="display: flex; flex-direction: column; gap: 1rem;">
         <input type="hidden" id="reschedule-appointment-id" value="">
 
-        <div style="background: #FAF9F6; border: 1px solid var(--border-light); border-radius: 6px; padding: 0.85rem; font-size: 0.85rem;">
-          <div style="font-weight: 700; color: var(--text-primary);" id="reschedule-appointment-info">Session with Ananya Iyer, LE</div>
-          <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem;" id="reschedule-current-time">Current: Today • 2:30 PM IST</div>
+        <div
+          style="background: #FAF9F6; border: 1px solid var(--border-light); border-radius: 6px; padding: 0.85rem; font-size: 0.85rem;">
+          <div style="font-weight: 700; color: var(--text-primary);" id="reschedule-appointment-info">Session with
+            Ananya Iyer, LE</div>
+          <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem;" id="reschedule-current-time">
+            Current: Today • 2:30 PM IST</div>
         </div>
 
         <div class="form-group">
-          <label style="font-size: 0.82rem; font-weight: 700; margin-bottom: 0.35rem; display: block;">Select New Preferred Slot</label>
-          <input type="datetime-local" id="reschedule-new-date" class="form-control" style="width: 100%; padding: 0.65rem; border: 1px solid var(--border-light); border-radius: 6px;" required>
+          <label style="font-size: 0.82rem; font-weight: 700; margin-bottom: 0.35rem; display: block;">Select New
+            Preferred Slot</label>
+          <input type="datetime-local" id="reschedule-new-date" class="form-control"
+            style="width: 100%; padding: 0.65rem; border: 1px solid var(--border-light); border-radius: 6px;" required>
         </div>
 
         <div class="form-group">
-          <label style="font-size: 0.82rem; font-weight: 700; margin-bottom: 0.35rem; display: block;">Reason for Rescheduling (Optional)</label>
-          <textarea id="reschedule-notes" class="form-control" rows="2" placeholder="Brief explanation for schedule change..." style="width: 100%; padding: 0.65rem; border: 1px solid var(--border-light); border-radius: 6px;"></textarea>
+          <label style="font-size: 0.82rem; font-weight: 700; margin-bottom: 0.35rem; display: block;">Reason for
+            Rescheduling (Optional)</label>
+          <textarea id="reschedule-notes" class="form-control" rows="2"
+            placeholder="Brief explanation for schedule change..."
+            style="width: 100%; padding: 0.65rem; border: 1px solid var(--border-light); border-radius: 6px;"></textarea>
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 0.5rem;">
-          <button type="button" class="btn btn-outline" onclick="window.app.closeModal('appointment-reschedule-modal')">Cancel</button>
+          <button type="button" class="btn btn-outline"
+            onclick="window.app.closeModal('appointment-reschedule-modal')">Cancel</button>
           <button type="submit" class="btn btn-primary" style="font-weight: 700;">Confirm New Time Slot →</button>
         </div>
       </form>
@@ -1048,9 +1345,14 @@
   <!-- FLOATING CLINIC TELEHEALTH MESSENGER DOCK (FACEBOOK / LINKEDIN STYLE) -->
   <div id="floating-messenger-dock" class="floating-messenger-dock">
     <!-- Floating Launcher Badge Button -->
-    <button id="messenger-launcher-btn" class="messenger-launcher-btn" onclick="window.app.toggleMessengerPopup()" title="Open Clinic Chat & Lumina AI">
-      <span class="pulse-dot" style="width: 8px; height: 8px; background: var(--gold-primary); box-shadow: 0 0 8px var(--gold-primary);"></span>
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+    <button id="messenger-launcher-btn" class="messenger-launcher-btn" onclick="window.app.toggleMessengerPopup()"
+      title="Open Clinic Chat & Lumina AI">
+      <span class="pulse-dot"
+        style="width: 8px; height: 8px; background: var(--gold-primary); box-shadow: 0 0 8px var(--gold-primary);"></span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+      </svg>
       <span class="messenger-launcher-label">Clinic Chat & Lumina AI</span>
       <span id="messenger-launcher-badge" class="messenger-badge-count hidden">0</span>
     </button>
@@ -1061,13 +1363,16 @@
       <div class="messenger-popup-header">
         <div class="messenger-contact-info" onclick="window.app.toggleMessengerContactDropdown()">
           <div class="messenger-avatar-wrap">
-            <img id="messenger-header-avatar" src="assets/logo.png" alt="Contact Avatar" class="messenger-header-avatar">
+            <img id="messenger-header-avatar" src="assets/logo.png" alt="Contact Avatar"
+              class="messenger-header-avatar">
             <span id="messenger-header-online-dot" class="messenger-online-dot ai"></span>
           </div>
           <div>
             <div style="display: flex; align-items: center; gap: 0.35rem;">
               <span id="messenger-header-name" class="messenger-header-name">Lumina AI Copilot</span>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
             </div>
             <div id="messenger-header-role" class="messenger-header-role">AI Clinical Skincare Assistant</div>
           </div>
@@ -1075,13 +1380,23 @@
 
         <div class="messenger-header-actions">
           <button class="messenger-hdr-btn" onclick="window.app.openFullPageChat()" title="Expand to Dedicated Page">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <polyline points="9 21 3 21 3 15"></polyline>
+              <line x1="21" y1="3" x2="14" y2="10"></line>
+              <line x1="3" y1="21" x2="10" y2="14"></line>
+            </svg>
           </button>
           <button class="messenger-hdr-btn" onclick="window.app.minimizeMessengerPopup()" title="Minimize">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
           </button>
           <button class="messenger-hdr-btn" onclick="window.app.closeMessengerPopup()" title="Close">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
           </button>
         </div>
       </div>
@@ -1103,30 +1418,52 @@
 
       <!-- Quick Prompt Suggestion Pills (When chatting with Lumina AI) -->
       <div id="messenger-quick-prompts" class="messenger-quick-prompts">
-        <button class="quick-prompt-pill" onclick="window.app.sendQuickPrompt('Is it safe to use 2% Salicylic Acid BHA alongside Topical Adapalene 0.1%?')">✨ BHA + Adapalene</button>
-        <button class="quick-prompt-pill" onclick="window.app.sendQuickPrompt('How do I repair a compromised skin barrier and soothe facial redness?')">🛡️ Barrier Repair</button>
-        <button class="quick-prompt-pill" onclick="window.app.sendQuickPrompt('What is the optimal morning and evening routine application order?')">🌅 Routine Order</button>
-        <button class="quick-prompt-pill" onclick="window.app.sendQuickPrompt('What broad-spectrum sunscreen is best for acne-prone skin?')">☀️ Best SPF</button>
+        <button type="button" class="quick-prompt-pill"
+          onclick="window.app.sendQuickPrompt('Is it safe to use 2% Salicylic Acid BHA alongside Topical Adapalene 0.1%?')">🧪
+          BHA + Adapalene</button>
+        <button type="button" class="quick-prompt-pill"
+          onclick="window.app.sendQuickPrompt('How do I repair a compromised skin barrier and soothe facial redness?')">🛡️
+          Barrier Repair</button>
+        <button type="button" class="quick-prompt-pill"
+          onclick="window.app.sendQuickPrompt('Explain Vitamin C stability, L-Ascorbic Acid vs derivatives, and oxidation signs')">✨
+          Vitamin C</button>
+        <button type="button" class="quick-prompt-pill"
+          onclick="window.app.sendQuickPrompt('What are the root causes and trigger ingredients of Malassezia Fungal Acne?')">🍄
+          Fungal Acne</button>
+        <button type="button" class="quick-prompt-pill"
+          onclick="window.app.sendQuickPrompt('What are pregnancy and nursing safe skincare alternatives to retinoids?')">🤰
+          Pregnancy Safe</button>
+        <button type="button" class="quick-prompt-pill"
+          onclick="window.app.sendQuickPrompt('What broad-spectrum sunscreen is best for acne-prone skin?')">☀️ Best
+          SPF</button>
       </div>
 
       <!-- Typing Indicator -->
       <div id="messenger-typing-indicator" class="messenger-typing-indicator hidden">
         <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>
-        <span id="messenger-typing-text" style="margin-left: 0.35rem; font-size: 0.75rem; color: var(--text-muted);">Lumina AI is formulating response...</span>
+        <span id="messenger-typing-text"
+          style="margin-left: 0.35rem; font-size: 0.75rem; color: var(--text-muted);">Lumina AI is formulating
+          response...</span>
       </div>
 
       <!-- Input Composer -->
-      <form id="messenger-composer-form" class="messenger-composer-form" onsubmit="window.app.handleMessengerSend(event)">
-        <input type="text" id="messenger-input-field" class="messenger-input-field" placeholder="Ask Lumina AI or message care team..." autocomplete="off">
+      <form id="messenger-composer-form" class="messenger-composer-form"
+        onsubmit="window.app.handleMessengerSend(event)">
+        <input type="text" id="messenger-input-field" class="messenger-input-field"
+          placeholder="Ask Lumina AI or message care team..." autocomplete="off">
         <button type="submit" class="messenger-send-btn" title="Send Message">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
         </button>
       </form>
     </div>
   </div>
 
   <!-- MODULE 10: NOTIFICATION CENTER SLIDE-OVER DRAWER -->
-  <div id="notification-drawer" class="notif-drawer-backdrop" onclick="if(event.target===this) window.app.closeNotificationDrawer()">
+  <div id="notification-drawer" class="notif-drawer-backdrop"
+    onclick="if(event.target===this) window.app.closeNotificationDrawer()">
     <div class="notif-drawer-panel" id="notif-drawer-panel">
       <!-- Injected dynamically by app.js -->
     </div>

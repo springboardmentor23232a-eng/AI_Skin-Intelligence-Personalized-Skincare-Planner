@@ -326,7 +326,7 @@ def get_consultant_dashboard_analytics(db: Session, consultant_id: int = 2) -> D
     return {
         "success": True,
         "consultant_id": consultant_id,
-        "consultant_name": "Elena Vance, LE",
+        "consultant_name": "Ananya Iyer, LE",
         "total_clients": len(clients),
         "active_cases": 3,
         "average_client_adherence": 86.2,
@@ -403,7 +403,7 @@ def get_dermatologist_dashboard_analytics(db: Session, doctor_id: int = 3) -> Di
     return {
         "success": True,
         "doctor_id": doctor_id,
-        "doctor_name": "Dr. Julian Rostova, MD",
+        "doctor_name": "Dr. Rajni Verma, MD",
         "total_patients": len(patients),
         "high_risk_patients_count": 2,
         "pending_prescriptions_count": 1,
@@ -449,8 +449,8 @@ def get_admin_dashboard_analytics(db: Session) -> Dict[str, Any]:
     ]
 
     audit_logs = [
-        {"id": 101, "actor": "Dr. Julian Rostova, MD", "role": "dermatologist", "action": "Issued Board Prescription (Rx) for User #6", "ip": "192.168.1.42", "time": "12 mins ago"},
-        {"id": 102, "actor": "Elena Vance, LE", "role": "consultant", "action": "Updated Regimen Formulation Notes for User #1", "ip": "192.168.1.18", "time": "28 mins ago"},
+        {"id": 101, "actor": "Dr. Rajni Verma, MD", "role": "dermatologist", "action": "Issued Board Prescription (Rx) for User #6", "ip": "192.168.1.42", "time": "12 mins ago"},
+        {"id": 102, "actor": "Ananya Iyer, LE", "role": "consultant", "action": "Updated Regimen Formulation Notes for User #1", "ip": "192.168.1.18", "time": "28 mins ago"},
         {"id": 103, "actor": "System Admin", "role": "admin", "action": "Verified & Approved Clinician Account #5", "ip": "127.0.0.1", "time": "1 hr ago"},
         {"id": 104, "actor": "Lumina AI Copilot", "role": "system", "action": "Flagged Retinoid + BHA Contraindication for User #5", "ip": "127.0.0.1", "time": "2 hrs ago"}
     ]

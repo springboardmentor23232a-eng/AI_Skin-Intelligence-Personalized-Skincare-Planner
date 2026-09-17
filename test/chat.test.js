@@ -38,8 +38,8 @@ test('4. Multi-Role Conversations Roster Association for Patient', async () => {
   // Patient associates with Lumina AI, Consultant (ID 2), and Doctor (ID 3)
   const contacts = [
     { id: `user_${userId}_lumina_ai`, contact_id: 'lumina_ai', name: 'Lumina AI' },
-    { id: `user_${userId}_consultant_2`, contact_id: '2', name: 'Elena Vance, LE' },
-    { id: `user_${userId}_doctor_3`, contact_id: '3', name: 'Dr. Julian Rostova, MD' }
+    { id: `user_${userId}_consultant_2`, contact_id: '2', name: 'Ananya Iyer, LE' },
+    { id: `user_${userId}_doctor_3`, contact_id: '3', name: 'Dr. Rajni Verma, MD' }
   ];
   
   assert.strictEqual(contacts.length, 3);
@@ -105,4 +105,45 @@ test('6. Real-Time Chat Message Insertion & Auto-Response Mutation', async () =>
   assert.ok(foundUser);
   assert.ok(foundAi);
   assert.strictEqual(foundAi.sender_id, 'lumina_ai');
+});
+
+test('7. Lumina AI Skincare Engine - Vitamin C Stability & Ferulic Acid Pairing', async () => {
+  const query = 'How do I know if my Vitamin C serum oxidized and what pH is best?';
+  const response = generateLuminaAIResponse(query, 'user', {});
+  
+  assert.ok(response.includes('Vitamin C') || response.includes('Ascorbic'), 'Should address Vitamin C');
+  assert.ok(response.includes('L-Ascorbic Acid') || response.includes('Ferulic'), 'Should detail L-AA and Ferulic acid');
+  assert.ok(response.includes('Oxidation') || response.includes('oxidize'), 'Should give oxidation guidance');
+});
+
+test('8. Lumina AI Skincare Engine - Fungal Acne & Malassezia Folliculitis Protocol', async () => {
+  const query = 'I have itchy forehead bumps. Is it fungal acne Malassezia?';
+  const response = generateLuminaAIResponse(query, 'user', {});
+  
+  assert.ok(response.includes('Malassezia') || response.includes('Fungal Acne'), 'Should identify Malassezia yeast');
+  assert.ok(response.includes('Ketoconazole') || response.includes('Zinc Pyrithione') || response.includes('Squalane'), 'Should recommend anti-fungal treatments');
+});
+
+test('9. Lumina AI Skincare Engine - Pregnancy & Nursing Safe Actives Protocol', async () => {
+  const query = 'What pregnancy safe skincare actives can replace retinoids and salicylic acid?';
+  const response = generateLuminaAIResponse(query, 'user', {});
+  
+  assert.ok(response.includes('Pregnancy') || response.includes('Contraindicated'), 'Should outline pregnancy rules');
+  assert.ok(response.includes('Bakuchiol') || response.includes('Azelaic Acid'), 'Should recommend safe alternatives');
+});
+
+test('10. Lumina AI Skincare Engine - Purging vs Allergic Breakouts Protocol', async () => {
+  const query = 'How do I tell the difference between skin purging and an allergic breakout?';
+  const response = generateLuminaAIResponse(query, 'user', {});
+  
+  assert.ok(response.includes('Purge') || response.includes('Purging'), 'Should describe cellular purging');
+  assert.ok(response.includes('Dermatitis') || response.includes('Reaction'), 'Should contrast adverse reactions');
+});
+
+test('11. Lumina AI Skincare Engine - Mineral vs Chemical SPF Photoprotection', async () => {
+  const query = 'What broad spectrum SPF 50 sunscreen filters leave zero white cast?';
+  const response = generateLuminaAIResponse(query, 'user', {});
+  
+  assert.ok(response.includes('Broad-Spectrum SPF 50+') || response.includes('Photoprotection'), 'Should detail SPF standards');
+  assert.ok(response.includes('Tinosorb') || response.includes('Zinc Oxide') || response.includes('filters'), 'Should detail filter chemistry');
 });

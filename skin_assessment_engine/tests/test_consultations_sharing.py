@@ -76,7 +76,7 @@ def test_book_consultation():
     payload = {
         "user_id": 1,
         "specialist_id": 3,
-        "specialist_name": "Dr. Julian Rostova, MD",
+        "specialist_name": "Dr. Rajni Verma, MD",
         "specialist_role": "dermatologist",
         "type": "Urgent Rosacea Assessment",
         "notes": "Redness flare-up evaluation."
@@ -85,5 +85,5 @@ def test_book_consultation():
     assert response.status_code == 200
     data = response.json()
     assert data["success"] is True
-    assert data["appointment"]["specialist_name"] == "Dr. Julian Rostova, MD"
+    assert data["appointment"]["specialist_name"] == "Dr. Rajni Verma, MD"
     assert data["appointment"]["status"] == "confirmed"

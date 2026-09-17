@@ -134,7 +134,7 @@ CHAT_MESSAGES_DB: List[Dict[str, Any]] = [
         "id": 3,
         "conversation_id": "user_1_consultant_2",
         "sender_id": "2",
-        "sender_name": "Elena Vance, LE",
+        "sender_name": "Ananya Iyer, LE",
         "sender_role": "consultant",
         "sender_avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150",
         "recipient_id": "1",
@@ -150,7 +150,7 @@ CHAT_MESSAGES_DB: List[Dict[str, Any]] = [
         "id": 4,
         "conversation_id": "user_1_doctor_3",
         "sender_id": "3",
-        "sender_name": "Dr. Julian Rostova, MD",
+        "sender_name": "Dr. Rajni Verma, MD",
         "sender_role": "dermatologist",
         "sender_avatar": "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150",
         "recipient_id": "1",
@@ -172,7 +172,77 @@ CHAT_MESSAGES_DB: List[Dict[str, Any]] = [
 def generate_lumina_ai_clinical_response(query: str, sender_role: str = "user") -> str:
     query_lower = query.lower()
 
-    if any(k in query_lower for k in ["salicylic", "bha", "adapalene", "retinol", "retinoid", "tretinoin", "aha", "glycolic"]):
+    # 1. Vitamin C, Ascorbic Acid, Stability & Antioxidants
+    if any(k in query_lower for k in ["vitamin c", "ascorbic", "antioxidant", "ferulic", "thd", "oxidiz", "orange serum"]):
+        return (
+            "Hello! Regarding **Vitamin C (Ascorbic Acid) Chemistry & Antioxidant Synergy**:\n\n"
+            "✨ **Formulation Mechanics**:\n"
+            "• **L-Ascorbic Acid (L-AA 15–20%)**: The biological gold standard for direct tyrosinase inhibition and type I/III collagen stimulation. Requires an acidic pH (< 3.5) for stratum corneum penetration.\n"
+            "• **Photostability Triad**: Look for formulations stabilizing L-AA with **Ferulic Acid (0.5%)** and **Vitamin E (1.0% Tocopherol)**, boosting UV photoprotective efficacy up to 8-fold.\n"
+            "• **Oxidation Diagnostics**: Fresh serum is pale champagne/clear. If oxidized to deep amber or brown, dehydroascorbic acid has formed — discontinue use.\n"
+            "• **Sensitive Alternatives**: Switch to **THD Ascorbate** or **Sodium Ascorbyl Phosphate (SAP)** at physiological pH 6.0 if pure L-AA causes tingling.\n\n"
+            "🌅 **Regimen Placement**: Apply 4–5 drops every morning directly onto cleansed dry skin BEFORE hydrators, followed by Broad-Spectrum SPF 50+."
+        )
+
+    # 2. Hyperpigmentation, Dark Spots, Melasma, PIH & PIE
+    if any(k in query_lower for k in ["hyperpigmentation", "dark spot", "melasma", "pih", "pie", "discoloration", "brown mark", "tranexamic", "arbutin"]):
+        return (
+            "Hello! For targeting **Hyperpigmentation, Melasma, PIH & PIE**:\n\n"
+            "🧪 **Clinical Depigmentation Pathways**:\n"
+            "• **PIH (Melanin Deposit)**: Inhibit tyrosinase using **10–15% Azelaic Acid**, **Alpha Arbutin 2%**, and **Tranexamic Acid 3–5%**.\n"
+            "• **PIE (Vascular Micro-Capillary Damage)**: Prioritize **Niacinamide 5%** and **Centella Asiatica** to soothe erythema and vessel dilation.\n"
+            "• **Cellular Clearance**: Combine with nightly **Topical Adapalene 0.1%** to accelerate epidermal sloughing of pigmented cells.\n"
+            "• **Mandatory UV Shield**: UV radiation darkens melanin spots rapidly. Daily Broad-Spectrum SPF 50+ is non-negotiable.\n\n"
+            "✨ **Optimal Pairing**: Azelaic Acid 10–15% in the AM + Retinoid in the PM."
+        )
+
+    # 3. Fungal Acne (Malassezia Folliculitis) vs Bacterial Acne
+    if any(k in query_lower for k in ["fungal acne", "malassezia", "folliculitis", "pityrosporum", "itchy bump", "forehead bump"]):
+        return (
+            "Hello! Let's examine **Malassezia Folliculitis ('Fungal Acne') Diagnostics**:\n\n"
+            "🔬 **Pathophysiological Profile**:\n"
+            "• **Root Cause**: Opportunistic overgrowth of *Malassezia* yeast in the pilosebaceous follicle (NOT bacterial *C. acnes*).\n"
+            "• **Visual Clues**: Clusters of uniform, monomorphic 1–2mm itchy micro-papules on forehead, hairline, chest, or back.\n"
+            "• **Trigger Ingredients to AVOID**: Fatty acids with chain lengths C11–C24 (Lauric, Palmitic, Stearic, Oleic), Polysorbates, and Galactomyces ferments.\n\n"
+            "🛡️ **Targeted Protocol**:\n"
+            "1. **Anti-Fungal Wash**: **Ketoconazole 2%** or **Zinc Pyrithione 1–2%** applied as a 3-minute mask 3x weekly.\n"
+            "2. **Safe Hydration**: Utilize 100% Pure **Sugarcane Squalane**, **Urea 5%**, or oil-free Hyaluronic Acid gels.\n"
+            "3. **Decongestant**: 2% Salicylic Acid BHA safely dissolves yeast-harboring follicular plugs."
+        )
+
+    # 4. Pregnancy & Lactation Safe Skincare
+    if any(k in query_lower for k in ["pregnan", "lactat", "breastfeed", "nursing", "safe during pregnancy", "baby safe"]):
+        return (
+            "Hello! Here is the clinical **Pregnancy & Nursing Safe Skincare Compass**:\n\n"
+            "⚠️ **Strictly Contraindicated Actives**:\n"
+            "• **Retinoids**: Tretinoin, Adapalene, Retinol, Tazarotene, Isotretinoin (teratogenic risks).\n"
+            "• **High-Dose Salicylic Acid (>2%)**: High-concentration chemical peels.\n"
+            "• **Hydroquinone**: Elevated systemic dermal absorption rate (~35–45%).\n\n"
+            "🌿 **Evidence-Based Safe Alternatives**:\n"
+            "• **Retinol Botanical Dupe**: **Bakuchiol 1%** (stimulates collagen type I & III with zero retinoid toxicity).\n"
+            "• **Acne & Melasma Shield**: **Azelaic Acid 10–15%** (Class B safety rating; gold standard for pregnancy melasma).\n"
+            "• **Gentle Exfoliation**: **Lactic Acid (5–10%)** and **Glycolic Acid (<7%)**.\n"
+            "• **Photoprotection**: 100% **Non-Nano Zinc Oxide / Titanium Dioxide Mineral SPF 50+**."
+        )
+
+    # 5. Purging vs Breakouts & Allergic Irritation
+    if any(k in query_lower for k in ["purg", "purge", "reaction vs purge", "breakout vs purge", "irritation vs purging"]):
+        return (
+            "Hello! Let's distinguish between **Active Purging vs Allergic Breakouts**:\n\n"
+            "🔍 **Clinical Diagnostic Comparison**:\n"
+            "• **Cellular Purge (Expected Turnover)**:\n"
+            "  - *Cause*: Actives accelerating cell turnover (Retinoids, AHAs, BHAs, Azelaic Acid) surfacing underlying microcomedones.\n"
+            "  - *Location*: Appears **exclusively in zones where you normally break out**.\n"
+            "  - *Duration*: Peaks at weeks 2–4, resolves by weeks 6–8.\n"
+            "• **Contact Dermatitis / Barrier Breakout (Adverse Reaction)**:\n"
+            "  - *Cause*: Pore-clogging comedogens, fragrance allergy, or barrier compromise.\n"
+            "  - *Location*: Appears in **brand-new areas** where you never experienced lesions.\n"
+            "  - *Symptoms*: Diffuse redness, stinging, severe itching, or micro-rash.\n\n"
+            "💡 **Action**: If purging, maintain course with the 'Sandwich Technique'. If allergic, stop immediately and begin 7-day Ceramide Barrier Protocol."
+        )
+
+    # 6. Retinoids & Active Chemical Exfoliation
+    if any(k in query_lower for k in ["salicylic", "bha", "adapalene", "retinol", "retinoid", "tretinoin", "aha", "glycolic", "sandwich"]):
         return (
             "Hello! Regarding active chemical exfoliant & retinoid pairing:\n\n"
             "🔬 **Clinical Interaction Analysis**:\n"
@@ -184,6 +254,7 @@ def generate_lumina_ai_clinical_response(query: str, sender_role: str = "user") 
             "*If stinging occurs, utilize the 'Sandwich Technique' (moisturizer → retinoid → moisturizer).*"
         )
 
+    # 7. Barrier Repair, Redness & Sensitivity
     if any(k in query_lower for k in ["barrier", "dry", "flaking", "redness", "stinging", "rosacea", "sensitive", "burn"]):
         return (
             "Hello! Let's focus on **Skin Barrier Repair & Soothing**:\n\n"
@@ -195,6 +266,41 @@ def generate_lumina_ai_clinical_response(query: str, sender_role: str = "user") 
             "*Hydration and barrier resilience metrics typically rebound within 7–10 days of consistent lipid care.*"
         )
 
+    # 8. Under-Eye Care & Peptides
+    if any(k in query_lower for k in ["dark circle", "under eye", "eye bag", "puffiness", "eye cream", "caffeine", "matrixyl", "copper peptide"]):
+        return (
+            "Hello! For **Periorbital Rejuvenation & Dark Circle Attenuation**:\n\n"
+            "👁️ **Etiological Classification & Interventions**:\n"
+            "• **Vascular Dark Circles (Blue/Purple hue)**: Micro-vascular pooling under thin periorbital skin. Apply **Caffeine 5% + EGCG** to stimulate lymphatic drainage and vasoconstriction.\n"
+            "• **Pigmentary Dark Circles (Brown/Dark hue)**: Treat with **Ascorbyl Glucoside**, **Niacinamide 2–4%**, or mild **Azelaic Acid**.\n"
+            "• **Structural Hollows & Fine Lines**: Apply **Matrixyl 3000** and **Copper Tripeptide-1 (GHK-Cu)** to reinforce dermal extracellular collagen.\n\n"
+            "✨ **Application Technique**: Tap gently with the ring finger along the orbital bone morning and evening."
+        )
+
+    # 9. Exfoliation Acids (AHA vs BHA vs PHA)
+    if any(k in query_lower for k in ["exfoliat", "pha", "lactic acid", "mandelic", "chemical peel"]):
+        return (
+            "Hello! Here is the clinical comparison of **Hydroxy Acid Exfoliation Mechanics**:\n\n"
+            "🧪 **Chemical Acid Comparison**:\n"
+            "• **AHAs (Glycolic 5-10%, Lactic 5-10%, Mandelic)**: Water-soluble. Weakens dead surface cell bonds for glow and texture (Mandelic is ideal for deeper skin tones).\n"
+            "• **BHAs (Salicylic Acid 0.5–2.0%)**: Oil-soluble. Penetrates pores to dissolve oxidized sebum and blackheads.\n"
+            "• **PHAs (Gluconolactone, Lactobionic Acid)**: Large molecular weight that exfoliates outermost stratum corneum with zero stinging, ideal for sensitive skin.\n\n"
+            "⏱️ **Frequency**: 2–3 evenings per week maximum; avoid cocktailing multiple strong acids in one session."
+        )
+
+    # 10. Dehydrated Oily Skin & TEWL
+    if any(k in query_lower for k in ["dehydrated", "oily and dry", "tight skin", "tewl", "water loss"]):
+        return (
+            "Hello! Addressing **Dehydrated Oily Skin & Trans-Epidermal Water Loss (TEWL)**:\n\n"
+            "💧 **The Dehydration-Sebum Paradox**:\n"
+            "When the stratum corneum lacks water, sebaceous glands overcompensate by pumping excess sebum, resulting in an oily sheen over tight, irritated skin.\n\n"
+            "🛡️ **Hydration Protocol**:\n"
+            "1. **Humectants on Damp Skin**: Apply **Glycerin 10%**, **Multi-Molecular Hyaluronic Acid**, or **Beta-Glucan** immediately after washing.\n"
+            "2. **Low-pH Cleansing**: Use gentle pH 5.5 gel washes without harsh SLS sulfates.\n"
+            "3. **Water-Gel Moisture**: Use oil-free, non-comedogenic gel-creams containing **Panthenol** and **Centella**."
+        )
+
+    # 11. Acne, Breakouts & Pores
     if any(k in query_lower for k in ["acne", "pimple", "breakout", "clogged", "pores", "blackhead", "cystic"]):
         return (
             "Hello! For targeting **Acne & Follicular Congestion**:\n\n"
@@ -206,22 +312,24 @@ def generate_lumina_ai_clinical_response(query: str, sender_role: str = "user") 
             "*Avoid manual extraction to safeguard dermal collagen from textural scarring.*"
         )
 
-    if any(k in query_lower for k in ["sunscreen", "spf", "uv", "sun", "melasma", "tan"]):
+    # 12. Sunscreen, UV & Photoprotection
+    if any(k in query_lower for k in ["sunscreen", "spf", "uv", "sun", "mineral vs chemical", "white cast", "tan"]):
         return (
             "Hello! Daily photoprotection is the foundational pillar of cutaneous health:\n\n"
             "☀️ **Photoprotection Guidelines**:\n"
             "• **Rating**: Broad-Spectrum SPF 50+ with PA++++ (protects against UVB burning and UVA photo-aging).\n"
             "• **Dosage**: Two full finger lengths (~1.25 ml) for face and neck.\n"
             "• **Reapplication**: Every 2 hours during direct outdoor exposure, or immediately after sweating/swimming.\n"
-            "• **Filter Match**: Photostable organic filters (Tinosorb S, Uvinul A Plus) for transparent finish; Mineral Zinc Oxide 15%+ for reactive skin."
+            "• **Filter Match**: Photostable modern organic filters (Tinosorb S/M, Uvinul A Plus) for transparent zero white cast; Mineral Zinc Oxide 15%+ for reactive skin."
         )
 
-    if any(k in query_lower for k in ["routine", "order", "morning", "evening", "step", "layer"]):
+    # 13. Routine Steps & Sequence
+    if any(k in query_lower for k in ["routine", "order", "morning", "evening", "step", "layer", "sequence"]):
         return (
             "Hello! Here is the dermatologist-recommended application sequence by molecular weight:\n\n"
             "🌅 **Morning (AM) Protocol**:\n"
             "1. Gentle Cleanser (Low pH 5.5)\n"
-            "2. Hydrating Essence (Hyaluronic Acid / Centella)\n"
+            "2. Hydrating Essence (Hyaluronic Acid / Centella on damp skin)\n"
             "3. Antioxidant Serum (Vitamin C 15% or Niacinamide 5%)\n"
             "4. Lightweight Gel-Cream Moisturizer\n"
             "5. **Broad-Spectrum SPF 50+ Sunscreen** (Crucial step)\n\n"
@@ -232,12 +340,24 @@ def generate_lumina_ai_clinical_response(query: str, sender_role: str = "user") 
             "4. Optional: Squalane Oil / Night Barrier Balm"
         )
 
-    if any(k in query_lower for k in ["doctor", "prescription", "appointment", "rx", "consultant", "specialist"]):
+    # 14. Anti-Aging & Collagen
+    if any(k in query_lower for k in ["anti-aging", "wrinkle", "fine line", "collagen", "firmness", "elasticity", "aging"]):
+        return (
+            "Hello! For **Cutaneous Longevity & Collagen Stimulation**:\n\n"
+            "🧬 **Evidence-Based Anti-Aging Pillars**:\n"
+            "• **Prevention**: Daily Broad-Spectrum SPF 50+ blocks UV-induced collagenase breakdown.\n"
+            "• **Cellular Renewal**: Nightly **Retinoids (Adapalene/Retinol/Tretinoin)** stimulate fibroblast procollagen synthesis.\n"
+            "• **Signal Peptides**: **Matrixyl 3000** and **Copper Peptides** enhance extracellular matrix firmness.\n"
+            "• **Deep Hydration**: Multi-depth Hyaluronic Acid plumps superficial micro-crepiness."
+        )
+
+    # 15. Specialist & Doctor Consultations
+    if any(k in query_lower for k in ["doctor", "prescription", "appointment", "rx", "consultant", "specialist", "rajni", "ananya", "verma", "iyer"]):
         return (
             "Hello! You have dedicated clinical specialists associated with your profile:\n\n"
             "🩺 **Care Team**:\n"
-            "• **Dr. Julian Rostova, MD** (Board-Certified Dermatologist): Diagnostic evaluations, optical lesion screenings, and digital Rx renewals.\n"
-            "• **Elena Vance, LE** (Lead Clinical Esthetician): Custom regimen design, ingredient safety, and adherence coaching.\n\n"
+            "• **Dr. Rajni Verma, MD** (Board-Certified Dermatologist): Diagnostic evaluations, optical lesion screenings, and digital Rx renewals.\n"
+            "• **Ananya Iyer, LE** (Lead Clinical Esthetician): Custom regimen design, ingredient safety, and adherence coaching.\n\n"
             "*You can send them a direct message using the contact selector, or book a live video consultation in the Appointments hub!*"
         )
 
@@ -247,7 +367,7 @@ def generate_lumina_ai_clinical_response(query: str, sender_role: str = "user") 
         "💡 **Key Recommendations**:\n"
         "• Prioritize daily SPF 50+ photoprotection and nightly lipid barrier hydration.\n"
         "• Introduce potent actives (acids and retinoids) gradually to maintain cutaneous tolerance.\n"
-        "• For personalized prescription adjustments, you can ping **Dr. Julian Rostova** or **Elena Vance** directly in this clinic chat.\n\n"
+        "• For personalized prescription adjustments, you can ping **Dr. Rajni Verma** or **Ananya Iyer** directly in this clinic chat.\n\n"
         "*What specific ingredient, routine step, or skin concern would you like me to analyze further?*"
     )
 
@@ -281,7 +401,7 @@ def get_chat_conversations(
             {
                 "id": f"user_{user_id}_consultant_2",
                 "contact_id": "2",
-                "contact_name": "Elena Vance, LE",
+                "contact_name": "Ananya Iyer, LE",
                 "contact_role": "consultant",
                 "contact_title": "Lead Clinical Esthetician",
                 "contact_avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150",
@@ -292,7 +412,7 @@ def get_chat_conversations(
             {
                 "id": f"user_{user_id}_doctor_3",
                 "contact_id": "3",
-                "contact_name": "Dr. Julian Rostova, MD",
+                "contact_name": "Dr. Rajni Verma, MD",
                 "contact_role": "dermatologist",
                 "contact_title": "Board-Certified Dermatologist",
                 "contact_avatar": "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150",
@@ -339,7 +459,7 @@ def get_chat_conversations(
             {
                 "id": f"consultant_{user_id}_doctor_3",
                 "contact_id": "3",
-                "contact_name": "Dr. Julian Rostova, MD",
+                "contact_name": "Dr. Rajni Verma, MD",
                 "contact_role": "dermatologist",
                 "contact_title": "Supervising Dermatologist",
                 "contact_avatar": "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150",
@@ -375,7 +495,7 @@ def get_chat_conversations(
             {
                 "id": f"consultant_2_doctor_{user_id}",
                 "contact_id": "2",
-                "contact_name": "Elena Vance, LE",
+                "contact_name": "Ananya Iyer, LE",
                 "contact_role": "consultant",
                 "contact_title": "Lead Aesthetic Consultant",
                 "contact_avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150",

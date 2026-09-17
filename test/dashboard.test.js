@@ -52,7 +52,7 @@ test('3. Landing Page View Renderer Test', () => {
   assert.ok(html.includes('Check Your Skin Health in Seconds'), 'Must contain editorial hero headline');
   assert.ok(html.includes('Precision Skin Intelligence Made Simple'), 'Must contain simple features section');
   assert.ok(html.includes('99.4% Scan Accuracy'), 'Must list accuracy metric');
-  assert.ok(html.includes('Dr. Rajesh Varma') || html.includes('Dr. Julian Rostova') || html.includes('Elena Vance') || html.includes('Ananya Iyer'), 'Must render certified clinician specialist card');
+  assert.ok(html.includes('Dr. Rajni Verma') || html.includes('Dr. Julian Rostova') || html.includes('Elena Vance') || html.includes('Ananya Iyer'), 'Must render certified clinician specialist card');
 });
 
 test('4. User Dashboard View Renderer Test', () => {

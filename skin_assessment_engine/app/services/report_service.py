@@ -149,8 +149,8 @@ def generate_clinical_report(db: Session, user_id: int = 1, report_type: str = "
             "overall_health_score": score,
             "skin_type": skin_type,
             "clinical_status": "Optimal Progress / Regimen Maintained",
-            "assigned_consultant": "Elena Vance, LE",
-            "assigned_dermatologist": "Dr. Julian Rostova, MD",
+            "assigned_consultant": "Ananya Iyer, LE",
+            "assigned_dermatologist": "Dr. Rajni Verma, MD",
             "active_prescription": "Topical Adapalene 0.1% (PM 3x/wk) + Azelaic Acid 15% (AM)",
             "routine_adherence": "93.5%",
             "consistency_streak": "14 Days",
@@ -429,7 +429,7 @@ def compile_printable_pdf_html(report: Dict[str, Any]) -> str:
     </div>
     <div class="meta-item">
       <label>Assigned Clinician</label>
-      <strong>Dr. Julian Rostova, MD</strong>
+      <strong>Dr. Rajni Verma, MD</strong>
     </div>
     <div class="meta-item">
       <label>Clinical Status</label>
@@ -460,11 +460,11 @@ def compile_printable_pdf_html(report: Dict[str, Any]) -> str:
   <div class="doctor-signature-row">
     <div class="sig-block">
       <div class="sig-line"></div>
-      <small><strong>Elena Vance, LE</strong><br>Lead Clinical Esthetician</small>
+      <small><strong>Ananya Iyer, LE</strong><br>Lead Clinical Esthetician</small>
     </div>
     <div class="sig-block">
       <div class="sig-line"></div>
-      <small><strong>Dr. Julian Rostova, MD</strong><br>Board-Certified Dermatologist</small>
+      <small><strong>Dr. Rajni Verma, MD</strong><br>Board-Certified Dermatologist</small>
     </div>
   </div>
 </body>
@@ -509,9 +509,9 @@ def generate_csv_export(export_type: str = "progress") -> Dict[str, Any]:
     else: # client_assessments / admin
         filename = "panacea_clinical_patient_records.csv"
         writer.writerow(["Patient ID", "Name", "Age", "Skin Type", "Condition", "Severity", "Health Score", "Adherence (%)", "Lesion Risk", "Assigned Doctor"])
-        writer.writerow(["PX-00001", "Alex Rivera", "28", "Combination", "Mild Comedonal Acne", "Mild", "79.4", "94.2", "Benign (8.2%)", "Dr. Julian Rostova, MD"])
-        writer.writerow(["PX-00005", "Sarah Jenkins", "34", "Sensitive/Dry", "Subacute Rosacea", "Moderate", "71.2", "86.5", "Benign (6.5%)", "Dr. Julian Rostova, MD"])
-        writer.writerow(["PX-00006", "Marcus Vance", "24", "Oily/Congested", "Papulopustular Acne", "High", "65.5", "78.0", "Inflammatory (11.0%)", "Dr. Julian Rostova, MD"])
+        writer.writerow(["PX-00001", "Alex Rivera", "28", "Combination", "Mild Comedonal Acne", "Mild", "79.4", "94.2", "Benign (8.2%)", "Dr. Rajni Verma, MD"])
+        writer.writerow(["PX-00005", "Sarah Jenkins", "34", "Sensitive/Dry", "Subacute Rosacea", "Moderate", "71.2", "86.5", "Benign (6.5%)", "Dr. Rajni Verma, MD"])
+        writer.writerow(["PX-00006", "Marcus Vance", "24", "Oily/Congested", "Papulopustular Acne", "High", "65.5", "78.0", "Inflammatory (11.0%)", "Dr. Rajni Verma, MD"])
 
     csv_content = output.getvalue()
     row_count = len(csv_content.strip().split("\n")) - 1 # excluding header

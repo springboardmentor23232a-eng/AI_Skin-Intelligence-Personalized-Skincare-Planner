@@ -73,7 +73,7 @@ test('5. Consultation Booking & Appointment Store Mutation', async () => {
     id: initialCount + 1,
     user_id: 1,
     specialist_id: 3,
-    specialist_name: 'Dr. Julian Rostova, MD',
+    specialist_name: 'Dr. Rajni Verma, MD',
     specialist_role: 'dermatologist',
     type: 'Emergency Rosacea Flare Assessment',
     scheduled_date: '2025-12-15T11:00:00.000Z',
@@ -85,7 +85,7 @@ test('5. Consultation Booking & Appointment Store Mutation', async () => {
   assert.strictEqual(store.appointments.length, initialCount + 1);
   const found = store.appointments.find(a => a.type === 'Emergency Rosacea Flare Assessment');
   assert.ok(found);
-  assert.strictEqual(found.specialist_name, 'Dr. Julian Rostova, MD');
+  assert.strictEqual(found.specialist_name, 'Dr. Rajni Verma, MD');
 });
 
 test('6. User Care Protocol & Live Consultation Synchronization', async () => {
@@ -139,7 +139,7 @@ test('9. Doctor Electronic Prescription (e-Rx) Authorization Workflow', async ()
   const newRx = 'Tretinoin 0.05% Microsphere Gel (PM 2x/wk) + Ceramide Barrier Cream';
   consult.prescription = newRx;
   consult.rx_authorized_at = new Date().toISOString();
-  consult.rx_authorized_by = 'Dr. Julian Rostova, MD (NPI #984321045)';
+  consult.rx_authorized_by = 'Dr. Rajni Verma, MD (NPI #984321045)';
 
   assert.strictEqual(consult.prescription, newRx);
   assert.ok(consult.rx_authorized_by.includes('NPI #984321045'));

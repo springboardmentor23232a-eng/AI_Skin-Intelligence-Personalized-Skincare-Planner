@@ -47,7 +47,7 @@ test('2. Dermatologist Synchronized Patient Roster & Optical Lesion Status Verif
   assert.ok(alexScore, 'Alex Rivera skin score must exist');
   assert.equal(alexScore.overall_score, 79.4);
   assert.equal(alexScore.lesion_screening.badge, 'BENIGN (SAFE)');
-  assert.equal(alexConsult.dermatologist, 'Dr. Julian Rostova, MD');
+  assert.equal(alexConsult.dermatologist, 'Dr. Rajni Verma, MD');
   assert.ok(alexConsult.prescription.includes('Adapalene'), 'Must have medical prescription');
 });
 
@@ -104,10 +104,10 @@ test('5. Dermatologist Medical Prescription (Rx) & Sign-Off Mutation Test', asyn
   // Simulate doctor modifying prescription
   const updatedRx = 'Topical Adapalene 0.1% (PM 4x/wk) + Azelaic Acid 15% (AM) + Ceramide NP Balm';
   consult.prescription = updatedRx;
-  consult.clinical_notes = 'Clearance confirmed by Dr. Julian Rostova, MD. Patient certified for continuation.';
+  consult.clinical_notes = 'Clearance confirmed by Dr. Rajni Verma, MD. Patient certified for continuation.';
 
   assert.equal(consult.prescription, updatedRx);
-  assert.ok(consult.clinical_notes.includes('Dr. Julian Rostova'));
+  assert.ok(consult.clinical_notes.includes('Dr. Rajni Verma'));
 });
 
 test('6. RBAC Guard: Block Non-User Roles from Consumer Assessment', () => {

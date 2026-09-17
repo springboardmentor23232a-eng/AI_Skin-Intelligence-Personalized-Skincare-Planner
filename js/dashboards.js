@@ -183,14 +183,14 @@ export function renderLandingPage() {
         </div>
 
         <div class="doctors-grid">
-          <!-- Doctor 1: Dr. Rajesh Varma, MD -->
+          <!-- Doctor 1: Dr. Rajni Verma, MD -->
           <div class="doctor-card reveal delay-1">
             <div class="doctor-img-box">
-              <img src="assets/doctor_sarah.png" alt="Dr. Rajesh Varma, MD" class="doctor-img">
+              <img src="assets/doctor_sarah.png" alt="Dr. Rajni Verma, MD" class="doctor-img">
               <span class="badge badge-success status-tag">🟢 Available</span>
             </div>
             <div class="doctor-info">
-              <h3>Dr. Rajesh Varma, MD</h3>
+              <h3>Dr. Rajni Verma, MD</h3>
               <span class="doctor-spec">BOARD-CERTIFIED DERMATOLOGIST</span>
               <p class="doctor-exp">Lead clinical dermatologist specializing in cutaneous barrier restoration, acne protocols, and digital lesion diagnostics.</p>
               <button class="btn-link" onclick="window.app.navigateToView('consultations')">CONSULT NOW &gt;</button>
@@ -1120,9 +1120,9 @@ export function renderConsultantDashboard(liveClients = null) {
         <div>
           <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
             <span class="badge badge-warning" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.3rem 0.8rem;">Esthetician Workspace</span>
-            <span style="font-size: 0.85rem; color: #EAE6DF;">• Elena Vance, LE</span>
+            <span style="font-size: 0.85rem; color: #EAE6DF;">• Ananya Iyer, LE</span>
           </div>
-          <h2 style="color: #FFFFFF; font-family: 'Playfair Display', serif; font-size: 1.85rem; margin: 0 0 0.35rem;">Consultant Workspace — Elena Vance, LE</h2>
+          <h2 style="color: #FFFFFF; font-family: 'Playfair Display', serif; font-size: 1.85rem; margin: 0 0 0.35rem;">Consultant Workspace — Ananya Iyer, LE</h2>
           <p style="color: #D1CBC4; font-size: 0.9rem; margin: 0;">Evaluate live client biometric assessments, monitor 30-day compliance, and synthesize personalized regimens</p>
         </div>
         <div style="display: flex; gap: 0.75rem; align-items: center;">
@@ -1305,9 +1305,9 @@ export function renderDermatologistDashboard(livePatients = null) {
         <div>
           <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
             <span class="badge badge-dermatologist" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.3rem 0.8rem; background: rgba(46, 125, 50, 0.3); border: 1px solid #4CAF50; color: #81C784;">Board-Certified Medical Access</span>
-            <span style="font-size: 0.85rem; color: #EAE6DF;">• Dr. Julian Rostova, MD (Clinical Director)</span>
+            <span style="font-size: 0.85rem; color: #EAE6DF;">• Dr. Rajni Verma, MD (Clinical Director)</span>
           </div>
-          <h2 style="color: #FFFFFF; font-family: 'Playfair Display', serif; font-size: 1.85rem; margin: 0 0 0.35rem;">Clinical Skincare Portal — Dr. Julian Rostova, MD</h2>
+          <h2 style="color: #FFFFFF; font-family: 'Playfair Display', serif; font-size: 1.85rem; margin: 0 0 0.35rem;">Clinical Skincare Portal — Dr. Rajni Verma, MD</h2>
           <p style="color: #D1E7DD; font-size: 0.9rem; margin: 0;">Perform optical lesion screening verification, clinical condition diagnoses, and active prescription (Rx) authorization</p>
         </div>
         <div style="display: flex; gap: 0.75rem; align-items: center;">
@@ -3365,7 +3365,7 @@ export function renderProgressAnalyticsPage(progressData = null, currentUser = n
               🩺
             </div>
             <div>
-              <strong style="font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--text-primary);">Dr. Rajesh Varma, Board-Certified Dermatologist</strong>
+              <strong style="font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--text-primary);">Dr. Rajni Verma, Board-Certified Dermatologist</strong>
               <div style="font-size: 0.74rem; color: var(--text-muted);">Lead Clinical Diagnostics Specialist</div>
             </div>
           </div>
@@ -3443,7 +3443,7 @@ export function renderUserAppointmentsPage(consultData = null, prefsData = null,
           <button class="btn btn-outline" onclick="window.app.navigateToView('dashboard')" style="display: flex; align-items: center; gap: 0.5rem; font-weight: 700;">
             ← Back to Dashboard
           </button>
-          <button class="btn btn-primary" onclick="window.app.openBookingModal(3, 'Dr. Rajesh Varma, MD', 'dermatologist')" style="font-weight: 700; background: var(--gold-primary); color: #111;">
+          <button class="btn btn-primary" onclick="window.app.openBookingModal(3, 'Dr. Rajni Verma, MD', 'dermatologist')" style="font-weight: 700; background: var(--gold-primary); color: #111;">
             + Book Specialist Consultation
           </button>
         </div>
@@ -3556,9 +3556,9 @@ export function renderUserAppointmentsPage(consultData = null, prefsData = null,
           <!-- Doctor Medical Rx Card -->
           <div style="background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 1.4rem;">
             <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-              <img src="${consult.assigned_doctor?.avatar || 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=100'}" alt="Dr. Rajesh Varma" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #2E7D32;">
+              <img src="${consult.assigned_doctor?.avatar || 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=100'}" alt="Dr. Rajni Verma" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #2E7D32;">
               <div>
-                <strong style="font-size: 0.95rem; color: var(--text-primary); display: block;">Dr. Rajesh Varma, MD</strong>
+                <strong style="font-size: 0.95rem; color: var(--text-primary); display: block;">Dr. Rajni Verma, MD</strong>
                 <span style="font-size: 0.74rem; color: #2E7D32; font-weight: 700; text-transform: uppercase;">Board-Certified Dermatologist</span>
               </div>
             </div>
@@ -3569,7 +3569,7 @@ export function renderUserAppointmentsPage(consultData = null, prefsData = null,
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; color: var(--text-muted);">
               <span>Next Check: <strong>${consult.next_review || '24 Dec 2025'}</strong></span>
-              <button class="btn btn-sm btn-primary" style="background: #2E7D32; border-color: #2E7D32; font-size: 0.75rem; padding: 0.25rem 0.65rem;" onclick="alert('Certified Digital Prescription #RX-84920-ADAP. Certified for pharmacy dispense by Dr. Rajesh Varma, MD.')">📄 View Rx</button>
+              <button class="btn btn-sm btn-primary" style="background: #2E7D32; border-color: #2E7D32; font-size: 0.75rem; padding: 0.25rem 0.65rem;" onclick="alert('Certified Digital Prescription #RX-84920-ADAP. Certified for pharmacy dispense by Dr. Rajni Verma, MD.')">📄 View Rx</button>
             </div>
           </div>
         </div>
@@ -3656,7 +3656,7 @@ export function renderUserAppointmentsPage(consultData = null, prefsData = null,
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
                 <div>
                   <h3 style="font-family: 'Playfair Display', serif; font-size: 1.15rem; margin: 0 0 0.15rem 0;">Dermatologist Permissions</h3>
-                  <span style="font-size: 0.75rem; color: #2E7D32; font-weight: 700;">Dr. Rajesh Varma, MD (Clinical Director)</span>
+                  <span style="font-size: 0.75rem; color: #2E7D32; font-weight: 700;">Dr. Rajni Verma, MD (Clinical Director)</span>
                 </div>
                 <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; font-size: 0.78rem; font-weight: 700;">
                   <input type="checkbox" id="pref-doctor-shared" ${dPref.shared !== false ? 'checked' : ''} style="width: 16px; height: 16px;">
@@ -4382,7 +4382,7 @@ export function renderClinicChatPage(conversations = [], activeContactId = 'lumi
     {
       id: `user_${currentUserId}_doctor_3`,
       contact_id: '3',
-      contact_name: 'Dr. Rajesh Varma, MD',
+      contact_name: 'Dr. Rajni Verma, MD',
       contact_role: 'dermatologist',
       contact_title: 'Board-Certified Dermatologist',
       contact_avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150',
@@ -4420,7 +4420,7 @@ export function renderClinicChatPage(conversations = [], activeContactId = 'lumi
           <button class="btn btn-sm btn-outline" onclick="window.app.navigateToView('dashboard')" style="display: flex; align-items: center; gap: 0.4rem; font-weight: 700; font-size: 0.82rem;">
             <span>←</span> Back to Dashboard
           </button>
-          <button class="btn btn-sm btn-primary" onclick="window.app.openBookingModal(3, 'Dr. Rajesh Varma, MD', 'dermatologist')" style="font-weight: 700; font-size: 0.82rem; background: #2E7D32; border-color: #2E7D32;">
+          <button class="btn btn-sm btn-primary" onclick="window.app.openBookingModal(3, 'Dr. Rajni Verma, MD', 'dermatologist')" style="font-weight: 700; font-size: 0.82rem; background: #2E7D32; border-color: #2E7D32;">
             📹 Book Video Telehealth
           </button>
         </div>
@@ -4582,11 +4582,18 @@ export function renderClinicChatPage(conversations = [], activeContactId = 'lumi
           <!-- Quick Preset Prompts (Always Available for Lumina AI) -->
           ${activeContact.is_ai ? `
             <div class="chat-quick-suggestions">
-              <span style="font-size: 0.72rem; font-weight: 800; color: var(--gold-primary); text-transform: uppercase;">Quick Topics:</span>
-              <button class="chat-suggestion-chip" onclick="window.app.sendQuickPrompt('Is it safe to use 2% Salicylic Acid BHA alongside Topical Adapalene 0.1%?')">🧪 BHA + Adapalene Pairing</button>
-              <button class="chat-suggestion-chip" onclick="window.app.sendQuickPrompt('How do I repair a compromised skin barrier and soothe facial redness?')">🛡️ Skin Barrier Repair</button>
-              <button class="chat-suggestion-chip" onclick="window.app.sendQuickPrompt('What is the optimal morning and evening skincare application order?')">🌅 Regimen Application Order</button>
-              <button class="chat-suggestion-chip" onclick="window.app.sendQuickPrompt('How should I manage retinoid purging vs allergic irritation?')">💊 Retinoid Purging Protocol</button>
+              <span style="font-size: 0.72rem; font-weight: 800; color: var(--gold-primary); text-transform: uppercase; white-space: nowrap; margin-right: 0.35rem;">Quick Topics:</span>
+              <button type="button" class="chat-suggestion-chip" onclick="window.app.sendQuickPrompt('Is it safe to use 2% Salicylic Acid BHA alongside Topical Adapalene 0.1%?')">🧪 BHA + Adapalene Pairing</button>
+              <button type="button" class="chat-suggestion-chip" onclick="window.app.sendQuickPrompt('How do I repair a compromised skin barrier and soothe facial redness?')">🛡️ Skin Barrier Repair</button>
+              <button type="button" class="chat-suggestion-chip" onclick="window.app.sendQuickPrompt('Explain Vitamin C stability, L-Ascorbic Acid vs derivatives, and oxidation signs')">✨ Vitamin C & Stability</button>
+              <button type="button" class="chat-suggestion-chip" onclick="window.app.sendQuickPrompt('What are the root causes and trigger ingredients of Malassezia Fungal Acne?')">🍄 Fungal Acne Triggers</button>
+              <button type="button" class="chat-suggestion-chip" onclick="window.app.sendQuickPrompt('What are pregnancy and nursing safe skincare alternatives to retinoids?')">🤰 Pregnancy-Safe Actives</button>
+              <button type="button" class="chat-suggestion-chip" onclick="window.app.sendQuickPrompt('How can I tell the difference between active skin purging and an allergic breakout?')">🔍 Purging vs Allergic Flare</button>
+              <button type="button" class="chat-suggestion-chip" onclick="window.app.sendQuickPrompt('What is the difference between mineral vs chemical sunscreens with zero white cast?')">☀️ Mineral vs Chemical SPF</button>
+              <button type="button" class="chat-suggestion-chip" onclick="window.app.sendQuickPrompt('What causes dark under-eye circles and do caffeine peptides help?')">👁️ Eye Care & Dark Circles</button>
+              <button type="button" class="chat-suggestion-chip" onclick="window.app.sendQuickPrompt('How does 15% Azelaic Acid treat hyperpigmentation, PIH, and redness?')">🧪 Azelaic Acid for PIH</button>
+              <button type="button" class="chat-suggestion-chip" onclick="window.app.sendQuickPrompt('What is the optimal morning and evening skincare application order?')">🌅 Regimen Application Order</button>
+              <button type="button" class="chat-suggestion-chip" onclick="window.app.sendQuickPrompt('How do I treat dehydrated oily skin with high trans-epidermal water loss TEWL?')">💧 Dehydrated Oily Skin</button>
             </div>
           ` : ''}
 
@@ -4600,7 +4607,7 @@ export function renderClinicChatPage(conversations = [], activeContactId = 'lumi
               <button type="button" class="preset-tag-btn" onclick="window.app.triggerPhotoAttachmentSimulation()">📸 Attach Skin Photo</button>
             </div>
 
-            <form class="chat-input-form" onsubmit="window.app.handlePageChatSend(event)">
+            <form class="chat-input-form" onsubmit="event.preventDefault(); window.app.handlePageChatSend(event)">
               <textarea id="chat-page-input" class="chat-textarea" placeholder="Type your message to ${activeContact.contact_name}... (Press Enter to send)" rows="2" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); window.app.handlePageChatSend(event);}"></textarea>
               
               <div class="chat-form-actions">
@@ -4665,16 +4672,25 @@ export function renderClinicChatPage(conversations = [], activeContactId = 'lumi
             <div class="context-card" style="background: #FFFFFF; border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 1.25rem;">
               <h4 style="font-family: 'Playfair Display', serif; font-size: 0.98rem; margin: 0 0 0.65rem 0;">One-Click Prompts</h4>
               <div style="display: flex; flex-direction: column; gap: 0.45rem;">
-                <button class="context-prompt-btn" onclick="window.app.sendQuickPrompt('Review my morning routine and check for ingredient conflicts')">
+                <button type="button" class="context-prompt-btn" onclick="window.app.sendQuickPrompt('Review my morning routine and check for ingredient conflicts')">
                   🔍 Audit Morning Regimen
                 </button>
-                <button class="context-prompt-btn" onclick="window.app.sendQuickPrompt('What ingredients pair best with 15% Azelaic Acid?')">
+                <button type="button" class="context-prompt-btn" onclick="window.app.sendQuickPrompt('What ingredients pair best with 15% Azelaic Acid?')">
                   🧪 Azelaic Acid Pairing
                 </button>
-                <button class="context-prompt-btn" onclick="window.app.sendQuickPrompt('How do I minimize irritation when using topical adapalene?')">
+                <button type="button" class="context-prompt-btn" onclick="window.app.sendQuickPrompt('How do I minimize irritation when using topical adapalene?')">
                   💡 Retinoid Tolerance Tips
                 </button>
-                <button class="context-prompt-btn" onclick="window.app.sendQuickPrompt('Explain my latest 30-day hydration trajectory')">
+                <button type="button" class="context-prompt-btn" onclick="window.app.sendQuickPrompt('Explain Vitamin C stability and how to tell if my serum oxidized')">
+                  ✨ Vitamin C & Oxidation
+                </button>
+                <button type="button" class="context-prompt-btn" onclick="window.app.sendQuickPrompt('What are fungal acne safe moisturizers and cleansers?')">
+                  🍄 Fungal Acne Safe Actives
+                </button>
+                <button type="button" class="context-prompt-btn" onclick="window.app.sendQuickPrompt('What pregnancy-safe ingredients can replace retinol and salicylic acid?')">
+                  🤰 Pregnancy-Safe Retinoid Dupes
+                </button>
+                <button type="button" class="context-prompt-btn" onclick="window.app.sendQuickPrompt('Explain my latest 30-day hydration trajectory')">
                   📈 Explain Hydration Gains
                 </button>
               </div>
@@ -4697,7 +4713,7 @@ export function renderClinicChatPage(conversations = [], activeContactId = 'lumi
               </div>
               <div style="background: #FFFFFF; border: 1px solid var(--border-light); border-radius: 6px; padding: 0.75rem; font-size: 0.8rem; margin-bottom: 0.85rem;">
                 <div style="font-weight: 700; color: #2E7D32; margin-bottom: 0.25rem;">💊 Topical Adapalene 0.1% + Azelaic Acid 15%</div>
-                <div style="font-size: 0.72rem; color: var(--text-muted);">Approved by Dr. Rajesh Varma, MD (Next review: 24 Dec 2025)</div>
+                <div style="font-size: 0.72rem; color: var(--text-muted);">Approved by Dr. Rajni Verma, MD (Next review: 24 Dec 2025)</div>
               </div>
 
               <div style="font-size: 0.75rem; font-weight: 800; color: var(--text-primary); text-transform: uppercase; margin-bottom: 0.6rem;">
@@ -5033,7 +5049,7 @@ export function renderDermatologistRxModalContent(patientId = 1) {
       </div>
 
       <div style="background: #FAF9F6; border: 1px solid var(--border-gold); border-radius: 6px; padding: 0.75rem; font-size: 0.75rem; color: #64748B; margin-bottom: 1.25rem;">
-        🔒 Digitally signed by <strong>Dr. Rajesh Varma, MD</strong> (License #DERM-884920-CL)
+        🔒 Digitally signed by <strong>Dr. Rajni Verma, MD</strong> (License #DERM-884920-CL)
       </div>
 
       <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">

@@ -390,10 +390,10 @@ class App {
     // Update capsule active tab indicator
     this.updateActiveNavCapsule(this.currentView);
 
-    // Floating Messenger Dock: Visible and active whenever a user is authenticated
+    // Floating Messenger Dock: Visible and active when authenticated AND NOT on dedicated chat view
     const messengerDock = document.getElementById('floating-messenger-dock');
     if (messengerDock) {
-      if (currentRole) {
+      if (currentRole && this.currentView !== 'chat' && this.currentView !== 'clinic-chat') {
         messengerDock.classList.remove('hidden');
         messengerDock.style.display = 'block';
         if (this.chatConversations.length === 0) {
@@ -3059,7 +3059,7 @@ class App {
           status: 'Under Active Regimen',
           priority: userId === 1 ? 'Standard' : 'High',
           assigned_consultant: 'Ananya Iyer, LE',
-          assigned_dermatologist: 'Dr. Rajesh Varma, MD',
+          assigned_dermatologist: 'Dr. Rajni Verma, MD',
           active_prescription: userId === 1 ? 'Topical Adapalene 0.1% + Azelaic Acid 15%' : userId === 5 ? 'Ivermectin 1% Cream' : 'Benzoyl Peroxide 2.5% + Tretinoin 0.025%',
           consultant_notes: 'Hydration and barrier integrity significantly improved.',
           clinical_notes: 'Lesions clearing satisfactorily.',
@@ -3249,7 +3249,7 @@ class App {
   // INTERACTIVE CLINICAL TELEHEALTH VIDEO MODAL CONTROLLER
   // ════════════════════════════════════════════════════════════════
 
-  openTelehealthVideoModal(appointmentId, role = 'user', title = 'Virtual Telehealth Consultation', otherPartyName = 'Dr. Rajesh Varma, MD') {
+  openTelehealthVideoModal(appointmentId, role = 'user', title = 'Virtual Telehealth Consultation', otherPartyName = 'Dr. Rajni Verma, MD') {
     const currentRole = auth.getCurrentRole();
     if (!currentRole) {
       this.openLoginModal(null, 'Please sign in to join clinical video consultations.');
@@ -3266,11 +3266,11 @@ class App {
     if (titleEl) titleEl.innerText = title || 'Encrypted Clinical Video Consultation';
     if (subtitleEl) {
       if (currentRole === 'dermatologist') {
-        subtitleEl.innerText = `Attending Physician: Dr. Rajesh Varma, MD • Patient: ${otherPartyName || 'Rohan Verma'}`;
+        subtitleEl.innerText = `Attending Physician: Dr. Rajni Verma, MD • Patient: ${otherPartyName || 'Rohan Verma'}`;
       } else if (currentRole === 'consultant') {
         subtitleEl.innerText = `Consultant: Ananya Iyer, LE • Client: ${otherPartyName || 'Aarav Sharma'}`;
       } else {
-        subtitleEl.innerText = `Specialist: ${otherPartyName || 'Dr. Rajesh Varma, MD'} • Patient: Aarav Sharma`;
+        subtitleEl.innerText = `Specialist: ${otherPartyName || 'Dr. Rajni Verma, MD'} • Patient: Aarav Sharma`;
       }
     }
 
@@ -3280,7 +3280,7 @@ class App {
       } else if (currentRole === 'consultant') {
         badgeEl.innerText = `👤 Client: ${otherPartyName || 'Aarav Sharma'} (Live Telehealth)`;
       } else {
-        badgeEl.innerText = `🩺 Specialist: ${otherPartyName || 'Dr. Rajesh Varma, MD'} (Attending)`;
+        badgeEl.innerText = `🩺 Specialist: ${otherPartyName || 'Dr. Rajni Verma, MD'} (Attending)`;
       }
     }
 
@@ -3419,14 +3419,14 @@ class App {
 
   async handleDoctorAuthorizeRx(rxId) {
     const res = await api.authorizePrescription({ rx_id: rxId });
-    alert(`DEA Electronic Prescription Certified: ${res.message || 'Prescription authorized by Dr. Julian Rostova, MD.'}`);
+    alert(`DEA Electronic Prescription Certified: ${res.message || 'Prescription authorized by Dr. Rajni Verma, MD.'}`);
     if (this.currentView === 'consultations' || this.currentView === 'appointments') {
       this.render();
     }
   }
 
   handleDoctorSignEncounterNote(patientId) {
-    alert(`✍️ Certified Medical Encounter Signature: Clinical SOAP notes signed and locked for Patient #${patientId} by Dr. Julian Rostova, MD (DEA / NPI Verified).`);
+    alert(`✍️ Certified Medical Encounter Signature: Clinical SOAP notes signed and locked for Patient #${patientId} by Dr. Rajni Verma, MD (DEA / NPI Verified).`);
     if (this.currentView === 'consultations' || this.currentView === 'appointments') {
       this.render();
     }
@@ -3728,7 +3728,7 @@ class App {
     if (event) event.preventDefault();
     const input = document.getElementById('messenger-input-field');
     const text = input ? input.value.trim() : '';
-    if (!text) return;
+    if (!text || this.isSendingChat) return;
 
     input.value = '';
     await this.executeChatMessageSend(text);
@@ -3738,95 +3738,157 @@ class App {
     if (event) event.preventDefault();
     const input = document.getElementById('chat-page-input');
     const text = input ? input.value.trim() : '';
-    if (!text) return;
+    if (!text || this.isSendingChat) return;
 
     input.value = '';
     await this.executeChatMessageSend(text);
   }
 
   async executeChatMessageSend(text) {
-    const user = auth.getCurrentUser();
-    const role = auth.getCurrentRole() || 'user';
-    const userId = user?.id || 1;
-    const userName = user?.username || 'Aarav Sharma';
-    const userAvatar = user?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
+    if (!text || this.isSendingChat) return;
+    this.isSendingChat = true;
 
-    const activeContact = this.chatConversations.find(c => String(c.contact_id) === String(this.activeChatContactId)) || {
-      contact_id: 'lumina_ai',
-      contact_name: 'Lumina AI',
-      contact_role: 'ai_assistant',
-      contact_avatar: 'assets/logo.png',
-      is_ai: true
-    };
+    try {
+      const user = auth.getCurrentUser();
+      const role = auth.getCurrentRole() || 'user';
+      const userId = user?.id || 1;
+      const userName = user?.username || 'Aarav Sharma';
+      const userAvatar = user?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
 
-    // 1. Optimistically append user message
-    const tempUserMsg = {
-      id: Date.now(),
-      conversation_id: `user_${userId}_${activeContact.contact_id}`,
-      sender_id: String(userId),
-      sender_name: userName,
-      sender_role: role,
-      sender_avatar: userAvatar,
-      recipient_id: String(activeContact.contact_id),
-      recipient_name: activeContact.contact_name,
-      recipient_role: activeContact.contact_role,
-      recipient_avatar: activeContact.contact_avatar,
-      message: text,
-      message_type: 'text',
-      read: true,
-      created_at: new Date().toISOString()
-    };
+      const activeContact = this.chatConversations.find(c => String(c.contact_id) === String(this.activeChatContactId)) || {
+        contact_id: 'lumina_ai',
+        contact_name: 'Lumina AI',
+        contact_role: 'ai_assistant',
+        contact_avatar: 'assets/logo.png',
+        is_ai: true
+      };
 
-    this.activeChatMessages.push(tempUserMsg);
-    this.renderMessengerMessages();
-    this.renderPageChatMessages();
+      // 1. Optimistically append user message (with deduplication guard)
+      const tempUserMsg = {
+        id: Date.now(),
+        conversation_id: `user_${userId}_${activeContact.contact_id}`,
+        sender_id: String(userId),
+        sender_name: userName,
+        sender_role: role,
+        sender_avatar: userAvatar,
+        recipient_id: String(activeContact.contact_id),
+        recipient_name: activeContact.contact_name,
+        recipient_role: activeContact.contact_role,
+        recipient_avatar: activeContact.contact_avatar,
+        message: text,
+        message_type: 'text',
+        read: true,
+        created_at: new Date().toISOString()
+      };
 
-    // Show typing indicator if sending to Lumina AI
-    const typingPopup = document.getElementById('messenger-typing-indicator');
-    const typingPage = document.getElementById('chat-page-typing-indicator');
-    if (activeContact.is_ai) {
-      if (typingPopup) typingPopup.classList.remove('hidden');
-      if (typingPage) typingPage.classList.remove('hidden');
-    }
+      const isUserDuplicate = this.activeChatMessages.some(m => 
+        String(m.sender_id) === String(tempUserMsg.sender_id) && 
+        m.message === tempUserMsg.message && 
+        Math.abs(new Date(m.created_at || Date.now()).getTime() - Date.now()) < 1500
+      );
 
-    // 2. Call backend API
-    const res = await api.sendChatMessage({
-      sender_id: userId,
-      sender_name: userName,
-      sender_role: role,
-      sender_avatar: userAvatar,
-      recipient_id: activeContact.contact_id,
-      recipient_name: activeContact.contact_name,
-      recipient_role: activeContact.contact_role,
-      recipient_avatar: activeContact.contact_avatar,
-      message: text,
-      conversation_id: `user_${userId}_${activeContact.contact_id}`
-    });
+      if (!isUserDuplicate) {
+        this.activeChatMessages.push(tempUserMsg);
+        this.renderMessengerMessages();
+        this.renderPageChatMessages();
+      }
 
-    if (activeContact.is_ai) {
-      setTimeout(() => {
+      // Show typing indicator if sending to Lumina AI
+      const typingPopup = document.getElementById('messenger-typing-indicator');
+      const typingPage = document.getElementById('chat-page-typing-indicator');
+      if (activeContact.is_ai) {
+        if (typingPopup) typingPopup.classList.remove('hidden');
+        if (typingPage) typingPage.classList.remove('hidden');
+      }
+
+      // 2. Call backend API
+      const res = await api.sendChatMessage({
+        sender_id: userId,
+        sender_name: userName,
+        sender_role: role,
+        sender_avatar: userAvatar,
+        recipient_id: activeContact.contact_id,
+        recipient_name: activeContact.contact_name,
+        recipient_role: activeContact.contact_role,
+        recipient_avatar: activeContact.contact_avatar,
+        message: text,
+        conversation_id: `user_${userId}_${activeContact.contact_id}`
+      });
+
+      if (activeContact.is_ai) {
+        setTimeout(() => {
+          if (typingPopup) typingPopup.classList.add('hidden');
+          if (typingPage) typingPage.classList.add('hidden');
+
+          if (res && res.success && res.ai_reply) {
+            // Strict deduplication: check if message ID or text has already been loaded/rendered
+            const isAiDuplicate = this.activeChatMessages.some(m => 
+              m.id === res.ai_reply.id || 
+              (m.sender_id === res.ai_reply.sender_id && m.message === res.ai_reply.message)
+            );
+            if (!isAiDuplicate) {
+              this.activeChatMessages.push(res.ai_reply);
+              this.renderMessengerMessages();
+              this.renderPageChatMessages();
+            }
+          }
+          this.isSendingChat = false;
+        }, 550);
+      } else {
         if (typingPopup) typingPopup.classList.add('hidden');
         if (typingPage) typingPage.classList.add('hidden');
-
-        if (res && res.success && res.ai_reply) {
-          this.activeChatMessages.push(res.ai_reply);
-          this.renderMessengerMessages();
-          this.renderPageChatMessages();
-        }
-      }, 750);
-    } else if (res && res.success) {
-      if (typingPopup) typingPopup.classList.add('hidden');
-      if (typingPage) typingPage.classList.add('hidden');
+        this.isSendingChat = false;
+      }
+    } catch (err) {
+      console.error('[Chat Send Error]:', err);
+      this.isSendingChat = false;
     }
   }
 
-  sendQuickPrompt(promptText) {
+  async sendQuickPrompt(promptText) {
     if (this.currentView !== 'chat') {
       this.openMessengerPopup('lumina_ai');
     } else {
-      this.switchChatContact('lumina_ai');
+      if (String(this.activeChatContactId) !== 'lumina_ai') {
+        this.activeChatContactId = 'lumina_ai';
+        await this.loadChatMessages('lumina_ai', true);
+        this.render();
+      }
     }
-    this.executeChatMessageSend(promptText);
+    await this.executeChatMessageSend(promptText);
+  }
+
+  filterChatContacts(query) {
+    const q = (query || '').toLowerCase().trim();
+    const contactCards = document.querySelectorAll('.chat-contact-card');
+    contactCards.forEach(card => {
+      const name = (card.querySelector('.chat-contact-name')?.innerText || '').toLowerCase();
+      const snippet = (card.querySelector('.chat-contact-snippet')?.innerText || '').toLowerCase();
+      const role = (card.querySelector('.chat-contact-role-badge')?.innerText || '').toLowerCase();
+      if (!q || name.includes(q) || snippet.includes(q) || role.includes(q)) {
+        card.style.display = 'flex';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+
+  filterChatCategories(category) {
+    const pills = document.querySelectorAll('.chat-cat-pill');
+    pills.forEach(p => p.classList.remove('active'));
+    event?.target?.classList.add('active');
+
+    const contactCards = document.querySelectorAll('.chat-contact-card');
+    contactCards.forEach(card => {
+      const isAi = card.dataset.isAi === 'true';
+      if (category === 'all') {
+        card.style.display = 'flex';
+      } else if (category === 'care') {
+        card.style.display = isAi ? 'none' : 'flex';
+      } else if (category === 'ai') {
+        card.style.display = isAi ? 'flex' : 'none';
+      }
+    });
   }
 
   insertComposerTag(tag) {

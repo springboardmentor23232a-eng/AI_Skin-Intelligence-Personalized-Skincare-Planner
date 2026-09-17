@@ -75,12 +75,12 @@ def get_default_notifications(user_id: int) -> List[Dict[str, Any]]:
             "id": 5,
             "user_id": user_id,
             "title": "🩺 Dermatologist Prescription Update",
-            "message": "Dr. Julian Rostova reviewed your optical scan and adjusted your Adapalene PM application frequency to 3x/wk.",
+            "message": "Dr. Rajni Verma reviewed your optical scan and adjusted your Adapalene PM application frequency to 3x/wk.",
             "category": "clinical",
             "type": "alert",
             "is_read": True,
             "action_url": "/chat",
-            "metadata_json": {"doctor_name": "Dr. Julian Rostova, MD", "rx": "Adapalene 0.1%"},
+            "metadata_json": {"doctor_name": "Dr. Rajni Verma, MD", "rx": "Adapalene 0.1%"},
             "created_at": (now - timedelta(days=2)).isoformat()
         }
     ]

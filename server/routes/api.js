@@ -2563,8 +2563,8 @@ router.get('/clinical/patient-dossier/:userId', async (req, res) => {
         diagnosed_condition: consult ? consult.condition : 'Mild Comedonal Acne & Hyperpigmentation',
         status: consult ? consult.status : 'Under Active Regimen',
         priority: consult ? consult.priority : 'Standard',
-        assigned_consultant: consult ? consult.consultant : 'Elena Vance, LE',
-        assigned_dermatologist: consult ? consult.dermatologist : 'Dr. Julian Rostova, MD',
+        assigned_consultant: consult ? consult.consultant : 'Ananya Iyer, LE',
+        assigned_dermatologist: consult ? consult.dermatologist : 'Dr. Rajni Verma, MD',
         active_prescription: (activePrefs && activePrefs.medical_and_rx_history === false)
           ? '🔒 Access Restricted (Prescription history confidential)'
           : (consult ? consult.prescription : 'Topical Adapalene 0.1% + Azelaic Acid 15%'),
@@ -2725,9 +2725,9 @@ router.get('/clinical/user/sharing-preferences', async (req, res) => {
       success: true,
       preferences: prefs,
       specialists: [
-        { id: 2, name: 'Elena Vance, LE', role: 'consultant', title: 'Lead Clinical Esthetician & Regimen Specialist', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150', available: true },
-        { id: 3, name: 'Dr. Julian Rostova, MD', role: 'dermatologist', title: 'Board-Certified Dermatologist & Clinical Director', avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150', available: true },
-        { id: 7, name: 'Dr. Emily Roberts, MD', role: 'dermatologist', title: 'Cosmetic Dermatologist & Laser Specialist', avatar: 'assets/doctor_emily.png', available: true }
+        { id: 2, name: 'Ananya Iyer, LE', role: 'consultant', title: 'Lead Clinical Esthetician & Regimen Specialist', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150', available: true },
+        { id: 3, name: 'Dr. Rajni Verma, MD', role: 'dermatologist', title: 'Board-Certified Dermatologist & Clinical Director', avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150', available: true },
+        { id: 7, name: 'Dr. Priya Nair, MD', role: 'dermatologist', title: 'Cosmetic Dermatologist & Laser Specialist', avatar: 'assets/doctor_emily.png', available: true }
       ]
     });
   } catch (err) {
@@ -2785,7 +2785,7 @@ router.post('/clinical/user/book-consultation', async (req, res) => {
       id: store.appointments.length + 1,
       user_id: targetUserId,
       specialist_id: parseInt(specialist_id, 10) || 2,
-      specialist_name: specialist_name || 'Elena Vance, LE',
+      specialist_name: specialist_name || 'Ananya Iyer, LE',
       specialist_role: specialist_role || 'consultant',
       type: type || 'Virtual Skincare Consultation',
       scheduled_date: scheduled_date || new Date(Date.now() + 86400000 * 3).toISOString(),
@@ -2831,7 +2831,7 @@ router.get('/clinical/user/my-consultations', async (req, res) => {
       appointments: userAppointments.length > 0 ? userAppointments : [
         {
           id: 101,
-          specialist_name: 'Elena Vance, LE',
+          specialist_name: 'Ananya Iyer, LE',
           specialist_role: 'consultant',
           specialist_title: 'Lead Clinical Esthetician',
           type: 'Virtual Regimen Review & Barrier Check',
@@ -2841,7 +2841,7 @@ router.get('/clinical/user/my-consultations', async (req, res) => {
         },
         {
           id: 102,
-          specialist_name: 'Dr. Julian Rostova, MD',
+          specialist_name: 'Dr. Rajni Verma, MD',
           specialist_role: 'dermatologist',
           specialist_title: 'Board-Certified Dermatologist',
           type: 'Clinical Prescription & Lesion Follow-up',
@@ -2930,7 +2930,7 @@ router.post('/clinical/appointments/authorize-rx', async (req, res) => {
     const { rx_id, patient_id, medication, dosage, refills } = req.body;
     return res.json({
       success: true,
-      message: `Prescription #${rx_id || 'RX-NEW'} signed & certified electronically by Dr. Julian Rostova, MD (DEA Verified).`,
+      message: `Prescription #${rx_id || 'RX-NEW'} signed & certified electronically by Dr. Rajni Verma, MD (DEA Verified).`,
       authorized_at: new Date().toISOString()
     });
   } catch (err) {
@@ -2947,38 +2947,83 @@ router.post('/clinical/appointments/authorize-rx', async (req, res) => {
 export function generateLuminaAIResponse(userQuery, userRole = 'user', userProfile = {}) {
   const queryLower = (userQuery || '').toLowerCase();
   
-  // 1. Exfoliants, Retinoids & Active Layering
-  if (queryLower.includes('salicylic') || queryLower.includes('bha') || queryLower.includes('adapalene') || queryLower.includes('retinol') || queryLower.includes('retinoid') || queryLower.includes('tretinoin') || queryLower.includes('aha') || queryLower.includes('glycolic')) {
+  // 1. Vitamin C, Ascorbic Acid, Stability & Antioxidants
+  if (queryLower.includes('vitamin c') || queryLower.includes('ascorbic') || queryLower.includes('antioxidant') || queryLower.includes('ferulic') || queryLower.includes('thd') || queryLower.includes('oxidiz') || queryLower.includes('orange serum')) {
+    return `Hello! Regarding **Vitamin C (Ascorbic Acid) Chemistry & Antioxidant Synergy**:\n\n✨ **Formulation Mechanics**:\n• **L-Ascorbic Acid (L-AA 15–20%)**: The biological gold standard for direct tyrosinase inhibition and type I/III collagen stimulation. Requires an acidic pH (< 3.5) for stratum corneum penetration.\n• **Photostability Triad**: Look for formulations stabilizing L-AA with **Ferulic Acid (0.5%)** and **Vitamin E (1.0% Tocopherol)**, which boost UV-photoprotective efficacy up to 8-fold.\n• **Oxidation Diagnostics**: Fresh serum is pale champagne/clear. If the solution oxidizes to deep amber or brown, dehydroascorbic acid has formed — discontinue use to avoid free-radical pro-oxidant irritation.\n• **Sensitive Alternatives**: If pure L-AA triggers tingling or stinging, switch to **THD Ascorbate (Tetrahexyldecyl Ascorbate)** or **Sodium Ascorbyl Phosphate (SAP)** at physiological pH 6.0.\n\n🌅 **Regimen Placement**: Apply 4–5 drops every morning directly onto cleansed dry skin BEFORE hydrators, followed by Broad-Spectrum SPF 50+.`;
+  }
+
+  // 2. Hyperpigmentation, Dark Spots, Melasma, PIH & PIE
+  if (queryLower.includes('hyperpigmentation') || queryLower.includes('dark spot') || queryLower.includes('melasma') || queryLower.includes('pih') || queryLower.includes('pie') || queryLower.includes('discoloration') || queryLower.includes('brown mark') || queryLower.includes('tranexamic') || queryLower.includes('arbutin')) {
+    return `Hello! For targeting **Hyperpigmentation, Melasma, PIH & PIE**:\n\n🧪 **Clinical Depigmentation Pathways**:\n• **PIH (Post-Inflammatory Hyperpigmentation - Melanin Deposit)**: Inhibit tyrosinase using **10–15% Azelaic Acid**, **Alpha Arbutin 2%**, and **Tranexamic Acid 3–5%**. These block melanin transfer to surrounding keratinocytes.\n• **PIE (Post-Inflammatory Erythema - Vascular Micro-Capillary Damage)**: Prioritize **Niacinamide 5%** and **Centella Asiatica** to calm capillary dilation and strengthen fragile dermal vessels.\n• **Cellular Clearance**: Combine with nightly **Topical Adapalene 0.1%** to accelerate epidermal sloughing of hyperpigmented corneum cells.\n• **Mandatory UV Shield**: UV radiation activates MITF transcription factor, darkening spots within minutes. Daily Broad-Spectrum SPF 50+ is non-negotiable.\n\n✨ **Optimal Pairing**: Azelaic Acid 10–15% in the AM + Retinoid in the PM.`;
+  }
+
+  // 3. Fungal Acne (Malassezia Folliculitis) vs Bacterial Acne
+  if (queryLower.includes('fungal acne') || queryLower.includes('malassezia') || queryLower.includes('folliculitis') || queryLower.includes('pityrosporum') || queryLower.includes('itchy bump') || queryLower.includes('forehead bump')) {
+    return `Hello! Let's examine **Malassezia Folliculitis ("Fungal Acne") Diagnostics**:\n\n🔬 **Pathophysiological Profile**:\n• **Root Cause**: An opportunistic overgrowth of *Malassezia* yeast in the pilosebaceous unit (NOT bacterial *C. acnes*).\n• **Visual Identification**: Clusters of uniform, monomorphic 1–2mm itchy papules/pustules primarily across the hairline, forehead, chest, and upper back.\n• **Trigger Ingredients to AVOID**: Fatty acids with carbon chain lengths C11–C24 (e.g., Lauric, Myristic, Palmitic, Stearic, Oleic acids), Polysorbates, Esters, and Galactomyces ferment filtrates.\n\n🛡️ **Targeted Treatment Protocol**:\n1. **Anti-Fungal Wash**: **Ketoconazole 2%** or **Zinc Pyrithione 1–2%** shampoo applied as a 3-minute lather-and-rinse mask 3x weekly.\n2. **Safe Hydration**: Utilize 100% Pure **Sugarcane Squalane Oil**, **Urea 5%**, or oil-free Hyaluronic Acid gels.\n3. **Decongestant**: 2% Salicylic Acid BHA is safe and dissolves yeast-harboring lipid plugs.`;
+  }
+
+  // 4. Pregnancy & Lactation Safe Skincare
+  if (queryLower.includes('pregnan') || queryLower.includes('lactat') || queryLower.includes('breastfeed') || queryLower.includes('nursing') || queryLower.includes('safe during pregnancy') || queryLower.includes('baby safe')) {
+    return `Hello! Here is the clinical **Pregnancy & Nursing Safe Skincare Compass**:\n\n⚠️ **Strictly Contraindicated Actives**:\n• **Topical & Oral Retinoids**: Tretinoin, Adapalene, Retinol, Tazarotene, Isotretinoin (teratogenic risk).\n• **High-Dose Salicylic Acid (>2%)**: High-concentration chemical peels (low-dose ≤2% wash-off is generally acceptable upon OB-GYN sign-off).\n• **Hydroquinone**: High systemic dermal absorption rate (~35–45%).\n\n🌿 **Evidence-Based Safe Alternatives**:\n• **Retinol Botanical Dupe**: **Bakuchiol 1%** (stimulates collagen type I & III with zero retinoid receptor toxicity).\n• **Acne & Melasma Shield**: **Azelaic Acid 10–15%** (Class B safety rating; gold standard for pregnancy melasma).\n• **Gentle Surface Exfoliation**: **Lactic Acid (5–10%)** and **Glycolic Acid (<7%)**.\n• **Antioxidants & Barrier**: Niacinamide 4–5%, Vitamin C, Ceramides, and Hyaluronic Acid.\n• **Photoprotection**: 100% **Non-Nano Zinc Oxide / Titanium Dioxide Mineral SPF 50+**.`;
+  }
+
+  // 5. Purging vs Breakouts & Allergic Irritation
+  if (queryLower.includes('purg') || queryLower.includes('purge') || queryLower.includes('reaction vs purge') || queryLower.includes('breakout vs purge') || queryLower.includes('irritation vs purging')) {
+    return `Hello! Let's distinguish between **Active Purging vs Allergic Breakouts**:\n\n🔍 **Clinical Diagnostic Comparison**:\n• **Cellular Purge (Expected Adaptation)**:\n  - *Cause*: Actives that accelerate cell turnover (Retinoids, AHAs, BHAs, Azelaic Acid) bringing underlying microcomedones to the surface.\n  - *Location*: Appears **exclusively in zones where you normally break out**.\n  - *Duration*: Peaks at weeks 2–4, subsides completely by weeks 6–8.\n  - *Nature*: Small whiteheads/papules that resolve much faster than typical lesions.\n• **Contact Dermatitis / Barrier Breakout (Adverse Reaction)**:\n  - *Cause*: Pore-clogging comedogens, fragrance allergy, or barrier compromise.\n  - *Location*: Appears in **brand-new areas** where you never experienced blemishes before.\n  - *Symptoms*: Diffuse erythema, burning sensation, severe pruritus (itching), or widespread micro-rash.\n\n💡 **Action Plan**: If purging, maintain course with the "Sandwich Technique". If experiencing contact irritation, stop the active immediately and initiate 7-day Ceramide Barrier Protocol.`;
+  }
+
+  // 6. Exfoliants, Retinoids & Active Layering
+  if (queryLower.includes('salicylic') || queryLower.includes('bha') || queryLower.includes('adapalene') || queryLower.includes('retinol') || queryLower.includes('retinoid') || queryLower.includes('tretinoin') || queryLower.includes('aha') || queryLower.includes('glycolic') || queryLower.includes('sandwich')) {
     return `Hello! Regarding active exfoliant & retinoid formulation synergy:\n\n🔬 **Clinical Interaction Analysis**:\n• **Mechanisms**: BHA (Salicylic Acid 2%) is lipid-soluble and penetrates follicular infundibulum to clear sebaceous plugs. Topical Adapalene 0.1% regulates keratinocyte differentiation and epidermal turnover.\n• **Safety Precaution**: Applying both simultaneously in the same evening session can accelerate trans-epidermal water loss (TEWL) and trigger barrier erythema.\n\n✨ **Recommended Clinical Regimen**:\n1. **Morning (AM)**: Gentle Low-pH Cleanser → 2% BHA Solution (1-2x weekly) → Niacinamide 5% Serum → Broad-Spectrum SPF 50+.\n2. **Evening (PM)**: Gentle Cleanser → Hyaluronic Hydrator → **Topical Adapalene 0.1%** (pea-sized amount) → Ceramide Night Barrier Cream.\n\n*If sensitivity flare-ups occur, utilize the "Sandwich Technique" (moisturizer → retinoid → moisturizer).*`;
   }
-  
-  // 2. Barrier Repair, Redness, Rosacea & Sensitivity
+
+  // 7. Barrier Repair, Redness, Rosacea & Sensitivity
   if (queryLower.includes('barrier') || queryLower.includes('dry') || queryLower.includes('flaking') || queryLower.includes('redness') || queryLower.includes('stinging') || queryLower.includes('rosacea') || queryLower.includes('sensitive') || queryLower.includes('burn')) {
     return `Hello! Let's address **Skin Barrier Repair & Erythema Mitigation**:\n\n🛡️ **Clinical Barrier Protocol**:\n1. **Cease Chemical Exfoliation**: Temporarily pause all AHAs, BHAs, Vitamin C, and retinoids for 5–7 days.\n2. **Lipid Replenishment**: Apply formulas featuring **Ceramides (NP/AP/EOP)**, **Cholesterol**, and **Free Fatty Acids** in a physiological 3:1:1 ratio.\n3. **Anti-Inflammatory Actives**: Prioritize Centella Asiatica (Madecassoside), Panthenol (Pro-Vitamin B5), and Beta-Glucan.\n4. **Occlusive Seal**: Lock in moisture with pure plant squalane or dimethicone micro-balm overnight.\n\n*Skin barrier integrity and hydration metrics typically rebound within 7–10 days of consistent lipid care.*`;
   }
 
-  // 3. Acne, Breakouts & Pores
+  // 8. Under-Eye Care, Dark Circles, Puffiness & Peptides
+  if (queryLower.includes('dark circle') || queryLower.includes('under eye') || queryLower.includes('eye bag') || queryLower.includes('puffiness') || queryLower.includes('eye cream') || queryLower.includes('caffeine') || queryLower.includes('matrixyl') || queryLower.includes('copper peptide')) {
+    return `Hello! For **Periorbital Rejuvenation & Dark Circle Attenuation**:\n\n👁️ **Etiological Classification & Interventions**:\n• **Vascular Dark Circles (Blue/Purple hue)**: Caused by micro-vascular stagnation under thin 0.5mm periorbital skin. Apply **Caffeine 5% + EGCG** to stimulate micro-lymphatic drainage and vasoconstriction.\n• **Pigmentary Dark Circles (Brown/Dark hue)**: Due to post-inflammatory melanosis or genetic periorbital hyperpigmentation. Treat with **Ascorbyl Glucoside**, **Niacinamide 2–4%**, or low-strength **Azelaic Acid**.\n• **Structural Hollows & Fine Lines**: Apply **Palmitoyl Tripeptide-38 (Matrixyl Synthe'6)** and **Copper Tripeptide-1 (GHK-Cu)** to reinforce dermal extracellular matrix collagen.\n\n✨ **Application Technique**: Tap gently with the ring finger along the orbital bone (avoid direct mucosal waterline exposure) morning and evening.`;
+  }
+
+  // 9. Exfoliation Acids Breakdown (AHA vs BHA vs PHA)
+  if (queryLower.includes('exfoliat') || queryLower.includes('pha') || queryLower.includes('lactic acid') || queryLower.includes('mandelic') || queryLower.includes('chemical peel')) {
+    return `Hello! Here is the clinical comparison of **Hydroxy Acid Exfoliation Mechanics**:\n\n🧪 **Chemical Acid Comparison**:\n• **AHAs (Glycolic 5-10%, Lactic 5-10%, Mandelic)**: Water-soluble. Weakens desmosome bonds between dead corneocytes on the surface. Ideal for dullness, texture, and surface sun damage (Glycolic penetrates deepest; Mandelic is safest for melanin-rich skin).\n• **BHAs (Salicylic Acid 0.5–2.0%)**: Oil-soluble (lipophilic). Penetrates inside the sebaceous pore canal to dissolve oxidized sebum, sebum plugs, and blackheads. Ideal for oily/congested skin.\n• **PHAs (Gluconolactone, Lactobionic Acid)**: Large molecular structure that exfoliates exclusively at the outermost stratum corneum with zero stinging. Acts as an intrinsic humectant for ultra-reactive skin.\n\n⏱️ **Frequency Guideline**: Limit chemical exfoliation to 2–3 evenings per week; never combine strong acids in the same routine session.`;
+  }
+
+  // 10. Oily & Dehydrated Skin / TEWL
+  if (queryLower.includes('dehydrated') || queryLower.includes('oily and dry') || queryLower.includes('tight skin') || queryLower.includes('tewl') || queryLower.includes('water loss')) {
+    return `Hello! Addressing **Dehydrated Oily Skin & Trans-Epidermal Water Loss (TEWL)**:\n\n💧 **The Dehydration-Sebum Paradox**:\nWhen the skin's moisture barrier lacks water (hydration), the sebaceous glands overcompensate by pumping out excess oil (lipids), leading to a shiny T-zone accompanied by a tight, uncomfortable sensation.\n\n🛡️ **Hydration Protocol**:\n1. **Hydration Layering**: Apply humectants (**Multi-Molecular Hyaluronic Acid**, **Glycerin 10%**, **Beta-Glucan**) onto *damp* skin immediately after cleansing.\n2. **Avoid Harsh Foams**: Switch from high-pH SLS bar soaps to low-pH (5.5) amino-acid or amphoteric gel cleansers.\n3. **Water-Gel Moisture**: Use oil-free, non-comedogenic gel-creams containing **Panthenol** and **Centella** that deliver high hydration without heavy pore-clogging waxes.`;
+  }
+
+  // 11. Acne, Breakouts & Pores
   if (queryLower.includes('acne') || queryLower.includes('pimple') || queryLower.includes('breakout') || queryLower.includes('clogged') || queryLower.includes('pores') || queryLower.includes('blackhead') || queryLower.includes('cystic')) {
     return `Hello! For targeting **Acne & Follicular Congestion**:\n\n🧪 **Multi-Targeted Clinical Strategy**:\n• **Pore Decongestion**: Salicylic Acid 2% (lipophilic BHA) dissolves follicular debris inside sebaceous pores.\n• **Anti-Microbial**: Benzoyl Peroxide 2.5% prevents *Cutibacterium acnes* proliferation with zero bacterial resistance risk.\n• **Cellular Turnover**: Topical Adapalene 0.1% or Tretinoin 0.025% prevents microcomedone formation.\n• **Post-Blemish Marks (PIH/PIE)**: Azelaic Acid 10–15% suppresses tyrosinase and reduces inflammatory vascular dilation.\n\n*Avoid picking or manual extraction to safeguard dermal collagen from permanent textural scarring.*`;
   }
 
-  // 4. Sunscreen, UV & Photoprotection
-  if (queryLower.includes('sunscreen') || queryLower.includes('spf') || queryLower.includes('uv') || queryLower.includes('sun') || queryLower.includes('melasma') || queryLower.includes('tan')) {
-    return `Hello! Daily photoprotection is the foundational pillar of cutaneous longevity:\n\n☀️ **Clinical Photoprotection Standards**:\n• **Spectrum**: Broad-Spectrum SPF 50+ with PA++++ (protects against UVB erythema, UVA photo-aging, and HEV blue light).\n• **Dosage**: Two full finger lengths (~1.25 ml) for face and neck.\n• **Reapplication**: Every 2 hours during direct outdoor exposure, or immediately after sweating/swimming.\n• **Filter Selection**: Advanced photostable organic filters (Tinosorb S, Uvinul A Plus) for transparent finish; Mineral Zinc Oxide 15%+ for ultra-reactive skin.`;
+  // 12. Sunscreen, UV, White Cast & Photoprotection
+  if (queryLower.includes('sunscreen') || queryLower.includes('spf') || queryLower.includes('uv') || queryLower.includes('sun') || queryLower.includes('mineral vs chemical') || queryLower.includes('white cast') || queryLower.includes('tan')) {
+    return `Hello! Daily photoprotection is the foundational pillar of cutaneous longevity:\n\n☀️ **Clinical Photoprotection Standards**:\n• **Spectrum**: Broad-Spectrum SPF 50+ with PA++++ (protects against UVB erythema, UVA photo-aging, and HEV blue light).\n• **Dosage**: Two full finger lengths (~1.25 ml) for face and neck.\n• **Reapplication**: Every 2 hours during direct outdoor exposure, or immediately after sweating/swimming.\n• **Filter Selection**:\n  - *Modern Organic/Chemical*: Photostable filters (Tinosorb S, Tinosorb M, Uvinul A Plus) for zero white cast on all Fitzpatrick skin types.\n  - *Mineral/Inorganic*: Non-Nano Micronized Zinc Oxide (15–20%) for post-procedure or reactive/rosacea-prone skin.`;
   }
 
-  // 5. Application Order & Daily Routine
-  if (queryLower.includes('routine') || queryLower.includes('order') || queryLower.includes('morning') || queryLower.includes('evening') || queryLower.includes('step') || queryLower.includes('layer')) {
-    return `Hello! Here is the dermatologist-recommended application sequence by molecular weight:\n\n🌅 **Morning (AM) Protocol (Photoprotection & Antioxidants)**:\n1. Gentle Cleanser (Low pH 5.5)\n2. Hydrating Toner / Essence (Hyaluronic Acid / Centella)\n3. Antioxidant Serum (Vitamin C 15% or Niacinamide 5%)\n4. Lightweight Gel-Cream Moisturizer\n5. **Broad-Spectrum SPF 50+ Sunscreen** (Essential step)\n\n🌙 **Evening (PM) Protocol (Cellular Renewal & Lipid Barrier Recovery)**:\n1. Oil / Micellar Pre-Cleanser\n2. Gentle Foaming Cleanser\n3. Target Treatment (Retinoid OR Exfoliant — alternate days)\n4. Ceramide Lipid Barrier Recovery Cream\n5. Optional: Squalane Oil / Night Barrier Seal`;
+  // 13. Application Order & Daily Routine
+  if (queryLower.includes('routine') || queryLower.includes('order') || queryLower.includes('morning') || queryLower.includes('evening') || queryLower.includes('step') || queryLower.includes('layer') || queryLower.includes('sequence')) {
+    return `Hello! Here is the dermatologist-recommended application sequence by molecular weight:\n\n🌅 **Morning (AM) Protocol (Photoprotection & Antioxidants)**:\n1. Gentle Low-pH Cleanser\n2. Hydrating Toner / Essence (Hyaluronic Acid / Centella on damp skin)\n3. Antioxidant Serum (Vitamin C 15% or Niacinamide 5%)\n4. Lightweight Gel-Cream Moisturizer\n5. **Broad-Spectrum SPF 50+ Sunscreen** (Essential final step)\n\n🌙 **Evening (PM) Protocol (Cellular Renewal & Lipid Barrier Recovery)**:\n1. Pre-Cleanser (Micellar or Cleansing Balm for SPF removal)\n2. Gentle Foaming Cleanser\n3. Target Active (Retinoid OR Exfoliant — alternate days)\n4. Ceramide Lipid Barrier Recovery Cream\n5. Optional: Squalane Oil / Night Barrier Seal`;
   }
 
-  // 6. Specialist & Doctor Consultations
-  if (queryLower.includes('doctor') || queryLower.includes('prescription') || queryLower.includes('appointment') || queryLower.includes('rx') || queryLower.includes('consultant') || queryLower.includes('specialist')) {
-    return `Hello! You have dedicated clinical specialists associated with your profile:\n\n🩺 **Care Team**:\n• **Dr. Julian Rostova, MD** (Board-Certified Dermatologist): Diagnostic evaluations, optical lesion screenings, and digital Rx management.\n• **Elena Vance, LE** (Lead Clinical Esthetician): Customized regimen formulation, ingredient compatibility, and routine tracking.\n\n*You can switch directly to their chat thread using the contact selector, or schedule a formal telehealth session in the Appointments hub!*`;
+  // 14. Anti-Aging, Peptides, Collagen & Fine Lines
+  if (queryLower.includes('anti-aging') || queryLower.includes('wrinkle') || queryLower.includes('fine line') || queryLower.includes('collagen') || queryLower.includes('firmness') || queryLower.includes('elasticity') || queryLower.includes('aging')) {
+    return `Hello! For **Cutaneous Longevity & Collagen Stimulation**:\n\n🧬 **Evidence-Based Anti-Aging Pillars**:\n• **Prevention (80% of aging is photo-damage)**: Daily Broad-Spectrum SPF 50+ halts collagenase and elastase enzymes triggered by UV rays.\n• **Cellular Renewal**: Nightly **Retinoids (Adapalene/Retinol/Tretinoin)** stimulate dermal fibroblasts to produce procollagen I and fibronectin.\n• **Signal Peptides**: Formulations with **Matrixyl 3000**, **Argireline**, and **Copper Peptides** enhance dermal extracellular matrix density.\n• **Hydration Plumping**: Multi-depth Hyaluronic Acid and Polyglutamic Acid bind 1,000x their molecular weight in water to smooth superficial micro-crepiness.`;
+  }
+
+  // 15. Specialist & Doctor Consultations
+  if (queryLower.includes('doctor') || queryLower.includes('prescription') || queryLower.includes('appointment') || queryLower.includes('rx') || queryLower.includes('consultant') || queryLower.includes('specialist') || queryLower.includes('rajni') || queryLower.includes('ananya') || queryLower.includes('verma') || queryLower.includes('iyer')) {
+    return `Hello! You have dedicated clinical specialists associated with your profile:\n\n🩺 **Care Team**:\n• **Dr. Rajni Verma, MD** (Board-Certified Dermatologist): Diagnostic evaluations, optical lesion screenings, and digital Rx management.\n• **Ananya Iyer, LE** (Lead Clinical Esthetician): Customized regimen formulation, ingredient compatibility, and routine tracking.\n\n*You can switch directly to their chat thread using the contact selector, or schedule a formal telehealth session in the Appointments hub!*`;
   }
 
   // Default intelligent clinical response
-  return `Hello! I am **Lumina**, your AI Clinical Skincare Copilot.\n\nI have evaluated your query against evidence-based dermatological literature and your active cutaneous biomarkers.\n\n💡 **Key Recommendations**:\n• Prioritize daily SPF 50+ protection and nightly lipid barrier hydration.\n• Introduce potent actives (acids and retinoids) gradually to maintain stratum corneum equilibrium.\n• For personalized prescription adjustments or medical lesion reviews, you can ping **Dr. Julian Rostova** or **Elena Vance** directly in this clinic chat.\n\n*What specific ingredient, routine step, or skin concern would you like me to analyze further?*`;
+  return `Hello! I am **Lumina**, your AI Clinical Skincare Copilot.\n\nI have evaluated your query against evidence-based dermatological literature and your active cutaneous biomarkers.\n\n💡 **Key Recommendations**:\n• Prioritize daily SPF 50+ protection and nightly lipid barrier hydration.\n• Introduce potent actives (acids and retinoids) gradually to maintain stratum corneum equilibrium.\n• For personalized prescription adjustments or medical lesion reviews, you can ping **Dr. Rajni Verma** or **Ananya Iyer** directly in this clinic chat.\n\n*What specific ingredient, routine step, or skin concern would you like me to analyze further?*`;
 }
 
 /**
@@ -2995,7 +3040,7 @@ router.get('/chat/conversations', async (req, res) => {
     let contacts = [];
 
     if (role === 'user') {
-      // Patient communicates with Lumina AI, Consultant (Elena Vance), Doctor (Dr. Julian Rostova)
+      // Patient communicates with Lumina AI, Consultant (Ananya Iyer), Doctor (Dr. Rajni Verma)
       contacts = [
         {
           id: `user_${userId}_lumina_ai`,
@@ -3011,7 +3056,7 @@ router.get('/chat/conversations', async (req, res) => {
         {
           id: `user_${userId}_consultant_2`,
           contact_id: '2',
-          contact_name: 'Elena Vance, LE',
+          contact_name: 'Ananya Iyer, LE',
           contact_role: 'consultant',
           contact_title: 'Lead Clinical Esthetician',
           contact_avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
@@ -3022,7 +3067,7 @@ router.get('/chat/conversations', async (req, res) => {
         {
           id: `user_${userId}_doctor_3`,
           contact_id: '3',
-          contact_name: 'Dr. Julian Rostova, MD',
+          contact_name: 'Dr. Rajni Verma, MD',
           contact_role: 'dermatologist',
           contact_title: 'Board-Certified Dermatologist',
           contact_avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150',
@@ -3081,7 +3126,7 @@ router.get('/chat/conversations', async (req, res) => {
         {
           id: `consultant_${userId}_doctor_3`,
           contact_id: '3',
-          contact_name: 'Dr. Julian Rostova, MD',
+          contact_name: 'Dr. Rajni Verma, MD',
           contact_role: 'dermatologist',
           contact_title: 'Supervising Dermatologist',
           contact_avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150',
@@ -3140,7 +3185,7 @@ router.get('/chat/conversations', async (req, res) => {
         {
           id: `consultant_2_doctor_${userId}`,
           contact_id: '2',
-          contact_name: 'Elena Vance, LE',
+          contact_name: 'Ananya Iyer, LE',
           contact_role: 'consultant',
           contact_title: 'Lead Aesthetic Consultant',
           contact_avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
@@ -3166,7 +3211,7 @@ router.get('/chat/conversations', async (req, res) => {
         {
           id: `consultant_2_doctor_3`,
           contact_id: '2',
-          contact_name: 'Clinical Staff Channel (Elena & Dr. Julian)',
+          contact_name: 'Clinical Staff Channel (Ananya & Dr. Rajni)',
           contact_role: 'consultant',
           contact_title: 'Internal Clinician Exchange',
           contact_avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
@@ -3620,7 +3665,7 @@ router.get('/dashboard/consultant-metrics', async (req, res) => {
     return res.json({
       success: true,
       consultant_id: 2,
-      consultant_name: 'Elena Vance, LE',
+      consultant_name: 'Ananya Iyer, LE',
       total_clients: clients.length,
       active_cases: clients.length,
       average_client_adherence: 86.2,
@@ -3661,7 +3706,7 @@ router.get('/dashboard/dermatologist-metrics', async (req, res) => {
     return res.json({
       success: true,
       doctor_id: 3,
-      doctor_name: 'Dr. Julian Rostova, MD',
+      doctor_name: 'Dr. Rajni Verma, MD',
       total_patients: patients.length,
       high_risk_patients_count: 2,
       pending_prescriptions_count: 1,
@@ -4155,7 +4200,7 @@ function generateServerReportHTML(rep) {
     </div>
     <div class="meta-item">
       <label>Assigned Clinician</label>
-      <strong>Dr. Julian Rostova, MD</strong>
+      <strong>Dr. Rajni Verma, MD</strong>
     </div>
     <div class="meta-item">
       <label>Clinical Status</label>
@@ -4236,11 +4281,11 @@ function generateServerReportHTML(rep) {
   <div class="doctor-signature-row">
     <div class="sig-block">
       <div class="sig-line"></div>
-      <small style="color: #475569;"><strong>Elena Vance, LE</strong><br>Lead Clinical Esthetician</small>
+      <small style="color: #475569;"><strong>Ananya Iyer, LE</strong><br>Lead Clinical Esthetician</small>
     </div>
     <div class="sig-block">
       <div class="sig-line"></div>
-      <small style="color: #475569;"><strong>Dr. Julian Rostova, MD</strong><br>Board-Certified Dermatologist (Lic #MED-84920)</small>
+      <small style="color: #475569;"><strong>Dr. Rajni Verma, MD</strong><br>Board-Certified Dermatologist (Lic #MED-84920)</small>
     </div>
   </div>
 </body>
@@ -4281,8 +4326,8 @@ router.post('/reports/generate', async (req, res) => {
         overall_health_score: 79.4,
         skin_type: 'Combination',
         clinical_status: 'Optimal Progress / Regimen Maintained',
-        assigned_consultant: 'Elena Vance, LE',
-        assigned_dermatologist: 'Dr. Julian Rostova, MD',
+        assigned_consultant: 'Ananya Iyer, LE',
+        assigned_dermatologist: 'Dr. Rajni Verma, MD',
         active_prescription: 'Topical Adapalene 0.1% (PM 3x/wk) + Azelaic Acid 15% (AM)',
         routine_adherence: '93.5%',
         consistency_streak: '14 Days',
@@ -4440,9 +4485,9 @@ function generateServerExcelXML(exportType = 'skin_health', profile = {}) {
    </Row>
    <Row ss:Height="18">
     <Cell ss:StyleID="LabelStyle"><Data ss:Type="String">Assigned Dermatologist</Data></Cell>
-    <Cell><Data ss:Type="String">Dr. Julian Rostova, MD (NPI #984321045)</Data></Cell>
+    <Cell><Data ss:Type="String">Dr. Rajni Verma, MD (NPI #984321045)</Data></Cell>
     <Cell ss:StyleID="LabelStyle"><Data ss:Type="String">Assigned Esthetician</Data></Cell>
-    <Cell><Data ss:Type="String">Elena Vance, LE (Clinical Lead)</Data></Cell>
+    <Cell><Data ss:Type="String">Ananya Iyer, LE (Clinical Lead)</Data></Cell>
    </Row>
    <Row ss:Height="22">
     <Cell ss:StyleID="LabelStyle"><Data ss:Type="String">Holistic Skin Health Score</Data></Cell>

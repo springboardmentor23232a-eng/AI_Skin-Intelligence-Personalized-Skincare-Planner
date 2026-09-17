@@ -19,8 +19,8 @@ def test_get_user_chat_conversations():
     assert len(data["conversations"]) >= 3
     contact_ids = [c["contact_id"] for c in data["conversations"]]
     assert "lumina_ai" in contact_ids
-    assert "2" in contact_ids  # Elena Vance
-    assert "3" in contact_ids  # Dr. Julian Rostova
+    assert "2" in contact_ids  # Ananya Iyer
+    assert "3" in contact_ids  # Dr. Rajni Verma
 
 
 def test_get_consultant_chat_conversations():
@@ -32,7 +32,7 @@ def test_get_consultant_chat_conversations():
     contact_ids = [c["contact_id"] for c in data["conversations"]]
     assert "lumina_ai" in contact_ids
     assert "1" in contact_ids  # Alex Rivera
-    assert "3" in contact_ids  # Dr. Julian Rostova
+    assert "3" in contact_ids  # Dr. Rajni Verma
 
 
 def test_get_chat_messages():
@@ -72,9 +72,9 @@ def test_send_message_to_doctor():
         "sender_name": "Alex Rivera",
         "sender_role": "user",
         "recipient_id": "3",
-        "recipient_name": "Dr. Julian Rostova, MD",
+        "recipient_name": "Dr. Rajni Verma, MD",
         "recipient_role": "dermatologist",
-        "message": "Dr. Rostova, my skin feels great with the new adapalene schedule."
+        "message": "Dr. Verma, my skin feels great with the new adapalene schedule."
     }
     response = client.post("/chat/send", json=payload)
     assert response.status_code == 200

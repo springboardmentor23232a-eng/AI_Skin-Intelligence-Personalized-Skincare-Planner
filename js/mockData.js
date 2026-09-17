@@ -24,7 +24,7 @@ export const MOCK_ROLES = {
   },
   DERMATOLOGIST: {
     id: 'dermatologist',
-    name: 'Dr. Rajesh Varma, MD',
+    name: 'Dr. Rajni Verma, MD',
     title: 'Board-Certified Dermatologist',
     badgeClass: 'badge-dermatologist',
     icon: '🩺',
@@ -936,7 +936,7 @@ export const MOCK_ADMIN_DATA = {
   ],
   recentAuditLogs: [
     { time: '09:14:22', user: 'Admin', event: 'Microservice Health Check Executed', status: 'Success' },
-    { time: '08:52:10', user: 'Dr. Rajesh Varma', event: 'Patient Medical Profile Updated (p201)', status: 'Success' },
+    { time: '08:52:10', user: 'Dr. Rajni Verma', event: 'Patient Medical Profile Updated (p201)', status: 'Success' },
     { time: '08:30:45', user: 'Pooja Deshmukh', event: 'New Routine Plan Published for Client (c101)', status: 'Success' },
     { time: '07:45:00', user: 'System Cron', event: 'FAISS Vector Index Optimization Complete', status: 'Success' }
   ]
@@ -1524,12 +1524,12 @@ export const MOCK_NOTIFICATIONS = [
     id: 5,
     user_id: 1,
     title: '🩺 Dermatologist Prescription Update',
-    message: 'Dr. Rajesh Varma reviewed your optical scan and adjusted your Adapalene PM application frequency to 3x/wk.',
+    message: 'Dr. Rajni Verma reviewed your optical scan and adjusted your Adapalene PM application frequency to 3x/wk.',
     category: 'clinical',
     type: 'alert',
     is_read: true,
     action_url: '/chat',
-    metadata: { doctor_name: 'Dr. Rajesh Varma, MD', rx: 'Adapalene 0.1%' },
+    metadata: { doctor_name: 'Dr. Rajni Verma, MD', rx: 'Adapalene 0.1%' },
     created_at: new Date(Date.now() - 2 * 86400000).toISOString()
   }
 ];
@@ -1646,7 +1646,7 @@ export const MOCK_GENERATED_REPORTS = [
       skin_type: 'Combination',
       clinical_status: 'Optimal Progress / Regimen Maintained',
       assigned_consultant: 'Ananya Iyer, LE',
-      assigned_dermatologist: 'Dr. Rajesh Varma, MD',
+      assigned_dermatologist: 'Dr. Rajni Verma, MD',
       active_prescription: 'Topical Adapalene 0.1% (PM 3x/wk) + Azelaic Acid 15% (AM)',
       routine_adherence: '93.5%',
       consistency_streak: '14 Days',
@@ -1727,7 +1727,7 @@ export function compileClinicalReportHTML(reportType = 'skin_health', userProfil
       </div>
       <div>
         <span style="display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #94A3B8; font-weight: 700; margin-bottom: 3px;">Assigned Clinician</span>
-        <strong style="font-size: 13px; color: #0F172A;">Dr. Rajesh Varma, MD</strong>
+        <strong style="font-size: 13px; color: #0F172A;">Dr. Rajni Verma, MD</strong>
       </div>
       <div>
         <span style="display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #94A3B8; font-weight: 700; margin-bottom: 3px;">Clinical Status</span>
@@ -1817,7 +1817,7 @@ export function compileClinicalReportHTML(reportType = 'skin_health', userProfil
       </div>
       <div style="text-align: center; width: 200px;">
         <div style="border-bottom: 1px solid #94A3B8; margin-bottom: 6px; height: 28px;"></div>
-        <small style="color: #475569;"><strong>Dr. Rajesh Varma, MD</strong><br>Board-Certified Dermatologist (Lic #MED-84920)</small>
+        <small style="color: #475569;"><strong>Dr. Rajni Verma, MD</strong><br>Board-Certified Dermatologist (Lic #MED-84920)</small>
       </div>
     </div>
   `;
@@ -1856,7 +1856,7 @@ export function compileClinicalReport(reportType = 'skin_health', userId = 1) {
       skin_type: 'Combination',
       clinical_status: 'Optimal Progress / Regimen Maintained',
       assigned_consultant: 'Ananya Iyer, LE',
-      assigned_dermatologist: 'Dr. Rajesh Varma, MD',
+      assigned_dermatologist: 'Dr. Rajni Verma, MD',
       active_prescription: 'Topical Adapalene 0.1% (PM 3x/wk) + Azelaic Acid 15% (AM)',
       routine_adherence: '93.5%',
       consistency_streak: '14 Days',
@@ -1954,7 +1954,7 @@ export function generateExcelSpreadsheetML(exportType = 'skin_health', userProfi
    </Row>
    <Row ss:Height="18">
     <Cell ss:StyleID="LabelStyle"><Data ss:Type="String">Assigned Dermatologist</Data></Cell>
-    <Cell><Data ss:Type="String">Dr. Rajesh Varma, MD (NPI #984321045)</Data></Cell>
+    <Cell><Data ss:Type="String">Dr. Rajni Verma, MD (NPI #984321045)</Data></Cell>
     <Cell ss:StyleID="LabelStyle"><Data ss:Type="String">Assigned Esthetician</Data></Cell>
     <Cell><Data ss:Type="String">Elena Vance, LE (Clinical Lead)</Data></Cell>
    </Row>
@@ -2196,7 +2196,7 @@ export const MOCK_USER_APPOINTMENTS = {
       notes: 'Patient showed +54.2% hydration boost. Barrier restored after introducing ceramide night barrier seal.'
     },
     assigned_doctor: {
-      name: 'Dr. Rajesh Varma, MD',
+      name: 'Dr. Rajni Verma, MD',
       role: 'Board-Certified Dermatologist',
       avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150',
       prescription: 'Topical Adapalene 0.1% (PM 3x/wk) + Azelaic Acid 15% (AM)',
@@ -2225,7 +2225,7 @@ export const MOCK_USER_APPOINTMENTS = {
     {
       id: 102,
       specialist_id: 3,
-      specialist_name: 'Dr. Rajesh Varma, MD',
+      specialist_name: 'Dr. Rajni Verma, MD',
       specialist_role: 'dermatologist',
       specialist_title: 'Board-Certified Dermatologist',
       avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150',
@@ -2242,7 +2242,7 @@ export const MOCK_USER_APPOINTMENTS = {
   past_history: [
     {
       id: 90,
-      specialist_name: 'Dr. Rajesh Varma, MD',
+      specialist_name: 'Dr. Rajni Verma, MD',
       specialist_role: 'dermatologist',
       date: '24 Nov 2025',
       type: 'Initial Telehealth Diagnostic & Prescription',
@@ -2296,7 +2296,7 @@ export const MOCK_USER_APPOINTMENTS = {
     },
     {
       id: 3,
-      name: 'Dr. Rajesh Varma, MD',
+      name: 'Dr. Rajni Verma, MD',
       role: 'dermatologist',
       title: 'Board-Certified Dermatologist',
       credentials: 'MD • AIIMS New Delhi • Clinical Dermatology Director',
@@ -2465,7 +2465,7 @@ export const MOCK_CONSULTANT_APPOINTMENTS = {
 export const MOCK_DERMATOLOGIST_APPOINTMENTS = {
   doctor_info: {
     id: 3,
-    name: 'Dr. Rajesh Varma, MD',
+    name: 'Dr. Rajni Verma, MD',
     role: 'dermatologist',
     title: 'Board-Certified Dermatologist & Clinical Director',
     license: 'MED-84920 (Clinical Licensure Active)',
@@ -2626,7 +2626,7 @@ export const MOCK_ADMIN_APPOINTMENTS = {
     patient_satisfaction_score: 4.95
   },
   specialist_roster: [
-    { name: 'Dr. Rajesh Varma, MD', role: 'Dermatologist', today_slots: 6, booked: 5, status: 'Active (In Telehealth Clinic)' },
+    { name: 'Dr. Rajni Verma, MD', role: 'Dermatologist', today_slots: 6, booked: 5, status: 'Active (In Telehealth Clinic)' },
     { name: 'Ananya Iyer, LE', role: 'Clinical Esthetician', today_slots: 8, booked: 6, status: 'Active (Consulting)' },
     { name: 'Dr. Priya Nair, MD', role: 'Cosmetic Dermatologist', today_slots: 4, booked: 3, status: 'Active (Procedure Review)' }
   ]

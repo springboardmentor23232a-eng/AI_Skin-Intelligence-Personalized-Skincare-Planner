@@ -108,7 +108,7 @@ class SharingPreferencesUpdateRequest(BaseModel):
 class BookConsultationRequest(BaseModel):
     user_id: int = 1
     specialist_id: int = 2
-    specialist_name: str = "Elena Vance, LE"
+    specialist_name: str = "Ananya Iyer, LE"
     specialist_role: str = "consultant"
     type: str = "Virtual Skincare Consultation"
     scheduled_date: Optional[str] = None
@@ -136,7 +136,7 @@ _PY_APPOINTMENTS_STORE: List[Dict[str, Any]] = [
         "id": 1,
         "user_id": 1,
         "specialist_id": 2,
-        "specialist_name": "Elena Vance, LE",
+        "specialist_name": "Ananya Iyer, LE",
         "specialist_role": "consultant",
         "type": "Virtual Regimen Review & Barrier Check",
         "scheduled_date": "2025-12-10T14:30:00Z",
@@ -376,8 +376,8 @@ def get_patient_dossier(user_id: int, role: Optional[str] = None):
             "diagnosed_condition": "Mild Comedonal Acne & Post-Acne PIH",
             "status": "Under Active Regimen",
             "priority": "Standard",
-            "assigned_consultant": "Elena Vance, LE",
-            "assigned_dermatologist": "Dr. Julian Rostova, MD",
+            "assigned_consultant": "Ananya Iyer, LE",
+            "assigned_dermatologist": "Dr. Rajni Verma, MD",
             "active_prescription": rx_display,
             "consultant_notes": "Hydration and barrier integrity significantly improved.",
             "clinical_notes": "Lesions clearing satisfactorily.",
@@ -421,8 +421,8 @@ def get_user_sharing_preferences(user_id: int = 1):
         "success": True,
         "preferences": prefs,
         "specialists": [
-            {"id": 2, "name": "Elena Vance, LE", "role": "consultant", "title": "Lead Clinical Esthetician & Regimen Specialist", "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150", "available": True},
-            {"id": 3, "name": "Dr. Julian Rostova, MD", "role": "dermatologist", "title": "Board-Certified Dermatologist & Clinical Director", "avatar": "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150", "available": True}
+            {"id": 2, "name": "Ananya Iyer, LE", "role": "consultant", "title": "Lead Clinical Esthetician & Regimen Specialist", "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150", "available": True},
+            {"id": 3, "name": "Dr. Rajni Verma, MD", "role": "dermatologist", "title": "Board-Certified Dermatologist & Clinical Director", "avatar": "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150", "available": True}
         ]
     }
 
