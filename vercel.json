@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "name": "ai-skin-intelligence",
+  "builds": [
+    {
+      "src": "**/*",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "https://YOUR_BACKEND_URL_HERE.onrender.com/api/$1"
+    },
+    {
+      "src": "/engine/(.*)",
+      "dest": "https://YOUR_FASTAPI_URL_HERE.onrender.com/$1"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ]
+}

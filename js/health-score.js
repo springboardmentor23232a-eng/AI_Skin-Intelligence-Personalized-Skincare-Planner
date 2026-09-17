@@ -4,7 +4,7 @@ console.log("Health Score JS loaded.");
    HEALTH SCORE INTELLIGENCE ENGINE
    ========================================================= */
 
-const API_BASE_URL = "http://127.0.0.1:8000";
+const API_BASE_URL = (typeof window.APP_CONFIG !== "undefined" && window.APP_CONFIG.API_BASE_URL) ? window.APP_CONFIG.API_BASE_URL : "http://127.0.0.1:8000";
 
 let allAssessments = [];
 let latestAssessment = null;

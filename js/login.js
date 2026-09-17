@@ -8,8 +8,10 @@ async function login(){
     try{
 
 
+        const baseUrl = (typeof window.APP_CONFIG !== "undefined" && window.APP_CONFIG.API_BASE_URL) ? window.APP_CONFIG.API_BASE_URL : "http://127.0.0.1:8000";
+
         const response = await fetch(
-            "http://127.0.0.1:8000/api/auth/login",
+            `${baseUrl}/api/auth/login`,
             {
 
                 method:"POST",
@@ -155,12 +157,8 @@ async function login(){
 // Google OAuth Login
 
 function googleLogin(){
-
-
-    window.location.href =
-    "http://127.0.0.1:8000/auth/google";
-
-
+    const baseUrl = (typeof window.APP_CONFIG !== "undefined" && window.APP_CONFIG.API_BASE_URL) ? window.APP_CONFIG.API_BASE_URL : "http://127.0.0.1:8000";
+    window.location.href = `${baseUrl}/auth/google`;
 }
 
 

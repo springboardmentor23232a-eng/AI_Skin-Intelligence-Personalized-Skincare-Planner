@@ -1,0 +1,39 @@
+name: AI Skin Care Build & Deployment Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  validate-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install & Test Node Backend
+        run: |
+          cd backend
+          npm ci
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install & Validate FastAPI Engine
+        run: |
+          cd skin-assessment-engine
+          pip install -r requirements.txt
+
+      - name: Build Docker Images Validation
+        run: |
+          docker compose config

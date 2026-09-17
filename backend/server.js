@@ -26,17 +26,19 @@ app.get("/test", (req, res) => {
 
 
 
-app.use(cors());
+const allowedOrigins = process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(",") : "*";
+app.use(cors({
+    origin: allowedOrigins,
+    credentials: true
+}));
 
 app.use(express.json());
-
-
 
 // Session setup
 
 app.use(session({
 
-    secret: "skin-ai-secret",
+    secret: process.env.SESSION_SECRET || "skin-ai-secret",
 
     resave: false,
 
@@ -44,15 +46,11 @@ app.use(session({
 
 }));
 
-
-
 // Passport setup
 
 app.use(passport.initialize());
 
 app.use(passport.session());
-
-
 
 
 // Routes
@@ -62,9 +60,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
 app.use("/api/profile", profileRoutes);
-
-
-
 
 
 // Google Login Route
@@ -80,10 +75,6 @@ app.get("/auth/google",
 );
 
 
-
-
-
-
 // Google Callback Route (OAuth + JWT)
 
 app.get("/auth/google/callback",
@@ -96,24 +87,16 @@ app.get("/auth/google/callback",
 
     (req, res) => {
 
-
         const token = req.user.token;
-
+        const frontendUrl = process.env.FRONTEND_URL || "http://127.0.0.1:5500";
 
         res.redirect(
-
-            "http://127.0.0.1:5500/pages/user-dashboard.html?token=" + token
-
+            `${frontendUrl}/pages/user-dashboard.html?token=${token}`
         );
-
 
     }
 
 );
-
-
-
-
 
 
 // Home Route
@@ -125,10 +108,7 @@ app.get("/", (req, res) => {
 });
 
 
-
-
-
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 
 app.listen(PORT, () => {

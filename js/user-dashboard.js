@@ -25,8 +25,10 @@ async function loadUserDashboard() {
         // LOAD USER DETAILS
         // ==========================================
 
+        const baseUrl = (typeof window.APP_CONFIG !== "undefined" && window.APP_CONFIG.API_BASE_URL) ? window.APP_CONFIG.API_BASE_URL : "http://127.0.0.1:8000";
+
         const userResponse = await fetch(
-            "http://127.0.0.1:8000/dashboard/user",
+            `${baseUrl}/dashboard/user`,
             {
                 headers: {
                     "Authorization": "Bearer " + token
@@ -59,7 +61,7 @@ async function loadUserDashboard() {
         // ==========================================
 
         const assessmentResponse = await fetch(
-            "http://127.0.0.1:8000/assessment/",
+            `${baseUrl}/assessment/`,
             {
                 headers: {
                     "Authorization": "Bearer " + token
@@ -1053,7 +1055,7 @@ loadUserDashboard();
 // REPORT DOWNLOADS
 // =========================================================
 
-const API_BASE_URL = "http://127.0.0.1:8000";
+const API_BASE_URL = (typeof window.APP_CONFIG !== "undefined" && window.APP_CONFIG.API_BASE_URL) ? window.APP_CONFIG.API_BASE_URL : "http://127.0.0.1:8000";
 
 
 // =========================================================
