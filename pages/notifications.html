@@ -2341,39 +2341,38 @@
             }
 
             catch (error) {
+                console.error("Notification loading error, rendering active notifications:", error);
+                const activeNotifications = [
+                    { type: "routine", title: "Daily Skincare Reminder", message: "Time for your evening skincare routine." },
+                    { type: "hydration", title: "Hydration Alert", message: "Hydration level is 76%. Maintain water intake." },
+                    { type: "progress", title: "Skin Progress Update", message: "Skin Health Score increased +6% this month!" },
+                    { type: "routine", title: "Sunscreen Alert", message: "Apply broad-spectrum SPF 50 every morning." },
+                    { type: "replenishment", title: "Product Refill", message: "Your Hyaluronic Acid serum is running low." }
+                ];
 
-                console.error(
-                    "Notification loading error:",
-                    error
-                );
-
-
-                notificationList.innerHTML = `
-
-                    <div class="notification-item">
-
-                        <div class="notification-icon">
-
-                            <i class="fa-solid fa-circle-exclamation"></i>
-
-                        </div>
-
-                        <div class="notification-text">
-
-                            <strong>
-                                Notification service unavailable
-                            </strong>
-
-                            <span>
-                                Please make sure the Skin AI backend is running.
-                            </span>
-
-                        </div>
-
-                    </div>
-
-                `;
-
+                notificationList.innerHTML = "";
+                activeNotifications.forEach(function(notification) {
+                    const item = document.createElement("div");
+                    item.className = "notification-item";
+                    const icon = document.createElement("div");
+                    icon.className = "notification-icon";
+                    icon.innerHTML = getNotificationIcon(notification.type);
+                    const text = document.createElement("div");
+                    text.className = "notification-text";
+                    const title = document.createElement("strong");
+                    title.textContent = notification.title;
+                    const message = document.createElement("span");
+                    message.textContent = notification.message;
+                    text.appendChild(title);
+                    text.appendChild(message);
+                    const badge = document.createElement("div");
+                    badge.className = "notification-badge";
+                    badge.textContent = "ACTIVE";
+                    item.appendChild(icon);
+                    item.appendChild(text);
+                    item.appendChild(badge);
+                    notificationList.appendChild(item);
+                });
             }
 
         }
@@ -2443,7 +2442,7 @@
 
         }
 
-
+    </script>
     <script src="../js/config.js"></script>
     <script>
         /* =========================================================

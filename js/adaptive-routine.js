@@ -129,6 +129,7 @@ async function loadRoutineData() {
         return;
     }
 
+    try {
         const baseUrl = (typeof window.APP_CONFIG !== "undefined" && window.APP_CONFIG.API_BASE_URL) ? window.APP_CONFIG.API_BASE_URL : "http://127.0.0.1:8000";
 
         const response = await fetch(

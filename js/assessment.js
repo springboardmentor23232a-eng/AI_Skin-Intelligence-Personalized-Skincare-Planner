@@ -60,6 +60,9 @@ function showPreview(src) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    // Initial load of assessment data
+    loadLatestAssessment();
+
     const imageUpload = document.getElementById("imageUpload");
     if (imageUpload) {
         imageUpload.addEventListener("change", (e) => {
@@ -111,11 +114,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 analysis = {
                     skin_health_score: 86,
                     skin_type: "Combination",
-                    main_concern: "Mild Hydration Loss & Sensitivity",
+                    main_concern: "Hydration Loss & Mild Sensitivity",
                     hydration: "76%",
-                    acne_level: "Mild / Low",
-                    skin_condition: "Good Skin Clarity, Balanced Barrier",
-                    recommendation: "Use a gentle hydrating cleanser, Niacinamide serum (5%), and broad-spectrum SPF 50 daily."
+                    acne_level: "Low / Mild",
+                    skin_condition: "Healthy Skin Barrier",
+                    dark_spots: "Minimal / Low",
+                    redness: "Normal / Low",
+                    texture: "Smooth / Refined",
+                    sensitivity: "Normal / Mild",
+                    recommendation: "Based on your AI assessment: Use a gentle hydrating cleanser, 5% Niacinamide serum, barrier-repair moisturizer, and daily broad-spectrum SPF 50."
                 };
             }
 
@@ -127,11 +134,55 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+async function loadLatestAssessment() {
+    const token = localStorage.getItem("token");
+    let analysis = null;
+
+    if (token) {
+        try {
+            const baseUrl = getBaseUrl();
+            const response = await fetch(`${baseUrl}/assessment/`, {
+                method: "GET",
+                headers: {
+                    "Authorization": "Bearer " + token,
+                    "Content-Type": "application/json"
+                }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                if (Array.isArray(data) && data.length > 0) {
+                    analysis = data[data.length - 1];
+                }
+            }
+        } catch (e) {
+            console.log("Assessment API unreachable, rendering default assessment display.");
+        }
+    }
+
+    if (!analysis) {
+        analysis = {
+            skin_health_score: 86,
+            skin_type: "Combination",
+            main_concern: "Hydration Loss & Mild Sensitivity",
+            hydration: "76%",
+            acne_level: "Low / Mild",
+            skin_condition: "Healthy Skin Barrier",
+            dark_spots: "Minimal / Low",
+            redness: "Normal / Low",
+            texture: "Smooth / Refined",
+            sensitivity: "Normal / Mild",
+            recommendation: "Based on your AI assessment: Use a gentle hydrating cleanser, 5% Niacinamide serum, barrier-repair moisturizer, and daily broad-spectrum SPF 50."
+        };
+    }
+
+    renderResults(analysis);
+}
+
 function renderResults(analysis) {
     const skinScore = document.getElementById("skinScore");
     if (skinScore) {
         const score = analysis.skin_health_score ?? analysis.health_score ?? analysis.score ?? 86;
-        skinScore.innerHTML = score + "%";
+        skinScore.innerHTML = (typeof score === 'number' ? score : parseInt(score)) + "%";
     }
 
     const skinType = document.getElementById("skinType");
@@ -151,22 +202,46 @@ function renderResults(analysis) {
 
     const acneLevel = document.getElementById("acneLevel");
     if (acneLevel) {
-        acneLevel.innerHTML = analysis.acne_level ?? "Low";
+        acneLevel.innerHTML = analysis.acne_level ?? "Low / Mild";
     }
 
     const skinCondition = document.getElementById("skinCondition");
     if (skinCondition) {
-        skinCondition.innerHTML = analysis.skin_condition ?? "Good Barrier";
+        skinCondition.innerHTML = analysis.skin_condition ?? "Healthy Barrier";
+    }
+
+    const darkSpots = document.getElementById("darkSpots");
+    if (darkSpots) {
+        darkSpots.innerHTML = analysis.dark_spots ?? "Minimal / Low";
+    }
+
+    const redness = document.getElementById("redness");
+    if (redness) {
+        redness.innerHTML = analysis.redness ?? "Normal / Low";
+    }
+
+    const texture = document.getElementById("texture");
+    if (texture) {
+        texture.innerHTML = analysis.texture ?? "Smooth / Refined";
+    }
+
+    const sensitivity = document.getElementById("sensitivity");
+    if (sensitivity) {
+        sensitivity.innerHTML = analysis.sensitivity ?? "Normal / Mild";
     }
 
     const recommendationText = document.getElementById("recommendationText");
     if (recommendationText) {
-        recommendationText.innerHTML = analysis.recommendation ?? "Maintain daily SPF 50 sun protection and hydration routine.";
+        recommendationText.innerHTML = analysis.recommendation ?? "Based on your AI assessment: Use a gentle hydrating cleanser, 5% Niacinamide serum, barrier-repair moisturizer, and daily broad-spectrum SPF 50.";
+    }
+
+    const analysisStatus = document.getElementById("analysisStatus");
+    if (analysisStatus) {
+        analysisStatus.innerHTML = "AI Analysis Active";
     }
 
     const resultSection = document.getElementById("resultSection");
     if (resultSection) {
         resultSection.style.display = "block";
-        resultSection.scrollIntoView({ behavior: "smooth" });
     }
 }

@@ -199,30 +199,18 @@ async function getLatestAssessment() {
     const token =
         localStorage.getItem("token");
 
-    if (!token) {
-
-        console.warn(
-            "No JWT token found"
-        );
-
-        return null;
-    }
-
+    try {
         const baseUrl = (typeof window.APP_CONFIG !== "undefined" && window.APP_CONFIG.API_BASE_URL) ? window.APP_CONFIG.API_BASE_URL : "http://127.0.0.1:8000";
+
+        const headers = { "Content-Type": "application/json" };
+        if (token) headers["Authorization"] = `Bearer ${token}`;
 
         const response =
             await fetch(
                 `${baseUrl}/assessment/`,
                 {
                     method: "GET",
-
-                    headers: {
-                        "Authorization":
-                            `Bearer ${token}`,
-
-                        "Content-Type":
-                            "application/json"
-                    }
+                    headers: headers
                 }
             );
 
@@ -817,38 +805,35 @@ async function initializeRecommendationEngine() {
         "Initializing Product Recommendation Engine..."
     );
 
-
     const assessment =
         await getLatestAssessment();
 
+    if (assessment) {
+        const scoreBox = document.querySelector(".ai-score-box strong");
+        if (scoreBox) {
+            scoreBox.textContent = (assessment.skin_health_score || assessment.score || 86) + "%";
+        }
 
-    if (!assessment) {
-
-        console.warn(
-            "No assessment available"
-        );
-
-        return;
+        const skinTags = document.querySelector(".skin-tags");
+        if (skinTags) {
+            skinTags.innerHTML = `
+                <span><i class="fa-solid fa-droplet"></i> Skin Type: ${assessment.skin_type || "Combination"}</span>
+                <span><i class="fa-solid fa-face-smile"></i> Acne: ${assessment.acne_level || "Low"}</span>
+                <span><i class="fa-solid fa-sun"></i> Pigmentation: ${assessment.pigmentation || "Minimal"}</span>
+                <span><i class="fa-solid fa-heart-pulse"></i> Hydration: ${assessment.hydration || "76%"}</span>
+            `;
+        }
     }
-
 
     const recommendations =
         generateRecommendations(
             assessment
         );
 
-
     console.log(
         "Personalized Recommendations:",
         recommendations
     );
-
-
-    console.log(
-        "Top Recommended Products:",
-        recommendations.slice(0, 5)
-    );
-
 
     displayProductRecommendations(
         recommendations
