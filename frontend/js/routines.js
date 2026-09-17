@@ -2,6 +2,8 @@
 
 import { dataAPI, geminiAPI, authAPI } from './api.js';
 import { initDashboard, showToast, showLoading, hideLoading, formatDate } from './common.js';
+import { calculateAndStoreSkinHealthScore } from './skinHealthScore.js';
+import { toDateOnly } from './progressAnalytics.js';
 
 /* ---- Routine Page ---- */
 export async function initUserRoutine() {
@@ -36,8 +38,9 @@ async function loadRoutine(userId) {
     const source = result.source;
 
     // Save routine to database
+    let savedRoutine = null;
     try {
-      await dataAPI.createRoutine({
+      savedRoutine = await dataAPI.createRoutine({
         user_id: userId,
         assessment_id: latest.id,
         morning_routine: routine.morning_routine,
@@ -48,7 +51,22 @@ async function loadRoutine(userId) {
       });
     } catch (e) { /* save failure is non-fatal */ }
 
+    // The checklist needs a stable routine_id to persist completions against.
+    // If the save above failed for some reason, fall back to whatever the
+    // user's most recent saved routine is so the checklist still works.
+    let routineId = savedRoutine?.id || null;
+    if (!routineId) {
+      try {
+        const latestSaved = await dataAPI.getLatestRoutine(userId);
+        routineId = latestSaved?.id || null;
+      } catch (e) { /* checklist will be unavailable this load */ }
+    }
+
     renderRoutine(container, routine, source);
+
+    if (routineId) {
+      initRoutineChecklist(userId, routineId, routine);
+    }
 
     // Adaptive updates
     if (previousAssessments.length > 0) {
@@ -96,13 +114,26 @@ function renderRoutine(container, routine, source) {
     html += `<div class="card" style="margin-bottom:1rem;"><p style="font-size:var(--fs-base);color:var(--color-text-secondary);">${routine.summary}</p><div style="margin-top:0.5rem;">${sourceBadge}</div></div>`;
   }
 
+  // Module 8: today's checklist progress summary (filled in by initRoutineChecklist once completion data loads)
+  html += `<div class="card" id="checklistSummaryCard" style="margin-bottom:1rem;display:none;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
+      <h3 style="font-size:var(--fs-base);font-weight:600;">Today's Checklist</h3>
+      <span id="checklistSummaryText" style="font-size:var(--fs-sm);color:var(--color-text-secondary);"></span>
+    </div>
+    <div style="height:8px;background:var(--color-surface-alt);border-radius:var(--radius-full);overflow:hidden;">
+      <div id="checklistSummaryBar" style="height:100%;width:0%;background:var(--color-accent);transition:width 0.3s;"></div>
+    </div>
+  </div>`;
+
   // Morning Routine
   html += '<div class="card" style="margin-bottom:1rem;">';
   html += '<div class="card-header"><h3 class="card-title">Morning Routine</h3></div>';
   html += '<div style="display:flex;flex-direction:column;gap:0.75rem;">';
-  (routine.morning_routine || []).forEach(step => {
+  (routine.morning_routine || []).forEach((step, idx) => {
+    const label = `${step.category || ''}${step.product_type ? ' - ' + step.product_type : ''}`;
     html += `
       <div style="display:flex;gap:0.75rem;align-items:flex-start;padding:0.75rem;border:1px solid var(--color-border);border-radius:8px;">
+        <input type="checkbox" class="routine-step-check" data-period="morning" data-step="${idx}" data-label="${label.replace(/"/g, '&quot;')}" style="width:20px;height:20px;margin-top:6px;flex-shrink:0;cursor:pointer;" />
         <div style="width:32px;height:32px;border-radius:50%;background:var(--color-accent-soft);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:var(--fs-sm);color:var(--color-accent-dark);flex-shrink:0;">${step.step || ''}</div>
         <div style="flex:1;">
           <div style="font-weight:600;font-size:var(--fs-sm);color:var(--color-text);">${step.category}</div>
@@ -117,9 +148,11 @@ function renderRoutine(container, routine, source) {
   html += '<div class="card" style="margin-bottom:1rem;">';
   html += '<div class="card-header"><h3 class="card-title">Evening Routine</h3></div>';
   html += '<div style="display:flex;flex-direction:column;gap:0.75rem;">';
-  (routine.evening_routine || []).forEach(step => {
+  (routine.evening_routine || []).forEach((step, idx) => {
+    const label = `${step.category || ''}${step.product_type ? ' - ' + step.product_type : ''}`;
     html += `
       <div style="display:flex;gap:0.75rem;align-items:flex-start;padding:0.75rem;border:1px solid var(--color-border);border-radius:8px;">
+        <input type="checkbox" class="routine-step-check" data-period="evening" data-step="${idx}" data-label="${label.replace(/"/g, '&quot;')}" style="width:20px;height:20px;margin-top:6px;flex-shrink:0;cursor:pointer;" />
         <div style="width:32px;height:32px;border-radius:50%;background:var(--color-primary-soft);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:var(--fs-sm);color:var(--color-primary);flex-shrink:0;">${step.step || ''}</div>
         <div style="flex:1;">
           <div style="font-weight:600;font-size:var(--fs-sm);color:var(--color-text);">${step.category}</div>
@@ -233,6 +266,108 @@ function renderAdaptiveUpdates(container, result, previous, latest) {
   container.innerHTML = html;
 }
 
+/* ---- Module 8: Daily Routine Checklist ---- */
+/** Compact checklist markup reusable on both the full Routine page and the Dashboard widget. */
+export function renderChecklistHtml(routine, { compact = false } = {}) {
+  const renderGroup = (steps, period, colorVar) => (steps || []).map((step, idx) => {
+    const label = `${step.category || ''}${step.product_type ? ' - ' + step.product_type : ''}`;
+    return `
+      <label style="display:flex;gap:0.625rem;align-items:center;padding:${compact ? '0.5rem' : '0.75rem'};border:1px solid var(--color-border);border-radius:8px;cursor:pointer;">
+        <input type="checkbox" class="routine-step-check" data-period="${period}" data-step="${idx}" data-label="${label.replace(/"/g, '&quot;')}" style="width:18px;height:18px;flex-shrink:0;cursor:pointer;" />
+        <span style="font-size:var(--fs-sm);color:var(--color-text);">${step.category || ''}${step.product_type ? ` &middot; ${step.product_type}` : ''}</span>
+      </label>`;
+  }).join('');
+
+  const morning = renderGroup(routine.morning_routine, 'morning', 'var(--color-accent-dark)');
+  const evening = renderGroup(routine.evening_routine, 'evening', 'var(--color-primary)');
+  const totalSteps = (routine.morning_routine || []).length + (routine.evening_routine || []).length;
+
+  if (totalSteps === 0) {
+    return '<p style="color:var(--color-text-tertiary);font-size:var(--fs-sm);">No routine steps to track yet.</p>';
+  }
+
+  return `
+    <div id="checklistSummaryCard" style="margin-bottom:1rem;display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
+        <span style="font-size:var(--fs-sm);font-weight:600;">Today's Progress</span>
+        <span id="checklistSummaryText" style="font-size:var(--fs-sm);color:var(--color-text-secondary);"></span>
+      </div>
+      <div style="height:8px;background:var(--color-surface-alt);border-radius:var(--radius-full);overflow:hidden;">
+        <div id="checklistSummaryBar" style="height:100%;width:0%;background:var(--color-accent);transition:width 0.3s;"></div>
+      </div>
+    </div>
+    <div style="display:${compact ? 'grid' : 'flex'};${compact ? 'grid-template-columns:repeat(auto-fit,minmax(200px,1fr));' : 'flex-direction:column;'}gap:0.5rem;">
+      ${morning ? `<div><div style="font-size:var(--fs-xs);font-weight:600;color:var(--color-text-tertiary);text-transform:uppercase;margin-bottom:0.375rem;">Morning</div>${morning}</div>` : ''}
+      ${evening ? `<div><div style="font-size:var(--fs-xs);font-weight:600;color:var(--color-text-tertiary);text-transform:uppercase;margin-bottom:0.375rem;">Evening</div>${evening}</div>` : ''}
+    </div>`;
+}
+
+export async function initRoutineChecklist(userId, routineId, routine) {
+  const checkboxes = Array.from(document.querySelectorAll('.routine-step-check'));
+  if (checkboxes.length === 0) return;
+
+  const today = toDateOnly(new Date());
+  const summaryCard = document.getElementById('checklistSummaryCard');
+  const summaryText = document.getElementById('checklistSummaryText');
+  const summaryBar = document.getElementById('checklistSummaryBar');
+
+  const totalSteps = (routine.morning_routine || []).length + (routine.evening_routine || []).length;
+
+  function updateSummary() {
+    const checkedCount = checkboxes.filter(cb => cb.checked).length;
+    const percent = totalSteps > 0 ? Math.round((checkedCount / totalSteps) * 100) : 0;
+    if (summaryText) summaryText.textContent = `${checkedCount} of ${totalSteps} steps completed (${percent}%)`;
+    if (summaryBar) summaryBar.style.width = `${percent}%`;
+    if (summaryCard) summaryCard.style.display = 'block';
+  }
+
+  // Load today's saved completion state so a page refresh doesn't lose progress.
+  try {
+    const todaysCompletions = await dataAPI.getRoutineCompletions(userId, routineId, today);
+    const completedKeys = new Set(
+      todaysCompletions.filter(c => c.completed).map(c => `${c.period}-${c.step_index}`)
+    );
+    checkboxes.forEach(cb => {
+      const key = `${cb.dataset.period}-${cb.dataset.step}`;
+      cb.checked = completedKeys.has(key);
+    });
+  } catch (err) {
+    // Non-fatal — checklist still works for this session, just starts unchecked.
+  }
+
+  updateSummary();
+
+  checkboxes.forEach(cb => {
+    cb.addEventListener('change', async () => {
+      const period = cb.dataset.period;
+      const stepIndex = parseInt(cb.dataset.step, 10);
+      const stepLabel = cb.dataset.label || '';
+      const completed = cb.checked;
+
+      cb.disabled = true;
+      try {
+        await dataAPI.upsertRoutineCompletion({
+          user_id: userId,
+          routine_id: routineId,
+          period,
+          step_index: stepIndex,
+          step_label: stepLabel,
+          completion_date: today,
+          completed,
+        });
+        updateSummary();
+      } catch (err) {
+        // Revert the checkbox visually if the save failed, so the UI never
+        // shows a completion state that isn't actually persisted.
+        cb.checked = !completed;
+        showToast('Unable to save checklist progress. Please try again.', 'error');
+      } finally {
+        cb.disabled = false;
+      }
+    });
+  });
+}
+
 /* ---- Feedback Page ---- */
 export async function initUserFeedback() {
   const auth = await initDashboard('user', 'feedback');
@@ -298,6 +433,14 @@ async function handleFeedbackSubmit(event, userId) {
       }
     } catch (e) {
       // Routine update failure is non-fatal — feedback was still saved
+    }
+
+    // Module 7: routine feedback affects the Routine Consistency component,
+    // so recalculate the weighted Skin Health Score. Non-fatal.
+    try {
+      await calculateAndStoreSkinHealthScore(userId);
+    } catch (e) {
+      // Score refresh failure should never block feedback submission.
     }
 
     showToast('Feedback submitted! Your routine has been updated and sent for dermatologist review.', 'success');

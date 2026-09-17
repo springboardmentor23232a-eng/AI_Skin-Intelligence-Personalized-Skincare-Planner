@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recommendation Monitoring - GlowSense AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <div class="dashboard-layout">
+    <div class="dashboard-main">
+      <div class="dashboard-content">
+        <h1 class="page-title">Recommendation Monitoring</h1>
+        <p class="page-subtitle">Platform-wide view of text-based and product recommendations, by source and status.</p>
+
+        <div class="stats-grid" id="recMonitorStats"></div>
+
+        <div class="card" style="margin-top:1.5rem;">
+          <div class="card-header">
+            <h3 class="card-title">Text-Based Recommendations</h3>
+          </div>
+          <div class="filter-bar">
+            <select class="filter-input" id="monitorStatusFilter">
+              <option value="all">All Statuses</option>
+              <option value="active">Active</option>
+              <option value="reviewed">Reviewed</option>
+              <option value="archived">Archived</option>
+            </select>
+            <select class="filter-input" id="monitorSourceFilter">
+              <option value="all">All Sources</option>
+              <option value="system">System (AI-Generated)</option>
+              <option value="consultant">Consultant</option>
+              <option value="dermatologist">Dermatologist</option>
+            </select>
+          </div>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead><tr><th>User</th><th>Category</th><th>Source</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
+              <tbody id="monitorTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:1.5rem;">
+          <div class="card-header">
+            <h3 class="card-title">Product Recommendation Activity</h3>
+          </div>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead><tr><th>User</th><th>Product</th><th>Category</th><th>Suitability</th><th>Date</th></tr></thead>
+              <tbody id="productMonitorTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initAdminRecommendationMonitoring } from '/js/admin.js';
+    initAdminRecommendationMonitoring();
+  </script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 /* ==================== GLOWSENSE AI — COMMON UTILITIES ==================== */
 
-import { authAPI } from './api.js';
+import { authAPI, dataAPI } from './api.js';
+import { generateSessionNotifications } from './notifications.js';
 
 /* ---- Toast notifications ---- */
 export function showToast(message, type = 'info') {
@@ -125,6 +126,8 @@ export function getSidebar(role, activePage) {
       { label: 'Risk Factors', href: '/user/risks.html', icon: 'shield', key: 'risks' },
       { label: 'Recommendations', href: '/user/recommendations.html', icon: 'sparkles', key: 'recommendations' },
       { label: 'Skincare Routine', href: '/user/routine.html', icon: 'routine', key: 'routine' },
+      { label: 'Progress', href: '/user/progress.html', icon: 'chart', key: 'progress' },
+      { label: 'Reports', href: '/user/reports.html', icon: 'report', key: 'reports' },
       { label: 'Routine Feedback', href: '/user/feedback.html', icon: 'feedback', key: 'feedback' },
       { label: 'Ingredient Intelligence', href: '/user/ingredients.html', icon: 'beaker', key: 'ingredients' },
       { label: 'Settings', href: '/user/settings.html', icon: 'settings', key: 'settings' },
@@ -133,6 +136,7 @@ export function getSidebar(role, activePage) {
       { label: 'Dashboard', href: '/consultant/dashboard.html', icon: 'home', key: 'dashboard' },
       { label: 'Assigned Users', href: '/consultant/users.html', icon: 'users', key: 'users' },
       { label: 'Assessments', href: '/consultant/assessments.html', icon: 'clipboard', key: 'assessments' },
+      { label: 'Recommendations', href: '/consultant/recommendations.html', icon: 'sparkles', key: 'recommendations' },
       { label: 'Consultations', href: '/consultant/consultations.html', icon: 'message', key: 'consultations' },
       { label: 'Profile', href: '/consultant/profile.html', icon: 'user', key: 'profile' },
     ],
@@ -140,6 +144,7 @@ export function getSidebar(role, activePage) {
       { label: 'Dashboard', href: '/dermatologist/dashboard.html', icon: 'home', key: 'dashboard' },
       { label: 'Patients', href: '/dermatologist/patients.html', icon: 'users', key: 'patients' },
       { label: 'Assessments', href: '/dermatologist/assessments.html', icon: 'clipboard', key: 'assessments' },
+      { label: 'Treatment Recommendations', href: '/dermatologist/treatment-recommendations.html', icon: 'sparkles', key: 'treatment-recommendations' },
       { label: 'High-Risk Cases', href: '/dermatologist/high-risk.html', icon: 'alert', key: 'high-risk' },
       { label: 'Consultations', href: '/dermatologist/consultations.html', icon: 'message', key: 'consultations' },
       { label: 'Profile', href: '/dermatologist/profile.html', icon: 'user', key: 'profile' },
@@ -150,7 +155,9 @@ export function getSidebar(role, activePage) {
       { label: 'Consultants', href: '/admin/consultants.html', icon: 'user-check', key: 'consultants' },
       { label: 'Dermatologists', href: '/admin/dermatologists.html', icon: 'stethoscope', key: 'dermatologists' },
       { label: 'Assessments', href: '/admin/assessments.html', icon: 'clipboard', key: 'assessments' },
+      { label: 'Recommendations', href: '/admin/recommendations.html', icon: 'sparkles', key: 'recommendations' },
       { label: 'Statistics', href: '/admin/statistics.html', icon: 'chart', key: 'statistics' },
+      { label: 'Reports', href: '/admin/reports.html', icon: 'report', key: 'reports' },
       { label: 'Settings', href: '/admin/settings.html', icon: 'settings', key: 'settings' },
     ],
   };
@@ -173,6 +180,7 @@ export function getSidebar(role, activePage) {
     routine: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v4l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6 3v2M14 3v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
     feedback: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 5a2 2 0 012-2h10a2 2 0 012 2v7a2 2 0 01-2 2H8l-4 3v-3H5a2 2 0 01-2-2V5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M7 8h6M7 11h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
     beaker: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M8 3v5L4 16a1 1 0 001 1h10a1 1 0 001-1l-4-8V3M6 3h8M8 10h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    report: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 3h7l3 3v11a1 1 0 01-1 1H5a1 1 0 01-1-1V4a1 1 0 011-1z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M7 9h6M7 12h6M7 15h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
   };
 
   const links = menus[role] || [];
@@ -231,10 +239,19 @@ export function getHeader(role, greeting, userName) {
         <div class="header-greeting">${greeting}, <span>${userName}</span></div>
       </div>
       <div class="header-right">
-        <button class="header-icon-btn" title="Notifications">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3a4 4 0 00-4 4v3l-2 3h12l-2-3V7a4 4 0 00-4-4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 15a2 2 0 004 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <span class="notification-dot"></span>
-        </button>
+        <div style="position:relative;">
+          <button class="header-icon-btn" id="notificationBellBtn" title="Notifications">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3a4 4 0 00-4 4v3l-2 3h12l-2-3V7a4 4 0 00-4-4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 15a2 2 0 004 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span class="notification-dot" id="notificationDot" style="display:none;"></span>
+          </button>
+          <div id="notificationDropdown" style="display:none;position:absolute;right:0;top:calc(100% + 8px);width:320px;max-height:400px;overflow-y:auto;background:var(--color-surface);border:1px solid var(--color-border);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.12);z-index:100;">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;border-bottom:1px solid var(--color-border);">
+              <span style="font-weight:600;font-size:var(--fs-sm);">Notifications</span>
+              <button id="markAllReadBtn" style="background:none;border:none;color:var(--color-accent-dark);font-size:var(--fs-xs);cursor:pointer;">Mark all read</button>
+            </div>
+            <div id="notificationList" style="padding:0.5rem;"></div>
+          </div>
+        </div>
         <div class="header-avatar" id="headerAvatar">?</div>
       </div>
     </header>
@@ -295,7 +312,79 @@ export async function initDashboard(role, activePage) {
     window.location.href = '/login.html';
   };
 
+  // Module 10: Notification bell (real data — generates on-load reminders for the user role, then loads+renders whatever exists for any role)
+  wireNotificationBell(auth, role);
+
   return auth;
+}
+
+async function wireNotificationBell(auth, role) {
+  const bellBtn = document.getElementById('notificationBellBtn');
+  const dropdown = document.getElementById('notificationDropdown');
+  const dot = document.getElementById('notificationDot');
+  const list = document.getElementById('notificationList');
+  const markAllBtn = document.getElementById('markAllReadBtn');
+  if (!bellBtn || !dropdown || !list) return;
+
+  async function refresh() {
+    if (role === 'user') {
+      await generateSessionNotifications(auth.user.id).catch(() => {});
+    }
+    const notifications = await dataAPI.getNotifications(auth.user.id).catch(() => []);
+    const unreadCount = notifications.filter(n => !n.is_read).length;
+    if (dot) dot.style.display = unreadCount > 0 ? 'block' : 'none';
+
+    if (notifications.length === 0) {
+      list.innerHTML = '<p style="padding:1rem;text-align:center;color:var(--color-text-tertiary);font-size:var(--fs-sm);">No notifications yet.</p>';
+      return;
+    }
+
+    list.innerHTML = notifications.map(n => `
+      <div class="notification-item" data-id="${n.id}" style="padding:0.625rem 0.5rem;border-radius:8px;cursor:pointer;background:${n.is_read ? 'transparent' : 'var(--color-accent-soft)'};margin-bottom:0.25rem;">
+        <div style="font-size:var(--fs-sm);font-weight:600;">${n.title}</div>
+        <div style="font-size:var(--fs-xs);color:var(--color-text-secondary);margin-top:0.125rem;">${n.message}</div>
+        <div style="font-size:10px;color:var(--color-text-tertiary);margin-top:0.25rem;">${new Date(n.created_at).toLocaleString()}</div>
+      </div>
+    `).join('');
+
+    list.querySelectorAll('.notification-item').forEach(item => {
+      item.addEventListener('click', async () => {
+        const id = item.dataset.id;
+        await dataAPI.markNotificationRead(id).catch(() => {});
+        item.style.background = 'transparent';
+        const anyUnreadLeft = Array.from(list.querySelectorAll('.notification-item')).some(el => el.style.background !== 'transparent');
+        if (dot) dot.style.display = anyUnreadLeft ? 'block' : 'none';
+      });
+    });
+  }
+
+  bellBtn.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    const isOpen = dropdown.style.display === 'block';
+    dropdown.style.display = isOpen ? 'none' : 'block';
+    if (!isOpen) await refresh();
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!dropdown.contains(e.target) && e.target !== bellBtn) dropdown.style.display = 'none';
+  });
+
+  if (markAllBtn) {
+    markAllBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      await dataAPI.markAllNotificationsRead(auth.user.id).catch(() => {});
+      await refresh();
+    });
+  }
+
+  // Generate/check for due notifications once on load (user role only) so the dot reflects reality without requiring a click.
+  if (role === 'user') {
+    await generateSessionNotifications(auth.user.id).catch(() => {});
+  }
+  try {
+    const initial = await dataAPI.getNotifications(auth.user.id);
+    if (dot) dot.style.display = initial.some(n => !n.is_read) ? 'block' : 'none';
+  } catch (e) { /* non-fatal */ }
 }
 
 /* ---- Risk level badge ---- */
@@ -325,24 +414,25 @@ export function statusBadge(status) {
 }
 
 /* ---- Simple line chart (SVG) ---- */
-export function renderLineChart(container, dataPoints) {
+export function renderLineChart(container, dataPoints, options = {}) {
   if (!container || !dataPoints || dataPoints.length === 0) return;
 
   const width = container.clientWidth || 600;
-  const height = 200;
+  const height = options.height || 200;
   const padding = { top: 20, right: 20, bottom: 30, left: 40 };
   const chartW = width - padding.left - padding.right;
   const chartH = height - padding.top - padding.bottom;
 
   const scores = dataPoints.map(d => d.score);
-  const minScore = Math.min(...scores, 0);
-  const maxScore = Math.max(...scores, 100);
+  const minScore = typeof options.min === 'number' ? options.min : Math.min(...scores, 0);
+  const maxScore = typeof options.max === 'number' ? options.max : Math.max(...scores, 100);
+  const range = maxScore - minScore || 1;
 
   const xStep = dataPoints.length > 1 ? chartW / (dataPoints.length - 1) : 0;
 
   const points = dataPoints.map((d, i) => ({
-    x: padding.left + i * xStep,
-    y: padding.top + chartH - ((d.score - minScore) / (maxScore - minScore)) * chartH,
+    x: dataPoints.length > 1 ? padding.left + i * xStep : padding.left + chartW / 2,
+    y: padding.top + chartH - ((d.score - minScore) / range) * chartH,
     label: d.label,
     score: d.score,
   }));
@@ -350,8 +440,12 @@ export function renderLineChart(container, dataPoints) {
   const pathD = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
   const areaD = `${pathD} L ${points[points.length - 1].x} ${padding.top + chartH} L ${points[0].x} ${padding.top + chartH} Z`;
 
-  const xLabels = points.map(p => `<text x="${p.x}" y="${height - 8}" text-anchor="middle" fill="var(--color-text-tertiary)" font-size="10">${p.label}</text>`).join('');
-  const dots = points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="4" fill="var(--color-accent)" stroke="var(--color-surface)" stroke-width="2"/>`).join('');
+  // Show at most ~8 x-axis labels so dense date ranges (e.g. 90 days) stay readable.
+  const labelStride = Math.max(1, Math.ceil(points.length / 8));
+  const xLabels = points.map((p, i) => (i % labelStride === 0 || i === points.length - 1)
+    ? `<text x="${p.x}" y="${height - 8}" text-anchor="middle" fill="var(--color-text-tertiary)" font-size="10">${p.label}</text>`
+    : '').join('');
+  const dots = points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="4" fill="var(--color-accent)" stroke="var(--color-surface)" stroke-width="2"><title>${p.label}: ${p.score}${options.unit || ''}</title></circle>`).join('');
 
   container.innerHTML = `
     <svg class="chart-svg" viewBox="0 0 ${width} ${height}">

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Progress Tracking - GlowSense AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="/css/products.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <div class="dashboard-layout">
+    <div class="dashboard-main">
+      <div class="dashboard-content">
+        <h1 class="page-title">Progress Tracking</h1>
+        <p class="page-subtitle">Real progress from your own assessment history, routine adherence, and Skin Health Score — no fabricated data.</p>
+
+        <div id="progressRoot">
+          <div class="card" style="text-align:center;padding:2rem;">
+            <div class="spinner" style="margin:0 auto 1rem;"></div>
+            <p style="color:var(--color-text-secondary);">Loading your progress...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initUserProgress } from '/js/progress.js';
+    initUserProgress();
+  </script>
+</body>
+</html>

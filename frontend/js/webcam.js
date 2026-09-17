@@ -3,6 +3,7 @@
 import { dataAPI, authAPI } from './api.js';
 import { initDashboard, showToast, showLoading, hideLoading, formatDate, riskBadge } from './common.js';
 import { callMLService } from './assessment.js';
+import { calculateAndStoreSkinHealthScore } from './skinHealthScore.js';
 
 let videoStream = null;
 let capturedImage = null;
@@ -188,6 +189,13 @@ async function analyzeImage(userId) {
     }
     if (result.recommendations && result.recommendations.length > 0) {
       await dataAPI.addRecommendations(assessment.id, result.recommendations);
+    }
+
+    // Module 7: recalculate the weighted Skin Health Score. Non-fatal.
+    try {
+      await calculateAndStoreSkinHealthScore(userId);
+    } catch (e) {
+      // Score refresh failure should never block the assessment result.
     }
 
     hideLoading();

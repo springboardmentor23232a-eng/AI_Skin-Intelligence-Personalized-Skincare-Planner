@@ -40,18 +40,26 @@
 
         <div class="card" style="max-width:600px;margin-top:1rem;">
           <div class="card-header">
-            <h3 class="card-title">Notifications</h3>
+            <h3 class="card-title">Reminders & Notifications</h3>
           </div>
+          <p style="font-size:var(--fs-xs);color:var(--color-text-tertiary);padding:0 0 0.5rem;">These reminders are generated when you open the app (based on your real routine/assessment data), not sent as push notifications.</p>
           <div style="display:flex;flex-direction:column;gap:1rem;padding:1rem 0;">
             <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
-              <input type="checkbox" checked /> Email notifications for assessment results
+              <input type="checkbox" id="prefRoutineReminder" /> Remind me about unfinished routine steps in the evening
             </label>
-            <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
-              <input type="checkbox" checked /> Consultation request updates
-            </label>
-            <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
-              <input type="checkbox" /> Weekly skin health tips
-            </label>
+            <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+              <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
+                <input type="checkbox" id="prefHydrationReminder" /> Hydration reminder at
+              </label>
+              <input type="time" id="prefHydrationTime" class="filter-input" style="width:120px;" value="11:00" />
+            </div>
+            <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+              <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
+                <input type="checkbox" id="prefSleepReminder" /> Sleep reminder at
+              </label>
+              <input type="time" id="prefSleepTime" class="filter-input" style="width:120px;" value="21:30" />
+            </div>
+            <button class="btn btn-primary" id="savePrefsBtn" style="align-self:flex-start;">Save Reminder Settings</button>
           </div>
         </div>
 
@@ -69,13 +77,52 @@
 
   <script type="module">
     import { initUserSettings } from '/js/user.js';
-    import { formatDate } from '/js/common.js';
-    initUserSettings().then(auth => {
-      if (auth) {
-        document.getElementById('settingsEmail').textContent = auth.user.email || 'N/A';
-        document.getElementById('settingsRole').textContent = auth.profile.role || 'user';
-        document.getElementById('settingsJoined').textContent = formatDate(auth.profile.created_at);
-      }
+    import { formatDate, showToast } from '/js/common.js';
+    import { dataAPI } from '/js/api.js';
+
+    initUserSettings().then(async (auth) => {
+      if (!auth) return;
+      document.getElementById('settingsEmail').textContent = auth.user.email || 'N/A';
+      document.getElementById('settingsRole').textContent = auth.profile.role || 'user';
+      document.getElementById('settingsJoined').textContent = formatDate(auth.profile.created_at);
+
+      const routineEl = document.getElementById('prefRoutineReminder');
+      const hydrationEl = document.getElementById('prefHydrationReminder');
+      const hydrationTimeEl = document.getElementById('prefHydrationTime');
+      const sleepEl = document.getElementById('prefSleepReminder');
+      const sleepTimeEl = document.getElementById('prefSleepTime');
+      const saveBtn = document.getElementById('savePrefsBtn');
+
+      try {
+        const prefs = await dataAPI.getNotificationPreferences(auth.user.id);
+        if (prefs) {
+          routineEl.checked = !!prefs.routine_reminder_enabled;
+          hydrationEl.checked = !!prefs.hydration_reminder_enabled;
+          if (prefs.hydration_reminder_time) hydrationTimeEl.value = prefs.hydration_reminder_time.slice(0, 5);
+          sleepEl.checked = !!prefs.sleep_reminder_enabled;
+          if (prefs.sleep_reminder_time) sleepTimeEl.value = prefs.sleep_reminder_time.slice(0, 5);
+        } else {
+          routineEl.checked = true; // matches table default
+        }
+      } catch (err) { /* preferences not set up yet — defaults shown */ }
+
+      saveBtn.addEventListener('click', async () => {
+        saveBtn.disabled = true;
+        try {
+          await dataAPI.upsertNotificationPreferences(auth.user.id, {
+            routine_reminder_enabled: routineEl.checked,
+            hydration_reminder_enabled: hydrationEl.checked,
+            hydration_reminder_time: hydrationTimeEl.value,
+            sleep_reminder_enabled: sleepEl.checked,
+            sleep_reminder_time: sleepTimeEl.value,
+          });
+          showToast('Reminder settings saved.', 'success');
+        } catch (err) {
+          showToast('Unable to save reminder settings.', 'error');
+        } finally {
+          saveBtn.disabled = false;
+        }
+      });
     });
   </script>
 </body>

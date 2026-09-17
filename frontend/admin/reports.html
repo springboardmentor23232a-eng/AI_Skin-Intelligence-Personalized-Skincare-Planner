@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>System Reports - GlowSense AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <div class="dashboard-layout">
+    <div class="dashboard-main">
+      <div class="dashboard-content">
+        <h1 class="page-title">System Reports</h1>
+        <p class="page-subtitle">Generate platform reports from real database data — export as CSV or print/save as PDF.</p>
+
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;margin-bottom:1rem;">
+            <select class="filter-input" id="reportTypeSelect" style="min-width:220px;">
+              <option value="platform">Platform Summary</option>
+              <option value="assessments">Skin Assessment Report</option>
+              <option value="routines">Routine Report</option>
+              <option value="products">Product Recommendation Report</option>
+              <option value="skinhealth">Skin Health Report</option>
+              <option value="progress">Progress Report</option>
+            </select>
+            <div style="display:flex;gap:0.5rem;">
+              <button class="btn btn-outline" id="reportCsvBtn">Download CSV</button>
+              <button class="btn btn-primary" id="reportPrintBtn">Print / Save as PDF</button>
+            </div>
+          </div>
+          <div id="reportPreview">
+            <p style="color:var(--color-text-secondary);">Loading report...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initAdminReports } from '/js/admin.js';
+    initAdminReports();
+  </script>
+</body>
+</html>

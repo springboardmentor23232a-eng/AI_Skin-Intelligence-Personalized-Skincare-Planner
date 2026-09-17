@@ -1,14 +1,17 @@
 /* ==================== GLOWSENSE AI — USER DASHBOARD LOGIC ==================== */
 
-import { dataAPI, authAPI, geminiAPI } from './api.js';
+import { dataAPI, authAPI, geminiAPI, productIntelligence } from './api.js';
 import { initDashboard, showToast, showLoading, hideLoading, formatDate, riskBadge, renderLineChart } from './common.js';
+import { renderChecklistHtml, initRoutineChecklist } from './routines.js';
+import { computeImprovementAnalysis } from './progressAnalytics.js';
 
 /* ---- Dashboard ---- */
 export async function initUserDashboard() {
   const auth = await initDashboard('user', 'dashboard');
-  if (!auth) return;
+  if (!auth) return null;
 
   await loadDashboardData(auth.user.id);
+  return auth;
 }
 
 async function loadDashboardData(userId) {
@@ -54,6 +57,12 @@ async function loadDashboardData(userId) {
 
       // Trend chart
       renderTrendChart(assessments);
+
+      // Module 8: daily checklist widget
+      await renderDashboardChecklist(userId);
+
+      // Module 8: progress tracking preview
+      await renderProgressPreview(userId, assessments, concerns);
     } else {
       if (scoreEl) scoreEl.textContent = 'N/A';
       if (typeEl) typeEl.textContent = 'N/A';
@@ -134,11 +143,69 @@ function renderTrendChart(assessments) {
   renderLineChart(container, dataPoints);
 }
 
+/* ---- Module 8: Dashboard Checklist Widget ---- */
+async function renderDashboardChecklist(userId) {
+  const container = document.getElementById('dashboardChecklist');
+  if (!container) return;
+  try {
+    const routine = await dataAPI.getLatestRoutine(userId);
+    if (!routine) {
+      container.innerHTML = '<p style="color:var(--color-text-tertiary);font-size:var(--fs-sm);">No routine generated yet. Visit the Routine page to generate one.</p>';
+      return;
+    }
+    container.innerHTML = renderChecklistHtml(routine, { compact: true });
+    await initRoutineChecklist(userId, routine.id, routine);
+  } catch (err) {
+    container.innerHTML = '<p style="color:var(--color-text-tertiary);font-size:var(--fs-sm);">Unable to load checklist right now.</p>';
+  }
+}
+
+/* ---- Module 8: Progress Tracking Preview ---- */
+async function renderProgressPreview(userId, assessments, latestConcerns) {
+  const container = document.getElementById('progressPreview');
+  if (!container) return;
+
+  if (!assessments || assessments.length < 2) {
+    container.innerHTML = '<p style="color:var(--color-text-tertiary);font-size:var(--fs-sm);">No progress data available yet. Complete another assessment to start tracking your progress.</p>';
+    return;
+  }
+
+  try {
+    const latest = assessments[0];
+    const previous = assessments[1];
+    const previousConcerns = await dataAPI.getConcerns(previous.id);
+    const analysis = computeImprovementAnalysis(previous, previousConcerns, latest, latestConcerns);
+
+    if (!analysis) {
+      container.innerHTML = '<p style="color:var(--color-text-tertiary);font-size:var(--fs-sm);">No progress data available yet. Complete another assessment to start tracking your progress.</p>';
+      return;
+    }
+
+    const statusLabels = { improved: 'Improved', needs_attention: 'Needs Attention', stable: 'Stable' };
+    const statusColors = { improved: 'badge-success', needs_attention: 'badge-error', stable: 'badge-neutral' };
+    const changeText = analysis.scoreChange === null ? 'N/A' : (analysis.scoreChange > 0 ? `+${analysis.scoreChange}` : `${analysis.scoreChange}`);
+
+    container.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
+        <div>
+          <div style="font-size:var(--fs-xs);color:var(--color-text-tertiary);">Skin Health Score Change</div>
+          <div style="font-size:var(--fs-xl);font-weight:700;">${changeText}</div>
+        </div>
+        <span class="badge ${statusColors[analysis.overallStatus] || 'badge-neutral'}">${statusLabels[analysis.overallStatus] || analysis.overallStatus}</span>
+      </div>
+      <div style="font-size:var(--fs-xs);color:var(--color-text-tertiary);">Comparing ${formatDate(analysis.previousDate)} &rarr; ${formatDate(analysis.currentDate)}</div>
+    `;
+  } catch (err) {
+    container.innerHTML = '<p style="color:var(--color-text-tertiary);font-size:var(--fs-sm);">Unable to load progress data right now.</p>';
+  }
+}
+
 /* ---- Profile ---- */
 export async function initUserProfile() {
   const auth = await initDashboard('user', 'profile');
-  if (!auth) return;
+  if (!auth) return null;
   await loadProfile(auth.user.id, auth.profile);
+  return auth;
 }
 
 async function loadProfile(userId, authProfile) {
@@ -461,10 +528,33 @@ async function loadProductRecommendations(userId) {
     const routine = routineData?.routine || routineData || null;
 
     const result = await geminiAPI.generateProducts(latest, profile, concerns, feedback, routine);
-    const products = result?.products || [];
+    let products = result?.products || [];
     const source = result?.source || 'rule_based';
 
     if (products.length === 0) return;
+
+    // Module 6 fix: the Gemini/rule-based suggestion flow doesn't carry
+    // real images, shopping links or verified prices on its own. Cross-
+    // reference each suggestion against the real product catalog and merge
+    // in the catalog's actual image_url/amazon_url/nykaa_url/price_range
+    // wherever a confident match exists. No data is invented — unmatched
+    // suggestions keep their existing graceful fallback (placeholder icon,
+    // generic search link).
+    let catalog = [];
+    try {
+      catalog = await dataAPI.getProducts();
+    } catch (catalogErr) {
+      catalog = [];
+    }
+    products = productIntelligence.mergeCatalogData(products, catalog);
+
+    // Score each Gemini/rule-based suggestion with the same transparent
+    // Module 6 suitability logic used in the full product catalog, and
+    // keep products with a hard allergy conflict out of the top list.
+    const scoringContext = productIntelligence.buildContext(profile, concerns, feedback);
+    products = products
+      .map(p => ({ product: p, suitability: productIntelligence.computeSuitability(p, scoringContext) }))
+      .sort((a, b) => (a.suitability.allergyConflict === b.suitability.allergyConflict ? b.suitability.score - a.suitability.score : a.suitability.allergyConflict ? 1 : -1));
 
     productsSection.style.display = 'block';
 
@@ -472,13 +562,13 @@ async function loadProductRecommendations(userId) {
       sourceBadge.innerHTML = `<span class="badge ${source === 'gemini' ? 'badge-info' : 'badge-neutral'}">${source === 'gemini' ? 'AI-Enhanced (Gemini)' : 'Rule-Based Analysis'}</span>`;
     }
 
-    productsContainer.innerHTML = products.map(p => renderProductCard(p)).join('');
+    productsContainer.innerHTML = products.map(({ product, suitability }) => renderProductCard(product, suitability)).join('');
   } catch (err) {
     showToast('Unable to load product recommendations.', 'error');
   }
 }
 
-function renderProductCard(product) {
+function renderProductCard(product, suitability) {
   const categoryColors = {
     'Cleanser': 'var(--color-accent-dark)',
     'Serum': 'var(--color-success)',
@@ -504,6 +594,8 @@ function renderProductCard(product) {
       </div>
       <div style="padding:0.75rem;display:flex;flex-direction:column;flex:1;">
         <span class="badge" style="background:${catColor}22;color:${catColor};font-size:10px;margin-bottom:0.25rem;align-self:flex-start;">${product.category}</span>
+        ${product.catalog_matched ? '<span class="badge badge-success" style="font-size:10px;margin-bottom:0.25rem;align-self:flex-start;">Verified in catalog</span>' : ''}
+        ${suitability ? `<span class="suitability-badge suitability-${suitability.label}" style="margin-bottom:0.375rem;">${suitability.score}% Suitable</span>` : ''}
         <h3 style="font-size:var(--fs-sm);font-weight:600;margin-bottom:0.125rem;line-height:1.3;">${product.name}</h3>
         <div style="font-size:var(--fs-xs);color:var(--color-text-tertiary);margin-bottom:0.5rem;">${product.brand || ''}</div>
         ${product.key_ingredients && product.key_ingredients.length > 0 ? `
@@ -531,8 +623,16 @@ function renderProductCard(product) {
             <div style="font-size:10px;font-weight:600;color:var(--color-text-tertiary);text-transform:uppercase;margin-bottom:0.125rem;">How to Use</div>
             <p style="font-size:var(--fs-xs);color:var(--color-text-secondary);line-height:1.4;">${product.how_to_use}</p>
           </div>` : ''}
+        ${suitability && suitability.allergyConflict ? `
+          <div class="alert" style="background:var(--color-error-soft);color:var(--color-error);padding:0.5rem;border-radius:var(--radius-md);margin-bottom:0.5rem;font-size:var(--fs-xs);">
+            ${suitability.reasons[0] || 'A conflict was detected with your recorded allergies.'}
+          </div>` : ''}
         ${product.price_range ? `<div style="font-size:var(--fs-sm);font-weight:700;color:var(--color-accent-dark);margin-bottom:0.5rem;">${product.price_range}</div>` : ''}
-        <a href="${searchUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="margin-top:auto;width:100%;text-align:center;text-decoration:none;font-size:var(--fs-xs);padding:0.5rem;">View Product</a>
+        <div style="display:flex;gap:0.375rem;margin-top:auto;">
+          ${product.amazon_url ? `<a href="${product.amazon_url}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="flex:1;text-align:center;text-decoration:none;font-size:var(--fs-xs);padding:0.5rem;">Amazon</a>` : ''}
+          ${product.nykaa_url ? `<a href="${product.nykaa_url}" target="_blank" rel="noopener noreferrer" class="btn" style="flex:1;text-align:center;text-decoration:none;font-size:var(--fs-xs);padding:0.5rem;">Nykaa</a>` : ''}
+          ${!product.amazon_url && !product.nykaa_url ? `<a href="${searchUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="flex:1;text-align:center;text-decoration:none;font-size:var(--fs-xs);padding:0.5rem;">View Product</a>` : ''}
+        </div>
       </div>
     </div>`;
 }
@@ -540,7 +640,8 @@ function renderProductCard(product) {
 /* ---- Settings ---- */
 export async function initUserSettings() {
   const auth = await initDashboard('user', 'settings');
-  if (!auth) return;
+  if (!auth) return null;
+  return auth;
 }
 
 /* ---- Consultation Request ---- */

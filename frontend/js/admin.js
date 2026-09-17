@@ -2,6 +2,7 @@
 
 import { dataAPI, authAPI } from './api.js';
 import { initDashboard, showToast, formatDate, riskBadge, statusBadge, renderLineChart } from './common.js';
+import { exportToCSV, printReport, toHtmlTable, toStatBoxesHtml } from './reportExport.js';
 
 /* ---- Admin Dashboard ---- */
 export async function initAdminDashboard() {
@@ -21,6 +22,13 @@ async function loadAdminStats() {
     document.getElementById('statActiveUsers').textContent = stats.activeUsers || 0;
     document.getElementById('statPendingConsults').textContent = stats.pendingConsultations || 0;
     document.getElementById('statHighRisk').textContent = stats.highRiskAssessments || 0;
+    // Module 8 / Section 9-D: real platform metrics, not fabricated.
+    const routinesEl = document.getElementById('statRoutinesGenerated');
+    const productRecsEl = document.getElementById('statProductRecs');
+    const feedbackEl = document.getElementById('statFeedbackSubmissions');
+    if (routinesEl) routinesEl.textContent = stats.totalRoutinesGenerated ?? 0;
+    if (productRecsEl) productRecsEl.textContent = stats.totalProductRecommendations ?? 0;
+    if (feedbackEl) feedbackEl.textContent = stats.totalFeedbackSubmissions ?? 0;
   } catch (err) {
     showToast('Unable to load statistics.', 'error');
   }
@@ -221,6 +229,12 @@ async function loadAdminStatisticsData() {
     document.getElementById('statTotalAssessments').textContent = stats.totalAssessments || 0;
     document.getElementById('statAvgScore').textContent = stats.averageScore || 0;
     document.getElementById('statHighRisk2').textContent = stats.highRiskAssessments || 0;
+    const routinesEl2 = document.getElementById('statRoutinesGenerated2');
+    const productRecsEl2 = document.getElementById('statProductRecs2');
+    const feedbackEl2 = document.getElementById('statFeedbackSubmissions2');
+    if (routinesEl2) routinesEl2.textContent = stats.totalRoutinesGenerated ?? 0;
+    if (productRecsEl2) productRecsEl2.textContent = stats.totalProductRecommendations ?? 0;
+    if (feedbackEl2) feedbackEl2.textContent = stats.totalFeedbackSubmissions ?? 0;
 
     // Risk distribution
     const riskDist = { Low: 0, Moderate: 0, High: 0 };
@@ -281,4 +295,304 @@ async function loadAdminStatisticsData() {
 export async function initAdminSettings() {
   const auth = await initDashboard('admin', 'settings');
   if (!auth) return;
+}
+
+/* ---- Module 10: Platform Notifications (admin broadcast) ---- */
+export async function sendPlatformNotification(title, message) {
+  if (!title || !message) {
+    showToast('Please enter both a title and a message.', 'error');
+    return;
+  }
+  try {
+    const profiles = await dataAPI.getAllProfiles();
+    const targets = profiles.filter(p => p.role === 'user');
+    if (targets.length === 0) {
+      showToast('No users to notify yet.', 'error');
+      return;
+    }
+    await Promise.all(targets.map(u => dataAPI.createNotification({
+      user_id: u.id, type: 'platform', title, message, metadata: { broadcast: true },
+    }).catch(() => {})));
+    showToast(`Notification sent to ${targets.length} user(s).`, 'success');
+    document.getElementById('platformNotifTitle').value = '';
+    document.getElementById('platformNotifMessage').value = '';
+  } catch (err) {
+    showToast('Unable to send platform notification.', 'error');
+  }
+}
+
+/* ---- Module 9: Recommendation Monitoring (real platform-wide data) ---- */
+let monitorState = { recs: [], users: [], assessments: [], statusFilter: 'all', sourceFilter: 'all' };
+
+export async function initAdminRecommendationMonitoring() {
+  const auth = await initDashboard('admin', 'recommendations');
+  if (!auth) return;
+
+  document.getElementById('monitorStatusFilter').addEventListener('change', (e) => {
+    monitorState.statusFilter = e.target.value;
+    renderMonitorTable();
+  });
+  document.getElementById('monitorSourceFilter').addEventListener('change', (e) => {
+    monitorState.sourceFilter = e.target.value;
+    renderMonitorTable();
+  });
+
+  try {
+    const [profiles, assessments, recs, productRecs] = await Promise.all([
+      dataAPI.getAllProfiles(),
+      dataAPI.getAssessments(),
+      dataAPI.getAllRecommendations(),
+      dataAPI.getProductRecommendations(),
+    ]);
+    monitorState.users = profiles.filter(p => p.role === 'user');
+    monitorState.assessments = assessments;
+    monitorState.recs = recs;
+
+    renderMonitorStats(recs, productRecs);
+    renderMonitorTable();
+    renderProductMonitorTable(productRecs);
+  } catch (err) {
+    showToast('Unable to load recommendation monitoring data.', 'error');
+  }
+}
+
+function renderMonitorStats(recs, productRecs) {
+  const el = document.getElementById('recMonitorStats');
+  if (!el) return;
+  const bySource = { system: 0, consultant: 0, dermatologist: 0 };
+  const byStatus = { active: 0, reviewed: 0, archived: 0 };
+  recs.forEach(r => { bySource[r.source] = (bySource[r.source] || 0) + 1; byStatus[r.status] = (byStatus[r.status] || 0) + 1; });
+
+  const cards = [
+    { label: 'Total Recommendations', value: recs.length },
+    { label: 'AI-Generated', value: bySource.system || 0 },
+    { label: 'Consultant-Authored', value: bySource.consultant || 0 },
+    { label: 'Dermatologist-Authored', value: bySource.dermatologist || 0 },
+    { label: 'Active', value: byStatus.active || 0 },
+    { label: 'Reviewed', value: byStatus.reviewed || 0 },
+    { label: 'Product Recommendations', value: productRecs.length },
+  ];
+  el.innerHTML = cards.map(c => `<div class="stat-card"><div class="stat-card-value">${c.value}</div><div class="stat-card-label">${c.label}</div></div>`).join('');
+}
+
+function monitorUserName(assessmentId) {
+  const a = monitorState.assessments.find(a => a.id === assessmentId);
+  if (!a) return 'Unknown';
+  const u = monitorState.users.find(u => u.id === a.user_id);
+  return u ? u.name : 'Unknown';
+}
+
+function renderMonitorTable() {
+  const tbody = document.getElementById('monitorTableBody');
+  if (!tbody) return;
+  const rows = monitorState.recs.filter(r =>
+    (monitorState.statusFilter === 'all' || r.status === monitorState.statusFilter) &&
+    (monitorState.sourceFilter === 'all' || r.source === monitorState.sourceFilter)
+  );
+
+  if (rows.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="table-empty">No recommendations match this filter.</td></tr>';
+    return;
+  }
+
+  const sourceLabels = { system: 'AI-Generated', consultant: 'Consultant', dermatologist: 'Dermatologist' };
+  const statusColors = { active: 'badge-success', reviewed: 'badge-info', archived: 'badge-neutral' };
+
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td>${monitorUserName(r.assessment_id)}</td>
+      <td>${r.category}</td>
+      <td><span class="badge badge-neutral">${sourceLabels[r.source] || r.source}</span></td>
+      <td><span class="badge ${statusColors[r.status] || 'badge-neutral'}">${r.status}</span></td>
+      <td>${formatDate(r.created_at)}</td>
+      <td>
+        ${r.status !== 'reviewed' ? `<button class="btn btn-sm btn-outline" onclick="window.markRecStatus('${r.id}','reviewed')">Mark Reviewed</button>` : ''}
+        ${r.status !== 'archived' ? `<button class="btn btn-sm btn-outline" onclick="window.markRecStatus('${r.id}','archived')">Archive</button>` : ''}
+      </td>
+    </tr>`).join('');
+
+  window.markRecStatus = async (id, status) => {
+    try {
+      await dataAPI.updateRecommendation(id, { status });
+      const row = monitorState.recs.find(r => r.id === id);
+      if (row) row.status = status;
+      renderMonitorTable();
+      showToast('Recommendation status updated.', 'success');
+    } catch (err) {
+      showToast('Unable to update status.', 'error');
+    }
+  };
+}
+
+function renderProductMonitorTable(productRecs) {
+  const tbody = document.getElementById('productMonitorTableBody');
+  if (!tbody) return;
+  if (!productRecs || productRecs.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="table-empty">No product recommendations recorded yet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = productRecs.slice(0, 100).map(r => {
+    const u = monitorState.users.find(u => u.id === r.user_id);
+    return `
+      <tr>
+        <td>${u ? u.name : 'Unknown'}</td>
+        <td>${r.product_name || 'N/A'}</td>
+        <td>${r.product_category || 'N/A'}</td>
+        <td>${r.suitability_score != null ? r.suitability_score + '%' : 'N/A'}</td>
+        <td>${formatDate(r.created_at)}</td>
+      </tr>`;
+  }).join('');
+}
+
+/* ---- Module 11: Admin System Reports (real data, CSV + print/PDF export) ---- */
+export async function initAdminReports() {
+  const auth = await initDashboard('admin', 'reports');
+  if (!auth) return;
+
+  const typeSelect = document.getElementById('reportTypeSelect');
+  const csvBtn = document.getElementById('reportCsvBtn');
+  const printBtn = document.getElementById('reportPrintBtn');
+  const container = document.getElementById('reportPreview');
+  let currentReport = null;
+
+  async function loadReport(type) {
+    container.innerHTML = '<p style="color:var(--color-text-secondary);">Loading report...</p>';
+    try {
+      currentReport = await buildReport(type);
+      container.innerHTML = `
+        ${toStatBoxesHtml(currentReport.stats)}
+        <div class="table-wrapper" style="margin-top:1rem;">
+          <table class="data-table"><thead><tr>${currentReport.columns.map(c => `<th>${c.label}</th>`).join('')}</tr></thead>
+          <tbody>${currentReport.rows.length ? currentReport.rows.map(r => `<tr>${currentReport.columns.map(c => `<td>${r[c.key] ?? ''}</td>`).join('')}</tr>`).join('') : `<tr><td colspan="${currentReport.columns.length}" class="table-empty">No data available for this report.</td></tr>`}</tbody></table>
+        </div>`;
+    } catch (err) {
+      container.innerHTML = '<p style="color:var(--color-error);">Unable to generate this report right now.</p>';
+    }
+  }
+
+  typeSelect.addEventListener('change', () => loadReport(typeSelect.value));
+  csvBtn.addEventListener('click', () => {
+    if (!currentReport || currentReport.rows.length === 0) { showToast('No data to export for this report.', 'error'); return; }
+    exportToCSV(`glowsense-${typeSelect.value}-report`, currentReport.columns, currentReport.rows);
+  });
+  printBtn.addEventListener('click', () => {
+    if (!currentReport) return;
+    const body = toStatBoxesHtml(currentReport.stats) + toHtmlTable(currentReport.columns, currentReport.rows);
+    printReport(currentReport.title, body);
+  });
+
+  await loadReport(typeSelect.value);
+}
+
+async function buildReport(type) {
+  if (type === 'platform') {
+    const stats = await dataAPI.getStats();
+    return {
+      title: 'Platform Summary Report',
+      stats: [
+        { label: 'Total Users', value: stats.totalUsers },
+        { label: 'Active Users', value: stats.activeUsers },
+        { label: 'Total Assessments', value: stats.totalAssessments },
+        { label: 'Routines Generated', value: stats.totalRoutinesGenerated },
+        { label: 'Product Recommendations', value: stats.totalProductRecommendations },
+        { label: 'Feedback Submissions', value: stats.totalFeedbackSubmissions },
+        { label: 'High-Risk Assessments', value: stats.highRiskAssessments },
+        { label: 'Average Skin Health Score', value: stats.averageScore },
+      ],
+      columns: [{ key: 'label', label: 'Metric' }, { key: 'value', label: 'Value' }],
+      rows: [
+        { label: 'Total Users', value: stats.totalUsers },
+        { label: 'Total Consultants', value: stats.totalConsultants },
+        { label: 'Total Dermatologists', value: stats.totalDermatologists },
+        { label: 'Active Users', value: stats.activeUsers },
+        { label: 'Total Assessments', value: stats.totalAssessments },
+        { label: 'Pending Consultations', value: stats.pendingConsultations },
+        { label: 'High-Risk Assessments', value: stats.highRiskAssessments },
+        { label: 'Average Skin Health Score', value: stats.averageScore },
+        { label: 'Routines Generated', value: stats.totalRoutinesGenerated },
+        { label: 'Product Recommendations', value: stats.totalProductRecommendations },
+        { label: 'Feedback Submissions', value: stats.totalFeedbackSubmissions },
+      ],
+    };
+  }
+
+  if (type === 'assessments') {
+    const [profiles, assessments] = await Promise.all([dataAPI.getAllProfiles(), dataAPI.getAssessments()]);
+    const rows = assessments.map(a => {
+      const u = profiles.find(p => p.id === a.user_id);
+      return { user: u ? u.name : 'Unknown', date: formatDate(a.assessment_date), method: a.method, score: a.skin_health_score ?? 'N/A', risk: a.risk_level || 'N/A' };
+    });
+    return {
+      title: 'Skin Assessment Report',
+      stats: [
+        { label: 'Total Assessments', value: assessments.length },
+        { label: 'High-Risk', value: assessments.filter(a => a.risk_level === 'High' || a.risk_level === 'Very High').length },
+      ],
+      columns: [{ key: 'user', label: 'User' }, { key: 'date', label: 'Date' }, { key: 'method', label: 'Method' }, { key: 'score', label: 'Score' }, { key: 'risk', label: 'Risk Level' }],
+      rows,
+    };
+  }
+
+  if (type === 'routines') {
+    const [profiles, routines] = await Promise.all([dataAPI.getAllProfiles(), dataAPI.getRoutines()]);
+    const rows = routines.map(r => {
+      const u = profiles.find(p => p.id === r.user_id);
+      return { user: u ? u.name : 'Unknown', date: formatDate(r.created_at), source: r.source || 'N/A', morningSteps: (r.morning_routine || []).length, eveningSteps: (r.evening_routine || []).length };
+    });
+    return {
+      title: 'Routine Report',
+      stats: [{ label: 'Total Routines Generated', value: routines.length }],
+      columns: [{ key: 'user', label: 'User' }, { key: 'date', label: 'Generated' }, { key: 'source', label: 'Source' }, { key: 'morningSteps', label: 'Morning Steps' }, { key: 'eveningSteps', label: 'Evening Steps' }],
+      rows,
+    };
+  }
+
+  if (type === 'products') {
+    const [profiles, productRecs] = await Promise.all([dataAPI.getAllProfiles(), dataAPI.getProductRecommendations()]);
+    const rows = productRecs.map(r => {
+      const u = profiles.find(p => p.id === r.user_id);
+      return { user: u ? u.name : 'Unknown', product: r.product_name || 'N/A', category: r.product_category || 'N/A', suitability: r.suitability_score != null ? r.suitability_score + '%' : 'N/A', date: formatDate(r.created_at) };
+    });
+    return {
+      title: 'Product Recommendation Report',
+      stats: [{ label: 'Total Product Recommendations', value: productRecs.length }],
+      columns: [{ key: 'user', label: 'User' }, { key: 'product', label: 'Product' }, { key: 'category', label: 'Category' }, { key: 'suitability', label: 'Suitability' }, { key: 'date', label: 'Date' }],
+      rows,
+    };
+  }
+
+  if (type === 'skinhealth') {
+    const [profiles, scores] = await Promise.all([dataAPI.getAllProfiles(), dataAPI.getSkinHealthScores()]);
+    const rows = scores.map(s => {
+      const u = profiles.find(p => p.id === s.user_id);
+      return { user: u ? u.name : 'Unknown', date: formatDate(s.score_date), overall: s.overall_score ?? 'N/A', skinCondition: s.skin_condition_score ?? 'N/A', lifestyle: s.lifestyle_score ?? 'N/A', sleep: s.sleep_score ?? 'N/A', hydration: s.hydration_score ?? 'N/A' };
+    });
+    const avg = scores.length ? Math.round(scores.reduce((s, v) => s + (v.overall_score || 0), 0) / scores.length) : 0;
+    return {
+      title: 'Skin Health Report',
+      stats: [{ label: 'Total Score Records', value: scores.length }, { label: 'Platform Average Score', value: avg }],
+      columns: [{ key: 'user', label: 'User' }, { key: 'date', label: 'Date' }, { key: 'overall', label: 'Overall Score' }, { key: 'skinCondition', label: 'Skin Condition' }, { key: 'lifestyle', label: 'Lifestyle' }, { key: 'sleep', label: 'Sleep' }, { key: 'hydration', label: 'Hydration' }],
+      rows,
+    };
+  }
+
+  // 'progress'
+  const [profiles, assessments] = await Promise.all([dataAPI.getAllProfiles(), dataAPI.getAssessments()]);
+  const byUser = {};
+  assessments.forEach(a => { (byUser[a.user_id] = byUser[a.user_id] || []).push(a); });
+  const rows = Object.entries(byUser)
+    .filter(([, list]) => list.length >= 2)
+    .map(([userId, list]) => {
+      const u = profiles.find(p => p.id === userId);
+      const sorted = list.sort((a, b) => new Date(b.assessment_date) - new Date(a.assessment_date));
+      const latest = sorted[0], previous = sorted[1];
+      const change = (typeof latest.skin_health_score === 'number' && typeof previous.skin_health_score === 'number') ? latest.skin_health_score - previous.skin_health_score : 'N/A';
+      return { user: u ? u.name : 'Unknown', previousScore: previous.skin_health_score ?? 'N/A', currentScore: latest.skin_health_score ?? 'N/A', change, assessmentCount: list.length };
+    });
+  return {
+    title: 'Progress Report',
+    stats: [{ label: 'Users With Trackable Progress', value: rows.length }],
+    columns: [{ key: 'user', label: 'User' }, { key: 'previousScore', label: 'Previous Score' }, { key: 'currentScore', label: 'Current Score' }, { key: 'change', label: 'Change' }, { key: 'assessmentCount', label: 'Total Assessments' }],
+    rows,
+  };
 }

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Reports - GlowSense AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <div class="dashboard-layout">
+    <div class="dashboard-main">
+      <div class="dashboard-content">
+        <h1 class="page-title">My Reports</h1>
+        <p class="page-subtitle">Download or print a report from your own real assessment, routine, product, and progress data.</p>
+
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;margin-bottom:1rem;">
+            <select class="filter-input" id="userReportTypeSelect" style="min-width:220px;">
+              <option value="assessment">Skin Assessment Report</option>
+              <option value="routine">Routine Report</option>
+              <option value="products">Product Recommendation Report</option>
+              <option value="skinhealth">Skin Health Report</option>
+              <option value="progress">Progress Report</option>
+            </select>
+            <div style="display:flex;gap:0.5rem;">
+              <button class="btn btn-outline" id="userReportCsvBtn">Download CSV</button>
+              <button class="btn btn-primary" id="userReportPrintBtn">Print / Save as PDF</button>
+            </div>
+          </div>
+          <div id="userReportPreview">
+            <p style="color:var(--color-text-secondary);">Loading report...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initUserReports } from '/js/userReports.js';
+    initUserReports();
+  </script>
+</body>
+</html>

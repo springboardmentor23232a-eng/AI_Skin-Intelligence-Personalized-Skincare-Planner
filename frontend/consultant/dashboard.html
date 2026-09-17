@@ -61,7 +61,29 @@
             </div>
           </div>
         </div>
+
+        <div class="card" style="margin-top:1.5rem;">
+          <div class="card-header"><h3 class="card-title">Progress Monitoring</h3></div>
+          <p style="font-size:var(--fs-sm);color:var(--color-text-secondary);margin-bottom:0.75rem;">Skin Health Score change between each client's two most recent assessments.</p>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead><tr><th>Client</th><th>Previous Score</th><th>Current Score</th><th>Change</th><th>Status</th><th>Action</th></tr></thead>
+              <tbody id="progressMonitoringTable"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Progress Detail Modal -->
+  <div class="modal-overlay" id="progressDetailModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Progress Detail</h3>
+        <button class="modal-close" onclick="document.getElementById('progressDetailModal').classList.remove('active')"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M6 6l8 8M14 6l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+      </div>
+      <div class="modal-body" id="progressDetailBody"></div>
     </div>
   </div>
   <script type="module">

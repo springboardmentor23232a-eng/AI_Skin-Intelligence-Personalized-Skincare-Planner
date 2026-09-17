@@ -1,7 +1,8 @@
 /* ==================== GLOWSENSE AI — CONSULTANT LOGIC ==================== */
 
 import { dataAPI, authAPI } from './api.js';
-import { initDashboard, showToast, showLoading, hideLoading, formatDate, formatDateTime, riskBadge, statusBadge } from './common.js';
+import { initDashboard, showToast, showLoading, hideLoading, formatDate, formatDateTime, riskBadge, statusBadge, renderLineChart } from './common.js';
+import { computeImprovementAnalysis, buildScoreTrend } from './progressAnalytics.js';
 
 /* ---- Consultant Dashboard ---- */
 export async function initConsultantDashboard() {
@@ -10,6 +11,7 @@ export async function initConsultantDashboard() {
   await loadConsultantStats();
   await loadRecentAssessments();
   await loadConsultationRequests();
+  await loadProgressMonitoring();
 }
 
 async function loadConsultantStats() {
@@ -110,6 +112,96 @@ async function loadConsultationRequests() {
     };
   } catch (err) {
     showToast('Unable to load consultation requests.', 'error');
+  }
+}
+
+/* ---- Module 8: Progress Monitoring (real client assessment history) ---- */
+async function loadProgressMonitoring() {
+  const tbody = document.getElementById('progressMonitoringTable');
+  if (!tbody) return;
+  try {
+    const profiles = await dataAPI.getAllProfiles();
+    const users = profiles.filter(p => p.role === 'user');
+    const allAssessments = await dataAPI.getAssessments();
+
+    const rows = users
+      .map(u => ({ user: u, assessments: allAssessments.filter(a => a.user_id === u.id) }))
+      .filter(r => r.assessments.length >= 2);
+
+    if (rows.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="table-empty">No clients have enough assessment history yet to show progress.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = rows.map(({ user, assessments }) => {
+      const latest = assessments[0];
+      const previous = assessments[1];
+      const change = (typeof latest.skin_health_score === 'number' && typeof previous.skin_health_score === 'number')
+        ? latest.skin_health_score - previous.skin_health_score : null;
+      const status = change === null ? 'stable' : change > 2 ? 'improved' : change < -2 ? 'needs_attention' : 'stable';
+      const statusLabels = { improved: 'Improved', needs_attention: 'Needs Attention', stable: 'Stable' };
+      const statusColors = { improved: 'badge-success', needs_attention: 'badge-error', stable: 'badge-neutral' };
+      return `
+        <tr>
+          <td>${user.name || 'Unknown'}</td>
+          <td>${previous.skin_health_score ?? 'N/A'}</td>
+          <td>${latest.skin_health_score ?? 'N/A'}</td>
+          <td>${change === null ? 'N/A' : (change > 0 ? '+' + change : change)}</td>
+          <td><span class="badge ${statusColors[status]}">${statusLabels[status]}</span></td>
+          <td><button class="btn btn-sm btn-outline" onclick="window.viewClientProgress('${user.id}')">View Details</button></td>
+        </tr>`;
+    }).join('');
+
+    window.viewClientProgress = (userId) => showProgressDetailModal(userId);
+  } catch (err) {
+    tbody.innerHTML = '<tr><td colspan="6" class="table-empty">Unable to load progress data.</td></tr>';
+  }
+}
+
+async function showProgressDetailModal(userId) {
+  const modal = document.getElementById('progressDetailModal');
+  const body = document.getElementById('progressDetailBody');
+  if (!modal || !body) return;
+  body.innerHTML = '<p style="color:var(--color-text-secondary);">Loading...</p>';
+  modal.classList.add('active');
+  try {
+    const profiles = await dataAPI.getAllProfiles();
+    const user = profiles.find(p => p.id === userId);
+    const assessments = await dataAPI.getAssessments(userId);
+    if (assessments.length < 2) {
+      body.innerHTML = '<p style="color:var(--color-text-tertiary);">Not enough assessment history for this client yet.</p>';
+      return;
+    }
+    const latest = assessments[0];
+    const previous = assessments[1];
+    const [latestConcerns, previousConcerns] = await Promise.all([
+      dataAPI.getConcerns(latest.id), dataAPI.getConcerns(previous.id),
+    ]);
+    const analysis = computeImprovementAnalysis(previous, previousConcerns, latest, latestConcerns);
+    const statusLabels = { improved: 'Improved', resolved: 'Resolved', worsened: 'Needs Attention', new: 'Needs Attention', stable: 'Stable' };
+    const statusColors = { improved: 'badge-success', resolved: 'badge-success', worsened: 'badge-error', new: 'badge-warning', stable: 'badge-neutral' };
+    body.innerHTML = `
+      <h4 style="font-size:var(--fs-lg);font-weight:600;margin-bottom:0.5rem;">${user ? user.name : 'Client'}</h4>
+      <div style="display:flex;gap:1.5rem;margin-bottom:1rem;">
+        <div><div style="font-size:var(--fs-xs);color:var(--color-text-tertiary);">Previous (${formatDate(analysis.previousDate)})</div><div style="font-size:var(--fs-xl);font-weight:700;">${analysis.previousScore ?? 'N/A'}</div></div>
+        <div><div style="font-size:var(--fs-xs);color:var(--color-text-tertiary);">Current (${formatDate(analysis.currentDate)})</div><div style="font-size:var(--fs-xl);font-weight:700;">${analysis.currentScore ?? 'N/A'}</div></div>
+      </div>
+      <h4 style="margin-bottom:0.5rem;">Concern Changes</h4>
+      ${analysis.concernChanges.map(c => `<div style="padding:0.5rem;border:1px solid var(--color-border);border-radius:8px;margin-bottom:0.5rem;font-size:var(--fs-sm);display:flex;justify-content:space-between;"><span>${c.concern}</span><span class="badge ${statusColors[c.status] || 'badge-neutral'}">${statusLabels[c.status] || c.status}</span></div>`).join('') || '<p style="color:var(--color-text-tertiary);">No concerns recorded.</p>'}
+      <h4 style="margin:1rem 0 0.5rem;">Skin Health Score Trend</h4>
+      <div id="progressDetailChart" class="chart-container" style="min-height:160px;"></div>
+    `;
+
+    const scores = await dataAPI.getSkinHealthScores(userId).catch(() => []);
+    const trend = buildScoreTrend(scores, 'overall_score', 'all');
+    const chartEl = document.getElementById('progressDetailChart');
+    if (trend.length > 1 && chartEl) {
+      renderLineChart(chartEl, trend.map(t => ({ label: formatDate(t.date).split(',')[0], score: t.value })), { min: 0, max: 100 });
+    } else if (chartEl) {
+      chartEl.innerHTML = '<p style="color:var(--color-text-tertiary);font-size:var(--fs-sm);">Not enough Skin Health Score history yet for a trend chart.</p>';
+    }
+  } catch (err) {
+    body.innerHTML = '<p style="color:var(--color-error);">Unable to load progress detail.</p>';
   }
 }
 

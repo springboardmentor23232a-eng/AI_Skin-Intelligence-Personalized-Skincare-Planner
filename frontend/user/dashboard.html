@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="/css/style.css" />
   <link rel="stylesheet" href="/css/dashboard.css" />
   <link rel="stylesheet" href="/css/assessment.css" />
+  <link rel="stylesheet" href="/css/skin-health-score.css" />
   <link rel="stylesheet" href="/css/responsive.css" />
 </head>
 <body>
@@ -58,6 +59,15 @@
           </div>
         </div>
 
+        <div class="card" style="margin-bottom:1rem;">
+          <div class="card-header">
+            <h3 class="card-title">Skin Health Score</h3>
+          </div>
+          <div id="skinHealthScoreRoot">
+            <p style="color:var(--color-text-tertiary);font-size:var(--fs-sm);">Loading your Skin Health Score...</p>
+          </div>
+        </div>
+
         <div class="dashboard-grid">
           <div>
             <div class="card" id="latestAssessmentCard" style="margin-bottom:1rem;">
@@ -92,6 +102,26 @@
           </div>
 
           <div>
+            <div class="card" style="margin-bottom:1rem;">
+              <div class="card-header">
+                <h3 class="card-title">Daily Skincare Checklist</h3>
+                <a href="/user/routine.html" class="btn btn-sm btn-ghost">Full Routine</a>
+              </div>
+              <div id="dashboardChecklist">
+                <p style="color:var(--color-text-tertiary);font-size:var(--fs-sm);">Loading checklist...</p>
+              </div>
+            </div>
+
+            <div class="card" style="margin-bottom:1rem;">
+              <div class="card-header">
+                <h3 class="card-title">Progress Tracking</h3>
+                <a href="/user/progress.html" class="btn btn-sm btn-ghost">View Details</a>
+              </div>
+              <div id="progressPreview">
+                <p style="color:var(--color-text-tertiary);font-size:var(--fs-sm);">No progress data available yet. Complete another assessment to start tracking your progress.</p>
+              </div>
+            </div>
+
             <div class="card" style="margin-bottom:1rem;">
               <div class="card-header">
                 <h3 class="card-title">Main Concerns</h3>
@@ -139,6 +169,12 @@
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v4l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
                   </div>
                   <div><div class="quick-action-text">My Routine</div><div class="quick-action-desc">AI skincare plan</div></div>
+                </a>
+                <a href="/user/progress.html" class="quick-action">
+                  <div class="quick-action-icon">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 17h14M5 17V10M9 17V6M13 17v-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </div>
+                  <div><div class="quick-action-text">Progress Tracking</div><div class="quick-action-desc">Trends & adherence</div></div>
                 </a>
                 <a href="/user/ingredients.html" class="quick-action">
                   <div class="quick-action-icon">
@@ -193,11 +229,13 @@
 
   <script type="module">
     import { initUserDashboard, requestConsultation } from '/js/user.js';
+    import { initSkinHealthScore } from '/js/skinHealthScore.js';
     initUserDashboard().then(auth => {
       if (auth) {
         document.getElementById('sendConsultBtn').addEventListener('click', () => requestConsultation(auth.user.id));
       }
     });
+    initSkinHealthScore();
   </script>
 </body>
 </html>

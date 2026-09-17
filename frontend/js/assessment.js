@@ -2,6 +2,7 @@
 
 import { dataAPI, authAPI } from './api.js';
 import { initDashboard, showToast, showLoading, hideLoading, formatDate, riskBadge } from './common.js';
+import { calculateAndStoreSkinHealthScore } from './skinHealthScore.js';
 
 /* ---- Assessment landing page ---- */
 export async function initAssessmentLanding() {
@@ -103,6 +104,15 @@ async function handleFormSubmit(event, userId) {
       pollution_exposure: formData.pollution_exposure,
       climate: formData.climate,
     });
+
+    // Module 7: recalculate the weighted Skin Health Score now that a new
+    // assessment/profile exists. Non-fatal — the assessment itself is
+    // already saved either way.
+    try {
+      await calculateAndStoreSkinHealthScore(userId);
+    } catch (e) {
+      // Score refresh failure should never block the assessment result.
+    }
 
     hideLoading();
 

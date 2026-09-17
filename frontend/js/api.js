@@ -404,6 +404,68 @@ export const dataAPI = {
     return data || [];
   },
 
+  /** All recommendations platform-wide (RLS restricts this to staff/admin/owner in practice). Used by Consultant/Dermatologist/Admin recommendation management & monitoring pages. */
+  async getAllRecommendations() {
+    if (authAPI.isDemoMode()) {
+      const data = getDemoData();
+      return [...(data.recommendations || [])].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    }
+    const { data, error } = await supabase.from('recommendations').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    return data || [];
+  },
+
+  /** Staff-authored recommendation (Consultant "Recommendation Management" / Dermatologist "Treatment Recommendation"). */
+  async createRecommendationEntry({ assessment_id, category, recommendation_text, source, created_by }) {
+    if (authAPI.isDemoMode()) {
+      const data = getDemoData();
+      const row = {
+        id: 'demo-rec-' + Date.now(),
+        assessment_id, category, recommendation_text,
+        status: 'active', source: source || 'consultant', created_by,
+        created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
+      };
+      if (!data.recommendations) data.recommendations = [];
+      data.recommendations.push(row);
+      saveDemoData(data);
+      return row;
+    }
+    const { data, error } = await supabase.from('recommendations')
+      .insert({ assessment_id, category, recommendation_text, source: source || 'consultant', created_by, status: 'active' })
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async updateRecommendation(id, updates) {
+    if (authAPI.isDemoMode()) {
+      const data = getDemoData();
+      const row = (data.recommendations || []).find(r => r.id === id);
+      if (row) { Object.assign(row, updates, { updated_at: new Date().toISOString() }); saveDemoData(data); }
+      return row;
+    }
+    const { data, error } = await supabase.from('recommendations')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async deleteRecommendation(id) {
+    if (authAPI.isDemoMode()) {
+      const data = getDemoData();
+      data.recommendations = (data.recommendations || []).filter(r => r.id !== id);
+      saveDemoData(data);
+      return true;
+    }
+    const { error } = await supabase.from('recommendations').delete().eq('id', id);
+    if (error) throw error;
+    return true;
+  },
+
   /* ---- Consultation Requests ---- */
   async createConsultationRequest(request) {
     if (authAPI.isDemoMode()) {
@@ -520,6 +582,160 @@ export const dataAPI = {
       return routines.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0] || null;
     }
     const { data, error } = await supabase.from('routines').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(1).maybeSingle();
+    if (error) throw error;
+    return data;
+  },
+
+  /* ---- Module 8: Routine Completions (daily checklist persistence) ---- */
+
+  /** Completions for one routine on one calendar date (YYYY-MM-DD). Used to render today's checklist state. */
+  async getRoutineCompletions(userId, routineId, completionDate) {
+    if (authAPI.isDemoMode()) {
+      const data = getDemoData();
+      return (data.routineCompletions || []).filter(c =>
+        c.user_id === userId && c.routine_id === routineId && c.completion_date === completionDate
+      );
+    }
+    let query = supabase.from('routine_completions').select('*').eq('user_id', userId).eq('completion_date', completionDate);
+    if (routineId) query = query.eq('routine_id', routineId);
+    const { data, error } = await query;
+    if (error) throw error;
+    return data || [];
+  },
+
+  /** All completions for a user within an inclusive date range, for adherence % and trend charts. */
+  async getRoutineCompletionsRange(userId, startDate, endDate) {
+    if (authAPI.isDemoMode()) {
+      const data = getDemoData();
+      return (data.routineCompletions || []).filter(c =>
+        c.user_id === userId && c.completion_date >= startDate && c.completion_date <= endDate
+      );
+    }
+    const { data, error } = await supabase.from('routine_completions')
+      .select('*')
+      .eq('user_id', userId)
+      .gte('completion_date', startDate)
+      .lte('completion_date', endDate)
+      .order('completion_date', { ascending: true });
+    if (error) throw error;
+    return data || [];
+  },
+
+  /** Marks a single checklist step done/undone for a given day. Upserts on the (user, routine, period, step, date) key so re-checking is idempotent. */
+  async upsertRoutineCompletion({ user_id, routine_id, period, step_index, step_label, completion_date, completed }) {
+    if (authAPI.isDemoMode()) {
+      const data = getDemoData();
+      if (!data.routineCompletions) data.routineCompletions = [];
+      const existing = data.routineCompletions.find(c =>
+        c.user_id === user_id && c.routine_id === routine_id && c.period === period &&
+        c.step_index === step_index && c.completion_date === completion_date
+      );
+      if (existing) {
+        existing.completed = completed;
+        existing.step_label = step_label;
+        existing.updated_at = new Date().toISOString();
+        saveDemoData(data);
+        return existing;
+      }
+      const row = {
+        id: 'demo-completion-' + Date.now() + '-' + step_index,
+        user_id, routine_id, period, step_index, step_label, completion_date, completed,
+        created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
+      };
+      data.routineCompletions.push(row);
+      saveDemoData(data);
+      return row;
+    }
+    const { data, error } = await supabase.from('routine_completions')
+      .upsert(
+        { user_id, routine_id, period, step_index, step_label, completion_date, completed, updated_at: new Date().toISOString() },
+        { onConflict: 'user_id,routine_id,period,step_index,completion_date' }
+      )
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  /* ---- Module 10: Notifications ---- */
+  async getNotifications(userId, limit = 30) {
+    if (authAPI.isDemoMode()) {
+      const data = getDemoData();
+      return (data.notifications || [])
+        .filter(n => n.user_id === userId)
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        .slice(0, limit);
+    }
+    const { data, error } = await supabase.from('notifications')
+      .select('*').eq('user_id', userId)
+      .order('created_at', { ascending: false }).limit(limit);
+    if (error) throw error;
+    return data || [];
+  },
+
+  async createNotification({ user_id, type, title, message, metadata }) {
+    if (authAPI.isDemoMode()) {
+      const data = getDemoData();
+      if (!data.notifications) data.notifications = [];
+      const row = { id: 'demo-notif-' + Date.now() + Math.random().toString(36).slice(2), user_id, type, title, message, is_read: false, metadata: metadata || {}, created_at: new Date().toISOString() };
+      data.notifications.push(row);
+      saveDemoData(data);
+      return row;
+    }
+    const { data, error } = await supabase.from('notifications')
+      .insert({ user_id, type, title, message, metadata: metadata || {} })
+      .select().single();
+    if (error) throw error;
+    return data;
+  },
+
+  async markNotificationRead(id) {
+    if (authAPI.isDemoMode()) {
+      const data = getDemoData();
+      const row = (data.notifications || []).find(n => n.id === id);
+      if (row) { row.is_read = true; saveDemoData(data); }
+      return row;
+    }
+    const { data, error } = await supabase.from('notifications').update({ is_read: true }).eq('id', id).select().single();
+    if (error) throw error;
+    return data;
+  },
+
+  async markAllNotificationsRead(userId) {
+    if (authAPI.isDemoMode()) {
+      const data = getDemoData();
+      (data.notifications || []).forEach(n => { if (n.user_id === userId) n.is_read = true; });
+      saveDemoData(data);
+      return true;
+    }
+    const { error } = await supabase.from('notifications').update({ is_read: true }).eq('user_id', userId).eq('is_read', false);
+    if (error) throw error;
+    return true;
+  },
+
+  async getNotificationPreferences(userId) {
+    if (authAPI.isDemoMode()) {
+      const data = getDemoData();
+      return (data.notificationPreferences || []).find(p => p.user_id === userId) || null;
+    }
+    const { data, error } = await supabase.from('notification_preferences').select('*').eq('user_id', userId).maybeSingle();
+    if (error) throw error;
+    return data;
+  },
+
+  async upsertNotificationPreferences(userId, prefs) {
+    if (authAPI.isDemoMode()) {
+      const data = getDemoData();
+      if (!data.notificationPreferences) data.notificationPreferences = [];
+      let row = data.notificationPreferences.find(p => p.user_id === userId);
+      if (row) Object.assign(row, prefs);
+      else { row = { user_id: userId, ...prefs }; data.notificationPreferences.push(row); }
+      saveDemoData(data);
+      return row;
+    }
+    const { data, error } = await supabase.from('notification_preferences')
+      .upsert({ user_id: userId, ...prefs, updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
+      .select().single();
     if (error) throw error;
     return data;
   },
@@ -779,13 +995,19 @@ export const dataAPI = {
         pendingConsultations: data.consultationRequests.filter(r => r.status === 'pending').length,
         highRiskAssessments: highRisk.length,
         averageScore: avgScore,
+        totalRoutinesGenerated: (data.routines || []).length,
+        totalProductRecommendations: (data.productRecs || []).length,
+        totalFeedbackSubmissions: (data.feedback || []).length,
       };
     }
 
-    const [profiles, assessments, consultReqs] = await Promise.all([
+    const [profiles, assessments, consultReqs, routines, productRecs, feedback] = await Promise.all([
       supabase.from('profiles').select('role, status'),
       supabase.from('skin_assessments').select('skin_health_score, risk_level'),
       supabase.from('consultation_requests').select('status'),
+      supabase.from('routines').select('id', { count: 'exact', head: true }),
+      supabase.from('product_recommendations').select('id', { count: 'exact', head: true }),
+      supabase.from('routine_feedback').select('id', { count: 'exact', head: true }),
     ]);
 
     const allProfiles = profiles.data || [];
@@ -804,6 +1026,10 @@ export const dataAPI = {
       pendingConsultations: allReqs.filter(r => r.status === 'pending').length,
       highRiskAssessments: allAssessments.filter(a => a.risk_level === 'High' || a.risk_level === 'Very High').length,
       averageScore: avgScore,
+      // Real counts (head:true count queries return no rows, just an exact count) — no fabricated numbers.
+      totalRoutinesGenerated: routines.count ?? 0,
+      totalProductRecommendations: productRecs.count ?? 0,
+      totalFeedbackSubmissions: feedback.count ?? 0,
     };
   },
 };
@@ -1277,6 +1503,71 @@ export const productIntelligence = {
       concernNames,
       hasReportedIrritation,
     };
+  },
+
+  /**
+   * Module 6 fix: the Gemini/rule-based product-suggestion flow (used on the
+   * Recommendations page) generates product descriptions independently of
+   * the real `products` catalog table, so it never has a real image, a real
+   * Amazon/Nykaa link, or a verified price. This cross-references each
+   * AI-suggested product against the real catalog by normalized name/brand
+   * and merges in the catalog's actual image_url, amazon_url, nykaa_url,
+   * price_numeric and id wherever a confident match exists. It never
+   * invents data: if there is no confident match, the AI product is left
+   * untouched and the UI already falls back gracefully (placeholder icon,
+   * generic search link).
+   */
+  matchCatalogProduct(aiProduct, catalog) {
+    if (!aiProduct || !catalog || catalog.length === 0) return null;
+    const normalize = (s) => (s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+    const aiName = normalize(aiProduct.name);
+    const aiBrand = normalize(aiProduct.brand);
+    if (!aiName) return null;
+
+    // 1) Exact name match (brand+name if available, else name alone).
+    let match = catalog.find(p => normalize(p.name) === aiName && (!aiBrand || normalize(p.brand) === aiBrand));
+    if (match) return match;
+    match = catalog.find(p => normalize(p.name) === aiName);
+    if (match) return match;
+
+    // 2) Confident partial match: one name fully contains the other AND,
+    // when both brands are known, the brands agree. This avoids false
+    // positives like matching "Vitamin C Serum" to any random serum.
+    const candidates = catalog.filter(p => {
+      const pName = normalize(p.name);
+      const containment = pName.includes(aiName) || aiName.includes(pName);
+      if (!containment) return false;
+      if (aiBrand && p.brand) return normalize(p.brand) === aiBrand;
+      return true;
+    });
+    if (candidates.length === 1) return candidates[0];
+    if (candidates.length > 1 && aiBrand) {
+      const brandMatch = candidates.find(p => normalize(p.brand) === aiBrand);
+      if (brandMatch) return brandMatch;
+    }
+    return null;
+  },
+
+  /**
+   * Merges real catalog data (image, shopping links, verified price, id)
+   * into a list of AI-suggested products. Products without a confident
+   * catalog match are returned unchanged.
+   */
+  mergeCatalogData(aiProducts, catalog) {
+    return (aiProducts || []).map(p => {
+      const match = this.matchCatalogProduct(p, catalog);
+      if (!match) return p;
+      return {
+        ...p,
+        catalog_id: match.id,
+        image_url: match.image_url || p.image_url || '',
+        amazon_url: match.amazon_url || '',
+        nykaa_url: match.nykaa_url || '',
+        price_range: match.price_range || p.price_range || '',
+        price_numeric: typeof match.price_numeric === 'number' ? match.price_numeric : undefined,
+        catalog_matched: true,
+      };
+    });
   },
 
   /**

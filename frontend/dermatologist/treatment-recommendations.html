@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Treatment Recommendations - GlowSense AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <div class="dashboard-layout">
+    <div class="dashboard-main">
+      <div class="dashboard-content">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
+          <div>
+            <h1 class="page-title" id="pageHeading">Treatment Recommendations</h1>
+            <p class="page-subtitle">View, create, and manage treatment recommendations for your patients.</p>
+          </div>
+          <button class="btn btn-primary" id="addBtn">+ Add Treatment Recommendation</button>
+        </div>
+
+        <div class="filter-bar">
+          <select class="filter-input" id="statusFilterSelect">
+            <option value="all">All Statuses</option>
+            <option value="active">Active</option>
+            <option value="reviewed">Reviewed</option>
+            <option value="archived">Archived</option>
+          </select>
+        </div>
+
+        <div class="card">
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead><tr><th>User</th><th>Category</th><th>Details</th><th>Source</th><th>Status</th><th>Action</th></tr></thead>
+              <tbody id="recTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="recFormModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="recFormTitle">Add Treatment Recommendation</h3>
+        <button class="modal-close" onclick="window.closeRecFormModal()"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M6 6l8 8M14 6l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;font-size:var(--fs-sm);font-weight:600;margin-bottom:0.375rem;">User</label>
+          <select class="filter-input" id="recUserSelect" style="width:100%;"></select>
+        </div>
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;font-size:var(--fs-sm);font-weight:600;margin-bottom:0.375rem;">Assessment</label>
+          <select class="filter-input" id="recAssessmentSelect" style="width:100%;"></select>
+        </div>
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;font-size:var(--fs-sm);font-weight:600;margin-bottom:0.375rem;">Category</label>
+          <input class="filter-input" id="recCategoryInput" list="recCategorySuggestions" placeholder="e.g. Skincare" style="width:100%;" />
+          <datalist id="recCategorySuggestions"></datalist>
+        </div>
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;font-size:var(--fs-sm);font-weight:600;margin-bottom:0.375rem;">Recommendation Details</label>
+          <textarea class="filter-input" id="recTextInput" rows="4" placeholder="Write the recommendation..." style="width:100%;font-family:inherit;resize:vertical;"></textarea>
+        </div>
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;font-size:var(--fs-sm);font-weight:600;margin-bottom:0.375rem;">Status</label>
+          <select class="filter-input" id="recStatusSelect" style="width:100%;">
+            <option value="active">Active</option>
+            <option value="reviewed">Reviewed</option>
+            <option value="archived">Archived</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="window.closeRecFormModal()">Cancel</button>
+        <button class="btn btn-primary" id="recSaveBtn">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initRecommendationManagementPage } from '/js/recommendationManagement.js';
+    initRecommendationManagementPage('dermatologist');
+  </script>
+</body>
+</html>
