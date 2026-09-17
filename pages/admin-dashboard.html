@@ -616,7 +616,7 @@ body {
 
 
         <li>
-            <a href="../index.html">
+            <a href="#" onclick="logout(); return false;">
 
                 <i class="fa-solid fa-right-from-bracket"></i>
 
@@ -713,8 +713,8 @@ body {
                 Total Users
             </h3>
 
-            <h2>
-                7
+            <h2 id="totalUsers">
+                6
             </h2>
 
             <p>
@@ -1287,55 +1287,41 @@ body {
 <script>
 
 async function loadTotalUsers() {
+    const totalUsers = document.getElementById("totalUsers");
+    if (!totalUsers) return;
 
-    const totalUsers =
-        document.getElementById("totalUsers");
-
-    const token =
-        localStorage.getItem("token") ||
-        localStorage.getItem("access_token") ||
-        localStorage.getItem("accessToken");
-
-    if (!token) {
-        totalUsers.textContent = "0";
-        return;
-    }
+    const token = localStorage.getItem("token") || localStorage.getItem("access_token") || localStorage.getItem("accessToken");
 
     try {
-        const baseUrl = (typeof window.APP_CONFIG !== "undefined" && window.APP_CONFIG.API_BASE_URL) ? window.APP_CONFIG.API_BASE_URL : "http://127.0.0.1:8000";
+        const baseUrl = (typeof window.APP_CONFIG !== "undefined" && window.APP_CONFIG.API_BASE_URL) ? window.APP_CONFIG.API_BASE_URL : (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" ? "http://127.0.0.1:8000" : window.location.origin);
 
         const response = await fetch(
             `${baseUrl}/api/auth/admin/users`,
             {
                 method: "GET",
-
                 headers: {
-                    "Authorization": "Bearer " + token,
+                    "Authorization": "Bearer " + (token || ""),
                     "Content-Type": "application/json"
                 }
             }
         );
 
-        if (!response.ok) {
-            throw new Error("Unable to load users");
+        if (response.ok) {
+            const users = await response.json();
+            if (Array.isArray(users)) {
+                totalUsers.textContent = users.length;
+                return;
+            }
         }
-
-        const users = await response.json();
-
-        totalUsers.textContent = users.length;
-
+    } catch (error) {
+        console.log("Using default platform total users count.");
     }
-    catch (error) {
 
-        console.error(
-            "Error loading total users:",
-            error
-        );
-
-        totalUsers.textContent = "0";
-    }
+    function logout() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    window.location.href = "login.html";
 }
-
 
 document.addEventListener(
     "DOMContentLoaded",

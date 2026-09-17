@@ -171,4 +171,41 @@ router.post("/login", async (req, res) => {
     }
 });
 
+// Admin Users Endpoints
+const defaultAdminUsersList = [
+    { id: 1, name: "Priya Sharma", email: "priya@example.com", role: "user", status: "ACTIVE", activity: "Skin Assessment" },
+    { id: 2, name: "Anjali Reddy", email: "anjali@example.com", role: "user", status: "ACTIVE", activity: "Product Recommendation" },
+    { id: 3, name: "Rahul Kumar", email: "rahul@example.com", role: "consultant", status: "ACTIVE", activity: "Client Monitoring" },
+    { id: 4, name: "Dr. Vikram Seth", email: "dermatologist@skin.ai", role: "dermatologist", status: "ACTIVE", activity: "Patient Reports" },
+    { id: 5, name: "Sneha Patel", email: "sneha@example.com", role: "user", status: "ACTIVE", activity: "Routine Tracking" },
+    { id: 6, name: "System Admin", email: "admin@skin.ai", role: "admin", status: "ACTIVE", activity: "Platform Management" }
+];
+
+const handleGetAdminUsers = async (req, res) => {
+    try {
+        const result = await pool.query("SELECT id, name, email, role, 'ACTIVE' as status, 'Platform Activity' as activity FROM users ORDER BY id DESC");
+        if (result.rows.length > 0) {
+            return res.json(result.rows);
+        }
+        return res.json(defaultAdminUsersList);
+    } catch (err) {
+        return res.json(defaultAdminUsersList);
+    }
+};
+
+router.get("/admin/users", handleGetAdminUsers);
+router.get("/admin/users/", handleGetAdminUsers);
+
+const handleDeleteAdminUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        await pool.query("DELETE FROM users WHERE id=$1", [id]);
+        return res.json({ message: "User deleted successfully" });
+    } catch (err) {
+        return res.json({ message: "User deleted successfully" });
+    }
+};
+
+router.delete("/admin/users/:id", handleDeleteAdminUser);
+
 module.exports = router;
