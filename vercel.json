@@ -3,8 +3,8 @@
   "cleanUrls": true,
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "https://skin-ai-backend.onrender.com/api/:path*"
+      "source": "/api/(.*)",
+      "destination": "/api/index.js"
     },
     {
       "source": "/engine/:path*",
