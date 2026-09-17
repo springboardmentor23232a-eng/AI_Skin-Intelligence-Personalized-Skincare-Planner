@@ -1,7 +1,6 @@
 const { Pool } = require("pg");
 require("dotenv").config();
 
-
 const poolConfig = process.env.DATABASE_URL
     ? {
         connectionString: process.env.DATABASE_URL,
@@ -17,20 +16,32 @@ const poolConfig = process.env.DATABASE_URL
 
 const pool = new Pool(poolConfig);
 
+const initDb = async () => {
+    try {
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                password VARCHAR(255),
+                role VARCHAR(50) DEFAULT 'user',
+                provider VARCHAR(50) DEFAULT 'LOCAL',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+        console.log("PostgreSQL Users table initialized successfully");
+    } catch (err) {
+        console.log("Notice: Table auto-creation notice:", err.message);
+    }
+};
 
 pool.connect()
-
-.then(() => {
-
-    console.log("PostgreSQL Connected Successfully");
-
-})
-
-.catch((error)=>{
-
-    console.log("Database Connection Error:", error);
-
-});
-
+    .then(() => {
+        console.log("PostgreSQL Connected Successfully");
+        initDb();
+    })
+    .catch((error) => {
+        console.log("Database Connection Warning:", error.message);
+    });
 
 module.exports = pool;
