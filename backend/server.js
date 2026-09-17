@@ -56,10 +56,13 @@ app.use(passport.session());
 // Routes
 
 app.use("/api/auth", authRoutes);
+app.use("/auth", authRoutes);
 
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/dashboard", dashboardRoutes);
 
 app.use("/api/profile", profileRoutes);
+app.use("/profile", profileRoutes);
 
 
 // Google Login Route
