@@ -16,7 +16,7 @@ export const MOCK_ROLES = {
   },
   CONSULTANT: {
     id: 'consultant',
-    name: 'Sarah Jenkins',
+    name: 'Pooja Deshmukh',
     title: 'Certified Skincare Consultant',
     badgeClass: 'badge-consultant',
     icon: '💼',
@@ -24,7 +24,7 @@ export const MOCK_ROLES = {
   },
   DERMATOLOGIST: {
     id: 'dermatologist',
-    name: 'Dr. Elena Rostova, MD',
+    name: 'Dr. Rajesh Varma, MD',
     title: 'Board-Certified Dermatologist',
     badgeClass: 'badge-dermatologist',
     icon: '🩺',
@@ -42,8 +42,8 @@ export const MOCK_ROLES = {
 
 export const MOCK_USER_DATA = {
   profile: {
-    name: 'Alex Rivera',
-    email: 'alex.rivera@example.com',
+    name: 'Aarav Sharma',
+    email: 'aarav.sharma@example.com',
     skinType: 'Combination',
     ageGroup: '25 - 34',
     primaryConcerns: ['Acne & Breakouts', 'Post-Inflammatory Hyperpigmentation', 'Redness'],
@@ -891,10 +891,10 @@ export const MASTER_PRODUCT_CATALOG = [
 
 export const MOCK_CONSULTANT_DATA = {
   clients: [
-    { id: 'c101', name: 'Maya Lin', skinType: 'Oily / Acne-Prone', lastAssessment: 'Yesterday', score: 64, status: 'Needs Routine Update', priority: 'High' },
-    { id: 'c102', name: 'David Miller', skinType: 'Dry / Dehydrated', lastAssessment: '3 days ago', score: 82, status: 'On Track', priority: 'Normal' },
-    { id: 'c103', name: 'Sophia Chen', skinType: 'Sensitive / Rosacea', lastAssessment: '5 days ago', score: 71, status: 'Review Recommended', priority: 'Medium' },
-    { id: 'c104', name: 'Marcus Vance', skinType: 'Normal / Hyperpigmentation', lastAssessment: '1 week ago', score: 88, status: 'Routine Active', priority: 'Normal' }
+    { id: 'c101', name: 'Meera Patel', skinType: 'Oily / Acne-Prone', lastAssessment: 'Yesterday', score: 64, status: 'Needs Routine Update', priority: 'High' },
+    { id: 'c102', name: 'Dev Sharma', skinType: 'Dry / Dehydrated', lastAssessment: '3 days ago', score: 82, status: 'On Track', priority: 'Normal' },
+    { id: 'c103', name: 'Sneha Patel', skinType: 'Sensitive / Rosacea', lastAssessment: '5 days ago', score: 71, status: 'Review Recommended', priority: 'Medium' },
+    { id: 'c104', name: 'Rohan Verma', skinType: 'Normal / Hyperpigmentation', lastAssessment: '1 week ago', score: 88, status: 'Routine Active', priority: 'Normal' }
   ],
   pendingReviews: 3,
   routinesCreatedThisMonth: 28,
@@ -903,8 +903,8 @@ export const MOCK_CONSULTANT_DATA = {
 
 export const MOCK_DERMATOLOGIST_DATA = {
   patients: [
-    { id: 'p201', name: 'Emma Watson', condition: 'Severe Inflammatory Acne (Grade 3)', lastVisit: 'Jul 20, 2026', prescription: 'Topical Adapalene 0.3% + Clindamycin 1%', status: 'Follow-up Scheduled' },
-    { id: 'p202', name: 'Robert Thorne', condition: 'Erythematotelangiectatic Rosacea', lastVisit: 'Jul 15, 2026', prescription: 'Ivermectin 1% Cream + Barrier Foam', status: 'Improving' },
+    { id: 'p201', name: 'Ananya Deshmukh', condition: 'Severe Inflammatory Acne (Grade 3)', lastVisit: 'Jul 20, 2026', prescription: 'Topical Adapalene 0.3% + Clindamycin 1%', status: 'Follow-up Scheduled' },
+    { id: 'p202', name: 'Rajesh Nambiar', condition: 'Erythematotelangiectatic Rosacea', lastVisit: 'Jul 15, 2026', prescription: 'Ivermectin 1% Cream + Barrier Foam', status: 'Improving' },
     { id: 'p203', name: 'Priya Sharma', condition: 'Melasma (Dermal-Epidermal)', lastVisit: 'Jul 10, 2026', prescription: 'Tranexamic Acid 5% + Azelaic Acid 15%', status: 'Stable' }
   ],
   clinicalReportsCount: 14,
@@ -936,8 +936,8 @@ export const MOCK_ADMIN_DATA = {
   ],
   recentAuditLogs: [
     { time: '09:14:22', user: 'Admin', event: 'Microservice Health Check Executed', status: 'Success' },
-    { time: '08:52:10', user: 'Dr. Elena Rostova', event: 'Patient Medical Profile Updated (p201)', status: 'Success' },
-    { time: '08:30:45', user: 'Sarah Jenkins', event: 'New Routine Plan Published for Client (c101)', status: 'Success' },
+    { time: '08:52:10', user: 'Dr. Rajesh Varma', event: 'Patient Medical Profile Updated (p201)', status: 'Success' },
+    { time: '08:30:45', user: 'Pooja Deshmukh', event: 'New Routine Plan Published for Client (c101)', status: 'Success' },
     { time: '07:45:00', user: 'System Cron', event: 'FAISS Vector Index Optimization Complete', status: 'Success' }
   ]
 };
@@ -996,7 +996,7 @@ export function calculateProductSuitability(product, profile = MOCK_USER_DATA.pr
   // 4. Fragrance & Allergen Safety Check (-50 pts penalty if allergen detected)
   const allIngredients = (product.full_ingredient_list || []).map(i => i.toLowerCase());
   const flaggedAllergens = [];
-  
+
   for (const alg of [...userAllergies, ...userSensitivities]) {
     const algNorm = alg.toLowerCase().split('(')[0].trim();
     if (allIngredients.some(ing => ing.includes(algNorm))) {
@@ -1180,7 +1180,7 @@ export function generateProductComparison(productIds = [], profile = MOCK_USER_D
       name: winner.name,
       brand: winner.brand,
       score: highestScore,
-      reason: `🏆 AI Winner: Best overall formulation fit for ${profile.skinType || 'Combination'} skin with ${highestScore}% compatibility score!`
+      reason: `"${winner.name}" offers the highest compatibility with your ${profile.skinType || 'Combination'} skin barrier and active concerns (${highestScore}% match score).`
     } : null
   };
 }
@@ -1524,12 +1524,12 @@ export const MOCK_NOTIFICATIONS = [
     id: 5,
     user_id: 1,
     title: '🩺 Dermatologist Prescription Update',
-    message: 'Dr. Julian Rostova reviewed your optical scan and adjusted your Adapalene PM application frequency to 3x/wk.',
+    message: 'Dr. Rajesh Varma reviewed your optical scan and adjusted your Adapalene PM application frequency to 3x/wk.',
     category: 'clinical',
     type: 'alert',
     is_read: true,
     action_url: '/chat',
-    metadata: { doctor_name: 'Dr. Julian Rostova, MD', rx: 'Adapalene 0.1%' },
+    metadata: { doctor_name: 'Dr. Rajesh Varma, MD', rx: 'Adapalene 0.1%' },
     created_at: new Date(Date.now() - 2 * 86400000).toISOString()
   }
 ];
@@ -1639,14 +1639,14 @@ export const MOCK_GENERATED_REPORTS = [
     format: 'pdf',
     created_at: new Date(Date.now() - 3600000 * 4).toISOString(),
     report_data: {
-      patient_name: 'Alex Rivera',
+      patient_name: 'Aarav Sharma',
       patient_id: 'PX-00001',
       evaluation_date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
       overall_health_score: 79.4,
       skin_type: 'Combination',
       clinical_status: 'Optimal Progress / Regimen Maintained',
-      assigned_consultant: 'Elena Vance, LE',
-      assigned_dermatologist: 'Dr. Julian Rostova, MD',
+      assigned_consultant: 'Ananya Iyer, LE',
+      assigned_dermatologist: 'Dr. Rajesh Varma, MD',
       active_prescription: 'Topical Adapalene 0.1% (PM 3x/wk) + Azelaic Acid 15% (AM)',
       routine_adherence: '93.5%',
       consistency_streak: '14 Days',
@@ -1663,7 +1663,7 @@ export const MOCK_GENERATED_REPORTS = [
     format: 'pdf',
     created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
     report_data: {
-      patient_name: 'Alex Rivera',
+      patient_name: 'Aarav Sharma',
       patient_id: 'PX-00001',
       skin_type: 'Combination',
       overall_score: 79.4,
@@ -1679,7 +1679,7 @@ export const MOCK_GENERATED_REPORTS = [
     format: 'pdf',
     created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
     report_data: {
-      patient_name: 'Alex Rivera',
+      patient_name: 'Aarav Sharma',
       period: 'Baseline (Day 1) to Current (Day 30)',
       score_delta: '+10.9 pts (+15.9%)',
       adherence_rate: '93.5%'
@@ -1697,7 +1697,7 @@ export function compileClinicalReportHTML(reportType = 'skin_health', userProfil
   };
 
   const title = (reportObj && reportObj.title) || titles[reportType] || 'Clinical Skin Health Dossier';
-  const name = (userProfile && (userProfile.full_name || userProfile.name)) || (reportObj && reportObj.report_data && reportObj.report_data.patient_name) || 'Alex Rivera';
+  const name = (userProfile && (userProfile.full_name || userProfile.name)) || (reportObj && reportObj.report_data && reportObj.report_data.patient_name) || 'Aarav Sharma';
   const patientId = (reportObj && reportObj.report_data && reportObj.report_data.patient_id) || 'PX-00001';
   const score = (reportObj && reportObj.report_data && (reportObj.report_data.overall_health_score || reportObj.report_data.overall_score)) || 79.4;
   const dateStr = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -1727,7 +1727,7 @@ export function compileClinicalReportHTML(reportType = 'skin_health', userProfil
       </div>
       <div>
         <span style="display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #94A3B8; font-weight: 700; margin-bottom: 3px;">Assigned Clinician</span>
-        <strong style="font-size: 13px; color: #0F172A;">Dr. Julian Rostova, MD</strong>
+        <strong style="font-size: 13px; color: #0F172A;">Dr. Rajesh Varma, MD</strong>
       </div>
       <div>
         <span style="display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #94A3B8; font-weight: 700; margin-bottom: 3px;">Clinical Status</span>
@@ -1813,11 +1813,11 @@ export function compileClinicalReportHTML(reportType = 'skin_health', userProfil
     <div style="display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid #E2E8F0;">
       <div style="text-align: center; width: 200px;">
         <div style="border-bottom: 1px solid #94A3B8; margin-bottom: 6px; height: 28px;"></div>
-        <small style="color: #475569;"><strong>Elena Vance, LE</strong><br>Lead Clinical Esthetician</small>
+        <small style="color: #475569;"><strong>Ananya Iyer, LE</strong><br>Lead Clinical Esthetician</small>
       </div>
       <div style="text-align: center; width: 200px;">
         <div style="border-bottom: 1px solid #94A3B8; margin-bottom: 6px; height: 28px;"></div>
-        <small style="color: #475569;"><strong>Dr. Julian Rostova, MD</strong><br>Board-Certified Dermatologist (Lic #MED-84920)</small>
+        <small style="color: #475569;"><strong>Dr. Rajesh Varma, MD</strong><br>Board-Certified Dermatologist (Lic #MED-84920)</small>
       </div>
     </div>
   `;
@@ -1849,14 +1849,14 @@ export function compileClinicalReport(reportType = 'skin_health', userId = 1) {
     format: 'pdf',
     created_at: new Date().toISOString(),
     report_data: {
-      patient_name: 'Alex Rivera',
+      patient_name: 'Aarav Sharma',
       patient_id: `PX-${String(userId).padStart(5, '0')}`,
       evaluation_date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
       overall_health_score: 79.4,
       skin_type: 'Combination',
       clinical_status: 'Optimal Progress / Regimen Maintained',
-      assigned_consultant: 'Elena Vance, LE',
-      assigned_dermatologist: 'Dr. Julian Rostova, MD',
+      assigned_consultant: 'Ananya Iyer, LE',
+      assigned_dermatologist: 'Dr. Rajesh Varma, MD',
       active_prescription: 'Topical Adapalene 0.1% (PM 3x/wk) + Azelaic Acid 15% (AM)',
       routine_adherence: '93.5%',
       consistency_streak: '14 Days',
@@ -1869,6 +1869,317 @@ export function compileClinicalReport(reportType = 'skin_health', userId = 1) {
   return reportObj;
 }
 
+/**
+ * Generates valid multi-sheet Microsoft Excel XML (SpreadsheetML) for client-side or fallback download
+ */
+export function generateExcelSpreadsheetML(exportType = 'skin_health', userProfile = null, reportObj = null) {
+  const patientName = (userProfile && (userProfile.full_name || userProfile.name)) || (reportObj && reportObj.report_data && reportObj.report_data.patient_name) || 'Alex Rivera';
+  const patientId = (reportObj && reportObj.report_data && reportObj.report_data.patient_id) || 'PX-00001';
+  const score = (reportObj && reportObj.report_data && (reportObj.report_data.overall_health_score || reportObj.report_data.overall_score)) || 79.4;
+  const dateStr = new Date().toISOString().split('T')[0];
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <DocumentProperties xmlns="urn:schemas-microsoft-com:office:office">
+  <Author>PanaceaAI Clinical Intelligence</Author>
+  <Company>PanaceaAI Health Platform</Company>
+  <Created>${new Date().toISOString()}</Created>
+ </DocumentProperties>
+ <Styles>
+  <Style ss:ID="Default" ss:Name="Normal">
+   <Alignment ss:Vertical="Center"/>
+   <Font ss:FontName="Segoe UI" ss:Size="10" ss:Color="#1E293B"/>
+  </Style>
+  <Style ss:ID="TitleStyle">
+   <Alignment ss:Horizontal="Left" ss:Vertical="Center"/>
+   <Font ss:FontName="Segoe UI" ss:Size="15" ss:Bold="1" ss:Color="#0F172A"/>
+  </Style>
+  <Style ss:ID="HeaderStyle">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="#C59B27"/>
+   </Borders>
+   <Font ss:FontName="Segoe UI" ss:Size="10" ss:Bold="1" ss:Color="#FFFFFF"/>
+   <Interior ss:Color="#0F172A" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="GoldBadge">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+   <Font ss:FontName="Segoe UI" ss:Size="10" ss:Bold="1" ss:Color="#0F172A"/>
+   <Interior ss:Color="#F7D070" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="LabelStyle">
+   <Alignment ss:Horizontal="Left" ss:Vertical="Center"/>
+   <Font ss:FontName="Segoe UI" ss:Size="10" ss:Bold="1" ss:Color="#64748B"/>
+   <Interior ss:Color="#F8FAFC" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="NumberCell">
+   <Alignment ss:Horizontal="Right" ss:Vertical="Center"/>
+   <NumberFormat ss:Format="#,##0.0"/>
+  </Style>
+  <Style ss:ID="DateCell">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+  </Style>
+  <Style ss:ID="SuccessCell">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+   <Font ss:FontName="Segoe UI" ss:Size="10" ss:Bold="1" ss:Color="#15803D"/>
+   <Interior ss:Color="#DCFCE7" ss:Pattern="Solid"/>
+  </Style>
+ </Styles>
+
+ <Worksheet ss:Name="Patient Summary">
+  <Table ss:DefaultColumnWidth="140">
+   <Column ss:Width="170"/>
+   <Column ss:Width="230"/>
+   <Column ss:Width="160"/>
+   <Column ss:Width="210"/>
+   <Row ss:Height="28">
+    <Cell ss:MergeAcross="3" ss:StyleID="TitleStyle"><Data ss:Type="String">PanaceaAI Clinical Health &amp; Longitudinal Dossier</Data></Cell>
+   </Row>
+   <Row ss:Height="18">
+    <Cell ss:StyleID="LabelStyle"><Data ss:Type="String">Patient Name</Data></Cell>
+    <Cell><Data ss:Type="String">${patientName}</Data></Cell>
+    <Cell ss:StyleID="LabelStyle"><Data ss:Type="String">Patient ID</Data></Cell>
+    <Cell><Data ss:Type="String">${patientId}</Data></Cell>
+   </Row>
+   <Row ss:Height="18">
+    <Cell ss:StyleID="LabelStyle"><Data ss:Type="String">Evaluation Date</Data></Cell>
+    <Cell ss:StyleID="DateCell"><Data ss:Type="String">${dateStr}</Data></Cell>
+    <Cell ss:StyleID="LabelStyle"><Data ss:Type="String">Fitzpatrick Scale</Data></Cell>
+    <Cell><Data ss:Type="String">Type III (Medium / Olive)</Data></Cell>
+   </Row>
+   <Row ss:Height="18">
+    <Cell ss:StyleID="LabelStyle"><Data ss:Type="String">Assigned Dermatologist</Data></Cell>
+    <Cell><Data ss:Type="String">Dr. Rajesh Varma, MD (NPI #984321045)</Data></Cell>
+    <Cell ss:StyleID="LabelStyle"><Data ss:Type="String">Assigned Esthetician</Data></Cell>
+    <Cell><Data ss:Type="String">Elena Vance, LE (Clinical Lead)</Data></Cell>
+   </Row>
+   <Row ss:Height="22">
+    <Cell ss:StyleID="LabelStyle"><Data ss:Type="String">Overall Skin Health Score</Data></Cell>
+    <Cell ss:StyleID="GoldBadge"><Data ss:Type="String">${score} / 100</Data></Cell>
+    <Cell ss:StyleID="LabelStyle"><Data ss:Type="String">Clinical Regimen Status</Data></Cell>
+    <Cell ss:StyleID="SuccessCell"><Data ss:Type="String">Active / Regimen Maintained</Data></Cell>
+   </Row>
+   <Row ss:Height="18">
+    <Cell ss:StyleID="LabelStyle"><Data ss:Type="String">Active Medical Prescription (Rx)</Data></Cell>
+    <Cell ss:MergeAcross="2"><Data ss:Type="String">Topical Adapalene 0.1% (PM 3x/wk) + Azelaic Acid 15% (AM)</Data></Cell>
+   </Row>
+  </Table>
+ </Worksheet>
+
+ <Worksheet ss:Name="Biomarker Telemetry">
+  <Table ss:DefaultColumnWidth="120">
+   <Column ss:Width="100"/>
+   <Column ss:Width="100"/>
+   <Column ss:Width="100"/>
+   <Column ss:Width="100"/>
+   <Column ss:Width="120"/>
+   <Column ss:Width="110"/>
+   <Column ss:Width="110"/>
+   <Column ss:Width="110"/>
+   <Column ss:Width="100"/>
+   <Column ss:Width="180"/>
+   <Row ss:Height="24">
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Date</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Health Score</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Hydration (%)</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Sebum (%)</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Barrier Strength (%)</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Acne Severity (%)</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Redness (%)</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Adherence (%)</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Streak (Days)</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Clinical Milestone</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="DateCell"><Data ss:Type="String">2025-10-25</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">68.5</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">48.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">64.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">54.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">42.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">38.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">80.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">1</Data></Cell>
+    <Cell><Data ss:Type="String">Baseline Initial Intake Checkpoint</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="DateCell"><Data ss:Type="String">2025-11-01</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">71.2</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">56.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">58.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">62.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">34.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">30.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">85.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">7</Data></Cell>
+    <Cell><Data ss:Type="String">Week 1 Barrier Recovery Checkpoint</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="DateCell"><Data ss:Type="String">2025-11-08</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">74.8</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">64.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">55.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">72.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">26.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">24.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">90.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">14</Data></Cell>
+    <Cell><Data ss:Type="String">Week 2 Midpoint Review Checkpoint</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="DateCell"><Data ss:Type="String">2025-11-15</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">77.5</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">70.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">53.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">80.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">18.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">18.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">92.5</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">21</Data></Cell>
+    <Cell><Data ss:Type="String">Week 3 Cellular Turnover Checkpoint</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="DateCell"><Data ss:Type="String">2025-11-24</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">79.4</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">74.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">52.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">86.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">12.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">15.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">94.2</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">30</Data></Cell>
+    <Cell ss:StyleID="SuccessCell"><Data ss:Type="String">Month 1 Transformation Milestone</Data></Cell>
+   </Row>
+  </Table>
+ </Worksheet>
+
+ <Worksheet ss:Name="Routine Adherence Logs">
+  <Table ss:DefaultColumnWidth="120">
+   <Column ss:Width="100"/>
+   <Column ss:Width="100"/>
+   <Column ss:Width="140"/>
+   <Column ss:Width="100"/>
+   <Column ss:Width="100"/>
+   <Column ss:Width="110"/>
+   <Column ss:Width="120"/>
+   <Column ss:Width="100"/>
+   <Row ss:Height="24">
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Date</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Time of Day</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Regimen Phase</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Completed Steps</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Total Steps</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Adherence (%)</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Hydration (ml)</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Sleep (hrs)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="DateCell"><Data ss:Type="String">2025-11-20</Data></Cell>
+    <Cell><Data ss:Type="String">AM</Data></Cell>
+    <Cell><Data ss:Type="String">Morning Cleanse + Protection</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">4</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">4</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">100.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">2500</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">7.5</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="DateCell"><Data ss:Type="String">2025-11-20</Data></Cell>
+    <Cell><Data ss:Type="String">PM</Data></Cell>
+    <Cell><Data ss:Type="String">Evening Active Repair + Seal</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">4</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">4</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">100.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">2500</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">7.5</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="DateCell"><Data ss:Type="String">2025-11-21</Data></Cell>
+    <Cell><Data ss:Type="String">AM</Data></Cell>
+    <Cell><Data ss:Type="String">Morning Cleanse + Protection</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">4</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">4</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">100.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">2250</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">8.0</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="DateCell"><Data ss:Type="String">2025-11-21</Data></Cell>
+    <Cell><Data ss:Type="String">PM</Data></Cell>
+    <Cell><Data ss:Type="String">Evening Active Repair + Seal</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">4</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">4</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">100.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">2250</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">8.0</Data></Cell>
+   </Row>
+  </Table>
+ </Worksheet>
+
+ <Worksheet ss:Name="Product Prescriptions">
+  <Table ss:DefaultColumnWidth="140">
+   <Column ss:Width="200"/>
+   <Column ss:Width="130"/>
+   <Column ss:Width="100"/>
+   <Column ss:Width="90"/>
+   <Column ss:Width="220"/>
+   <Column ss:Width="90"/>
+   <Column ss:Width="120"/>
+   <Row ss:Height="24">
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Product Name</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Brand</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Category</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Match (%)</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Key Active Ingredients</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Price (USD)</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Clinical Status</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Hydrating Facial Cleanser</Data></Cell>
+    <Cell><Data ss:Type="String">CeraVe</Data></Cell>
+    <Cell><Data ss:Type="String">Cleanser</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">96.0</Data></Cell>
+    <Cell><Data ss:Type="String">Ceramides 1, 3, 6-II, Hyaluronic Acid</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">16.99</Data></Cell>
+    <Cell ss:StyleID="SuccessCell"><Data ss:Type="String">Prescribed (AM/PM)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Niacinamide 10% + Zinc 1%</Data></Cell>
+    <Cell><Data ss:Type="String">Minimalist</Data></Cell>
+    <Cell><Data ss:Type="String">Serum</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">94.0</Data></Cell>
+    <Cell><Data ss:Type="String">Niacinamide, Zinc PCA, Centella</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">9.99</Data></Cell>
+    <Cell ss:StyleID="SuccessCell"><Data ss:Type="String">Prescribed (AM)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Ceramide ATO Concentrate Cream</Data></Cell>
+    <Cell><Data ss:Type="String">Illiyoon</Data></Cell>
+    <Cell><Data ss:Type="String">Moisturizer</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">93.0</Data></Cell>
+    <Cell><Data ss:Type="String">Ceramide Skin Complex, Fatty Acids</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">22.00</Data></Cell>
+    <Cell ss:StyleID="SuccessCell"><Data ss:Type="String">Prescribed (PM Seal)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Anthelios UVMune 400 Fluid SPF50+</Data></Cell>
+    <Cell><Data ss:Type="String">La Roche-Posay</Data></Cell>
+    <Cell><Data ss:Type="String">Sunscreen</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">97.0</Data></Cell>
+    <Cell><Data ss:Type="String">Mexoryl 400, Netlock Technology</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">24.50</Data></Cell>
+    <Cell ss:StyleID="SuccessCell"><Data ss:Type="String">Prescribed (Daily AM)</Data></Cell>
+   </Row>
+  </Table>
+ </Worksheet>
+</Workbook>`;
+}
+
 // ════════════════════════════════════════════════════════════════
 // ROLE-SPECIFIC APPOINTMENTS & CLINICAL TELEHEALTH DATASETS
 // ════════════════════════════════════════════════════════════════
@@ -1879,13 +2190,13 @@ export const MOCK_USER_APPOINTMENTS = {
     last_visit: '24 Nov 2025',
     next_review: '24 Dec 2025',
     assigned_consultant: {
-      name: 'Elena Vance, LE',
+      name: 'Ananya Iyer, LE',
       role: 'Lead Clinical Esthetician',
       avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
       notes: 'Patient showed +54.2% hydration boost. Barrier restored after introducing ceramide night barrier seal.'
     },
     assigned_doctor: {
-      name: 'Dr. Julian Rostova, MD',
+      name: 'Dr. Rajesh Varma, MD',
       role: 'Board-Certified Dermatologist',
       avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150',
       prescription: 'Topical Adapalene 0.1% (PM 3x/wk) + Azelaic Acid 15% (AM)',
@@ -1898,12 +2209,12 @@ export const MOCK_USER_APPOINTMENTS = {
     {
       id: 101,
       specialist_id: 2,
-      specialist_name: 'Elena Vance, LE',
+      specialist_name: 'Ananya Iyer, LE',
       specialist_role: 'consultant',
       specialist_title: 'Lead Clinical Esthetician',
       avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
       type: 'Virtual Regimen Review & Barrier Check',
-      scheduled_date: 'Today • 2:30 PM EST',
+      scheduled_date: 'Today • 2:30 PM IST',
       time_countdown: 'In 3 hours',
       status: 'confirmed',
       video_ready: true,
@@ -1914,12 +2225,12 @@ export const MOCK_USER_APPOINTMENTS = {
     {
       id: 102,
       specialist_id: 3,
-      specialist_name: 'Dr. Julian Rostova, MD',
+      specialist_name: 'Dr. Rajesh Varma, MD',
       specialist_role: 'dermatologist',
       specialist_title: 'Board-Certified Dermatologist',
       avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150',
       type: 'Clinical Prescription & Lesion Follow-up',
-      scheduled_date: '24 Dec 2025 • 10:00 AM EST',
+      scheduled_date: '24 Dec 2025 • 10:00 AM IST',
       time_countdown: 'In 12 days',
       status: 'confirmed',
       video_ready: false,
@@ -1931,7 +2242,7 @@ export const MOCK_USER_APPOINTMENTS = {
   past_history: [
     {
       id: 90,
-      specialist_name: 'Dr. Julian Rostova, MD',
+      specialist_name: 'Dr. Rajesh Varma, MD',
       specialist_role: 'dermatologist',
       date: '24 Nov 2025',
       type: 'Initial Telehealth Diagnostic & Prescription',
@@ -1941,7 +2252,7 @@ export const MOCK_USER_APPOINTMENTS = {
     },
     {
       id: 88,
-      specialist_name: 'Elena Vance, LE',
+      specialist_name: 'Ananya Iyer, LE',
       specialist_role: 'consultant',
       date: '10 Nov 2025',
       type: 'Comprehensive Regimen Synthesis',
@@ -1971,44 +2282,44 @@ export const MOCK_USER_APPOINTMENTS = {
   specialists_directory: [
     {
       id: 2,
-      name: 'Elena Vance, LE',
+      name: 'Ananya Iyer, LE',
       role: 'consultant',
       title: 'Lead Clinical Esthetician',
       credentials: 'Licensed Esthetician • 9+ Yrs Clinical Experience',
       avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
       badge_color: 'var(--gold-primary)',
       focus_areas: ['Active Ingredient Synergy', 'Barrier Consolidation', 'Acne Non-Comedogenic Routines'],
-      rate: '$45 / 30 min',
+      rate: '₹1,200 / 30 min',
       rating: 4.96,
-      next_slot: 'Today at 4:30 PM EST',
+      next_slot: 'Today at 4:30 PM IST',
       available: true
     },
     {
       id: 3,
-      name: 'Dr. Julian Rostova, MD',
+      name: 'Dr. Rajesh Varma, MD',
       role: 'dermatologist',
       title: 'Board-Certified Dermatologist',
-      credentials: 'MD • Harvard Medical School • Clinical Dermatology Director',
+      credentials: 'MD • AIIMS New Delhi • Clinical Dermatology Director',
       avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150',
       badge_color: '#2E7D32',
       focus_areas: ['Acne Vulgaris', 'Digital Rx Management', 'Optical Lesion Screening', 'Rosacea'],
-      rate: '$85 / 30 min',
+      rate: '₹2,200 / 30 min',
       rating: 4.99,
-      next_slot: 'Tomorrow at 10:00 AM EST',
+      next_slot: 'Tomorrow at 10:00 AM IST',
       available: true
     },
     {
       id: 7,
-      name: 'Dr. Emily Roberts, MD',
+      name: 'Dr. Priya Nair, MD',
       role: 'dermatologist',
       title: 'Cosmetic Dermatologist',
-      credentials: 'MD • Laser & Aesthetic Specialist • Stanford Dermatology',
+      credentials: 'MD • Laser & Aesthetic Specialist • Bangalore Medical College',
       avatar: 'assets/doctor_emily.png',
       badge_color: '#8E24AA',
       focus_areas: ['Photodamage Reversal', 'Collagen Stimulation', 'Hyperpigmentation Treatments'],
-      rate: '$75 / 30 min',
+      rate: '₹1,800 / 30 min',
       rating: 4.92,
-      next_slot: 'Dec 18 at 2:00 PM EST',
+      next_slot: 'Dec 18 at 2:00 PM IST',
       available: true
     }
   ]
@@ -2017,7 +2328,7 @@ export const MOCK_USER_APPOINTMENTS = {
 export const MOCK_CONSULTANT_APPOINTMENTS = {
   consultant_info: {
     id: 2,
-    name: 'Elena Vance, LE',
+    name: 'Ananya Iyer, LE',
     role: 'consultant',
     title: 'Lead Clinical Esthetician & Regimen Specialist',
     avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
@@ -2031,14 +2342,14 @@ export const MOCK_CONSULTANT_APPOINTMENTS = {
     {
       id: 201,
       patient_id: 1,
-      patient_name: 'Alex Rivera',
+      patient_name: 'Aarav Sharma',
       patient_email: 'user@panacea.ai',
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
       skin_type: 'Combination',
       primary_concerns: ['Acne & Breakouts', 'Compromised Barrier', 'Post-Acne Melanin'],
       overall_score: 79.4,
       score_delta: '+10.9 pts',
-      scheduled_time: '2:30 PM EST (In 3 hours)',
+      scheduled_time: '2:30 PM IST (In 3 hours)',
       session_type: 'Virtual Regimen Review & Barrier Check',
       duration: '30 min',
       status: 'confirmed',
@@ -2051,14 +2362,14 @@ export const MOCK_CONSULTANT_APPOINTMENTS = {
     {
       id: 202,
       patient_id: 5,
-      patient_name: 'Sarah Jenkins',
-      patient_email: 'sarah.jenkins@panacea.ai',
+      patient_name: 'Pooja Deshmukh',
+      patient_email: 'pooja.deshmukh@panacea.ai',
       avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150',
       skin_type: 'Sensitive / Dry',
       primary_concerns: ['Erythema & Rosacea', 'Compromised Barrier', 'Flaking'],
       overall_score: 71.2,
       score_delta: '+13.2 pts',
-      scheduled_time: '4:00 PM EST (Today)',
+      scheduled_time: '4:00 PM IST (Today)',
       session_type: 'Soothing Barrier Protocol & Calming Actives',
       duration: '30 min',
       status: 'confirmed',
@@ -2071,14 +2382,14 @@ export const MOCK_CONSULTANT_APPOINTMENTS = {
     {
       id: 203,
       patient_id: 6,
-      patient_name: 'Marcus Vance',
-      patient_email: 'marcus.v@panacea.ai',
+      patient_name: 'Rohan Verma',
+      patient_email: 'rohan.v@panacea.ai',
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
       skin_type: 'Oily / Congested',
       primary_concerns: ['Severe Cystic Acne', 'High Sebum Excretion', 'Textural Scarring'],
       overall_score: 65.5,
       score_delta: '+15.5 pts',
-      scheduled_time: 'Tomorrow • 11:00 AM EST',
+      scheduled_time: 'Tomorrow • 11:00 AM IST',
       session_type: 'Sebum Balancing & Cleanser Tolerance Check',
       duration: '30 min',
       status: 'scheduled',
@@ -2093,10 +2404,10 @@ export const MOCK_CONSULTANT_APPOINTMENTS = {
     {
       id: 301,
       patient_id: 8,
-      patient_name: 'Liam Parker',
+      patient_name: 'Lakshya Gupta',
       avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150',
       skin_type: 'Dry / Flaking',
-      requested_time: '16 Dec 2025 • 3:00 PM EST',
+      requested_time: '16 Dec 2025 • 3:00 PM IST',
       session_type: 'Winter Barrier Support & Lipid Replenishment',
       reason: 'Experiencing dry patches around mouth and cheeks with sudden temperature drop. Wants moisturizer upgrade.',
       created_at: '2 hours ago',
@@ -2105,10 +2416,10 @@ export const MOCK_CONSULTANT_APPOINTMENTS = {
     {
       id: 302,
       patient_id: 9,
-      patient_name: 'Maya Lin',
+      patient_name: 'Meera Patel',
       avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150',
       skin_type: 'Combination',
-      requested_time: '17 Dec 2025 • 1:30 PM EST',
+      requested_time: '17 Dec 2025 • 1:30 PM IST',
       session_type: 'Active Layering: Retinol vs Glycolic Acid',
       reason: 'Wants to introduce retinol alongside AHA without purging or damaging moisture barrier.',
       created_at: '5 hours ago',
@@ -2117,7 +2428,7 @@ export const MOCK_CONSULTANT_APPOINTMENTS = {
   ],
   availability_schedule: {
     is_active: true,
-    weekly_hours: 'Mon - Fri • 9:00 AM - 5:00 PM EST',
+    weekly_hours: 'Mon - Fri • 9:00 AM - 5:00 PM IST',
     slot_duration_min: 30,
     buffer_min: 10,
     max_daily_sessions: 8,
@@ -2132,7 +2443,7 @@ export const MOCK_CONSULTANT_APPOINTMENTS = {
   completed_history: [
     {
       id: 195,
-      patient_name: 'Alex Rivera',
+      patient_name: 'Aarav Sharma',
       date: '24 Nov 2025',
       session_type: 'Barrier Intake & Product Review',
       routine_adjustment: 'Introduced Ceramide NP Cream & low-pH gentle cleanser.',
@@ -2141,7 +2452,7 @@ export const MOCK_CONSULTANT_APPOINTMENTS = {
     },
     {
       id: 194,
-      patient_name: 'Sarah Jenkins',
+      patient_name: 'Pooja Deshmukh',
       date: '22 Nov 2025',
       session_type: 'Anti-Flushing Regimen Setup',
       routine_adjustment: 'Removed physical scrubs. Prescribed Madecassoside Centella soothing ampoule.',
@@ -2154,7 +2465,7 @@ export const MOCK_CONSULTANT_APPOINTMENTS = {
 export const MOCK_DERMATOLOGIST_APPOINTMENTS = {
   doctor_info: {
     id: 3,
-    name: 'Dr. Julian Rostova, MD',
+    name: 'Dr. Rajesh Varma, MD',
     role: 'dermatologist',
     title: 'Board-Certified Dermatologist & Clinical Director',
     license: 'MED-84920 (Clinical Licensure Active)',
@@ -2168,14 +2479,14 @@ export const MOCK_DERMATOLOGIST_APPOINTMENTS = {
     {
       id: 401,
       patient_id: 6,
-      patient_name: 'Marcus Vance',
+      patient_name: 'Rohan Verma',
       patient_age: '27 Y / Male',
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
       skin_type: 'Oily / Congested',
       triage_level: 'High Priority (Urgent)',
       triage_badge: '🚨 URGENT CLINICAL REVIEW',
       condition: 'Moderate-to-Severe Papulopustular Acne & Inflammatory Lesions',
-      scheduled_time: '10:30 AM EST (In 45 min)',
+      scheduled_time: '10:30 AM IST (In 45 min)',
       session_type: 'Clinical Prescription & Optical Lesion Rule-out',
       optical_scan_summary: 'CNN Lesion Score: 11.0 • High Sebum (78%) • Atypical Inflammatory Pattern',
       active_rx: 'Benzoyl Peroxide 2.5% Wash + Tretinoin 0.025% (PM)',
@@ -2187,14 +2498,14 @@ export const MOCK_DERMATOLOGIST_APPOINTMENTS = {
     {
       id: 402,
       patient_id: 1,
-      patient_name: 'Alex Rivera',
+      patient_name: 'Aarav Sharma',
       patient_age: '29 Y / Non-Binary',
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
       skin_type: 'Combination',
       triage_level: 'Standard Follow-up',
       triage_badge: '🟢 ROUTINE CLINICAL CHECK',
       condition: 'Mild Comedonal Acne & Post-Acne PIH',
-      scheduled_time: '11:30 AM EST (Today)',
+      scheduled_time: '11:30 AM IST (Today)',
       session_type: 'Topical Adapalene 0.1% 30-Day Evaluation',
       optical_scan_summary: 'Overall Health: 79.4 (+10.9) • Comedone Reduction: -71.4% • Benign Lesion Score: 8.2',
       active_rx: 'Topical Adapalene 0.1% + Azelaic Acid 15%',
@@ -2206,14 +2517,14 @@ export const MOCK_DERMATOLOGIST_APPOINTMENTS = {
     {
       id: 403,
       patient_id: 5,
-      patient_name: 'Sarah Jenkins',
+      patient_name: 'Pooja Deshmukh',
       patient_age: '34 Y / Female',
       avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150',
       skin_type: 'Sensitive / Dry',
       triage_level: 'Medium Priority',
       triage_badge: '🟡 VASCULAR ROSACEA TRIAGE',
       condition: 'Subacute Erythematotelangiectatic Rosacea',
-      scheduled_time: '2:00 PM EST (Today)',
+      scheduled_time: '2:00 PM IST (Today)',
       session_type: 'Topical Ivermectin 1% & Erythema Review',
       optical_scan_summary: 'Erythema Index: 68% (Reduced from 82%) • Vascular Flushing Detected',
       active_rx: 'Ivermectin 1% Cream (PM) + Ceramide Barrier Balm',
@@ -2225,14 +2536,14 @@ export const MOCK_DERMATOLOGIST_APPOINTMENTS = {
     {
       id: 404,
       patient_id: 10,
-      patient_name: 'David Chen',
+      patient_name: 'Divyansh Rao',
       patient_age: '42 Y / Male',
       avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150',
       skin_type: 'Normal / Photodamaged',
       triage_level: 'Standard Follow-up',
       triage_badge: '🟢 RETIN-A REFILL SESSION',
       condition: 'Mild Photoaging & Actinic Keratosis Surveillance',
-      scheduled_time: '3:30 PM EST (Today)',
+      scheduled_time: '3:30 PM IST (Today)',
       session_type: 'Tretinoin 0.05% Prescription Renewal',
       optical_scan_summary: 'Wrinkle Index: 28 • Photodamage Score: Low • ISIC Lesion Classification: Benign Solar Lentigo',
       active_rx: 'Tretinoin 0.05% Cream',
@@ -2246,7 +2557,7 @@ export const MOCK_DERMATOLOGIST_APPOINTMENTS = {
     {
       id: 501,
       patient_id: 6,
-      patient_name: 'Marcus Vance',
+      patient_name: 'Rohan Verma',
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
       flagged_reason: 'Severe cystic flare with high inflammatory erythema and sudden pustular breakout.',
       ai_risk_score: 'Risk: Elevated (11.0 / 100)',
@@ -2256,7 +2567,7 @@ export const MOCK_DERMATOLOGIST_APPOINTMENTS = {
     {
       id: 502,
       patient_id: 11,
-      patient_name: 'Emma Watson',
+      patient_name: 'Ananya Deshmukh',
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
       flagged_reason: 'Optical scan detected asymmetric pigmented macule on left malar cheek. Awaiting physician confirmation.',
       ai_risk_score: 'Risk: Moderate (14.8 / 100)',
@@ -2268,7 +2579,7 @@ export const MOCK_DERMATOLOGIST_APPOINTMENTS = {
     {
       id: 'RX-901',
       patient_id: 1,
-      patient_name: 'Alex Rivera',
+      patient_name: 'Aarav Sharma',
       medication: 'Topical Adapalene 0.1% Gel + Azelaic Acid 15% Gel',
       dosage: 'Pea-sized amount to full face PM 3x/wk; Azelaic Acid thin layer AM daily',
       refills: 2,
@@ -2278,7 +2589,7 @@ export const MOCK_DERMATOLOGIST_APPOINTMENTS = {
     {
       id: 'RX-902',
       patient_id: 6,
-      patient_name: 'Marcus Vance',
+      patient_name: 'Rohan Verma',
       medication: 'Tretinoin 0.025% Cream + Clindamycin 1% Topical Solution',
       dosage: 'Apply Clindamycin solution AM; Tretinoin cream PM after gentle wash',
       refills: 3,
@@ -2288,7 +2599,7 @@ export const MOCK_DERMATOLOGIST_APPOINTMENTS = {
     {
       id: 'RX-903',
       patient_id: 5,
-      patient_name: 'Sarah Jenkins',
+      patient_name: 'Pooja Deshmukh',
       medication: 'Ivermectin 1% Cream (Soolantra equivalent)',
       dosage: 'Apply once daily at bedtime to affected facial areas',
       refills: 1,
@@ -2315,9 +2626,9 @@ export const MOCK_ADMIN_APPOINTMENTS = {
     patient_satisfaction_score: 4.95
   },
   specialist_roster: [
-    { name: 'Dr. Julian Rostova, MD', role: 'Dermatologist', today_slots: 6, booked: 5, status: 'Active (In Telehealth Clinic)' },
-    { name: 'Elena Vance, LE', role: 'Clinical Esthetician', today_slots: 8, booked: 6, status: 'Active (Consulting)' },
-    { name: 'Dr. Emily Roberts, MD', role: 'Cosmetic Dermatologist', today_slots: 4, booked: 3, status: 'Active (Procedure Review)' }
+    { name: 'Dr. Rajesh Varma, MD', role: 'Dermatologist', today_slots: 6, booked: 5, status: 'Active (In Telehealth Clinic)' },
+    { name: 'Ananya Iyer, LE', role: 'Clinical Esthetician', today_slots: 8, booked: 6, status: 'Active (Consulting)' },
+    { name: 'Dr. Priya Nair, MD', role: 'Cosmetic Dermatologist', today_slots: 4, booked: 3, status: 'Active (Procedure Review)' }
   ]
 };
 

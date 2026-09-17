@@ -129,3 +129,29 @@ test('6. Module 11: CSV / Excel Multi-Sheet Export Formulation', async () => {
   assert.ok(csvLine.includes('79.4/100'), 'CSV row must contain accurate numeric metrics');
   assert.ok(csvLine.includes('Improving'), 'CSV row must contain clinical status');
 });
+
+test('7. Module 11: Native Excel SpreadsheetML Multi-Sheet Structure Verification', async () => {
+  const { generateExcelSpreadsheetML } = await import('../js/mockData.js');
+  const xml = generateExcelSpreadsheetML('skin_health', { full_name: 'Alex Rivera', id: 1 });
+
+  assert.ok(xml.includes('<?xml version="1.0" encoding="UTF-8"?>'), 'Must include valid XML declaration');
+  assert.ok(xml.includes('progid="Excel.Sheet"'), 'Must include Excel Application progid');
+  assert.ok(xml.includes('<Worksheet ss:Name="Patient Summary">'), 'Must contain Patient Summary Worksheet');
+  assert.ok(xml.includes('<Worksheet ss:Name="Biomarker Telemetry">'), 'Must contain Biomarker Telemetry Worksheet');
+  assert.ok(xml.includes('<Worksheet ss:Name="Routine Adherence Logs">'), 'Must contain Routine Adherence Logs Worksheet');
+  assert.ok(xml.includes('<Worksheet ss:Name="Product Prescriptions">'), 'Must contain Product Prescriptions Worksheet');
+  assert.ok(xml.includes('79.4 / 100'), 'Must contain calculated clinical score');
+  assert.ok(xml.includes('Alex Rivera'), 'Must include user name');
+});
+
+test('8. Module 11: Excel Workbook Header and Styles Compliance', async () => {
+  const { generateExcelSpreadsheetML } = await import('../js/mockData.js');
+  const xml = generateExcelSpreadsheetML('progress');
+
+  assert.ok(xml.includes('<Style ss:ID="HeaderStyle">'), 'Must define HeaderStyle');
+  assert.ok(xml.includes('<Style ss:ID="GoldBadge">'), 'Must define GoldBadge accent');
+  assert.ok(xml.includes('<Style ss:ID="SuccessCell">'), 'Must define SuccessCell');
+  assert.ok(xml.includes('ss:Type="Number"'), 'Must format numbers as numeric Excel types');
+  assert.ok(xml.includes('ss:Type="String"'), 'Must format text as string Excel types');
+});
+

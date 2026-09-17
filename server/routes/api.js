@@ -4353,6 +4353,343 @@ router.get('/reports/:id/pdf', async (req, res) => {
 });
 
 /**
+ * Helper to generate a multi-sheet Microsoft Excel Workbook (SpreadsheetML XML format)
+ */
+function generateServerExcelXML(exportType = 'skin_health', profile = {}) {
+  const patientName = profile.full_name || profile.name || 'Alex Rivera';
+  const patientId = profile.id ? `PX-0000${profile.id}` : 'PX-00001';
+  const dateStr = new Date().toISOString().split('T')[0];
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <DocumentProperties xmlns="urn:schemas-microsoft-com:office:office">
+  <Author>PanaceaAI Clinical Intelligence</Author>
+  <Company>PanaceaAI Health</Company>
+  <Created>${new Date().toISOString()}</Created>
+ </DocumentProperties>
+ <Styles>
+  <Style ss:ID="Default" ss:Name="Normal">
+   <Alignment ss:Vertical="Center"/>
+   <Font ss:FontName="Segoe UI" ss:Size="10" ss:Color="#1E293B"/>
+  </Style>
+  <Style ss:ID="TitleStyle">
+   <Alignment ss:Horizontal="Left" ss:Vertical="Center"/>
+   <Font ss:FontName="Segoe UI" ss:Size="15" ss:Bold="1" ss:Color="#0F172A"/>
+  </Style>
+  <Style ss:ID="HeaderStyle">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="#C59B27"/>
+   </Borders>
+   <Font ss:FontName="Segoe UI" ss:Size="10" ss:Bold="1" ss:Color="#FFFFFF"/>
+   <Interior ss:Color="#0F172A" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="GoldBadge">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+   <Font ss:FontName="Segoe UI" ss:Size="10" ss:Bold="1" ss:Color="#0F172A"/>
+   <Interior ss:Color="#F7D070" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="LabelStyle">
+   <Alignment ss:Horizontal="Left" ss:Vertical="Center"/>
+   <Font ss:FontName="Segoe UI" ss:Size="10" ss:Bold="1" ss:Color="#64748B"/>
+   <Interior ss:Color="#F8FAFC" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="NumberCell">
+   <Alignment ss:Horizontal="Right" ss:Vertical="Center"/>
+   <NumberFormat ss:Format="#,##0.0"/>
+  </Style>
+  <Style ss:ID="PercentCell">
+   <Alignment ss:Horizontal="Right" ss:Vertical="Center"/>
+   <NumberFormat ss:Format="0.0%"/>
+  </Style>
+  <Style ss:ID="DateCell">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+  </Style>
+  <Style ss:ID="SuccessCell">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+   <Font ss:FontName="Segoe UI" ss:Size="10" ss:Bold="1" ss:Color="#15803D"/>
+   <Interior ss:Color="#DCFCE7" ss:Pattern="Solid"/>
+  </Style>
+ </Styles>
+
+ <Worksheet ss:Name="Clinical Summary">
+  <Table ss:DefaultColumnWidth="140">
+   <Column ss:Width="160"/>
+   <Column ss:Width="240"/>
+   <Column ss:Width="150"/>
+   <Column ss:Width="200"/>
+   <Row ss:Height="28">
+    <Cell ss:MergeAcross="3" ss:StyleID="TitleStyle"><Data ss:Type="String">PanaceaAI Clinical Intelligence &amp; Skin Health Dossier</Data></Cell>
+   </Row>
+   <Row ss:Height="18">
+    <Cell ss:StyleID="LabelStyle"><Data ss:Type="String">Patient Name</Data></Cell>
+    <Cell><Data ss:Type="String">${patientName}</Data></Cell>
+    <Cell ss:StyleID="LabelStyle"><Data ss:Type="String">Patient ID</Data></Cell>
+    <Cell><Data ss:Type="String">${patientId}</Data></Cell>
+   </Row>
+   <Row ss:Height="18">
+    <Cell ss:StyleID="LabelStyle"><Data ss:Type="String">Skin Type (Fitzpatrick)</Data></Cell>
+    <Cell><Data ss:Type="String">Combination • Type III (Medium / Olive)</Data></Cell>
+    <Cell ss:StyleID="LabelStyle"><Data ss:Type="String">Evaluation Date</Data></Cell>
+    <Cell ss:StyleID="DateCell"><Data ss:Type="String">${dateStr}</Data></Cell>
+   </Row>
+   <Row ss:Height="18">
+    <Cell ss:StyleID="LabelStyle"><Data ss:Type="String">Assigned Dermatologist</Data></Cell>
+    <Cell><Data ss:Type="String">Dr. Julian Rostova, MD (NPI #984321045)</Data></Cell>
+    <Cell ss:StyleID="LabelStyle"><Data ss:Type="String">Assigned Esthetician</Data></Cell>
+    <Cell><Data ss:Type="String">Elena Vance, LE (Clinical Lead)</Data></Cell>
+   </Row>
+   <Row ss:Height="22">
+    <Cell ss:StyleID="LabelStyle"><Data ss:Type="String">Holistic Skin Health Score</Data></Cell>
+    <Cell ss:StyleID="GoldBadge"><Data ss:Type="String">79.4 / 100 (Optimal Improvement)</Data></Cell>
+    <Cell ss:StyleID="LabelStyle"><Data ss:Type="String">Clinical Regimen Status</Data></Cell>
+    <Cell ss:StyleID="SuccessCell"><Data ss:Type="String">Active / Regimen Maintained</Data></Cell>
+   </Row>
+   <Row ss:Height="18">
+    <Cell ss:StyleID="LabelStyle"><Data ss:Type="String">Active Medical Prescription (Rx)</Data></Cell>
+    <Cell ss:MergeAcross="2"><Data ss:Type="String">Topical Adapalene 0.1% (PM 3x/wk) + Azelaic Acid 15% (AM)</Data></Cell>
+   </Row>
+  </Table>
+ </Worksheet>
+
+ <Worksheet ss:Name="Biomarker Telemetry">
+  <Table ss:DefaultColumnWidth="120">
+   <Column ss:Width="100"/>
+   <Column ss:Width="100"/>
+   <Column ss:Width="100"/>
+   <Column ss:Width="100"/>
+   <Column ss:Width="120"/>
+   <Column ss:Width="110"/>
+   <Column ss:Width="110"/>
+   <Column ss:Width="110"/>
+   <Column ss:Width="100"/>
+   <Column ss:Width="180"/>
+   <Row ss:Height="24">
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Date</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Health Score</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Hydration (%)</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Sebum (%)</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Barrier Strength (%)</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Acne Severity (%)</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Redness (%)</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Adherence (%)</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Streak (Days)</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Clinical Milestone</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="DateCell"><Data ss:Type="String">2025-10-25</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">68.5</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">48.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">64.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">54.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">42.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">38.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">80.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">1</Data></Cell>
+    <Cell><Data ss:Type="String">Baseline Initial Intake Checkpoint</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="DateCell"><Data ss:Type="String">2025-11-01</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">71.2</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">56.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">58.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">62.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">34.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">30.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">85.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">7</Data></Cell>
+    <Cell><Data ss:Type="String">Week 1 Barrier Recovery Checkpoint</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="DateCell"><Data ss:Type="String">2025-11-08</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">74.8</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">64.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">55.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">72.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">26.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">24.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">90.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">14</Data></Cell>
+    <Cell><Data ss:Type="String">Week 2 Midpoint Review Checkpoint</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="DateCell"><Data ss:Type="String">2025-11-15</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">77.5</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">70.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">53.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">80.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">18.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">18.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">92.5</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">21</Data></Cell>
+    <Cell><Data ss:Type="String">Week 3 Cellular Turnover Checkpoint</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="DateCell"><Data ss:Type="String">2025-11-24</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">79.4</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">74.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">52.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">86.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">12.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">15.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">94.2</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">30</Data></Cell>
+    <Cell ss:StyleID="SuccessCell"><Data ss:Type="String">Month 1 Transformation Milestone</Data></Cell>
+   </Row>
+  </Table>
+ </Worksheet>
+
+ <Worksheet ss:Name="Routine Adherence Logs">
+  <Table ss:DefaultColumnWidth="120">
+   <Column ss:Width="100"/>
+   <Column ss:Width="100"/>
+   <Column ss:Width="140"/>
+   <Column ss:Width="100"/>
+   <Column ss:Width="100"/>
+   <Column ss:Width="110"/>
+   <Column ss:Width="120"/>
+   <Column ss:Width="100"/>
+   <Row ss:Height="24">
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Date</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Time of Day</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Regimen Phase</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Completed Steps</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Total Steps</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Adherence (%)</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Hydration (ml)</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Sleep (hrs)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="DateCell"><Data ss:Type="String">2025-11-20</Data></Cell>
+    <Cell><Data ss:Type="String">AM</Data></Cell>
+    <Cell><Data ss:Type="String">Morning Cleanse + Protection</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">4</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">4</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">100.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">2500</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">7.5</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="DateCell"><Data ss:Type="String">2025-11-20</Data></Cell>
+    <Cell><Data ss:Type="String">PM</Data></Cell>
+    <Cell><Data ss:Type="String">Evening Active Repair + Seal</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">4</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">4</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">100.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">2500</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">7.5</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="DateCell"><Data ss:Type="String">2025-11-21</Data></Cell>
+    <Cell><Data ss:Type="String">AM</Data></Cell>
+    <Cell><Data ss:Type="String">Morning Cleanse + Protection</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">4</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">4</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">100.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">2250</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">8.0</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="DateCell"><Data ss:Type="String">2025-11-21</Data></Cell>
+    <Cell><Data ss:Type="String">PM</Data></Cell>
+    <Cell><Data ss:Type="String">Evening Active Repair + Seal</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">4</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">4</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">100.0</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">2250</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">8.0</Data></Cell>
+   </Row>
+  </Table>
+ </Worksheet>
+
+ <Worksheet ss:Name="Product Prescriptions">
+  <Table ss:DefaultColumnWidth="140">
+   <Column ss:Width="200"/>
+   <Column ss:Width="130"/>
+   <Column ss:Width="100"/>
+   <Column ss:Width="90"/>
+   <Column ss:Width="220"/>
+   <Column ss:Width="90"/>
+   <Column ss:Width="120"/>
+   <Row ss:Height="24">
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Product Name</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Brand</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Category</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Match (%)</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Key Active Ingredients</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Price (USD)</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Clinical Status</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Hydrating Facial Cleanser</Data></Cell>
+    <Cell><Data ss:Type="String">CeraVe</Data></Cell>
+    <Cell><Data ss:Type="String">Cleanser</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">96.0</Data></Cell>
+    <Cell><Data ss:Type="String">Ceramides 1, 3, 6-II, Hyaluronic Acid</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">16.99</Data></Cell>
+    <Cell ss:StyleID="SuccessCell"><Data ss:Type="String">Prescribed (AM/PM)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Niacinamide 10% + Zinc 1%</Data></Cell>
+    <Cell><Data ss:Type="String">Minimalist</Data></Cell>
+    <Cell><Data ss:Type="String">Serum</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">94.0</Data></Cell>
+    <Cell><Data ss:Type="String">Niacinamide, Zinc PCA, Centella</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">9.99</Data></Cell>
+    <Cell ss:StyleID="SuccessCell"><Data ss:Type="String">Prescribed (AM)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Ceramide ATO Concentrate Cream</Data></Cell>
+    <Cell><Data ss:Type="String">Illiyoon</Data></Cell>
+    <Cell><Data ss:Type="String">Moisturizer</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">93.0</Data></Cell>
+    <Cell><Data ss:Type="String">Ceramide Skin Complex, Fatty Acids</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">22.00</Data></Cell>
+    <Cell ss:StyleID="SuccessCell"><Data ss:Type="String">Prescribed (PM Seal)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Anthelios UVMune 400 Fluid SPF50+</Data></Cell>
+    <Cell><Data ss:Type="String">La Roche-Posay</Data></Cell>
+    <Cell><Data ss:Type="String">Sunscreen</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">97.0</Data></Cell>
+    <Cell><Data ss:Type="String">Mexoryl 400, Netlock Technology</Data></Cell>
+    <Cell ss:StyleID="NumberCell"><Data ss:Type="Number">24.50</Data></Cell>
+    <Cell ss:StyleID="SuccessCell"><Data ss:Type="String">Prescribed (Daily AM)</Data></Cell>
+   </Row>
+  </Table>
+ </Worksheet>
+</Workbook>`;
+}
+
+/**
+ * @route   GET /api/reports/export/excel
+ * @route   GET /api/reports/export/xlsx
+ * @desc    Export rich multi-sheet Microsoft Excel (.xls / .xlsx) spreadsheet workbook
+ */
+router.get(['/reports/export/excel', '/reports/export/xlsx'], async (req, res) => {
+  try {
+    const exportType = req.query.type || 'skin_health';
+    const userId = parseInt(req.query.user_id, 10) || 1;
+    const store = db.getInMemoryStore();
+    const user = store.users.find(u => u.id === userId) || {};
+
+    const excelXml = generateServerExcelXML(exportType, user);
+    const filename = `PanaceaAI_Clinical_Report_${exportType}_${Date.now()}.xls`;
+
+    res.setHeader('Content-Type', 'application/vnd.ms-excel; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    return res.send(excelXml);
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to export Excel workbook.', error: err.message });
+  }
+});
+
+/**
  * @route   GET /api/reports/export/csv
  * @desc    Export structured CSV file data
  */
@@ -4374,10 +4711,17 @@ router.get('/reports/export/csv', async (req, res) => {
         '2025-11-20,Evening,4,4,100.0,2500,7.5\n' +
         '2025-11-21,Morning,4,4,100.0,2250,8.0\n' +
         '2025-11-21,Evening,4,4,100.0,2250,8.0';
+    } else if (exportType === 'products') {
+      filename = 'panacea_products_catalog_export.csv';
+      csvContent = 'Product Name,Brand,Category,Match (%),Price (USD),Clinical Status\n' +
+        'Hydrating Facial Cleanser,CeraVe,Cleanser,96.0,16.99,Prescribed (AM/PM)\n' +
+        'Niacinamide 10% + Zinc 1%,Minimalist,Serum,94.0,9.99,Prescribed (AM)\n' +
+        'Ceramide ATO Concentrate Cream,Illiyoon,Moisturizer,93.0,22.00,Prescribed (PM Seal)\n' +
+        'Anthelios UVMune 400 Fluid SPF50+,La Roche-Posay,Sunscreen,97.0,24.50,Prescribed (Daily AM)';
     }
 
-    res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     return res.send(csvContent);
   } catch (err) {
     return res.status(500).json({ success: false, message: 'Failed to export CSV.', error: err.message });

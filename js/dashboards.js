@@ -183,42 +183,42 @@ export function renderLandingPage() {
         </div>
 
         <div class="doctors-grid">
-          <!-- Doctor 1: Dr. Julian Rostova, MD -->
+          <!-- Doctor 1: Dr. Rajesh Varma, MD -->
           <div class="doctor-card reveal delay-1">
             <div class="doctor-img-box">
-              <img src="assets/doctor_sarah.png" alt="Dr. Julian Rostova, MD" class="doctor-img">
+              <img src="assets/doctor_sarah.png" alt="Dr. Rajesh Varma, MD" class="doctor-img">
               <span class="badge badge-success status-tag">🟢 Available</span>
             </div>
             <div class="doctor-info">
-              <h3>Dr. Julian Rostova, MD</h3>
+              <h3>Dr. Rajesh Varma, MD</h3>
               <span class="doctor-spec">BOARD-CERTIFIED DERMATOLOGIST</span>
               <p class="doctor-exp">Lead clinical dermatologist specializing in cutaneous barrier restoration, acne protocols, and digital lesion diagnostics.</p>
               <button class="btn-link" onclick="window.app.navigateToView('consultations')">CONSULT NOW &gt;</button>
             </div>
           </div>
 
-          <!-- Doctor 2: Dr. Michael Chen -->
+          <!-- Doctor 2: Dr. Arjun Kapoor, MD -->
           <div class="doctor-card reveal delay-2">
             <div class="doctor-img-box">
-              <img src="assets/doctor_michael.png" alt="Dr. Michael Chen" class="doctor-img">
+              <img src="assets/doctor_michael.png" alt="Dr. Arjun Kapoor, MD" class="doctor-img">
               <span class="badge badge-success status-tag">🟢 Available</span>
             </div>
             <div class="doctor-info">
-              <h3>Dr. Michael Chen</h3>
+              <h3>Dr. Arjun Kapoor, MD</h3>
               <span class="doctor-spec">EYE & SKIN SPECIALIST</span>
               <p class="doctor-exp">15 years experience in optical lesion diagnostics and cellular photo-aging.</p>
               <button class="btn-link" onclick="window.app.navigateToView('consultations')">CONSULT NOW &gt;</button>
             </div>
           </div>
 
-          <!-- Doctor 3: Dr. Emily Roberts -->
+          <!-- Doctor 3: Dr. Priya Nair, MD -->
           <div class="doctor-card reveal delay-3">
             <div class="doctor-img-box">
-              <img src="assets/doctor_emily.png" alt="Dr. Emily Roberts" class="doctor-img">
+              <img src="assets/doctor_emily.png" alt="Dr. Priya Nair, MD" class="doctor-img">
               <span class="badge badge-success status-tag">🟢 Available</span>
             </div>
             <div class="doctor-info">
-              <h3>Dr. Emily Roberts</h3>
+              <h3>Dr. Priya Nair, MD</h3>
               <span class="doctor-spec">OPTOMETRIST / DERM</span>
               <p class="doctor-exp">12 years experience in sensitive cutaneous reactive states and bespoke regimens.</p>
               <button class="btn-link" onclick="window.app.navigateToView('consultations')">CONSULT NOW &gt;</button>
@@ -1937,7 +1937,7 @@ export function renderUserSettingsPage() {
   const user = auth.getCurrentUser();
   const isDemo = (!user || user.id === 1 || user.username === 'user');
   const avatarUrl = user?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${user?.username || 'default'}`;
-  const displayName = user?.full_name || (isDemo ? 'Alex Rivera' : (user?.username || 'User'));
+  const displayName = user?.full_name || (isDemo ? 'Aarav Sharma' : (user?.username || 'User'));
   const displayEmail = user?.email || `${(user?.username || 'alex').toLowerCase()}@panacea.ai`;
   const roleTitle = auth.getCurrentRoleInfo()?.title || 'Skincare Consumer';
   const skinType = user?.skin_type || user?.profile?.skinType || (isDemo ? MOCK_USER_DATA.profile.skinType : '');
@@ -1983,9 +1983,14 @@ export function renderUserSettingsPage() {
             </div>
             <p id="page-settings-display-email" class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.2rem;">${displayEmail}</p>
 
-            <button type="button" class="btn btn-outline btn-sm" onclick="window.app.randomizePageAvatar()" style="width: 100%; font-size: 0.82rem; padding: 0.55rem;">
-              Generate New Avatar Seed
-            </button>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
+              <button type="button" class="btn btn-outline btn-sm" onclick="window.app.randomizePageAvatar()" style="width: 100%; font-size: 0.82rem; padding: 0.55rem;">
+                Generate New Avatar Seed
+              </button>
+              <button type="button" class="btn btn-sm" onclick="window.app.handleUserLogout()" style="width: 100%; font-size: 0.82rem; padding: 0.55rem; background: #FEF2F2; color: #DC2626; border: 1px solid #FCA5A5; font-weight: 600;">
+                🚪 Log Out of Account
+              </button>
+            </div>
           </div>
 
           <!-- SECTION QUICK LINKS -->
@@ -2094,9 +2099,14 @@ export function renderUserSettingsPage() {
             <div id="page-settings-alert" class="login-alert-box hidden" style="margin-bottom: 1rem;"></div>
 
             <!-- SUBMIT & CANCEL BAR -->
-            <div style="display: flex; gap: 1rem; align-items: center; padding-top: 1rem; border-top: 1px solid var(--border-light);">
-              <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem;">Save Profile Changes</button>
-              <button type="button" class="btn btn-outline" onclick="window.app.navigateToView('dashboard')" style="padding: 0.75rem 1.5rem;">Cancel</button>
+            <div style="display: flex; gap: 1rem; align-items: center; justify-content: space-between; padding-top: 1rem; border-top: 1px solid var(--border-light); flex-wrap: wrap;">
+              <div style="display: flex; gap: 0.75rem; align-items: center;">
+                <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem;">Save Profile Changes</button>
+                <button type="button" class="btn btn-outline" onclick="window.app.navigateToView('dashboard')" style="padding: 0.75rem 1.5rem;">Cancel</button>
+              </div>
+              <button type="button" class="btn btn-outline" onclick="window.app.handleUserLogout()" style="padding: 0.75rem 1.25rem; color: #DC2626; border-color: #FCA5A5; background: #FEF2F2; font-size: 0.85rem; font-weight: 600;">
+                🚪 Sign Out
+              </button>
             </div>
 
           </form>
@@ -2253,7 +2263,7 @@ export function renderProductsExplorerPage(options = {}, profile = null) {
           <!-- BUDGET & PRICE FILTER -->
           <div class="filter-group">
             <div class="filter-section-title">
-              <span>💰 Budget Range</span>
+              <span>Budget Range</span>
               <small style="color: var(--gold-primary); font-size: 0.8rem; font-weight: 700;">Up to ₹${currentOptions.max_price}</small>
             </div>
 
@@ -2263,13 +2273,13 @@ export function renderProductsExplorerPage(options = {}, profile = null) {
                 All Budgets
               </button>
               <button class="budget-chip-btn ${currentOptions.budget_tier === 'Budget' ? 'active' : ''}" onclick="window.app.updateProductFilter('budget_tier', 'Budget')">
-                Under ₹600 🏷️
+                Under ₹600
               </button>
               <button class="budget-chip-btn ${currentOptions.budget_tier === 'Mid-Range' ? 'active' : ''}" onclick="window.app.updateProductFilter('budget_tier', 'Mid-Range')">
-                ₹600 - ₹1.5k ✨
+                ₹600 - ₹1,500
               </button>
               <button class="budget-chip-btn ${currentOptions.budget_tier === 'Premium' ? 'active' : ''}" onclick="window.app.updateProductFilter('budget_tier', 'Premium')">
-                ₹1.5k - ₹3k 💎
+                ₹1,500 - ₹3,000
               </button>
             </div>
 
@@ -2287,7 +2297,7 @@ export function renderProductsExplorerPage(options = {}, profile = null) {
           <!-- CATEGORY FILTER -->
           <div class="filter-group">
             <div class="filter-section-title">
-              <span>🧴 Category</span>
+              <span>Category</span>
             </div>
             <div style="display: flex; flex-direction: column; gap: 0.35rem; max-height: 200px; overflow-y: auto;">
               ${categoriesList.map(cat => `
@@ -2302,7 +2312,7 @@ export function renderProductsExplorerPage(options = {}, profile = null) {
           <!-- TARGET SKIN CONCERN -->
           <div class="filter-group">
             <div class="filter-section-title">
-              <span>🎯 Target Concern</span>
+              <span>Target Concern</span>
             </div>
             <select class="form-control" style="font-size: 0.8rem; padding: 0.45rem;" onchange="window.app.updateProductFilter('target_concern', this.value)">
               ${concernsList.map(cn => `
@@ -2314,7 +2324,7 @@ export function renderProductsExplorerPage(options = {}, profile = null) {
           <!-- MINIMUM SUITABILITY SCORE -->
           <div class="filter-group">
             <div class="filter-section-title">
-              <span>🌟 Match Score</span>
+              <span>Compatibility Score</span>
             </div>
             <div style="display: flex; flex-direction: column; gap: 0.35rem;">
               <label class="filter-checkbox-item">
@@ -2323,11 +2333,11 @@ export function renderProductsExplorerPage(options = {}, profile = null) {
               </label>
               <label class="filter-checkbox-item">
                 <input type="radio" name="min_score_radio" value="90" ${currentOptions.min_score === 90 ? 'checked' : ''} onchange="window.app.updateProductFilter('min_score', 90)" style="accent-color: var(--gold-primary);">
-                <span>90%+ Top Matches Only 🌟</span>
+                <span>90%+ High Compatibility</span>
               </label>
               <label class="filter-checkbox-item">
                 <input type="radio" name="min_score_radio" value="80" ${currentOptions.min_score === 80 ? 'checked' : ''} onchange="window.app.updateProductFilter('min_score', 80)" style="accent-color: var(--gold-primary);">
-                <span>80%+ Great Choices ✨</span>
+                <span>80%+ Good Compatibility</span>
               </label>
             </div>
           </div>
@@ -2335,7 +2345,7 @@ export function renderProductsExplorerPage(options = {}, profile = null) {
           <!-- BRAND FILTER -->
           <div class="filter-group">
             <div class="filter-section-title">
-              <span>🏷️ Brand</span>
+              <span>Brand</span>
             </div>
             <select class="form-control" style="font-size: 0.8rem; padding: 0.45rem;" onchange="window.app.updateProductFilter('brand', this.value)">
               ${brandsList.map(b => `
@@ -2362,11 +2372,11 @@ export function renderProductsExplorerPage(options = {}, profile = null) {
             <div class="sort-select-wrapper">
               <label for="products-sort-select" style="font-weight: 600;">Sort By:</label>
               <select id="products-sort-select" onchange="window.app.updateProductFilter('sort_by', this.value)">
-                <option value="match_desc" ${currentOptions.sort_by === 'match_desc' ? 'selected' : ''}>🌟 Highest AI Match Score</option>
-                <option value="price_asc" ${currentOptions.sort_by === 'price_asc' ? 'selected' : ''}>💵 Price: Low to High</option>
-                <option value="price_desc" ${currentOptions.sort_by === 'price_desc' ? 'selected' : ''}>💎 Price: High to Low</option>
-                <option value="rating_desc" ${currentOptions.sort_by === 'rating_desc' ? 'selected' : ''}>★ Highest Customer Rating</option>
-                <option value="popular_desc" ${currentOptions.sort_by === 'popular_desc' ? 'selected' : ''}>🔥 Most Popular / Best Sellers</option>
+                <option value="match_desc" ${currentOptions.sort_by === 'match_desc' ? 'selected' : ''}>Highest AI Match Score</option>
+                <option value="price_asc" ${currentOptions.sort_by === 'price_asc' ? 'selected' : ''}>Price: Low to High</option>
+                <option value="price_desc" ${currentOptions.sort_by === 'price_desc' ? 'selected' : ''}>Price: High to Low</option>
+                <option value="rating_desc" ${currentOptions.sort_by === 'rating_desc' ? 'selected' : ''}>Highest Customer Rating</option>
+                <option value="popular_desc" ${currentOptions.sort_by === 'popular_desc' ? 'selected' : ''}>Most Popular</option>
               </select>
             </div>
 
@@ -2488,11 +2498,11 @@ export function renderComparisonMatrix(comparisonData) {
   return `
     <div>
       ${winner ? `
-        <div class="compare-winner-banner">
-          <div style="font-size: 2rem;">🏆</div>
+        <div class="compare-winner-banner" style="background: linear-gradient(135deg, #FFFDF9 0%, #FAF5EB 100%); border: 1px solid var(--border-gold); border-radius: var(--radius-sm); padding: 1.1rem 1.4rem; display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+          <div style="font-size: 1.8rem;">🎯</div>
           <div>
-            <strong style="font-size: 1rem; color: #8A6400;">AI Recommendation Winner</strong>
-            <p style="font-size: 0.85rem; color: var(--text-primary); margin: 0.2rem 0 0;">${winner.reason}</p>
+            <strong style="font-size: 0.95rem; color: #8A6400; font-family: 'Playfair Display', serif; font-weight: 700;">Top Clinical Formulation Match</strong>
+            <p style="font-size: 0.85rem; color: var(--text-primary); margin: 0.2rem 0 0; line-height: 1.4;">${winner.reason}</p>
           </div>
         </div>
       ` : ''}
@@ -2857,9 +2867,9 @@ export function renderProgressAnalyticsPage(progressData = null, currentUser = n
           <div>
             <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
               <span class="section-tag-pill" style="font-size: 0.72rem; padding: 0.2rem 0.65rem; background: rgba(197, 155, 39, 0.15); color: #8A6400; font-weight: 800;">
-                MODULE 8 • PROGRESS TRACKING & ANALYTICS
+                PROGRESS TRACKING & ANALYTICS
               </span>
-              <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">• ${currentUser ? (currentUser.full_name || currentUser.username) : 'Alex Rivera'} Clinical Profile</span>
+              <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">• ${currentUser ? (currentUser.full_name || currentUser.username) : 'Aarav Sharma'} Clinical Profile</span>
             </div>
             <h1 style="font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--text-primary); margin: 0 0 0.4rem 0; font-weight: 700;">
               Skin Progress Monitoring & Analytics Lab
@@ -2877,8 +2887,8 @@ export function renderProgressAnalyticsPage(progressData = null, currentUser = n
             <button class="btn btn-outline btn-sm" onclick="window.app.handleDailyAdherenceCheckIn()" style="font-weight: 700; padding: 0.55rem 1.1rem; background: #FFFFFF;">
               ✅ Check-In Today (+2.5 pts)
             </button>
-            <button class="btn btn-outline btn-sm" onclick="window.app.exportClinicalProgressReport()" style="font-weight: 700; padding: 0.55rem 0.95rem; background: #FFFFFF;" title="Print or Export Clinical PDF Summary">
-              📄 Export Report
+            <button class="btn btn-outline btn-sm" onclick="window.app.openReportsModal('progress')" style="font-weight: 700; padding: 0.55rem 0.95rem; background: #FFFFFF; display: flex; align-items: center; gap: 0.35rem;" title="Open Clinical Reports & Multi-Format Export Hub">
+              📄 Clinical Reports Hub
             </button>
           </div>
         </div>
@@ -3355,7 +3365,7 @@ export function renderProgressAnalyticsPage(progressData = null, currentUser = n
               🩺
             </div>
             <div>
-              <strong style="font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--text-primary);">Dr. Elena Rostova, Board-Certified Dermatologist AI</strong>
+              <strong style="font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--text-primary);">Dr. Rajesh Varma, Board-Certified Dermatologist</strong>
               <div style="font-size: 0.74rem; color: var(--text-muted);">Lead Clinical Diagnostics Specialist</div>
             </div>
           </div>
@@ -3433,7 +3443,7 @@ export function renderUserAppointmentsPage(consultData = null, prefsData = null,
           <button class="btn btn-outline" onclick="window.app.navigateToView('dashboard')" style="display: flex; align-items: center; gap: 0.5rem; font-weight: 700;">
             ← Back to Dashboard
           </button>
-          <button class="btn btn-primary" onclick="window.app.openBookingModal(3, 'Dr. Julian Rostova, MD', 'dermatologist')" style="font-weight: 700; background: var(--gold-primary); color: #111;">
+          <button class="btn btn-primary" onclick="window.app.openBookingModal(3, 'Dr. Rajesh Varma, MD', 'dermatologist')" style="font-weight: 700; background: var(--gold-primary); color: #111;">
             + Book Specialist Consultation
           </button>
         </div>
@@ -3527,9 +3537,9 @@ export function renderUserAppointmentsPage(consultData = null, prefsData = null,
           <!-- Consultant Advice Card -->
           <div style="background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 1.4rem;">
             <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-              <img src="${consult.assigned_consultant?.avatar || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100'}" alt="Elena Vance" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold-primary);">
+              <img src="${consult.assigned_consultant?.avatar || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100'}" alt="Ananya Iyer" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold-primary);">
               <div>
-                <strong style="font-size: 0.95rem; color: var(--text-primary); display: block;">Elena Vance, LE</strong>
+                <strong style="font-size: 0.95rem; color: var(--text-primary); display: block;">Ananya Iyer, LE</strong>
                 <span style="font-size: 0.74rem; color: var(--gold-primary); font-weight: 700; text-transform: uppercase;">Lead Clinical Esthetician</span>
               </div>
             </div>
@@ -3546,9 +3556,9 @@ export function renderUserAppointmentsPage(consultData = null, prefsData = null,
           <!-- Doctor Medical Rx Card -->
           <div style="background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 1.4rem;">
             <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-              <img src="${consult.assigned_doctor?.avatar || 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=100'}" alt="Dr. Julian Rostova" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #2E7D32;">
+              <img src="${consult.assigned_doctor?.avatar || 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=100'}" alt="Dr. Rajesh Varma" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #2E7D32;">
               <div>
-                <strong style="font-size: 0.95rem; color: var(--text-primary); display: block;">Dr. Julian Rostova, MD</strong>
+                <strong style="font-size: 0.95rem; color: var(--text-primary); display: block;">Dr. Rajesh Varma, MD</strong>
                 <span style="font-size: 0.74rem; color: #2E7D32; font-weight: 700; text-transform: uppercase;">Board-Certified Dermatologist</span>
               </div>
             </div>
@@ -3559,7 +3569,7 @@ export function renderUserAppointmentsPage(consultData = null, prefsData = null,
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; color: var(--text-muted);">
               <span>Next Check: <strong>${consult.next_review || '24 Dec 2025'}</strong></span>
-              <button class="btn btn-sm btn-primary" style="background: #2E7D32; border-color: #2E7D32; font-size: 0.75rem; padding: 0.25rem 0.65rem;" onclick="alert('Certified Digital Prescription #RX-84920-ADAP. Certified for pharmacy dispense by Dr. Julian Rostova, MD.')">📄 View Rx</button>
+              <button class="btn btn-sm btn-primary" style="background: #2E7D32; border-color: #2E7D32; font-size: 0.75rem; padding: 0.25rem 0.65rem;" onclick="alert('Certified Digital Prescription #RX-84920-ADAP. Certified for pharmacy dispense by Dr. Rajesh Varma, MD.')">📄 View Rx</button>
             </div>
           </div>
         </div>
@@ -3590,7 +3600,7 @@ export function renderUserAppointmentsPage(consultData = null, prefsData = null,
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
                 <div>
                   <h3 style="font-family: 'Playfair Display', serif; font-size: 1.15rem; margin: 0 0 0.15rem 0;">Consultant Permissions</h3>
-                  <span style="font-size: 0.75rem; color: var(--gold-primary); font-weight: 700;">Elena Vance, LE (Esthetician)</span>
+                  <span style="font-size: 0.75rem; color: var(--gold-primary); font-weight: 700;">Ananya Iyer, LE (Esthetician)</span>
                 </div>
                 <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; font-size: 0.78rem; font-weight: 700;">
                   <input type="checkbox" id="pref-consultant-shared" ${cPref.shared !== false ? 'checked' : ''} style="width: 16px; height: 16px;">
@@ -3646,7 +3656,7 @@ export function renderUserAppointmentsPage(consultData = null, prefsData = null,
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
                 <div>
                   <h3 style="font-family: 'Playfair Display', serif; font-size: 1.15rem; margin: 0 0 0.15rem 0;">Dermatologist Permissions</h3>
-                  <span style="font-size: 0.75rem; color: #2E7D32; font-weight: 700;">Dr. Julian Rostova, MD (Clinical Director)</span>
+                  <span style="font-size: 0.75rem; color: #2E7D32; font-weight: 700;">Dr. Rajesh Varma, MD (Clinical Director)</span>
                 </div>
                 <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; font-size: 0.78rem; font-weight: 700;">
                   <input type="checkbox" id="pref-doctor-shared" ${dPref.shared !== false ? 'checked' : ''} style="width: 16px; height: 16px;">
@@ -4054,7 +4064,7 @@ export function renderDermatologistAppointmentsPage(doctorData = null) {
           <button class="btn btn-outline" onclick="window.app.navigateToView('dashboard')" style="color: #FFFFFF; border-color: rgba(255,255,255,0.3); font-weight: 700;">
             ← Back to Clinical Portal
           </button>
-          <button class="btn btn-primary" onclick="window.app.openTelehealthVideoModal(401, 'dermatologist', 'Clinical Diagnostic Session', 'Marcus Vance')" style="background: #2E7D32; border-color: #2E7D32; font-weight: 700;">
+          <button class="btn btn-primary" onclick="window.app.openTelehealthVideoModal(401, 'dermatologist', 'Clinical Diagnostic Session', 'Rohan Verma')" style="background: #2E7D32; border-color: #2E7D32; font-weight: 700;">
             🩺 Launch Telehealth Call
           </button>
         </div>
@@ -4358,7 +4368,7 @@ export function renderClinicChatPage(conversations = [], activeContactId = 'lumi
     {
       id: `user_${currentUserId}_consultant_2`,
       contact_id: '2',
-      contact_name: 'Elena Vance, LE',
+      contact_name: 'Ananya Iyer, LE',
       contact_role: 'consultant',
       contact_title: 'Lead Clinical Esthetician',
       contact_avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
@@ -4372,7 +4382,7 @@ export function renderClinicChatPage(conversations = [], activeContactId = 'lumi
     {
       id: `user_${currentUserId}_doctor_3`,
       contact_id: '3',
-      contact_name: 'Dr. Julian Rostova, MD',
+      contact_name: 'Dr. Rajesh Varma, MD',
       contact_role: 'dermatologist',
       contact_title: 'Board-Certified Dermatologist',
       contact_avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150',
@@ -4410,7 +4420,7 @@ export function renderClinicChatPage(conversations = [], activeContactId = 'lumi
           <button class="btn btn-sm btn-outline" onclick="window.app.navigateToView('dashboard')" style="display: flex; align-items: center; gap: 0.4rem; font-weight: 700; font-size: 0.82rem;">
             <span>←</span> Back to Dashboard
           </button>
-          <button class="btn btn-sm btn-primary" onclick="window.app.openBookingModal(3, 'Dr. Julian Rostova, MD', 'dermatologist')" style="font-weight: 700; font-size: 0.82rem; background: #2E7D32; border-color: #2E7D32;">
+          <button class="btn btn-sm btn-primary" onclick="window.app.openBookingModal(3, 'Dr. Rajesh Varma, MD', 'dermatologist')" style="font-weight: 700; font-size: 0.82rem; background: #2E7D32; border-color: #2E7D32;">
             📹 Book Video Telehealth
           </button>
         </div>
@@ -4687,7 +4697,7 @@ export function renderClinicChatPage(conversations = [], activeContactId = 'lumi
               </div>
               <div style="background: #FFFFFF; border: 1px solid var(--border-light); border-radius: 6px; padding: 0.75rem; font-size: 0.8rem; margin-bottom: 0.85rem;">
                 <div style="font-weight: 700; color: #2E7D32; margin-bottom: 0.25rem;">💊 Topical Adapalene 0.1% + Azelaic Acid 15%</div>
-                <div style="font-size: 0.72rem; color: var(--text-muted);">Approved by Dr. Julian Rostova, MD (Next review: 24 Dec 2025)</div>
+                <div style="font-size: 0.72rem; color: var(--text-muted);">Approved by Dr. Rajesh Varma, MD (Next review: 24 Dec 2025)</div>
               </div>
 
               <div style="font-size: 0.75rem; font-weight: 800; color: var(--text-primary); text-transform: uppercase; margin-bottom: 0.6rem;">
@@ -4866,7 +4876,7 @@ export function renderReminderSettingsModalContent(prefs = {}) {
 
 export function renderReportsHubModalContent(activeReportType = 'skin_health', reportsList = []) {
   const reportTypes = [
-    { type: 'skin_health', name: 'Executive Holistic Skin Dossier', icon: '👑', desc: 'Comprehensive multi-parameter evaluation combining scores, routines, and clinical progress.' },
+    { type: 'skin_health', name: 'Executive Holistic Skin Dossier', icon: '🩺', desc: 'Comprehensive multi-parameter evaluation combining scores, routines, and clinical progress.' },
     { type: 'assessment', name: 'Cutaneous Diagnostic Report', icon: '🔬', desc: '8 optical biomarkers, Fitzpatrick phototype, and ISIC lesion malignancy screening.' },
     { type: 'routine', name: 'Personalized Regimen & Schedule', icon: '📝', desc: 'Morning AM and Evening PM chronological application steps and active layering notes.' },
     { type: 'product_recs', name: 'Formulation Compatibility Dossier', icon: '🧪', desc: 'Matched products catalog, compatibility match %, and budget alternatives.' },
@@ -4897,22 +4907,25 @@ export function renderReportsHubModalContent(activeReportType = 'skin_health', r
         `).join('')}
       </div>
 
-      <!-- Action Banner: PDF & CSV Export -->
+      <!-- Action Banner: PDF, Excel & CSV Export -->
       <div style="background: #0F172A; color: #FFFFFF; border-radius: 8px; padding: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
         <div>
-          <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gold-primary); font-weight: 800;">Ready for Export</div>
+          <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gold-primary); font-weight: 800;">Multi-Format Clinical Export</div>
           <h4 style="font-family: 'Playfair Display', serif; font-size: 1.15rem; margin: 0.2rem 0; color: #FFFFFF;">
             ${reportTypes.find(r => r.type === activeReportType)?.name || 'Clinical Skin Dossier'}
           </h4>
-          <span style="font-size: 0.78rem; color: #94A3B8;">Includes PanaceaAI branding, doctor signature, and biomarker dials.</span>
+          <span style="font-size: 0.78rem; color: #94A3B8;">Multi-sheet Excel workbook, raw CSV telemetry, or board-certified printable PDF.</span>
         </div>
 
-        <div style="display: flex; gap: 0.65rem;">
-          <button class="btn btn-sm btn-primary" onclick="window.app.handleGenerateAndPrintPDF('${activeReportType}')" style="font-weight: 700; display: flex; align-items: center; gap: 0.4rem;">
-            <span>🖨️ Export Printable PDF</span>
+        <div style="display: flex; gap: 0.65rem; flex-wrap: wrap;">
+          <button class="btn btn-sm btn-primary" onclick="window.app.handleDownloadExcelExport('${activeReportType}')" style="font-weight: 700; background: linear-gradient(135deg, #D4AF37 0%, #AA7C11 100%); color: #0F172A; border: none; display: flex; align-items: center; gap: 0.4rem;" title="Download multi-sheet Excel (.xlsx / .xls) spreadsheet workbook">
+            <span>📊 Export to Excel (.xlsx)</span>
           </button>
-          <button class="btn btn-sm btn-outline" onclick="window.app.handleDownloadCSVExport('${activeReportType === 'routine' ? 'routine_logs' : (activeReportType === 'product_recs' ? 'products' : 'progress')}')" style="font-weight: 700; color: #FFFFFF; border-color: rgba(255,255,255,0.3); display: flex; align-items: center; gap: 0.4rem;">
-            <span>📊 Export CSV (Excel)</span>
+          <button class="btn btn-sm btn-outline" onclick="window.app.handleDownloadCSVExport('${activeReportType === 'routine' ? 'routine_logs' : (activeReportType === 'product_recs' ? 'products' : 'progress')}')" style="font-weight: 700; color: #FFFFFF; border-color: rgba(255,255,255,0.3); display: flex; align-items: center; gap: 0.4rem;" title="Download raw comma-separated CSV">
+            <span>📑 Export CSV</span>
+          </button>
+          <button class="btn btn-sm btn-outline" onclick="window.app.handleGenerateAndPrintPDF('${activeReportType}')" style="font-weight: 700; color: #FFFFFF; border-color: rgba(255,255,255,0.3); display: flex; align-items: center; gap: 0.4rem;" title="Print clean A4 PDF diagnostic summary">
+            <span>🖨️ Printable PDF</span>
           </button>
         </div>
       </div>
@@ -5020,7 +5033,7 @@ export function renderDermatologistRxModalContent(patientId = 1) {
       </div>
 
       <div style="background: #FAF9F6; border: 1px solid var(--border-gold); border-radius: 6px; padding: 0.75rem; font-size: 0.75rem; color: #64748B; margin-bottom: 1.25rem;">
-        🔒 Digitally signed by <strong>Dr. Julian Rostova, MD</strong> (License #DERM-884920-CL)
+        🔒 Digitally signed by <strong>Dr. Rajesh Varma, MD</strong> (License #DERM-884920-CL)
       </div>
 
       <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">

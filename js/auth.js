@@ -28,6 +28,10 @@ class AuthController {
     return MOCK_ROLES[this.currentRole.toUpperCase()] || null;
   }
 
+  isAuthenticated() {
+    return Boolean(this.currentRole);
+  }
+
   /**
    * BUG 1 FIX: Restore session from stored JWT token on page load.
    * Calls /api/auth/me to rehydrate user state from the server.

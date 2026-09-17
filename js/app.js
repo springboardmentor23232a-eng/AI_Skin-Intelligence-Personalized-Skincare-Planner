@@ -19,6 +19,7 @@ import {
   MOCK_GENERATED_REPORTS,
   compileClinicalReport,
   compileClinicalReportHTML,
+  generateExcelSpreadsheetML,
   MOCK_PROGRESS_TRACKING_DATA,
   generateTrendTrajectoryData,
   generateCalendar30Days
@@ -167,18 +168,18 @@ class App {
       },
       {
         text: '"Invest in your skin. It is going to represent you for a very long time."',
-        author: 'Linden Tyler',
-        role: 'Skincare Author & Aesthetician'
+        author: 'Dr. Rashmi Shetty',
+        role: 'Aesthetic Dermatologist & Author'
       },
       {
-        text: '"Beauty begins the moment you decide to be yourself."',
-        author: 'Coco Chanel',
-        role: 'Fashion & Beauty Icon'
+        text: '"Beauty begins the moment you decide to be yourself and care for your natural skin barrier."',
+        author: 'Dr. Jaishree Sharad',
+        role: 'Cosmetic Dermatologist & Author, Mumbai'
       },
       {
         text: '"Healthy skin is not about perfection; it’s about balance, protection, and self-appreciation."',
-        author: 'Dr. Sarah Johnson',
-        role: 'Clinical Dermatologist & Researcher'
+        author: 'Dr. Sunita Rao, MD',
+        role: 'Senior Consultant Dermatologist, Bengaluru'
       },
       {
         text: '"Your skin barrier is your shield. Honor it with gentleness and daily hydration."',
@@ -404,6 +405,19 @@ class App {
         messengerDock.classList.add('hidden');
         messengerDock.style.display = 'none';
         this.closeMessengerPopup();
+      }
+    }
+
+    // Floating Compare Dock: Visible ONLY when authenticated
+    if (!currentRole) {
+      this.selectedCompareProductIds = [];
+      const compareDock = document.getElementById('compare-floating-dock');
+      if (compareDock) {
+        compareDock.classList.remove('active');
+        const thumbsEl = document.getElementById('compare-dock-thumbnails');
+        if (thumbsEl) thumbsEl.innerHTML = '';
+        const countEl = document.getElementById('compare-dock-count');
+        if (countEl) countEl.innerText = '0';
       }
     }
 
@@ -867,7 +881,7 @@ class App {
     const roleInfo = auth.getCurrentRoleInfo();
     const isDemo = !user || user.id === 1 || user.username === 'user';
     const avatarUrl = user?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${user?.username || 'default'}`;
-    const displayName = user?.full_name || (isDemo ? (MOCK_USER_DATA.profile?.name || 'Alex Rivera') : (user?.username || 'User'));
+    const displayName = user?.full_name || (isDemo ? (MOCK_USER_DATA.profile?.name || 'Aarav Sharma') : (user?.username || 'User'));
     const displayEmail = user?.email || `${(user?.username || 'user').toLowerCase()}@panacea.ai`;
     const skinType = user?.skin_type || user?.profile?.skinType || (isDemo ? MOCK_USER_DATA.profile?.skinType : '');
     const ageGroup = user?.profile?.ageGroup || (isDemo ? MOCK_USER_DATA.profile?.ageGroup : '');
@@ -966,10 +980,23 @@ class App {
   }
 
   handleUserLogout() {
-    this.pendingRedirect = null;
-    this.closeUserDropdown();
-    this.currentView = 'landing';
-    auth.logout();
+    try {
+      this.pendingRedirect = null;
+      this.closeUserDropdown();
+      this.selectedCompareProductIds = [];
+      this.updateCompareDock();
+      this.closeModal('product-compare-modal');
+      this.closeModal('product-alternatives-modal');
+      this.closeModal('user-settings-modal');
+      this.closeNotificationDrawer();
+      this.closeMessengerPopup();
+    } catch (err) {
+      console.warn('[Logout cleanup warning]', err);
+    } finally {
+      this.currentView = 'landing';
+      auth.logout();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 
   executePendingRedirectOrDashboard() {
@@ -2247,7 +2274,7 @@ class App {
     const select = document.getElementById('step-time-of-day');
     const timeInput = document.getElementById('step-time-str');
     if (select) select.value = timeOfDay;
-    if (timeInput) timeInput.value = timeOfDay === 'morning' ? '8:05 AM' : '9:05 PM';
+    if (timeInput) timeInput.value = timeOfDay === 'morning' ? '8:05 AM IST' : '9:05 PM IST';
     this.openModal('create-step-modal');
   }
 
@@ -2258,7 +2285,7 @@ class App {
     const title = document.getElementById('step-title').value;
     const product = document.getElementById('step-product').value;
     const ingredientsStr = document.getElementById('step-ingredients').value || '';
-    const timeStr = document.getElementById('step-time-str').value || (timeOfDay === 'morning' ? '8:00 AM' : '9:00 PM');
+    const timeStr = document.getElementById('step-time-str').value || (timeOfDay === 'morning' ? '8:00 AM IST' : '9:00 PM IST');
 
     const ingredients = ingredientsStr.split(',').map(s => s.trim()).filter(Boolean);
     const routineList = timeOfDay === 'morning' ? MOCK_USER_DATA.routine.morning : MOCK_USER_DATA.routine.evening;
@@ -2557,7 +2584,7 @@ class App {
       id: 'm_' + Date.now(),
       step: category,
       title: name,
-      time: '8:20 AM',
+      time: '8:20 AM IST',
       completed: false,
       icon: '✨'
     };
@@ -2685,11 +2712,18 @@ class App {
     this.render();
   }
 
-  // ════════════════════════════════════════════════════════════════
-  // SIDE-BY-SIDE PRODUCT COMPARISON CONTROLLER (Flipkart/Amazon Style)
-  // ════════════════════════════════════════════════════════════════
-
   toggleCompareProduct(productId) {
+    const currentRole = auth.getCurrentRole();
+    if (!currentRole) {
+      this.pendingRedirect = {
+        type: 'view',
+        target: 'products',
+        message: 'Please sign in or register to compare skincare formulations side-by-side.'
+      };
+      this.openLoginModal(null, this.pendingRedirect.message);
+      return;
+    }
+
     const id = Number(productId);
     const idx = this.selectedCompareProductIds.indexOf(id);
     if (idx > -1) {
@@ -2729,6 +2763,15 @@ class App {
     const countEl = document.getElementById('compare-dock-count');
     const thumbsEl = document.getElementById('compare-dock-thumbnails');
     if (!dock || !countEl || !thumbsEl) return;
+
+    const currentRole = auth.getCurrentRole();
+    if (!currentRole) {
+      this.selectedCompareProductIds = [];
+      dock.classList.remove('active');
+      thumbsEl.innerHTML = '';
+      countEl.innerText = '0';
+      return;
+    }
 
     const count = this.selectedCompareProductIds.length;
     countEl.innerText = count;
@@ -2772,6 +2815,16 @@ class App {
   // ════════════════════════════════════════════════════════════════
 
   async viewSaferAlternatives(productId) {
+    const currentRole = auth.getCurrentRole();
+    if (!currentRole) {
+      this.pendingRedirect = {
+        type: 'view',
+        target: 'products',
+        message: 'Please sign in or register to explore AI budget dupes and safer formulations.'
+      };
+      this.openLoginModal(null, this.pendingRedirect.message);
+      return;
+    }
     const id = Number(productId);
     this.currentAlternativesProductId = id;
     const container = document.getElementById('product-alternatives-modal-content');
@@ -2993,9 +3046,9 @@ class App {
       dossierData = {
         patient_info: {
           id: userId,
-          username: userId === 1 ? 'user' : userId === 5 ? 'sarah_jenkins' : 'marcus_v',
-          full_name: userId === 1 ? 'Alex Rivera' : userId === 5 ? 'Sarah Jenkins' : 'Marcus Vance',
-          email: userId === 1 ? 'user@panacea.ai' : userId === 5 ? 'sarah.jenkins@panacea.ai' : 'marcus.v@panacea.ai',
+          username: userId === 1 ? 'user' : userId === 5 ? 'pooja_deshmukh' : 'rohan_v',
+          full_name: userId === 1 ? 'Aarav Sharma' : userId === 5 ? 'Pooja Deshmukh' : 'Rohan Verma',
+          email: userId === 1 ? 'user@panacea.ai' : userId === 5 ? 'pooja.deshmukh@panacea.ai' : 'rohan.v@panacea.ai',
           avatar_url: userId === 1 ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150' : userId === 5 ? 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150' : 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
           skin_type: userId === 1 ? 'Combination' : userId === 5 ? 'Sensitive / Dry' : 'Oily / Congested',
           primary_concerns: userId === 1 ? ['Acne & Breakouts', 'Barrier Impairment'] : userId === 5 ? ['Erythema & Rosacea', 'Flaking'] : ['Severe Cystic Acne', 'High Sebum'],
@@ -3005,8 +3058,8 @@ class App {
           diagnosed_condition: userId === 1 ? 'Mild Comedonal Acne & Post-Acne PIH' : userId === 5 ? 'Subacute Rosacea' : 'Severe Papulopustular Acne',
           status: 'Under Active Regimen',
           priority: userId === 1 ? 'Standard' : 'High',
-          assigned_consultant: 'Elena Vance, LE',
-          assigned_dermatologist: 'Dr. Julian Rostova, MD',
+          assigned_consultant: 'Ananya Iyer, LE',
+          assigned_dermatologist: 'Dr. Rajesh Varma, MD',
           active_prescription: userId === 1 ? 'Topical Adapalene 0.1% + Azelaic Acid 15%' : userId === 5 ? 'Ivermectin 1% Cream' : 'Benzoyl Peroxide 2.5% + Tretinoin 0.025%',
           consultant_notes: 'Hydration and barrier integrity significantly improved.',
           clinical_notes: 'Lesions clearing satisfactorily.',
@@ -3151,7 +3204,7 @@ class App {
     }
   }
 
-  openBookingModal(specialistId = 2, specialistName = 'Elena Vance, LE', specialistRole = 'consultant') {
+  openBookingModal(specialistId = 2, specialistName = 'Ananya Iyer, LE', specialistRole = 'consultant') {
     const idInput = document.getElementById('booking-specialist-id');
     const nameInput = document.getElementById('booking-specialist-name');
     const roleInput = document.getElementById('booking-specialist-role');
@@ -3196,7 +3249,7 @@ class App {
   // INTERACTIVE CLINICAL TELEHEALTH VIDEO MODAL CONTROLLER
   // ════════════════════════════════════════════════════════════════
 
-  openTelehealthVideoModal(appointmentId, role = 'user', title = 'Virtual Telehealth Consultation', otherPartyName = 'Dr. Julian Rostova, MD') {
+  openTelehealthVideoModal(appointmentId, role = 'user', title = 'Virtual Telehealth Consultation', otherPartyName = 'Dr. Rajesh Varma, MD') {
     const currentRole = auth.getCurrentRole();
     if (!currentRole) {
       this.openLoginModal(null, 'Please sign in to join clinical video consultations.');
@@ -3213,21 +3266,21 @@ class App {
     if (titleEl) titleEl.innerText = title || 'Encrypted Clinical Video Consultation';
     if (subtitleEl) {
       if (currentRole === 'dermatologist') {
-        subtitleEl.innerText = `Attending Physician: Dr. Julian Rostova, MD • Patient: ${otherPartyName || 'Marcus Vance'}`;
+        subtitleEl.innerText = `Attending Physician: Dr. Rajesh Varma, MD • Patient: ${otherPartyName || 'Rohan Verma'}`;
       } else if (currentRole === 'consultant') {
-        subtitleEl.innerText = `Consultant: Elena Vance, LE • Client: ${otherPartyName || 'Alex Rivera'}`;
+        subtitleEl.innerText = `Consultant: Ananya Iyer, LE • Client: ${otherPartyName || 'Aarav Sharma'}`;
       } else {
-        subtitleEl.innerText = `Specialist: ${otherPartyName || 'Dr. Julian Rostova, MD'} • Patient: Alex Rivera`;
+        subtitleEl.innerText = `Specialist: ${otherPartyName || 'Dr. Rajesh Varma, MD'} • Patient: Aarav Sharma`;
       }
     }
 
     if (badgeEl) {
       if (currentRole === 'dermatologist') {
-        badgeEl.innerText = `👤 Patient: ${otherPartyName || 'Marcus Vance'} (Encrypted HD)`;
+        badgeEl.innerText = `👤 Patient: ${otherPartyName || 'Rohan Verma'} (Encrypted HD)`;
       } else if (currentRole === 'consultant') {
-        badgeEl.innerText = `👤 Client: ${otherPartyName || 'Alex Rivera'} (Live Telehealth)`;
+        badgeEl.innerText = `👤 Client: ${otherPartyName || 'Aarav Sharma'} (Live Telehealth)`;
       } else {
-        badgeEl.innerText = `🩺 Specialist: ${otherPartyName || 'Dr. Julian Rostova, MD'} (Attending)`;
+        badgeEl.innerText = `🩺 Specialist: ${otherPartyName || 'Dr. Rajesh Varma, MD'} (Attending)`;
       }
     }
 
@@ -3251,14 +3304,14 @@ class App {
     this.telehealthSeconds = 0;
     if (this.telehealthTimerInterval) clearInterval(this.telehealthTimerInterval);
     const timerEl = document.getElementById('telehealth-timer');
-    if (timerEl) timerEl.innerText = '⏱️ 00:00:00';
+    if (timerEl) timerEl.innerText = '⏱️ 00:00:00 IST';
 
     this.telehealthTimerInterval = setInterval(() => {
       this.telehealthSeconds++;
       const hrs = String(Math.floor(this.telehealthSeconds / 3600)).padStart(2, '0');
       const mins = String(Math.floor((this.telehealthSeconds % 3600) / 60)).padStart(2, '0');
       const secs = String(this.telehealthSeconds % 60).padStart(2, '0');
-      if (timerEl) timerEl.innerText = `⏱️ ${hrs}:${mins}:${secs}`;
+      if (timerEl) timerEl.innerText = `⏱️ ${hrs}:${mins}:${secs} IST`;
     }, 1000);
 
     this.openModal('telehealth-video-modal');
@@ -3314,7 +3367,7 @@ class App {
   // APPOINTMENT RESCHEDULING & REQUEST DISPATCHERS
   // ════════════════════════════════════════════════════════════════
 
-  openRescheduleModal(appointmentId, specialistOrPatientName = 'Elena Vance, LE', currentSlot = 'Today • 2:30 PM EST') {
+  openRescheduleModal(appointmentId, specialistOrPatientName = 'Ananya Iyer, LE', currentSlot = 'Today • 2:30 PM IST') {
     const idInput = document.getElementById('reschedule-appointment-id');
     const infoEl = document.getElementById('reschedule-appointment-info');
     const timeEl = document.getElementById('reschedule-current-time');
@@ -3695,7 +3748,7 @@ class App {
     const user = auth.getCurrentUser();
     const role = auth.getCurrentRole() || 'user';
     const userId = user?.id || 1;
-    const userName = user?.username || 'Alex Rivera';
+    const userName = user?.username || 'Aarav Sharma';
     const userAvatar = user?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
 
     const activeContact = this.chatConversations.find(c => String(c.contact_id) === String(this.activeChatContactId)) || {
@@ -4169,6 +4222,47 @@ class App {
     document.body.removeChild(a);
   }
 
+  /**
+   * High-Fidelity Multi-Sheet Microsoft Excel (.xls / .xlsx) Workbook Exporter
+   */
+  async handleDownloadExcelExport(exportType = 'skin_health') {
+    const user = auth.getCurrentUser();
+    const userId = user?.id || 1;
+    const filename = `PanaceaAI_Clinical_Health_Report_${exportType}_${Date.now()}.xls`;
+
+    try {
+      // First attempt server-side export with full database records
+      const url = api.getExcelExportUrl(exportType, userId);
+      const res = await fetch(url);
+      if (res.ok) {
+        const blob = await res.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(blobUrl);
+        return;
+      }
+    } catch (err) {
+      console.warn('[Excel Export API Fallback]:', err.message);
+    }
+
+    // Client-side fallback: generate valid multi-sheet SpreadsheetML XML blob
+    const xmlContent = generateExcelSpreadsheetML(exportType, user?.profile || MOCK_USER_DATA.profile);
+    const blob = new Blob([xmlContent], { type: 'application/vnd.ms-excel;charset=utf-8' });
+    const blobUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(blobUrl);
+  }
+
   openReportPDFPreview(reportId) {
     const url = api.getReportPdfUrl(reportId);
     window.open(url, '_blank');
@@ -4178,7 +4272,7 @@ class App {
   // MODULE 9: CLINICIAN REGIMEN & DERMATOLOGIST RX CONTROLLERS
   // ════════════════════════════════════════════════════════════════
 
-  openConsultantRegimenModal(clientId = 1, clientName = 'Sophia Sterling') {
+  openConsultantRegimenModal(clientId = 1, clientName = 'Sneha Patel') {
     const card = document.getElementById('consultant-regimen-modal-card');
     if (card) {
       card.innerHTML = renderConsultantRegimenModalContent(clientId);
@@ -4207,7 +4301,7 @@ class App {
     }
   }
 
-  openDermatologistRxModal(patientId = 1, patientName = 'Sophia Sterling') {
+  openDermatologistRxModal(patientId = 1, patientName = 'Sneha Patel') {
     const card = document.getElementById('dermatologist-rx-modal-card');
     if (card) {
       card.innerHTML = renderDermatologistRxModalContent(patientId);

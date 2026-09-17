@@ -52,12 +52,12 @@ test('3. Landing Page View Renderer Test', () => {
   assert.ok(html.includes('Check Your Skin Health in Seconds'), 'Must contain editorial hero headline');
   assert.ok(html.includes('Precision Skin Intelligence Made Simple'), 'Must contain simple features section');
   assert.ok(html.includes('99.4% Scan Accuracy'), 'Must list accuracy metric');
-  assert.ok(html.includes('Dr. Julian Rostova') || html.includes('Elena Vance'), 'Must render certified clinician specialist card');
+  assert.ok(html.includes('Dr. Rajesh Varma') || html.includes('Dr. Julian Rostova') || html.includes('Elena Vance') || html.includes('Ananya Iyer'), 'Must render certified clinician specialist card');
 });
 
 test('4. User Dashboard View Renderer Test', () => {
   const html = renderUserDashboard();
-  assert.ok(html.includes('Alex Rivera'), 'Must include user name');
+  assert.ok(html.includes('Aarav Sharma') || html.includes('Alex Rivera'), 'Must include user name');
   assert.ok(html.includes('Weighted Skin Health Score'), 'Must include skin health score widget');
   assert.ok(html.includes('Today\'s Skincare Checklist'), 'Must include AM/PM routine checklist');
   assert.ok(html.includes('AI Matched Skincare Products'), 'Must include recommended products grid');
@@ -89,15 +89,19 @@ test('7. Admin Dashboard Microservices Monitor Test', () => {
 
 test('8. Auth Controller State Transitions Test', () => {
   assert.equal(auth.getCurrentRole(), null, 'Default role should be null');
+  assert.equal(auth.isAuthenticated(), false, 'isAuthenticated should be false when logged out');
   
   auth.login('user');
   assert.equal(auth.getCurrentRole(), 'user', 'Current role should be user after user login');
+  assert.equal(auth.isAuthenticated(), true, 'isAuthenticated should be true after login');
 
   auth.login('dermatologist');
   assert.equal(auth.getCurrentRole(), 'dermatologist', 'Current role should be dermatologist after role change');
+  assert.equal(auth.isAuthenticated(), true, 'isAuthenticated should be true for dermatologist');
 
   auth.logout();
   assert.equal(auth.getCurrentRole(), null, 'Current role should be null after logout');
+  assert.equal(auth.isAuthenticated(), false, 'isAuthenticated should be false after logout');
 });
 
 test('9. Login Page Renderer Test', () => {

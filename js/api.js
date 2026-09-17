@@ -1027,6 +1027,10 @@ class ApiClient {
     return `${API_BASE_URL}/api/reports/export/csv?type=${exportType}`;
   }
 
+  getExcelExportUrl(exportType = 'skin_health', userId = 1) {
+    return `${API_BASE_URL}/api/reports/export/excel?type=${exportType}&user_id=${userId}`;
+  }
+
   // ════════════════════════════════════════════════════════════════
   // MODULE 8: PROGRESS TRACKING & ANALYTICS CLIENT METHODS
   // ════════════════════════════════════════════════════════════════
