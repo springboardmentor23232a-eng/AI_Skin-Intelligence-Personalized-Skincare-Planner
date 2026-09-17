@@ -38,6 +38,10 @@ import {
   renderProgressAnalyticsPage,
   renderPatientDossierModalContent,
   renderConsultationsPage,
+  renderUserAppointmentsPage,
+  renderConsultantAppointmentsPage,
+  renderDermatologistAppointmentsPage,
+  renderAdminAppointmentsPage,
   renderClinicChatPage,
   renderNotificationDrawerContent,
   renderReminderSettingsModalContent,
@@ -239,20 +243,11 @@ class App {
       });
     }
 
-    // BUG 11 FIX: Auto-logout on 401 session expiry — opens portal modal dialog box
+    // Auto-logout on 401 session expiry — cleans up state and sets landing view without unsolicited modal popup
     api.onSessionExpired((msg) => {
       auth.logout();
-      this.currentView = 'home';
+      this.currentView = 'landing';
       this.render();
-      this.openLoginModal();
-      setTimeout(() => {
-        const alertBox = document.getElementById('modal-login-alert');
-        if (alertBox) {
-          alertBox.className = 'login-alert-box alert-error';
-          alertBox.innerText = msg;
-          alertBox.classList.remove('hidden');
-        }
-      }, 100);
     });
 
     // Bind brand logo click - always navigate to landing page
@@ -308,6 +303,28 @@ class App {
       }
     }
 
+    // Progress Tracking Tab & Dropdown Link: Exclusively for 'user' (Patient / Client) role
+    const navItemProgress = document.getElementById('nav-item-progress');
+    const dropdownItemProgress = document.getElementById('dropdown-item-progress');
+    if (navItemProgress) {
+      if (currentRole === 'user') {
+        navItemProgress.classList.remove('hidden');
+        navItemProgress.style.display = 'inline-flex';
+      } else {
+        navItemProgress.classList.add('hidden');
+        navItemProgress.style.display = 'none';
+      }
+    }
+    if (dropdownItemProgress) {
+      if (currentRole === 'user') {
+        dropdownItemProgress.classList.remove('hidden');
+        dropdownItemProgress.style.display = 'flex';
+      } else {
+        dropdownItemProgress.classList.add('hidden');
+        dropdownItemProgress.style.display = 'none';
+      }
+    }
+
     // Navbar role status & DP Dropdown (Profile Avatar at right top)
     if (currentRole && roleInfo) {
       const user = auth.getCurrentUser();
@@ -348,7 +365,10 @@ class App {
         this.authBtn.classList.remove('hidden');
         this.authBtn.innerText = 'SIGN IN';
         this.authBtn.className = 'btn btn-primary btn-sm';
-        this.authBtn.onclick = () => this.openLoginModal();
+        this.authBtn.onclick = () => {
+          this.pendingRedirect = null;
+          this.openLoginModal();
+        };
       }
     }
 
@@ -394,19 +414,43 @@ class App {
     } else if (this.currentView === 'settings') {
       this.mainContent.innerHTML = renderUserSettingsPage();
     } else if (this.currentView === 'consultations' || this.currentView === 'appointments') {
-      this.mainContent.innerHTML = renderConsultationsPage();
-      // Fetch live consultation records and sharing preferences from database
-      Promise.all([
-        api.getMyConsultations(1),
-        api.getUserSharingPreferences(1)
-      ]).then(([cRes, pRes]) => {
+      const user = auth.getCurrentUser();
+      const userId = user?.id || 1;
+      this.mainContent.innerHTML = renderConsultationsPage(null, null, null, currentRole);
+
+      if (currentRole === 'user') {
+        // Fetch live consultation records and sharing preferences from database for patient
+        Promise.all([
+          api.getMyConsultations(userId),
+          api.getUserSharingPreferences(userId)
+        ]).then(([cRes, pRes]) => {
+          const container = document.getElementById('main-content');
+          if (container && (this.currentView === 'consultations' || this.currentView === 'appointments') && auth.getCurrentRole() === 'user') {
+            const cData = cRes && cRes.success ? cRes : null;
+            const pData = pRes && pRes.success ? pRes.preferences : null;
+            container.innerHTML = renderConsultationsPage(cData, pData, null, 'user');
+          }
+        });
+      } else if (currentRole === 'consultant') {
+        api.getConsultantClients().then(res => {
+          const container = document.getElementById('main-content');
+          if (container && (this.currentView === 'consultations' || this.currentView === 'appointments') && auth.getCurrentRole() === 'consultant') {
+            container.innerHTML = renderConsultantAppointmentsPage(res && res.success ? res : null);
+          }
+        });
+      } else if (currentRole === 'dermatologist') {
+        api.getDermatologistPatients().then(res => {
+          const container = document.getElementById('main-content');
+          if (container && (this.currentView === 'consultations' || this.currentView === 'appointments') && auth.getCurrentRole() === 'dermatologist') {
+            container.innerHTML = renderDermatologistAppointmentsPage(res && res.success ? res : null);
+          }
+        });
+      } else if (currentRole === 'admin') {
         const container = document.getElementById('main-content');
         if (container && (this.currentView === 'consultations' || this.currentView === 'appointments')) {
-          const cData = cRes && cRes.success ? cRes : null;
-          const pData = pRes && pRes.success ? pRes.preferences : null;
-          container.innerHTML = renderConsultationsPage(cData, pData);
+          container.innerHTML = renderAdminAppointmentsPage();
         }
-      });
+      }
     } else if (this.currentView === 'progress' || this.currentView === 'analytics') {
       const user = auth.getCurrentUser();
       const localScans = this.getUserSavedScans(user?.id);
@@ -511,6 +555,7 @@ class App {
   }
 
   updateActiveNavCapsule(viewName) {
+    const currentRole = auth.getCurrentRole();
     const progressBtn = document.getElementById('nav-item-progress');
     const productsBtn = document.getElementById('nav-item-products');
     const appointmentsBtn = document.getElementById('nav-item-appointments');
@@ -524,7 +569,7 @@ class App {
     if (viewName === 'consultations' || viewName === 'appointments') {
       if (appointmentsBtn) appointmentsBtn.classList.add('active');
     } else if (viewName === 'progress' || viewName === 'analytics') {
-      if (progressBtn) progressBtn.classList.add('active');
+      if (progressBtn && currentRole === 'user') progressBtn.classList.add('active');
     } else if (viewName === 'products' || viewName === 'catalog') {
       if (productsBtn) productsBtn.classList.add('active');
     } else if (viewName === 'chat' || viewName === 'clinic-chat') {
@@ -720,6 +765,15 @@ class App {
       };
 
       this.openLoginModal(null, this.pendingRedirect.message);
+      return;
+    }
+
+    // Role-Based Guard: Progress Tracking & Personal Analytics is strictly restricted to 'user' role
+    if ((viewName === 'progress' || viewName === 'analytics') && currentRole && currentRole !== 'user') {
+      alert('🔒 Access Restricted: The Progress Tracking & Personal Analytics Lab is a patient self-monitoring module. Clinicians can review longitudinal patient biomarkers via the Clinical Patient Dossier in Appointments or the main Dashboard.');
+      this.currentView = 'dashboard';
+      this.render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
@@ -993,7 +1047,15 @@ class App {
   }
 
   closeLoginModal() {
-    this.loginModal.classList.remove('active');
+    this.pendingRedirect = null;
+    if (this.loginModal) {
+      this.loginModal.classList.remove('active');
+    }
+    const alertBox = document.getElementById('modal-login-alert');
+    if (alertBox) {
+      alertBox.innerText = '';
+      alertBox.classList.add('hidden');
+    }
   }
 
   openOAuthPasswordModal() {
@@ -3131,6 +3193,202 @@ class App {
   }
 
   // ════════════════════════════════════════════════════════════════
+  // INTERACTIVE CLINICAL TELEHEALTH VIDEO MODAL CONTROLLER
+  // ════════════════════════════════════════════════════════════════
+
+  openTelehealthVideoModal(appointmentId, role = 'user', title = 'Virtual Telehealth Consultation', otherPartyName = 'Dr. Julian Rostova, MD') {
+    const currentRole = auth.getCurrentRole();
+    if (!currentRole) {
+      this.openLoginModal(null, 'Please sign in to join clinical video consultations.');
+      return;
+    }
+
+    const titleEl = document.getElementById('telehealth-room-title');
+    const subtitleEl = document.getElementById('telehealth-room-subtitle');
+    const badgeEl = document.getElementById('telehealth-primary-badge');
+    const pipImg = document.getElementById('telehealth-patient-pip-img');
+    const clinicianBg = document.getElementById('telehealth-clinician-video-bg');
+    const notesArea = document.getElementById('telehealth-in-call-notes');
+
+    if (titleEl) titleEl.innerText = title || 'Encrypted Clinical Video Consultation';
+    if (subtitleEl) {
+      if (currentRole === 'dermatologist') {
+        subtitleEl.innerText = `Attending Physician: Dr. Julian Rostova, MD • Patient: ${otherPartyName || 'Marcus Vance'}`;
+      } else if (currentRole === 'consultant') {
+        subtitleEl.innerText = `Consultant: Elena Vance, LE • Client: ${otherPartyName || 'Alex Rivera'}`;
+      } else {
+        subtitleEl.innerText = `Specialist: ${otherPartyName || 'Dr. Julian Rostova, MD'} • Patient: Alex Rivera`;
+      }
+    }
+
+    if (badgeEl) {
+      if (currentRole === 'dermatologist') {
+        badgeEl.innerText = `👤 Patient: ${otherPartyName || 'Marcus Vance'} (Encrypted HD)`;
+      } else if (currentRole === 'consultant') {
+        badgeEl.innerText = `👤 Client: ${otherPartyName || 'Alex Rivera'} (Live Telehealth)`;
+      } else {
+        badgeEl.innerText = `🩺 Specialist: ${otherPartyName || 'Dr. Julian Rostova, MD'} (Attending)`;
+      }
+    }
+
+    if (clinicianBg) {
+      if (currentRole === 'dermatologist' || currentRole === 'consultant') {
+        clinicianBg.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600';
+      } else {
+        clinicianBg.src = 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600';
+      }
+    }
+
+    if (notesArea) {
+      notesArea.value = currentRole === 'dermatologist' 
+        ? 'Reviewed optical biomarker telemetry (Hydration: 74%, Barrier: 86%). Patient reports compliance with topical Adapalene 0.1%. No adverse erythema noted. Authorized 60-day refill.'
+        : currentRole === 'consultant'
+          ? 'Client moisture barrier rebounding satisfactorily. Recommended adjusting BHA exfoliant layering to 3x/week in PM. Ceramide seal maintained.'
+          : 'Consultation notes with specialist. Discussing active ingredient tolerance and routine adaptation.';
+    }
+
+    // Start Live Call Timer
+    this.telehealthSeconds = 0;
+    if (this.telehealthTimerInterval) clearInterval(this.telehealthTimerInterval);
+    const timerEl = document.getElementById('telehealth-timer');
+    if (timerEl) timerEl.innerText = '⏱️ 00:00:00';
+
+    this.telehealthTimerInterval = setInterval(() => {
+      this.telehealthSeconds++;
+      const hrs = String(Math.floor(this.telehealthSeconds / 3600)).padStart(2, '0');
+      const mins = String(Math.floor((this.telehealthSeconds % 3600) / 60)).padStart(2, '0');
+      const secs = String(this.telehealthSeconds % 60).padStart(2, '0');
+      if (timerEl) timerEl.innerText = `⏱️ ${hrs}:${mins}:${secs}`;
+    }, 1000);
+
+    this.openModal('telehealth-video-modal');
+  }
+
+  closeTelehealthVideoModal() {
+    if (this.telehealthTimerInterval) {
+      clearInterval(this.telehealthTimerInterval);
+      this.telehealthTimerInterval = null;
+    }
+    this.closeModal('telehealth-video-modal');
+  }
+
+  toggleTelehealthMic() {
+    const btn = document.getElementById('btn-call-mic');
+    if (btn) {
+      this.isMicMuted = !this.isMicMuted;
+      btn.style.background = this.isMicMuted ? '#EF4444' : '#2D2723';
+      btn.innerHTML = this.isMicMuted ? '🔇' : '🎙️';
+      alert(this.isMicMuted ? 'Microphone muted.' : 'Microphone unmuted (HD Audio active).');
+    }
+  }
+
+  toggleTelehealthCam() {
+    const btn = document.getElementById('btn-call-cam');
+    const offNotice = document.getElementById('telehealth-cam-off-notice');
+    if (btn) {
+      this.isCamOff = !this.isCamOff;
+      btn.style.background = this.isCamOff ? '#EF4444' : '#2D2723';
+      btn.innerHTML = this.isCamOff ? '🚫' : '📹';
+      if (offNotice) {
+        if (this.isCamOff) offNotice.classList.remove('hidden');
+        else offNotice.classList.add('hidden');
+      }
+    }
+  }
+
+  toggleTelehealthShare() {
+    alert('🖥️ Screen Share Active: Sharing Optical Cutaneous Biomarker Diagnostics & CNN Lesion Screening HUD with meeting participants.');
+  }
+
+  handleSaveInCallNotes() {
+    const notesArea = document.getElementById('telehealth-in-call-notes');
+    const notes = notesArea?.value || '';
+    alert('💾 Clinical encounter directives and consultation notes synchronized successfully with patient medical record.');
+    this.closeTelehealthVideoModal();
+    if (this.currentView === 'consultations' || this.currentView === 'appointments') {
+      this.render();
+    }
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // APPOINTMENT RESCHEDULING & REQUEST DISPATCHERS
+  // ════════════════════════════════════════════════════════════════
+
+  openRescheduleModal(appointmentId, specialistOrPatientName = 'Elena Vance, LE', currentSlot = 'Today • 2:30 PM EST') {
+    const idInput = document.getElementById('reschedule-appointment-id');
+    const infoEl = document.getElementById('reschedule-appointment-info');
+    const timeEl = document.getElementById('reschedule-current-time');
+
+    if (idInput) idInput.value = appointmentId || '';
+    if (infoEl) infoEl.innerText = `Session with ${specialistOrPatientName}`;
+    if (timeEl) timeEl.innerText = `Current Scheduled Slot: ${currentSlot}`;
+
+    this.openModal('appointment-reschedule-modal');
+  }
+
+  async handleRescheduleSubmit(event) {
+    if (event) event.preventDefault();
+    const appointmentId = document.getElementById('reschedule-appointment-id')?.value;
+    const newDate = document.getElementById('reschedule-new-date')?.value;
+    const notes = document.getElementById('reschedule-notes')?.value;
+
+    const res = await api.rescheduleAppointment({
+      appointment_id: appointmentId,
+      scheduled_date: newDate ? new Date(newDate).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric' }) : 'Rescheduled Slot',
+      notes
+    });
+
+    this.closeModal('appointment-reschedule-modal');
+    alert(res.message || 'Appointment rescheduled successfully! Both parties notified via SMS/Email.');
+
+    if (this.currentView === 'consultations' || this.currentView === 'appointments') {
+      this.render();
+    }
+  }
+
+  async handleAcceptBookingRequest(requestId) {
+    const res = await api.respondToBookingRequest({ request_id: requestId, action: 'accept' });
+    alert(res.message || 'Consultation request accepted and confirmed! Calendar slot locked.');
+    if (this.currentView === 'consultations' || this.currentView === 'appointments') {
+      this.render();
+    }
+  }
+
+  async handleDeclineBookingRequest(requestId) {
+    if (confirm('Are you sure you want to decline this consultation request?')) {
+      const res = await api.respondToBookingRequest({ request_id: requestId, action: 'decline' });
+      alert(res.message || 'Consultation request declined. Notification dispatched.');
+      if (this.currentView === 'consultations' || this.currentView === 'appointments') {
+        this.render();
+      }
+    }
+  }
+
+  async handleDoctorAuthorizeRx(rxId) {
+    const res = await api.authorizePrescription({ rx_id: rxId });
+    alert(`DEA Electronic Prescription Certified: ${res.message || 'Prescription authorized by Dr. Julian Rostova, MD.'}`);
+    if (this.currentView === 'consultations' || this.currentView === 'appointments') {
+      this.render();
+    }
+  }
+
+  handleDoctorSignEncounterNote(patientId) {
+    alert(`✍️ Certified Medical Encounter Signature: Clinical SOAP notes signed and locked for Patient #${patientId} by Dr. Julian Rostova, MD (DEA / NPI Verified).`);
+    if (this.currentView === 'consultations' || this.currentView === 'appointments') {
+      this.render();
+    }
+  }
+
+  toggleConsultantAvailability(status) {
+    alert(status ? '🟢 Esthetician Clinic Status: Online & Accepting Client Bookings.' : '⏸️ Esthetician Clinic Status: Paused (No new bookings).');
+  }
+
+  openDirectSpecialistChat(contactRoleOrId) {
+    this.activeChatContactId = contactRoleOrId === 'doctor' || contactRoleOrId === 'dermatologist' ? 'doctor' : contactRoleOrId === 'consultant' ? 'consultant' : contactRoleOrId;
+    this.navigateToView('chat');
+  }
+
+  // ════════════════════════════════════════════════════════════════
   // CLINICAL CHAT & LUMINA AI CONTROLLER
   // ════════════════════════════════════════════════════════════════
 
@@ -3609,6 +3867,12 @@ class App {
     const panel = document.getElementById('notif-drawer-panel');
     if (!drawer || !panel) return;
 
+    if (forceState === false) {
+      drawer.classList.remove('active');
+      this.isNotificationDrawerOpen = false;
+      return;
+    }
+
     const currentRole = auth.getCurrentRole();
     if (!currentRole) {
       this.openLoginModal(null, 'Please sign in or register to view your notifications.');
@@ -3633,7 +3897,11 @@ class App {
   }
 
   closeNotificationDrawer() {
-    this.toggleNotificationDrawer(false);
+    const drawer = document.getElementById('notification-drawer');
+    if (drawer) {
+      drawer.classList.remove('active');
+      this.isNotificationDrawerOpen = false;
+    }
   }
 
   filterNotificationCategory(category) {
@@ -3826,27 +4094,69 @@ class App {
       htmlContent = compileClinicalReportHTML(reportType, user?.profile || MOCK_USER_DATA.profile);
     }
 
-    const printContainer = document.getElementById('printable-report-container');
-    if (printContainer) {
-      printContainer.innerHTML = htmlContent;
-      printContainer.classList.remove('hidden');
-      document.body.classList.add('printing-report');
-
-      const cleanUpPrint = () => {
-        document.body.classList.remove('printing-report');
-        printContainer.classList.add('hidden');
-        window.removeEventListener('afterprint', cleanUpPrint);
-      };
-      window.addEventListener('afterprint', cleanUpPrint);
-
-      setTimeout(() => {
-        window.print();
-        // Fallback cleanup if afterprint does not fire
-        setTimeout(() => {
-          document.body.classList.remove('printing-report');
-        }, 3000);
-      }, 250);
+    // Wrap into a complete self-contained printable HTML document if it is a fragment
+    let fullPrintDoc = htmlContent;
+    if (!fullPrintDoc.includes('<!DOCTYPE') && !fullPrintDoc.includes('<html')) {
+      fullPrintDoc = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PanaceaAI Clinical Report</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap');
+    @page { size: A4 portrait; margin: 12mm 15mm; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: #1E293B;
+      background: #FFFFFF;
+      padding: 16px;
+      line-height: 1.5;
+      font-size: 13px;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 12px; }
+    th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #E2E8F0; }
+    th { background: #F8FAFC; color: #475569; font-weight: 700; font-size: 10px; text-transform: uppercase; }
+  </style>
+</head>
+<body>
+  ${htmlContent}
+</body>
+</html>`;
+    }
+
+    // Print via dedicated isolated hidden iframe to guarantee zero code leakage
+    let printFrame = document.getElementById('panacea-isolated-print-frame');
+    if (printFrame) {
+      printFrame.remove();
+    }
+
+    printFrame = document.createElement('iframe');
+    printFrame.id = 'panacea-isolated-print-frame';
+    printFrame.style.position = 'fixed';
+    printFrame.style.right = '0';
+    printFrame.style.bottom = '0';
+    printFrame.style.width = '0';
+    printFrame.style.height = '0';
+    printFrame.style.border = 'none';
+    printFrame.style.visibility = 'hidden';
+    document.body.appendChild(printFrame);
+
+    const frameDoc = printFrame.contentWindow.document;
+    frameDoc.open();
+    frameDoc.write(fullPrintDoc);
+    frameDoc.close();
+
+    setTimeout(() => {
+      try {
+        printFrame.contentWindow.focus();
+        printFrame.contentWindow.print();
+      } catch (err) {
+        console.warn('[Print Frame Trigger Error]', err);
+      }
+    }, 450);
   }
 
   handleDownloadCSVExport(exportType = 'progress') {

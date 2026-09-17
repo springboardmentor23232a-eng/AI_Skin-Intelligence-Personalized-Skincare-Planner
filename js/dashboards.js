@@ -17,7 +17,11 @@ import {
   getAlternativeProductsFor,
   MOCK_PROGRESS_TRACKING_DATA,
   generateTrendTrajectoryData,
-  generateCalendar30Days
+  generateCalendar30Days,
+  MOCK_USER_APPOINTMENTS,
+  MOCK_CONSULTANT_APPOINTMENTS,
+  MOCK_DERMATOLOGIST_APPOINTMENTS,
+  MOCK_ADMIN_APPOINTMENTS
 } from './mockData.js';
 
 export function renderLandingPage() {
@@ -3375,58 +3379,35 @@ export function renderProgressAnalyticsPage(progressData = null, currentUser = n
 }
 
 /**
- * RENDER CLINICAL CONSULTATIONS & DATA SHARING HUB PAGE
- * Dedicated page for managing specialist consultations, booking sessions,
- * and configuring granular HIPAA/GDPR data sharing consent permissions.
+ * RENDER CLINICAL CONSULTATIONS & APPOINTMENTS HUB
+ * Role-aware dispatch for User, Consultant, Dermatologist, and Admin
  */
-export function renderConsultationsPage(consultData = null, prefsData = null, specialistsList = null) {
-  const consult = consultData?.consultation || {
-    condition: 'Mild Comedonal Acne & Post-Acne PIH',
-    status: 'Under Active Regimen',
-    prescription: 'Topical Adapalene 0.1% (PM 3x/wk) + Azelaic Acid 15% (AM)',
-    consultant_notes: 'Patient showed +54.2% hydration boost. Barrier restored after introducing ceramide night barrier seal.',
-    clinical_notes: 'Follicular retention hyperkeratosis clearing satisfactorily. Recommend maintaining current Retinoid cadence.',
-    last_visit: '24 Nov 2025',
-    next_review: '24 Dec 2025'
-  };
+export function renderConsultationsPage(consultData = null, prefsData = null, specialistsList = null, roleOverride = null) {
+  const currentRole = roleOverride || (auth ? auth.getCurrentRole() : 'user') || 'user';
 
-  const appointments = consultData?.appointments || [
-    {
-      id: 1,
-      specialist_name: 'Elena Vance, LE',
-      specialist_role: 'consultant',
-      type: 'Virtual Regimen Review & Barrier Check',
-      scheduled_date: '10 Dec 2025 • 2:30 PM EST',
-      status: 'confirmed'
-    },
-    {
-      id: 2,
-      specialist_name: 'Dr. Julian Rostova, MD',
-      specialist_role: 'dermatologist',
-      type: 'Clinical Prescription & Lesion Follow-up',
-      scheduled_date: '24 Dec 2025 • 10:00 AM EST',
-      status: 'scheduled'
-    }
-  ];
+  if (currentRole === 'consultant') {
+    return renderConsultantAppointmentsPage(consultData);
+  } else if (currentRole === 'dermatologist') {
+    return renderDermatologistAppointmentsPage(consultData);
+  } else if (currentRole === 'admin') {
+    return renderAdminAppointmentsPage(consultData);
+  } else {
+    return renderUserAppointmentsPage(consultData, prefsData, specialistsList);
+  }
+}
 
-  const prefs = prefsData || {
-    consultant: {
-      shared: true,
-      biomarkers: true,
-      photos_and_lesions: true,
-      adherence_and_compliance: true,
-      medical_and_rx_history: false,
-      lifestyle_logs: true
-    },
-    doctor: {
-      shared: true,
-      biomarkers: true,
-      photos_and_lesions: true,
-      adherence_and_compliance: true,
-      medical_and_rx_history: true,
-      lifestyle_logs: true
-    }
-  };
+/**
+ * ════════════════════════════════════════════════════════════════
+ * 1. USER / PATIENT APPOINTMENTS & CARE PLAN WORKSPACE
+ * ════════════════════════════════════════════════════════════════
+ */
+export function renderUserAppointmentsPage(consultData = null, prefsData = null, specialistsList = null) {
+  const userAppointments = MOCK_USER_APPOINTMENTS;
+  const consult = consultData?.consultation || userAppointments.active_care;
+  const upcomingList = consultData?.appointments || userAppointments.upcoming;
+  const pastList = userAppointments.past_history;
+  const prefs = prefsData || userAppointments.sharing_preferences;
+  const specialists = specialistsList || userAppointments.specialists_directory;
 
   const cPref = prefs.consultant || {};
   const dPref = prefs.doctor || {};
@@ -3437,14 +3418,14 @@ export function renderConsultationsPage(consultData = null, prefsData = null, sp
       <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 2rem; border-bottom: 1px solid var(--border-light); padding-bottom: 1.5rem;">
         <div>
           <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.4rem;">
-            <div class="section-tag-pill" style="margin: 0;">• CLINICAL PORTAL & CONSENT</div>
-            <span class="badge badge-accent" style="font-size: 0.75rem;">🛡️ HIPAA/GDPR Granular Consent Active</span>
+            <div class="section-tag-pill" style="margin: 0;">• TELEHEALTH & SPECIALIST CARE PORTAL</div>
+            <span class="badge badge-accent" style="font-size: 0.75rem;">🛡️ HIPAA/GDPR Sovereign Data Consent Active</span>
           </div>
           <h1 style="font-family: 'Playfair Display', serif; font-size: 2.2rem; margin: 0 0 0.5rem 0; color: var(--text-primary);">
-            Clinical Consultations & Data Sharing Hub
+            My Telehealth Appointments & Care Plan
           </h1>
           <p class="text-muted" style="margin: 0; font-size: 0.95rem; max-width: 750px;">
-            Consult with certified skincare specialists, track digital medical prescriptions, and select exactly what health metrics each clinician is permitted to view.
+            Manage your upcoming virtual dermatology consultations, review active digital prescriptions, book specialized care sessions, and configure HIPAA sovereign data-sharing permissions.
           </p>
         </div>
 
@@ -3458,23 +3439,95 @@ export function renderConsultationsPage(consultData = null, prefsData = null, sp
         </div>
       </div>
 
-      <!-- SECTION 1: ACTIVE CLINICAL CARE & DIGITAL RX -->
+      <!-- SECTION 1: UPCOMING SCHEDULED TELEHEALTH SESSIONS -->
+      <section class="glass-card section-margin" style="background: #FFFFFF; padding: 2rem; border-radius: var(--radius-md); border: 1px solid var(--border-light); margin-bottom: 2.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="font-size: 1.3rem;">📹</span>
+              <h2 style="font-family: 'Playfair Display', serif; font-size: 1.4rem; margin: 0;">Upcoming Telehealth Consultations</h2>
+            </div>
+            <p class="text-muted" style="font-size: 0.85rem; margin: 0.2rem 0 0 0;">Interactive video sessions with your assigned clinical specialists.</p>
+          </div>
+          <span class="badge badge-success" style="font-size: 0.82rem; padding: 0.4rem 0.9rem;">
+            🟢 ${upcomingList.length} Active Consultations Booked
+          </span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+          ${upcomingList.map(app => `
+            <div style="background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 1.5rem; border-left: 5px solid ${app.specialist_role === 'dermatologist' ? '#2E7D32' : 'var(--gold-primary)'}; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                  <img src="${app.avatar || 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150'}" alt="${app.specialist_name}" style="width: 58px; height: 58px; border-radius: 50%; object-fit: cover; border: 2px solid ${app.specialist_role === 'dermatologist' ? '#2E7D32' : 'var(--gold-primary)'};">
+                  <div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                      <h3 style="font-family: 'Playfair Display', serif; font-size: 1.2rem; margin: 0; color: var(--text-primary);">${app.type || 'Virtual Clinical Consultation'}</h3>
+                      <span class="badge ${app.status === 'confirmed' ? 'badge-success' : 'badge-warning'}" style="font-size: 0.72rem;">
+                        ${app.status === 'confirmed' ? 'Confirmed & Video Ready' : 'Pending Confirmation'}
+                      </span>
+                      ${app.time_countdown ? `<span class="badge badge-accent" style="font-size: 0.72rem;">⏰ ${app.time_countdown}</span>` : ''}
+                    </div>
+                    <div style="font-size: 0.86rem; color: var(--text-secondary); margin-top: 0.2rem;">
+                      with <strong>${app.specialist_name}</strong> • <span style="color: ${app.specialist_role === 'dermatologist' ? '#2E7D32' : 'var(--gold-primary)'}; font-weight: 700;">${app.specialist_title || (app.specialist_role === 'dermatologist' ? 'Board-Certified Dermatologist' : 'Lead Clinical Esthetician')}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="text-align: right;">
+                  <div style="font-size: 1.05rem; font-weight: 800; color: var(--text-primary); font-family: monospace;">
+                    📅 ${typeof app.scheduled_date === 'string' && app.scheduled_date.includes('T') ? new Date(app.scheduled_date).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric' }) : (app.scheduled_date || 'Scheduled')}
+                  </div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">Encrypted WebRTC Video Room</div>
+                </div>
+              </div>
+
+              ${app.session_focus ? `
+                <div style="background: #FFFFFF; border: 1px solid var(--border-light); border-radius: 6px; padding: 0.85rem 1rem; margin-bottom: 1.25rem; font-size: 0.85rem; color: var(--text-secondary);">
+                  <strong style="color: var(--text-primary); display: block; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 0.2rem;">Session Focus & Directives:</strong>
+                  ${app.session_focus}
+                </div>
+              ` : ''}
+
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; border-top: 1px solid var(--border-light); padding-top: 1rem;">
+                <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+                  <button class="btn btn-sm btn-outline" onclick="alert('Appointment synchronized with your calendar (.ics event downloaded)!')" style="font-size: 0.78rem; padding: 0.4rem 0.9rem;">
+                    📅 Add to Calendar
+                  </button>
+                  <button class="btn btn-sm btn-outline" onclick="window.app.openRescheduleModal(${app.id}, '${app.specialist_name}', '${app.scheduled_date}')" style="font-size: 0.78rem; padding: 0.4rem 0.9rem;">
+                    🔄 Reschedule
+                  </button>
+                  <button class="btn btn-sm btn-outline" onclick="window.app.openDirectSpecialistChat('${app.specialist_role === 'dermatologist' ? 'doctor' : 'consultant'}')" style="font-size: 0.78rem; padding: 0.4rem 0.9rem;">
+                    💬 Message Clinician
+                  </button>
+                </div>
+
+                <button class="btn btn-primary" onclick="window.app.openTelehealthVideoModal(${app.id}, 'user', '${app.type || 'Virtual Consultation'}', '${app.specialist_name}')" style="font-weight: 700; padding: 0.55rem 1.4rem; background: ${app.specialist_role === 'dermatologist' ? '#2E7D32' : 'var(--gold-primary)'}; color: ${app.specialist_role === 'dermatologist' ? '#FFFFFF' : '#111'}; border-color: ${app.specialist_role === 'dermatologist' ? '#2E7D32' : 'var(--gold-primary)'};">
+                  📹 Join Virtual Consultation Room →
+                </button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </section>
+
+      <!-- SECTION 2: ACTIVE CLINICAL CARE & DIGITAL RX -->
       <section class="glass-card section-margin" style="background: #FFFFFF; padding: 2rem; border-radius: var(--radius-md); border: 1px solid var(--border-light); margin-bottom: 2.5rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
           <div>
             <h2 style="font-family: 'Playfair Display', serif; font-size: 1.4rem; margin: 0 0 0.25rem 0;">Active Clinical Protocol & Digital Rx</h2>
-            <p class="text-muted" style="font-size: 0.85rem; margin: 0;">Synchronized notes and prescriptions directly issued by your care team.</p>
+            <p class="text-muted" style="font-size: 0.85rem; margin: 0;">Synchronized directives and prescriptions directly issued by your care team.</p>
           </div>
           <span class="badge badge-success" style="font-size: 0.82rem; padding: 0.4rem 0.9rem;">
             🟢 ${consult.status || 'Under Active Regimen'}
           </span>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
           <!-- Consultant Advice Card -->
           <div style="background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 1.4rem;">
             <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-              <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100" alt="Elena Vance" style="width: 46px; height: 46px; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold-primary);">
+              <img src="${consult.assigned_consultant?.avatar || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100'}" alt="Elena Vance" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold-primary);">
               <div>
                 <strong style="font-size: 0.95rem; color: var(--text-primary); display: block;">Elena Vance, LE</strong>
                 <span style="font-size: 0.74rem; color: var(--gold-primary); font-weight: 700; text-transform: uppercase;">Lead Clinical Esthetician</span>
@@ -3482,18 +3535,18 @@ export function renderConsultationsPage(consultData = null, prefsData = null, sp
             </div>
             <div style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 700;">REGIMEN RECOMMENDATION & NOTES:</div>
             <p style="font-size: 0.86rem; color: var(--text-secondary); line-height: 1.5; margin: 0 0 1rem 0; background: #FFFFFF; padding: 0.9rem; border-radius: 6px; border: 1px solid var(--border-light);">
-              "${consult.consultant_notes || 'Hydration and barrier integrity significantly improved. Maintain ceramide barrier seal.'}"
+              "${consult.consultant_notes || consult.assigned_consultant?.notes || 'Hydration and barrier integrity significantly improved. Maintain ceramide barrier seal.'}"
             </p>
             <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; color: var(--text-muted);">
               <span>Last Review: <strong>${consult.last_visit || '24 Nov 2025'}</strong></span>
-              <button class="btn btn-sm btn-outline" style="font-size: 0.75rem; padding: 0.25rem 0.65rem;" onclick="alert('Opening secure asynchronous clinical chat with Elena Vance, LE...')">💬 Message</button>
+              <button class="btn btn-sm btn-outline" style="font-size: 0.75rem; padding: 0.25rem 0.65rem;" onclick="window.app.openDirectSpecialistChat('consultant')">💬 Message</button>
             </div>
           </div>
 
           <!-- Doctor Medical Rx Card -->
           <div style="background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 1.4rem;">
             <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-              <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=100" alt="Dr. Julian Rostova" style="width: 46px; height: 46px; border-radius: 50%; object-fit: cover; border: 2px solid #2E7D32;">
+              <img src="${consult.assigned_doctor?.avatar || 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=100'}" alt="Dr. Julian Rostova" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #2E7D32;">
               <div>
                 <strong style="font-size: 0.95rem; color: var(--text-primary); display: block;">Dr. Julian Rostova, MD</strong>
                 <span style="font-size: 0.74rem; color: #2E7D32; font-weight: 700; text-transform: uppercase;">Board-Certified Dermatologist</span>
@@ -3502,41 +3555,17 @@ export function renderConsultationsPage(consultData = null, prefsData = null, sp
             <div style="font-size: 0.82rem; color: #2E7D32; margin-bottom: 0.5rem; font-weight: 800;">🩺 ACTIVE DIGITAL PRESCRIPTION (Rx):</div>
             <div style="background: #FFFFFF; padding: 0.9rem; border-radius: 6px; border: 1px solid rgba(46,125,50,0.3); margin-bottom: 0.85rem;">
               <div style="font-weight: 800; font-size: 0.92rem; color: #1E6B23; margin-bottom: 0.25rem;">${consult.prescription || 'Topical Adapalene 0.1% + Azelaic Acid 15%'}</div>
-              <div style="font-size: 0.8rem; color: var(--text-secondary);">${consult.clinical_notes || 'Follicular retention hyperkeratosis clearing satisfactorily.'}</div>
+              <div style="font-size: 0.8rem; color: var(--text-secondary);">${consult.clinical_notes || consult.assigned_doctor?.clinical_notes || 'Follicular retention hyperkeratosis clearing satisfactorily.'}</div>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; color: var(--text-muted);">
               <span>Next Check: <strong>${consult.next_review || '24 Dec 2025'}</strong></span>
-              <button class="btn btn-sm btn-primary" style="background: #2E7D32; border-color: #2E7D32; font-size: 0.75rem; padding: 0.25rem 0.65rem;" onclick="alert('Digital prescription verification certified. Valid for pharmacy dispense.')">📄 View Rx</button>
+              <button class="btn btn-sm btn-primary" style="background: #2E7D32; border-color: #2E7D32; font-size: 0.75rem; padding: 0.25rem 0.65rem;" onclick="alert('Certified Digital Prescription #RX-84920-ADAP. Certified for pharmacy dispense by Dr. Julian Rostova, MD.')">📄 View Rx</button>
             </div>
-          </div>
-        </div>
-
-        <!-- UPCOMING SESSIONS TIMELINE -->
-        <div style="background: #FFFFFF; border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 1.25rem;">
-          <h4 style="font-family: 'Playfair Display', serif; font-size: 1.05rem; margin: 0 0 0.85rem 0; color: var(--text-primary);">Upcoming Scheduled Consultations</h4>
-          <div style="display: flex; flex-direction: column; gap: 0.65rem;">
-            ${appointments.map(app => `
-              <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: #FAF9F6; border-radius: 6px; border-left: 4px solid ${app.specialist_role === 'dermatologist' ? '#2E7D32' : 'var(--gold-primary)'}; flex-wrap: wrap; gap: 0.5rem;">
-                <div style="display: flex; align-items: center; gap: 0.85rem;">
-                  <span style="font-size: 1.2rem;">${app.specialist_role === 'dermatologist' ? '🩺' : '✨'}</span>
-                  <div>
-                    <strong style="font-size: 0.88rem; color: var(--text-primary);">${app.type || 'Clinical Skincare Consultation'}</strong>
-                    <div style="font-size: 0.78rem; color: var(--text-muted);">with ${app.specialist_name} • ${typeof app.scheduled_date === 'string' && app.scheduled_date.includes('T') ? new Date(app.scheduled_date).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric' }) : (app.scheduled_date || 'Scheduled')}</div>
-                  </div>
-                </div>
-                <div style="display: flex; align-items: center; gap: 0.75rem;">
-                  <span class="badge ${app.status === 'confirmed' ? 'badge-success' : 'badge-warning'}" style="font-size: 0.75rem;">
-                    ${app.status === 'confirmed' ? 'Confirmed Slot' : 'Pending Review'}
-                  </span>
-                  <button class="btn btn-sm btn-outline" style="font-size: 0.74rem;" onclick="alert('Join video consultation meeting link will activate 10 minutes prior to session.')">📹 Join Call</button>
-                </div>
-              </div>
-            `).join('')}
           </div>
         </div>
       </section>
 
-      <!-- SECTION 2: GRANULAR DATA SHARING & PRIVACY MATRIX -->
+      <!-- SECTION 3: GRANULAR DATA SHARING & PRIVACY MATRIX -->
       <section class="glass-card section-margin" style="background: #FFFFFF; padding: 2rem; border-radius: var(--radius-md); border: 1px solid var(--border-light); margin-bottom: 2.5rem;">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border-light); padding-bottom: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
           <div>
@@ -3680,8 +3709,8 @@ export function renderConsultationsPage(consultData = null, prefsData = null, sp
         </form>
       </section>
 
-      <!-- SECTION 3: SPECIALIST DIRECTORY & INSTANT BOOKING -->
-      <section class="glass-card section-margin" style="background: #FFFFFF; padding: 2rem; border-radius: var(--radius-md); border: 1px solid var(--border-light);">
+      <!-- SECTION 4: SPECIALIST DIRECTORY & INSTANT BOOKING -->
+      <section class="glass-card section-margin" style="background: #FFFFFF; padding: 2rem; border-radius: var(--radius-md); border: 1px solid var(--border-light); margin-bottom: 2.5rem;">
         <div style="border-bottom: 1px solid var(--border-light); padding-bottom: 1rem; margin-bottom: 1.5rem;">
           <div class="section-tag-pill" style="margin-bottom: 0.4rem;">• CLINICIAN DIRECTORY</div>
           <h2 style="font-family: 'Playfair Display', serif; font-size: 1.4rem; margin: 0 0 0.25rem 0;">PanaceaAI Board of Specialists</h2>
@@ -3689,62 +3718,610 @@ export function renderConsultationsPage(consultData = null, prefsData = null, sp
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
-          <!-- Specialist 1 -->
-          <div style="background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 1.4rem; display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-              <div style="display: flex; align-items: center; gap: 0.85rem; margin-bottom: 0.85rem;">
-                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120" alt="Elena Vance" style="width: 54px; height: 54px; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold-primary);">
-                <div>
-                  <h4 style="font-family: 'Playfair Display', serif; font-size: 1.05rem; margin: 0;">Elena Vance, LE</h4>
-                  <span style="font-size: 0.72rem; color: var(--gold-primary); font-weight: 800;">LEAD CLINICAL ESTHETICIAN</span>
+          ${specialists.map(sp => `
+            <div style="background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 1.4rem; display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <div style="display: flex; align-items: center; gap: 0.85rem; margin-bottom: 0.85rem;">
+                  <img src="${sp.avatar}" alt="${sp.name}" style="width: 54px; height: 54px; border-radius: 50%; object-fit: cover; border: 2px solid ${sp.badge_color || 'var(--gold-primary)'};">
+                  <div>
+                    <h4 style="font-family: 'Playfair Display', serif; font-size: 1.05rem; margin: 0;">${sp.name}</h4>
+                    <span style="font-size: 0.72rem; color: ${sp.badge_color || 'var(--gold-primary)'}; font-weight: 800; text-transform: uppercase;">${sp.title}</span>
+                  </div>
+                </div>
+                <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.6rem;">${sp.credentials}</div>
+                <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                  ${(sp.focus_areas || []).map(f => `<span class="badge" style="font-size: 0.68rem; background: #FFFFFF; border: 1px solid var(--border-light);">${f}</span>`).join('')}
                 </div>
               </div>
-              <p style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.45; margin-bottom: 1rem;">
-                Expert in active ingredient synergy, barrier consolidation, acne non-comedogenic routines, and seasonal adaptation.
-              </p>
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; font-size: 0.85rem;">
+                  <strong>${sp.rate}</strong>
+                  <span style="color: var(--gold-primary); font-weight: 700;">★ ${sp.rating}</span>
+                </div>
+                <button class="btn btn-sm btn-primary" onclick="window.app.openBookingModal(${sp.id}, '${sp.name}', '${sp.role}')" style="font-weight: 700; width: 100%; background: ${sp.role === 'dermatologist' ? '#2E7D32' : 'var(--gold-primary)'}; border-color: ${sp.role === 'dermatologist' ? '#2E7D32' : 'var(--gold-primary)'}; color: ${sp.role === 'dermatologist' ? '#FFF' : '#111'};">
+                  Book Consultation Slot →
+                </button>
+              </div>
             </div>
-            <button class="btn btn-sm btn-primary" onclick="window.app.openBookingModal(2, 'Elena Vance, LE', 'consultant')" style="font-weight: 700; width: 100%;">
-              Book Routine Review ($45) →
-            </button>
-          </div>
+          `).join('')}
+        </div>
+      </section>
 
-          <!-- Specialist 2 -->
-          <div style="background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 1.4rem; display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-              <div style="display: flex; align-items: center; gap: 0.85rem; margin-bottom: 0.85rem;">
-                <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120" alt="Dr. Julian Rostova" style="width: 54px; height: 54px; border-radius: 50%; object-fit: cover; border: 2px solid #2E7D32;">
-                <div>
-                  <h4 style="font-family: 'Playfair Display', serif; font-size: 1.05rem; margin: 0;">Dr. Julian Rostova, MD</h4>
-                  <span style="font-size: 0.72rem; color: #2E7D32; font-weight: 800;">BOARD-CERTIFIED DERMATOLOGIST</span>
-                </div>
-              </div>
-              <p style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.45; margin-bottom: 1rem;">
-                Clinical director specializing in acne vulgaris, rosacea therapeutics, digital prescription management, and optical lesion screening.
-              </p>
-            </div>
-            <button class="btn btn-sm btn-primary" onclick="window.app.openBookingModal(3, 'Dr. Julian Rostova, MD', 'dermatologist')" style="background: #2E7D32; border-color: #2E7D32; font-weight: 700; width: 100%;">
-              Book Medical Prescription Session ($85) →
-            </button>
-          </div>
+      <!-- SECTION 5: PAST CONSULTATION HISTORY -->
+      <section class="glass-card section-margin" style="background: #FFFFFF; padding: 2rem; border-radius: var(--radius-md); border: 1px solid var(--border-light);">
+        <div style="border-bottom: 1px solid var(--border-light); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+          <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3rem; margin: 0 0 0.25rem 0;">Past Consultation Records & Visit Summaries</h3>
+          <p class="text-muted" style="font-size: 0.85rem; margin: 0;">Permanent clinical encounter logs and treatment summaries for your medical records.</p>
+        </div>
 
-          <!-- Specialist 3 -->
-          <div style="background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 1.4rem; display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-              <div style="display: flex; align-items: center; gap: 0.85rem; margin-bottom: 0.85rem;">
-                <img src="assets/doctor_emily.png" alt="Dr. Emily Roberts" style="width: 54px; height: 54px; border-radius: 50%; object-fit: cover; border: 2px solid var(--text-muted);">
-                <div>
-                  <h4 style="font-family: 'Playfair Display', serif; font-size: 1.05rem; margin: 0;">Dr. Emily Roberts, MD</h4>
-                  <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 800;">COSMETIC DERMATOLOGIST</span>
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          ${pastList.map(item => `
+            <div style="background: #FAF9F6; border: 1px solid var(--border-light); border-radius: 6px; padding: 1.1rem 1.4rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+              <div>
+                <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.25rem;">
+                  <strong style="font-size: 0.95rem; color: var(--text-primary);">${item.type}</strong>
+                  <span class="badge badge-success" style="font-size: 0.72rem;">Completed</span>
+                  <span style="font-size: 0.78rem; color: var(--text-muted);">• ${item.date}</span>
+                </div>
+                <div style="font-size: 0.84rem; color: var(--text-secondary); margin-bottom: 0.2rem;">
+                  Clinician: <strong>${item.specialist_name}</strong> (${item.specialist_role === 'dermatologist' ? 'Board-Certified Dermatologist' : 'Lead Esthetician'})
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">Outcome: ${item.outcome_summary}</div>
+              </div>
+              <button class="btn btn-sm btn-outline" onclick="alert('Clinical visit summary downloaded for encounter dated ${item.date}.')" style="font-size: 0.78rem; font-weight: 700;">
+                📄 Download Summary PDF
+              </button>
+            </div>
+          `).join('')}
+        </div>
+      </section>
+    </div>
+  `;
+}
+
+/**
+ * ════════════════════════════════════════════════════════════════
+ * 2. CONSULTANT / ESTHETICIAN APPOINTMENTS WORKSPACE
+ * ════════════════════════════════════════════════════════════════
+ */
+export function renderConsultantAppointmentsPage(consultData = null) {
+  const consultantData = MOCK_CONSULTANT_APPOINTMENTS;
+  const queue = consultantData.today_queue;
+  const requests = consultantData.incoming_requests;
+  const schedule = consultantData.availability_schedule;
+  const history = consultantData.completed_history;
+  const info = consultantData.consultant_info;
+
+  return `
+    <div class="dashboard-wrapper">
+      <!-- HEADER BANNER -->
+      <div class="dashboard-header" style="background: linear-gradient(135deg, #1C1A18 0%, #2D2723 100%); color: #FFFFFF; border-radius: var(--radius-md); padding: 2rem 2.5rem; margin-bottom: 2rem; border: 1px solid rgba(197, 155, 39, 0.3);">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+            <span class="badge badge-warning" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.3rem 0.8rem;">Esthetician Telehealth Workspace</span>
+            <span style="font-size: 0.85rem; color: #EAE6DF;">• ${info.name}</span>
+          </div>
+          <h2 style="color: #FFFFFF; font-family: 'Playfair Display', serif; font-size: 1.85rem; margin: 0 0 0.35rem;">Consultant Appointment Schedule & Regimen Review Queue</h2>
+          <p style="color: #D1CBC4; font-size: 0.9rem; margin: 0;">Manage live client video consultations, review incoming routine optimization requests, maintain esthetician clinic hours, and prepare tailored formulation adjustments.</p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+          <button class="btn btn-outline" onclick="window.app.navigateToView('dashboard')" style="color: #FFFFFF; border-color: rgba(255,255,255,0.3); font-weight: 700;">
+            ← Back to Workspace
+          </button>
+          <button class="btn btn-primary" onclick="alert('Opening client follow-up scheduling scheduler...')" style="font-weight: 700;">
+            + Propose Client Slot
+          </button>
+        </div>
+      </div>
+
+      <!-- METRICS ROW -->
+      <div class="metrics-row" style="margin-bottom: 2rem;">
+        <div class="metric-card">
+          <div class="metric-value" style="color: var(--gold-primary);">${info.today_sessions_count}</div>
+          <div class="metric-label">Today's Video Sessions</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" style="color: var(--accent-amber);">${info.pending_requests_count}</div>
+          <div class="metric-label">Pending Inflow Requests</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">${info.total_hours_this_week}</div>
+          <div class="metric-label">Telehealth Hours (This Week)</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" style="color: var(--accent-emerald);">${info.followups_due}</div>
+          <div class="metric-label">14-Day Follow-ups Due</div>
+        </div>
+      </div>
+
+      <!-- SECTION 1: TODAY'S CLIENT CONSULTATION QUEUE -->
+      <section class="glass-card section-margin" style="background: #FFFFFF; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.75rem; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="font-size: 1.3rem;">📹</span>
+              <h3 style="font-family: 'Playfair Display', serif; font-size: 1.35rem; margin: 0;">Today's Client Telehealth Schedule</h3>
+            </div>
+            <p class="text-muted" style="font-size: 0.85rem; margin: 0.2rem 0 0 0;">Interactive video sessions scheduled for personalized formulation reviews.</p>
+          </div>
+          <span class="badge badge-success" style="font-size: 0.78rem;">🟢 Esthetician Clinic Active</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+          ${queue.map(item => `
+            <div style="background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 1.5rem; border-left: 5px solid var(--gold-primary); box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                  <img src="${item.avatar}" alt="${item.patient_name}" style="width: 54px; height: 54px; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold-primary);">
+                  <div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                      <strong style="font-size: 1.1rem; color: var(--text-primary);">${item.patient_name}</strong>
+                      <span class="badge badge-user" style="font-size: 0.72rem;">Skin: ${item.skin_type}</span>
+                      <span class="badge badge-accent" style="font-size: 0.72rem;">Score: ${item.overall_score} (${item.score_delta})</span>
+                    </div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.2rem;">
+                      ${item.session_type} • <strong>Duration: ${item.duration}</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="text-align: right;">
+                  <div style="font-size: 1rem; font-weight: 800; color: var(--gold-primary); font-family: monospace;">
+                    ⏰ ${item.scheduled_time}
+                  </div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">Encrypted Provider Room</div>
                 </div>
               </div>
-              <p style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.45; margin-bottom: 1rem;">
-                Specialist in photodamage reversal, post-inflammatory hyperpigmentation protocols, and collagen stimulation treatments.
-              </p>
+
+              <div style="background: #FFFFFF; border: 1px solid var(--border-light); border-radius: 6px; padding: 0.85rem 1rem; margin-bottom: 1.25rem; font-size: 0.85rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem; flex-wrap: wrap; gap: 0.5rem;">
+                  <strong style="color: var(--text-primary);">🎯 Session Focus:</strong>
+                  <span style="font-size: 0.75rem; color: var(--accent-emerald); font-weight: 700;">
+                    🛡️ Patient Consent: ${item.patient_consent?.photos ? 'Photos Allowed' : 'Photos Restricted'} • Biomarkers Allowed
+                  </span>
+                </div>
+                <div style="color: var(--text-secondary);">${item.session_goal}</div>
+              </div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; border-top: 1px solid var(--border-light); padding-top: 1rem;">
+                <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+                  <button class="btn btn-sm btn-outline" onclick="window.app.openClientDossierModal(${item.patient_id}, 'assessment')" style="font-size: 0.78rem; padding: 0.4rem 0.9rem;">
+                    📋 Client Dossier
+                  </button>
+                  <button class="btn btn-sm btn-outline" onclick="window.app.openConsultantRegimenModal(${item.patient_id})" style="font-size: 0.78rem; padding: 0.4rem 0.9rem;">
+                    ✨ Edit Regimen
+                  </button>
+                  <button class="btn btn-sm btn-outline" onclick="window.app.openDirectSpecialistChat('user_${item.patient_id}')" style="font-size: 0.78rem; padding: 0.4rem 0.9rem;">
+                    💬 Client Chat
+                  </button>
+                  <button class="btn btn-sm btn-outline" onclick="window.app.openRescheduleModal(${item.id}, '${item.patient_name}', '${item.scheduled_time}')" style="font-size: 0.78rem; padding: 0.4rem 0.9rem;">
+                    ⏱️ Reschedule
+                  </button>
+                </div>
+
+                <button class="btn btn-primary" onclick="window.app.openTelehealthVideoModal(${item.id}, 'consultant', '${item.session_type}', '${item.patient_name}')" style="font-weight: 700; padding: 0.55rem 1.4rem; background: var(--gold-primary); color: #111;">
+                  📹 Start Video Consultation →
+                </button>
+              </div>
             </div>
-            <button class="btn btn-sm btn-outline" onclick="window.app.openBookingModal(7, 'Dr. Emily Roberts, MD', 'dermatologist')" style="font-weight: 700; width: 100%;">
-              Book Aesthetic Consultation ($75) →
-            </button>
+          `).join('')}
+        </div>
+      </section>
+
+      <!-- SECTION 2: INCOMING APPOINTMENT & ROUTINE REQUESTS -->
+      <section class="glass-card section-margin" style="background: #FFFFFF; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.75rem; margin-bottom: 2rem;">
+        <div style="border-bottom: 1px solid var(--border-light); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 1.3rem;">📥</span>
+            <h3 style="font-family: 'Playfair Display', serif; font-size: 1.35rem; margin: 0;">Incoming Consultation Booking Requests (${requests.length})</h3>
           </div>
+          <p class="text-muted" style="font-size: 0.85rem; margin: 0.2rem 0 0 0;">New consultation requests submitted by clients requiring routine optimization.</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1.5rem;">
+          ${requests.map(req => `
+            <div style="background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 1.4rem; display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.85rem;">
+                  <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <img src="${req.avatar}" alt="${req.patient_name}" style="width: 46px; height: 46px; border-radius: 50%; object-fit: cover;">
+                    <div>
+                      <strong style="font-size: 0.95rem; color: var(--text-primary);">${req.patient_name}</strong>
+                      <span class="badge badge-user" style="font-size: 0.7rem; display: block; width: fit-content; margin-top: 0.15rem;">${req.skin_type}</span>
+                    </div>
+                  </div>
+                  <span class="badge badge-warning" style="font-size: 0.72rem;">${req.created_at}</span>
+                </div>
+                <div style="font-size: 0.84rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.35rem;">${req.session_type}</div>
+                <div style="font-size: 0.8rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 0.6rem;">📅 Requested: ${req.requested_time}</div>
+                <p style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.45; background: #FFFFFF; padding: 0.75rem; border-radius: 6px; border: 1px solid var(--border-light); margin: 0 0 1rem 0;">
+                  "${req.reason}"
+                </p>
+              </div>
+
+              <div style="display: flex; gap: 0.6rem;">
+                <button class="btn btn-sm btn-primary" onclick="window.app.handleAcceptBookingRequest(${req.id})" style="flex: 1; font-weight: 700;">
+                  ✅ Accept Slot
+                </button>
+                <button class="btn btn-sm btn-outline" onclick="window.app.openRescheduleModal(${req.id}, '${req.patient_name}', '${req.requested_time}')" style="flex: 1; font-weight: 700;">
+                  🔄 Propose Alt Time
+                </button>
+                <button class="btn btn-sm btn-outline" onclick="window.app.handleDeclineBookingRequest(${req.id})" style="padding: 0.4rem 0.75rem; color: #EF4444;" title="Decline Request">
+                  ✕
+                </button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </section>
+
+      <!-- SECTION 3: WEEKLY AVAILABILITY & PRACTICE HOURS -->
+      <section class="glass-card section-margin" style="background: #FFFFFF; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.75rem; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="font-size: 1.3rem;">📅</span>
+              <h3 style="font-family: 'Playfair Display', serif; font-size: 1.35rem; margin: 0;">Weekly Telehealth Availability & Hours</h3>
+            </div>
+            <p class="text-muted" style="font-size: 0.85rem; margin: 0.2rem 0 0 0;">Configured calendar slots open for patient telehealth bookings.</p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; font-size: 0.82rem; font-weight: 700;">
+              <input type="checkbox" checked onchange="window.app.toggleConsultantAvailability(this.checked)" style="width: 16px; height: 16px; accent-color: var(--gold-primary);">
+              <span>🟢 Accepting Client Bookings</span>
+            </label>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+          ${schedule.days.map(d => `
+            <div style="background: #FAF9F6; border: 1px solid var(--border-light); border-radius: 6px; padding: 1rem;">
+              <strong style="font-size: 0.9rem; color: var(--text-primary); display: block; margin-bottom: 0.5rem;">${d.day}</strong>
+              <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+                ${d.slots.map(s => `
+                  <span style="font-size: 0.75rem; background: #FFFFFF; border: 1px solid var(--border-light); padding: 0.3rem 0.6rem; border-radius: 4px; text-align: center; color: var(--text-secondary); font-weight: 600;">
+                    ${s}
+                  </span>
+                `).join('')}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; color: var(--text-muted); background: #FAF9F6; padding: 0.85rem 1.25rem; border-radius: 6px;">
+          <span>Standard Slot Duration: <strong>${schedule.slot_duration_min} min</strong> • Buffer: <strong>${schedule.buffer_min} min</strong></span>
+          <button class="btn btn-sm btn-outline" onclick="alert('Availability settings saved.')" style="font-size: 0.75rem;">⚙️ Configure Hours</button>
+        </div>
+      </section>
+
+      <!-- SECTION 4: COMPLETED SESSIONS & FOLLOW-UP TRACKER -->
+      <section class="glass-card section-margin" style="background: #FFFFFF; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.75rem;">
+        <div style="border-bottom: 1px solid var(--border-light); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+          <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3rem; margin: 0 0 0.25rem 0;">Completed Consultations & 14-Day Regimen Follow-up</h3>
+          <p class="text-muted" style="font-size: 0.85rem; margin: 0;">Monitor client routine compliance after formulation adjustments.</p>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          ${history.map(item => `
+            <div style="background: #FAF9F6; border: 1px solid var(--border-light); border-radius: 6px; padding: 1.1rem 1.4rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+              <div>
+                <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.25rem;">
+                  <strong style="font-size: 0.95rem; color: var(--text-primary);">${item.patient_name}</strong>
+                  <span class="badge badge-success" style="font-size: 0.72rem;">Encounter Completed</span>
+                  <span style="font-size: 0.78rem; color: var(--text-muted);">• ${item.date}</span>
+                </div>
+                <div style="font-size: 0.84rem; color: var(--text-secondary); margin-bottom: 0.2rem;">
+                  Session: <strong>${item.session_type}</strong> • Routine Change: <em>${item.routine_adjustment}</em>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--accent-emerald); font-weight: 600;">Status: ${item.followup_status}</div>
+              </div>
+              <button class="btn btn-sm btn-outline" onclick="alert('14-Day Check-in note sent to ${item.patient_name} via Telehealth Chat.')" style="font-size: 0.78rem; font-weight: 700;">
+                📩 Send 14-Day Check-in
+              </button>
+            </div>
+          `).join('')}
+        </div>
+      </section>
+    </div>
+  `;
+}
+
+/**
+ * ════════════════════════════════════════════════════════════════
+ * 3. DOCTOR / DERMATOLOGIST APPOINTMENTS & TRIAGE WORKSPACE
+ * ════════════════════════════════════════════════════════════════
+ */
+export function renderDermatologistAppointmentsPage(doctorData = null) {
+  const dermData = MOCK_DERMATOLOGIST_APPOINTMENTS;
+  const patients = dermData.patient_queue;
+  const triageList = dermData.urgent_triage_inflow;
+  const rxList = dermData.prescription_pad_authorizations;
+  const info = dermData.doctor_info;
+
+  return `
+    <div class="dashboard-wrapper">
+      <!-- HEADER BANNER -->
+      <div class="dashboard-header" style="background: linear-gradient(135deg, #18231C 0%, #203527 100%); color: #FFFFFF; border-radius: var(--radius-md); padding: 2rem 2.5rem; margin-bottom: 2rem; border: 1px solid rgba(46, 125, 50, 0.35);">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+            <span class="badge badge-dermatologist" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.3rem 0.8rem; background: rgba(46, 125, 50, 0.3); border: 1px solid #4CAF50; color: #81C784;">Board-Certified Medical Access</span>
+            <span style="font-size: 0.85rem; color: #EAE6DF;">• ${info.name} (${info.license})</span>
+          </div>
+          <h2 style="color: #FFFFFF; font-family: 'Playfair Display', serif; font-size: 1.85rem; margin: 0 0 0.35rem;">Physician Tele-Dermatology Clinic Schedule & Patient Triage</h2>
+          <p style="color: #D1E7DD; font-size: 0.9rem; margin: 0;">Review scheduled clinical video visits, manage urgent triage referrals, inspect AI optical biomarker scans, and issue digital prescriptions during patient encounters.</p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+          <button class="btn btn-outline" onclick="window.app.navigateToView('dashboard')" style="color: #FFFFFF; border-color: rgba(255,255,255,0.3); font-weight: 700;">
+            ← Back to Clinical Portal
+          </button>
+          <button class="btn btn-primary" onclick="window.app.openTelehealthVideoModal(401, 'dermatologist', 'Clinical Diagnostic Session', 'Marcus Vance')" style="background: #2E7D32; border-color: #2E7D32; font-weight: 700;">
+            🩺 Launch Telehealth Call
+          </button>
+        </div>
+      </div>
+
+      <!-- CLINICAL KPIS -->
+      <div class="metrics-row" style="margin-bottom: 2rem;">
+        <div class="metric-card">
+          <div class="metric-value" style="color: #2E7D32;">${info.today_consults_count}</div>
+          <div class="metric-label">Scheduled Clinical Visits (Today)</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" style="color: var(--accent-rose);">${info.urgent_triage_count}</div>
+          <div class="metric-label">Urgent Triage Cases</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" style="color: var(--accent-amber);">${info.pending_rx_count}</div>
+          <div class="metric-label">Prescriptions Pending Signature</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" style="color: var(--accent-emerald);">🟢 ONLINE</div>
+          <div class="metric-label">Telehealth Clinic Status</div>
+        </div>
+      </div>
+
+      <!-- SECTION 1: PATIENT CLINICAL TELEHEALTH QUEUE (TRIAGED) -->
+      <section class="glass-card section-margin" style="background: #FFFFFF; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.75rem; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="font-size: 1.3rem;">🩺</span>
+              <h3 style="font-family: 'Playfair Display', serif; font-size: 1.35rem; margin: 0;">Tele-Dermatology Patient Consultation Roster</h3>
+            </div>
+            <p class="text-muted" style="font-size: 0.85rem; margin: 0.2rem 0 0 0;">Encrypted medical encounters triaged by diagnostic urgency.</p>
+          </div>
+          <span class="badge badge-success" style="font-size: 0.78rem;">PostgreSQL Clinical EHR Connected</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+          ${patients.map(p => `
+            <div style="background: #FAF9F6; border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 1.5rem; border-left: 5px solid ${p.triage_level.includes('Urgent') ? '#EF4444' : p.triage_level.includes('Medium') ? '#D97706' : '#2E7D32'}; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                  <img src="${p.avatar}" alt="${p.patient_name}" style="width: 54px; height: 54px; border-radius: 50%; object-fit: cover; border: 2px solid #2E7D32;">
+                  <div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                      <strong style="font-size: 1.15rem; color: var(--text-primary);">${p.patient_name}</strong>
+                      <span class="badge" style="font-size: 0.72rem; background: #FFFFFF; border: 1px solid var(--border-light);">${p.patient_age}</span>
+                      <span class="badge ${p.triage_level.includes('Urgent') ? 'badge-warning' : 'badge-success'}" style="font-size: 0.72rem; ${p.triage_level.includes('Urgent') ? 'background: #FEE2E2; color: #DC2626; border-color: #F87171;' : ''}">
+                        ${p.triage_badge}
+                      </span>
+                    </div>
+                    <div style="font-size: 0.86rem; color: var(--text-secondary); margin-top: 0.2rem;">
+                      Diagnosis: <strong style="color: #1E6B23;">${p.condition}</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="text-align: right;">
+                  <div style="font-size: 1rem; font-weight: 800; color: #1E6B23; font-family: monospace;">
+                    ⏰ ${p.scheduled_time}
+                  </div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">${p.session_type}</div>
+                </div>
+              </div>
+
+              <!-- Optical Scan Diagnostic Summary HUD -->
+              <div style="background: #FFFFFF; border: 1px solid rgba(46,125,50,0.25); border-radius: 6px; padding: 0.85rem 1rem; margin-bottom: 1.25rem; font-size: 0.84rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem; flex-wrap: wrap; gap: 0.5rem;">
+                  <strong style="color: #1E6B23;">🔬 AI Optical Diagnostic Telemetry:</strong>
+                  <span style="font-size: 0.78rem; color: var(--text-muted);">Active Rx: <strong>${p.active_rx}</strong></span>
+                </div>
+                <div style="color: var(--text-secondary); margin-bottom: 0.3rem;">${p.optical_scan_summary}</div>
+                <div style="font-size: 0.8rem; color: #475569; font-style: italic;">• Clinical Directives: "${p.clinical_directives}"</div>
+              </div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; border-top: 1px solid var(--border-light); padding-top: 1rem;">
+                <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+                  <button class="btn btn-sm btn-outline" onclick="window.app.openDoctorPatientDossierModal(${p.patient_id}, 'diagnosis')" style="font-size: 0.78rem; padding: 0.4rem 0.9rem;">
+                    📄 Medical EHR Dossier
+                  </button>
+                  <button class="btn btn-sm btn-outline" onclick="window.app.openDermatologistRxModal(${p.patient_id})" style="font-size: 0.78rem; padding: 0.4rem 0.9rem;">
+                    💊 Issue / Modify Rx
+                  </button>
+                  <button class="btn btn-sm btn-outline" onclick="window.app.handleDoctorSignEncounterNote(${p.patient_id})" style="font-size: 0.78rem; padding: 0.4rem 0.9rem;">
+                    ✍️ Sign Encounter Notes
+                  </button>
+                  <button class="btn btn-sm btn-outline" onclick="window.app.openDirectSpecialistChat('user_${p.patient_id}')" style="font-size: 0.78rem; padding: 0.4rem 0.9rem;">
+                    💬 Physician Chat
+                  </button>
+                </div>
+
+                <button class="btn btn-primary" onclick="window.app.openTelehealthVideoModal(${p.id}, 'dermatologist', '${p.session_type}', '${p.patient_name}')" style="font-weight: 700; padding: 0.55rem 1.4rem; background: #2E7D32; border-color: #2E7D32; color: #FFFFFF;">
+                  🩺 Launch Clinical Telehealth Call →
+                </button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </section>
+
+      <!-- SECTION 2: URGENT CLINICAL TRIAGE & AI LESION INFLOW -->
+      <section class="glass-card section-margin" style="background: #FFFFFF; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.75rem; margin-bottom: 2rem;">
+        <div style="border-bottom: 1px solid var(--border-light); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 1.3rem;">🚨</span>
+            <h3 style="font-family: 'Playfair Display', serif; font-size: 1.35rem; margin: 0;">Urgent Optical Lesion Screening & Triage Inflow</h3>
+          </div>
+          <p class="text-muted" style="font-size: 0.85rem; margin: 0.2rem 0 0 0;">AI optical scans flagged with elevated biomarker risks requiring physician intervention.</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1.5rem;">
+          ${triageList.map(tr => `
+            <div style="background: #FFF5F5; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-sm); padding: 1.4rem; display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.85rem;">
+                  <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <img src="${tr.avatar}" alt="${tr.patient_name}" style="width: 46px; height: 46px; border-radius: 50%; object-fit: cover; border: 2px solid #EF4444;">
+                    <div>
+                      <strong style="font-size: 0.95rem; color: var(--text-primary);">${tr.patient_name}</strong>
+                      <span class="badge badge-warning" style="font-size: 0.7rem; display: block; width: fit-content; margin-top: 0.15rem; background: #FEE2E2; color: #B91C1C;">${tr.ai_risk_score}</span>
+                    </div>
+                  </div>
+                  <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">${tr.triaged_at}</span>
+                </div>
+                <p style="font-size: 0.82rem; color: #7F1D1D; line-height: 1.45; background: #FFFFFF; padding: 0.75rem; border-radius: 6px; border: 1px solid rgba(239, 68, 68, 0.2); margin: 0 0 0.85rem 0;">
+                  <strong>Flagged:</strong> ${tr.flagged_reason}
+                </p>
+                <div style="font-size: 0.8rem; color: #1E6B23; font-weight: 700; margin-bottom: 1rem;">
+                  ⚡ Action: ${tr.recommended_action}
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 0.6rem;">
+                <button class="btn btn-sm btn-primary" onclick="window.app.openTelehealthVideoModal(${tr.id}, 'dermatologist', 'Urgent Triage Session', '${tr.patient_name}')" style="flex: 1; background: #DC2626; border-color: #DC2626; font-weight: 700;">
+                  ⚡ Fast-Track Video Consult
+                </button>
+                <button class="btn btn-sm btn-outline" onclick="window.app.openDoctorPatientDossierModal(${tr.patient_id}, 'diagnosis')" style="font-weight: 700;">
+                  🔍 Review Dermoscopy
+                </button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </section>
+
+      <!-- SECTION 3: ELECTRONIC PRESCRIPTION (E-RX) PAD -->
+      <section class="glass-card section-margin" style="background: #FFFFFF; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.75rem; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="font-size: 1.3rem;">💊</span>
+              <h3 style="font-family: 'Playfair Display', serif; font-size: 1.35rem; margin: 0;">Electronic Prescription (e-Rx) Pad & Authorizations</h3>
+            </div>
+            <p class="text-muted" style="font-size: 0.85rem; margin: 0.2rem 0 0 0;">Official DEA / NPI Certified digital medical prescriptions issued to clinical patients.</p>
+          </div>
+          <span class="badge badge-success" style="font-size: 0.78rem;">DEA / NPI Verified</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          ${rxList.map(rx => `
+            <div style="background: #FAF9F6; border: 1px solid var(--border-light); border-radius: 6px; padding: 1.1rem 1.4rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+              <div>
+                <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.25rem;">
+                  <strong style="font-size: 0.95rem; color: #1E6B23;">${rx.medication}</strong>
+                  <span class="badge ${rx.status.includes('Authorized') ? 'badge-success' : 'badge-warning'}" style="font-size: 0.72rem;">${rx.status}</span>
+                  <span style="font-size: 0.78rem; color: var(--text-muted); font-family: monospace;">#${rx.id}</span>
+                </div>
+                <div style="font-size: 0.84rem; color: var(--text-secondary); margin-bottom: 0.2rem;">
+                  Patient: <strong>${rx.patient_name}</strong> • Dosage: ${rx.dosage} • Refills: <strong>${rx.refills} Remaining</strong>
+                </div>
+                <div style="font-size: 0.78rem; color: var(--text-muted);">Signed: ${rx.signed_date}</div>
+              </div>
+              <button class="btn btn-sm btn-primary" onclick="window.app.handleDoctorAuthorizeRx('${rx.id}')" style="background: #2E7D32; border-color: #2E7D32; font-size: 0.78rem; font-weight: 700;">
+                ✍️ Authorize & Sign Rx
+              </button>
+            </div>
+          `).join('')}
+        </div>
+      </section>
+
+      <!-- SECTION 4: PRACTICE SETTINGS & ON-CALL PROTOCOL -->
+      <section class="glass-card section-margin" style="background: #FFFFFF; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.75rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <h4 style="font-family: 'Playfair Display', serif; font-size: 1.1rem; margin: 0 0 0.25rem 0;">Hospital Affiliation & e-Prescribe Certification</h4>
+            <p class="text-muted" style="font-size: 0.82rem; margin: 0;">${dermData.practice_settings.hospital_affiliation} • ${dermData.practice_settings.e_prescribe_state}</p>
+          </div>
+          <div style="display: flex; gap: 0.6rem;">
+            <button class="btn btn-sm btn-outline" onclick="alert('Telehealth clinic hours updated.')" style="font-size: 0.78rem;">⚙️ Clinic Configuration</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  `;
+}
+
+/**
+ * ════════════════════════════════════════════════════════════════
+ * 4. ADMIN MASTER APPOINTMENTS & CLINIC CAPACITY WORKSPACE
+ * ════════════════════════════════════════════════════════════════
+ */
+export function renderAdminAppointmentsPage(adminData = null) {
+  const adminAppointments = MOCK_ADMIN_APPOINTMENTS;
+  const kpis = adminAppointments.clinic_kpis;
+  const roster = adminAppointments.specialist_roster;
+
+  return `
+    <div class="dashboard-wrapper">
+      <div class="dashboard-header" style="background: linear-gradient(135deg, #1F1728 0%, #301E42 100%); color: #FFFFFF; border-radius: var(--radius-md); padding: 2rem 2.5rem; margin-bottom: 2rem; border: 1px solid rgba(142, 36, 170, 0.35);">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+            <span class="badge badge-admin" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.3rem 0.8rem;">Platform Administration</span>
+            <span style="font-size: 0.85rem; color: #EAE6DF;">• Clinic Operations Control</span>
+          </div>
+          <h2 style="color: #FFFFFF; font-family: 'Playfair Display', serif; font-size: 1.85rem; margin: 0 0 0.35rem;">Master Telehealth Ledger & Specialist Capacity</h2>
+          <p style="color: #E1D6ED; font-size: 0.9rem; margin: 0;">Monitor platform-wide telehealth session volume, clinician capacity utilization, and patient satisfaction metrics.</p>
+        </div>
+        <button class="btn btn-outline" onclick="window.app.navigateToView('dashboard')" style="color: #FFFFFF; border-color: rgba(255,255,255,0.3); font-weight: 700;">
+          ← Back to Admin Console
+        </button>
+      </div>
+
+      <div class="metrics-row" style="margin-bottom: 2rem;">
+        <div class="metric-card">
+          <div class="metric-value" style="color: var(--admin-color);">${kpis.total_weekly_appointments}</div>
+          <div class="metric-label">Weekly Telehealth Sessions</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" style="color: var(--accent-emerald);">${kpis.completed_sessions}</div>
+          <div class="metric-label">Completed Sessions</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">${kpis.specialist_utilization}</div>
+          <div class="metric-label">Specialist Capacity Utilization</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" style="color: var(--gold-primary);">★ ${kpis.patient_satisfaction_score}</div>
+          <div class="metric-label">Patient Satisfaction Rating</div>
+        </div>
+      </div>
+
+      <section class="glass-card section-margin" style="background: #FFFFFF; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.75rem;">
+        <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3rem; margin: 0 0 1rem 0;">Specialist Telehealth Clinic Roster & Real-Time Capacity</h3>
+        <div class="table-responsive">
+          <table class="data-table" style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="background: #FAF9F6; text-align: left; font-size: 0.8rem; color: var(--text-muted); border-bottom: 1px solid var(--border-light);">
+                <th style="padding: 0.85rem 1rem;">Specialist Name</th>
+                <th style="padding: 0.85rem 1rem;">Role</th>
+                <th style="padding: 0.85rem 1rem;">Daily Slots</th>
+                <th style="padding: 0.85rem 1rem;">Booked Sessions</th>
+                <th style="padding: 0.85rem 1rem;">Clinic Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${roster.map(r => `
+                <tr style="border-bottom: 1px solid var(--border-light); font-size: 0.88rem;">
+                  <td style="padding: 0.85rem 1rem; font-weight: 700;">${r.name}</td>
+                  <td style="padding: 0.85rem 1rem;"><span class="badge ${r.role === 'Dermatologist' ? 'badge-dermatologist' : 'badge-consultant'}">${r.role}</span></td>
+                  <td style="padding: 0.85rem 1rem;">${r.today_slots} slots</td>
+                  <td style="padding: 0.85rem 1rem; font-weight: 700; color: var(--gold-primary);">${r.booked} booked</td>
+                  <td style="padding: 0.85rem 1rem;"><span class="badge badge-success">${r.status}</span></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
         </div>
       </section>
     </div>

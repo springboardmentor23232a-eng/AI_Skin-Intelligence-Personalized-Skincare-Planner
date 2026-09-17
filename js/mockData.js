@@ -1869,4 +1869,457 @@ export function compileClinicalReport(reportType = 'skin_health', userId = 1) {
   return reportObj;
 }
 
+// ════════════════════════════════════════════════════════════════
+// ROLE-SPECIFIC APPOINTMENTS & CLINICAL TELEHEALTH DATASETS
+// ════════════════════════════════════════════════════════════════
+
+export const MOCK_USER_APPOINTMENTS = {
+  active_care: {
+    status: 'Under Active Regimen',
+    last_visit: '24 Nov 2025',
+    next_review: '24 Dec 2025',
+    assigned_consultant: {
+      name: 'Elena Vance, LE',
+      role: 'Lead Clinical Esthetician',
+      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
+      notes: 'Patient showed +54.2% hydration boost. Barrier restored after introducing ceramide night barrier seal.'
+    },
+    assigned_doctor: {
+      name: 'Dr. Julian Rostova, MD',
+      role: 'Board-Certified Dermatologist',
+      avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150',
+      prescription: 'Topical Adapalene 0.1% (PM 3x/wk) + Azelaic Acid 15% (AM)',
+      clinical_notes: 'Follicular retention hyperkeratosis clearing satisfactorily. Maintain current Retinoid cadence.',
+      rx_id: 'RX-84920-ADAP',
+      refills_remaining: 2
+    }
+  },
+  upcoming: [
+    {
+      id: 101,
+      specialist_id: 2,
+      specialist_name: 'Elena Vance, LE',
+      specialist_role: 'consultant',
+      specialist_title: 'Lead Clinical Esthetician',
+      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
+      type: 'Virtual Regimen Review & Barrier Check',
+      scheduled_date: 'Today • 2:30 PM EST',
+      time_countdown: 'In 3 hours',
+      status: 'confirmed',
+      video_ready: true,
+      room_url: '#telehealth-room-101',
+      session_focus: 'Reviewing 18-day progress streak and adapting nighttime ceramide barrier seal.',
+      intake_notes: 'Checking if BHA frequency can be increased from 2x to 3x weekly.'
+    },
+    {
+      id: 102,
+      specialist_id: 3,
+      specialist_name: 'Dr. Julian Rostova, MD',
+      specialist_role: 'dermatologist',
+      specialist_title: 'Board-Certified Dermatologist',
+      avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150',
+      type: 'Clinical Prescription & Lesion Follow-up',
+      scheduled_date: '24 Dec 2025 • 10:00 AM EST',
+      time_countdown: 'In 12 days',
+      status: 'confirmed',
+      video_ready: false,
+      room_url: '#telehealth-room-102',
+      session_focus: 'Adapalene 0.1% tolerance evaluation and optical lesion screening comparison.',
+      intake_notes: 'Periodic check on post-acne pigmentation marks.'
+    }
+  ],
+  past_history: [
+    {
+      id: 90,
+      specialist_name: 'Dr. Julian Rostova, MD',
+      specialist_role: 'dermatologist',
+      date: '24 Nov 2025',
+      type: 'Initial Telehealth Diagnostic & Prescription',
+      diagnosis: 'Mild Comedonal Acne & Post-Acne Erythema',
+      outcome_summary: 'Issued Topical Adapalene 0.1% + Azelaic Acid 15%. Baseline barrier score recorded at 68.5/100.',
+      rx_issued: 'Adapalene 0.1% Gel'
+    },
+    {
+      id: 88,
+      specialist_name: 'Elena Vance, LE',
+      specialist_role: 'consultant',
+      date: '10 Nov 2025',
+      type: 'Comprehensive Regimen Synthesis',
+      diagnosis: 'Trans-epidermal Water Loss & Mild Microcomedones',
+      outcome_summary: 'Formulated AM/PM 4-step barrier support protocol with low-pH cleanser and ceramides.',
+      rx_issued: 'None (Cosmetic Regimen)'
+    }
+  ],
+  sharing_preferences: {
+    consultant: {
+      shared: true,
+      biomarkers: true,
+      photos_and_lesions: true,
+      adherence_and_compliance: true,
+      medical_and_rx_history: false,
+      lifestyle_logs: true
+    },
+    doctor: {
+      shared: true,
+      biomarkers: true,
+      photos_and_lesions: true,
+      adherence_and_compliance: true,
+      medical_and_rx_history: true,
+      lifestyle_logs: true
+    }
+  },
+  specialists_directory: [
+    {
+      id: 2,
+      name: 'Elena Vance, LE',
+      role: 'consultant',
+      title: 'Lead Clinical Esthetician',
+      credentials: 'Licensed Esthetician • 9+ Yrs Clinical Experience',
+      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
+      badge_color: 'var(--gold-primary)',
+      focus_areas: ['Active Ingredient Synergy', 'Barrier Consolidation', 'Acne Non-Comedogenic Routines'],
+      rate: '$45 / 30 min',
+      rating: 4.96,
+      next_slot: 'Today at 4:30 PM EST',
+      available: true
+    },
+    {
+      id: 3,
+      name: 'Dr. Julian Rostova, MD',
+      role: 'dermatologist',
+      title: 'Board-Certified Dermatologist',
+      credentials: 'MD • Harvard Medical School • Clinical Dermatology Director',
+      avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150',
+      badge_color: '#2E7D32',
+      focus_areas: ['Acne Vulgaris', 'Digital Rx Management', 'Optical Lesion Screening', 'Rosacea'],
+      rate: '$85 / 30 min',
+      rating: 4.99,
+      next_slot: 'Tomorrow at 10:00 AM EST',
+      available: true
+    },
+    {
+      id: 7,
+      name: 'Dr. Emily Roberts, MD',
+      role: 'dermatologist',
+      title: 'Cosmetic Dermatologist',
+      credentials: 'MD • Laser & Aesthetic Specialist • Stanford Dermatology',
+      avatar: 'assets/doctor_emily.png',
+      badge_color: '#8E24AA',
+      focus_areas: ['Photodamage Reversal', 'Collagen Stimulation', 'Hyperpigmentation Treatments'],
+      rate: '$75 / 30 min',
+      rating: 4.92,
+      next_slot: 'Dec 18 at 2:00 PM EST',
+      available: true
+    }
+  ]
+};
+
+export const MOCK_CONSULTANT_APPOINTMENTS = {
+  consultant_info: {
+    id: 2,
+    name: 'Elena Vance, LE',
+    role: 'consultant',
+    title: 'Lead Clinical Esthetician & Regimen Specialist',
+    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
+    status: 'Accepting Consultations',
+    today_sessions_count: 3,
+    pending_requests_count: 2,
+    total_hours_this_week: '18.5 hrs',
+    followups_due: 4
+  },
+  today_queue: [
+    {
+      id: 201,
+      patient_id: 1,
+      patient_name: 'Alex Rivera',
+      patient_email: 'user@panacea.ai',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+      skin_type: 'Combination',
+      primary_concerns: ['Acne & Breakouts', 'Compromised Barrier', 'Post-Acne Melanin'],
+      overall_score: 79.4,
+      score_delta: '+10.9 pts',
+      scheduled_time: '2:30 PM EST (In 3 hours)',
+      session_type: 'Virtual Regimen Review & Barrier Check',
+      duration: '30 min',
+      status: 'confirmed',
+      video_ready: true,
+      room_id: 'PANACEA-ROOM-201',
+      session_goal: 'Evaluate 18-day ceramide barrier recovery and advise BHA exfoliant layering.',
+      last_session: '10 Nov 2025',
+      patient_consent: { biomarkers: true, photos: true, adherence: true, rx_history: false }
+    },
+    {
+      id: 202,
+      patient_id: 5,
+      patient_name: 'Sarah Jenkins',
+      patient_email: 'sarah.jenkins@panacea.ai',
+      avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150',
+      skin_type: 'Sensitive / Dry',
+      primary_concerns: ['Erythema & Rosacea', 'Compromised Barrier', 'Flaking'],
+      overall_score: 71.2,
+      score_delta: '+13.2 pts',
+      scheduled_time: '4:00 PM EST (Today)',
+      session_type: 'Soothing Barrier Protocol & Calming Actives',
+      duration: '30 min',
+      status: 'confirmed',
+      video_ready: true,
+      room_id: 'PANACEA-ROOM-202',
+      session_goal: 'Assess facial redness reduction after 2 weeks of Centella Asiatica serum.',
+      last_session: '22 Nov 2025',
+      patient_consent: { biomarkers: true, photos: false, adherence: true, rx_history: false }
+    },
+    {
+      id: 203,
+      patient_id: 6,
+      patient_name: 'Marcus Vance',
+      patient_email: 'marcus.v@panacea.ai',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
+      skin_type: 'Oily / Congested',
+      primary_concerns: ['Severe Cystic Acne', 'High Sebum Excretion', 'Textural Scarring'],
+      overall_score: 65.5,
+      score_delta: '+15.5 pts',
+      scheduled_time: 'Tomorrow • 11:00 AM EST',
+      session_type: 'Sebum Balancing & Cleanser Tolerance Check',
+      duration: '30 min',
+      status: 'scheduled',
+      video_ready: false,
+      room_id: 'PANACEA-ROOM-203',
+      session_goal: 'Check tolerance to foaming cleanser and recommend oil-free lightweight hydration.',
+      last_session: '23 Nov 2025',
+      patient_consent: { biomarkers: true, photos: true, adherence: true, rx_history: false }
+    }
+  ],
+  incoming_requests: [
+    {
+      id: 301,
+      patient_id: 8,
+      patient_name: 'Liam Parker',
+      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150',
+      skin_type: 'Dry / Flaking',
+      requested_time: '16 Dec 2025 • 3:00 PM EST',
+      session_type: 'Winter Barrier Support & Lipid Replenishment',
+      reason: 'Experiencing dry patches around mouth and cheeks with sudden temperature drop. Wants moisturizer upgrade.',
+      created_at: '2 hours ago',
+      status: 'pending'
+    },
+    {
+      id: 302,
+      patient_id: 9,
+      patient_name: 'Maya Lin',
+      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150',
+      skin_type: 'Combination',
+      requested_time: '17 Dec 2025 • 1:30 PM EST',
+      session_type: 'Active Layering: Retinol vs Glycolic Acid',
+      reason: 'Wants to introduce retinol alongside AHA without purging or damaging moisture barrier.',
+      created_at: '5 hours ago',
+      status: 'pending'
+    }
+  ],
+  availability_schedule: {
+    is_active: true,
+    weekly_hours: 'Mon - Fri • 9:00 AM - 5:00 PM EST',
+    slot_duration_min: 30,
+    buffer_min: 10,
+    max_daily_sessions: 8,
+    days: [
+      { day: 'Monday', active: true, slots: ['9:30 AM', '11:00 AM', '2:00 PM', '3:30 PM', '4:30 PM'] },
+      { day: 'Tuesday', active: true, slots: ['10:00 AM', '11:30 AM', '2:30 PM', '4:00 PM'] },
+      { day: 'Wednesday', active: true, slots: ['9:00 AM', '10:30 AM', '1:00 PM', '3:00 PM', '4:30 PM'] },
+      { day: 'Thursday', active: true, slots: ['10:00 AM', '11:30 AM', '2:00 PM', '3:30 PM'] },
+      { day: 'Friday', active: true, slots: ['9:30 AM', '11:00 AM', '1:30 PM', '3:00 PM'] }
+    ]
+  },
+  completed_history: [
+    {
+      id: 195,
+      patient_name: 'Alex Rivera',
+      date: '24 Nov 2025',
+      session_type: 'Barrier Intake & Product Review',
+      routine_adjustment: 'Introduced Ceramide NP Cream & low-pH gentle cleanser.',
+      followup_status: '14-Day Check Scheduled (Today)',
+      client_rating: '⭐⭐⭐⭐⭐'
+    },
+    {
+      id: 194,
+      patient_name: 'Sarah Jenkins',
+      date: '22 Nov 2025',
+      session_type: 'Anti-Flushing Regimen Setup',
+      routine_adjustment: 'Removed physical scrubs. Prescribed Madecassoside Centella soothing ampoule.',
+      followup_status: 'Completed / Following Care Plan',
+      client_rating: '⭐⭐⭐⭐⭐'
+    }
+  ]
+};
+
+export const MOCK_DERMATOLOGIST_APPOINTMENTS = {
+  doctor_info: {
+    id: 3,
+    name: 'Dr. Julian Rostova, MD',
+    role: 'dermatologist',
+    title: 'Board-Certified Dermatologist & Clinical Director',
+    license: 'MED-84920 (Clinical Licensure Active)',
+    avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150',
+    today_consults_count: 4,
+    urgent_triage_count: 2,
+    pending_rx_count: 3,
+    telehealth_status: 'Online & Receiving Patients'
+  },
+  patient_queue: [
+    {
+      id: 401,
+      patient_id: 6,
+      patient_name: 'Marcus Vance',
+      patient_age: '27 Y / Male',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
+      skin_type: 'Oily / Congested',
+      triage_level: 'High Priority (Urgent)',
+      triage_badge: '🚨 URGENT CLINICAL REVIEW',
+      condition: 'Moderate-to-Severe Papulopustular Acne & Inflammatory Lesions',
+      scheduled_time: '10:30 AM EST (In 45 min)',
+      session_type: 'Clinical Prescription & Optical Lesion Rule-out',
+      optical_scan_summary: 'CNN Lesion Score: 11.0 • High Sebum (78%) • Atypical Inflammatory Pattern',
+      active_rx: 'Benzoyl Peroxide 2.5% Wash + Tretinoin 0.025% (PM)',
+      status: 'confirmed',
+      video_ready: true,
+      room_id: 'PANACEA-MD-401',
+      clinical_directives: 'Perform high-resolution tele-dermoscopy of mandibular papules; rule out cystic scarring.'
+    },
+    {
+      id: 402,
+      patient_id: 1,
+      patient_name: 'Alex Rivera',
+      patient_age: '29 Y / Non-Binary',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+      skin_type: 'Combination',
+      triage_level: 'Standard Follow-up',
+      triage_badge: '🟢 ROUTINE CLINICAL CHECK',
+      condition: 'Mild Comedonal Acne & Post-Acne PIH',
+      scheduled_time: '11:30 AM EST (Today)',
+      session_type: 'Topical Adapalene 0.1% 30-Day Evaluation',
+      optical_scan_summary: 'Overall Health: 79.4 (+10.9) • Comedone Reduction: -71.4% • Benign Lesion Score: 8.2',
+      active_rx: 'Topical Adapalene 0.1% + Azelaic Acid 15%',
+      status: 'confirmed',
+      video_ready: true,
+      room_id: 'PANACEA-MD-402',
+      clinical_directives: 'Verify epidermal retinization; check for retinoid dermatitis; authorize 60-day refill.'
+    },
+    {
+      id: 403,
+      patient_id: 5,
+      patient_name: 'Sarah Jenkins',
+      patient_age: '34 Y / Female',
+      avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150',
+      skin_type: 'Sensitive / Dry',
+      triage_level: 'Medium Priority',
+      triage_badge: '🟡 VASCULAR ROSACEA TRIAGE',
+      condition: 'Subacute Erythematotelangiectatic Rosacea',
+      scheduled_time: '2:00 PM EST (Today)',
+      session_type: 'Topical Ivermectin 1% & Erythema Review',
+      optical_scan_summary: 'Erythema Index: 68% (Reduced from 82%) • Vascular Flushing Detected',
+      active_rx: 'Ivermectin 1% Cream (PM) + Ceramide Barrier Balm',
+      status: 'confirmed',
+      video_ready: true,
+      room_id: 'PANACEA-MD-403',
+      clinical_directives: 'Evaluate centella & ivermectin efficacy against demodex-induced flushing.'
+    },
+    {
+      id: 404,
+      patient_id: 10,
+      patient_name: 'David Chen',
+      patient_age: '42 Y / Male',
+      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150',
+      skin_type: 'Normal / Photodamaged',
+      triage_level: 'Standard Follow-up',
+      triage_badge: '🟢 RETIN-A REFILL SESSION',
+      condition: 'Mild Photoaging & Actinic Keratosis Surveillance',
+      scheduled_time: '3:30 PM EST (Today)',
+      session_type: 'Tretinoin 0.05% Prescription Renewal',
+      optical_scan_summary: 'Wrinkle Index: 28 • Photodamage Score: Low • ISIC Lesion Classification: Benign Solar Lentigo',
+      active_rx: 'Tretinoin 0.05% Cream',
+      status: 'confirmed',
+      video_ready: true,
+      room_id: 'PANACEA-MD-404',
+      clinical_directives: 'Renew annual prescription; enforce daily mineral SPF 50+ reapplication protocol.'
+    }
+  ],
+  urgent_triage_inflow: [
+    {
+      id: 501,
+      patient_id: 6,
+      patient_name: 'Marcus Vance',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
+      flagged_reason: 'Severe cystic flare with high inflammatory erythema and sudden pustular breakout.',
+      ai_risk_score: 'Risk: Elevated (11.0 / 100)',
+      triaged_at: '1 hour ago',
+      recommended_action: 'Fast-Track Video Consultation & Prescribe Oral Doxycycline / Topical Clindamycin'
+    },
+    {
+      id: 502,
+      patient_id: 11,
+      patient_name: 'Emma Watson',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+      flagged_reason: 'Optical scan detected asymmetric pigmented macule on left malar cheek. Awaiting physician confirmation.',
+      ai_risk_score: 'Risk: Moderate (14.8 / 100)',
+      triaged_at: '3 hours ago',
+      recommended_action: 'Perform Optical Dermoscopy & In-Person Biopsy Referral if indicated'
+    }
+  ],
+  prescription_pad_authorizations: [
+    {
+      id: 'RX-901',
+      patient_id: 1,
+      patient_name: 'Alex Rivera',
+      medication: 'Topical Adapalene 0.1% Gel + Azelaic Acid 15% Gel',
+      dosage: 'Pea-sized amount to full face PM 3x/wk; Azelaic Acid thin layer AM daily',
+      refills: 2,
+      status: 'Authorized & Certified',
+      signed_date: '24 Nov 2025'
+    },
+    {
+      id: 'RX-902',
+      patient_id: 6,
+      patient_name: 'Marcus Vance',
+      medication: 'Tretinoin 0.025% Cream + Clindamycin 1% Topical Solution',
+      dosage: 'Apply Clindamycin solution AM; Tretinoin cream PM after gentle wash',
+      refills: 3,
+      status: 'Pending Physician Sign-off',
+      signed_date: 'Awaiting Signature'
+    },
+    {
+      id: 'RX-903',
+      patient_id: 5,
+      patient_name: 'Sarah Jenkins',
+      medication: 'Ivermectin 1% Cream (Soolantra equivalent)',
+      dosage: 'Apply once daily at bedtime to affected facial areas',
+      refills: 1,
+      status: 'Authorized & Certified',
+      signed_date: '22 Nov 2025'
+    }
+  ],
+  practice_settings: {
+    telehealth_room_active: true,
+    max_daily_patients: 12,
+    emergency_slots_reserved: 2,
+    hospital_affiliation: 'PanaceaAI Clinical Academic Dermatology Center',
+    e_prescribe_state: 'DEA / NPI Certified e-Rx Active'
+  }
+};
+
+export const MOCK_ADMIN_APPOINTMENTS = {
+  clinic_kpis: {
+    total_weekly_appointments: 38,
+    completed_sessions: 32,
+    pending_confirmations: 6,
+    average_wait_time: '2.4 min',
+    specialist_utilization: '84.6%',
+    patient_satisfaction_score: 4.95
+  },
+  specialist_roster: [
+    { name: 'Dr. Julian Rostova, MD', role: 'Dermatologist', today_slots: 6, booked: 5, status: 'Active (In Telehealth Clinic)' },
+    { name: 'Elena Vance, LE', role: 'Clinical Esthetician', today_slots: 8, booked: 6, status: 'Active (Consulting)' },
+    { name: 'Dr. Emily Roberts, MD', role: 'Cosmetic Dermatologist', today_slots: 4, booked: 3, status: 'Active (Procedure Review)' }
+  ]
+};
+
+
 

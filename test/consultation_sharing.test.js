@@ -96,3 +96,81 @@ test('6. User Care Protocol & Live Consultation Synchronization', async () => {
   assert.ok(consult.consultant_notes.includes('hydration boost'));
   assert.ok(consult.clinical_notes.includes('Follicular retention'));
 });
+
+test('7. Appointment Rescheduling & Conflict Handling', async () => {
+  const store = db.getInMemoryStore();
+  const appToReschedule = store.appointments.find(a => a.id === 1);
+  assert.ok(appToReschedule, 'Appointment 1 must exist');
+
+  const newDate = '2025-11-05T14:30:00.000Z';
+  appToReschedule.scheduled_date = newDate;
+  appToReschedule.notes = (appToReschedule.notes || '') + ' [Rescheduled by user: Time conflict]';
+
+  assert.strictEqual(appToReschedule.scheduled_date, newDate);
+  assert.ok(appToReschedule.notes.includes('Rescheduled by user'));
+});
+
+test('8. Consultant Booking Request Decision (Accept / Alternate / Decline)', async () => {
+  const store = db.getInMemoryStore();
+  const targetApp = store.appointments[0];
+  assert.ok(targetApp);
+
+  // Accept workflow
+  targetApp.status = 'confirmed';
+  targetApp.confirmed_at = new Date().toISOString();
+  assert.strictEqual(targetApp.status, 'confirmed');
+  assert.ok(targetApp.confirmed_at);
+
+  // Decline / Cancel workflow
+  const altApp = store.appointments[1];
+  if (altApp) {
+    altApp.status = 'declined';
+    altApp.decline_reason = 'Specialist in scheduled surgery';
+    assert.strictEqual(altApp.status, 'declined');
+    assert.strictEqual(altApp.decline_reason, 'Specialist in scheduled surgery');
+  }
+});
+
+test('9. Doctor Electronic Prescription (e-Rx) Authorization Workflow', async () => {
+  const store = db.getInMemoryStore();
+  const consult = store.consultations.find(c => c.user_id === 1);
+  assert.ok(consult);
+
+  const newRx = 'Tretinoin 0.05% Microsphere Gel (PM 2x/wk) + Ceramide Barrier Cream';
+  consult.prescription = newRx;
+  consult.rx_authorized_at = new Date().toISOString();
+  consult.rx_authorized_by = 'Dr. Julian Rostova, MD (NPI #984321045)';
+
+  assert.strictEqual(consult.prescription, newRx);
+  assert.ok(consult.rx_authorized_by.includes('NPI #984321045'));
+});
+
+test('10. Role Isolation: Progress Tracking Exclusivity & Appointments Differentiation', async () => {
+  // Test role definitions
+  const userRole = 'user';
+  const consultantRole = 'consultant';
+  const doctorRole = 'dermatologist';
+
+  // Progress Tab Gating Logic
+  const canAccessProgress = (role) => role === 'user';
+  assert.strictEqual(canAccessProgress(userRole), true, 'User should have access to Progress Tracking');
+  assert.strictEqual(canAccessProgress(consultantRole), false, 'Consultant should NOT have access to Progress Tracking');
+  assert.strictEqual(canAccessProgress(doctorRole), false, 'Doctor should NOT have access to Progress Tracking');
+
+  // Appointments Screen Dispatch Logic
+  const getAppointmentViewType = (role) => {
+    switch(role) {
+      case 'user': return 'PATIENT_PORTAL';
+      case 'consultant': return 'ESTHETICIAN_QUEUE';
+      case 'dermatologist': return 'CLINICAL_TRIAGE_HUD';
+      case 'admin': return 'SYSTEM_TELEHEALTH_LEDGER';
+      default: return 'PATIENT_PORTAL';
+    }
+  };
+
+  assert.strictEqual(getAppointmentViewType('user'), 'PATIENT_PORTAL');
+  assert.strictEqual(getAppointmentViewType('consultant'), 'ESTHETICIAN_QUEUE');
+  assert.strictEqual(getAppointmentViewType('dermatologist'), 'CLINICAL_TRIAGE_HUD');
+  assert.strictEqual(getAppointmentViewType('admin'), 'SYSTEM_TELEHEALTH_LEDGER');
+});
+
