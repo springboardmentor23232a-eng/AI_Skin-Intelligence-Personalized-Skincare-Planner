@@ -1,182 +1,73 @@
+function getBaseUrl() {
+    if (typeof window.APP_CONFIG !== "undefined" && window.APP_CONFIG.API_BASE_URL) {
+        return window.APP_CONFIG.API_BASE_URL;
+    }
+    const isLocalHost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    return isLocalHost ? "http://127.0.0.1:8000" : window.location.origin;
+}
+
 async function login(){
 
     const email = document.getElementById("email").value;
-
     const password = document.getElementById("password").value;
 
-
-    try{
-
-
-        const baseUrl = (typeof window.APP_CONFIG !== "undefined" && window.APP_CONFIG.API_BASE_URL) ? window.APP_CONFIG.API_BASE_URL : "http://127.0.0.1:8000";
+    try {
+        const baseUrl = getBaseUrl();
+        console.log("Attempting login via API base URL:", baseUrl);
 
         const response = await fetch(
             `${baseUrl}/api/auth/login`,
             {
-
-                method:"POST",
-
-                headers:{
-                    "Content-Type":"application/json"
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
                 },
-
-                body:JSON.stringify({
-
+                body: JSON.stringify({
                     email: email,
-
                     password: password
-
                 })
-
             }
         );
 
-
-
         const data = await response.json();
-
-
         console.log("Login Response:", data);
 
-
-
-        if(response.ok){
-
-
-            // Save JWT token
-
+        if (response.ok) {
             localStorage.setItem(
                 "token",
                 data.token || data.access_token
             );
 
-
-
-            // Get role safely
-
-            const role = 
-            (data.role || "user").toLowerCase();
-
-
-
-            localStorage.setItem(
-                "role",
-                role
-            );
-
-
+            const role = (data.user && data.user.role ? data.user.role : data.role || "user").toLowerCase();
+            localStorage.setItem("role", role);
 
             alert("Login Successful");
 
-
-
-            // Role based dashboard redirect
-
-            if(role === "user"){
-
-                window.location.href =
-                "user-dashboard.html";
-
+            if (role === "admin") {
+                window.location.href = "admin-dashboard.html";
+            } else if (role === "consultant") {
+                window.location.href = "consultant-dashboard.html";
+            } else if (role === "dermatologist") {
+                window.location.href = "dermatologist-dashboard.html";
+            } else {
+                window.location.href = "user-dashboard.html";
             }
-
-
-            else if(role === "admin"){
-
-                window.location.href =
-                "admin-dashboard.html";
-
-            }
-
-
-            else if(role === "consultant"){
-
-                window.location.href =
-                "consultant-dashboard.html";
-
-            }
-
-
-            else if(role === "dermatologist"){
-
-                window.location.href =
-                "dermatologist-dashboard.html";
-
-            }
-
-
-            else{
-
-                window.location.href =
-                "user-dashboard.html";
-
-            }
-
-
-
+        } else {
+            alert(data.message || data.detail || "Login failed");
         }
-
-
-        else{
-
-
-            alert(
-                data.detail || "Login failed"
-            );
-
-
-        }
-
-
-
+    } catch (error) {
+        console.error("Login Error:", error);
+        alert("Server error: " + error.message);
     }
-
-
-    catch(error){
-
-
-        console.error(
-            "Login Error:",
-            error
-        );
-
-
-        alert(
-            "Server error"
-        );
-
-
-    }
-
-
 }
 
-
-
-
-
-// Google OAuth Login
-
 function googleLogin(){
-    const baseUrl = (typeof window.APP_CONFIG !== "undefined" && window.APP_CONFIG.API_BASE_URL) ? window.APP_CONFIG.API_BASE_URL : "http://127.0.0.1:8000";
+    const baseUrl = getBaseUrl();
     window.location.href = `${baseUrl}/auth/google`;
 }
 
-
-
-
-
-// Logout
-
 function logout(){
-
-
     localStorage.removeItem("token");
-
     localStorage.removeItem("role");
-
-
-    window.location.href =
-    "login.html";
-
-
+    window.location.href = "login.html";
 }
