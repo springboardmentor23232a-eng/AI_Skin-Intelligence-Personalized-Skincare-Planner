@@ -28,6 +28,24 @@ app.get("/api/test", (req, res) => {
     res.json({ status: "ok", message: "AI Skin Backend API is active" });
 });
 
+app.get("/api/db-status", async (req, res) => {
+    try {
+        const pool = require("./db");
+        const result = await pool.query("SELECT NOW()");
+        res.json({
+            connected: true,
+            database_url_configured: !!process.env.DATABASE_URL,
+            server_time: result.rows[0].now
+        });
+    } catch (err) {
+        res.status(500).json({
+            connected: false,
+            database_url_configured: !!process.env.DATABASE_URL,
+            error: err.message
+        });
+    }
+});
+
 
 
 const allowedOrigins = process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(",") : "*";
