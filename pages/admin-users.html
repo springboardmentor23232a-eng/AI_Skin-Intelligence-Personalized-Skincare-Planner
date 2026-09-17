@@ -885,9 +885,10 @@ async function loadUsers() {
 
 
     try {
+        const baseUrl = (typeof window.APP_CONFIG !== "undefined" && window.APP_CONFIG.API_BASE_URL) ? window.APP_CONFIG.API_BASE_URL : (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" ? "http://127.0.0.1:8000" : window.location.origin);
 
         const response = await fetch(
-            "http://127.0.0.1:8000/api/auth/admin/users",
+            `${baseUrl}/api/auth/admin/users`,
             {
 
                 method: "GET",
@@ -1407,12 +1408,12 @@ async function removeUser(
 
 
     try {
-
+        const baseUrl = (typeof window.APP_CONFIG !== "undefined" && window.APP_CONFIG.API_BASE_URL) ? window.APP_CONFIG.API_BASE_URL : (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" ? "http://127.0.0.1:8000" : window.location.origin);
 
         const response =
             await fetch(
 
-                "http://127.0.0.1:8000/api/auth/admin/users/" +
+                `${baseUrl}/api/auth/admin/users/` +
                 userId,
 
                 {
