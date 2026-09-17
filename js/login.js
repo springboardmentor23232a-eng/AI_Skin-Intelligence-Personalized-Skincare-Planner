@@ -9,6 +9,8 @@ function getBaseUrl() {
 async function login(){
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
+    const roleSelect = document.getElementById("role");
+    const selectedRole = roleSelect ? roleSelect.value.toLowerCase() : "";
 
     try {
         const baseUrl = getBaseUrl();
@@ -23,7 +25,8 @@ async function login(){
                 },
                 body: JSON.stringify({
                     email: email,
-                    password: password
+                    password: password,
+                    role: selectedRole
                 })
             }
         );
@@ -46,16 +49,24 @@ async function login(){
                 data.token || data.access_token || "sample_jwt_token_123"
             );
 
-            const role = (data.user && data.user.role ? data.user.role : data.role || "user").toLowerCase();
-            localStorage.setItem("role", role);
+            let role = selectedRole || (data.user && data.user.role ? data.user.role : data.role) || "";
+            role = role.toLowerCase();
 
-            alert("Login Successful");
+            if (!role) {
+                const lowEmail = email.toLowerCase();
+                if (lowEmail.includes("admin")) role = "admin";
+                else if (lowEmail.includes("consultant")) role = "consultant";
+                else if (lowEmail.includes("derm") || lowEmail.includes("doctor")) role = "dermatologist";
+                else role = "user";
+            }
+
+            localStorage.setItem("role", role);
 
             if (role === "admin") {
                 window.location.href = "admin-dashboard.html";
             } else if (role === "consultant") {
                 window.location.href = "consultant-dashboard.html";
-            } else if (role === "dermatologist") {
+            } else if (role === "dermatologist" || role === "doctor") {
                 window.location.href = "dermatologist-dashboard.html";
             } else {
                 window.location.href = "user-dashboard.html";

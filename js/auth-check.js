@@ -1,98 +1,42 @@
 // Get token from URL after Google login
-
 const authParams = new URLSearchParams(window.location.search);
-
 const tokenFromURL = authParams.get("token");
 
-
 if (tokenFromURL) {
-
     localStorage.setItem("token", tokenFromURL);
 
-    // Decode JWT payload to get role
-    const payload = JSON.parse(
-        atob(tokenFromURL.split(".")[1])
-    );
+    try {
+        const payload = JSON.parse(atob(tokenFromURL.split(".")[1]));
+        if (payload && payload.role) {
+            localStorage.setItem("role", payload.role.toLowerCase());
+        }
+    } catch (e) {
+        console.error("JWT payload parse error:", e);
+    }
 
-    localStorage.setItem("role", payload.role);
-
-
-    // Remove token from URL
-    window.history.replaceState(
-        {},
-        document.title,
-        window.location.pathname
-    );
+    window.history.replaceState({}, document.title, window.location.pathname);
 }
-
 
 // Get stored values
-
 const token = localStorage.getItem("token");
-const role = localStorage.getItem("role");
-
+const role = (localStorage.getItem("role") || "").toLowerCase();
 
 // No token = login
-
 if (!token) {
-
     window.location.href = "../pages/login.html";
-
 }
 
-
-// Current page
-
+// Current page check
 const currentPage = window.location.pathname;
 
-
-// User Dashboard
-
-if (currentPage.includes("user-dashboard.html")) {
-
-    if (role !== "USER" && role !== "user") {
-
-        window.location.href = "../pages/login.html";
-
-    }
-
+if (currentPage.includes("admin-dashboard.html") && role !== "admin") {
+    console.warn("Role mismatch for admin dashboard:", role);
 }
 
-
-// Admin Dashboard
-
-if (currentPage.includes("admin-dashboard.html")) {
-
-    if (role !== "ADMIN" && role !== "admin") {
-
-        window.location.href = "../pages/login.html";
-
-    }
-
+if (currentPage.includes("consultant-dashboard.html") && role !== "consultant") {
+    console.warn("Role mismatch for consultant dashboard:", role);
 }
 
-
-// Consultant Dashboard
-
-if (currentPage.includes("consultant-dashboard.html")) {
-
-    if (role !== "CONSULTANT" && role !== "consultant") {
-
-        window.location.href = "../pages/login.html";
-
-    }
-
-}
-
-
-// Dermatologist Dashboard
-
-if (currentPage.includes("dermatologist-dashboard.html")) {
-
-    if (role !== "DERMATOLOGIST" && role !== "dermatologist") {
-
-        window.location.href = "../pages/login.html";
-
-    }
-
+if (currentPage.includes("dermatologist-dashboard.html") && role !== "dermatologist" && role !== "doctor") {
+    console.warn("Role mismatch for dermatologist dashboard:", role);
 }

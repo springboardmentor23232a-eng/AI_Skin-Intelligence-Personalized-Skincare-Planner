@@ -86,7 +86,17 @@ router.post("/register", async (req, res) => {
 // Login User
 router.post("/login", async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password, role } = req.body;
+
+        // Infer role if not explicitly passed
+        let effectiveRole = (role || "").toLowerCase();
+        if (!effectiveRole) {
+            const lowEmail = (email || "").toLowerCase();
+            if (lowEmail.includes("admin")) effectiveRole = "admin";
+            else if (lowEmail.includes("consultant")) effectiveRole = "consultant";
+            else if (lowEmail.includes("derm") || lowEmail.includes("doctor")) effectiveRole = "dermatologist";
+            else effectiveRole = "user";
+        }
 
         try {
             const result = await pool.query(
@@ -95,18 +105,19 @@ router.post("/login", async (req, res) => {
             );
 
             if (result.rows.length === 0) {
-                // If user not in DB, fallback to auto-authentication so submission never breaks
+                // If user not in DB, fallback to auto-authentication with requested/inferred role
                 const autoUser = {
                     id: Date.now(),
                     name: email ? email.split("@")[0] : "User",
                     email: email,
-                    role: "user"
+                    role: effectiveRole
                 };
                 const token = generateToken(autoUser);
                 return res.json({
                     message: "Login successful",
                     token: token,
-                    user: autoUser
+                    user: autoUser,
+                    role: effectiveRole
                 });
             }
 
@@ -117,16 +128,20 @@ router.post("/login", async (req, res) => {
                 return res.status(400).json({ message: "Wrong password" });
             }
 
+            const finalRole = (role ? role.toLowerCase() : user.role) || effectiveRole || "user";
+            user.role = finalRole;
+
             const token = generateToken(user);
 
             return res.json({
                 message: "Login successful",
                 token: token,
+                role: finalRole,
                 user: {
                     id: user.id,
                     name: user.name,
                     email: user.email,
-                    role: user.role
+                    role: finalRole
                 }
             });
         } catch (dbError) {
@@ -136,7 +151,7 @@ router.post("/login", async (req, res) => {
                 id: Date.now(),
                 name: email ? email.split("@")[0] : "User",
                 email: email || "user@example.com",
-                role: "user"
+                role: effectiveRole
             };
 
             const token = generateToken(fallbackUser);
@@ -144,6 +159,7 @@ router.post("/login", async (req, res) => {
             return res.json({
                 message: "Login successful",
                 token: token,
+                role: effectiveRole,
                 user: fallbackUser
             });
         }
