@@ -1,4 +1,4 @@
-\# GlowSense AI – AI Skin Intelligence \& Personalized Skincare Planner
+﻿# GlowSense AI – AI Skin Intelligence & Personalized Skincare Planner
 
 
 
@@ -6,43 +6,43 @@ GlowSense AI is an AI-assisted personalized skincare web application that helps 
 
 
 
-\## ✨ Key Features
+## ✨ Key Features
 
 
 
-\* 🔐 User authentication and role-based access
+* 🔐 User authentication and role-based access
 
-\* 🧴 Personalized skin assessment
+* 🧴 Personalized skin assessment
 
-\* 🤖 AI-assisted skin intelligence
+* 🤖 AI-assisted skin intelligence
 
-\* 🌅 Morning and evening skincare routines
+* 🌅 Morning and evening skincare routines
 
-\* 📅 Weekly and seasonal skincare routines
+* 📅 Weekly and seasonal skincare routines
 
-\* 🧪 Ingredient intelligence and interaction analysis
+* 🧪 Ingredient intelligence and interaction analysis
 
-\* 🛍️ Personalized product recommendations
+* 🛍️ Personalized product recommendations
 
-\* 📊 Skin Health Score
+* 📊 Skin Health Score
 
-\* 📈 Skin progress and trend analysis
+* 📈 Skin progress and trend analysis
 
-\* ✅ Routine adherence tracking
+* ✅ Routine adherence tracking
 
-\* 👤 User Dashboard
+* 👤 User Dashboard
 
-\* 👨‍💼 Consultant Dashboard
+* 👨‍💼 Consultant Dashboard
 
-\* 👩‍⚕️ Dermatologist Dashboard
+* 👩‍⚕️ Dermatologist Dashboard
 
-\* 🛠️ Admin Dashboard
+* 🛠️ Admin Dashboard
 
-\* 💬 Consultation and recommendation workflows
+* 💬 Consultation and recommendation workflows
 
 
 
-\## 📚 Project Modules
+## 📚 Project Modules
 
 
 
@@ -50,7 +50,7 @@ GlowSense AI is an AI-assisted personalized skincare web application that helps 
 
 | --------- | --------------------------------------- |
 
-| Module 1  | User Authentication \& Role-Based Access |
+| Module 1  | User Authentication & Role-Based Access |
 
 | Module 2  | Skin Profile Management                 |
 
@@ -64,19 +64,19 @@ GlowSense AI is an AI-assisted personalized skincare web application that helps 
 
 | Module 7  | Skin Health Scoring Engine              |
 
-| Module 8  | Progress Tracking \& Analytics           |
+| Module 8  | Progress Tracking & Analytics           |
 
-| Module 9  | Dashboard \& Analytics                   |
+| Module 9  | Dashboard & Analytics                   |
 
-| Module 10 | Notification \& Reminder System          |
+| Module 10 | Notification & Reminder System          |
 
-| Module 11 | Reports \& Export System                 |
+| Module 11 | Reports & Export System                 |
 
-| Module 12 | Final Integration, Testing \& Deployment |
+| Module 12 | Final Integration, Testing & Deployment |
 
 
 
-\## 🧴 Personalized Routine Generator
+## 🧴 Personalized Routine Generator
 
 
 
@@ -88,13 +88,13 @@ Routine types include:
 
 
 
-\* Morning routine
+* Morning routine
 
-\* Evening routine
+* Evening routine
 
-\* Weekly routine
+* Weekly routine
 
-\* Seasonal routine
+* Seasonal routine
 
 
 
@@ -102,7 +102,7 @@ Routine categories include cleansing, exfoliation, treatment, moisturizing, sun 
 
 
 
-\## 🧪 Ingredient Intelligence
+## 🧪 Ingredient Intelligence
 
 
 
@@ -114,13 +114,13 @@ It supports analysis related to:
 
 
 
-\* Ingredient suitability
+* Ingredient suitability
 
-\* Ingredient interactions
+* Ingredient interactions
 
-\* Allergy-related conflicts
+* Allergy-related conflicts
 
-\* Ingredient education
+* Ingredient education
 
 
 
@@ -128,7 +128,7 @@ Examples include Retinoids, Niacinamide, Vitamin C, Hyaluronic Acid, Salicylic A
 
 
 
-\## 🛍️ Product Recommendations
+## 🛍️ Product Recommendations
 
 
 
@@ -140,17 +140,17 @@ Product information can include:
 
 
 
-\* Product name
+* Product name
 
-\* Product image
+* Product image
 
-\* Price
+* Price
 
-\* Product suitability
+* Product suitability
 
-\* Ingredient considerations
+* Ingredient considerations
 
-\* External shopping links
+* External shopping links
 
 
 
@@ -158,7 +158,7 @@ Suitability can consider skin type, skin concerns, sensitivity, allergies, and i
 
 
 
-\## 📊 Skin Health Score
+## 📊 Skin Health Score
 
 
 
@@ -170,7 +170,7 @@ Historical scores can be used to observe changes over time.
 
 
 
-\## 📈 Progress Tracking \& Analytics
+## 📈 Progress Tracking & Analytics
 
 
 
@@ -178,19 +178,19 @@ Module 8 provides:
 
 
 
-\* Skin progress monitoring
+* Skin progress monitoring
 
-\* Routine adherence tracking
+* Routine adherence tracking
 
-\* Improvement analysis
+* Improvement analysis
 
-\* Before/after comparison support
+* Before/after comparison support
 
-\* Trend analysis
+* Trend analysis
 
 
 
-Routine completion information is persisted using the `routine\_completions` data model.
+Routine completion information is persisted using the `routine_completions` data model.
 
 
 
@@ -198,23 +198,23 @@ Progress analysis can include:
 
 
 
-\* Acne
+* Acne
 
-\* Pigmentation
+* Pigmentation
 
-\* Redness
+* Redness
 
-\* Dryness
+* Dryness
 
-\* Oiliness
+* Oiliness
 
-\* Sensitivity
+* Sensitivity
 
-\* Hydration
+* Hydration
 
-\* Fine lines
+* Fine lines
 
-\* Visible pores
+* Visible pores
 
 
 
@@ -222,11 +222,11 @@ The application uses real stored data rather than fabricated progress values.
 
 
 
-\## 📊 Dashboard \& Analytics
+## 📊 Dashboard & Analytics
 
 
 
-\### User Dashboard
+### User Dashboard
 
 
 
@@ -234,19 +234,19 @@ Provides access to:
 
 
 
-\* Skin Health Score
+* Skin Health Score
 
-\* Personalized Routine
+* Personalized Routine
 
-\* Product Recommendations
+* Product Recommendations
 
-\* Progress Tracking
+* Progress Tracking
 
-\* Routine Adherence
+* Routine Adherence
 
 
 
-\### Consultant Dashboard
+### Consultant Dashboard
 
 
 
@@ -254,7 +254,7 @@ Provides consultant-specific workflows including recommendation management and u
 
 
 
-\### Dermatologist Dashboard
+### Dermatologist Dashboard
 
 
 
@@ -262,7 +262,7 @@ Provides dermatologist-specific workflows including treatment recommendations an
 
 
 
-\### Admin Dashboard
+### Admin Dashboard
 
 
 
@@ -270,85 +270,85 @@ Provides administrative monitoring and analytics including:
 
 
 
-\* Platform Analytics
+* Platform Analytics
 
-\* Recommendation Monitoring
+* Recommendation Monitoring
 
-\* System Reports
+* System Reports
 
-\* Routine statistics
+* Routine statistics
 
-\* Product recommendation statistics
+* Product recommendation statistics
 
-\* Feedback statistics
-
-
-
-\## 🏗️ Technology Stack
+* Feedback statistics
 
 
 
-\### Frontend
+## 🏗️ Technology Stack
 
 
 
-\* HTML5
-
-\* CSS3
-
-\* JavaScript
-
-\* Vite
+### Frontend
 
 
 
-\### Backend
+* HTML5
+
+* CSS3
+
+* JavaScript
+
+* Vite
 
 
 
-\* Node.js
-
-\* Express.js
+### Backend
 
 
 
-\### Database
+* Node.js
+
+* Express.js
 
 
 
-\* Supabase
-
-\* PostgreSQL
+### Database
 
 
 
-\### Authentication
+* Supabase
+
+* PostgreSQL
 
 
 
-\* Supabase Authentication
+### Authentication
 
 
 
-\### AI / ML
+* Supabase Authentication
 
 
 
-\* Gemini / configured ML services
+### AI / ML
 
 
 
-\### Version Control
+* Gemini / configured ML services
 
 
 
-\* Git
-
-\* GitHub
+### Version Control
 
 
 
-\## 🗄️ Database
+* Git
+
+* GitHub
+
+
+
+## 🗄️ Database
 
 
 
@@ -356,45 +356,45 @@ Important database tables include:
 
 
 
-\* `profiles`
+* `profiles`
 
-\* `user\_profiles`
+* `user_profiles`
 
-\* `skin\_assessments`
+* `skin_assessments`
 
-\* `assessment\_concerns`
+* `assessment_concerns`
 
-\* `assessment\_risks`
+* `assessment_risks`
 
-\* `recommendations`
+* `recommendations`
 
-\* `consultation\_requests`
+* `consultation_requests`
 
-\* `consultations`
+* `consultations`
 
-\* `routines`
+* `routines`
 
-\* `routine\_feedback`
+* `routine_feedback`
 
-\* `adaptive\_updates`
+* `adaptive_updates`
 
-\* `products`
+* `products`
 
-\* `product\_recommendations`
+* `product_recommendations`
 
-\* `ingredients`
+* `ingredients`
 
-\* `ingredient\_interactions`
+* `ingredient_interactions`
 
-\* `ingredient\_analyses`
+* `ingredient_analyses`
 
-\* `skin\_health\_scores`
+* `skin_health_scores`
 
-\* `routine\_completions`
+* `routine_completions`
 
 
 
-\## 📁 Project Structure
+## 📁 Project Structure
 
 
 
@@ -426,9 +426,9 @@ infosys-glowsense/
 
 ├── Documentation/
 
-│   ├── GlowSense\_AI\_Technical\_Documentation.docx
+│   ├── GlowSense_AI_Technical_Documentation.docx
 
-│   └── GlowSense\_AI\_User\_Guide.docx
+│   └── GlowSense_AI_User_Guide.docx
 
 │
 
@@ -440,11 +440,11 @@ infosys-glowsense/
 
 
 
-\## ⚙️ Installation \& Setup
+## ⚙️ Installation & Setup
 
 
 
-\### 1. Clone the repository
+### 1. Clone the repository
 
 
 
@@ -458,7 +458,7 @@ cd infosys-glowsense
 
 
 
-\### 2. Install dependencies
+### 2. Install dependencies
 
 
 
@@ -470,7 +470,7 @@ npm install
 
 
 
-\### 3. Configure environment variables
+### 3. Configure environment variables
 
 
 
@@ -482,7 +482,7 @@ Do not expose private API keys or service-role credentials in frontend code or G
 
 
 
-\### 4. Start the application
+### 4. Start the application
 
 
 
@@ -498,7 +498,7 @@ Open the Vite URL displayed in the terminal.
 
 
 
-\## 🔐 Authentication \& Roles
+## 🔐 Authentication & Roles
 
 
 
@@ -510,13 +510,13 @@ The application supports role-based dashboards for:
 
 
 
-\* User
+* User
 
-\* Skincare Consultant
+* Skincare Consultant
 
-\* Dermatologist
+* Dermatologist
 
-\* Administrator
+* Administrator
 
 
 
@@ -524,7 +524,7 @@ Users are directed to the appropriate dashboard after authentication.
 
 
 
-\## 🧪 Testing
+## 🧪 Testing
 
 
 
@@ -532,25 +532,25 @@ The project includes validation such as:
 
 
 
-\* JavaScript syntax checks
+* JavaScript syntax checks
 
-\* HTML structure checks
+* HTML structure checks
 
-\* Duplicate-ID checks
+* Duplicate-ID checks
 
-\* Database migration checks
+* Database migration checks
 
-\* Dashboard feature checks
+* Dashboard feature checks
 
-\* Routine completion persistence checks
+* Routine completion persistence checks
 
-\* Product recommendation checks
+* Product recommendation checks
 
-\* Loading, empty, and error-state checks
+* Loading, empty, and error-state checks
 
 
 
-\## 📖 Documentation
+## 📖 Documentation
 
 
 
@@ -558,13 +558,13 @@ Detailed documentation is available in the `Documentation` folder:
 
 
 
-\* \*\*GlowSense AI Technical Documentation\*\* – technical architecture, modules, database, setup, testing, and security.
+* **GlowSense AI Technical Documentation** – technical architecture, modules, database, setup, testing, and security.
 
-\* \*\*GlowSense AI User Guide\*\* – instructions for using the application's major features and dashboards.
+* **GlowSense AI User Guide** – instructions for using the application's major features and dashboards.
 
 
 
-\## 🔒 Security
+## 🔒 Security
 
 
 
@@ -572,21 +572,21 @@ The application should follow these practices:
 
 
 
-\* Keep private credentials secure.
+* Keep private credentials secure.
 
-\* Use authenticated sessions for protected data.
+* Use authenticated sessions for protected data.
 
-\* Apply appropriate database access policies.
+* Apply appropriate database access policies.
 
-\* Validate API inputs.
+* Validate API inputs.
 
-\* Do not expose sensitive user information.
+* Do not expose sensitive user information.
 
-\* Never commit private API keys or service credentials.
+* Never commit private API keys or service credentials.
 
 
 
-\## 🚀 Future Enhancements
+## 🚀 Future Enhancements
 
 
 
@@ -594,27 +594,29 @@ Possible future improvements include:
 
 
 
-\* Advanced longitudinal skin analytics
+* Advanced longitudinal skin analytics
 
-\* Expanded product catalog integrations
+* Expanded product catalog integrations
 
-\* Additional AI/ML capabilities
+* Additional AI/ML capabilities
 
-\* More automated end-to-end testing
+* More automated end-to-end testing
 
-\* Improved deployment automation
-
-
-
-\## 👩‍💻 Project
+* Improved deployment automation
 
 
 
-\*\*GlowSense AI – Skin Intelligence \& Personalized Skincare Planner\*\*
+## 👩‍💻 Project
+
+
+
+**GlowSense AI – Skin Intelligence & Personalized Skincare Planner**
 
 
 
 An integrated skincare intelligence platform combining assessment, personalization, AI-assisted recommendations, ingredient intelligence, skin health scoring, progress tracking, and role-based analytics.
+
+
 
 
 
