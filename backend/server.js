@@ -24,6 +24,10 @@ app.get("/test", (req, res) => {
 
 });
 
+app.get("/api/test", (req, res) => {
+    res.json({ status: "ok", message: "AI Skin Backend API is active" });
+});
+
 
 
 const allowedOrigins = process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(",") : "*";
