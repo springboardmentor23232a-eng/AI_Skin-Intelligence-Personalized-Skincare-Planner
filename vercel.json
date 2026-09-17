@@ -1,27 +1,14 @@
 {
   "version": 2,
-  "name": "ai-skin-intelligence",
-  "builds": [
+  "cleanUrls": true,
+  "rewrites": [
     {
-      "src": "**/*",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "https://YOUR_BACKEND_URL_HERE.onrender.com/api/$1"
+      "source": "/api/:path*",
+      "destination": "https://skin-ai-backend.onrender.com/api/:path*"
     },
     {
-      "src": "/engine/(.*)",
-      "dest": "https://YOUR_FASTAPI_URL_HERE.onrender.com/$1"
-    },
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
+      "source": "/engine/:path*",
+      "destination": "https://skin-ai-engine.onrender.com/:path*"
     }
   ]
 }
